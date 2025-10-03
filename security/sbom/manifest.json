@@ -1,0 +1,58 @@
+{
+  "sbom_manifest_version": "1.0.0",
+  "generated_at": "2025-10-03T22:15:00Z",
+  "repository": "peschull/menschlichkeit-oesterreich-development",
+  "branch": "chore/figma-mcp-make",
+  "commit": "ff9c48ed",
+  "sboms": [
+    {
+      "name": "root-project",
+      "path": "security/sbom/root-project.json",
+      "size_bytes": 1887436,
+      "type": "monorepo-root",
+      "format": "CycloneDX 1.5",
+      "language": "javascript",
+      "component_count": 1247,
+      "description": "Monorepo root with all npm workspaces"
+    },
+    {
+      "name": "api-python",
+      "path": "security/sbom/api-python.json",
+      "size_bytes": 64512,
+      "type": "service",
+      "format": "CycloneDX 1.5",
+      "language": "python",
+      "component_count": 87,
+      "description": "FastAPI backend service"
+    },
+    {
+      "name": "crm-php",
+      "path": "security/sbom/crm-php.json",
+      "size_bytes": 133120,
+      "type": "service",
+      "format": "CycloneDX 1.5",
+      "language": "php",
+      "component_count": 213,
+      "description": "Drupal 10 + CiviCRM system"
+    },
+    {
+      "name": "frontend",
+      "path": "security/sbom/frontend.json",
+      "size_bytes": 1433,
+      "type": "service",
+      "format": "CycloneDX 1.5",
+      "language": "javascript",
+      "component_count": 8,
+      "description": "React/TypeScript frontend (workspace subset)"
+    }
+  ],
+  "total_components": 1555,
+  "coverage": {
+    "javascript": true,
+    "python": true,
+    "php": true,
+    "ruby": false
+  },
+  "signing_status": "unsigned",
+  "next_generation": "2025-10-10T22:15:00Z"
+}
