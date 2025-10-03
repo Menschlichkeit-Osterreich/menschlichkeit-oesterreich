@@ -51,7 +51,7 @@
       "onAutoForward": "openBrowser"
     },
     "8000": {
-      "label": "CRM Server", 
+      "label": "CRM Server",
       "onAutoForward": "notify"
     },
     "8001": {

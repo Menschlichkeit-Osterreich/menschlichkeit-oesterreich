@@ -19,7 +19,7 @@ npm run dev:all
 
 # Or start individual services:
 npm run dev:frontend    # Frontend (React) - http://localhost:5173
-npm run dev:api        # API (FastAPI) - http://localhost:8001  
+npm run dev:api        # API (FastAPI) - http://localhost:8001
 npm run dev:crm        # CRM (PHP) - http://localhost:8000
 npm run dev:games      # Games (Python) - http://localhost:3000
 ```
@@ -27,6 +27,7 @@ npm run dev:games      # Games (Python) - http://localhost:3000
 ## 🔧 Troubleshooting
 
 ### Python Dependencies Issue
+
 If the API service fails to start due to missing dependencies:
 
 ```bash
@@ -37,6 +38,7 @@ pip install fastapi uvicorn python-dotenv
 ```
 
 ### Network/Timeout Issues
+
 If pip installation times out during setup:
 
 ```bash
@@ -47,6 +49,7 @@ pip install -r requirements-minimal.txt
 ```
 
 ### Environment Configuration
+
 The setup automatically creates `.env` files from examples. To customize:
 
 1. **API Configuration**: Edit `api.menschlichkeit-oesterreich.at/.env`

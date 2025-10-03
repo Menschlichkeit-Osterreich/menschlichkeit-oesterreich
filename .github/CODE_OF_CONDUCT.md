@@ -16,7 +16,7 @@ Wir verpflichten uns, in einer Weise zu handeln und zu interagieren, die zu eine
 ✅ **Verantwortung übernehmen** und sich bei den von unseren Fehlern Betroffenen entschuldigen, aus der Erfahrung lernen  
 ✅ **Fokus auf das Gemeinwohl** - was für die Gesamtheit der Gemeinschaft am besten ist  
 ✅ **Inklusive Sprache** verwenden und auf Barrierefreiheit achten  
-✅ **Konstruktive Diskussionen** führen und sachlich argumentieren  
+✅ **Konstruktive Diskussionen** führen und sachlich argumentieren
 
 ### Beispiele für inakzeptables Verhalten:
 
@@ -26,7 +26,7 @@ Wir verpflichten uns, in einer Weise zu handeln und zu interagieren, die zu eine
 ❌ **Veröffentlichung privater Informationen** anderer ohne ausdrückliche Erlaubnis  
 ❌ **Sonstiges Verhalten**, das in einem professionellen Umfeld als unangemessen betrachtet werden könnte  
 ❌ **Diskriminierung** aufgrund von Herkunft, Religion, Geschlecht, sexueller Orientierung oder anderen persönlichen Merkmalen  
-❌ **Hate Speech** oder extremistische Äußerungen jeder Art  
+❌ **Hate Speech** oder extremistische Äußerungen jeder Art
 
 ## 🛡️ Verantwortlichkeiten der Führung
 
@@ -48,7 +48,7 @@ Dieser Verhaltenskodex gilt für alle Bereiche der Gemeinschaft und gilt auch, w
 
 ## 🚨 Durchsetzung
 
-Fälle von missbräuchlichem, belästigendem oder anderweitig inakzeptablem Verhalten können unter `conduct@menschlichkeit-oesterreich.at` gemeldet werden. 
+Fälle von missbräuchlichem, belästigendem oder anderweitig inakzeptablem Verhalten können unter `conduct@menschlichkeit-oesterreich.at` gemeldet werden.
 
 Alle Beschwerden werden **vertraulich** und **zeitnah** geprüft und untersucht.
 
@@ -96,21 +96,25 @@ Die Projektverantwortlichen werden diese Richtlinien zur Durchsetzung der Gemein
 Als österreichische NGO stehen wir für besondere Werte:
 
 ### 🤲 Menschlichkeit
+
 - **Würde** jedes Menschen respektieren
 - **Empathie** und Verständnis zeigen
 - **Solidarität** mit Benachteiligten leben
 
-### 🏛️ Demokratische Grundwerte  
+### 🏛️ Demokratische Grundwerte
+
 - **Meinungsfreiheit** respektieren
 - **Pluralität** fördern
 - **Rechtsstaatlichkeit** unterstützen
 
 ### 🌍 Inklusion & Vielfalt
+
 - **Barrierefreiheit** in allen Bereichen
 - **Mehrsprachigkeit** fördern (Deutsch, Englisch, andere)
 - **Kulturelle Vielfalt** wertschätzen
 
 ### 📚 Bildung & Aufklärung
+
 - **Kritisches Denken** fördern
 - **Faktenbasierte Diskussionen** führen
 - **Lebenslanges Lernen** unterstützen
@@ -118,18 +122,21 @@ Als österreichische NGO stehen wir für besondere Werte:
 ## 📞 Kontakt & Unterstützung
 
 ### Vertrauenspersonen:
+
 - **Code of Conduct Team**: `conduct@menschlichkeit-oesterreich.at`
 - **Technical Leads**: `technical@menschlichkeit-oesterreich.at`
 - **Community Manager**: `community@menschlichkeit-oesterreich.at`
 
 ### Externe Unterstützung:
+
 - **Beratungsstellen** für Diskriminierung und Belästigung
 - **Psychosoziale Unterstützung** bei Bedarf
 - **Rechtliche Beratung** in schwerwiegenden Fällen
 
 ### Notfallkontakte:
+
 - **Polizei Notruf**: 133
-- **Allgemeiner Notruf**: 112  
+- **Allgemeiner Notruf**: 112
 - **Telefonseelsorge**: 142
 - **Frauenhelpline**: 0800 222 555
 
