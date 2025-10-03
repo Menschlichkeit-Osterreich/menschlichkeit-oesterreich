@@ -1,0 +1,120 @@
+{
+  "name": "Verein Menschlichkeit Österreich",
+  "short_name": "Menschlichkeit AT",
+  "description": "Gemeinnütziger Verein für soziale Gerechtigkeit, Menschenrechte und demokratische Bildung in Österreich",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#c8102e",
+  "theme_color": "#c8102e",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "de-AT",
+  "dir": "ltr",
+  "categories": ["social", "education", "news", "lifestyle"],
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "16x16 32x32 48x48",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Menschlichkeit Österreich - Desktop View"
+    },
+    {
+      "src": "/screenshot-narrow.png", 
+      "sizes": "360x640",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Menschlichkeit Österreich - Mobile View"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Democracy Games",
+      "short_name": "Games",
+      "description": "Spiele unsere interaktiven Democracy Games",
+      "url": "/#democracy-hub",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Brücken Bauen",
+      "short_name": "Spiel",
+      "description": "Starte das Democracy Game",
+      "url": "/#democracy-game",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Forum",
+      "short_name": "Forum",
+      "description": "Diskutiere mit der Community",
+      "url": "/#forum",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Mitglied werden",
+      "short_name": "Mitglied",
+      "description": "Werde Teil unserer Bewegung",
+      "url": "/#join",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Spenden",
+      "short_name": "Spenden",
+      "description": "Unterstütze unsere Arbeit",
+      "url": "/#donate",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}

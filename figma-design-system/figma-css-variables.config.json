@@ -1,0 +1,19 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/figma-variables-to-css/main/schema.json",
+  "fileId": "FIGMA_FILE_ID_HERE",
+  "personalAccessToken": "${FIGMA_ACCESS_TOKEN}",
+  "collections": {
+    "*": {
+      "outputPath": "./css/variables.css",
+      "cssVariablePrefix": "",
+      "cssVariableCase": "kebab"
+    }
+  },
+  "modes": {
+    "Light": "light",
+    "Dark": "dark"
+  },
+  "outputFormat": "css",
+  "generateTypeScript": true,
+  "typeScriptOutputPath": "./types/design-tokens.ts"
+}

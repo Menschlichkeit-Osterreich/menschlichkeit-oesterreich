@@ -1,0 +1,267 @@
+name: 🎨 Sync Figma Design Tokens
+
+on:
+  # Automatischer Sync täglich um 2:00 UTC
+  schedule:
+    - cron: '0 2 * * *'
+
+  # Manueller Trigger über GitHub UI
+  workflow_dispatch:
+    inputs:
+      create_pr:
+        description: 'Create Pull Request'
+        required: false
+        default: 'true'
+        type: boolean
+
+  # Trigger bei Änderungen in Figma Config
+  push:
+    paths:
+      - 'figma-design-system/figma-css-variables.config.json'
+      - 'scripts/sync-figma-tokens.sh'
+
+jobs:
+  sync-figma:
+    name: Sync Design Tokens from Figma
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: |
+          npm install -g figma-api-exporter
+          npm ci
+
+      - name: 🎨 Sync Figma Design Tokens
+        env:
+          FIGMA_ACCESS_TOKEN: ${{ secrets.FIGMA_ACCESS_TOKEN }}
+          FIGMA_FILE_ID: ${{ secrets.FIGMA_FILE_ID }}
+        run: |
+          chmod +x ./scripts/sync-figma-tokens.sh
+          ./scripts/sync-figma-tokens.sh
+
+      - name: 🔍 Check for Changes
+        id: check_changes
+        run: |
+          if git diff --quiet; then
+            echo "changes=false" >> $GITHUB_OUTPUT
+            echo "📋 No changes detected"
+          else
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "✅ Changes detected"
+            git diff --stat
+          fi
+
+      - name: 📊 Generate Change Report
+        if: steps.check_changes.outputs.changes == 'true'
+        run: |
+          echo "# 🎨 Figma Design Token Changes" > figma-sync-report.md
+          echo "" >> figma-sync-report.md
+          echo "**Sync Date:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> figma-sync-report.md
+          echo "" >> figma-sync-report.md
+          echo "## Changed Files" >> figma-sync-report.md
+          echo "" >> figma-sync-report.md
+          git diff --name-only | while read file; do
+            echo "- \`$file\`" >> figma-sync-report.md
+          done
+          echo "" >> figma-sync-report.md
+          echo "## Detailed Changes" >> figma-sync-report.md
+          echo "" >> figma-sync-report.md
+          echo '```diff' >> figma-sync-report.md
+          git diff figma-design-system/00_design-tokens.json >> figma-sync-report.md || true
+          echo '```' >> figma-sync-report.md
+
+          cat figma-sync-report.md
+
+      - name: 🔄 Create Pull Request
+        if: steps.check_changes.outputs.changes == 'true' && (github.event_name == 'schedule' || inputs.create_pr == true)
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            chore(design): Sync Figma design tokens
+
+            Automated sync from Figma design file.
+
+            - Updated design tokens JSON
+            - Updated TypeScript definitions
+            - Updated CSS variables
+          branch: figma-sync-${{ github.run_number }}
+          delete-branch: true
+          title: '🎨 Sync Figma Design Tokens (Auto)'
+          body: |
+            ## 🎨 Automated Figma Design Token Sync
+
+            This PR was automatically created by the Figma sync workflow.
+
+            ### Changed Files
+            - `figma-design-system/00_design-tokens.json` - Design token definitions
+            - `frontend/src/lib/figma-tokens.ts` - TypeScript definitions
+            - `figma-design-system/styles/figma-variables.css` - CSS variables
+
+            ### Review Checklist
+            - [ ] **Breaking Changes**: Check if any colors/tokens were removed
+            - [ ] **New Tokens**: Review newly added colors/typography
+            - [ ] **Naming**: Verify CSS variable naming conventions
+            - [ ] **Values**: Validate color hex values and typography settings
+            - [ ] **Testing**: Run visual regression tests
+
+            ### Sync Details
+            - **Figma File ID**: `${{ secrets.FIGMA_FILE_ID }}`
+            - **Sync Date**: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+            - **Trigger**: ${{ github.event_name }}
+
+            ---
+
+            <details>
+            <summary>📋 Change Report</summary>
+
+            $(cat figma-sync-report.md)
+
+            </details>
+
+            ---
+
+            **Automatic merge** is disabled. Please review and merge manually.
+          labels: |
+            design-system
+            automated
+            figma-sync
+          assignees: peschull
+          reviewers: peschull
+
+      - name: 💾 Commit Changes Directly
+        if: steps.check_changes.outputs.changes == 'true' && github.event_name != 'schedule' && inputs.create_pr != true
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add figma-design-system/00_design-tokens.json
+          git add frontend/src/lib/figma-tokens.ts
+          git add figma-design-system/styles/figma-variables.css
+          git commit -m "chore(design): Sync Figma design tokens [skip ci]"
+          git push
+
+      - name: 📢 Notify on Failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🚨 Figma Sync Failed',
+              body: `## Figma Design Token Sync Failed
+              
+              **Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+              **Trigger:** ${{ github.event_name }}
+              **Branch:** ${{ github.ref }}
+              
+              Please check the workflow logs for details.
+              
+              ### Common Issues
+              - Invalid Figma Access Token
+              - Rate limit exceeded (Figma API: 1000 req/hour)
+              - Network connectivity issues
+              - Invalid Figma File ID
+              
+              ### Troubleshooting
+              1. Verify FIGMA_ACCESS_TOKEN secret is valid
+              2. Verify FIGMA_FILE_ID secret is correct
+              3. Check Figma API status: https://status.figma.com
+              4. Review workflow logs for detailed error messages
+              `,
+              labels: ['bug', 'figma-sync', 'automated']
+            })
+
+      - name: 📊 Upload Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: figma-sync-report-${{ github.run_number }}
+          path: |
+            figma-sync-report.md
+            figma-design-system/00_design-tokens.backup.*.json
+          retention-days: 30
+
+  # Visual Regression Testing nach Figma Sync
+  visual-regression:
+    name: Visual Regression Testing
+    needs: sync-figma
+    if: needs.sync-figma.outputs.changes == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout PR
+        uses: actions/checkout@v4
+        with:
+          ref: figma-sync-${{ github.run_number }}
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 🎭 Install Playwright
+        run: npx playwright install --with-deps
+
+      - name: 🧪 Run Visual Regression Tests
+        run: npm run test:visual || true
+
+      - name: 📸 Upload Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-regression-results-${{ github.run_number }}
+          path: |
+            playwright-results/
+            test-results/
+          retention-days: 30
+
+  # Chromatic Integration (falls vorhanden)
+  chromatic-check:
+    name: Chromatic Visual Testing
+    needs: sync-figma
+    if: needs.sync-figma.outputs.changes == 'true' && vars.CHROMATIC_ENABLED == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout PR
+        uses: actions/checkout@v4
+        with:
+          ref: figma-sync-${{ github.run_number }}
+          fetch-depth: 0
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install Dependencies
+        run: npm ci
+
+      - name: 📸 Chromatic Deployment
+        uses: chromaui/action@v1
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          exitZeroOnChanges: true
+          exitOnceUploaded: true

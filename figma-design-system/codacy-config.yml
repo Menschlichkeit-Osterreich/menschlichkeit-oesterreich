@@ -1,0 +1,287 @@
+# Codacy Configuration for Menschlichkeit Österreich
+# Enterprise-grade quality standards for Austrian NGO platform
+
+engines:
+  # JavaScript/TypeScript Analysis
+  eslint:
+    enabled: true
+    exclude_paths:
+      - "node_modules/**"
+      - "dist/**"
+      - "build/**"
+      - "coverage/**"
+    plugins:
+      - "@typescript-eslint"
+      - "react"
+      - "react-hooks"
+      - "jsx-a11y"
+      - "import"
+    rules:
+      # Security Rules (MANDATORY)
+      "no-eval": error
+      "no-implied-eval": error
+      "no-new-func": error
+      "no-script-url": error
+      "@typescript-eslint/no-unsafe-assignment": error
+      "@typescript-eslint/no-unsafe-call": error
+      "@typescript-eslint/no-unsafe-member-access": error
+      "@typescript-eslint/no-unsafe-return": error
+      
+      # Accessibility Rules (WCAG AA Compliance)
+      "jsx-a11y/accessible-emoji": error
+      "jsx-a11y/alt-text": error
+      "jsx-a11y/anchor-has-content": error
+      "jsx-a11y/aria-props": error
+      "jsx-a11y/aria-proptypes": error
+      "jsx-a11y/aria-role": error
+      "jsx-a11y/aria-unsupported-elements": error
+      "jsx-a11y/click-events-have-key-events": error
+      "jsx-a11y/heading-has-content": error
+      "jsx-a11y/iframe-has-title": error
+      "jsx-a11y/img-redundant-alt": error
+      "jsx-a11y/interactive-supports-focus": error
+      "jsx-a11y/label-has-associated-control": error
+      "jsx-a11y/mouse-events-have-key-events": error
+      "jsx-a11y/no-access-key": error
+      "jsx-a11y/no-autofocus": error
+      "jsx-a11y/no-distracting-elements": error
+      "jsx-a11y/no-interactive-element-to-noninteractive-role": error
+      "jsx-a11y/no-noninteractive-element-to-interactive-role": error
+      "jsx-a11y/no-redundant-roles": error
+      "jsx-a11y/role-has-required-aria-props": error
+      "jsx-a11y/role-supports-aria-props": error
+      "jsx-a11y/scope": error
+      "jsx-a11y/tabindex-no-positive": error
+      
+      # Performance Rules
+      "react-hooks/exhaustive-deps": error
+      "react/jsx-no-bind": error
+      "import/no-dynamic-require": error
+      
+      # Maintainability Rules
+      "complexity": [error, {"max": 15}]
+      "max-depth": [error, {"max": 4}]
+      "max-lines": [error, {"max": 300}]
+      "max-lines-per-function": [error, {"max": 50}]
+      "max-params": [error, {"max": 5}]
+      "no-magic-numbers": [warn, {"ignore": [0, 1, -1, 2]}]
+
+  # PHP Analysis (for CRM system)
+  phpstan:
+    enabled: true
+    level: 8
+    exclude_paths:
+      - "crm/vendor/**"
+      - "crm/cache/**"
+      - "crm/var/**"
+    rules:
+      # Security rules
+      "PhpCsFixer/no_eval": error
+      "PhpCsFixer/no_php_short_tags": error
+      "SlevomatCodingStandard/strict_comparison": error
+      
+      # GDPR/Privacy rules
+      "custom/no_personal_data_in_logs": error
+      "custom/data_sanitization_required": error
+
+  # Python Analysis (for API service)
+  pylint:
+    enabled: true
+    exclude_paths:
+      - "api/venv/**"
+      - "api/__pycache__/**"
+    rules:
+      # Security
+      "W601": error  # has_key usage
+      "W602": error  # deprecated modules
+      "R1717": error  # consider-using-dict-comprehension
+      
+  # Security Analysis
+  bandit:
+    enabled: true
+    exclude_paths:
+      - "tests/**"
+      - "node_modules/**"
+    rules:
+      "B101": error  # assert_used
+      "B102": error  # exec_used
+      "B103": error  # set_bad_file_permissions
+      "B108": error  # hardcoded_tmp_directory
+      "B110": error  # try_except_pass
+      "B201": error  # flask_debug_true
+      "B301": error  # pickle
+      "B302": error  # marshal
+      "B303": error  # md5
+      "B304": error  # des
+      "B305": error  # cipher
+      "B306": error  # mktemp_q
+      "B307": error  # eval
+      "B308": error  # mark_safe
+      "B309": error  # httpsconnection
+      "B310": error  # urllib_urlopen
+      "B311": error  # random
+      "B312": error  # telnetlib
+      "B313": error  # xml_bad_cElementTree
+      "B314": error  # xml_bad_ElementTree
+      "B315": error  # xml_bad_expatreader
+      "B316": error  # xml_bad_expatbuilder
+      "B317": error  # xml_bad_sax
+      "B318": error  # xml_bad_minidom
+      "B319": error  # xml_bad_pulldom
+      "B320": error  # xml_bad_etree
+      "B321": error  # ftplib
+      "B322": error  # input
+      "B323": error  # unverified_context
+      "B324": error  # hashlib_new_insecure_functions
+      "B325": error  # tempnam
+      "B501": error  # request_with_no_cert_validation
+      "B502": error  # ssl_with_bad_version
+      "B503": error  # ssl_with_bad_defaults
+      "B504": error  # ssl_with_no_version
+      "B505": error  # weak_cryptographic_key
+      "B506": error  # yaml_load
+      "B507": error  # ssh_no_host_key_verification
+      "B601": error  # paramiko_calls
+      "B602": error  # subprocess_popen_with_shell_equals_true
+      "B603": error  # subprocess_without_shell_equals_true
+      "B604": error  # any_other_function_with_shell_equals_true
+      "B605": error  # start_process_with_a_shell
+      "B606": error  # start_process_with_no_shell
+      "B607": error  # start_process_with_partial_path
+      "B608": error  # hardcoded_sql_expressions
+      "B609": error  # linux_commands_wildcard_injection
+      "B610": error  # django_extra_used
+      "B611": error  # django_rawsql_used
+      "B701": error  # jinja2_autoescape_false
+      "B702": error  # use_of_mako_templates
+      "B703": error  # django_mark_safe
+
+  # Code Duplication Analysis
+  duplication:
+    enabled: true
+    exclude_paths:
+      - "node_modules/**"
+      - "dist/**"
+      - "vendor/**"
+    languages:
+      - javascript
+      - typescript
+      - php
+      - python
+    config:
+      min_tokens: 50
+      min_lines: 5
+      threshold: 2  # Maximum 2% duplication allowed
+
+  # CSS/SCSS Analysis
+  csslint:
+    enabled: true
+    exclude_paths:
+      - "node_modules/**"
+      - "dist/**"
+    rules:
+      "adjoining-classes": false
+      "box-model": true
+      "box-sizing": false
+      "bulletproof-font-face": false
+      "compatible-vendor-prefixes": false
+      "display-property-grouping": true
+      "duplicate-background-images": true
+      "duplicate-properties": true
+      "empty-rules": true
+      "fallback-colors": true
+      "floats": false
+      "font-faces": false
+      "font-sizes": false
+      "gradients": false
+      "ids": false
+      "import": true
+      "important": false
+      "known-properties": true
+      "outline-none": false
+      "overqualified-elements": false
+      "qualified-headings": false
+      "regex-selectors": false
+      "shorthand": false
+      "star-property-hack": true
+      "text-indent": false
+      "underscore-property-hack": true
+      "unique-headings": false
+      "universal-selector": false
+      "unqualified-attributes": false
+      "vendor-prefix": false
+      "zero-units": true
+
+exclude_paths:
+  - "node_modules/**"
+  - "dist/**"
+  - "build/**"
+  - "coverage/**"
+  - "vendor/**"
+  - ".git/**"
+  - "*.min.js"
+  - "*.min.css"
+  - "test-results/**"
+  - "playwright-results/**"
+
+# Quality thresholds (PR-blocking)
+quality:
+  maintainability:
+    threshold: 85  # Minimum 85% maintainability
+  duplication:
+    threshold: 2   # Maximum 2% duplication
+  complexity:
+    threshold: 15  # Maximum complexity per function
+  coverage:
+    threshold: 80  # Minimum 80% test coverage
+
+# Austrian/German specific rules
+custom_rules:
+  # GDPR Compliance
+  - name: "no-personal-data-logging"
+    pattern: "console\\.(log|error|warn|info).*(@|phone|ssn|passport)"
+    message: "Personal data detected in logging - GDPR violation"
+    severity: "error"
+    
+  - name: "consent-management-required"
+    pattern: "cookie|localStorage|sessionStorage"
+    message: "Data storage requires GDPR consent management"
+    severity: "warning"
+    
+  # Austrian Brand Compliance
+  - name: "austrian-colors-only"
+    pattern: "#(?!c8102e|ffffff)[0-9a-fA-F]{6}"
+    message: "Use official Austrian colors: #c8102e (red) and #ffffff (white)"
+    severity: "info"
+    files: "styles/**/*.css"
+    
+  # Accessibility Requirements
+  - name: "german-alt-text"
+    pattern: "alt=[\"'][^\"']*[\"']"
+    message: "Alt text should be in German for Austrian users"
+    severity: "warning"
+    files: "**/*.tsx"
+    
+  # Security for Austrian Government Standards
+  - name: "no-hardcoded-secrets"
+    pattern: "(password|secret|key|token)\\s*=\\s*[\"'][^\"']+[\"']"
+    message: "Hardcoded secrets violate Austrian security standards"
+    severity: "error"
+
+# Integration settings
+integrations:
+  github:
+    enabled: true
+    auto_fix_pull_requests: false  # Manual review required
+    status_checks: true
+    
+  slack:
+    enabled: true
+    channel: "#quality-alerts"
+    
+# Reporting
+reporting:
+  format: ["json", "sarif", "html"]
+  output_path: "codacy-results/"
+  include_metrics: true
+  trend_analysis: true
