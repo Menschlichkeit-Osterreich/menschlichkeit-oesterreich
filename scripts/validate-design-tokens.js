@@ -23,8 +23,8 @@ console.log(`${BLUE}🔍 Design Token Validation gestartet...${RESET}\n`);
 // Pfade
 const rootDir = resolve(process.cwd());
 const tokenFile = resolve(rootDir, 'figma-design-system/00_design-tokens.json');
-const tsFile = resolve(rootDir, 'frontend/src/lib/figma-tokens.ts');
-const cssFile = resolve(rootDir, 'figma-design-system/styles/figma-variables.css');
+const tsFile = resolve(rootDir, 'figma-design-system/index.ts');
+const cssFile = resolve(rootDir, 'figma-design-system/styles/design-tokens.css');
 
 // 1. Prüfe ob Dateien existieren
 console.log(`${BLUE}📋 Schritt 1: Datei-Existenz prüfen${RESET}`);
@@ -71,11 +71,13 @@ try {
 // 3. Validiere Token-Struktur
 console.log(`\n${BLUE}📋 Schritt 3: Token-Struktur validieren${RESET}`);
 
-const requiredCategories = ['color', 'typography', 'spacing'];
-const foundCategories = Object.keys(tokens);
+// Check if tokens are nested under 'designTokens'
+const actualTokens = tokens.designTokens || tokens;
+const requiredCategories = ['colors', 'typography', 'spacing'];
+const foundCategories = Object.keys(actualTokens);
 
 requiredCategories.forEach(category => {
-  if (!tokens[category]) {
+  if (!actualTokens[category]) {
     console.error(`${RED}❌ Fehlende Kategorie: ${category}${RESET}`);
     hasErrors = true;
   } else {

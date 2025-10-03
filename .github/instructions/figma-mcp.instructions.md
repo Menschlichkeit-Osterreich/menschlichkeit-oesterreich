@@ -6,6 +6,7 @@ applyTo: 'figma-design-system/**,frontend/**,website/**'
 # Figma MCP Integration Rules
 
 ## Aktivierung
+
 - Figma MCP Tools sind über `.vscode/mcp.json` verbunden
 - Endpoint: `https://mcp.figma.com/mcp`
 - Verwendete Tools: `get_code`, `get_metadata`, `get_screenshot`, `create_design_system_rules`
@@ -13,11 +14,13 @@ applyTo: 'figma-design-system/**,frontend/**,website/**'
 ## Design Token Struktur
 
 ### Haupt-Token-Datei
+
 - **Pfad**: `figma-design-system/00_design-tokens.json`
 - **Format**: JSON mit Kategorien: `colors`, `typography`, `spacing`, `borderRadius`, `shadows`
 - **Auto-generiert**: CSS-Variablen nach `figma-design-system/styles/tokens.css`
 
 ### Sync-Workflow
+
 ```bash
 # Manueller Sync
 npm run figma:sync
@@ -32,11 +35,13 @@ node scripts/validate-design-tokens.js
 ## Integration Points
 
 ### Frontend (React/TypeScript)
+
 - **Design Tokens**: Import via `figma-design-system/index.ts`
 - **Tailwind Config**: `frontend/tailwind.config.cjs` konsumiert Tokens
 - **Komponenten**: `figma-design-system/components/` mit TypeScript Types
 
 ### Website (WordPress/HTML)
+
 - **CSS Variables**: `website/assets/css/figma-tokens.css`
 - **Branding**: Rot-Weiß-Rot österreichische Farben aus Tokens
 
@@ -60,6 +65,7 @@ node scripts/validate-design-tokens.js
 ## Automatisierung via GitHub Copilot
 
 ### Figma → Code Workflow
+
 1. User gibt Figma URL oder NodeId
 2. Copilot nutzt `mcp_figma_get_code(nodeId, fileKey)`
 3. Generierter Code wird nach `frontend/src/components/` oder `figma-design-system/components/` geschrieben

@@ -87,9 +87,21 @@
     },
     "typography": {
       "fontFamily": {
-        "primary": ["Inter", "system-ui", "sans-serif"],
-        "secondary": ["Merriweather", "Georgia", "serif"],
-        "mono": ["JetBrains Mono", "Monaco", "monospace"]
+        "primary": [
+          "Inter",
+          "system-ui",
+          "sans-serif"
+        ],
+        "secondary": [
+          "Merriweather",
+          "Georgia",
+          "serif"
+        ],
+        "mono": [
+          "JetBrains Mono",
+          "Monaco",
+          "monospace"
+        ]
       },
       "fontSize": {
         "xs": "0.75rem",
@@ -211,6 +223,6 @@
       "tooltip": "1800"
     }
   },
-  "lastSync": "2025-09-26T18:47:02.797Z",
+  "lastSync": "2025-10-03T15:12:09.009Z",
   "source": "local"
 }
