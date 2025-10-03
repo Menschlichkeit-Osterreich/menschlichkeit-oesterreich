@@ -1,0 +1,93 @@
+# Caddy Reverse Proxy für n8n
+# Automatische HTTPS mit Let's Encrypt
+# DSGVO Art. 32 konform
+
+{
+	# Global Options
+	email {$ACME_EMAIL}
+	
+	# Sicherheits-Header
+	servers {
+		protocols h1 h2 h2c
+	}
+}
+
+# n8n Hauptdomain
+{$N8N_DOMAIN:n8n.menschlichkeit-oesterreich.at} {
+	# TLS mit Let's Encrypt (automatisch)
+	tls {
+		protocols tls1.2 tls1.3
+	}
+	
+	# Security Headers (DSGVO + OWASP Best Practices)
+	header {
+		# HSTS - Force HTTPS für 1 Jahr
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		
+		# Clickjacking Protection
+		X-Frame-Options "SAMEORIGIN"
+		
+		# XSS Protection
+		X-Content-Type-Options "nosniff"
+		X-XSS-Protection "1; mode=block"
+		
+		# CSP für n8n Editor
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' wss://{$N8N_DOMAIN};"
+		
+		# Referrer Policy
+		Referrer-Policy "strict-origin-when-cross-origin"
+		
+		# Permissions Policy (früher Feature-Policy)
+		Permissions-Policy "geolocation=(), microphone=(), camera=()"
+		
+		# Remove Server Header
+		-Server
+		-X-Powered-By
+	}
+	
+	# Rate Limiting (DoS Protection)
+	@webhook {
+		path /webhook/*
+		path /webhook-test/*
+	}
+	
+	# Logging (ohne PII - siehe F-03)
+	log {
+		output file /var/log/caddy/n8n-access.log {
+			roll_size 100mb
+			roll_keep 5
+			roll_keep_for 720h  # 30 Tage DSGVO-konform
+		}
+		format json
+		level INFO
+	}
+	
+	# Reverse Proxy zu n8n Container
+	reverse_proxy n8n:5678 {
+		# WebSocket Support (für n8n UI)
+		header_up X-Real-IP {remote_host}
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+		header_up X-Forwarded-Host {host}
+		
+		# Health Check
+		health_uri /healthz
+		health_interval 30s
+		health_timeout 10s
+		
+		# Timeouts für lange Workflows
+		transport http {
+			read_timeout 300s
+			write_timeout 300s
+			dial_timeout 30s
+		}
+	}
+	
+	# Health Check Endpoint
+	handle /healthz {
+		respond "OK" 200
+	}
+}
+
+# HTTP → HTTPS Redirect (automatisch durch Caddy)
+# Alle HTTP-Requests werden auf HTTPS umgeleitet
