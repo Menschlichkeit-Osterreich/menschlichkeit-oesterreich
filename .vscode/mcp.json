@@ -4,7 +4,13 @@
     "figma": {
       "type": "http",
       "url": "https://mcp.figma.com/mcp",
-      "description": "Figma MCP Remote Server for Design System Integration"
+      "description": "Figma MCP Remote Server for Design System Integration",
+      "metadata": {
+        "designTokens": "figma-design-system/00_design-tokens.json",
+        "syncCommand": "npm run figma:sync",
+        "frameworks": ["react", "tailwind"],
+        "languages": ["typescript", "javascript", "css"]
+      }
     }
   }
 }
