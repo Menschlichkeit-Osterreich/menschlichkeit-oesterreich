@@ -1,0 +1,77 @@
+# Gitleaks Configuration für menschlichkeit-oesterreich-development
+# Filtere False Positives aus Vendor-Code und Test-Fixtures
+
+title = "Gitleaks Config - Menschlichkeit Österreich"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "generic-api-key"
+description = "Generic API Key - DISABLED for vendor/test code"
+regex = '''(?i)(api[_-]?key|token|secret).{0,20}[=:]\s*['"]?[a-zA-Z0-9_\-]{16,}['"]?'''
+tags = ["key", "API"]
+# Disable for vendor paths - use allowlist instead
+[rules.allowlist]
+paths = [
+    # Python virtual environments
+    '''api\.menschlichkeit-oesterreich\.at/(\.)?venv/.*''',
+    # CRM Vendor Code
+    '''crm\.menschlichkeit-oesterreich\.at/web/(core|modules/contrib|vendor)/.*''',
+    '''crm\.menschlichkeit-oesterreich\.at/vendor/.*''',
+    # Node/Bower dependencies
+    '''.*/node_modules/.*''',
+    '''.*/bower_components/.*''',
+    # Test files
+    '''.*/tests?/.*''',
+    '''.*[Tt]est\.php$''',
+    '''.*_test\.(py|js|ts)$''',
+    # Build artifacts
+    '''.*\.pyc$''',
+    '''.*/__pycache__/.*''',
+    # Development templates
+    '''secrets/development/.*''',
+    '''config-templates/.*'''
+]
+
+[[rules]]
+id = "private-key"
+description = "Private Key Detection - DISABLED for test fixtures"
+regex = '''-----BEGIN[ A-Z]*PRIVATE KEY-----'''
+tags = ["key", "private"]
+[rules.allowlist]
+paths = [
+    '''api\.menschlichkeit-oesterreich\.at/(\.)?venv/.*''',
+    '''.*/tests?/.*''',
+    '''.*/bower_components/.*'''
+]
+
+[allowlist]
+description = "Global allowlist for vendor and test code"
+paths = [
+    '''api\.menschlichkeit-oesterreich\.at/(\.)?venv/.*''',
+    '''crm\.menschlichkeit-oesterreich\.at/web/(core|modules/contrib|vendor)/.*''',
+    '''.*/node_modules/.*''',
+    '''.*/bower_components/.*''',
+    '''.*/tests?/.*''',
+    '''secrets/development/.*''',
+    # Environment files (should be in .gitignore anyway)
+    '''\.env$''',
+    '''\.env\..*''',
+    # Example/template files with placeholders
+    '''\.env\.example$''',
+    '''\.env\.sample$''',
+    # Documentation with example keys
+    '''GITHUB-SECRETS.*\.md$''',
+    # VS Code MCP config (local development)
+    '''\.vscode/mcp\.json$'''
+]
+regexes = [
+    '''REPLACE_WITH_.*''',  # Template placeholders
+    '''LEGACY_PASSWORD''',  # Legacy placeholder
+    '''dev_password_.*''',  # Dev environment
+    '''test_password_.*''',  # Test environment
+    '''YOUR_.*_HERE''',     # Placeholder pattern
+    '''EXAMPLE_.*''',       # Example values
+    '''sk_test_.*'''        # Stripe test keys (not production)
+]

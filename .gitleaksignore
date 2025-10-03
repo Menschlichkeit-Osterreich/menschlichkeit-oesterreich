@@ -1,0 +1,28 @@
+# Gitleaks Ignore File
+# False positives - vendor/test code, not production secrets
+
+# Python virtual environments (test fixtures, not real secrets)
+api.menschlichkeit-oesterreich.at/venv/**
+api.menschlichkeit-oesterreich.at/.venv/**
+
+# CRM vendor code (Drupal, CiviCRM dependencies)
+crm.menschlichkeit-oesterreich.at/web/core/**
+crm.menschlichkeit-oesterreich.at/web/modules/contrib/**
+crm.menschlichkeit-oesterreich.at/vendor/**
+
+# Development templates (contain placeholders, not real secrets)
+secrets/development/**
+config-templates/**
+
+# Build artifacts
+**/node_modules/**
+**/bower_components/**
+**/.cache/**
+**/__pycache__/**
+**/*.pyc
+
+# Test fixtures (intentionally contain dummy credentials for testing)
+**/tests/**
+**/test_*.py
+**/*_test.py
+**/*Test.php

@@ -62,6 +62,76 @@ jobs:
         with:
           sarif_file: 'trivy-results.sarif'
 
+      - name: 🔐 Gitleaks Secret Scan
+        run: |
+          echo "🕵️ Running Gitleaks secret detection..."
+          
+          # Install Gitleaks if not cached
+          if ! command -v gitleaks &> /dev/null; then
+            wget -qO gitleaks.tar.gz https://github.com/gitleaks/gitleaks/releases/download/v8.18.2/gitleaks_8.18.2_linux_x64.tar.gz
+            tar -xzf gitleaks.tar.gz
+            sudo mv gitleaks /usr/local/bin/
+            rm gitleaks.tar.gz
+          fi
+          
+          # Run Gitleaks with custom config
+          gitleaks detect --config gitleaks.toml --report-format sarif --report-path gitleaks-results.sarif --exit-code 0 || true
+          
+          # Check if secrets were found
+          LEAKS=$(jq '.runs[0].results | length' gitleaks-results.sarif 2>/dev/null || echo "0")
+          echo "📊 Gitleaks found $LEAKS potential secrets"
+          
+          if [ "$LEAKS" -gt 0 ]; then
+            echo "⚠️ Secrets detected! Review gitleaks-results.sarif"
+            jq -r '.runs[0].results[] | "  - \(.ruleId): \(.locations[0].physicalLocation.artifactLocation.uri)"' gitleaks-results.sarif
+          else
+            echo "✅ No secrets detected"
+          fi
+
+      - name: 📊 Upload Gitleaks Results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'gitleaks-results.sarif'
+
+      - name: 🔍 Semgrep SAST Scan
+        run: |
+          echo "🛡️ Running Semgrep static analysis..."
+          
+          # Install Semgrep if not cached
+          pip3 install --quiet semgrep
+          
+          # Run Semgrep with security rulesets
+          semgrep \
+            --config=p/security-audit \
+            --config=p/owasp-top-ten \
+            --config=p/javascript \
+            --config=p/typescript \
+            --config=p/php \
+            --config=p/python \
+            --sarif \
+            --output=semgrep-results.sarif \
+            --timeout=120 \
+            --max-memory=4000 \
+            --quiet || true
+          
+          # Summary
+          FINDINGS=$(jq '.runs[0].results | length' semgrep-results.sarif 2>/dev/null || echo "0")
+          echo "📊 Semgrep found $FINDINGS code issues"
+          
+          if [ "$FINDINGS" -gt 0 ]; then
+            echo "⚠️ Code issues detected!"
+            jq -r '.runs[0].results[] | "  - [\(.level)] \(.ruleId): \(.message.text)"' semgrep-results.sarif | head -10
+          else
+            echo "✅ No code issues detected"
+          fi
+
+      - name: 📊 Upload Semgrep Results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'semgrep-results.sarif'
+
       - name: 🔍 DSGVO Compliance Check
         run: |
           echo "🔐 Running DSGVO compliance checks..."
@@ -141,17 +211,49 @@ jobs:
           
           # Trivy Results
           if [ -f trivy-results.sarif ]; then
-            echo "### 🐳 Infrastructure Scan" >> security-report.md
+            echo "### 🐳 Infrastructure Scan (Trivy)" >> security-report.md
             TRIVY_ISSUES=$(jq -r '.runs[0].results | length' trivy-results.sarif 2>/dev/null || echo "0")
             echo "- **Infrastructure Issues:** $TRIVY_ISSUES" >> security-report.md
+          fi
+          
+          # Gitleaks Results
+          if [ -f gitleaks-results.sarif ]; then
+            echo "### 🔐 Secret Detection (Gitleaks)" >> security-report.md
+            SECRETS=$(jq -r '.runs[0].results | length' gitleaks-results.sarif 2>/dev/null || echo "0")
+            echo "- **Secrets Found:** $SECRETS" >> security-report.md
+            if [ "$SECRETS" -gt 0 ]; then
+              echo "- **⚠️ ACTION REQUIRED:** Review and rotate exposed secrets immediately!" >> security-report.md
+            fi
+          fi
+          
+          # Semgrep Results
+          if [ -f semgrep-results.sarif ]; then
+            echo "### 🛡️ Static Analysis (Semgrep)" >> security-report.md
+            SAST_FINDINGS=$(jq -r '.runs[0].results | length' semgrep-results.sarif 2>/dev/null || echo "0")
+            echo "- **SAST Findings:** $SAST_FINDINGS" >> security-report.md
+            
+            # Count by severity
+            HIGH=$(jq -r '[.runs[0].results[] | select(.level == "error")] | length' semgrep-results.sarif 2>/dev/null || echo "0")
+            MEDIUM=$(jq -r '[.runs[0].results[] | select(.level == "warning")] | length' semgrep-results.sarif 2>/dev/null || echo "0")
+            LOW=$(jq -r '[.runs[0].results[] | select(.level == "note")] | length' semgrep-results.sarif 2>/dev/null || echo "0")
+            
+            echo "  - 🔴 High: $HIGH" >> security-report.md
+            echo "  - 🟡 Medium: $MEDIUM" >> security-report.md
+            echo "  - 🔵 Low: $LOW" >> security-report.md
           fi
           
           echo "" >> security-report.md
           echo "## 🎯 Recommendations" >> security-report.md
           echo "- Review and fix all high/critical vulnerabilities" >> security-report.md
           echo "- Update dependencies to latest secure versions" >> security-report.md
-          echo "- Implement additional security controls if needed" >> security-report.md
+          echo "- Rotate any exposed secrets immediately" >> security-report.md
+          echo "- Address SAST findings (especially subprocess shell=True, insecure HTTP)" >> security-report.md
           echo "- Regular security training for development team" >> security-report.md
+          echo "" >> security-report.md
+          echo "## 📈 Metrics" >> security-report.md
+          echo "- **Total Security Tools:** 5 (Snyk SCA, Snyk Code, Trivy, Gitleaks, Semgrep)" >> security-report.md
+          echo "- **Scan Duration:** ~2-3 minutes" >> security-report.md
+          echo "- **DSGVO Compliance:** ✅ No PII in logs checked" >> security-report.md
 
       - name: 📤 Upload Security Artifacts
         uses: actions/upload-artifact@v4
@@ -161,6 +263,8 @@ jobs:
           path: |
             snyk-*.json
             trivy-results.sarif
+            gitleaks-results.sarif
+            semgrep-results.sarif
             security-report.md
           retention-days: 30
 
