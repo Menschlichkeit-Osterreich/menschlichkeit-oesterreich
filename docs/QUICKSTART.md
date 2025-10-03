@@ -7,12 +7,14 @@
 ## 📋 Prerequisites (Installation erforderlich)
 
 ### Erforderliche Software
+
 - **Node.js**: v18+ (empfohlen: v20 LTS)
 - **npm**: v9+ (kommt mit Node.js)
 - **Git**: v2.40+
 - **Docker Desktop**: v24+ (für CRM/n8n lokale Entwicklung)
 
 ### Optional (für Vollausbau)
+
 - **Python**: v3.12+ (für API-Service)
 - **PHP**: v8.2+ (für CRM-Entwicklung)
 - **PostgreSQL**: v15+ (für Gaming-Platform)
@@ -56,6 +58,7 @@ cp .env.example .env
 ```
 
 **⚡ Quick-Hack für lokale Entwicklung** (ohne echte Datenbank):
+
 ```bash
 # SQLite als Fallback (kein PostgreSQL Setup nötig)
 DATABASE_URL="sqlite:///./dev.db"
@@ -103,6 +106,7 @@ node scripts/validate-design-tokens.js
 ```
 
 **Output**:
+
 ```
 ✅ All design token checks passed!
   - Design tokens file exists
@@ -174,6 +178,7 @@ npm run performance:lighthouse
 ## 🆘 Troubleshooting
 
 ### Problem: "Port 3000 already in use"
+
 ```bash
 # Prozess auf Port finden und beenden
 lsof -ti:3000 | xargs kill -9
@@ -183,6 +188,7 @@ PORT=3001 npm run dev:frontend
 ```
 
 ### Problem: "Cannot find module 'vite'"
+
 ```bash
 # Dependencies erneut installieren
 rm -rf node_modules package-lock.json
@@ -190,6 +196,7 @@ npm install
 ```
 
 ### Problem: "Database connection failed"
+
 ```bash
 # PostgreSQL Status prüfen
 pg_isready
@@ -201,6 +208,7 @@ psql $DATABASE_URL
 ```
 
 ### Problem: "FIGMA_TOKEN not set"
+
 ```bash
 # Token in .env setzen (Figma → Settings → Personal Access Tokens)
 echo "FIGMA_TOKEN=figd_YOUR_TOKEN_HERE" >> .env

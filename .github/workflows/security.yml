@@ -4,9 +4,9 @@ on:
     # Daily at 2 AM UTC
     - cron: '0 2 * * *'
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 env:
@@ -65,7 +65,7 @@ jobs:
       - name: 🔐 Gitleaks Secret Scan
         run: |
           echo "🕵️ Running Gitleaks secret detection..."
-          
+
           # Install Gitleaks if not cached
           if ! command -v gitleaks &> /dev/null; then
             wget -qO gitleaks.tar.gz https://github.com/gitleaks/gitleaks/releases/download/v8.18.2/gitleaks_8.18.2_linux_x64.tar.gz
@@ -73,14 +73,14 @@ jobs:
             sudo mv gitleaks /usr/local/bin/
             rm gitleaks.tar.gz
           fi
-          
+
           # Run Gitleaks with custom config
           gitleaks detect --config gitleaks.toml --report-format sarif --report-path gitleaks-results.sarif --exit-code 0 || true
-          
+
           # Check if secrets were found
           LEAKS=$(jq '.runs[0].results | length' gitleaks-results.sarif 2>/dev/null || echo "0")
           echo "📊 Gitleaks found $LEAKS potential secrets"
-          
+
           if [ "$LEAKS" -gt 0 ]; then
             echo "⚠️ Secrets detected! Review gitleaks-results.sarif"
             jq -r '.runs[0].results[] | "  - \(.ruleId): \(.locations[0].physicalLocation.artifactLocation.uri)"' gitleaks-results.sarif
@@ -97,10 +97,10 @@ jobs:
       - name: 🔍 Semgrep SAST Scan
         run: |
           echo "🛡️ Running Semgrep static analysis..."
-          
+
           # Install Semgrep if not cached
           pip3 install --quiet semgrep
-          
+
           # Run Semgrep with security rulesets
           semgrep \
             --config=p/security-audit \
@@ -114,11 +114,11 @@ jobs:
             --timeout=120 \
             --max-memory=4000 \
             --quiet || true
-          
+
           # Summary
           FINDINGS=$(jq '.runs[0].results | length' semgrep-results.sarif 2>/dev/null || echo "0")
           echo "📊 Semgrep found $FINDINGS code issues"
-          
+
           if [ "$FINDINGS" -gt 0 ]; then
             echo "⚠️ Code issues detected!"
             jq -r '.runs[0].results[] | "  - [\(.level)] \(.ruleId): \(.message.text)"' semgrep-results.sarif | head -10
@@ -135,7 +135,7 @@ jobs:
       - name: 🔍 DSGVO Compliance Check
         run: |
           echo "🔐 Running DSGVO compliance checks..."
-          
+
           # Check for potential PII in logs
           if grep -r "email.*=" . --exclude-dir=node_modules --exclude-dir=.git --include="*.log" || \
              grep -r "phone.*=" . --exclude-dir=node_modules --exclude-dir=.git --include="*.log" || \
@@ -143,7 +143,7 @@ jobs:
             echo "❌ Potential PII found in logs!"
             exit 1
           fi
-          
+
           # Check for proper data handling
           if [ -f "scripts/dsgvo-check.ps1" ]; then
             echo "✅ DSGVO check script found"
@@ -154,7 +154,7 @@ jobs:
       - name: 🔐 Secret Detection
         run: |
           echo "🕵️ Scanning for accidentally committed secrets..."
-          
+
           # Enhanced secret detection
           SECRET_PATTERNS=(
             "password.*="
@@ -169,7 +169,7 @@ jobs:
             "rk_live_"
             "pk_live_"
           )
-          
+
           FOUND_SECRETS=false
           for pattern in "${SECRET_PATTERNS[@]}"; do
             if grep -r -i "$pattern" . --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=vendor --exclude="*.md" --exclude="*.example" --exclude="*.template"; then
@@ -177,7 +177,7 @@ jobs:
               FOUND_SECRETS=true
             fi
           done
-          
+
           if [ "$FOUND_SECRETS" = true ]; then
             echo "❌ Secrets detected in repository!"
             exit 1
@@ -192,30 +192,30 @@ jobs:
           echo "**Date:** $(date)" >> security-report.md
           echo "**Commit:** ${{ github.sha }}" >> security-report.md
           echo "" >> security-report.md
-          
+
           echo "## 🛡️ Scan Results" >> security-report.md
-          
+
           # Snyk SCA Results
           if [ -f snyk-sca-results.json ]; then
             echo "### 📦 Dependencies (SCA)" >> security-report.md
             VULNERABILITIES=$(jq -r '.vulnerabilities | length' snyk-sca-results.json 2>/dev/null || echo "0")
             echo "- **Vulnerabilities Found:** $VULNERABILITIES" >> security-report.md
           fi
-          
+
           # Snyk Code Results  
           if [ -f snyk-code-results.json ]; then
             echo "### 🔍 Code Analysis (SAST)" >> security-report.md
             CODE_ISSUES=$(jq -r '.runs[0].results | length' snyk-code-results.json 2>/dev/null || echo "0")
             echo "- **Code Issues Found:** $CODE_ISSUES" >> security-report.md
           fi
-          
+
           # Trivy Results
           if [ -f trivy-results.sarif ]; then
             echo "### 🐳 Infrastructure Scan (Trivy)" >> security-report.md
             TRIVY_ISSUES=$(jq -r '.runs[0].results | length' trivy-results.sarif 2>/dev/null || echo "0")
             echo "- **Infrastructure Issues:** $TRIVY_ISSUES" >> security-report.md
           fi
-          
+
           # Gitleaks Results
           if [ -f gitleaks-results.sarif ]; then
             echo "### 🔐 Secret Detection (Gitleaks)" >> security-report.md
@@ -225,7 +225,7 @@ jobs:
               echo "- **⚠️ ACTION REQUIRED:** Review and rotate exposed secrets immediately!" >> security-report.md
             fi
           fi
-          
+
           # Semgrep Results
           if [ -f semgrep-results.sarif ]; then
             echo "### 🛡️ Static Analysis (Semgrep)" >> security-report.md
@@ -241,7 +241,7 @@ jobs:
             echo "  - 🟡 Medium: $MEDIUM" >> security-report.md
             echo "  - 🔵 Low: $LOW" >> security-report.md
           fi
-          
+
           echo "" >> security-report.md
           echo "## 🎯 Recommendations" >> security-report.md
           echo "- Review and fix all high/critical vulnerabilities" >> security-report.md
@@ -278,7 +278,7 @@ jobs:
     name: 📦 Dependency Review
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
-    
+
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
