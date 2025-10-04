@@ -226,8 +226,8 @@ class PiiSanitizerTest extends TestCase
   {
     $tests = [
       'AWS: AKIAIOSFODNN7EXAMPLE' => '[SECRET_REDACTED]',
-      'GitHub: ghp_1234567890abcdefghijklmnopqrstuvwx' => '[SECRET_REDACTED]',
-      'Slack: xoxb-123456789012-1234567890123-abcdefghijklmnopqrstuvwx' => '[SECRET_REDACTED]',
+      'GitHub: ghp_FAKE1234567890TESTTOKEN123456789' => '[SECRET_REDACTED]',
+      'Slack: xoxb-FAKE-TEST-TOKEN-EXAMPLE-NOT-REAL' => '[SECRET_REDACTED]',
     ];
 
     foreach ($tests as $input => $expected) {
