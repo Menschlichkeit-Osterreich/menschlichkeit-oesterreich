@@ -551,7 +551,7 @@ Bei Fragen oder Problemen:
 1. **Dokumentation**: Siehe [README.md](../README.md)
 2. **Issues**: [GitHub Issues](https://github.com/menschlichkeit-oesterreich/issues)
 3. **Team Chat**: Slack #design-system
-4. **E-Mail**: design@menschlichkeit-oesterreich.at
+4. **E-Mail**: <design@menschlichkeit-oesterreich.at>
 
 ---
 

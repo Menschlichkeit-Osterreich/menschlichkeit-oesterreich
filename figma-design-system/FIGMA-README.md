@@ -136,7 +136,7 @@ npm run figma:validate
 - **Docs**: [FIGMA-INTEGRATION-COMPLETE.md](./FIGMA-INTEGRATION-COMPLETE.md)
 - **Issues**: [GitHub Issues](https://github.com/menschlichkeit-oesterreich/issues)
 - **Chat**: Slack #design-system
-- **E-Mail**: design@menschlichkeit-oesterreich.at
+- **E-Mail**: <design@menschlichkeit-oesterreich.at>
 
 ---
 

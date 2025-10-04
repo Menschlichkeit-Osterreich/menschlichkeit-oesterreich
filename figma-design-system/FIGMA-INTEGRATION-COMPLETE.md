@@ -667,16 +667,16 @@ designTokens.animations = animations;
 
 ### Tools & Services
 
-- **Figma API Docs**: https://www.figma.com/developers/api
-- **figma-api-exporter**: https://github.com/primer/figma-api-exporter
-- **Design Tokens Spec**: https://tr.designtokens.org/format/
+- **Figma API Docs**: <https://www.figma.com/developers/api>
+- **figma-api-exporter**: <https://github.com/primer/figma-api-exporter>
+- **Design Tokens Spec**: <https://tr.designtokens.org/format/>
 
 ### Hilfe erhalten
 
 1. **Dokumentation** durchsuchen
 2. **GitHub Issues** prüfen
 3. **Team Chat** (Slack #design-system)
-4. **E-Mail**: design@menschlichkeit-oesterreich.at
+4. **E-Mail**: <design@menschlichkeit-oesterreich.at>
 
 ---
 

@@ -640,9 +640,9 @@ import { Button, Card } from '@menschlichkeit/design-system';
 
 ## 📞 Kontakt
 
-**Design System Fragen**: design@menschlichkeit-oesterreich.at
-**Brand Compliance**: brand@menschlichkeit-oesterreich.at
-**Technical Support**: tech@menschlichkeit-oesterreich.at
+**Design System Fragen**: <design@menschlichkeit-oesterreich.at>
+**Brand Compliance**: <brand@menschlichkeit-oesterreich.at>
+**Technical Support**: <tech@menschlichkeit-oesterreich.at>
 
 ---
 
