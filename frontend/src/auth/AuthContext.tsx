@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { api } from '../services/api';
+import { setUnauthorizedHandler } from '../services/http';
 
 type AuthState = {
   token: string | null;
@@ -17,6 +18,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const t = sessionStorage.getItem(STORAGE_KEY);
     if (t) setToken(t);
+    // Install global 401 handler
+    setUnauthorizedHandler(() => {
+      sessionStorage.removeItem(STORAGE_KEY);
+      setToken(null);
+      try { window.location.assign('/Login'); } catch {}
+    });
+    return () => setUnauthorizedHandler(null);
   }, []);
 
   const value = useMemo<AuthState>(() => ({
@@ -42,4 +50,3 @@ export function useAuth() {
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');
   return ctx;
 }
-

@@ -1,5 +1,10 @@
 import { config } from './config';
 
+let unauthorizedHandler: (() => void) | null = null;
+export function setUnauthorizedHandler(handler: (() => void) | null) {
+  unauthorizedHandler = handler;
+}
+
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 export interface RequestOptions {
@@ -43,6 +48,9 @@ export async function request<T = unknown>(path: string, opts: RequestOptions = 
     const isJson = contentType.includes('application/json');
     const data = isJson ? await res.json().catch(() => ({})) : await res.text();
     if (!res.ok) {
+      if (res.status === 401 && unauthorizedHandler) {
+        try { unauthorizedHandler(); } catch { /*noop*/ }
+      }
       throw new HttpError(res.status, `HTTP ${res.status} ${res.statusText}`, data);
     }
     return data as T;

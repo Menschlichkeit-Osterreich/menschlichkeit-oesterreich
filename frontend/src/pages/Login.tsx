@@ -30,10 +30,17 @@ export default function LoginPage() {
     }
   }
 
+  const redirected = location?.state?.reason === 'unauthorized';
+
   return (
     <div className="mx-auto max-w-md p-4">
       <Card className="p-4">
         <h1 className="mb-4 text-xl font-semibold">Login</h1>
+        {redirected && (
+          <Alert variant="info" title="Sitzung erforderlich">
+            Bitte melde dich an, um fortzufahren.
+          </Alert>
+        )}
         {error && <Alert variant="error" title="Fehler">{error}</Alert>}
         <form className="mt-3 space-y-3" onSubmit={onSubmit}>
           <Input
@@ -61,4 +68,3 @@ export default function LoginPage() {
     </div>
   );
 }
-

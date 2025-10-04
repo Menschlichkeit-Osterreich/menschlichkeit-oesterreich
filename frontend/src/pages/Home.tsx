@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import { Link } from 'react-router-dom';
 
 export default function HomePage() {
   return (
@@ -18,7 +19,12 @@ export default function HomePage() {
           <Button variant="danger">Gefahr</Button>
         </div>
       </Card>
+
+      <Card className="mt-6 p-4">
+        <h2 className="mb-2 text-xl font-medium">Datenschutz</h2>
+        <p className="mb-3 text-secondary-700">Verwalte deine Datenschutzeinstellungen und kontobezogene Anfragen.</p>
+        <Link className="text-blue-600 underline" to="/account/privacy">Mein Konto löschen (DSGVO Art. 17)</Link>
+      </Card>
     </div>
   );
 }
-

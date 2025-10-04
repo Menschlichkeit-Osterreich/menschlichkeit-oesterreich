@@ -34,6 +34,23 @@ export interface CreateMembershipRequest {
   end_date?: string | null;
 }
 
+// Privacy / GDPR
+export type DeletionScope = 'full' | 'partial';
+
+export interface DataDeletionCreateRequest {
+  reason: string;
+  scope?: DeletionScope;
+}
+
+export interface DeletionRequestItem {
+  id: number;
+  user_id: number;
+  email: string;
+  status: 'pending' | 'approved' | 'rejected' | 'completed';
+  requested_at: string;
+  completed_at?: string | null;
+}
+
 export const apiPaths = {
   contacts: {
     create: '/contacts/create',
@@ -58,5 +75,11 @@ export const api = {
   memberships: {
     create: (payload: CreateMembershipRequest, token: string) =>
       http.post<ApiResponse>(apiPaths.memberships.create, payload, { token }),
+  },
+  privacy: {
+    requestDeletion: (payload: DataDeletionCreateRequest, token: string) =>
+      http.post<ApiResponse>(`/privacy/data-deletion`, payload, { token }),
+    listDeletions: (token: string) =>
+      http.get<ApiResponse<{ requests: DeletionRequestItem[] }>>(`/privacy/data-deletion`, { token }),
   },
 };
