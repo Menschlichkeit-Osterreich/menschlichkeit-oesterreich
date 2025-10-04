@@ -1,0 +1,26 @@
+name: n8n Smoke Test
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'automation/n8n/**'
+      - '.github/workflows/n8n-smoke.yml'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run smoke test (skips if N8N_BASE_URL unset)
+        env:
+          N8N_BASE_URL: ${{ secrets.N8N_BASE_URL }}
+          N8N_WEBHOOK_SECRET: ${{ secrets.N8N_WEBHOOK_SECRET }}
+        run: |
+          if [ -z "${N8N_BASE_URL}" ]; then
+            echo "N8N_BASE_URL not set; skipping."; exit 0; fi
+          python3 automation/n8n/smoke-test.py
+
