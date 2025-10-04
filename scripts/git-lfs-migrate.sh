@@ -17,7 +17,7 @@ echo "[+] Git LFS initialisieren"
 git lfs install --skip-smudge
 
 echo "[+] Git LFS Migration für Muster: $INCLUDE_PATTERNS"
-git lfs migrate import --yes --include="$INCLUDE_PATTERNS" --fixup HEAD
+git lfs migrate import --yes --include="$INCLUDE_PATTERNS"
 
 echo "[+] Abschluss"
 git status
