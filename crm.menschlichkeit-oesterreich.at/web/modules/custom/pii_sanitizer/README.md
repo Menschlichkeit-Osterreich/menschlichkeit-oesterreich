@@ -5,6 +5,7 @@
 DSGVO-compliant PII (Personally Identifiable Information) sanitization for Drupal 10+ and CiviCRM logs.
 
 **Features:**
+
 - ✅ Automatic PII redaction in Watchdog logs
 - ✅ CiviCRM activity log sanitization
 - ✅ Form error message sanitization
@@ -185,6 +186,7 @@ drush state:get pii_sanitizer.metrics
 ```
 
 **Output:**
+
 ```php
 Array
 (
@@ -260,6 +262,7 @@ cd /var/www/vhosts/menschlichkeit-oesterreich.at/crm/web
 **Cause:** Module not enabled or disabled in config
 
 **Solution:**
+
 ```bash
 drush pm:enable pii_sanitizer
 drush config:set pii_sanitizer.settings enabled TRUE
@@ -271,9 +274,11 @@ drush cr
 **Cause:** CiviCRM hooks not firing
 
 **Solution:**
+
 1. Check CiviCRM system status: `/civicrm/admin/setting/path`
 2. Clear CiviCRM cache: `drush cvapi System.flush`
 3. Verify hook file is included:
+
 ```bash
 ls -la modules/custom/pii_sanitizer/pii_sanitizer.civicrm.php
 ```
@@ -283,6 +288,7 @@ ls -la modules/custom/pii_sanitizer/pii_sanitizer.civicrm.php
 **Cause:** Regex compilation on every request
 
 **Solution:** Enable PHP OpCache for regex caching:
+
 ```bash
 # In php.ini
 opcache.enable=1
@@ -294,6 +300,7 @@ opcache.memory_consumption=256
 **Cause:** Greedy regex matching non-phone patterns
 
 **Solution:** Adjust phone pattern in `PiiSanitizer.php`:
+
 ```php
 'phone' => '/\+\d{1,3}[-.\s]?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,9}/',
 ```
@@ -340,37 +347,47 @@ function mymodule_syslog_format_alter(&$entry, $message) {
 #### Methods
 
 **`__construct(array $config = [])`**
+
 - Initialize sanitizer with configuration
 
 **`scrubText(string $text): string`**
+
 - Sanitize text for PII patterns
 - Returns redacted text
 
 **`scrubDict(array $data, string $strategy = null): array`**
+
 - Sanitize array/dictionary
 - Strategies: `drop`, `redact`, `mask`, `hash`
 
 **`static getMetrics(): array`**
+
 - Get redaction metrics
 
 **`static resetMetrics(): void`**
+
 - Reset metrics (for testing)
 
 #### Private Methods
 
 **`validateLuhn(string $number): bool`**
+
 - Validate credit card with Luhn algorithm
 
 **`maskEmail(string $email): string`**
+
 - Mask email address (e.g., `m**@example.com`)
 
 **`maskPhone(string $phone): string`**
+
 - Mask phone number (e.g., `+43*********`)
 
 **`maskIban(string $iban): string`**
+
 - Mask IBAN (e.g., `AT61***`)
 
 **`maskIpv4(string $ip): string`**
+
 - Mask IPv4 (e.g., `192.168.*.*`)
 
 ---
@@ -380,17 +397,21 @@ function mymodule_syslog_format_alter(&$entry, $message) {
 ### Articles Addressed
 
 **Art. 5 (Grundsätze):**
+
 - ✅ Datenminimierung (PII entfernt)
 - ✅ Speicherbegrenzung (Logs mit redacted PII)
 
 **Art. 25 (Datenschutz durch Technikgestaltung):**
+
 - ✅ Privacy by Design (automatische Redaktion)
 
 **Art. 32 (Sicherheit der Verarbeitung):**
+
 - ✅ Pseudonymisierung (Email/Phone-Masking)
 - ✅ Verschlüsselung (HASH-Strategy)
 
 **Art. 35 (Datenschutz-Folgenabschätzung):**
+
 - ✅ Risikominimierung (PII in Logs = Hohes Risiko → Redacted)
 
 ---
@@ -404,6 +425,7 @@ GPL-2.0-or-later (compatible with Drupal core)
 ## 👥 Authors
 
 **Menschlichkeit Österreich DevOps Team**
+
 - Version: 1.0.0
 - Date: 2025-10-04
 - Contact: dev@menschlichkeit-oesterreich.at

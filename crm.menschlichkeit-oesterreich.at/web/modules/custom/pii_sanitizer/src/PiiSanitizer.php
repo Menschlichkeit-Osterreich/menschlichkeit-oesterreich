@@ -16,7 +16,8 @@ namespace Drupal\pii_sanitizer;
  *
  * @package Drupal\pii_sanitizer
  */
-class PiiSanitizer {
+class PiiSanitizer
+{
 
   /**
    * Redaction strategy constants.
@@ -59,16 +60,29 @@ class PiiSanitizer {
    *   - sensitive_fields: array (fields to DROP)
    *   - allowlist_fields: array (fields to skip)
    */
-  public function __construct(array $config = []) {
+  public function __construct(array $config = [])
+  {
     $this->config = array_merge([
       'enabled' => TRUE,
       'default_strategy' => self::STRATEGY_MASK,
       'sensitive_fields' => [
-        'password', 'pass', 'secret', 'token', 'api_key', 'apikey',
-        'authorization', 'auth', 'cookie', 'session',
+        'password',
+        'pass',
+        'secret',
+        'token',
+        'api_key',
+        'apikey',
+        'authorization',
+        'auth',
+        'cookie',
+        'session',
       ],
       'allowlist_fields' => [
-        'timestamp', 'level', 'severity', 'channel', 'context',
+        'timestamp',
+        'level',
+        'severity',
+        'channel',
+        'context',
       ],
     ], $config);
 
@@ -78,7 +92,8 @@ class PiiSanitizer {
   /**
    * Initialize compiled regex patterns.
    */
-  private function initPatterns() {
+  private function initPatterns()
+  {
     if (!empty(self::$patterns)) {
       return;
     }
@@ -106,13 +121,14 @@ class PiiSanitizer {
    * @return string
    *   Sanitized text with PII redacted.
    */
-  public function scrubText(string $text): string {
+  public function scrubText(string $text): string
+  {
     if (!$this->config['enabled']) {
       return $text;
     }
 
     // Credit Card FIRST (before phone pattern can match!)
-    $text = preg_replace_callback(self::$patterns['credit_card'], function($matches) {
+    $text = preg_replace_callback(self::$patterns['credit_card'], function ($matches) {
       $card = preg_replace('/[\s-]/', '', $matches[0]);
       if ($this->validateLuhn($card)) {
         self::$metrics['cards_redacted']++;
@@ -122,44 +138,44 @@ class PiiSanitizer {
     }, $text);
 
     // Email
-    $text = preg_replace_callback(self::$patterns['email'], function($matches) {
+    $text = preg_replace_callback(self::$patterns['email'], function ($matches) {
       self::$metrics['emails_redacted']++;
       return $this->maskEmail($matches[0]);
     }, $text);
 
     // Phone (after credit cards!)
-    $text = preg_replace_callback(self::$patterns['phone'], function($matches) {
+    $text = preg_replace_callback(self::$patterns['phone'], function ($matches) {
       self::$metrics['phones_redacted']++;
       return $this->maskPhone($matches[0]);
     }, $text);
 
     // IBAN
-    $text = preg_replace_callback(self::$patterns['iban'], function($matches) {
+    $text = preg_replace_callback(self::$patterns['iban'], function ($matches) {
       self::$metrics['ibans_redacted']++;
       return $this->maskIban($matches[0]);
     }, $text);
 
     // JWT/Bearer
-    $text = preg_replace_callback(self::$patterns['jwt'], function($matches) {
+    $text = preg_replace_callback(self::$patterns['jwt'], function ($matches) {
       self::$metrics['jwts_redacted']++;
       return 'Bearer [REDACTED]';
     }, $text);
 
     // IPv4
-    $text = preg_replace_callback(self::$patterns['ipv4'], function($matches) {
+    $text = preg_replace_callback(self::$patterns['ipv4'], function ($matches) {
       self::$metrics['ips_redacted']++;
       return $this->maskIpv4($matches[0]);
     }, $text);
 
     // IPv6
-    $text = preg_replace_callback(self::$patterns['ipv6'], function($matches) {
+    $text = preg_replace_callback(self::$patterns['ipv6'], function ($matches) {
       self::$metrics['ips_redacted']++;
       return '[IPv6_REDACTED]';
     }, $text);
 
     // API Secrets
     foreach (['aws_secret', 'github_token', 'slack_token'] as $secret_type) {
-      $text = preg_replace_callback(self::$patterns[$secret_type], function($matches) {
+      $text = preg_replace_callback(self::$patterns[$secret_type], function ($matches) {
         self::$metrics['secrets_redacted']++;
         return '[SECRET_REDACTED]';
       }, $text);
@@ -179,7 +195,8 @@ class PiiSanitizer {
    * @return array
    *   Sanitized array with PII redacted.
    */
-  public function scrubDict(array $data, string $strategy = null): array {
+  public function scrubDict(array $data, string $strategy = null): array
+  {
     if (!$this->config['enabled']) {
       return $data;
     }
@@ -229,7 +246,8 @@ class PiiSanitizer {
    * @return bool
    *   TRUE if valid, FALSE otherwise.
    */
-  private function validateLuhn(string $number): bool {
+  private function validateLuhn(string $number): bool
+  {
     $number = preg_replace('/\D/', '', $number);
     $length = strlen($number);
 
@@ -265,7 +283,8 @@ class PiiSanitizer {
    * @return string
    *   Masked email (e.g., m**@example.com).
    */
-  private function maskEmail(string $email): string {
+  private function maskEmail(string $email): string
+  {
     $parts = explode('@', $email);
     if (count($parts) !== 2) {
       return '[EMAIL]';
@@ -287,7 +306,8 @@ class PiiSanitizer {
    * @return string
    *   Masked phone (e.g., +43*********).
    */
-  private function maskPhone(string $phone): string {
+  private function maskPhone(string $phone): string
+  {
     if (strpos($phone, '+') === 0) {
       return substr($phone, 0, 3) . '*********';
     }
@@ -303,7 +323,8 @@ class PiiSanitizer {
    * @return string
    *   Masked IBAN (e.g., AT61***).
    */
-  private function maskIban(string $iban): string {
+  private function maskIban(string $iban): string
+  {
     $iban = str_replace(' ', '', $iban);
     return substr($iban, 0, 4) . '***';
   }
@@ -317,7 +338,8 @@ class PiiSanitizer {
    * @return string
    *   Masked IP (e.g., 192.168.*.*).
    */
-  private function maskIpv4(string $ip): string {
+  private function maskIpv4(string $ip): string
+  {
     $parts = explode('.', $ip);
     return $parts[0] . '.' . $parts[1] . '.*.*';
   }
@@ -328,14 +350,16 @@ class PiiSanitizer {
    * @return array
    *   Metrics array with counts.
    */
-  public static function getMetrics(): array {
+  public static function getMetrics(): array
+  {
     return self::$metrics;
   }
 
   /**
    * Reset metrics (for testing).
    */
-  public static function resetMetrics(): void {
+  public static function resetMetrics(): void
+  {
     self::$metrics = [
       'emails_redacted' => 0,
       'phones_redacted' => 0,

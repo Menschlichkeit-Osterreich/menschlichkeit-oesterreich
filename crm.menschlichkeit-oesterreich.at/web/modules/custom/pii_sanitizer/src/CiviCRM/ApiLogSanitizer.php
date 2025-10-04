@@ -8,7 +8,8 @@ use Drupal\pii_sanitizer\PiiSanitizer;
 /**
  * API wrapper to sanitize CiviCRM API responses for logging.
  */
-class ApiLogSanitizer extends CRM_Utils_API_AbstractFieldOutputHandler {
+class ApiLogSanitizer extends CRM_Utils_API_AbstractFieldOutputHandler
+{
 
   /**
    * PII Sanitizer instance.
@@ -20,14 +21,16 @@ class ApiLogSanitizer extends CRM_Utils_API_AbstractFieldOutputHandler {
   /**
    * Constructor.
    */
-  public function __construct() {
+  public function __construct()
+  {
     $this->sanitizer = new PiiSanitizer(['enabled' => TRUE]);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function toApiOutput($apiRequest, $values) {
+  public function toApiOutput($apiRequest, $values)
+  {
     // Only sanitize for logging, not for actual API responses
     if (!$this->shouldSanitize()) {
       return $values;
@@ -35,8 +38,7 @@ class ApiLogSanitizer extends CRM_Utils_API_AbstractFieldOutputHandler {
 
     if (is_array($values)) {
       return $this->sanitizer->scrubDict($values, PiiSanitizer::STRATEGY_MASK);
-    }
-    elseif (is_string($values)) {
+    } elseif (is_string($values)) {
       return $this->sanitizer->scrubText($values);
     }
 
@@ -49,7 +51,8 @@ class ApiLogSanitizer extends CRM_Utils_API_AbstractFieldOutputHandler {
    * @return bool
    *   TRUE if logging is enabled.
    */
-  protected function shouldSanitize(): bool {
+  protected function shouldSanitize(): bool
+  {
     // Check if debug logging is enabled
     $config = \CRM_Core_Config::singleton();
     return !empty($config->debug);

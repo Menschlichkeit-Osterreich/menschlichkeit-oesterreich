@@ -12,7 +12,8 @@ use Drupal\pii_sanitizer\PiiSanitizer;
  *
  * Sanitizes PII in CiviCRM activity logs after creation/update.
  */
-function pii_sanitizer_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+function pii_sanitizer_civicrm_post($op, $objectName, $objectId, &$objectRef)
+{
   // Only process Activity entities
   if ($objectName !== 'Activity') {
     return;
@@ -48,9 +49,10 @@ function pii_sanitizer_civicrm_post($op, $objectName, $objectId, &$objectRef) {
  *
  * Sanitizes API responses for logging.
  */
-function pii_sanitizer_civicrm_apiWrappers(&$wrappers, $apiRequest) {
+function pii_sanitizer_civicrm_apiWrappers(&$wrappers, $apiRequest)
+{
   $config = \Drupal::config('pii_sanitizer.settings');
-  
+
   if ($config->get('sanitize_civicrm_api_logs') ?? TRUE) {
     $wrappers[] = new \Drupal\pii_sanitizer\CiviCRM\ApiLogSanitizer();
   }
@@ -61,7 +63,8 @@ function pii_sanitizer_civicrm_apiWrappers(&$wrappers, $apiRequest) {
  *
  * Adds PII sanitization to CiviCRM log tables.
  */
-function pii_sanitizer_civicrm_alterLogTables(&$logTableSpec) {
+function pii_sanitizer_civicrm_alterLogTables(&$logTableSpec)
+{
   // Add sanitization trigger for contact table logs
   if (isset($logTableSpec['civicrm_contact'])) {
     $logTableSpec['civicrm_contact']['sanitize_columns'] = [
@@ -89,7 +92,8 @@ function pii_sanitizer_civicrm_alterLogTables(&$logTableSpec) {
  *
  * Define permission to view unredacted logs.
  */
-function pii_sanitizer_civicrm_permission(&$permissions) {
+function pii_sanitizer_civicrm_permission(&$permissions)
+{
   $permissions['view unredacted civicrm logs'] = [
     'label' => t('View Unredacted CiviCRM Logs'),
     'description' => t('Allow viewing PII in CiviCRM activity logs. DSGVO-KRITISCH!'),
@@ -101,9 +105,10 @@ function pii_sanitizer_civicrm_permission(&$permissions) {
  *
  * Sanitize search results for non-privileged users.
  */
-function pii_sanitizer_civicrm_searchColumns($objectName, &$headers, &$rows, &$selector) {
+function pii_sanitizer_civicrm_searchColumns($objectName, &$headers, &$rows, &$selector)
+{
   $current_user = \Drupal::currentUser();
-  
+
   // Allow admins and users with special permission to see full data
   if ($current_user->hasPermission('view unredacted civicrm logs')) {
     return;
@@ -118,12 +123,12 @@ function pii_sanitizer_civicrm_searchColumns($objectName, &$headers, &$rows, &$s
       if (isset($row['email'])) {
         $row['email'] = $sanitizer->scrubText($row['email']);
       }
-      
+
       // Sanitize phone
       if (isset($row['phone'])) {
         $row['phone'] = $sanitizer->scrubText($row['phone']);
       }
-      
+
       // Sanitize address fields
       foreach (['street_address', 'city', 'postal_code'] as $field) {
         if (isset($row[$field])) {
@@ -139,17 +144,18 @@ function pii_sanitizer_civicrm_searchColumns($objectName, &$headers, &$rows, &$s
  *
  * Sanitize exported data.
  */
-function pii_sanitizer_civicrm_export($exportTempTable, &$headerRows, &$sqlColumns) {
+function pii_sanitizer_civicrm_export($exportTempTable, &$headerRows, &$sqlColumns)
+{
   $config = \Drupal::config('pii_sanitizer.settings');
-  
+
   if ($config->get('sanitize_civicrm_exports') ?? TRUE) {
     $sanitizer = new PiiSanitizer(['enabled' => TRUE]);
-    
+
     // Sanitize column headers containing PII keywords
     foreach ($headerRows as &$header) {
       $header = $sanitizer->scrubText($header);
     }
-    
+
     // Add SQL CASE statements for PII columns
     $pii_columns = ['email', 'phone', 'credit_card_number', 'iban'];
     foreach ($sqlColumns as $column => &$sql) {

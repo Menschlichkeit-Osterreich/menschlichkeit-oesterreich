@@ -15,7 +15,8 @@ use Drupal\pii_sanitizer\PiiSanitizer;
  * @group pii_sanitizer
  * @coversDefaultClass \Drupal\pii_sanitizer\PiiSanitizer
  */
-class PiiSanitizerTest extends TestCase {
+class PiiSanitizerTest extends TestCase
+{
 
   /**
    * The PiiSanitizer instance.
@@ -27,7 +28,8 @@ class PiiSanitizerTest extends TestCase {
   /**
    * {@inheritdoc}
    */
-  protected function setUp(): void {
+  protected function setUp(): void
+  {
     parent::setUp();
     $this->sanitizer = new PiiSanitizer(['enabled' => TRUE]);
     PiiSanitizer::resetMetrics();
@@ -38,13 +40,14 @@ class PiiSanitizerTest extends TestCase {
    *
    * @covers ::scrubText
    */
-  public function testEmailSanitization() {
+  public function testEmailSanitization()
+  {
     $input = 'Contact us at info@example.com for help';
     $output = $this->sanitizer->scrubText($input);
-    
+
     $this->assertStringContainsString('i**@example.com', $output);
     $this->assertStringNotContainsString('info@example.com', $output);
-    
+
     $metrics = PiiSanitizer::getMetrics();
     $this->assertEquals(1, $metrics['emails_redacted']);
   }
@@ -54,13 +57,14 @@ class PiiSanitizerTest extends TestCase {
    *
    * @covers ::scrubText
    */
-  public function testMultipleEmails() {
+  public function testMultipleEmails()
+  {
     $input = 'Send to john.doe@company.org and jane@example.at';
     $output = $this->sanitizer->scrubText($input);
-    
+
     $this->assertStringContainsString('j**@company.org', $output);
     $this->assertStringContainsString('j**@example.at', $output);
-    
+
     $metrics = PiiSanitizer::getMetrics();
     $this->assertEquals(2, $metrics['emails_redacted']);
   }
@@ -70,7 +74,8 @@ class PiiSanitizerTest extends TestCase {
    *
    * @covers ::scrubText
    */
-  public function testPhoneSanitization() {
+  public function testPhoneSanitization()
+  {
     $tests = [
       '+43 664 1234567' => '+43*********',
       '+49-30-12345678' => '+49*********',
@@ -81,7 +86,7 @@ class PiiSanitizerTest extends TestCase {
       PiiSanitizer::resetMetrics();
       $output = $this->sanitizer->scrubText("Call $input now");
       $this->assertStringContainsString('***', $output);
-      
+
       $metrics = PiiSanitizer::getMetrics();
       $this->assertGreaterThan(0, $metrics['phones_redacted']);
     }
@@ -93,14 +98,15 @@ class PiiSanitizerTest extends TestCase {
    * @covers ::scrubText
    * @covers ::validateLuhn
    */
-  public function testCreditCardSanitization() {
+  public function testCreditCardSanitization()
+  {
     // Valid Visa Test Card (Luhn valid)
     $input = 'Card: 4111-1111-1111-1111';
     $output = $this->sanitizer->scrubText($input);
-    
+
     $this->assertStringContainsString('[CARD]', $output);
     $this->assertStringNotContainsString('4111', $output);
-    
+
     $metrics = PiiSanitizer::getMetrics();
     $this->assertEquals(1, $metrics['cards_redacted']);
   }
@@ -110,7 +116,8 @@ class PiiSanitizerTest extends TestCase {
    *
    * @covers ::validateLuhn
    */
-  public function testLuhnValidation() {
+  public function testLuhnValidation()
+  {
     $reflection = new \ReflectionClass($this->sanitizer);
     $method = $reflection->getMethod('validateLuhn');
     $method->setAccessible(TRUE);
@@ -149,7 +156,8 @@ class PiiSanitizerTest extends TestCase {
    *
    * @covers ::scrubText
    */
-  public function testIbanSanitization() {
+  public function testIbanSanitization()
+  {
     $tests = [
       'AT61 1904 3002 3457 3201' => 'AT61***',
       'DE89 3704 0044 0532 0130 00' => 'DE89***',
@@ -159,10 +167,10 @@ class PiiSanitizerTest extends TestCase {
     foreach ($tests as $iban => $expected) {
       PiiSanitizer::resetMetrics();
       $output = $this->sanitizer->scrubText("IBAN: $iban");
-      
+
       $this->assertStringContainsString($expected, $output);
       $this->assertStringNotContainsString($iban, $output);
-      
+
       $metrics = PiiSanitizer::getMetrics();
       $this->assertEquals(1, $metrics['ibans_redacted']);
     }
@@ -173,10 +181,11 @@ class PiiSanitizerTest extends TestCase {
    *
    * @covers ::scrubText
    */
-  public function testJwtSanitization() {
+  public function testJwtSanitization()
+  {
     $input = 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
     $output = $this->sanitizer->scrubText($input);
-    
+
     $this->assertStringContainsString('Bearer [REDACTED]', $output);
     $this->assertStringNotContainsString('eyJhbGci', $output);
   }
@@ -186,10 +195,11 @@ class PiiSanitizerTest extends TestCase {
    *
    * @covers ::scrubText
    */
-  public function testIpv4Sanitization() {
+  public function testIpv4Sanitization()
+  {
     $input = 'User from 192.168.1.100 accessed the system';
     $output = $this->sanitizer->scrubText($input);
-    
+
     $this->assertStringContainsString('192.168.*.*', $output);
     $this->assertStringNotContainsString('192.168.1.100', $output);
   }
@@ -199,10 +209,11 @@ class PiiSanitizerTest extends TestCase {
    *
    * @covers ::scrubText
    */
-  public function testIpv6Sanitization() {
+  public function testIpv6Sanitization()
+  {
     $input = 'IPv6: 2001:0db8:85a3:0000:0000:8a2e:0370:7334';
     $output = $this->sanitizer->scrubText($input);
-    
+
     $this->assertStringContainsString('[IPv6_REDACTED]', $output);
   }
 
@@ -211,7 +222,8 @@ class PiiSanitizerTest extends TestCase {
    *
    * @covers ::scrubText
    */
-  public function testApiSecretSanitization() {
+  public function testApiSecretSanitization()
+  {
     $tests = [
       'AWS: AKIAIOSFODNN7EXAMPLE' => '[SECRET_REDACTED]',
       'GitHub: ghp_1234567890abcdefghijklmnopqrstuvwx' => '[SECRET_REDACTED]',
@@ -229,7 +241,8 @@ class PiiSanitizerTest extends TestCase {
    *
    * @covers ::scrubDict
    */
-  public function testDictSanitizationDrop() {
+  public function testDictSanitizationDrop()
+  {
     $input = [
       'username' => 'john_doe',
       'password' => 'secret123',
@@ -239,14 +252,14 @@ class PiiSanitizerTest extends TestCase {
     ];
 
     $output = $this->sanitizer->scrubDict($input, PiiSanitizer::STRATEGY_DROP);
-    
+
     // Sensitive fields should be removed
     $this->assertArrayNotHasKey('password', $output);
     $this->assertArrayNotHasKey('api_key', $output);
-    
+
     // Email should be masked
     $this->assertStringContainsString('**', $output['email']);
-    
+
     // Allowlisted fields pass through
     $this->assertEquals('2025-10-04T12:00:00Z', $output['timestamp']);
   }
@@ -256,14 +269,15 @@ class PiiSanitizerTest extends TestCase {
    *
    * @covers ::scrubDict
    */
-  public function testDictSanitizationMask() {
+  public function testDictSanitizationMask()
+  {
     $input = [
       'message' => 'Call +43 664 1234567',
       'user_email' => 'admin@example.com',
     ];
 
     $output = $this->sanitizer->scrubDict($input, PiiSanitizer::STRATEGY_MASK);
-    
+
     $this->assertStringContainsString('***', $output['message']);
     $this->assertStringContainsString('**', $output['user_email']);
   }
@@ -273,7 +287,8 @@ class PiiSanitizerTest extends TestCase {
    *
    * @covers ::scrubDict
    */
-  public function testNestedArraySanitization() {
+  public function testNestedArraySanitization()
+  {
     $input = [
       'user' => [
         'name' => 'John Doe',
@@ -286,7 +301,7 @@ class PiiSanitizerTest extends TestCase {
     ];
 
     $output = $this->sanitizer->scrubDict($input);
-    
+
     $this->assertStringContainsString('**', $output['user']['contact']['email']);
     $this->assertStringContainsString('***', $output['user']['contact']['phone']);
     $this->assertEquals('2025-10-04', $output['timestamp']);
@@ -298,18 +313,19 @@ class PiiSanitizerTest extends TestCase {
    * @covers ::getMetrics
    * @covers ::resetMetrics
    */
-  public function testMetricsCollection() {
+  public function testMetricsCollection()
+  {
     PiiSanitizer::resetMetrics();
-    
+
     $input = 'Email: test@example.com, Phone: +43 664 1234567, Card: 4532015114161234';
     $this->sanitizer->scrubText($input);
-    
+
     $metrics = PiiSanitizer::getMetrics();
-    
+
     $this->assertEquals(1, $metrics['emails_redacted']);
     $this->assertGreaterThan(0, $metrics['phones_redacted']);
     $this->assertEquals(1, $metrics['cards_redacted']);
-    
+
     // Reset and verify
     PiiSanitizer::resetMetrics();
     $metrics = PiiSanitizer::getMetrics();
@@ -321,12 +337,13 @@ class PiiSanitizerTest extends TestCase {
    *
    * @covers ::scrubText
    */
-  public function testDisabledSanitizer() {
+  public function testDisabledSanitizer()
+  {
     $disabled_sanitizer = new PiiSanitizer(['enabled' => FALSE]);
-    
+
     $input = 'Email: test@example.com';
     $output = $disabled_sanitizer->scrubText($input);
-    
+
     // Should pass through unchanged
     $this->assertEquals($input, $output);
   }
@@ -336,20 +353,21 @@ class PiiSanitizerTest extends TestCase {
    *
    * @covers ::scrubText
    */
-  public function testGoldenSamplesDsgvo() {
+  public function testGoldenSamplesDsgvo()
+  {
     $golden_samples = [
       // DSGVO Art. 9 - Besondere Kategorien (VALID TEST CARDS!)
       'Patient record: john.doe@hospital.at, +43 1 12345, Card: 4111111111111111' => [
         'must_not_contain' => ['john.doe@hospital.at', '+43 1 12345', '4111111111111111'],
         'must_contain' => ['**@hospital.at', '***', '[CARD]'],
       ],
-      
+
       // Donation with full PII
       'Spende von Max Mustermann, max.mustermann@gmail.com, AT61 1904 3002 3457 3201' => [
         'must_not_contain' => ['max.mustermann@gmail.com', 'AT61 1904 3002 3457 3201'],
         'must_contain' => ['**@gmail.com', 'AT61***'],
       ],
-      
+
       // API Log with Bearer token
       'POST /api/v1/users Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test.signature' => [
         'must_not_contain' => ['eyJhbGci'],
@@ -359,7 +377,7 @@ class PiiSanitizerTest extends TestCase {
 
     foreach ($golden_samples as $input => $assertions) {
       $output = $this->sanitizer->scrubText($input);
-      
+
       foreach ($assertions['must_not_contain'] as $forbidden) {
         $this->assertStringNotContainsString(
           $forbidden,
@@ -367,7 +385,7 @@ class PiiSanitizerTest extends TestCase {
           "Output must not contain: $forbidden"
         );
       }
-      
+
       foreach ($assertions['must_contain'] as $required) {
         $this->assertStringContainsString(
           $required,
