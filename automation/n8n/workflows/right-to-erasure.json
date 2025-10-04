@@ -1,0 +1,127 @@
+{
+  "name": "GDPR Right to Erasure Audit",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "right-to-erasure",
+        "responseMode": "lastNode",
+        "options": {
+          "binaryData": false,
+          "responseContentType": "application/json"
+        }
+      },
+      "id": "webhook-erasure",
+      "name": "Webhook - Erasure Intake",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [220, 280],
+      "webhookId": "moe-gdpr-right-to-erasure"
+    },
+    {
+      "parameters": {
+        "functionCode": "const crypto = require('crypto');\nconst secret = $env.N8N_WEBHOOK_SECRET || '';\nif (!secret) {\n  return items;\n}\nconst incoming = $headers['x-webhook-signature'];\nconst payload = JSON.stringify(items[0].json);\nconst expected = crypto\n  .createHmac('sha256', secret)\n  .update(payload)\n  .digest('hex');\nif (!incoming || incoming !== expected) {\n  throw new Error('Invalid webhook signature');\n}\nreturn items;"
+      },
+      "id": "validate-signature",
+      "name": "Validate Signature",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [500, 280]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "event",
+              "value": "right_to_erasure"
+            },
+            {
+              "name": "request_id",
+              "value": "={{ $json.requestId }}"
+            },
+            {
+              "name": "subject_email",
+              "value": "={{ $json.subjectEmail }}"
+            },
+            {
+              "name": "mode",
+              "value": "={{ $json.mode || 'external_orchestrated' }}"
+            },
+            {
+              "name": "scope",
+              "value": "={{ $json.scope || 'full' }}"
+            }
+          ],
+          "json": [
+            {
+              "name": "metadata",
+              "value": "={{ $json.metadata || {} }}"
+            },
+            {
+              "name": "memberships_removed",
+              "value": "={{ $json.memberships_removed || [] }}"
+            }
+          ]
+        },
+        "options": {
+          "setAllData": false
+        }
+      },
+      "id": "prepare-audit",
+      "name": "Prepare Audit Payload",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [780, 280]
+    },
+    {
+      "parameters": {
+        "additionalFields": {},
+        "responseBody": "={{ { \"status\": 'accepted', \"request_id\": $json.request_id } }}",
+        "responseCode": 202
+      },
+      "id": "respond",
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1040, 280]
+    }
+  ],
+  "connections": {
+    "Webhook - Erasure Intake": {
+      "main": [
+        [
+          {
+            "node": "Validate Signature",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Signature": {
+      "main": [
+        [
+          {
+            "node": "Prepare Audit Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Audit Payload": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

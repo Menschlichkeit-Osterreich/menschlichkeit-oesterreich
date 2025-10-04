@@ -36,6 +36,7 @@ WEBHOOK_PATHS = {
     "member": "/webhook/member-event",
     "payment": "/webhook/payment-event",
     "sync": "/webhook/contact-sync",
+    "erasure": "/webhook/right-to-erasure",
     "error": "/webhook/error-alert",
 }
 
@@ -125,6 +126,35 @@ class MOEWebhookClient:
             f"direction: {sync_direction}"
         )
         return self._call_webhook(WEBHOOK_PATHS["sync"], payload)
+
+    def trigger_erasure_request(
+        self,
+        subject_email: str,
+        *,
+        request_id: Optional[str] = None,
+        scope: str = "full",
+        reason: str = "user_request",
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Trigger GDPR Art. 17 automated erasure workflow via n8n."""
+
+        payload = {
+            "timestamp": datetime.now().isoformat(),
+            "requestId": request_id or hashlib.sha256(subject_email.encode()).hexdigest(),
+            "subjectEmail": subject_email,
+            # scope: full | retention-exception | marketing-only
+            "scope": scope,
+            "reason": reason,
+            "metadata": metadata or {},
+        }
+
+        logger.info(
+            "Erasure workflow triggered for %s (scope=%s, reason=%s)",
+            subject_email,
+            scope,
+            reason,
+        )
+        return self._call_webhook(WEBHOOK_PATHS["erasure"], payload)
 
     def trigger_payment_event(self, payment_data: Dict[str, Any]) -> Dict[str, Any]:
         """Trigger payment processing events."""
@@ -226,14 +256,15 @@ class MOEWebhookClient:
             return ""
 
         try:
-            payload_string = json.dumps(payload, sort_keys=True)
+            # Use compact JSON without sorting to match n8n JSON.stringify
+            payload_string = json.dumps(payload, separators=(",", ":"))
             signature = hmac.new(
                 self.secret.encode("utf-8"),
                 payload_string.encode("utf-8"),
                 hashlib.sha256,
             ).hexdigest()
 
-            return f"sha256={signature}"
+            return signature
 
         except Exception as e:
             logger.error(f"Signature generation failed: {e}")
@@ -265,7 +296,7 @@ def main() -> None:
         description="n8n Webhook Client - Menschlichkeit Österreich"
     )
     parser.add_argument(
-        "action", choices=["auth", "member", "payment", "error", "sync", "health"]
+        "action", choices=["auth", "member", "payment", "error", "sync", "health", "erasure"]
     )
     parser.add_argument("--base-url", help="n8n base URL")
     parser.add_argument("--secret", help="Webhook secret")
@@ -273,6 +304,10 @@ def main() -> None:
     parser.add_argument("--member-id", type=int, help="Member ID for member events")
     parser.add_argument("--event-type", help="Event type")
     parser.add_argument("--message", help="Error message")
+    parser.add_argument("--email", help="Subject email for erasure")
+    parser.add_argument("--request-id", help="Explicit request ID (optional)")
+    parser.add_argument("--scope", choices=["full", "partial"], default="full", help="Erasure scope")
+    parser.add_argument("--reason", default="user_request", help="Erasure reason")
     parser.add_argument("--verbose", "-v", action="store_true")
 
     args = parser.parse_args()
@@ -320,7 +355,19 @@ def main() -> None:
 
         else:
             # Default test webhook
-            result = client.trigger_api_event("test", additional_data)
+            if args.action == "erasure":
+                if not args.email:
+                    print("Error: --email required for erasure")
+                    return
+                result = client.trigger_erasure_request(
+                    subject_email=args.email,
+                    request_id=args.request_id,
+                    scope=args.scope,
+                    reason=args.reason,
+                    metadata=additional_data,
+                )
+            else:
+                result = client.trigger_api_event("test", additional_data)
 
         if args.action != "health":
             print(f"Result: {json.dumps(result, indent=2)}")
