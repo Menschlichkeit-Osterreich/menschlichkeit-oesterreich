@@ -13,3 +13,6 @@
 *.jpeg filter=lfs diff=lfs merge=lfs -text
 *.JPG filter=lfs diff=lfs merge=lfs -text
 Pdf/** filter=lfs diff=lfs merge=lfs -text
+
+# Test files should not be scanned for secrets
+**/tests/**/*.php linguist-generated=true
