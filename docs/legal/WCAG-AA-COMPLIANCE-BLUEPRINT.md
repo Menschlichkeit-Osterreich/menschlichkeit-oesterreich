@@ -28,6 +28,7 @@ Dieser Blueprint definiert checkbare Barrierefreiheits-Anforderungen gemäß WCA
 - [ ] Canvas-Elemente: Fallback-Inhalt bereitgestellt
 
 **Automatischer Test:**
+
 ```bash
 # axe-core Regel: image-alt
 npx axe --rules image-alt https://menschlichkeit-oesterreich.at
@@ -78,6 +79,7 @@ npx axe --rules image-alt https://menschlichkeit-oesterreich.at
   - [ ] `aria-required`, `aria-invalid` für Formularfelder
 
 **Test:**
+
 ```bash
 # Prüfung auf semantische Struktur
 npx pa11y --runner axe https://menschlichkeit-oesterreich.at
@@ -126,10 +128,11 @@ npx pa11y --runner axe https://menschlichkeit-oesterreich.at
 - [ ] UI-Komponenten: ≥ 3:1 (WCAG 2.1)
 
 **Farbpalette (aus Design-Tokens):**
+
 ```json
 {
   "colors": {
-    "primary": "#C8102E",  // Rot-Österreich
+    "primary": "#C8102E", // Rot-Österreich
     "background": "#FFFFFF",
     "text": "#1A1A1A"
   }
@@ -137,6 +140,7 @@ npx pa11y --runner axe https://menschlichkeit-oesterreich.at
 ```
 
 **Kontrast-Tests:**
+
 - Rot (#C8102E) auf Weiß (#FFFFFF): **9.31:1** ✅
 - Schwarz (#1A1A1A) auf Weiß: **17.2:1** ✅
 
@@ -163,6 +167,7 @@ npx pa11y --runner axe https://menschlichkeit-oesterreich.at
 #### 1.4.12 Textabstand – SC 1.4.12 (WCAG 2.1)
 
 **Anforderung:** Inhalte funktionieren mit:
+
 - Zeilenhöhe: ≥ 1.5× Schriftgröße
 - Absatzabstand: ≥ 2× Schriftgröße
 - Buchstabenabstand: ≥ 0.12× Schriftgröße
@@ -171,6 +176,7 @@ npx pa11y --runner axe https://menschlichkeit-oesterreich.at
 - [ ] CSS unterstützt diese Werte ohne Layout-Bruch
 
 **Test:**
+
 ```css
 * {
   line-height: 1.5 !important;
@@ -242,6 +248,7 @@ p {
 - [ ] Skip-Links sind sichtbar bei `:focus`
 
 **Implementierung:**
+
 ```html
 <a href="#main" class="skip-link">Zum Hauptinhalt springen</a>
 <main id="main">...</main>
@@ -291,9 +298,10 @@ p {
 - [ ] Kontrast: ≥ 3:1
 
 **CSS-Beispiel:**
+
 ```css
 :focus {
-  outline: 3px solid #C8102E;
+  outline: 3px solid #c8102e;
   outline-offset: 2px;
 }
 ```
@@ -380,10 +388,11 @@ p {
   - [ ] Bestätigung erforderlich (Checkbox)
 
 **Beispiel:**
+
 ```html
 <form>
   <label>
-    <input type="checkbox" required aria-required="true">
+    <input type="checkbox" required aria-required="true" />
     Ich bestätige die Spende von 50 EUR.
   </label>
   <button>Spende abschicken</button>
@@ -401,6 +410,7 @@ p {
 - [ ] HTML ist valide (keine doppelten IDs, korrekt verschachtelt)
 
 **Test:**
+
 ```bash
 npx html-validator --file=build/index.html
 ```
@@ -420,10 +430,9 @@ npx html-validator --file=build/index.html
   - [ ] `aria-live="polite"` oder `aria-live="assertive"`
 
 **Beispiel:**
+
 ```html
-<div role="alert" aria-live="assertive">
-  Spende erfolgreich abgeschlossen!
-</div>
+<div role="alert" aria-live="assertive">Spende erfolgreich abgeschlossen!</div>
 ```
 
 ---
@@ -480,11 +489,13 @@ jobs:
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-test('should not have any automatically detectable accessibility issues', async ({ page }) => {
+test('should not have any automatically detectable accessibility issues', async ({
+  page,
+}) => {
   await page.goto('https://menschlichkeit-oesterreich.at');
-  
+
   const accessibilityScanResults = await new AxeBuilder({ page }).analyze();
-  
+
   expect(accessibilityScanResults.violations).toEqual([]);
 });
 ```
@@ -546,6 +557,7 @@ test('should not have any automatically detectable accessibility issues', async 
 - [ ] Bekannte Mängel aufgelistet
 
 **Vorlage:**
+
 ```markdown
 # Barrierefreiheitserklärung
 
@@ -554,6 +566,7 @@ Menschlichkeit Österreich ist bemüht, ihre Website barrierefrei zugänglich zu
 **Konformitätsstatus:** Teilweise konform
 
 **Bekannte Einschränkungen:**
+
 - Videos haben noch keine Audiodeskription (geplant Q2/2025)
 
 **Feedback:** accessibility@menschlichkeit-oesterreich.at

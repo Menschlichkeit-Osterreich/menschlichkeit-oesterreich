@@ -60,14 +60,14 @@ Dieser Blueprint definiert checkbare DSGVO-Compliance-Anforderungen für das Pro
 
 ### 3.1 Technische Implementierung
 
-| Recht | Artikel | Implementiert | Endpoint/Prozess | Status |
-|-------|---------|---------------|------------------|--------|
-| **Auskunft** | Art. 15 | ❌ | - | ⏳ TODO |
-| **Berichtigung** | Art. 16 | ⚠️ | CRM-UI (manuell) | 🟡 TEILWEISE |
-| **Löschung** | Art. 17 | ❌ | - | ⏳ TODO |
-| **Einschränkung** | Art. 18 | ❌ | - | ⏳ TODO |
-| **Datenportabilität** | Art. 20 | ❌ | - | ⏳ TODO |
-| **Widerspruch** | Art. 21 | ❌ | - | ⏳ TODO |
+| Recht                 | Artikel | Implementiert | Endpoint/Prozess | Status       |
+| --------------------- | ------- | ------------- | ---------------- | ------------ |
+| **Auskunft**          | Art. 15 | ❌            | -                | ⏳ TODO      |
+| **Berichtigung**      | Art. 16 | ⚠️            | CRM-UI (manuell) | 🟡 TEILWEISE |
+| **Löschung**          | Art. 17 | ❌            | -                | ⏳ TODO      |
+| **Einschränkung**     | Art. 18 | ❌            | -                | ⏳ TODO      |
+| **Datenportabilität** | Art. 20 | ❌            | -                | ⏳ TODO      |
+| **Widerspruch**       | Art. 21 | ❌            | -                | ⏳ TODO      |
 
 ### 3.2 Workflow-Anforderungen
 
@@ -143,25 +143,25 @@ Dieser Blueprint definiert checkbare DSGVO-Compliance-Anforderungen für das Pro
 
 ```yaml
 incident:
-  id: "BREACH-2025-XXX"
-  detected_at: "YYYY-MM-DD HH:MM:SS UTC"
-  reported_at: "YYYY-MM-DD HH:MM:SS UTC"
-  severity: "LOW | MEDIUM | HIGH | CRITICAL"
-  
+  id: 'BREACH-2025-XXX'
+  detected_at: 'YYYY-MM-DD HH:MM:SS UTC'
+  reported_at: 'YYYY-MM-DD HH:MM:SS UTC'
+  severity: 'LOW | MEDIUM | HIGH | CRITICAL'
+
 affected_data:
-  categories: ["Kontaktdaten", "Spendendaten", ...]
+  categories: ['Kontaktdaten', 'Spendendaten', ...]
   data_subjects_count: 0
-  data_fields: ["name", "email", ...]
-  
-root_cause: "SQL-Injection / Misconfiguration / ..."
-  
+  data_fields: ['name', 'email', ...]
+
+root_cause: 'SQL-Injection / Misconfiguration / ...'
+
 mitigation:
-  actions_taken: ["Patch deployed", "Accounts notified", ...]
-  residual_risk: "LOW"
-  
+  actions_taken: ['Patch deployed', 'Accounts notified', ...]
+  residual_risk: 'LOW'
+
 notification:
   authority_notified: true/false
-  authority_name: "Österreichische Datenschutzbehörde"
+  authority_name: 'Österreichische Datenschutzbehörde'
   data_subjects_notified: true/false
 ```
 
@@ -172,11 +172,13 @@ notification:
 ### 7.1 DPIA-Pflicht prüfen
 
 **Auslöser (mindestens 1 Kriterium):**
+
 - [ ] Systematische umfangreiche Verarbeitung besonderer Kategorien (Art. 9)
 - [ ] Systematische umfangreiche Überwachung öffentlich zugänglicher Bereiche
 - [ ] Innovative Technologien mit hohem Risiko
 
-**Ergebnis:** 
+**Ergebnis:**
+
 - [ ] DPIA erforderlich → DPIA durchführen
 - [x] DPIA nicht erforderlich → Dokumentieren warum nicht
 
@@ -194,12 +196,12 @@ notification:
 
 ### 8.1 Externe Dienstleister
 
-| Dienstleister | Service | AV-Vertrag | DSGVO-konform | Status |
-|---------------|---------|------------|---------------|--------|
-| GitHub | Repository-Hosting | [ ] | [ ] | ⏳ TODO |
-| Plesk | Webhosting | [ ] | [ ] | ⏳ TODO |
-| Figma | Design-Tool | [ ] | [ ] | ⏳ TODO |
-| n8n.io | Automation (Self-Hosted) | N/A | ✅ | ✅ OK |
+| Dienstleister | Service                  | AV-Vertrag | DSGVO-konform | Status  |
+| ------------- | ------------------------ | ---------- | ------------- | ------- |
+| GitHub        | Repository-Hosting       | [ ]        | [ ]           | ⏳ TODO |
+| Plesk         | Webhosting               | [ ]        | [ ]           | ⏳ TODO |
+| Figma         | Design-Tool              | [ ]        | [ ]           | ⏳ TODO |
+| n8n.io        | Automation (Self-Hosted) | N/A        | ✅            | ✅ OK   |
 
 ### 8.2 AV-Vertrag Checkliste
 
@@ -218,10 +220,10 @@ notification:
 
 ### 9.1 Drittstaatenübermittlungen
 
-| Empfänger | Land | Rechtsgrundlage | Status |
-|-----------|------|-----------------|--------|
-| GitHub (Microsoft) | USA | EU-US Data Privacy Framework | ⚠️ Prüfen |
-| Figma (Adobe) | USA | Standardvertragsklauseln (SCCs) | ⚠️ Prüfen |
+| Empfänger          | Land | Rechtsgrundlage                 | Status    |
+| ------------------ | ---- | ------------------------------- | --------- |
+| GitHub (Microsoft) | USA  | EU-US Data Privacy Framework    | ⚠️ Prüfen |
+| Figma (Adobe)      | USA  | Standardvertragsklauseln (SCCs) | ⚠️ Prüfen |
 
 ### 9.2 Angemessenheitsbeschluss oder Garantien
 
@@ -246,17 +248,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Check for PII in Logs
         run: |
           # Scan code for patterns like email, phone, etc.
           grep -r -E "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b" src/ || true
-          
+
       - name: Validate Consent Mechanisms
         run: |
           # Check if consent is implemented
           test -f "src/components/CookieConsent.tsx"
-          
+
       - name: SBOM Licensing Check
         run: |
           # Ensure no GPL-licensed dependencies (if applicable)
