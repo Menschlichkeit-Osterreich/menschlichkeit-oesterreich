@@ -2,13 +2,13 @@
 
 ## 🔍 Problem-Diagnose
 
-### Identifizierte Probleme:
+### Identifizierte Probleme
 
 1. **MCP-Server-Konfiguration geleert**: `.vscode/mcp.json` ist leer
 2. **Viele MCP-Server-Dateien gelöscht**: `custom-mcp-servers/` Verzeichnis entfernt
 3. **Copilot möglicherweise durch fehlende MCP-Konnektivität beeinträchtigt**
 
-### Schnelle Reparatur-Schritte:
+### Schnelle Reparatur-Schritte
 
 ## 1. MCP-Server-Konfiguration wiederherstellen
 
@@ -25,14 +25,14 @@ git show HEAD~5:.vscode/mcp.json > .vscode/mcp.json.candidate
 
 ## 2. VS Code Extension Diagnose
 
-### Befehlspalette (`Ctrl+Shift+P`):
+### Befehlspalette (`Ctrl+Shift+P`)
 
 1. **"Developer: Show Running Extensions"** - Status prüfen
 2. **"GitHub Copilot: Sign in"** - Auth Status
 3. **"MCP: Restart All Servers"** - MCP-Server neu starten
 4. **"Developer: Toggle Developer Tools"** - Console Errors
 
-### Output Panel (`View → Output`):
+### Output Panel (`View → Output`)
 
 - **GitHub Copilot** - Auth/API Errors
 - **GitHub Copilot Chat** - Chat-spezifische Probleme
@@ -40,7 +40,7 @@ git show HEAD~5:.vscode/mcp.json > .vscode/mcp.json.candidate
 
 ## 3. Systematische Fehlerbehebung
 
-### A) Extensions deaktivieren/testen:
+### A) Extensions deaktivieren/testen
 
 ```bash
 # VS Code ohne Extensions starten
@@ -50,7 +50,7 @@ code --disable-extensions
 code --enable-extension GitHub.copilot
 ```
 
-### B) Konfigurationsdateien prüfen:
+### B) Konfigurationsdateien prüfen
 
 ```powershell
 # User Settings
@@ -65,7 +65,7 @@ $env:APPDATA\Code\User\settings.json
 # - mcp.*
 ```
 
-### C) Netzwerk/Proxy Issues:
+### C) Netzwerk/Proxy Issues
 
 ```json
 {
@@ -78,7 +78,7 @@ $env:APPDATA\Code\User\settings.json
 
 ## 4. MCP-Server Neukonfiguration
 
-### Minimale funktionsfähige MCP-Konfiguration:
+### Minimale funktionsfähige MCP-Konfiguration
 
 ```json
 {
@@ -111,7 +111,7 @@ $env:APPDATA\Code\User\settings.json
 
 ### 1. Audit aktueller .env-Dateien
 
-#### Finde alle .env-Dateien:
+#### Finde alle .env-Dateien
 
 ```powershell
 # Alle .env-Dateien im Projekt finden
@@ -129,7 +129,7 @@ Get-ChildItem -Recurse -Force -Name "*.env*" | ForEach-Object {
 
 ### 2. SOPS Implementation für sichere Secrets
 
-#### SOPS Installation und Setup:
+#### SOPS Installation und Setup
 
 ```powershell
 # SOPS via Chocolatey installieren
@@ -143,7 +143,7 @@ Invoke-WebRequest -Uri $sopsUrl -OutFile "C:\tools\sops.exe"
 $env:PATH += ";C:\tools"
 ```
 
-#### GPG-Schlüssel für SOPS generieren:
+#### GPG-Schlüssel für SOPS generieren
 
 ```powershell
 # GPG installieren (falls nicht vorhanden)
@@ -170,7 +170,7 @@ gpg --list-secret-keys --keyid-format LONG
 
 ### 3. SOPS Konfigurationsdatei erstellen
 
-#### `.sops.yaml` Konfiguration:
+#### `.sops.yaml` Konfiguration
 
 ```yaml
 # SOPS-Konfiguration für verschiedene Umgebungen
@@ -197,7 +197,7 @@ creation_rules:
 
 ### 4. Secrets-Struktur implementieren
 
-#### Verzeichnisstruktur für Secrets:
+#### Verzeichnisstruktur für Secrets
 
 ```
 secrets/
@@ -217,7 +217,7 @@ secrets/
     └── common-config.yaml
 ```
 
-#### Beispiel Secrets-Template:
+#### Beispiel Secrets-Template
 
 ```yaml
 # secrets/production/database.yaml
@@ -247,7 +247,7 @@ redis:
 
 ### 5. Environment Variable Injection Scripts
 
-#### PowerShell Secrets-Management:
+#### PowerShell Secrets-Management
 
 ```powershell
 # scripts/secrets-decrypt.ps1
@@ -338,7 +338,7 @@ Write-Host "⚠️ Temporary secrets file will be auto-deleted in 5 minutes" -Fo
 
 ### 6. .gitignore Security Update
 
-#### Erweiterte .gitignore für Secrets:
+#### Erweiterte .gitignore für Secrets
 
 ```gitignore
 # Environment Variables & Secrets
@@ -377,7 +377,7 @@ config/secrets.json
 
 ### 7. Docker Integration für sichere Deployments
 
-#### Dockerfile mit Secrets-Management:
+#### Dockerfile mit Secrets-Management
 
 ```dockerfile
 # Multi-stage build für sicherere Production
@@ -423,7 +423,7 @@ CMD ["./docker-entrypoint.sh"]
 
 ### 8. Automated Security Checks
 
-#### GitHub Actions Integration:
+#### GitHub Actions Integration
 
 ```yaml
 # .github/workflows/secrets-security.yml
@@ -520,7 +520,7 @@ jobs:
 
 ---
 
-## 🚨 Sofortige Aktionen erforderlich:
+## 🚨 Sofortige Aktionen erforderlich
 
 1. **MCP-Server Konfiguration reparieren**
 2. **Secrets Audit durchführen**

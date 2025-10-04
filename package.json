@@ -25,9 +25,10 @@
     "setup:dev": "npm run install:all && npm run setup:composer && npm run setup:environments",
     "setup:composer": "composer install --no-dev --optimize-autoloader",
     "setup:environments": "pwsh scripts/setup-environments.ps1",
-    "clean": "npm run clean:dist && npm run clean:node-modules",
-    "clean:dist": "find . -name 'dist' -type d -exec rm -rf {} +",
-    "clean:node-modules": "find . -name 'node_modules' -type d -exec rm -rf {} +",
+    "clean": "node scripts/clean-workspace.mjs",
+    "clean:dry-run": "node scripts/clean-workspace.mjs --dry-run",
+    "clean:dist": "node scripts/clean-workspace.mjs --only=dist,build",
+    "clean:node-modules": "node scripts/clean-workspace.mjs --only=node_modules",
     "dev:all": "concurrently \"npm run dev:crm\" \"npm run dev:api\" \"npm run dev:frontend\" \"npm run dev:games\"",
     "dev:crm": "cd crm.menschlichkeit-oesterreich.at && php -S localhost:8000 -t httpdocs",
     "dev:api": "bash scripts/start-api-dev.sh",
@@ -58,6 +59,8 @@
     "compliance:dsgvo": "pwsh scripts/dsgvo-check.ps1",
     "quality:reports": "node scripts/generate-quality-report.js",
     "quality:gates": "npm run quality:codacy && npm run security:scan && npm run performance:lighthouse && npm run compliance:dsgvo && npm run quality:reports",
+    "logs:purge": "python3 scripts/purge-logs.py",
+    "logs:purge:dry-run": "python3 scripts/purge-logs.py --dry-run --verbose",
     "figma:sync": "node scripts/figma-token-sync.cjs",
     "figma:sync:watch": "nodemon --watch figma-design-system scripts/figma-token-sync.cjs",
     "design:tokens": "npm run figma:sync && npm run build:frontend",
@@ -67,7 +70,8 @@
     "n8n:logs": "cd automation/n8n && docker-compose logs -f n8n",
     "n8n:restart": "npm run n8n:stop && npm run n8n:start",
     "n8n:webhook": "node automation/n8n/webhook-client.js",
-    "n8n:setup": "cd automation/n8n && cp .env.example .env && echo 'Please configure automation/n8n/.env with your settings'"
+    "n8n:setup": "cd automation/n8n && cp .env.example .env && echo 'Please configure automation/n8n/.env with your settings'",
+    "n8n:smoke": "python3 automation/n8n/smoke-test.py"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

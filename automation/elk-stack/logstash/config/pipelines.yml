@@ -1,0 +1,22 @@
+# Logstash Pipelines Configuration
+# Defines multiple pipelines for different log sources
+
+- pipeline.id: main
+  path.config: '/usr/share/logstash/pipeline/main.conf'
+  pipeline.workers: 2
+
+- pipeline.id: fastapi
+  path.config: '/usr/share/logstash/pipeline/fastapi.conf'
+  pipeline.workers: 1
+
+- pipeline.id: drupal
+  path.config: '/usr/share/logstash/pipeline/drupal.conf'
+  pipeline.workers: 1
+
+- pipeline.id: n8n
+  path.config: '/usr/share/logstash/pipeline/n8n.conf'
+  pipeline.workers: 1
+
+- pipeline.id: frontend
+  path.config: '/usr/share/logstash/pipeline/frontend.conf'
+  pipeline.workers: 1

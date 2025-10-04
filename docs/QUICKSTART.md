@@ -82,12 +82,13 @@ npm run dev:games     # Educational Games (Port 3000)
 ```
 
 **Service-Übersicht**:
+
 | Service | URL | Technologie |
 |---------|-----|-------------|
-| Frontend | http://localhost:3000 | React + Vite + Tailwind |
-| API | http://localhost:8001/docs | FastAPI + OpenAPI |
-| CRM | http://localhost:8000 | Drupal 10 + CiviCRM |
-| Games | http://localhost:3000 | Prisma + PostgreSQL |
+| Frontend | <http://localhost:3000> | React + Vite + Tailwind |
+| API | <http://localhost:8001/docs> | FastAPI + OpenAPI |
+| CRM | <http://localhost:8000> | Drupal 10 + CiviCRM |
+| Games | <http://localhost:3000> | Prisma + PostgreSQL |
 
 **⏱️ Dauer**: ~30 Sekunden bis alle Services laufen
 

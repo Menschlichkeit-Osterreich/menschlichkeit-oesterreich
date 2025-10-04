@@ -192,6 +192,7 @@
    ```
 
 3. **Discourse Theme testen**
+
    ```bash
    # Theme hochladen in lokale Discourse Instanz
    # Visuelle Regression Tests (optional)

@@ -1,0 +1,98 @@
+{
+  "index_patterns": ["logs-security-audit-*"],
+  "priority": 100,
+  "template": {
+    "settings": {
+      "number_of_shards": 2,
+      "number_of_replicas": 2,
+      "index.lifecycle.name": "security-audit-retention-7y",
+      "index.lifecycle.rollover_alias": "logs-security-audit",
+      "index.refresh_interval": "60s",
+      "index.codec": "best_compression"
+    },
+    "mappings": {
+      "properties": {
+        "@timestamp": {
+          "type": "date"
+        },
+        "timestamp": {
+          "type": "date"
+        },
+        "level": {
+          "type": "keyword"
+        },
+        "service": {
+          "type": "keyword"
+        },
+        "environment": {
+          "type": "keyword"
+        },
+        "security_event": {
+          "type": "keyword"
+        },
+        "message": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "user_id": {
+          "type": "integer"
+        },
+        "action": {
+          "type": "keyword"
+        },
+        "ip_masked": {
+          "type": "keyword"
+        },
+        "pii_bypass_detected": {
+          "type": "boolean"
+        },
+        "pii_bypass_type": {
+          "type": "keyword"
+        },
+        "pii_bypass_severity": {
+          "type": "keyword"
+        },
+        "pii_bypass_source": {
+          "type": "keyword"
+        },
+        "authentication_method": {
+          "type": "keyword"
+        },
+        "authentication_result": {
+          "type": "keyword"
+        },
+        "failed_attempts_count": {
+          "type": "integer"
+        },
+        "session_id": {
+          "type": "keyword"
+        },
+        "tags": {
+          "type": "keyword"
+        },
+        "host": {
+          "properties": {
+            "name": {
+              "type": "keyword"
+            }
+          }
+        }
+      }
+    }
+  },
+  "_meta": {
+    "description": "Template for security audit logs (7-year retention)",
+    "version": "1.0.0",
+    "managed_by": "F-03 Phase 4 - Centralized Log Aggregation",
+    "compliance": {
+      "gdpr_article": "Article 5(2) - Accountability, Article 32 - Security",
+      "retention_period": "2555 days (7 years)",
+      "purpose": "Security incident investigation and PII bypass detection"
+    }
+  }
+}

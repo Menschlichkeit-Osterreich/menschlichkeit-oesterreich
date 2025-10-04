@@ -1,0 +1,138 @@
+{
+  "index_patterns": ["logs-operational-*"],
+  "priority": 100,
+  "template": {
+    "settings": {
+      "number_of_shards": 3,
+      "number_of_replicas": 1,
+      "index.lifecycle.name": "operational-retention-30d",
+      "index.lifecycle.rollover_alias": "logs-operational",
+      "index.refresh_interval": "30s",
+      "index.codec": "best_compression"
+    },
+    "mappings": {
+      "properties": {
+        "@timestamp": {
+          "type": "date"
+        },
+        "timestamp": {
+          "type": "date"
+        },
+        "level": {
+          "type": "keyword"
+        },
+        "service": {
+          "type": "keyword"
+        },
+        "environment": {
+          "type": "keyword"
+        },
+        "logger": {
+          "type": "keyword"
+        },
+        "message": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "user_id": {
+          "type": "integer"
+        },
+        "action": {
+          "type": "keyword"
+        },
+        "method": {
+          "type": "keyword"
+        },
+        "path": {
+          "type": "keyword"
+        },
+        "status_code": {
+          "type": "integer"
+        },
+        "duration_ms": {
+          "type": "float"
+        },
+        "ip_masked": {
+          "type": "keyword"
+        },
+        "hostname": {
+          "type": "keyword"
+        },
+        "app_name": {
+          "type": "keyword"
+        },
+        "drupal_module": {
+          "type": "keyword"
+        },
+        "workflow_id": {
+          "type": "keyword"
+        },
+        "node_name": {
+          "type": "keyword"
+        },
+        "execution_id": {
+          "type": "keyword"
+        },
+        "browser": {
+          "type": "keyword"
+        },
+        "page_url": {
+          "type": "keyword"
+        },
+        "user_agent": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "pii_emails_redacted": {
+          "type": "integer"
+        },
+        "pii_cards_redacted": {
+          "type": "integer"
+        },
+        "pii_ibans_redacted": {
+          "type": "integer"
+        },
+        "pii_phones_redacted": {
+          "type": "integer"
+        },
+        "pii_total_detected": {
+          "type": "integer"
+        },
+        "pii_bypass_type": {
+          "type": "keyword"
+        },
+        "pii_bypass_severity": {
+          "type": "keyword"
+        },
+        "pii_bypass_source": {
+          "type": "keyword"
+        },
+        "tags": {
+          "type": "keyword"
+        },
+        "host": {
+          "properties": {
+            "name": {
+              "type": "keyword"
+            }
+          }
+        }
+      }
+    }
+  },
+  "_meta": {
+    "description": "Template for operational logs (30-day retention)",
+    "version": "1.0.0",
+    "managed_by": "F-03 Phase 4 - Centralized Log Aggregation"
+  }
+}

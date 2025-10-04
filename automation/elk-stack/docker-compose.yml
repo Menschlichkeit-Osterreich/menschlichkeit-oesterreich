@@ -1,0 +1,287 @@
+# ELK Stack (Elasticsearch, Logstash, Kibana) - Docker Compose Configuration
+# Project: F-03 Phase 4 - Centralized Log Aggregation
+# Purpose: DSGVO-compliant log collection with PII sanitization
+# Deployment: logs.menschlichkeit-oesterreich.at
+
+version: '3.8'
+
+services:
+  #############################################################################
+  # ELASTICSEARCH - Search & Analytics Engine
+  #############################################################################
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: menschlichkeit-elasticsearch
+    hostname: elasticsearch
+    environment:
+      # Cluster Configuration
+      - node.name=elasticsearch-node-1
+      - cluster.name=menschlichkeit-elk-cluster
+      - discovery.type=single-node  # Single-node for dev (use multi-node in prod)
+      
+      # Security Configuration
+      - xpack.security.enabled=true
+      - xpack.security.enrollment.enabled=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-changeme}
+      
+      # Memory Settings
+      - ES_JAVA_OPTS=-Xms2g -Xmx2g  # 2GB heap (adjust for production)
+      - bootstrap.memory_lock=true
+      
+      # Network Settings
+      - network.host=0.0.0.0
+      - http.port=9200
+      
+      # Index Lifecycle Management
+      - xpack.ilm.enabled=true
+    
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+      - ./elasticsearch/templates:/usr/share/elasticsearch/templates:ro
+    
+    ports:
+      - "9200:9200"  # HTTP API
+      - "9300:9300"  # Inter-node communication
+    
+    networks:
+      - elk-network
+    
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s -u elastic:${ELASTIC_PASSWORD:-changeme} http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"\\|\"status\":\"yellow\"'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    
+    restart: unless-stopped
+    
+    labels:
+      - "com.menschlichkeit-oesterreich.service=elasticsearch"
+      - "com.menschlichkeit-oesterreich.environment=production"
+
+  #############################################################################
+  # LOGSTASH - Log Processing Pipeline
+  #############################################################################
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.11.0
+    container_name: menschlichkeit-logstash
+    hostname: logstash
+    environment:
+      # Pipeline Configuration
+      - PIPELINE_WORKERS=4  # Number of CPU cores
+      - PIPELINE_BATCH_SIZE=1000
+      - PIPELINE_BATCH_DELAY=50
+      
+      # JVM Settings
+      - LS_JAVA_OPTS=-Xms1g -Xmx1g  # 1GB heap
+      
+      # Elasticsearch Connection
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD:-changeme}
+      
+      # FastAPI PII Sanitizer Endpoint (for HTTP filter)
+      - FASTAPI_PII_ENDPOINT=${FASTAPI_PII_ENDPOINT:-http://host.docker.internal:8001/api/pii-sanitizer}
+      - LOGSTASH_API_TOKEN=${LOGSTASH_API_TOKEN:-your-secret-token}
+    
+    volumes:
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./logstash/config/pipelines.yml:/usr/share/logstash/config/pipelines.yml:ro
+      - logstash-data:/usr/share/logstash/data
+    
+    ports:
+      - "5044:5044"  # Beats input (Filebeat from FastAPI, n8n, etc.)
+      - "5140:5140"  # Syslog input (Drupal/CiviCRM)
+      - "8080:8080"  # HTTP input (Frontend logs)
+      - "9600:9600"  # Logstash monitoring API
+    
+    networks:
+      - elk-network
+    
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9600/_node/stats | grep -q '\"status\":\"green\"'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    
+    restart: unless-stopped
+    
+    labels:
+      - "com.menschlichkeit-oesterreich.service=logstash"
+      - "com.menschlichkeit-oesterreich.environment=production"
+
+  #############################################################################
+  # KIBANA - Visualization & Dashboards
+  #############################################################################
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: menschlichkeit-kibana
+    hostname: kibana
+    environment:
+      # Elasticsearch Connection
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD:-changeme}
+      
+      # Kibana Configuration
+      - SERVER_NAME=logs.menschlichkeit-oesterreich.at
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=5601
+      
+      # Security
+      - XPACK_SECURITY_ENABLED=true
+      - XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY=${KIBANA_ENCRYPTION_KEY:-min-32-character-long-strong-encryption-key}
+      
+      # Monitoring
+      - XPACK_MONITORING_ENABLED=true
+      - XPACK_MONITORING_COLLECTION_ENABLED=true
+    
+    volumes:
+      - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro
+      - ./kibana/dashboards:/usr/share/kibana/dashboards:ro
+      - kibana-data:/usr/share/kibana/data
+    
+    ports:
+      - "5601:5601"  # Kibana Web UI
+    
+    networks:
+      - elk-network
+    
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:5601/api/status | grep -q '\"state\":\"green\"'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 90s
+    
+    restart: unless-stopped
+    
+    labels:
+      - "com.menschlichkeit-oesterreich.service=kibana"
+      - "com.menschlichkeit-oesterreich.environment=production"
+
+  #############################################################################
+  # FILEBEAT - Log Shipper (Optional, for local testing)
+  #############################################################################
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.11.0
+    container_name: menschlichkeit-filebeat
+    hostname: filebeat
+    user: root  # Required to read Docker logs
+    environment:
+      - LOGSTASH_HOSTS=logstash:5044
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD:-changeme}
+    
+    volumes:
+      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - filebeat-data:/usr/share/filebeat/data
+    
+    networks:
+      - elk-network
+    
+    depends_on:
+      logstash:
+        condition: service_healthy
+    
+    command: filebeat -e -strict.perms=false
+    
+    restart: unless-stopped
+    
+    labels:
+      - "com.menschlichkeit-oesterreich.service=filebeat"
+      - "com.menschlichkeit-oesterreich.environment=production"
+
+#############################################################################
+# NETWORKS
+#############################################################################
+networks:
+  elk-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+#############################################################################
+# VOLUMES
+#############################################################################
+volumes:
+  elasticsearch-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/elk-stack/elasticsearch
+  
+  logstash-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/elk-stack/logstash
+  
+  kibana-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/elk-stack/kibana
+  
+  filebeat-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /var/lib/elk-stack/filebeat
+
+#############################################################################
+# DEPLOYMENT NOTES
+#############################################################################
+# 1. Create volume directories:
+#    sudo mkdir -p /var/lib/elk-stack/{elasticsearch,logstash,kibana,filebeat}
+#    sudo chown -R 1000:1000 /var/lib/elk-stack
+#
+# 2. Set environment variables in .env:
+#    ELASTIC_PASSWORD=your-strong-password
+#    KIBANA_PASSWORD=your-kibana-password
+#    KIBANA_ENCRYPTION_KEY=min-32-character-long-strong-encryption-key
+#    LOGSTASH_API_TOKEN=your-logstash-api-token
+#    FASTAPI_PII_ENDPOINT=http://api.stg.menschlichkeit-oesterreich.at/api/pii-sanitizer
+#
+# 3. Start ELK stack:
+#    docker-compose up -d
+#
+# 4. Access Kibana:
+#    https://logs.menschlichkeit-oesterreich.at (via Nginx reverse proxy)
+#    or http://localhost:5601 (direct)
+#
+# 5. Configure Nginx reverse proxy:
+#    See: deployment-scripts/nginx/logs.menschlichkeit-oesterreich.at.conf
+#
+# 6. Install index templates:
+#    ./scripts/elk-setup-templates.sh
+#
+# 7. Import Kibana dashboards:
+#    ./scripts/elk-import-dashboards.sh
