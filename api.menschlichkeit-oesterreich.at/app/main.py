@@ -5,9 +5,13 @@ import httpx
 import os
 import jwt
 from typing import Optional, List, Dict, Any
+import uuid
 import asyncio
 import time
 import logging
+
+# Import shared utilities
+from app.shared import ApiResponse, verify_jwt_token
 
 
 # Environment Configuration
@@ -96,7 +100,7 @@ logger.debug("Loaded CORS configuration (env=%s, origins=%s, allow_credentials=%
 
 app = FastAPI(
     title="Menschlichkeit Oesterreich API",
-    description="CRM Integration API with JWT Authentication",
+    description="CRM Integration API with JWT Authentication & GDPR Compliance",
     version="1.0.0"
 )
 
@@ -109,6 +113,18 @@ app.add_middleware(
     expose_headers=expose_headers,
     max_age=cors_max_age,
 )
+
+# Mount routers
+try:
+    from app.routes.privacy import router as privacy_router
+    app.include_router(privacy_router)
+except Exception:
+    # Router is optional during initial bootstrap; verify_privacy_api.py checks integration
+    pass
+
+# Import Privacy Routes (GDPR Art. 17 Right to Erasure)
+from app.routes.privacy import router as privacy_router
+app.include_router(privacy_router)
 
 # Data Models
 class ContactCreate(BaseModel):
@@ -125,11 +141,6 @@ class MembershipCreate(BaseModel):
 class LoginRequest(BaseModel):
     email: EmailStr
     password: str
-
-class ApiResponse(BaseModel):
-    success: bool
-    data: Optional[dict] = None
-    message: Optional[str] = None
 
 class RegisterRequest(BaseModel):
     email: EmailStr
@@ -207,29 +218,31 @@ def _extract_first_value(data: dict) -> Optional[dict]:
         pass
     return None
 
-# JWT Authentication
-def verify_jwt_token(authorization: str = Header(...)):
-    """Verify JWT token from Authorization header"""
-    try:
-        scheme, token = authorization.split()
-        if scheme.lower() != "bearer":
-            raise HTTPException(status_code=401, detail="Invalid authentication scheme")
-        
-        payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
-        return payload
-    except Exception as e:
-        raise HTTPException(status_code=401, detail="Invalid token")
+# Removed duplicate verify_jwt_token - now imported from shared.py
 
 
 def _create_token(sub: str, ttl_seconds: int, token_type: str = "access") -> str:
     now = int(time.time())
+    jti = str(uuid.uuid4()) if token_type == "refresh" else None
     payload = {
         "sub": sub,
         "type": token_type,
         "exp": now + ttl_seconds,
         "iat": now,
     }
+    if jti:
+        payload["jti"] = jti
     return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
+
+
+# Refresh token store (supports memory/redis via env)
+try:
+    from app.lib.refresh_store import RefreshStore  # type: ignore
+except Exception:
+    # Fallback path if running as module
+    from .lib.refresh_store import RefreshStore  # type: ignore
+
+_refresh_store = RefreshStore()
 
 
 def _serialize_contact(contact: Dict[str, Any]) -> ContactResponse:
@@ -338,9 +351,18 @@ async def login(request: LoginRequest) -> ApiResponse:
             raise HTTPException(status_code=401, detail="Invalid credentials") from exc
         raise
 
+    refresh_jwt = _create_token(email, 3600 * 24 * 7, token_type="refresh")
+    try:
+        refresh_payload = jwt.decode(refresh_jwt, JWT_SECRET, algorithms=["HS256"])
+    except Exception:
+        raise HTTPException(status_code=500, detail="Failed to issue refresh token")
+    jti = str(refresh_payload.get("jti"))
+    if not jti:
+        raise HTTPException(status_code=500, detail="Missing refresh token id")
+    _refresh_store.set_current(email, jti)
     tokens = AuthTokens(
         token=_create_token(email, 3600, token_type="access"),
-        refresh_token=_create_token(email, 3600 * 24 * 7, token_type="refresh"),
+        refresh_token=refresh_jwt,
         expires_in=3600,
     )
 
@@ -369,9 +391,18 @@ async def register(request: RegisterRequest) -> ApiResponse:
 
     contact_record = await _civicrm_contact_create_or_update(payload)
 
+    refresh_jwt = _create_token(email, 3600 * 24 * 7, token_type="refresh")
+    try:
+        rp = jwt.decode(refresh_jwt, JWT_SECRET, algorithms=["HS256"])
+    except Exception:
+        raise HTTPException(status_code=500, detail="Failed to issue refresh token")
+    jti = str(rp.get("jti"))
+    if not jti:
+        raise HTTPException(status_code=500, detail="Missing refresh token id")
+    _refresh_store.set_current(email, jti)
     tokens = AuthTokens(
         token=_create_token(email, 3600, token_type="access"),
-        refresh_token=_create_token(email, 3600 * 24 * 7, token_type="refresh"),
+        refresh_token=refresh_jwt,
         expires_in=3600,
     )
     response = RegisterResult(
@@ -397,9 +428,25 @@ async def refresh_token(req: RefreshRequest) -> ApiResponse:
     if not subject:
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 
+    # Enforce rotation: token must match latest JTI
+    expected_jti = _refresh_store.get_current(subject) or ""
+    provided_jti = str(payload.get("jti") or "")
+    if not provided_jti or expected_jti and provided_jti != expected_jti:
+        raise HTTPException(status_code=401, detail="Refresh token reused or invalid")
+
+    # Issue new pair and rotate stored JTI
+    new_refresh = _create_token(subject, 3600 * 24 * 7, token_type="refresh")
+    try:
+        new_payload = jwt.decode(new_refresh, JWT_SECRET, algorithms=["HS256"])
+    except Exception:
+        raise HTTPException(status_code=500, detail="Failed to rotate refresh token")
+    new_jti = str(new_payload.get("jti") or "")
+    if not new_jti:
+        raise HTTPException(status_code=500, detail="Missing refresh token id")
+    _refresh_store.set_current(subject, new_jti)
     tokens = AuthTokens(
         token=_create_token(subject, 3600, token_type="access"),
-        refresh_token=_create_token(subject, 3600 * 24 * 7, token_type="refresh"),
+        refresh_token=new_refresh,
         expires_in=3600,
     )
 

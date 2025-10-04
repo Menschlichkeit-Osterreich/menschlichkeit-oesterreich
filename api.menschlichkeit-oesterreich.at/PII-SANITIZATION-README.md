@@ -29,6 +29,7 @@ sanitizer.scrub_text("Card: 4532148803436467")
 ```
 
 **Features:**
+
 - ✅ Email-Maskierung (RFC-compliant)
 - ✅ Telefonnummern (E.164 international, österreichische Formate)
 - ✅ Kreditkarten mit **Luhn-Validation** (verhindert False Positives)
@@ -53,12 +54,14 @@ app.add_middleware(PiiSanitizationMiddleware)
 ```
 
 **Was wird redaktiert:**
+
 - ✅ Request Headers (`Authorization`, `Cookie`)
 - ✅ Request Bodies (JSON mit sensitiven Feldern)
 - ✅ Query Parameters
 - ❌ Response Bodies (meist nicht nötig)
 
 **Header Allowlist:**
+
 - `Content-Type`, `Accept`, `User-Agent` → bleiben
 - `Authorization`, `Cookie` → `[REDACTED]`
 - Andere → PII-Scrubbing angewendet
@@ -91,6 +94,7 @@ logger.info(
 ```
 
 **Field Allowlist:**
+
 ```python
 ALLOWED_LOG_FIELDS = {
     "timestamp", "level", "logger", "message",
@@ -102,6 +106,7 @@ ALLOWED_LOG_FIELDS = {
 ```
 
 **Strategie:**
+
 1. **Allowlist** für strukturierte Felder (`extra={...}`)
 2. **Regex-Scrubbing** für Freitext (`message`)
 3. **Kombination** verhindert Leaks in beiden Richtungen
@@ -126,6 +131,7 @@ pytest tests/test_pii_sanitizer.py --cov=app.lib.pii_sanitizer
 ```
 
 **Test-Kategorien:**
+
 - ✅ Email-Redaktion (einfach, Aliases, Subdomains)
 - ✅ Telefonnummern (AT, DE, CH, international)
 - ✅ Kreditkarten (Visa, Mastercard, Luhn-Validation!)
@@ -139,6 +145,7 @@ pytest tests/test_pii_sanitizer.py --cov=app.lib.pii_sanitizer
 - ✅ Edge-Cases (empty, None, Unicode, Performance)
 
 **Golden Samples (CRITICAL):**
+
 ```python
 GOLDEN_SAMPLES = [
     ("peter.schuller@icloud.com", "peter.schuller@icloud.com"),
@@ -207,16 +214,19 @@ log_security_event(
 ## 📊 Compliance Impact
 
 **Vorher (F-02):**
+
 - Data-Privacy-Policy: 35%
 - Log-Security: 40%
 
 **Nachher (F-03 Phase 1):**
+
 - Data-Privacy-Policy: **70%** (+35%)
 - Log-Security: **85%** (+45%)
 - DSGVO Art. 5: **✅ COMPLIANT** (Datenminimierung)
 - DSGVO Art. 32: **80%** (+15%) (Datensicherheit)
 
 **Noch zu tun:**
+
 - Drupal/CiviCRM PHP-Logger (F-03 Phase 2)
 - n8n Workflow-Sanitization (F-03 Phase 3)
 - Log-Pipeline (Vector/Fluent Bit) (F-03 Phase 4)
@@ -241,6 +251,7 @@ metrics = sanitizer.get_metrics()
 ```
 
 **Production Monitoring:**
+
 1. **Redaction Rate:** `emails_redacted / total_logs` (Expected: 1-5%)
 2. **Performance:** `log_processing_time_ms` (Target: <5ms per message)
 3. **Alerts:** Spike in redactions → mögliches PII-Leak
@@ -251,12 +262,12 @@ metrics = sanitizer.get_metrics()
 - alert: HighPIIRedactionRate
   expr: rate(pii_redacted_total[5m]) > 100
   annotations:
-    summary: "Unusually high PII redaction rate"
-    
+    summary: 'Unusually high PII redaction rate'
+
 - alert: PIIInProduction
   expr: log_contains_pii == 1
   annotations:
-    summary: "CRITICAL: Unredacted PII detected in production logs"
+    summary: 'CRITICAL: Unredacted PII detected in production logs'
 ```
 
 ---
@@ -266,17 +277,20 @@ metrics = sanitizer.get_metrics()
 ### PII wird nicht redaktiert
 
 **Check 1:** PiiFilter aktiviert?
+
 ```python
 logger.handlers[0].filters  # Sollte LoggingPiiFilter enthalten
 ```
 
 **Check 2:** Regex-Pattern testen
+
 ```python
 from app.lib.pii_sanitizer import EMAIL_RE
 EMAIL_RE.findall("test@test.com")  # ['test@test.com']
 ```
 
 **Check 3:** Allowlist prüfen
+
 ```python
 # Feld in Allowlist → wird NICHT redaktiert
 "custom_pii_field" in ALLOWED_LOG_FIELDS  # False → wird redaktiert
@@ -298,6 +312,7 @@ sanitizer._luhn_check("4532148803436467")  # True → redaktiert
 **Problem:** Log-Processing zu langsam
 
 **Lösung 1:** Selective Scrubbing
+
 ```python
 config = SanitizationConfig(
     enable_card_detection=False,  # Wenn keine Karten erwartet
@@ -307,6 +322,7 @@ sanitizer = PiiSanitizer(config)
 ```
 
 **Lösung 2:** Async Logging
+
 ```python
 from logging.handlers import QueueHandler
 # Queue-basiertes Logging für Background-Processing
@@ -318,25 +334,28 @@ from logging.handlers import QueueHandler
 
 - **DSGVO Art. 5:** Grundsätze für Verarbeitung personenbezogener Daten
 - **DSGVO Art. 32:** Sicherheit der Verarbeitung
-- **OWASP Logging Cheat Sheet:** https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html
-- **Luhn Algorithm:** https://en.wikipedia.org/wiki/Luhn_algorithm
-- **E.164 Phone Format:** https://en.wikipedia.org/wiki/E.164
+- **OWASP Logging Cheat Sheet:** <https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html>
+- **Luhn Algorithm:** <https://en.wikipedia.org/wiki/Luhn_algorithm>
+- **E.164 Phone Format:** <https://en.wikipedia.org/wiki/E.164>
 
 ---
 
 ## 📝 Next Steps
 
 ### F-03 Phase 2: Drupal/CiviCRM (2h)
+
 - PHP Logging-Filter analog zu Python
 - Drupal Watchdog-Integration
 - CiviCRM Activity-Log-Sanitization
 
 ### F-03 Phase 3: n8n Workflows (1.5h)
+
 - Custom Node für PII-Sanitization
 - Webhook-Data-Scrubbing
 - Error-Log-Redaktion
 
 ### F-03 Phase 4: Log-Pipeline (2h)
+
 - Vector VRL Transform
 - Fluent Bit Lua Filter
 - Metrics & Alerts
