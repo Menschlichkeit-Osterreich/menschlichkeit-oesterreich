@@ -8,7 +8,7 @@ if ! command -v git-lfs >/dev/null 2>&1; then
   exit 1
 fi
 
-if git status --short | grep -qE '^(\?\?| M|MM)'; then
+if git status --short | grep -qE '^( M|MM|A |M )'; then
   echo "[!] Arbeitsverzeichnis ist nicht sauber. Bitte committen oder stashen." >&2
   exit 1
 fi
