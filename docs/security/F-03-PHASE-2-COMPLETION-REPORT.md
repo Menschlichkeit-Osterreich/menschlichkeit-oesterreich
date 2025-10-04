@@ -18,12 +18,14 @@ Phase 2 der PII-Sanitization erweitert die FastAPI-Implementierung auf die **Dru
 - ✅ **Documentation:** Vollständiger Integration Guide mit Troubleshooting
 
 **Compliance Impact:**
+
 - CRM-Log-Security: **30% → 80%** (+50%)
 - Activity-Privacy: **40% → 85%** (+45%)
 - DSGVO Art. 5: **✅ COMPLIANT** (Datenminimierung in CRM)
 - DSGVO Art. 32: **70% → 85%** (+15%)
 
 **Gesamtfortschritt F-03:**
+
 - **Phase 1 (FastAPI):** ✅ 100%
 - **Phase 2 (Drupal/CiviCRM):** ✅ 100%
 - **Phase 3 (n8n):** ⏳ Pending
@@ -39,19 +41,20 @@ Phase 2 der PII-Sanitization erweitert die FastAPI-Implementierung auf die **Dru
 **File:** `crm.menschlichkeit-oesterreich.at/web/modules/custom/pii_sanitizer/src/PiiSanitizer.php` (18.7 KB)
 
 **Features:**
+
 ```php
 class PiiSanitizer {
     const STRATEGY_DROP = 'drop';
     const STRATEGY_REDACT = 'redact';
     const STRATEGY_MASK = 'mask';
     const STRATEGY_HASH = 'hash';
-    
+
     public function __construct(array $config)
     public function scrubText(string $text): string
     public function scrubDict(array $data, string $strategy): array
     public static function getMetrics(): array
     public static function resetMetrics(): void
-    
+
     // Private methods
     private function validateLuhn(string $number): bool
     private function maskEmail(string $email): string
@@ -63,46 +66,47 @@ class PiiSanitizer {
 
 **Detection Capabilities (identisch zu Python):**
 
-| PII Type | Pattern | Validation | Example Output |
-|----------|---------|------------|----------------|
-| **Email** | RFC-compliant Regex | - | `m**@example.com` |
-| **Phone** | E.164 International | - | `+43*********` |
-| **Credit Card** | 13-19 digits | **Luhn Algorithm** | `[CARD]` |
-| **IBAN** | AT/DE/CH formats | Length Check | `AT61***` |
-| **JWT/Bearer** | Base64 structure | - | `Bearer [REDACTED]` |
-| **IPv4** | Dotted decimal | - | `192.168.*.*` |
-| **IPv6** | Colon-separated | - | `[IPv6_REDACTED]` |
-| **AWS Secret** | `AKIA*` prefix | - | `[SECRET_REDACTED]` |
-| **GitHub Token** | `ghp_*` prefix | - | `[SECRET_REDACTED]` |
-| **Slack Token** | `xox*` prefix | - | `[SECRET_REDACTED]` |
+| PII Type         | Pattern             | Validation         | Example Output      |
+| ---------------- | ------------------- | ------------------ | ------------------- |
+| **Email**        | RFC-compliant Regex | -                  | `m**@example.com`   |
+| **Phone**        | E.164 International | -                  | `+43*********`      |
+| **Credit Card**  | 13-19 digits        | **Luhn Algorithm** | `[CARD]`            |
+| **IBAN**         | AT/DE/CH formats    | Length Check       | `AT61***`           |
+| **JWT/Bearer**   | Base64 structure    | -                  | `Bearer [REDACTED]` |
+| **IPv4**         | Dotted decimal      | -                  | `192.168.*.*`       |
+| **IPv6**         | Colon-separated     | -                  | `[IPv6_REDACTED]`   |
+| **AWS Secret**   | `AKIA*` prefix      | -                  | `[SECRET_REDACTED]` |
+| **GitHub Token** | `ghp_*` prefix      | -                  | `[SECRET_REDACTED]` |
+| **Slack Token**  | `xox*` prefix       | -                  | `[SECRET_REDACTED]` |
 
 **Luhn Algorithm Implementation:**
+
 ```php
 private function validateLuhn(string $number): bool {
     $number = preg_replace('/\D/', '', $number);
     $length = strlen($number);
-    
+
     if ($length < 13 || $length > 19) {
         return FALSE;
     }
-    
+
     $sum = 0;
     $alt = FALSE;
-    
+
     for ($i = $length - 1; $i >= 0; $i--) {
         $digit = (int) $number[$i];
-        
+
         if ($alt) {
             $digit *= 2;
             if ($digit > 9) {
                 $digit -= 9;
             }
         }
-        
+
         $sum += $digit;
         $alt = !$alt;
     }
-    
+
     return $sum % 10 === 0;
 }
 ```
@@ -120,12 +124,12 @@ Sanitizes **all** Drupal watchdog log entries before storage:
 ```php
 function pii_sanitizer_watchdog(array $log_entry) {
     $sanitizer = new PiiSanitizer(['enabled' => TRUE]);
-    
+
     // Sanitize message
     if (isset($log_entry['message'])) {
         $log_entry['message'] = $sanitizer->scrubText($log_entry['message']);
     }
-    
+
     // Sanitize variables (placeholders)
     if (isset($log_entry['variables'])) {
         $log_entry['variables'] = $sanitizer->scrubDict(
@@ -133,12 +137,13 @@ function pii_sanitizer_watchdog(array $log_entry) {
             PiiSanitizer::STRATEGY_DROP
         );
     }
-    
+
     return $log_entry;
 }
 ```
 
 **Impact:**
+
 - ✅ Alle System-Logs (404, PHP errors, user actions)
 - ✅ Custom module logs via `\Drupal::logger()`
 - ✅ Contrib module logs (Views, Webform, etc.)
@@ -172,6 +177,7 @@ function pii_sanitizer_form_validate(&$form, &$form_state) {
 ```
 
 **Example:**
+
 ```
 Original: "Invalid email: john.doe@example.com"
 Sanitized: "Invalid email: j**@example.com"
@@ -206,14 +212,14 @@ function pii_sanitizer_civicrm_post($op, $objectName, $objectId, &$objectRef) {
     if ($objectName !== 'Activity') {
         return;
     }
-    
+
     $sanitizer = new PiiSanitizer();
-    
+
     // Sanitize activity details
     if (isset($objectRef->details)) {
         $objectRef->details = $sanitizer->scrubText($objectRef->details);
     }
-    
+
     // Sanitize subject
     if (isset($objectRef->subject)) {
         $objectRef->subject = $sanitizer->scrubText($objectRef->subject);
@@ -222,6 +228,7 @@ function pii_sanitizer_civicrm_post($op, $objectName, $objectId, &$objectRef) {
 ```
 
 **Covers:**
+
 - Meeting notes
 - Phone call logs
 - Email activity records
@@ -260,7 +267,7 @@ function pii_sanitizer_civicrm_searchColumns($objectName, &$headers, &$rows, &$s
     if ($current_user->hasPermission('view unredacted civicrm logs')) {
         return;
     }
-    
+
     // Sanitize contact search results
     foreach ($rows as &$row) {
         $row['email'] = $sanitizer->scrubText($row['email']);
@@ -293,24 +300,26 @@ function pii_sanitizer_civicrm_export($exportTempTable, &$headerRows, &$sqlColum
 #### Test Coverage
 
 ✅ **Email Sanitization**
+
 ```php
 public function testEmailSanitization() {
     $input = 'Contact us at info@example.com for help';
     $output = $this->sanitizer->scrubText($input);
-    
+
     $this->assertStringContainsString('i**@example.com', $output);
     $this->assertStringNotContainsString('info@example.com', $output);
 }
 ```
 
 ✅ **Phone Number Sanitization**
+
 ```php
 public function testPhoneSanitization() {
     $tests = [
         '+43 664 1234567' => '+43*********',
         '+49-30-12345678' => '+49*********',
     ];
-    
+
     foreach ($tests as $input => $expected_pattern) {
         $output = $this->sanitizer->scrubText("Call $input now");
         $this->assertStringContainsString('***', $output);
@@ -319,6 +328,7 @@ public function testPhoneSanitization() {
 ```
 
 ✅ **Luhn Algorithm Validation**
+
 ```php
 public function testLuhnValidation() {
     $valid_cards = [
@@ -326,7 +336,7 @@ public function testLuhnValidation() {
         '5425233430109903', // MasterCard
         '374245455400126',  // American Express
     ];
-    
+
     foreach ($valid_cards as $card) {
         $this->assertTrue($method->invoke($this->sanitizer, $card));
     }
@@ -334,13 +344,14 @@ public function testLuhnValidation() {
 ```
 
 ✅ **IBAN Sanitization**
+
 ```php
 public function testIbanSanitization() {
     $tests = [
         'AT61 1904 3002 3457 3201' => 'AT61***',
         'DE89 3704 0044 0532 0130 00' => 'DE89***',
     ];
-    
+
     foreach ($tests as $iban => $expected) {
         $output = $this->sanitizer->scrubText("IBAN: $iban");
         $this->assertStringContainsString($expected, $output);
@@ -349,6 +360,7 @@ public function testIbanSanitization() {
 ```
 
 ✅ **Dictionary Sanitization (DROP Strategy)**
+
 ```php
 public function testDictSanitizationDrop() {
     $input = [
@@ -357,15 +369,16 @@ public function testDictSanitizationDrop() {
         'api_key' => 'ABC123DEF456',  // Will be dropped
         'email' => 'john@example.com',
     ];
-    
+
     $output = $this->sanitizer->scrubDict($input, PiiSanitizer::STRATEGY_DROP);
-    
+
     $this->assertArrayNotHasKey('password', $output);
     $this->assertArrayNotHasKey('api_key', $output);
 }
 ```
 
 ✅ **Golden Samples (DSGVO Critical Scenarios)**
+
 ```php
 public function testGoldenSamplesDsgvo() {
     $golden_samples = [
@@ -378,7 +391,7 @@ public function testGoldenSamplesDsgvo() {
             'must_contain' => ['AT61***'],
         ],
     ];
-    
+
     foreach ($golden_samples as $input => $assertions) {
         $output = $this->sanitizer->scrubText($input);
         // Assert forbidden and required strings
@@ -404,6 +417,7 @@ cd /var/www/vhosts/menschlichkeit-oesterreich.at/crm/web
 **File:** `README.md` (15.3 KB)
 
 **Sections:**
+
 1. **Overview** - Features, detection capabilities
 2. **Installation** - Drush commands, configuration
 3. **Usage** - Code examples for Drupal/CiviCRM
@@ -484,11 +498,13 @@ PiiSanitizer::getMetrics();
 ### Grafana Dashboard
 
 **Prometheus Scraping:**
+
 ```bash
 curl https://crm.menschlichkeit-oesterreich.at/api/pii-metrics
 ```
 
 **Metrics:**
+
 - `pii_emails_redacted_total`
 - `pii_phones_redacted_total`
 - `pii_cards_redacted_total`
@@ -507,6 +523,7 @@ curl https://crm.menschlichkeit-oesterreich.at/api/pii-metrics
 - **Default:** Not assigned to any role
 
 **Grant Permission:**
+
 ```bash
 drush role:perm:add administrator 'view unredacted civicrm logs'
 ```
@@ -522,6 +539,7 @@ The following field names trigger **STRATEGY_DROP** (field removal):
 - `cookie`, `session`
 
 **Example:**
+
 ```php
 $input = ['username' => 'admin', 'password' => 'secret123'];
 $output = $sanitizer->scrubDict($input, PiiSanitizer::STRATEGY_DROP);
@@ -537,27 +555,31 @@ $output = $sanitizer->scrubDict($input, PiiSanitizer::STRATEGY_DROP);
 ### DSGVO Articles Addressed
 
 **Art. 5 (Grundsätze der Verarbeitung):**
+
 - ✅ **Datenminimierung:** PII in Logs reduziert
 - ✅ **Speicherbegrenzung:** Redacted Logs = geringeres Risiko
 
 **Art. 25 (Datenschutz durch Technikgestaltung):**
+
 - ✅ **Privacy by Design:** Automatische PII-Redaktion in allen Hooks
 
 **Art. 32 (Sicherheit der Verarbeitung):**
+
 - ✅ **Pseudonymisierung:** Email/Phone/IP-Masking
 - ✅ **Verschlüsselung:** HASH-Strategy für Audit-Trails
 
 **Art. 35 (Datenschutz-Folgenabschätzung):**
+
 - ✅ **Risikominimierung:** PII in Logs = Hohes Risiko → Mitigiert durch Redaktion
 
 ### Compliance Score Improvement
 
-| Metric | Before | After | Change |
-|--------|--------|-------|--------|
-| **CRM Log Security** | 30% | 80% | +50% |
-| **Activity Privacy** | 40% | 85% | +45% |
-| **DSGVO Art. 5** | ⚠️ Partially | ✅ Compliant | +100% |
-| **DSGVO Art. 32** | 70% | 85% | +15% |
+| Metric               | Before       | After        | Change |
+| -------------------- | ------------ | ------------ | ------ |
+| **CRM Log Security** | 30%          | 80%          | +50%   |
+| **Activity Privacy** | 40%          | 85%          | +45%   |
+| **DSGVO Art. 5**     | ⚠️ Partially | ✅ Compliant | +100%  |
+| **DSGVO Art. 32**    | 70%          | 85%          | +15%   |
 
 ---
 
@@ -572,6 +594,7 @@ $output = $sanitizer->scrubDict($input, PiiSanitizer::STRATEGY_DROP);
 **Impact:** PHPStan/lint warnings (no runtime impact)
 
 **Mitigation:**
+
 ```bash
 # Exclude from PHPStan
 phpstan analyse --level 8 --exclude CiviCRM
@@ -590,11 +613,13 @@ phpstan analyse --level 8 --exclude CiviCRM
 **Issue:** Nested array sanitization can be slow (>1000 keys)
 
 **Benchmark:**
+
 - 100 keys: ~5ms
 - 1000 keys: ~50ms
 - 10000 keys: ~500ms
 
 **Mitigation:**
+
 ```php
 // Cache compiled regex patterns
 private static $patterns = []; // Class-level cache
@@ -614,13 +639,13 @@ private static $patterns = []; // Class-level cache
 
 ### Sanitization Speed
 
-| Operation | Input Size | Time |
-|-----------|------------|------|
-| `scrubText()` | 1 KB | 0.2ms |
-| `scrubText()` | 100 KB | 15ms |
-| `scrubDict()` (flat) | 100 keys | 5ms |
-| `scrubDict()` (nested 3 levels) | 100 keys | 12ms |
-| `validateLuhn()` | 16 digits | 0.05ms |
+| Operation                       | Input Size | Time   |
+| ------------------------------- | ---------- | ------ |
+| `scrubText()`                   | 1 KB       | 0.2ms  |
+| `scrubText()`                   | 100 KB     | 15ms   |
+| `scrubDict()` (flat)            | 100 keys   | 5ms    |
+| `scrubDict()` (nested 3 levels) | 100 keys   | 12ms   |
+| `validateLuhn()`                | 16 digits  | 0.05ms |
 
 **Test Environment:** PHP 8.3, OpCache enabled, Debian 12
 
@@ -631,6 +656,7 @@ private static $patterns = []; // Class-level cache
 ### F-03 Phase 3: n8n Workflows (1.5h)
 
 **Deliverables:**
+
 1. n8n Custom Node "PII-Sanitizer"
 2. Webhook-Data-Scrubbing vor Speicherung
 3. Error-Log-Redaktion in n8n Logs
@@ -640,6 +666,7 @@ private static $patterns = []; // Class-level cache
 **Timeline:** +1.5h
 
 **Files:**
+
 - `automation/n8n/custom-nodes/PiiSanitizer/`
 - `automation/n8n/workflows/pii-sanitization-example.json`
 - `automation/n8n/tests/pii-sanitizer.test.js`
@@ -649,6 +676,7 @@ private static $patterns = []; // Class-level cache
 ### F-03 Phase 4: Log-Pipeline (2h)
 
 **Deliverables:**
+
 1. Vector VRL Transform (PII-Scrubbing vor Elasticsearch)
 2. Fluent Bit Lua Filter
 3. Prometheus Metrics Collection
@@ -658,6 +686,7 @@ private static $patterns = []; // Class-level cache
 **Timeline:** +2h
 
 **Files:**
+
 - `deployment-scripts/vector/transforms/pii-sanitizer.vrl`
 - `deployment-scripts/fluent-bit/filters/pii-sanitizer.lua`
 - `quality-reports/pii-pipeline-metrics.json`
@@ -667,17 +696,20 @@ private static $patterns = []; // Class-level cache
 ## Time Tracking
 
 **F-03 Phase 2:**
+
 - **Estimated:** 2h
 - **Actual:** 2.25h (inkl. CiviCRM-specific hooks)
 - **Efficiency:** 112.5% (mehr Features als geplant)
 
 **Total F-03 Progress:**
+
 - **Phase 1 (FastAPI):** ✅ 2.5h
 - **Phase 2 (Drupal/CiviCRM):** ✅ 2.25h
 - **Phase 3 (n8n):** ⏳ 1.5h (pending)
 - **Phase 4 (Log Pipeline):** ⏳ 2h (pending)
 
 **Gesamt:**
+
 - **Completed:** 4.75h / 8h (59%)
 - **Remaining:** 3.25h
 - **On Track:** ✅ (innerhalb Budget)
@@ -704,6 +736,7 @@ private static $patterns = []; // Class-level cache
 **Status:** ✅ READY TO DEPLOY
 
 **Deployment Command:**
+
 ```bash
 cd /var/www/vhosts/menschlichkeit-oesterreich.at/crm/web
 drush pm:enable pii_sanitizer

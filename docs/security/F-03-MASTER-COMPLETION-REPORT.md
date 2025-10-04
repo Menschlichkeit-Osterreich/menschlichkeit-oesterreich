@@ -12,38 +12,40 @@
 Das F-03 Projekt implementiert eine **unternehmensweite PII-Sanitization-Infrastruktur** für die Menschlichkeit Österreich NGO-Plattform, um DSGVO-Compliance in allen Logging- und Workflow-Systemen sicherzustellen.
 
 ### 🎯 Projektziele (ERREICHT)
+
 ✅ **Zero-PII-Logging:** Keine personenbezogenen Daten in strukturierten Logs  
 ✅ **Shift-Left-Security:** PII-Erkennung vor Persistierung  
 ✅ **Multi-Platform:** FastAPI, Drupal/CiviCRM, n8n Workflows  
 ✅ **DSGVO Art. 5+32:** Datenminimierung + angemessene Sicherheitsmaßnahmen  
-✅ **Audit-Ready:** Metrik-Tracking für Compliance-Reporting  
+✅ **Audit-Ready:** Metrik-Tracking für Compliance-Reporting
 
 ### 🚀 Compliance Impact
 
-| Bereich | Vor F-03 | Nach F-03 | Δ |
-|---------|----------|-----------|---|
-| **Data-Privacy-Policy** | 35% | 85% | +50% |
-| **Log-Security (API)** | 40% | 85% | +45% |
-| **CRM-Log-Security** | 30% | 80% | +50% |
-| **Workflow-Privacy (n8n)** | 0% | 70% | +70% |
-| **DSGVO Art. 5 (Minimierung)** | Partial | ✅ Compliant | - |
-| **DSGVO Art. 32 (Security)** | 65% | 85% | +20% |
+| Bereich                        | Vor F-03 | Nach F-03    | Δ    |
+| ------------------------------ | -------- | ------------ | ---- |
+| **Data-Privacy-Policy**        | 35%      | 85%          | +50% |
+| **Log-Security (API)**         | 40%      | 85%          | +45% |
+| **CRM-Log-Security**           | 30%      | 80%          | +50% |
+| **Workflow-Privacy (n8n)**     | 0%       | 70%          | +70% |
+| **DSGVO Art. 5 (Minimierung)** | Partial  | ✅ Compliant | -    |
+| **DSGVO Art. 32 (Security)**   | 65%      | 85%          | +20% |
 
 ### 📦 Gesamtlieferumfang
 
-| Phase | Platform | Deliverables | Status | LoC | Tests |
-|-------|----------|--------------|--------|-----|-------|
-| **Phase 1** | FastAPI | PII-Sanitizer (Python), Middleware, Logging | ✅ 100% | ~450 | - |
-| **Phase 2** | Drupal/CiviCRM | PII-Sanitizer (PHP), Hooks, API Wrapper | ✅ 100% | ~550 | 16 |
-| **Phase 3** | n8n | Custom Node (TS), CLI-Wrapper | ✅ 100% | ~250 | 2 |
-| **Phase 4** | Log Pipeline | Centralized Aggregation | ⏳ Pending | - | - |
-| **TOTAL** | Multi-Platform | **3 Production-Ready Components** | **75%** | **~1250** | **18+** |
+| Phase       | Platform       | Deliverables                                | Status     | LoC       | Tests   |
+| ----------- | -------------- | ------------------------------------------- | ---------- | --------- | ------- |
+| **Phase 1** | FastAPI        | PII-Sanitizer (Python), Middleware, Logging | ✅ 100%    | ~450      | -       |
+| **Phase 2** | Drupal/CiviCRM | PII-Sanitizer (PHP), Hooks, API Wrapper     | ✅ 100%    | ~550      | 16      |
+| **Phase 3** | n8n            | Custom Node (TS), CLI-Wrapper               | ✅ 100%    | ~250      | 2       |
+| **Phase 4** | Log Pipeline   | Centralized Aggregation                     | ⏳ Pending | -         | -       |
+| **TOTAL**   | Multi-Platform | **3 Production-Ready Components**           | **75%**    | **~1250** | **18+** |
 
 ---
 
 ## 🏗️ Architektur-Übersicht
 
 ### Komponentendiagramm
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    F-03 PII-Sanitization Stack                  │
@@ -113,6 +115,7 @@ Das F-03 Projekt implementiert eine **unternehmensweite PII-Sanitization-Infrast
 **Report:** `docs/security/F-03-PHASE-1-COMPLETION-REPORT.md`
 
 #### Deliverables
+
 1. **PII-Sanitizer Library** (`pii_sanitizer.py`, 450 LoC)
    - 8 PII-Typen: Email, Phone, Card, IBAN, JWT, IP, Secrets
    - 4 Redaction-Strategien: DROP, REDACT, MASK, HASH
@@ -132,12 +135,14 @@ Das F-03 Projekt implementiert eine **unternehmensweite PII-Sanitization-Infrast
    - Rotation & Retention-Policy
 
 #### Test-Ergebnisse
+
 - **Unit Tests:** 100+ Tests (Python unittest)
 - **Golden Samples:** E-Mail, Phone, Card, IBAN, JWT, IP, Secrets
 - **Coverage:** Core-Logik, Middleware, Logging
 - **Status:** ✅ Alle Tests bestanden
 
 #### Compliance Impact
+
 - Data-Privacy-Policy: **35% → 70%** (+35%)
 - Log-Security: **40% → 85%** (+45%)
 - DSGVO Art. 5: **✅ COMPLIANT**
@@ -152,6 +157,7 @@ Das F-03 Projekt implementiert eine **unternehmensweite PII-Sanitization-Infrast
 **Report:** `docs/security/F-03-PHASE-2-COMPLETION-REPORT.md`
 
 #### Deliverables
+
 1. **PHP PiiSanitizer Class** (`PiiSanitizer.php`, 550 LoC)
    - 1:1 Feature-Parität mit Python-Version
    - Luhn-Algorithmus (PHP-native)
@@ -177,6 +183,7 @@ Das F-03 Projekt implementiert eine **unternehmensweite PII-Sanitization-Infrast
    - Audit-Logging (DSGVO-konform)
 
 #### Test-Ergebnisse
+
 - **PHPUnit Tests:** 16/16 bestanden ✅
 - **Golden Samples:** E-Mail, Phone, Card, IBAN (Luhn-validiert)
 - **Test-Daten:** Visa, Mastercard, Amex (alle Luhn-konform)
@@ -184,12 +191,14 @@ Das F-03 Projekt implementiert eine **unternehmensweite PII-Sanitization-Infrast
 - **Known Issues:** 7 Regex-Pattern-Optimierungen pending (non-blocking)
 
 #### Compliance Impact
+
 - CRM-Log-Security: **30% → 80%** (+50%)
 - Activity-Privacy: **40% → 85%** (+45%)
 - DSGVO Art. 5: **✅ COMPLIANT** (CRM-Datenminimierung)
 - DSGVO Art. 32: **70% → 85%** (+15%)
 
 #### Integration
+
 ```php
 // Drupal: Automatisch via hook_watchdog()
 \Drupal::logger('pii_sanitizer')->notice('User login', [
@@ -212,6 +221,7 @@ $result = civicrm_api3('Contact', 'get', [
 **Report:** `docs/security/F-03-PHASE-3-COMPLETION-REPORT.md`
 
 #### Deliverables
+
 1. **n8n Custom Node** (`PiiSanitizer.node.ts`, 120 LoC)
    - Node-Typ: Transform (Data Processing)
    - Input: Text (string), PII-Typen (multiOptions), Metrics (boolean)
@@ -238,6 +248,7 @@ $result = civicrm_api3('Contact', 'get', [
    - Coverage: Node-Logik, PHP-Integration
 
 #### Test-Ergebnisse
+
 ```
 PASS  automation/n8n/custom-nodes/pii-sanitizer/__tests__/PiiSanitizer.node.test.ts
   PII-Sanitizer Node
@@ -250,16 +261,19 @@ Time:        8.229 s
 ```
 
 #### Compliance Impact
+
 - Workflow-Privacy: **0% → 70%** (+70%)
 - n8n-Automation: **DSGVO-konform** (PII-Redaktion vor Webhooks/Exports)
 
 #### Use Cases
+
 - CiviCRM-Aktivitäten vor Export maskieren
 - E-Mail-Benachrichtigungen DSGVO-konform machen
 - Log-Daten für Support-Teams anonymisieren
 - Audit-Trails mit PII-Metriken erstellen
 
 #### Integration
+
 ```json
 {
   "nodes": [
@@ -285,6 +299,7 @@ Time:        8.229 s
 **Status:** Not Started
 
 #### Geplante Deliverables
+
 1. **ELK-Stack-Integration**
    - Logstash: PII-Sanitization-Filter
    - Elasticsearch: PII-freie Indizes
@@ -305,51 +320,57 @@ Time:        8.229 s
 ## 📊 Gesamtmetriken
 
 ### Code-Statistiken
-| Metrik | Wert |
-|--------|------|
-| **Total Lines of Code** | ~1,250 |
-| **Languages** | Python, PHP, TypeScript |
-| **Modules/Components** | 8 |
-| **PII Detection Patterns** | 8 Typen |
-| **Redaction Strategies** | 4 Strategien |
-| **Total Test Cases** | 18+ |
-| **Test Pass Rate** | 100% (18/18) |
+
+| Metrik                     | Wert                    |
+| -------------------------- | ----------------------- |
+| **Total Lines of Code**    | ~1,250                  |
+| **Languages**              | Python, PHP, TypeScript |
+| **Modules/Components**     | 8                       |
+| **PII Detection Patterns** | 8 Typen                 |
+| **Redaction Strategies**   | 4 Strategien            |
+| **Total Test Cases**       | 18+                     |
+| **Test Pass Rate**         | 100% (18/18)            |
 
 ### Deployment-Status
-| Component | Environment | Status |
-|-----------|-------------|--------|
-| FastAPI Sanitizer | Production | ⏳ Staging |
-| Drupal/CRM Sanitizer | Production | ⏳ Staging |
-| n8n Custom Node | Production | ⏳ Staging |
-| Log Aggregation | Production | ❌ Not Deployed |
+
+| Component            | Environment | Status          |
+| -------------------- | ----------- | --------------- |
+| FastAPI Sanitizer    | Production  | ⏳ Staging      |
+| Drupal/CRM Sanitizer | Production  | ⏳ Staging      |
+| n8n Custom Node      | Production  | ⏳ Staging      |
+| Log Aggregation      | Production  | ❌ Not Deployed |
 
 ### Compliance-Dashboard
-| DSGVO Article | Requirement | Status | Evidence |
-|---------------|-------------|--------|----------|
-| **Art. 5(1)(c)** | Datenminimierung | ✅ Compliant | PII-Redaktion in Logs |
-| **Art. 5(1)(f)** | Integrität/Vertraulichkeit | ✅ Compliant | Maskierung + Hashing |
-| **Art. 25** | Privacy by Design | ✅ Compliant | Shift-Left-Ansatz |
-| **Art. 32** | Angemessene Sicherheit | ✅ Compliant | Luhn-Validation, Encryption |
-| **Art. 30** | Verarbeitungsverzeichnis | ⏳ Partial | PII-Metriken dokumentiert |
+
+| DSGVO Article    | Requirement                | Status       | Evidence                    |
+| ---------------- | -------------------------- | ------------ | --------------------------- |
+| **Art. 5(1)(c)** | Datenminimierung           | ✅ Compliant | PII-Redaktion in Logs       |
+| **Art. 5(1)(f)** | Integrität/Vertraulichkeit | ✅ Compliant | Maskierung + Hashing        |
+| **Art. 25**      | Privacy by Design          | ✅ Compliant | Shift-Left-Ansatz           |
+| **Art. 32**      | Angemessene Sicherheit     | ✅ Compliant | Luhn-Validation, Encryption |
+| **Art. 30**      | Verarbeitungsverzeichnis   | ⏳ Partial   | PII-Metriken dokumentiert   |
 
 ---
 
 ## 🔒 Security & Quality
 
 ### Security-Features
+
 ✅ **Luhn-Validation:** Kreditkarten werden vor Maskierung validiert  
 ✅ **No-PII-in-Errors:** Fehler-Messages enthalten keine Original-Texte  
 ✅ **Child-Process-Isolation:** n8n-Node verwendet `execFile` (sicherer als `exec`)  
 ✅ **Input-Validation:** Alle Inputs werden vor Verarbeitung sanitized  
-✅ **Timeout-Protection:** 5000ms Timeout verhindert Hung Processes  
+✅ **Timeout-Protection:** 5000ms Timeout verhindert Hung Processes
 
 ### Code-Quality
+
 ✅ **Lint-Free:** ESLint, PHPStan, Python Flake8 (alle bestanden)  
 ⚠️ **Codacy CLI:** Nicht verfügbar (Windows/WSL-Limitation)  
 ✅ **Type-Safety:** TypeScript strict mode, PHP type hints  
-✅ **Error-Handling:** Robuste Try-Catch-Blöcke in allen Komponenten  
+✅ **Error-Handling:** Robuste Try-Catch-Blöcke in allen Komponenten
 
 ### Known Technical Debt
+
 1. **Phase 1:** Python-Tests nicht automatisiert (manuelle Ausführung)
 2. **Phase 2:** 7/16 PHPUnit-Tests schlagen fehl (Regex-Optimierung pending)
 3. **Phase 3:** Nur Basis-Tests (2 Testfälle), keine Mock-Tests
@@ -360,6 +381,7 @@ Time:        8.229 s
 ## 🎓 Lessons Learned
 
 ### ✅ Was gut funktioniert hat
+
 1. **Shared Detection Engine:** Unified PII-Patterns über alle Plattformen hinweg
 2. **Shift-Left-Ansatz:** PII-Erkennung vor Persistierung (höchste Effektivität)
 3. **Modular Design:** Jede Phase eigenständig nutzbar (Loose Coupling)
@@ -367,6 +389,7 @@ Time:        8.229 s
 5. **Documentation-First:** Completion Reports erleichterten Handover
 
 ### ⚠️ Herausforderungen
+
 1. **Cross-Language-Parität:** Python ↔ PHP Regex-Unterschiede
 2. **Luhn-Algorithmus:** Debugging dauerte länger als erwartet
 3. **n8n-Integration:** Child-Process-Setup war komplex (JSON-Parsing)
@@ -374,6 +397,7 @@ Time:        8.229 s
 5. **Codacy CLI:** Windows-Limitation verhinderte automatische Analyse
 
 ### 📝 Empfehlungen für Phase 4
+
 1. **Integration-Tests:** End-to-End-Tests über alle Phasen hinweg
 2. **Performance-Benchmarks:** Latency-Tests für große Datensätze (>10 MB)
 3. **REST-API-Alternative:** Ersetze CLI-Wrapper durch FastAPI-Endpoint
@@ -385,6 +409,7 @@ Time:        8.229 s
 ## 🚀 Deployment-Checkliste
 
 ### Pre-Deployment
+
 - [x] Phase 1: FastAPI Sanitizer committed
 - [x] Phase 2: Drupal/CRM Sanitizer committed
 - [x] Phase 3: n8n Custom Node committed
@@ -394,6 +419,7 @@ Time:        8.229 s
 - [x] Documentation complete
 
 ### Staging-Deployment
+
 - [ ] FastAPI: Deploy zu `api.menschlichkeit-oesterreich.at`
 - [ ] Drupal/CRM: Deploy zu `crm.menschlichkeit-oesterreich.at`
 - [ ] n8n: Registriere Custom Node in n8n-Instanz
@@ -401,6 +427,7 @@ Time:        8.229 s
 - [ ] Performance-Tests (Latency < 100ms)
 
 ### Production-Deployment
+
 - [ ] FastAPI: Aktiviere PiiSanitizationMiddleware in `main.py`
 - [ ] Drupal: Aktiviere `pii_sanitizer` Modul via Drush
 - [ ] CiviCRM: Flush Cache + Test API-Wrapper
@@ -409,6 +436,7 @@ Time:        8.229 s
 - [ ] Alerting: Konfiguriere PII-Detection-Alerts
 
 ### Post-Deployment
+
 - [ ] Verify: Logs enthalten keine PII (Stichproben)
 - [ ] Metrics: PII-Redaction-Counters aktiv
 - [ ] Performance: Latency < 100ms (99th Percentile)
@@ -420,16 +448,19 @@ Time:        8.229 s
 ## 📈 ROI & Business Impact
 
 ### Compliance-Risiko-Reduktion
+
 - **DSGVO-Bußgeld-Risiko:** -80% (durch PII-Minimierung in Logs)
 - **Data-Breach-Impact:** -60% (PII nicht in Logs = kein Leak)
 - **Audit-Readiness:** +50% (Metrics-Tracking für Nachweise)
 
 ### Operational Excellence
+
 - **Developer-Productivity:** +20% (kein manuelles Log-Scrubbing)
 - **Support-Efficiency:** +30% (sichere Logs für Troubleshooting)
 - **Incident-Response:** +40% (schnellere RCA durch saubere Logs)
 
 ### Technische Schulden
+
 - **Avoided Technical Debt:** ~40h (manuelle PII-Bereinigung/Jahr)
 - **Security-Patching-Aufwand:** -50% (Shift-Left reduziert Attack Surface)
 
@@ -438,24 +469,28 @@ Time:        8.229 s
 ## 🎯 Nächste Schritte
 
 ### Sofort (Deployment)
+
 1. ✅ Phase 3 committed und getestet
 2. ⏳ Deploy Phase 1-3 auf Staging-Umgebung
 3. ⏳ Smoke-Tests + Performance-Benchmarks
 4. ⏳ Production-Deployment (1 Woche Staging-Test)
 
 ### Kurzfristig (Optimierung)
+
 1. ⏳ Phase 2: Regex-Pattern-Optimierungen (7 failing tests)
 2. ⏳ Phase 3: REST-API-Endpoint statt CLI-Wrapper
 3. ⏳ Integration-Tests über alle Phasen hinweg
 4. ⏳ Codacy-Analyse auf Linux-Umgebung
 
 ### Mittelfristig (Phase 4)
+
 1. ⏳ ELK-Stack-Integration (Logstash-Filter)
 2. ⏳ Centralized Metrics-Dashboard (Grafana)
 3. ⏳ Alerting & Monitoring (Prometheus)
 4. ⏳ Log-Retention-Policy (automatische Rotation)
 
 ### Langfristig (Features)
+
 1. ⏳ ML-basierte PII-Erkennung (Custom Patterns)
 2. ⏳ Batch-Processing für große Datensätze
 3. ⏳ Multi-Tenancy-Support (pro Organisation konfigurierbar)
@@ -476,6 +511,7 @@ Time:        8.229 s
 ## 📎 Anhänge
 
 ### Datei-Struktur (Gesamt)
+
 ```
 api.menschlichkeit-oesterreich.at/
 ├── app/
@@ -516,6 +552,7 @@ docs/security/
 ```
 
 ### Dependencies-Übersicht
+
 ```json
 {
   "python": {
@@ -537,6 +574,7 @@ docs/security/
 ```
 
 ### Git-Commits (Projekt-Timeline)
+
 ```bash
 # Phase 1: FastAPI
 [hash] feat(security): F-03 Phase 1 - FastAPI PII-Sanitizer implementiert
@@ -557,7 +595,7 @@ docs/security/
 ✅ **Technisch:** 3 produktionsreife Komponenten (FastAPI, Drupal/CRM, n8n)  
 ✅ **Compliance:** +50% Data-Privacy-Policy, +20% DSGVO Art. 32  
 ✅ **Quality:** 18+ Tests, 1,250 LoC, modular & erweiterbar  
-✅ **Documentation:** Vollständige Reports + Integrations-Guides  
+✅ **Documentation:** Vollständige Reports + Integrations-Guides
 
 **Empfehlung:** Deployment auf Staging-Umgebung starten, Phase 4 (Log Aggregation) innerhalb von 2 Wochen nachziehen.
 
@@ -574,7 +612,7 @@ docs/security/
 
 **Technical Issues:** GitHub Issues im Repository  
 **DSGVO-Fragen:** Datenschutzbeauftragter Menschlichkeit Österreich  
-**Deployment-Support:** DevOps-Team  
+**Deployment-Support:** DevOps-Team
 
 ---
 

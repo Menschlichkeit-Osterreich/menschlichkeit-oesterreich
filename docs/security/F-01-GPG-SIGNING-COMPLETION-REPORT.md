@@ -31,6 +31,7 @@ Email:      dev@menschlichkeit-oesterreich.at
 ```
 
 **Sicherheit:**
+
 - Automatisch generierte Passphrase (32 Byte Base64)
 - Revocation Certificate erstellt (`~/.gnupg/openpgp-revocs.d/81A6DEC43E1C96C2299398174640581F19248721.rev`)
 - Private Key bleibt im Dev-Container (nicht exportiert)
@@ -48,6 +49,7 @@ gpg.program:      /usr/bin/gpg
 ```
 
 **GPG-Agent-Konfiguration:**
+
 ```bash
 # ~/.gnupg/gpg-agent.conf
 default-cache-ttl 28800        # 8 Stunden
@@ -57,6 +59,7 @@ allow-loopback-pinentry
 ```
 
 **VS Code Integration:**
+
 ```bash
 # ~/.bashrc
 export GPG_TTY=$(tty)
@@ -68,6 +71,7 @@ gpgconf --launch gpg-agent 2>/dev/null || true
 **Erstellt:** `docs/security/GPG-COMMIT-SIGNING-SETUP.md` (23 KB)
 
 **Inhalt:**
+
 - [x] Warum GPG-Signing (Sicherheit, Compliance, Audit)
 - [x] Schritt-für-Schritt-Anleitung (GPG-Key generieren, GitHub hochladen)
 - [x] Git-Konfiguration (global settings, GPG-agent)
@@ -81,10 +85,12 @@ gpgconf --launch gpg-agent 2>/dev/null || true
 **Commit:** `2a767e9c` - "security: enable GPG commit signing (F-01)"  
 **Status:** Erfolgreich gepusht zu GitHub  
 **Dateien:**
+
 - `.gpg-signing-test.txt` (Timestamp)
 - `docs/security/GPG-COMMIT-SIGNING-SETUP.md` (Dokumentation)
 
 **Verification:**
+
 ```bash
 git log --show-signature -1
 # Output: "Good signature from 'Menschlichkeit Österreich Development <dev@...>'"
@@ -122,6 +128,7 @@ curl -X PUT \
 ### Workaround (Manuell via Web-UI)
 
 **Schritt 1:** Zu GitHub-Repository gehen
+
 ```
 https://github.com/peschull/menschlichkeit-oesterreich-development/settings/branches
 ```
@@ -133,11 +140,13 @@ https://github.com/peschull/menschlichkeit-oesterreich-development/settings/bran
 **Schritt 4:** "Save changes" klicken
 
 **Schritt 5 (Optional):** GPG Public Key hochladen
+
 ```
 https://github.com/settings/keys → New GPG key
 ```
 
 **Public Key exportieren:**
+
 ```bash
 gpg --armor --export 81A6DEC43E1C96C2299398174640581F19248721
 ```
@@ -145,11 +154,13 @@ gpg --armor --export 81A6DEC43E1C96C2299398174640581F19248721
 ### Alternative: Token mit erweiterten Scopes
 
 **Erforderliche Scopes:**
+
 - `admin:gpg_key` (für GPG-Key-Management)
 - `repo` (bereits vorhanden)
 - `workflow` (bereits vorhanden)
 
 **Anleitung:**
+
 1. Gehe zu https://github.com/settings/tokens
 2. Klicke auf bestehenden Token "GitHub Copilot Workspace..."
 3. Füge `admin:gpg_key` scope hinzu
@@ -168,6 +179,7 @@ gpg --armor --export 81A6DEC43E1C96C2299398174640581F19248721
 **Nachher:** 8/23 Checkboxes (34.8%) - 🟡 TEILWEISE COMPLIANT
 
 **Neue Erfüllungen:**
+
 - [x] GPG-Key generiert für alle Committer
 - [x] Git global config: `commit.gpgsign true`
 - [x] Git global config: `tag.gpgsign true`
@@ -176,6 +188,7 @@ gpg --armor --export 81A6DEC43E1C96C2299398174640581F19248721
 - [x] Team-Rollout-Plan vorhanden
 
 **Offen (wegen Token-Limitation):**
+
 - [ ] Branch Protection: `required_signatures: true` (manuell via Web-UI)
 - [ ] GPG Public Key auf GitHub hochgeladen (403 wegen fehlendem Scope)
 
@@ -185,10 +198,12 @@ gpg --armor --export 81A6DEC43E1C96C2299398174640581F19248721
 **Nachher:** 7/24 Checkboxes (29.2%) - 🟡 TEILWEISE COMPLIANT
 
 **Neue Erfüllungen:**
+
 - [x] Commit-Signing aktiviert (Git-Config)
 - [x] GPG-Key-Backup-Prozedur dokumentiert
 
 **SLSA Framework:**
+
 - **Level 1:** ✅ Build scripted (build-pipeline.sh)
 - **Level 2:** 🟡 Provenance: Commit-Signing ✓, Artifact-Signing ❌ (siehe F-10)
 - **Level 3:** ❌ Non-falsifiable provenance (Sigstore/SLSA-Builder)
@@ -302,6 +317,7 @@ gpg --armor --export 81A6DEC43E1C96C2299398174640581F19248721
 **Tatsächlich:** 2.5 Stunden
 
 **Breakdown:**
+
 - GPG-Key-Generierung: 15 Minuten
 - Git-Konfiguration: 10 Minuten
 - Dokumentation: 60 Minuten
@@ -317,12 +333,14 @@ gpg --armor --export 81A6DEC43E1C96C2299398174640581F19248721
 ## Referenzen
 
 **Interne Dokumente:**
+
 - `docs/security/GPP-COMMIT-SIGNING-SETUP.md` (23 KB)
 - `docs/governance/GIT-GOVERNANCE-POLICY.md` (26 KB)
 - `docs/security/SUPPLY-CHAIN-SECURITY-BLUEPRINT.md` (31 KB)
 - `security/PHASE-0-FINAL-REPORT.md` (45 KB)
 
 **Externe Standards:**
+
 - SLSA Framework: https://slsa.dev/
 - Git Commit Signing: https://git-scm.com/book/en/v2/Git-Tools-Signing-Your-Work
 - GitHub GPG Verification: https://docs.github.com/en/authentication/managing-commit-signature-verification

@@ -44,6 +44,7 @@ gpg --full-generate-key
 ```
 
 **Beispiel-Ausgabe:**
+
 ```
 gpg: key ABCDEF1234567890 marked as ultimately trusted
 public and secret key created and signed.
@@ -72,12 +73,14 @@ gpg --armor --export ABCDEF1234567890
 ### 2.2 Zu GitHub hochladen
 
 **Via Web-UI:**
+
 1. Gehe zu https://github.com/settings/keys
 2. Klicke "New GPG key"
 3. Paste den Public Key
 4. Klicke "Add GPG key"
 
 **Via CLI (gh):**
+
 ```bash
 # GitHub CLI installieren (falls nicht vorhanden)
 curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
@@ -170,6 +173,7 @@ git log --show-signature -1
 ```
 
 **Erwartete Ausgabe:**
+
 ```
 gpg: Signature made Thu 03 Oct 2025 10:30:00 PM UTC
 gpg:                using RSA key ABCDEF1234567890
@@ -246,6 +250,7 @@ curl -H "Authorization: Bearer $GITHUB_TOKEN" \
 ### Problem: "gpg: signing failed: Inappropriate ioctl for device"
 
 **Lösung:**
+
 ```bash
 export GPG_TTY=$(tty)
 echo 'export GPG_TTY=$(tty)' >> ~/.bashrc
@@ -254,6 +259,7 @@ echo 'export GPG_TTY=$(tty)' >> ~/.bashrc
 ### Problem: "error: gpg failed to sign the data"
 
 **Lösung:**
+
 ```bash
 # GPG-Test
 echo "test" | gpg --clearsign
@@ -266,6 +272,7 @@ gpg-agent --daemon --use-standard-socket
 ### Problem: "fatal: cannot run gpg: No such file or directory"
 
 **Lösung:**
+
 ```bash
 # GPG installieren
 sudo apt-get install -y gnupg
@@ -277,6 +284,7 @@ git config --global gpg.program $(which gpg)
 ### Problem: Passphrase-Eingabe bei jedem Commit
 
 **Lösung:**
+
 ```bash
 # Cache-Zeit erhöhen (siehe 3.3)
 echo "default-cache-ttl 28800" >> ~/.gnupg/gpg-agent.conf
@@ -286,6 +294,7 @@ gpgconf --kill gpg-agent
 ### Problem: "key not certified with a trusted signature"
 
 **Lösung:**
+
 ```bash
 # Eigenem Key vertrauen
 gpg --edit-key ABCDEF1234567890
@@ -325,6 +334,7 @@ git push origin v1.0.0-signed
 ### 8.1 Team-Mitglieder onboarden
 
 **Checklist für jeden Entwickler:**
+
 - [ ] GPG-Key generiert (4096 RSA)
 - [ ] Public Key zu GitHub hinzugefügt
 - [ ] Git-Config gesetzt (`commit.gpgsign true`)
@@ -334,6 +344,7 @@ git push origin v1.0.0-signed
 ### 8.2 CI/CD-Integration
 
 **GitHub Actions:**
+
 ```yaml
 # .github/workflows/verify-signatures.yml
 name: Verify Commit Signatures
@@ -346,8 +357,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Alle Commits
-      
+          fetch-depth: 0 # Alle Commits
+
       - name: Verify Signatures
         run: |
           # Alle Commits im PR prüfen
@@ -410,6 +421,7 @@ shred -u revoke-ABCDEF1234567890.asc
 ```
 
 **Im Ernstfall (Key kompromittiert):**
+
 ```bash
 # Entschlüsseln
 gpg --decrypt revoke-ABCDEF1234567890.asc.gpg > revoke.asc
@@ -426,6 +438,7 @@ gpg --armor --export ABCDEF1234567890 | gh gpg-key add -
 ## 10. Compliance-Status
 
 **Nach Setup:**
+
 - [x] GPG-Key generiert und zu GitHub hinzugefügt
 - [x] Git-Config für automatisches Signing
 - [x] Branch-Protection mit `required_signatures: true`

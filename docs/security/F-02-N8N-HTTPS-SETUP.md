@@ -60,31 +60,34 @@ Vollständige HTTPS-Implementierung für n8n mit Caddy Reverse Proxy und Let's E
 ### Voraussetzungen
 
 1. **DNS-Konfiguration:**
+
    ```bash
    # A-Record für n8n Subdomain
    n8n.menschlichkeit-oesterreich.at → 5.183.217.146
    ```
 
 2. **Firewall-Regeln (Plesk Server):**
+
    ```bash
    # Port 443 (HTTPS) öffnen
    sudo ufw allow 443/tcp comment 'n8n HTTPS (Caddy)'
-   
+
    # Port 80 (HTTP Redirect + Let's Encrypt Challenge) öffnen
    sudo ufw allow 80/tcp comment 'HTTP Redirect + ACME Challenge'
-   
+
    # Port 5678 SCHLIESSEN (nur intern via Docker)
    sudo ufw deny 5678/tcp comment 'n8n direkter Zugriff blockiert'
-   
+
    # Status prüfen
    sudo ufw status numbered
    ```
 
 3. **Environment-Variablen:**
+
    ```bash
    cd automation/n8n
    cp .env.example .env
-   
+
    # Anpassen:
    vim .env
    # N8N_DOMAIN=n8n.menschlichkeit-oesterreich.at
@@ -178,14 +181,14 @@ echo | openssl s_client -connect n8n.menschlichkeit-oesterreich.at:443 2>/dev/nu
 
 Alle Security-Header werden von Caddy gesetzt (siehe `Caddyfile`):
 
-| Header | Wert | Zweck |
-|--------|------|-------|
+| Header                      | Wert                                           | Zweck                            |
+| --------------------------- | ---------------------------------------------- | -------------------------------- |
 | `Strict-Transport-Security` | `max-age=31536000; includeSubDomains; preload` | HSTS - erzwingt HTTPS für 1 Jahr |
-| `X-Frame-Options` | `SAMEORIGIN` | Clickjacking-Schutz |
-| `X-Content-Type-Options` | `nosniff` | MIME-Sniffing-Schutz |
-| `Content-Security-Policy` | (siehe Caddyfile) | XSS-Schutz für n8n Editor |
-| `Referrer-Policy` | `strict-origin-when-cross-origin` | Privacy-Schutz |
-| `Permissions-Policy` | `geolocation=(), microphone=(), camera=()` | Browser-Feature-Einschränkung |
+| `X-Frame-Options`           | `SAMEORIGIN`                                   | Clickjacking-Schutz              |
+| `X-Content-Type-Options`    | `nosniff`                                      | MIME-Sniffing-Schutz             |
+| `Content-Security-Policy`   | (siehe Caddyfile)                              | XSS-Schutz für n8n Editor        |
+| `Referrer-Policy`           | `strict-origin-when-cross-origin`              | Privacy-Schutz                   |
+| `Permissions-Policy`        | `geolocation=(), microphone=(), camera=()`     | Browser-Feature-Einschränkung    |
 
 **HSTS Preload Submission (optional):**
 
@@ -278,6 +281,7 @@ docker exec moe-n8n-caddy caddy metrics
 **Problem:** "Failed to obtain certificate"
 
 **Diagnose:**
+
 ```bash
 # 1. DNS-Auflösung prüfen
 nslookup n8n.menschlichkeit-oesterreich.at
@@ -290,6 +294,7 @@ docker logs moe-n8n-caddy 2>&1 | grep -i "acme\|certificate\|error"
 ```
 
 **Lösung:**
+
 - Firewall Port 80 öffnen: `sudo ufw allow 80/tcp`
 - DNS A-Record prüfen
 - Rate Limit: Warten (Let's Encrypt: 5 Fehler/Stunde/Domain)
@@ -299,6 +304,7 @@ docker logs moe-n8n-caddy 2>&1 | grep -i "acme\|certificate\|error"
 **Problem:** n8n UI lädt nicht, "WebSocket connection failed"
 
 **Lösung:**
+
 ```bash
 # Caddy WebSocket-Header prüfen
 docker exec moe-n8n-caddy cat /etc/caddy/Caddyfile | grep -A5 "reverse_proxy"
@@ -313,6 +319,7 @@ docker exec moe-n8n-caddy cat /etc/caddy/Caddyfile | grep -A5 "reverse_proxy"
 **Problem:** Browser cached alte HTTP-Verbindung
 
 **Lösung:**
+
 ```bash
 # Chrome: chrome://net-internals/#hsts
 # Domain eingeben: n8n.menschlichkeit-oesterreich.at
@@ -350,17 +357,20 @@ sudo ufw allow 5678/tcp
 ### DSGVO Art. 32 (Sicherheit der Verarbeitung)
 
 **Vorher (F-01):**
+
 - ❌ Webhooks über unverschlüsseltes HTTP
 - ❌ Credentials in Klartext übertragen
 - ❌ MITM-Angriffe möglich
 
 **Nachher (F-02):**
+
 - ✅ TLS 1.3 mit Forward Secrecy (ECDHE)
 - ✅ Alle Daten verschlüsselt (AES-256-GCM)
 - ✅ HSTS verhindert Downgrade-Angriffe
 - ✅ Security Headers blockieren XSS/Clickjacking
 
 **Compliance-Score:**
+
 - **Transport-Security:** 16.7% → 83.3% (+66.6%)
 - **DSGVO Art. 32:** 35% → 70% (+35%)
 
@@ -399,9 +409,9 @@ Logs aus `Caddyfile` müssen noch PII-gefiltert werden:
 ```json
 {
   "request": {
-    "remote_ip": "192.0.2.1",  // ← IP-Pseudonymisierung in F-03
+    "remote_ip": "192.0.2.1", // ← IP-Pseudonymisierung in F-03
     "headers": {
-      "Authorization": "[REDACTED]"  // ← Credential-Filtering
+      "Authorization": "[REDACTED]" // ← Credential-Filtering
     }
   }
 }
@@ -455,6 +465,7 @@ https://n8n.menschlichkeit-oesterreich.at/webhook/deployment-notification
 ```
 
 **Basic Auth Credentials:**
+
 - Username: `moe_admin` (aus `.env`)
 - Password: `<siehe .env oder GitHub Secrets>`
 

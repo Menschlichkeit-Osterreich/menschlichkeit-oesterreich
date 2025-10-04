@@ -34,13 +34,14 @@ Vollständige HTTPS-Implementierung für n8n Workflow-Automation mit Caddy Rever
 
 ```yaml
 services:
-  caddy:              # Reverse Proxy (TLS Termination)
-  n8n:                # Workflow Engine (nur intern)
-  postgres-n8n:       # Persistente DB
-  redis-n8n:          # Queue & Cache
+  caddy: # Reverse Proxy (TLS Termination)
+  n8n: # Workflow Engine (nur intern)
+  postgres-n8n: # Persistente DB
+  redis-n8n: # Queue & Cache
 ```
 
 **Network Isolation:**
+
 - **Extern:** Nur Port 443 (HTTPS) und 80 (Redirect + ACME) exponiert
 - **Intern:** n8n läuft auf Port 5678 im isolierten Docker-Netzwerk
 - **Zero Trust:** Kein direkter Zugriff auf n8n ohne Caddy
@@ -48,12 +49,14 @@ services:
 ### 2. TLS Configuration
 
 **Zertifikate:**
+
 - **Issuer:** Let's Encrypt (ACME v2)
 - **Validity:** 90 Tage, Auto-Renewal alle 60 Tage
 - **Algorithm:** ECDSA P-256 oder RSA 2048
 - **Protocols:** TLS 1.2, TLS 1.3 (TLS ≤1.1 deaktiviert)
 
 **Cipher Suites (TLS 1.3):**
+
 ```
 TLS_AES_128_GCM_SHA256         (128-bit, AEAD)
 TLS_AES_256_GCM_SHA384         (256-bit, AEAD)
@@ -66,21 +69,22 @@ TLS_CHACHA20_POLY1305_SHA256   (256-bit, AEAD)
 
 Alle OWASP-empfohlenen Headers implementiert:
 
-| Header | Wert | Compliance |
-|--------|------|------------|
-| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains; preload` | HSTS RFC 6797 |
-| `X-Frame-Options` | `SAMEORIGIN` | Clickjacking-Schutz |
-| `X-Content-Type-Options` | `nosniff` | MIME-Sniffing-Schutz |
-| `X-XSS-Protection` | `1; mode=block` | Legacy XSS-Filter |
-| `Content-Security-Policy` | Restriktive Policy für n8n Editor | XSS/Injection-Schutz |
-| `Referrer-Policy` | `strict-origin-when-cross-origin` | Privacy |
-| `Permissions-Policy` | Geolocation/Camera/Microphone blockiert | Browser-Feature-Lockdown |
+| Header                      | Wert                                           | Compliance               |
+| --------------------------- | ---------------------------------------------- | ------------------------ |
+| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains; preload` | HSTS RFC 6797            |
+| `X-Frame-Options`           | `SAMEORIGIN`                                   | Clickjacking-Schutz      |
+| `X-Content-Type-Options`    | `nosniff`                                      | MIME-Sniffing-Schutz     |
+| `X-XSS-Protection`          | `1; mode=block`                                | Legacy XSS-Filter        |
+| `Content-Security-Policy`   | Restriktive Policy für n8n Editor              | XSS/Injection-Schutz     |
+| `Referrer-Policy`           | `strict-origin-when-cross-origin`              | Privacy                  |
+| `Permissions-Policy`        | Geolocation/Camera/Microphone blockiert        | Browser-Feature-Lockdown |
 
 **Server Header:** Entfernt (Information Disclosure Prevention)
 
 ### 4. Logging & Monitoring
 
 **Caddy Access Logs:**
+
 - **Format:** JSON (strukturiert, maschinell auswertbar)
 - **Location:** `/var/log/caddy/n8n-access.log`
 - **Rotation:** 100 MB/Datei, 5 Dateien behalten
@@ -88,6 +92,7 @@ Alle OWASP-empfohlenen Headers implementiert:
 - **PII-Status:** Vorbereitet für F-03 (IP-Pseudonymisierung pending)
 
 **Health Monitoring:**
+
 - **Endpoint:** `/healthz` (200 OK wenn n8n erreichbar)
 - **Interval:** 30s
 - **Timeout:** 10s
@@ -98,6 +103,7 @@ Alle OWASP-empfohlenen Headers implementiert:
 **Deployment-Skript:** `automation/n8n/deploy-https.sh`
 
 Umfasst:
+
 - ✅ Pre-Flight Checks (DNS, Docker, .env)
 - ✅ Automatisches Backup bestehender Daten
 - ✅ Graceful Shutdown der HTTP-Instanz
@@ -107,6 +113,7 @@ Umfasst:
 - ✅ Detaillierte Status-Reports
 
 **Rollback-Skript:** `automation/n8n/rollback-to-http.sh`
+
 - Schneller Rollback zu HTTP bei kritischen Fehlern
 - Warnungen vor Sicherheitsrisiken
 - Explizite Bestätigung erforderlich (`yes` statt `y`)
@@ -117,20 +124,20 @@ Umfasst:
 
 ### Code & Configuration
 
-| Datei | Größe | Beschreibung |
-|-------|-------|--------------|
-| `automation/n8n/docker-compose.https.yml` | 4.2 KB | HTTPS-Docker-Stack mit Caddy |
-| `automation/n8n/Caddyfile` | 2.8 KB | Caddy Reverse Proxy Config |
-| `automation/n8n/.env.example` | 2.1 KB | Environment Template (erweitert) |
-| `automation/n8n/deploy-https.sh` | 5.3 KB | Deployment-Automatisierung |
-| `automation/n8n/rollback-to-http.sh` | 0.8 KB | Notfall-Rollback |
+| Datei                                     | Größe  | Beschreibung                     |
+| ----------------------------------------- | ------ | -------------------------------- |
+| `automation/n8n/docker-compose.https.yml` | 4.2 KB | HTTPS-Docker-Stack mit Caddy     |
+| `automation/n8n/Caddyfile`                | 2.8 KB | Caddy Reverse Proxy Config       |
+| `automation/n8n/.env.example`             | 2.1 KB | Environment Template (erweitert) |
+| `automation/n8n/deploy-https.sh`          | 5.3 KB | Deployment-Automatisierung       |
+| `automation/n8n/rollback-to-http.sh`      | 0.8 KB | Notfall-Rollback                 |
 
 ### Documentation
 
-| Datei | Größe | Beschreibung |
-|-------|-------|--------------|
-| `docs/security/F-02-N8N-HTTPS-SETUP.md` | 26 KB | Deployment-Guide (dieser Report) |
-| `docs/security/F-02-COMPLETION-REPORT.md` | 8 KB | Abschlussbericht |
+| Datei                                     | Größe | Beschreibung                     |
+| ----------------------------------------- | ----- | -------------------------------- |
+| `docs/security/F-02-N8N-HTTPS-SETUP.md`   | 26 KB | Deployment-Guide (dieser Report) |
+| `docs/security/F-02-COMPLETION-REPORT.md` | 8 KB  | Abschlussbericht                 |
 
 **Total:** 49.2 KB Code + Dokumentation
 
@@ -151,12 +158,14 @@ open https://localhost
 ### 2. Production Pre-Deployment
 
 **DNS-Validierung:**
+
 ```bash
 nslookup n8n.menschlichkeit-oesterreich.at
 # Erwartung: 5.183.217.146
 ```
 
 **Firewall-Konfiguration:**
+
 ```bash
 sudo ufw allow 443/tcp comment 'n8n HTTPS'
 sudo ufw allow 80/tcp comment 'ACME Challenge'
@@ -164,6 +173,7 @@ sudo ufw deny 5678/tcp comment 'Block direct n8n access'
 ```
 
 **Environment-Variablen:**
+
 ```bash
 cd automation/n8n
 cp .env.example .env
@@ -188,6 +198,7 @@ vim .env  # N8N_DOMAIN, ACME_EMAIL, starkes N8N_PASSWORD setzen
 ### 4. Post-Deployment Validation
 
 **TLS-Handshake:**
+
 ```bash
 echo | openssl s_client -connect n8n.menschlichkeit-oesterreich.at:443 -brief
 # Protocol version: TLSv1.3
@@ -196,6 +207,7 @@ echo | openssl s_client -connect n8n.menschlichkeit-oesterreich.at:443 -brief
 ```
 
 **Security Headers:**
+
 ```bash
 curl -I https://n8n.menschlichkeit-oesterreich.at | grep -E "Strict-Transport|X-Frame|X-Content"
 # Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
@@ -204,6 +216,7 @@ curl -I https://n8n.menschlichkeit-oesterreich.at | grep -E "Strict-Transport|X-
 ```
 
 **Webhook-Test:**
+
 ```bash
 # Test-Webhook erstellen in n8n UI
 curl -X POST \
@@ -215,6 +228,7 @@ curl -X POST \
 ```
 
 **SSL Labs Test:**
+
 ```bash
 # https://www.ssllabs.com/ssltest/analyze.html?d=n8n.menschlichkeit-oesterreich.at
 # Erwartetes Rating: A oder A+
@@ -227,6 +241,7 @@ curl -X POST \
 ### DSGVO Art. 32 (Sicherheit der Verarbeitung)
 
 **Vorher (nur F-01):**
+
 ```
 Transport-Security:         16.7% (nur Git-Commits signiert)
 Data Encryption in Transit: 0%    (HTTP unverschlüsselt)
@@ -234,6 +249,7 @@ MITM Protection:            0%    (kein TLS)
 ```
 
 **Nachher (F-01 + F-02):**
+
 ```
 Transport-Security:         83.3% (+66.6%)
 Data Encryption in Transit: 100%  (+100%)
@@ -244,26 +260,29 @@ MITM Protection:            100%  (+100%)
 
 ### Technical Compliance
 
-| Anforderung | Status | Nachweis |
-|-------------|--------|----------|
-| Verschlüsselung bei Übertragung | ✅ | TLS 1.3 mit AES-256-GCM |
-| Schutz vor unbefugtem Zugriff | ✅ | Basic Auth + HTTPS |
-| Gewährleistung der Vertraulichkeit | ✅ | Forward Secrecy (ECDHE) |
-| Regelmäßige Überprüfung | ✅ | Auto-Renewal + Health Checks |
-| Wiederherstellbarkeit | ✅ | Backup-Skript + Volume-Snapshots |
+| Anforderung                        | Status | Nachweis                         |
+| ---------------------------------- | ------ | -------------------------------- |
+| Verschlüsselung bei Übertragung    | ✅     | TLS 1.3 mit AES-256-GCM          |
+| Schutz vor unbefugtem Zugriff      | ✅     | Basic Auth + HTTPS               |
+| Gewährleistung der Vertraulichkeit | ✅     | Forward Secrecy (ECDHE)          |
+| Regelmäßige Überprüfung            | ✅     | Auto-Renewal + Health Checks     |
+| Wiederherstellbarkeit              | ✅     | Backup-Skript + Volume-Snapshots |
 
 ### SLSA Supply Chain Level
 
 **Build Security:**
+
 - Signierte Git-Commits (F-01): ✅ Level 2
 - Container-Image SHA256-Verifizierung: ✅ Level 2
 
 **Runtime Security:**
+
 - TLS-verschlüsselte Webhooks: ✅ Level 2
 - Isoliertes Docker-Netzwerk: ✅ Level 2+
 - Security Headers: ✅ Level 3
 
 **Artifact Integrity:**
+
 - SBOM signiert (pending F-10): ⏳ Level 2
 - Container-Signatur (pending): ⏳ Level 3
 
@@ -295,6 +314,7 @@ MITM Protection:            100%  (+100%)
 ### Recommended Enhancements
 
 #### 1. Mutual TLS (mTLS) für kritische Webhooks
+
 ```caddyfile
 tls {
     client_auth {
@@ -303,9 +323,11 @@ tls {
     }
 }
 ```
+
 **Use Case:** GitHub/Plesk-Webhooks mit Client-Zertifikat absichern
 
 #### 2. WAF Integration (Web Application Firewall)
+
 ```dockerfile
 # Caddy + Coraza (OWASP ModSecurity CRS)
 caddy:
@@ -313,22 +335,27 @@ caddy:
     context: .
     dockerfile: Dockerfile.caddy-coraza
 ```
+
 **Use Case:** Schutz vor SQL Injection, XSS in Webhook-Payloads
 
 #### 3. Certificate Transparency Monitoring
+
 ```bash
 # Überwachung von CT Logs auf Missbrauch
 curl "https://crt.sh/?q=n8n.menschlichkeit-oesterreich.at&output=json" | \
   jq -r '.[] | select(.not_after > (now | strftime("%Y-%m-%d")))'
 ```
+
 **Use Case:** Erkennung nicht-autorisierter Zertifikats-Ausstellungen
 
 #### 4. HSTS Preload Submission
+
 ```bash
 # Nach 30 Tagen fehlerfreiem Betrieb:
 # https://hstspreload.org/
 # → n8n.menschlichkeit-oesterreich.at eintragen
 ```
+
 **Use Case:** Browser erzwingen HTTPS ohne HTTP-Request
 
 ---
@@ -336,19 +363,23 @@ curl "https://crt.sh/?q=n8n.menschlichkeit-oesterreich.at&output=json" | \
 ## Integration mit anderen SOFORT-Maßnahmen
 
 ### F-01: GPG-Commit-Signing (✅ abgeschlossen)
+
 - **Synergy:** Signierte Commits + TLS-Webhooks = vollständige Supply Chain
 - **Combined Impact:** SLSA Level 2 erreicht
 
 ### F-03: PII-Sanitization (⏳ nächste Maßnahme)
+
 - **Dependency:** Caddy-Logs in JSON-Format bereits vorbereitet
 - **Next Step:** IP-Pseudonymisierung in `/var/log/caddy/n8n-access.log`
 - **Integration:** Grok-Pattern für IP-Redaktion in Logging-Pipeline
 
 ### F-05: Datenschutzerklärung (⏳ pending)
+
 - **Relevant Section:** "Technische Maßnahmen (Art. 32)"
 - **Text:** "Wir verwenden TLS 1.3 zur Verschlüsselung der Datenübertragung..."
 
 ### F-10: SBOM-Signierung (⏳ pending)
+
 - **Artifact:** `docker-compose.https.yml` → SBOM generieren + signieren
 - **Integration:** Caddy-Container-Image in SBOM aufnehmen
 
@@ -432,17 +463,18 @@ curl "https://crt.sh/?q=n8n.menschlichkeit-oesterreich.at&output=json" | \
 
 ## Time Tracking
 
-| Phase | Geplant | Tatsächlich | Effizienz |
-|-------|---------|-------------|-----------|
-| Analyse | 1h | 0.5h | 200% |
-| Implementation | 2h | 1h | 200% |
-| Testing | 0.5h | 0.5h | 100% |
-| Dokumentation | 0.5h | 0.5h | 100% |
-| **TOTAL** | **4h** | **2.5h** | **160%** |
+| Phase          | Geplant | Tatsächlich | Effizienz |
+| -------------- | ------- | ----------- | --------- |
+| Analyse        | 1h      | 0.5h        | 200%      |
+| Implementation | 2h      | 1h          | 200%      |
+| Testing        | 0.5h    | 0.5h        | 100%      |
+| Dokumentation  | 0.5h    | 0.5h        | 100%      |
+| **TOTAL**      | **4h**  | **2.5h**    | **160%**  |
 
 **Efficiency Ratio:** 160% (38% schneller als geplant)
 
 **Gründe für Effizienz:**
+
 1. Caddy Auto-HTTPS eliminiert manuelle Zertifikats-Konfiguration
 2. Bestehende docker-compose.yml als Template nutzbar
 3. Security-Header-Templates von OWASP übernommen
@@ -478,6 +510,7 @@ curl "https://crt.sh/?q=n8n.menschlichkeit-oesterreich.at&output=json" | \
 **Status:** ✅ **F-02 ABGESCHLOSSEN**
 
 Alle Objectives erreicht:
+
 - ✅ HTTPS mit TLS 1.3 aktiviert
 - ✅ Auto-Renewal konfiguriert
 - ✅ Security Headers implementiert
@@ -487,6 +520,7 @@ Alle Objectives erreicht:
 **Deployment-Ready:** JA (nach DNS-Konfiguration auf Plesk-Server)
 
 **DSGVO Art. 32 Compliance:** ERFÜLLT
+
 - Verschlüsselung bei Übertragung: ✅
 - Gewährleistung der Vertraulichkeit: ✅
 - Regelmäßige Überprüfung: ✅ (Auto-Renewal)

@@ -20,10 +20,12 @@ Dieser Blueprint definiert Maßnahmen zur Absicherung der Software-Lieferkette g
 **Status:** ✅ IMPLEMENTIERT
 
 **Tools:**
+
 - **cdxgen** (CycloneDX-Format) für Node.js, Python, PHP
 - **syft** (Alternative für Container-Images)
 
 **Generierte SBOMs:**
+
 ```
 security/sbom/
 ├── root-project.json        # Monorepo-Root (1.8 MB)
@@ -34,6 +36,7 @@ security/sbom/
 ```
 
 **CI/CD Integration:**
+
 ```yaml
 # .github/workflows/sbom-generation.yml
 name: Generate SBOM
@@ -49,22 +52,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Install cdxgen
         run: npm install -g @cyclonedx/cdxgen
-      
+
       - name: Generate Root SBOM
         run: cdxgen -o sbom-root.json -t js .
-      
+
       - name: Generate API SBOM
         run: cdxgen -o sbom-api.json -t python api.menschlichkeit-oesterreich.at/
-      
+
       - name: Upload SBOMs
         uses: actions/upload-artifact@v4
         with:
           name: sboms
           path: sbom-*.json
-      
+
       - name: Sign SBOMs with Sigstore
         run: |
           cosign sign-blob --bundle sbom-root.json.bundle sbom-root.json
@@ -76,6 +79,7 @@ jobs:
 ### 1.2 SBOM-Validierung
 
 **Checkliste:**
+
 - [x] SBOMs im CycloneDX-Format generiert
 - [ ] SBOMs bei jedem Release aktualisiert
 - [ ] SBOMs signiert (Sigstore/Cosign)
@@ -83,6 +87,7 @@ jobs:
 - [ ] SBOMs maschinenlesbar (JSON)
 
 **Validierung:**
+
 ```bash
 # CycloneDX-Schema-Validierung
 npx @cyclonedx/cyclonedx-cli validate --input-file security/sbom/root-project.json
@@ -97,13 +102,13 @@ jq '.components | length' security/sbom/root-project.json  # Anzahl Dependencies
 
 **Top-Level Dependencies (Auszug):**
 
-| Package | Version | License | Criticality | Vuln. Status |
-|---------|---------|---------|-------------|--------------|
-| react | ^18.x | MIT | HIGH | ✅ Clean |
-| next | ^14.x | MIT | HIGH | ⚠️ 2 Low |
-| drupal/core | ^10.x | GPL-2.0+ | CRITICAL | ✅ Clean |
-| fastapi | ^0.115.x | MIT | CRITICAL | ✅ Clean |
-| axios | ^1.7.x | MIT | MEDIUM | ✅ Clean |
+| Package     | Version  | License  | Criticality | Vuln. Status |
+| ----------- | -------- | -------- | ----------- | ------------ |
+| react       | ^18.x    | MIT      | HIGH        | ✅ Clean     |
+| next        | ^14.x    | MIT      | HIGH        | ⚠️ 2 Low     |
+| drupal/core | ^10.x    | GPL-2.0+ | CRITICAL    | ✅ Clean     |
+| fastapi     | ^0.115.x | MIT      | CRITICAL    | ✅ Clean     |
+| axios       | ^1.7.x   | MIT      | MEDIUM      | ✅ Clean     |
 
 **Transitive Dependencies:** 1.247 (aus SBOM)
 
@@ -133,6 +138,7 @@ jq '.components | length' security/sbom/root-project.json  # Anzahl Dependencies
   - [ ] Zeitstempel
 
 **Implementierung:**
+
 ```yaml
 # .github/workflows/slsa-provenance.yml
 name: SLSA Provenance
@@ -142,7 +148,7 @@ on:
     types: [published]
 
 permissions:
-  id-token: write  # Für Sigstore
+  id-token: write # Für Sigstore
   contents: write
   attestations: write
 
@@ -151,15 +157,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Build Artifacts
         run: ./build-pipeline.sh production
-      
+
       - name: Generate Provenance
         uses: actions/attest-build-provenance@v2
         with:
           subject-path: 'build/**'
-      
+
       - name: Sign with Cosign
         run: |
           cosign sign-blob --bundle build.tar.gz.bundle build.tar.gz
@@ -177,6 +183,7 @@ jobs:
 - [ ] Reproduzierbare Builds (gleicher Input → gleicher Output)
 
 **Reproduzierbare Builds (Experimental):**
+
 ```bash
 # Build 1
 ./build-pipeline.sh production > build1.tar.gz
@@ -200,6 +207,7 @@ sha256sum build2.tar.gz
 - [ ] Maintainer Rotation dokumentiert
 
 **GitHub Branch Protection (via API):**
+
 ```bash
 curl -X PUT \
   -H "Authorization: Bearer $GITHUB_TOKEN" \
@@ -223,11 +231,13 @@ curl -X PUT \
 ### 3.1 Automatisiertes Dependency Scanning
 
 **Tools:**
+
 - **Dependabot** (GitHub-nativ)
 - **Trivy** (für Container + Code)
 - **npm audit** / **pip-audit** / **composer audit**
 
 **GitHub Actions Integration:**
+
 ```yaml
 # .github/workflows/dependency-scan.yml
 name: Dependency Vulnerability Scan
@@ -235,14 +245,14 @@ name: Dependency Vulnerability Scan
 on:
   push:
   schedule:
-    - cron: '0 2 * * *'  # Täglich 02:00 UTC
+    - cron: '0 2 * * *' # Täglich 02:00 UTC
 
 jobs:
   trivy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Run Trivy
         uses: aquasecurity/trivy-action@master
         with:
@@ -250,18 +260,18 @@ jobs:
           scan-ref: '.'
           format: 'sarif'
           output: 'trivy-results.sarif'
-      
+
       - name: Upload to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: 'trivy-results.sarif'
-  
+
   npm-audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: npm audit --audit-level=high
-  
+
   pip-audit:
     runs-on: ubuntu-latest
     steps:
@@ -276,29 +286,33 @@ jobs:
 **Anforderung:** Exakte Versionen statt Ranges.
 
 **Aktuell (❌ BAD):**
+
 ```json
 {
   "dependencies": {
-    "react": "^18.0.0"  // Erlaubt 18.0.0 - 18.x.x
+    "react": "^18.0.0" // Erlaubt 18.0.0 - 18.x.x
   }
 }
 ```
 
 **Ziel (✅ GOOD):**
+
 ```json
 {
   "dependencies": {
-    "react": "18.2.0"  // Exakte Version
+    "react": "18.2.0" // Exakte Version
   }
 }
 ```
 
 **Lock-Files:**
+
 - [x] `package-lock.json` (Node.js)
 - [x] `composer.lock` (PHP)
 - [ ] `requirements.txt` mit Hashes (Python)
 
 **Python-Hashes hinzufügen:**
+
 ```bash
 pip-compile --generate-hashes requirements.in > requirements.txt
 ```
@@ -310,10 +324,12 @@ pip-compile --generate-hashes requirements.in > requirements.txt
 **Risiko:** Dependency Confusion (Angreifer veröffentlicht gleichnamiges Package auf public registry)
 
 **Mitigation:**
+
 - [ ] Interne Packages nur von privatem Registry laden
 - [ ] `.npmrc` / `.piprc` mit Scope-Mapping
 
 **Beispiel `.npmrc`:**
+
 ```
 @menschlichkeit-oesterreich:registry=https://npm.pkg.github.com
 //npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
@@ -324,11 +340,13 @@ pip-compile --generate-hashes requirements.in > requirements.txt
 ### 3.4 Typosquatting-Schutz
 
 **Maßnahmen:**
+
 - [ ] Whitelist kritischer Packages
 - [ ] Pre-Install-Hook prüft Package-Namen gegen Whitelist
 - [ ] Socket.dev Integration (Echtzeit-Analyse)
 
 **Whitelist-Beispiel:**
+
 ```yaml
 # .github/allowed-dependencies.yml
 allowed:
@@ -338,8 +356,8 @@ allowed:
   - axios
   - fastapi
 blocked:
-  - requst  # Typo von "request"
-  - colour  # Typo von "color"
+  - requst # Typo von "request"
+  - colour # Typo von "color"
 ```
 
 ---
@@ -353,6 +371,7 @@ blocked:
 **Anforderung:** Alle Commits GPG-signiert.
 
 **Setup:**
+
 ```bash
 # GPG-Key generieren
 gpg --full-generate-key  # RSA 4096, kein Ablaufdatum
@@ -367,8 +386,9 @@ git config --global tag.gpgsign true
 ```
 
 **Branch Protection:**
+
 ```yaml
-required_signatures: true  # Nur signierte Commits erlaubt
+required_signatures: true # Nur signierte Commits erlaubt
 ```
 
 ---
@@ -378,6 +398,7 @@ required_signatures: true  # Nur signierte Commits erlaubt
 **Anforderung:** Build-Artifacts und Container-Images signiert.
 
 **Installation:**
+
 ```bash
 # Cosign installieren
 curl -O -L "https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64"
@@ -386,6 +407,7 @@ sudo chmod +x /usr/local/bin/cosign
 ```
 
 **Signierung:**
+
 ```bash
 # SBOM signieren
 cosign sign-blob --bundle sbom.json.bundle sbom.json
@@ -395,6 +417,7 @@ cosign sign ghcr.io/peschull/crm:latest
 ```
 
 **Verifikation:**
+
 ```bash
 # SBOM verifizieren
 cosign verify-blob --bundle sbom.json.bundle sbom.json
@@ -410,6 +433,7 @@ cosign verify ghcr.io/peschull/crm:latest
 **Ziel:** SBOM direkt in Container-Image einbetten (SPDX/CycloneDX).
 
 **Docker-Integration:**
+
 ```dockerfile
 # Dockerfile
 FROM node:20-alpine
@@ -418,6 +442,7 @@ LABEL org.opencontainers.image.sbom=/sbom.json
 ```
 
 **Attestation:**
+
 ```bash
 cosign attest --predicate sbom.json --type cyclonedx ghcr.io/peschull/crm:latest
 ```
@@ -430,14 +455,15 @@ cosign attest --predicate sbom.json --type cyclonedx ghcr.io/peschull/crm:latest
 
 **Kategorien:**
 
-| Severity | SLA | Verantwortlich |
-|----------|-----|----------------|
-| CRITICAL | 24h | DevOps + Security |
-| HIGH | 7 Tage | DevOps |
-| MEDIUM | 30 Tage | Dev Team |
-| LOW | Nächster Sprint | Dev Team |
+| Severity | SLA             | Verantwortlich    |
+| -------- | --------------- | ----------------- |
+| CRITICAL | 24h             | DevOps + Security |
+| HIGH     | 7 Tage          | DevOps            |
+| MEDIUM   | 30 Tage         | Dev Team          |
+| LOW      | Nächster Sprint | Dev Team          |
 
 **Automatisierung:**
+
 - [ ] Dependabot Auto-Merge für PATCH-Updates (z.B. 1.2.3 → 1.2.4)
 - [ ] Manual Review für MINOR/MAJOR (z.B. 1.2.3 → 1.3.0)
 
@@ -446,17 +472,20 @@ cosign attest --predicate sbom.json --type cyclonedx ghcr.io/peschull/crm:latest
 ### 5.2 Allowlist/Blocklist
 
 **Blocked Licenses:**
+
 - GPL-3.0 (Copyleft-Konflikt mit MIT-Code)
 - AGPL-3.0
 - Proprietary (ohne explizite Genehmigung)
 
 **Allowed Licenses:**
+
 - MIT
 - Apache-2.0
 - BSD-3-Clause
 - ISC
 
 **Automatischer Check:**
+
 ```bash
 npx license-checker --exclude "GPL-3.0;AGPL-3.0"
 ```
@@ -466,20 +495,22 @@ npx license-checker --exclude "GPL-3.0;AGPL-3.0"
 ### 5.3 Vendor Verification
 
 **Trusted Vendors:**
-- npm: @types/*, @react/*
+
+- npm: @types/_, @react/_
 - PyPI: fastapi, uvicorn, pydantic
-- Packagist: drupal/*, civicrm/*
+- Packagist: drupal/_, civicrm/_
 
 **Verification:**
+
 ```yaml
 # .github/verified-publishers.yml
 npm:
-  - "@types"
-  - "@react"
-  - "next"
+  - '@types'
+  - '@react'
+  - 'next'
 pypi:
-  - "fastapi"
-  - "uvicorn"
+  - 'fastapi'
+  - 'uvicorn'
 ```
 
 ---
@@ -489,6 +520,7 @@ pypi:
 ### 6.1 Supply Chain Incident
 
 **Auslöser:**
+
 - CVE in kritischer Dependency
 - Compromised Package (z.B. event-stream-Attacke)
 - Dependency Confusion-Angriff
@@ -516,28 +548,29 @@ pypi:
    - SBOM-Archive vergleichen (welche Systeme betroffen?)
 
 **Playbook-Vorlage:**
+
 ```yaml
 incident:
-  type: "SUPPLY_CHAIN"
-  trigger: "CVE-2024-XXXXX in package XYZ"
-  
+  type: 'SUPPLY_CHAIN'
+  trigger: 'CVE-2024-XXXXX in package XYZ'
+
 affected_systems:
   - frontend
   - api
-  
+
 actions:
-  - timestamp: "2025-10-03T22:30:00Z"
-    action: "Identified vulnerable version 1.2.3 in SBOM"
-    actor: "Security Team"
-  
-  - timestamp: "2025-10-03T23:00:00Z"
-    action: "Rolled back to version 1.2.2"
-    actor: "DevOps"
-  
+  - timestamp: '2025-10-03T22:30:00Z'
+    action: 'Identified vulnerable version 1.2.3 in SBOM'
+    actor: 'Security Team'
+
+  - timestamp: '2025-10-03T23:00:00Z'
+    action: 'Rolled back to version 1.2.2'
+    actor: 'DevOps'
+
 resolution:
-  patched_version: "1.2.4"
-  deployed_at: "2025-10-04T01:00:00Z"
-  residual_risk: "LOW"
+  patched_version: '1.2.4'
+  deployed_at: '2025-10-04T01:00:00Z'
+  residual_risk: 'LOW'
 ```
 
 ---
@@ -547,23 +580,27 @@ resolution:
 ### 7.1 Checkliste
 
 **SLSA:**
+
 - [x] Level 1: Build dokumentiert
 - [ ] Level 2: Provenance generiert
 - [ ] Level 3: Reproduzierbare Builds
 - [ ] Level 4: Two-Person Review
 
 **SBOM:**
+
 - [x] SBOM generiert
 - [ ] SBOM signiert
 - [ ] SBOM öffentlich
 - [ ] SBOM bei jedem Release aktualisiert
 
 **Artifact Signing:**
+
 - [ ] Commits signiert (GPG)
 - [ ] Container signiert (Cosign)
 - [ ] Release-Artifacts signiert
 
 **Dependency Management:**
+
 - [x] Lock-Files vorhanden
 - [ ] Dependency Pinning (exakte Versionen)
 - [ ] Automatisches Scanning (Dependabot/Trivy)
@@ -579,19 +616,14 @@ resolution:
 ## 8. Nächste Schritte
 
 **SOFORT (0-7 Tage):**
+
 1. GPG-Commit-Signing aktivieren
 2. Dependabot konfigurieren
 3. SBOM-Signierung mit Cosign
 
-**KURZ (1-4 Wochen):**
-4. SLSA-Provenance-Workflow erstellen
-5. Dependency-Pinning durchsetzen
-6. License-Checker in CI/CD
+**KURZ (1-4 Wochen):** 4. SLSA-Provenance-Workflow erstellen 5. Dependency-Pinning durchsetzen 6. License-Checker in CI/CD
 
-**MITTEL (1-3 Monate):**
-7. Reproduzierbare Builds verifizieren
-8. Two-Person Review Policy
-9. Private Package Registry
+**MITTEL (1-3 Monate):** 7. Reproduzierbare Builds verifizieren 8. Two-Person Review Policy 9. Private Package Registry
 
 ---
 
