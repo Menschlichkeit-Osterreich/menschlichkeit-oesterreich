@@ -71,7 +71,9 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
+    "@jest/globals": "^30.2.0",
     "@playwright/test": "^1.55.1",
+    "@types/jest": "^30.0.0",
     "@typescript-eslint/eslint-plugin": "^8.44.1",
     "@typescript-eslint/parser": "^8.44.1",
     "@vitest/ui": "^3.2.4",
@@ -81,10 +83,13 @@
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-node": "^11.1.0",
     "globals": "^15.12.0",
+    "jest": "^30.2.0",
     "jsdom": "^27.0.0",
     "jsdom-global": "^3.0.2",
     "markdownlint-cli": "^0.43.0",
+    "n8n-workflow": "^1.17.0",
     "prettier": "^3.4.2",
+    "ts-jest": "^29.4.4",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"
   },
@@ -102,5 +107,8 @@
     "non-profit"
   ],
   "author": "Menschlichkeit Österreich",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "vite": "7.1.9"
+  }
 }
