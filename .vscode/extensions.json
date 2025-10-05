@@ -1,63 +1,16 @@
 {
-  // VS Code Extensions für Menschlichkeit Österreich Enterprise Development
-  "recommendations": [
-    // AI & Development Core (Essential)
-    "github.copilot",
-    "github.copilot-chat",
-
-    // Multi-Language Support (Critical for Monorepo)
-    "bmewburn.vscode-intelephense-client",
-    "ms-python.python",
-    "ms-python.vscode-pylance",
-    "ms-python.debugpy",
-
-    // Quality & Security (Enterprise Gates - MANDATORY)
-    "codacy-app.codacy",
-    "sonarsource.sonarlint-vscode",
-    "trunk.io",
-    "snyk-security.snyk-vulnerability-scanner",
-
-    // Testing & Performance
-    "ms-playwright.playwright",
-    "deque-systems.vscode-axe-linter",
-
-    // Infrastructure & DevOps
-    "ms-azuretools.vscode-containers",
-    "docker.docker",
-    "redhat.vscode-yaml",
-
-    // Development Utilities
-    "formulahendry.code-runner",
-    "pflannery.vscode-versionlens",
-    "ms-vscode.powershell"
-  ],
-
-  "unwantedRecommendations": [
-    // Prettier conflicts with Trunk.io universal formatter
-    "esbenp.prettier-vscode",
-
-    // ESLint conflicts with Trunk.io linting
-    "dbaeumer.vscode-eslint",
-
-    // Duplicate/conflicting PHP extensions
-    "devsense.phptools-vscode",
-    "zobo.php-intellisense",
-    "devsense.composer-php-vscode",
-
-    // Heavy extensions that slow down multi-service workspace
-    "ms-vscode.vscode-typescript-next",
-    "bradlc.vscode-tailwindcss",
-    "ritwickdey.liveserver",
-
-    // Python linting conflicts (handled by Trunk.io)
-    "ms-python.isort",
-    "ms-python.flake8",
-    "ms-python.pylint",
-    "ms-python.black-formatter",
-
-    // Unnecessary with current setup
-    "formulahendry.auto-rename-tag",
-    "ms-vscode.vscode-json",
-    "christian-kohler.path-intellisense"
-  ]
+    "recommendations": [
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "ms-python.python",
+        "ms-python.flake8",
+        "ms-python.pylint",
+        "ms-vscode.vscode-typescript-next",
+        "esbenp.prettier-vscode",
+        "ms-eslint.vscode-eslint",
+        "bmewburn.vscode-intelephense-client",
+        "ms-playwright.playwright",
+        "bradlc.vscode-tailwindcss"
+    ],
+    "unwantedRecommendations": []
 }

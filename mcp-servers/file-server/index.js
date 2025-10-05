@@ -13,7 +13,9 @@ const {
   Tool,
 } = require('@modelcontextprotocol/sdk/types.js');
 const fs = require('fs').promises;
+const fssync = require('fs');
 const path = require('path');
+const { spawn } = require('child_process');
 
 class FileServerMCP {
   constructor() {
@@ -30,6 +32,17 @@ class FileServerMCP {
     );
 
     this.projectRoot = process.env.PROJECT_ROOT || process.cwd();
+    this.maxFileBytes = Number(process.env.MCP_FS_MAX_FILE_BYTES || 262144); // 256 KiB default
+    this.allowedServices = new Set(['api', 'crm', 'frontend', 'games', 'website', 'n8n', 'root']);
+    this.opaPolicyPath = process.env.MCP_OPA_POLICY || path.join(__dirname, '..', 'policies', 'opa', 'tool-io.rego');
+    this._opaAvailable = undefined;
+    // Simple token bucket: limit N requests per interval
+    const rateLimit = Number(process.env.MCP_RATE_LIMIT || 30); // ops per interval
+    const intervalMs = Number(process.env.MCP_RATE_INTERVAL_MS || 10000); // 10s
+    this.rateLimiter = new TokenBucket(rateLimit, intervalMs);
+    // Circuit breakers per operation
+    this.cbRead = new CircuitBreaker({ threshold: 5, cooldownMs: 60000, halfOpenPass: 2 });
+    this.cbList = new CircuitBreaker({ threshold: 5, cooldownMs: 60000, halfOpenPass: 2 });
     this.setupHandlers();
   }
 
@@ -107,6 +120,14 @@ class FileServerMCP {
     });
 
     this.server.setRequestHandler(CallToolRequestSchema, async request => {
+      if (!this.rateLimiter.tryRemoveToken()) {
+        return {
+          content: [
+            { type: 'text', text: 'Rate limit exceeded. Please retry later.' },
+          ],
+          isError: true,
+        };
+      }
       switch (request.params.name) {
         case 'read_multi_service_file':
           return await this.readMultiServiceFile(request.params.arguments);
@@ -133,15 +154,95 @@ class FileServerMCP {
       root: '.',
     };
 
-    return path.join(this.projectRoot, serviceMap[service] || service);
+    // Strict allowlist: reject unknown services
+    if (!this.allowedServices.has(service)) {
+      throw new Error(`Unknown or disallowed service: ${service}`);
+    }
+    return path.join(this.projectRoot, serviceMap[service]);
+  }
+
+  // Resolve a relative path safely under a base directory.
+  // Throws if the resolved path escapes the base (prevents path traversal).
+  resolveSafePath(baseDir, relPath) {
+    if (typeof relPath !== 'string' || relPath.trim().length === 0) {
+      throw new Error('Invalid file path');
+    }
+    const base = path.resolve(baseDir);
+    const target = path.resolve(base, relPath);
+    const relative = path.relative(base, target);
+    if (relative.startsWith('..') || path.isAbsolute(relative)) {
+      throw new Error('Path traversal detected');
+    }
+    return target;
+  }
+
+  async opaAvailable() {
+    if (this._opaAvailable !== undefined) return this._opaAvailable;
+    try {
+      // Require policy file to exist and opa in PATH
+      if (!fssync.existsSync(this.opaPolicyPath)) {
+        this._opaAvailable = false;
+        return false;
+      }
+      await new Promise((resolve, reject) => {
+        const p = spawn('opa', ['version']);
+        p.on('error', reject);
+        p.on('exit', code => (code === 0 ? resolve() : reject(new Error('opa exit'))));
+      });
+      this._opaAvailable = true;
+    } catch {
+      this._opaAvailable = false;
+    }
+    return this._opaAvailable;
+  }
+
+  async opaAllow(query, inputObj) {
+    const ok = await this.opaAvailable();
+    if (!ok) return null; // no decision
+    return await new Promise(resolve => {
+      try {
+        const args = ['eval', '-f', 'pretty', '-I', '-d', this.opaPolicyPath, query, '-i', '-'];
+        const p = spawn('opa', args, { stdio: ['pipe', 'pipe', 'pipe'] });
+        let out = '';
+        p.stdout.on('data', d => (out += d.toString()));
+        p.stdin.write(JSON.stringify(inputObj));
+        p.stdin.end();
+        p.on('error', () => resolve(null));
+        p.on('close', () => {
+          const decision = out.trim();
+          resolve(decision === 'true');
+        });
+      } catch {
+        resolve(null);
+      }
+    });
   }
 
   async readMultiServiceFile({ service, filePath }) {
     try {
+      if (!this.cbRead.allow()) {
+        throw new Error('Circuit open for read operation');
+      }
+      const opaIn = await this.opaAllow('data.mcp.policy.toolio.allow_input', { service, filePath });
+      if (opaIn === false) {
+        throw new Error('OPA policy denied input');
+      }
       const servicePath = this.getServicePath(service);
-      const fullPath = path.join(servicePath, filePath);
+      const fullPath = this.resolveSafePath(servicePath, filePath);
+      const st = await fs.stat(fullPath);
+      if (!st.isFile()) {
+        throw new Error('Requested path is not a file');
+      }
+      if (st.size > this.maxFileBytes) {
+        throw new Error(`File too large (${st.size} bytes), limit is ${this.maxFileBytes}`);
+      }
       const content = await fs.readFile(fullPath, 'utf8');
+      const opaOut = await this.opaAllow('data.mcp.policy.toolio.allow_output', { content });
+      if (opaOut === false) {
+        throw new Error('OPA policy denied output');
+      }
 
+      this.cbRead.success();
       return {
         content: [
           {
@@ -151,6 +252,7 @@ class FileServerMCP {
         ],
       };
     } catch (error) {
+      this.cbRead.failure();
       return {
         content: [
           {
@@ -165,8 +267,15 @@ class FileServerMCP {
 
   async listServiceFiles({ service, directory = '.' }) {
     try {
+      if (!this.cbList.allow()) {
+        throw new Error('Circuit open for list operation');
+      }
+      const opaIn = await this.opaAllow('data.mcp.policy.toolio.allow_input', { service, filePath: directory });
+      if (opaIn === false) {
+        throw new Error('OPA policy denied input');
+      }
       const servicePath = this.getServicePath(service);
-      const fullPath = path.join(servicePath, directory);
+      const fullPath = this.resolveSafePath(servicePath, directory);
       const items = await fs.readdir(fullPath, { withFileTypes: true });
 
       const fileList = items.map(item => ({
@@ -175,6 +284,7 @@ class FileServerMCP {
         path: path.join(directory, item.name),
       }));
 
+      this.cbList.success();
       return {
         content: [
           {
@@ -184,6 +294,7 @@ class FileServerMCP {
         ],
       };
     } catch (error) {
+      this.cbList.failure();
       return {
         content: [
           {
@@ -271,6 +382,86 @@ class FileServerMCP {
   async start() {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
+  }
+}
+
+class TokenBucket {
+  constructor(capacity, intervalMs) {
+    this.capacity = Math.max(1, capacity);
+    this.tokens = this.capacity;
+    this.intervalMs = intervalMs;
+    this.lastRefill = Date.now();
+  }
+  tryRemoveToken() {
+    const now = Date.now();
+    const elapsed = now - this.lastRefill;
+    if (elapsed >= this.intervalMs) {
+      const periods = Math.floor(elapsed / this.intervalMs);
+      this.tokens = Math.min(this.capacity, this.tokens + periods * this.capacity);
+      this.lastRefill += periods * this.intervalMs;
+    }
+    if (this.tokens > 0) {
+      this.tokens -= 1;
+      return true;
+    }
+    return false;
+  }
+}
+
+class CircuitBreaker {
+  constructor({ threshold = 5, cooldownMs = 60000, halfOpenPass = 1 } = {}) {
+    this.threshold = threshold;
+    this.cooldownMs = cooldownMs;
+    this.halfOpenPass = halfOpenPass;
+    this.state = 'closed';
+    this.failures = 0;
+    this.successes = 0;
+    this.openedAt = 0;
+  }
+  allow() {
+    if (this.state === 'open') {
+      if (Date.now() - this.openedAt >= this.cooldownMs) {
+        this.state = 'halfopen';
+        this.successes = 0;
+        this.failures = 0;
+        return true;
+      }
+      return false;
+    }
+    return true;
+  }
+  failure() {
+    if (this.state === 'halfopen') {
+      this.trip();
+      return;
+    }
+    this.failures += 1;
+    if (this.failures >= this.threshold) {
+      this.trip();
+    }
+  }
+  success() {
+    if (this.state === 'halfopen') {
+      this.successes += 1;
+      if (this.successes >= this.halfOpenPass) {
+        this.reset();
+      }
+      return;
+    }
+    // closed: reset failure count on success
+    this.failures = 0;
+  }
+  trip() {
+    this.state = 'open';
+    this.openedAt = Date.now();
+    this.failures = 0;
+    this.successes = 0;
+  }
+  reset() {
+    this.state = 'closed';
+    this.failures = 0;
+    this.successes = 0;
+    this.openedAt = 0;
   }
 }
 

@@ -7,8 +7,17 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./tests/setup.js'],
-    include: ['**/unit/**/*.{test,spec}.{js,ts}', '**/tests/**/*.test.{js,ts}'],
-    exclude: ['node_modules', 'dist', '.next', 'coverage', '**/e2e/**', '**/playwright/**'],
+    include: ['**/unit/**/*.{test,spec}.{js,ts}', 'tests/**/*.test.{js,ts}'],
+    exclude: [
+      'node_modules',
+      'dist',
+      '.next',
+      'coverage',
+      '**/e2e/**',
+      '**/playwright/**',
+      '.trunk/**',
+      'crm.menschlichkeit-oesterreich.at/web/**',
+    ],
     coverage: {
       reporter: ['text', 'json', 'html'],
       exclude: [

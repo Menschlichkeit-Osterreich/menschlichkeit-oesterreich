@@ -238,6 +238,62 @@ _Geschätzte Dauer: 2 Tage_
 - [ ] **SECURITY.md**: Responsible Disclosure Policy
 - [ ] **FUNDING.yml**: Spenden/Support Optionen
 
+---
+
+## Phase M: MCP-Server Optimierung (über Best Practice hinaus)
+
+_Geschätzte Dauer: 3-4 Tage (iterativ)_
+
+### ✅ Sicherheits- und Zuverlässigkeitsziele
+
+- [ ] **Formale Absicherung (Light)**: Property‑Based Tests für Kern‑Contracts/Tools (`mcp-servers/*`) mit randbasierten Inputs und Invarianten.
+- [ ] **Isolation pro Tool-Aufruf**: Prozess‑Sandboxing (seccomp‑bpf, bubblewrap/gVisor) oder MicroVMs (Firecracker) je Execution.
+- [ ] **Runtime Policy Enforcement**: OPA/Rego‑Policies oder eBPF‑Guards für Ein-/Ausgabe‑Validierung (Schema, Größe, erlaubte Syscalls, Netz‑Ziele).
+- [ ] **Confidential Computing Option**: Evaluate TEEs (Intel SGX/TDX, AMD SEV) für hochsensible Operationen; Fallback definieren.
+- [ ] **Observability**: OpenTelemetry Traces/Metrics/Logs mit Korrelation zu Request‑IDs; Sensitive Fields per Default redacted.
+- [ ] **Anomaly Detection**: Baseline‑Modelle für Request‑Raten, Latenzen, Fehlertypen; automatische Quarantäne/Degradation.
+- [ ] **Chaos Engineering**: Fault Injection (Timeouts, Partitions, OOM) und Flooding‑Tests (Backoff, Circuit‑Breaker) im CI‑Modus.
+- [ ] **Supply Chain Hardening**: SBOM für MCP (CycloneDX), signierte Images/Bundles (Cosign), Build‑Attestations (SLSA ≥ L3).
+- [ ] **Four‑Eyes Release**: Zwei Maintainer signieren Releases (GPG/Sigstore), Policy in Branch‑Protection verankert.
+- [ ] **Zero‑Knowledge Audits**: Audit‑Trails beweissicher (Hash‑Chains, Nonce, Timestamps), ohne Nutzergeheimnisse offenzulegen.
+
+### 🔧 Umsetzungsschritte (empfohlen)
+
+- [ ] Test‑Schicht erweitern: Property‑Tests (fast‑check) + Contract Tests je Tool‑Schema.
+- [ ] Sandbox‑Adapter: Wrapper, der je Tool im Subprozess mit seccomp‑Profil/namespace startet; File/Net‑Allowlist erzwingt.
+- [ ] Policy‑Layer: JSON‑Schema für Inputs/Outputs + OPA Gate (deny by default) vor/na ch jedem Tool‑Call.
+- [ ] Telemetry‑SDK: OTel Exporter (OTLP/gRPC), standardisierte Attribute (service.name, tool.name, request.id).
+- [ ] Resilience‑Pattern: Timeouts, Retries (Jitter), Bulkhead, Circuit‑Breaker; Chaos‑Jobs in CI.
+- [ ] Supply‑Chain Pipeline: `cdxgen` SBOM Export + `cosign attest` + Upload als Release‑Artefakte.
+- [ ] Release‑Policy: Required reviewers + required signatures; Tag‑Signing enforced.
+
+### 🔗 Referenzen
+
+- Threat Model Details: `analysis/phase-0/threat-model/STRIDE-LINDDUN-ANALYSIS.md`
+- Supply Chain: `docs/security/SUPPLY-CHAIN-SECURITY-BLUEPRINT.md`
+- OPA Policy: `mcp-servers/policies/opa/tool-io.rego`
+- Seccomp Profil: `mcp-servers/policies/seccomp/node-min.json`
+- SBOM CI: `.github/workflows/sbom-generation.yml`
+- Seccomp Runner: `scripts/run-mcp-file-server-seccomp.sh`
+
+---
+
+## Abschluss: Definition of Excellence (Beyond Best Practice)
+
+_Abnahmekriterien für „Enterprise‑Ready“_
+
+- [ ] **Vollständige Analyse & Threat‑Model**: STRIDE/LINDDUN dokumentiert, Findings priorisiert, Maßnahmen geplant.
+- [ ] **Repository‑Hygiene**: Keine Altlasten/Secrets, LFS korrekt, deterministische Builds (Lockfiles, `npm ci`, SOURCE_DATE_EPOCH).
+- [ ] **SBOM & Supply Chain**: SBOMs generiert und signiert; SLSA L3 Attestations vorhanden; Dependency‑Scans gate‑relevant.
+- [ ] **Lebende Dokumentation**: Automatisch generiert (Swagger/Typedoc/ERD), ADRs vorhanden, Runbooks/Playbooks vollständig.
+- [ ] **Governance & Compliance**: Maintainer‑Rollen, Review‑Policy, Security‑Champion; DSGVO/WCAG Blueprints im CI prüfbar.
+- [ ] **Zero‑Trust CI/CD**: Ephemere Runner, signierte Commits/Artefakte, mehrstufige Security‑Gates, Release‑Gates strikt.
+- [ ] **I18n QA**: Pseudo‑Locale, Pluralisierungs‑ und Vollständigkeitschecks automatisiert, Fallback‑Kaskade dokumentiert.
+- [ ] **GitHub as Code**: Branch‑Protection/Policies versioniert; Security‑Tab (Dependabot, CodeQL) maximal genutzt.
+- [ ] **MCP‑Server**: Sandboxed, resilient, observierbar; Policies & Property‑Tests vorhanden; Releases mit Four‑Eyes Prinzip.
+- [ ] **Nachweisbarkeit**: DSGVO + WCAG + Supply‑Chain Compliance auditierbar; Artefakte in Releases/Docs verlinkt.
+
+
 ### 🚀 Release Automation
 
 - [ ] **Conventional Commits**: Commitlint & Guidelines

@@ -94,6 +94,13 @@ Goal: Manipuliertes JAR führt Shellcode aus
 | Phase 3 | **Supply-Chain Hardening** | Signaturprüfung aller Tool-Binaries (Sigstore/TUF)                                     | Geplant                             |
 | Phase 3 | **Audit Trail**            | Unveränderliche Logs nach `quality-reports/audit/` mit Hashkette                       | Geplant                             |
 
+### Implementierte Kontrollen (Delta)
+
+- ✅ Input/Output Policy Gate (OPA, optional): `mcp-servers/policies/opa/tool-io.rego` wird zur Laufzeit für `read/list` evaluiert; Fallback bei fehlender `opa`-Binary.
+- ✅ Rate Limiting (Token Bucket): globales Limit via `MCP_RATE_LIMIT`/`MCP_RATE_INTERVAL_MS`.
+- ✅ Circuit Breaker: Separate Breaker für `read` und `list` mit Auto‑Recovery.
+- ✅ Seccomp Runner (optional): `scripts/run-mcp-file-server-seccomp.sh` startet Server in Docker mit `node-min.json` Profil.
+
 ---
 
 ## 6. Sofortmaßnahmen (Phase 0 Deliverables)
@@ -107,6 +114,13 @@ Goal: Manipuliertes JAR führt Shellcode aus
    - MCP Logs nach `/workspaces/.../logs/mcp/` umbiegen, DSGVO-konforme Retention (14 Tage) + Redaction.
 4. **Access Review** (✅ laufend)
    - Nur notwendige Server in `mcp.json` aktiv; weitere Tools erst nach Threat Model Freigabe.
+5. **Filesystem Traversal Guard** (✅ implementiert)
+   - `mcp-servers/file-server/index.js`: `resolveSafePath()` verhindert `..`-Traversal, Service-Allowlist enforced, Read‑Size‑Limit (256 KiB standard)
+   - Property‑Tests (`tests/mcp-file-server.property.test.ts`) prüfen Traversal‑Abwehr (fast‑check + vitest)
+6. **OPA Policy Gate (optional)** (✅ integriert)
+   - OPA Rego Policy für Input/Output; aktiviert, wenn `opa` verfügbar ist. Ablehnung führt zu Fehlern im Tool‑Call.
+7. **Rate Limit & Circuit Breaker** (✅ integriert)
+   - Schutz gegen Flooding/Fehlerkaskaden; konfigurierbar via Umgebungsvariablen.
 
 ---
 

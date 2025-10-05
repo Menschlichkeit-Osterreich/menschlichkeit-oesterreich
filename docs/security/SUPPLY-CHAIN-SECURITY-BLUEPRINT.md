@@ -74,6 +74,54 @@ jobs:
           cosign sign-blob --bundle sbom-api.json.bundle sbom-api.json
 ```
 
+Aktualisierung (Release Gate & Validierung):
+
+```yaml
+# Ergänzende Schritte im selben Workflow
+permissions:
+  contents: write
+  id-token: write
+
+steps:
+  - name: Install CycloneDX CLI
+    run: npm install -g @cyclonedx/cyclonedx-cli
+
+  - name: Validate SBOMs
+    run: |
+      for f in security/sbom/*.json; do
+        npx @cyclonedx/cyclonedx-cli validate --input-file "$f";
+      done
+
+  - name: Install Cosign
+    uses: sigstore/cosign-installer@v3
+
+  - name: Sign SBOMs with Sigstore (keyless)
+    if: ${{ github.event_name == 'release' }}
+    env:
+      COSIGN_EXPERIMENTAL: '1'
+    run: |
+      for f in security/sbom/*.json; do
+        cosign sign-blob --yes --bundle "$f.bundle" "$f";
+      done
+
+  - name: Verify SBOM Signatures
+    if: ${{ github.event_name == 'release' }}
+    env:
+      COSIGN_EXPERIMENTAL: '1'
+    run: |
+      for f in security/sbom/*.json; do
+        cosign verify-blob --bundle "$f.bundle" "$f";
+      done
+
+  - name: Upload SBOMs to Release
+    if: ${{ github.event_name == 'release' }}
+    uses: softprops/action-gh-release@v2
+    with:
+      files: |
+        security/sbom/*.json
+        security/sbom/*.bundle
+```
+
 ---
 
 ### 1.2 SBOM-Validierung

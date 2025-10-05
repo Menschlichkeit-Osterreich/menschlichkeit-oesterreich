@@ -1,0 +1,94 @@
+name: Generate SBOMs
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [ main, master, chore/** ]
+    paths:
+      - '**/package.json'
+      - '**/composer.*'
+      - '**/requirements*.txt'
+      - '.github/workflows/sbom-generation.yml'
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install cdxgen
+        run: npm install -g @cyclonedx/cdxgen
+
+      - name: Install CycloneDX CLI
+        run: npm install -g @cyclonedx/cyclonedx-cli
+
+      - name: Prepare output directory
+        run: mkdir -p security/sbom
+
+      - name: Generate Root SBOM (JS)
+        run: cdxgen -o security/sbom/root-project.json -t js .
+
+      - name: Generate API SBOM (Python)
+        run: cdxgen -o security/sbom/api-python.json -t python api.menschlichkeit-oesterreich.at/ || true
+
+      - name: Generate CRM SBOM (PHP)
+        run: cdxgen -o security/sbom/crm-php.json -t php crm.menschlichkeit-oesterreich.at/ || true
+
+      - name: Generate Frontend SBOM (JS)
+        run: cdxgen -o security/sbom/frontend.json -t js frontend/ || true
+
+      - name: Upload SBOMs
+        uses: actions/upload-artifact@v4
+        with:
+          name: sboms
+          path: security/sbom/*.json
+
+      - name: Validate SBOMs
+        run: |
+          for f in security/sbom/*.json; do
+            echo "Validating $f";
+            npx @cyclonedx/cyclonedx-cli validate --input-file "$f";
+          done
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3
+
+      - name: Sign SBOMs with Cosign (keyless)
+        if: ${{ github.event_name == 'release' }}
+        env:
+          COSIGN_EXPERIMENTAL: '1'
+        run: |
+          for f in security/sbom/*.json; do
+            echo "Signing $f";
+            cosign sign-blob --yes --bundle "$f.bundle" "$f";
+          done
+
+      - name: Verify SBOM Signatures
+        if: ${{ github.event_name == 'release' }}
+        env:
+          COSIGN_EXPERIMENTAL: '1'
+        run: |
+          for f in security/sbom/*.json; do
+            echo "Verifying $f";
+            cosign verify-blob --bundle "$f.bundle" "$f";
+          done
+
+      - name: Upload SBOMs to Release
+        if: ${{ github.event_name == 'release' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            security/sbom/*.json
+            security/sbom/*.bundle
