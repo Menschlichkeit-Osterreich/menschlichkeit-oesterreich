@@ -1,0 +1,39 @@
+name: MCP Server Tests
+
+on:
+  push:
+    branches: [ main, master, chore/**, feature/** ]
+    paths:
+      - 'mcp-servers/file-server/**'
+      - '.github/workflows/mcp-tests.yml'
+  pull_request:
+    paths:
+      - 'mcp-servers/file-server/**'
+
+jobs:
+  test-file-server:
+    name: MCP Server Tests
+    runs-on: ubuntu-latest
+    env:
+      CI: true
+      MCP_OPA_REQUIRED: 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies (root)
+        run: npm install --silent
+
+      - name: Install workspace deps (file-server)
+        working-directory: mcp-servers/file-server
+        run: npm install --silent
+
+      - name: Run tests (file-server)
+        working-directory: mcp-servers/file-server
+        run: npm test

@@ -37,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.detect-changes.outputs.matrix }}
-      
+
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
@@ -77,7 +77,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup
     if: needs.setup.outputs.matrix != '{"include":[]}'
-    
+
     steps:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
@@ -94,7 +94,7 @@ jobs:
       - name: 💅 Prettier Check
         run: npm run format:check
 
-      - name: 🔍 ESLint Analysis  
+      - name: 🔍 ESLint Analysis
         run: npm run lint
 
       - name: 🔧 Setup PHP
@@ -187,7 +187,7 @@ jobs:
           flags: ${{ matrix.service }}
 
   # ===============================
-  # SECURITY SCANNING  
+  # SECURITY SCANNING
   # ===============================
   security-scan:
     name: 🔐 Security Analysis
@@ -294,7 +294,7 @@ jobs:
           temporaryPublicStorage: true
 
   # ===============================
-  # E2E TESTING  
+  # E2E TESTING
   # ===============================
   e2e-testing:
     name: 🎭 E2E Testing (Playwright)
@@ -334,7 +334,7 @@ jobs:
 
   # ===============================
   # BUILD & PACKAGE
-  # ===============================  
+  # ===============================
   build:
     name: 🏗️ Build & Package
     runs-on: ubuntu-latest
@@ -420,7 +420,7 @@ jobs:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v4
 
-      - name: 📦 Download Build Artifacts  
+      - name: 📦 Download Build Artifacts
         uses: actions/download-artifact@v4
         with:
           path: ./builds

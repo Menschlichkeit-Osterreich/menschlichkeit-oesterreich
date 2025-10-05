@@ -393,7 +393,7 @@ jobs:
           echo "🎉 All checks passed! Repository is ready for deployment."
           echo "📊 Summary:"
           echo "  ✅ TypeScript/JavaScript tests passed"
-          echo "  ✅ Python tests passed" 
+          echo "  ✅ Python tests passed"
           echo "  ✅ PHP tests passed"
           echo "  ✅ Docker builds successful"
           echo "  ✅ Security scans completed"

@@ -202,7 +202,7 @@ jobs:
             echo "- **Vulnerabilities Found:** $VULNERABILITIES" >> security-report.md
           fi
 
-          # Snyk Code Results  
+          # Snyk Code Results
           if [ -f snyk-code-results.json ]; then
             echo "### 🔍 Code Analysis (SAST)" >> security-report.md
             CODE_ISSUES=$(jq -r '.runs[0].results | length' snyk-code-results.json 2>/dev/null || echo "0")
@@ -231,12 +231,12 @@ jobs:
             echo "### 🛡️ Static Analysis (Semgrep)" >> security-report.md
             SAST_FINDINGS=$(jq -r '.runs[0].results | length' semgrep-results.sarif 2>/dev/null || echo "0")
             echo "- **SAST Findings:** $SAST_FINDINGS" >> security-report.md
-            
+
             # Count by severity
             HIGH=$(jq -r '[.runs[0].results[] | select(.level == "error")] | length' semgrep-results.sarif 2>/dev/null || echo "0")
             MEDIUM=$(jq -r '[.runs[0].results[] | select(.level == "warning")] | length' semgrep-results.sarif 2>/dev/null || echo "0")
             LOW=$(jq -r '[.runs[0].results[] | select(.level == "note")] | length' semgrep-results.sarif 2>/dev/null || echo "0")
-            
+
             echo "  - 🔴 High: $HIGH" >> security-report.md
             echo "  - 🟡 Medium: $MEDIUM" >> security-report.md
             echo "  - 🔵 Low: $LOW" >> security-report.md

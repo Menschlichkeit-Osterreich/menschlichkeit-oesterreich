@@ -8,7 +8,7 @@ body:
     attributes:
       value: |
         ## 📊 Technical Debt Identification
-        
+
         Systematische Identifikation und Kategorisierung von Technical Debt in der MCP Server-Architektur und Drupal/CiviCRM Plattform, einschließlich Priorisierung und Refactoring-Strategien.
 
   - type: checkboxes
@@ -131,12 +131,12 @@ body:
         1. MCP Essential Stack: No error handling for Stripe API failures
         2. Drupal Security: Hardcoded database credentials in settings.php
         3. Dependencies: 15+ packages with known security vulnerabilities
-        
+
         **High Priority Technical Debt:**
         1. TypeScript: Inconsistent compiler configurations across 34 projects
         2. Testing: Zero test coverage for critical MCP server functions
         3. Documentation: API documentation completely missing
-        
+
         **Medium Priority Technical Debt:**
         1. Performance: No caching layer implemented
         2. Code Quality: ESLint 9.x migration incomplete
@@ -152,12 +152,12 @@ body:
         - Security vulnerability remediation
         - Essential error handling implementation
         - Critical bug fixes
-        
+
         **Phase 2 (High Priority - 8 weeks):**
         - Testing framework implementation
         - Documentation overhaul
         - Dependency standardization
-        
+
         **Phase 3 (Long-term - 16 weeks):**
         - Architectural improvements
         - Performance optimization
@@ -173,12 +173,12 @@ body:
         - Development velocity reduced by ~40% due to context switching
         - Bug fix time increased due to inconsistent code structure
         - Onboarding new developers takes 2-3 weeks instead of days
-        
+
         **Risk Assessment:**
         - High: Security vulnerabilities could compromise user data
         - Medium: Performance issues affecting user experience
         - Low: Documentation debt slowing development but not critical
-        
+
         **ROI of Refactoring:**
         - Estimated 25% increase in development velocity
         - 50% reduction in bug investigation time

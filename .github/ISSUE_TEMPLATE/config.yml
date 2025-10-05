@@ -3,8 +3,8 @@ contact_links:
   - name: 🔐 Security Vulnerability
     url: mailto:security@menschlichkeit-oesterreich.at
     about: Bitte melden Sie Sicherheitslücken direkt per E-Mail (NICHT über GitHub Issues)
-  
-  - name: 💬 Community Discussions  
+
+  - name: 💬 Community Discussions
     url: https://github.com/peschull/menschlichkeit-oesterreich-development/discussions
     about: Allgemeine Fragen, Ideen und Community-Diskussionen
 

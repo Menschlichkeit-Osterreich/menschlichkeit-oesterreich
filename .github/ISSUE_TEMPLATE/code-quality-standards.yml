@@ -8,7 +8,7 @@ body:
     attributes:
       value: |
         ## 📋 Code Quality Standards Evaluation
-        
+
         Systematische Analyse und Verbesserung der bestehenden Code Quality Standards für das Multi-Technology Development Environment.
 
   - type: checkboxes

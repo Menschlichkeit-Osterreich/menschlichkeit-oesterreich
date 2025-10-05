@@ -1,0 +1,45 @@
+name: Codacy Analysis CLI
+
+on:
+  push:
+    branches: ["**"]
+  workflow_dispatch:
+
+jobs:
+  codacy:
+    name: Codacy Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Codacy Analysis CLI (Docker)
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: |
+          mkdir -p quality-reports
+          if [ -z "${CODACY_PROJECT_TOKEN}" ]; then
+            echo "CODACY_PROJECT_TOKEN is not configured. Skipping Codacy Analysis."
+            exit 0
+          fi
+          docker pull codacy/codacy-analysis-cli:latest
+          docker run --rm -v "$PWD:/src" -w /src \
+            -e CODACY_PROJECT_TOKEN="$CODACY_PROJECT_TOKEN" \
+            codacy/codacy-analysis-cli:latest analyze \
+              --project-directory /src \
+              --format sarif \
+              --output /src/quality-reports/codacy-analysis.sarif || true
+
+      - name: Upload SARIF to GitHub Code Scanning
+        if: ${{ hashFiles('quality-reports/codacy-analysis.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: quality-reports/codacy-analysis.sarif
+
+      - name: Upload report artifact
+        if: ${{ hashFiles('quality-reports/codacy-analysis.sarif') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: codacy-analysis.sarif
+          path: quality-reports/codacy-analysis.sarif

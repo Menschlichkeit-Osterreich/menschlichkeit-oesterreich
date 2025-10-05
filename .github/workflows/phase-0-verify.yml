@@ -1,0 +1,54 @@
+name: Phase 0 Verification
+
+on:
+  pull_request:
+  push:
+    branches: [ main, master, chore/**, feature/** ]
+  release:
+    types: [published]
+
+jobs:
+  verify-phase-0:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install OPA CLI (optional)
+        run: |
+          set -euo pipefail
+          OPA_VERSION="v0.63.0"
+          ARCH=$(uname -m)
+          case "$ARCH" in
+            x86_64|amd64) OPA_ARCH="amd64";;
+            aarch64|arm64) OPA_ARCH="arm64";;
+            *) OPA_ARCH="amd64";;
+          esac
+          curl -fsSL -o /usr/local/bin/opa https://openpolicyagent.org/downloads/${OPA_VERSION}/opa_linux_${OPA_ARCH}
+          chmod +x /usr/local/bin/opa
+          opa version || true
+
+      - name: Run Phase 0 verification
+        run: bash analysis/phase-0/verification/verify-phase-0.sh
+
+      - name: Upload verification report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase-0-verification-report
+          path: analysis/phase-0/verification/phase-0-verification-report.md
+
+      - name: Append report to summary
+        if: always()
+        run: |
+          echo "## Phase 0 Verification Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          cat analysis/phase-0/verification/phase-0-verification-report.md >> $GITHUB_STEP_SUMMARY

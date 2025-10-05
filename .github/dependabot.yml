@@ -1,0 +1,23 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+  - package-ecosystem: "npm"
+    directory: "/mcp-servers/file-server"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "pip"
+    directory: "/api.menschlichkeit-oesterreich.at"
+    schedule:
+      interval: "weekly"
+  - package-ecosystem: "composer"
+    directory: "/crm.menschlichkeit-oesterreich.at"
+    schedule:
+      interval: "weekly"

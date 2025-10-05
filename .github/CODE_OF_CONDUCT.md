@@ -10,22 +10,22 @@ Wir verpflichten uns, in einer Weise zu handeln und zu interagieren, die zu eine
 
 ### Beispiele für Verhalten, das zu einem positiven Umfeld beiträgt:
 
-✅ **Empathie und Freundlichkeit** gegenüber anderen Menschen zeigen  
-✅ **Respektvoller Umgang** mit unterschiedlichen Meinungen, Standpunkten und Erfahrungen  
-✅ **Konstruktives Feedback** geben und würdevoll annehmen  
-✅ **Verantwortung übernehmen** und sich bei den von unseren Fehlern Betroffenen entschuldigen, aus der Erfahrung lernen  
-✅ **Fokus auf das Gemeinwohl** - was für die Gesamtheit der Gemeinschaft am besten ist  
-✅ **Inklusive Sprache** verwenden und auf Barrierefreiheit achten  
+✅ **Empathie und Freundlichkeit** gegenüber anderen Menschen zeigen
+✅ **Respektvoller Umgang** mit unterschiedlichen Meinungen, Standpunkten und Erfahrungen
+✅ **Konstruktives Feedback** geben und würdevoll annehmen
+✅ **Verantwortung übernehmen** und sich bei den von unseren Fehlern Betroffenen entschuldigen, aus der Erfahrung lernen
+✅ **Fokus auf das Gemeinwohl** - was für die Gesamtheit der Gemeinschaft am besten ist
+✅ **Inklusive Sprache** verwenden und auf Barrierefreiheit achten
 ✅ **Konstruktive Diskussionen** führen und sachlich argumentieren
 
 ### Beispiele für inakzeptables Verhalten:
 
-❌ **Sexualisierte Sprache oder Bilder** und unerwünschte sexuelle Aufmerksamkeit oder Annäherungsversuche  
-❌ **Trolling, beleidigende oder abwertende Kommentare** und persönliche oder politische Angriffe  
-❌ **Öffentliche oder private Belästigung**  
-❌ **Veröffentlichung privater Informationen** anderer ohne ausdrückliche Erlaubnis  
-❌ **Sonstiges Verhalten**, das in einem professionellen Umfeld als unangemessen betrachtet werden könnte  
-❌ **Diskriminierung** aufgrund von Herkunft, Religion, Geschlecht, sexueller Orientierung oder anderen persönlichen Merkmalen  
+❌ **Sexualisierte Sprache oder Bilder** und unerwünschte sexuelle Aufmerksamkeit oder Annäherungsversuche
+❌ **Trolling, beleidigende oder abwertende Kommentare** und persönliche oder politische Angriffe
+❌ **Öffentliche oder private Belästigung**
+❌ **Veröffentlichung privater Informationen** anderer ohne ausdrückliche Erlaubnis
+❌ **Sonstiges Verhalten**, das in einem professionellen Umfeld als unangemessen betrachtet werden könnte
+❌ **Diskriminierung** aufgrund von Herkunft, Religion, Geschlecht, sexueller Orientierung oder anderen persönlichen Merkmalen
 ❌ **Hate Speech** oder extremistische Äußerungen jeder Art
 
 ## 🛡️ Verantwortlichkeiten der Führung
@@ -163,6 +163,6 @@ Dieser Verhaltenskodex basiert auf dem [Contributor Covenant](https://www.contri
 
 Die Durchsetzungsrichtlinien wurden inspiriert von [Mozilla's code of conduct enforcement ladder](https://github.com/mozilla/diversity).
 
-**Letzte Aktualisierung**: 29. September 2025  
-**Version**: 1.0  
+**Letzte Aktualisierung**: 29. September 2025
+**Version**: 1.0
 **Gültig für**: Alle Bereiche des Menschlichkeit Österreich Projekts

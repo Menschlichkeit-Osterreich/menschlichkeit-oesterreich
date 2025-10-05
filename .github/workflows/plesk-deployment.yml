@@ -136,13 +136,13 @@ jobs:
                     -e "ssh -i ~/.ssh/id_ed25519 -p 22" \
                     frontend/dist/ \
                     ${{ secrets.PLESK_USER }}@${{ secrets.PLESK_HOST }}:/var/www/vhosts/menschlichkeit-oesterreich.at/httpdocs/
-                    
+
                   # Games Deployment
                   rsync -avz --delete \
                     -e "ssh -i ~/.ssh/id_ed25519 -p 22" \
                     web/games/ \
                     ${{ secrets.PLESK_USER }}@${{ secrets.PLESK_HOST }}:/var/www/vhosts/menschlichkeit-oesterreich.at/httpdocs/games/
-                    
+
                   # API Deployment
                   rsync -avz --delete \
                     --exclude='.env' --exclude='logs' --exclude='cache' \
@@ -154,16 +154,16 @@ jobs:
               run: |
                   ssh -i ~/.ssh/id_ed25519 ${{ secrets.PLESK_USER }}@${{ secrets.PLESK_HOST }} << 'EOF'
                     cd /var/www/vhosts/menschlichkeit-oesterreich.at/httpdocs
-                    
+
                     # WordPress Database Update
                     wp-cli core update-db --allow-root
-                    
+
                     # Laravel Migrations
                     cd ../api.menschlichkeit-oesterreich.at/httpdocs
                     php artisan migrate --force
                     php artisan config:cache
                     php artisan route:cache
-                    
+
                     # CiviCRM Updates (falls erforderlich)
                     # drush civicrm-upgrade-db
                   EOF
@@ -173,12 +173,12 @@ jobs:
                   ssh -i ~/.ssh/id_ed25519 ${{ secrets.PLESK_USER }}@${{ secrets.PLESK_HOST }} << 'EOF'
                     # WordPress Cache Clear
                     wp-cli cache flush --allow-root
-                    
+
                     # Laravel Cache Clear
                     cd /var/www/vhosts/api.menschlichkeit-oesterreich.at/httpdocs
                     php artisan cache:clear
                     php artisan view:clear
-                    
+
                     # Plesk Cache Restart (falls möglich)
                     # plesk bin site --update menschlichkeit-oesterreich.at -php_handler_id plesk-php83-fpm
                   EOF
@@ -188,7 +188,7 @@ jobs:
                   # WordPress Health Check
                   curl -f https://menschlichkeit-oesterreich.at/wp-json/wp/v2/posts?per_page=1 || exit 1
 
-                  # API Health Check  
+                  # API Health Check
                   curl -f https://api.menschlichkeit-oesterreich.at/health || exit 1
 
                   # Games Health Check

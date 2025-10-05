@@ -1,0 +1,20 @@
+name: OWASP ZAP Baseline (optional)
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Target URL (e.g., https://staging.example.org)'
+        required: true
+
+jobs:
+  zap:
+    name: ZAP Baseline Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.10.0
+        with:
+          target: ${{ inputs.target }}
+          allow_issue_writing: false
+          fail_action: true

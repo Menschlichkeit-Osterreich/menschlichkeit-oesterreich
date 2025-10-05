@@ -1,0 +1,40 @@
+name: Docs Lint & ADR Index
+
+on:
+  pull_request:
+    paths:
+      - '**/*.md'
+      - 'scripts/docs/generate-adr-index.mjs'
+      - '.github/workflows/docs-lint-and-adr-index.yml'
+  push:
+    branches: [ main, master ]
+    paths:
+      - '**/*.md'
+      - 'scripts/docs/generate-adr-index.mjs'
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Markdown Lint
+        run: npx markdownlint-cli "**/*.md" --ignore node_modules --ignore vendor || true
+
+      - name: Generate ADR Index (no commit)
+        run: npm run -s docs:adr-index
+
+      - name: Upload ADR Index
+        uses: actions/upload-artifact@v4
+        with:
+          name: adr-index
+          path: docs/architecture/ADRs/ADR-INDEX.md

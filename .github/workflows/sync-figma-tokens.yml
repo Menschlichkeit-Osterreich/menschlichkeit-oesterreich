@@ -166,19 +166,19 @@ jobs:
               repo: context.repo.repo,
               title: '🚨 Figma Sync Failed',
               body: `## Figma Design Token Sync Failed
-              
+
               **Workflow Run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
               **Trigger:** ${{ github.event_name }}
               **Branch:** ${{ github.ref }}
-              
+
               Please check the workflow logs for details.
-              
+
               ### Common Issues
               - Invalid Figma Access Token
               - Rate limit exceeded (Figma API: 1000 req/hour)
               - Network connectivity issues
               - Invalid Figma File ID
-              
+
               ### Troubleshooting
               1. Verify FIGMA_ACCESS_TOKEN secret is valid
               2. Verify FIGMA_FILE_ID secret is correct

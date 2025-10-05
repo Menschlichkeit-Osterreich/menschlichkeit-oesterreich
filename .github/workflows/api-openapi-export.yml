@@ -1,0 +1,51 @@
+name: API OpenAPI Export
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'api.menschlichkeit-oesterreich.at/**'
+      - 'scripts/export-openapi.py'
+      - '.github/workflows/api-openapi-export.yml'
+  workflow_dispatch: {}
+  release:
+    types: [published]
+
+jobs:
+  export-openapi:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install FastAPI minimal deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install fastapi pydantic uvicorn
+
+      - name: Export OpenAPI JSON
+        continue-on-error: true
+        run: |
+          python3 scripts/export-openapi.py \
+            --file api.menschlichkeit-oesterreich.at/app/main.py \
+            --app app \
+            --out api.menschlichkeit-oesterreich.at/openapi.generated.json
+
+      - name: Upload OpenAPI (generated JSON)
+        if: ${{ hashFiles('api.menschlichkeit-oesterreich.at/openapi.generated.json') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-openapi
+          path: api.menschlichkeit-oesterreich.at/openapi.generated.json
+
+      - name: Upload OpenAPI (fallback YAML)
+        if: ${{ hashFiles('api.menschlichkeit-oesterreich.at/openapi.generated.json') == '' && hashFiles('api.menschlichkeit-oesterreich.at/openapi.yaml') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-openapi
+          path: api.menschlichkeit-oesterreich.at/openapi.yaml

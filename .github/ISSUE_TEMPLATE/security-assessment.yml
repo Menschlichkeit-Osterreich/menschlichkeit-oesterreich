@@ -8,7 +8,7 @@ body:
     attributes:
       value: |
         ## 🛡️ Comprehensive Security Assessment
-        
+
         Systematischer Security Audit für das Multi-Technology Development Environment mit Focus auf API-Keys, Environment Variables, Docker-Security und Drupal/CiviCRM Vulnerabilities.
 
   - type: checkboxes
@@ -98,11 +98,11 @@ body:
         **High Priority:**
         - mailchimp-api-v3@1.13.1 has known vulnerabilities
         - form-data@2.3.3 contains security issues
-        
+
         **Medium Priority:**
         - Drupal modules need updates
         - Docker base images have minor vulnerabilities
-        
+
         **Low Priority:**
         - Development dependencies with non-critical issues
 
@@ -115,11 +115,11 @@ body:
         1. **Immediate Actions (24h):**
            - Update critical npm packages
            - Rotate exposed API keys
-           
+
         2. **Short Term (1 week):**
            - Implement GitHub Secrets
            - Update Drupal modules & extensions
-           
+
         3. **Long Term (1 month):**
            - Security monitoring setup
            - Penetration testing schedule

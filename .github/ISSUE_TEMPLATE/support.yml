@@ -8,9 +8,9 @@ body:
     attributes:
       value: |
         ## 👋 Willkommen beim Menschlichkeit Österreich Support!
-        
+
         Danke, dass Sie sich an uns wenden! Bitte füllen Sie das folgende Formular aus, damit wir Ihnen bestmöglich helfen können.
-        
+
         **🔐 Wichtiger Hinweis**: Teilen Sie niemals Passwörter, API-Keys oder andere sensible Daten in GitHub Issues!
 
   - type: dropdown
@@ -21,7 +21,7 @@ body:
       options:
         - 🚀 Setup/Installation Hilfe
         - 🔧 Konfiguration Problem
-        - 💻 Development Unterstützung  
+        - 💻 Development Unterstützung
         - 🐛 Unklares Verhalten (kein Bug)
         - 📚 Dokumentation Verständnis
         - 🔐 Security/DSGVO Fragen
@@ -180,7 +180,7 @@ body:
 
   - type: textarea
     id: additional-info
-    attributes: 
+    attributes:
       label: 📋 Zusätzliche Informationen
       description: |
         Weitere hilfreiche Details:
@@ -208,22 +208,22 @@ body:
     attributes:
       value: |
         ---
-        
+
         ## 🚀 Nächste Schritte
-        
+
         Nach dem Absenden Ihrer Support-Anfrage:
-        
+
         1. **🏷️ Labeling** - Wir werden Ihr Issue entsprechend kategorisieren
-        2. **📋 Triage** - Priorität und Zuständigkeit werden bestimmt  
+        2. **📋 Triage** - Priorität und Zuständigkeit werden bestimmt
         3. **💬 Antwort** - Wir melden uns innerhalb von 24-48 Stunden
         4. **🔄 Follow-up** - Bei Bedarf weitere Fragen oder Klarstellungen
         5. **✅ Lösung** - Wir arbeiten gemeinsam an einer Lösung
-        
+
         ## 📞 Alternative Kontakt-Möglichkeiten
-        
+
         - **📧 Direct E-Mail**: support@menschlichkeit-oesterreich.at
-        - **🔐 Security Issues**: security@menschlichkeit-oesterreich.at  
+        - **🔐 Security Issues**: security@menschlichkeit-oesterreich.at
         - **🤝 Partnerships**: partnerships@menschlichkeit-oesterreich.at
         - **📰 Media Inquiries**: media@menschlichkeit-oesterreich.at
-        
+
         **Danke für Ihr Vertrauen in Menschlichkeit Österreich! 🇦🇹**

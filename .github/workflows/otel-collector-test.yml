@@ -1,0 +1,46 @@
+name: OTel Collector Test (optional)
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  otel-test:
+    name: OTel Collector Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Start OTel Collector (logging exporter)
+        run: |
+          docker run -d --name otel-collector -p 4318:4318 \
+            -e LOGGING_EXPORTER_LOGLEVEL=debug \
+            otel/opentelemetry-collector:0.104.0 \
+            --set=receivers.otlp.protocols.http.endpoint=0.0.0.0:4318 \
+            --set=exporters=logging \
+            --set=service.pipelines.traces.receivers=otlp \
+            --set=service.pipelines.traces.exporters=logging
+          sleep 3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install file-server deps
+        working-directory: mcp-servers/file-server
+        run: npm ci --silent
+
+      - name: Send test span
+        working-directory: mcp-servers/file-server
+        env:
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
+          OTEL_SERVICE_NAME: mcp-file-server
+        run: npm run otel:test
+
+      - name: Collector logs
+        run: docker logs otel-collector --since 5m | tail -n 200
+
+      - name: Cleanup
+        if: always()
+        run: docker rm -f otel-collector || true
