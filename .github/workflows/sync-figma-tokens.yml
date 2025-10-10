@@ -31,7 +31,7 @@ jobs:
 
     steps:
       - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
@@ -207,7 +207,7 @@ jobs:
 
     steps:
       - name: 📥 Checkout PR
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: figma-sync-${{ github.run_number }}
 
@@ -245,7 +245,7 @@ jobs:
 
     steps:
       - name: 📥 Checkout PR
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: figma-sync-${{ github.run_number }}
           fetch-depth: 0
