@@ -92,7 +92,7 @@
     "jsdom": "^27.0.0",
     "jsdom-global": "^3.0.2",
     "markdownlint-cli": "^0.43.0",
-    "n8n-workflow": "^1.17.0",
+    "n8n-workflow": "^1.112.0",
     "prettier": "^3.4.2",
     "ts-jest": "^29.4.4",
     "typescript": "^5.9.3",
