@@ -287,7 +287,7 @@ jobs:
           fi
 
       - name: 🔬 Lighthouse CI
-        uses: treosh/lighthouse-ci-action@v10
+        uses: treosh/lighthouse-ci-action@v12
         with:
           configPath: './lighthouse.config.cjs'
           uploadArtifacts: true
