@@ -260,7 +260,7 @@ jobs:
         run: npm ci
 
       - name: 📸 Chromatic Deployment
-        uses: chromaui/action@v1
+        uses: chromaui/action@v13
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           exitZeroOnChanges: true
