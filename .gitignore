@@ -290,6 +290,12 @@ servers/src/*/dist/
 *.tgz
 *.tar.gz
 
+# Large binary tools (avoid committing heavy binaries)
+bin/
+*.exe
+*.bin
+*.dll
+
 # Development databases
 *.sqlite
 *.db
