@@ -1,0 +1,769 @@
+---
+title: Normalization Rules für Markdown-Dokumentation
+description: Vollständige Spezifikation für einheitliche Dokumentationsstandards im Repository
+status: ACTIVE
+version: 1.0.0
+created: 2025-10-10
+lastUpdated: 2025-10-10
+owners:
+  - DevOps Team
+  - Documentation Team
+tags:
+  - standards
+  - markdown
+  - quality
+  - automation
+category: governance
+priority: high
+---
+
+# 📐 Normalization Rules – Markdown Documentation Standards
+
+Dieses Dokument definiert alle Standards für Markdown-Dokumentation im Repository `menschlichkeit-oesterreich-development`.
+
+---
+
+## 🎯 Zielsetzung
+
+1. **Konsistenz:** Einheitliches Format über alle Dokumentationsdateien
+2. **Qualität:** Automatisierbare Qualitätsmetriken und Prüfungen
+3. **Wartbarkeit:** Einfache Pflege und Updates
+4. **Auffindbarkeit:** Metadaten für Suche und Navigation
+
+---
+
+## 📋 YAML Front-Matter Schema
+
+### Pflichtfelder (Minimum)
+
+Jede Markdown-Datei **MUSS** folgende Front-Matter Felder enthalten:
+
+```yaml
+---
+title: [String] Kurze, beschreibende Überschrift (max. 80 Zeichen)
+description: [String] Ein- bis zweizeilige Zusammenfassung (max. 160 Zeichen)
+lastUpdated: [YYYY-MM-DD] Datum der letzten Änderung (ISO 8601)
+status: [Enum] ACTIVE | DEPRECATED | DRAFT | ARCHIVED
+---
+```
+
+**Beispiel (Minimal):**
+
+```yaml
+---
+title: API Authentication Guide
+description: OAuth2 und JWT Implementation für sichere API-Zugriffssteuerung
+lastUpdated: 2025-10-10
+status: ACTIVE
+---
+```
+
+### Erweiterte Felder (Empfohlen)
+
+Für bessere Auffindbarkeit und Organisation:
+
+```yaml
+---
+title: [String]
+description: [String]
+lastUpdated: [YYYY-MM-DD]
+status: [Enum]
+created: [YYYY-MM-DD]           # Erstellungsdatum
+version: [SemVer]                # z.B. "1.2.3"
+owners:                          # Verantwortliche Personen/Teams
+  - [String]
+  - [String]
+tags:                            # Kategorisierung für Suche
+  - [String]
+  - [String]
+category: [String]               # Hauptkategorie (siehe unten)
+priority: [Enum]                 # critical | high | medium | low
+applyTo: [String]                # Glob pattern, z.B. "**/*.ts"
+relatedDocs:                     # Verwandte Dokumentation
+  - [Relative Path]
+  - [Relative Path]
+---
+```
+
+**Beispiel (Vollständig):**
+
+```yaml
+---
+title: PostgreSQL Database Schema
+description: Vollständige Datenbankschema-Dokumentation für alle Services
+created: 2025-01-15
+lastUpdated: 2025-10-10
+status: ACTIVE
+version: 2.1.0
+owners:
+  - Backend Team
+  - Database Administrator
+tags:
+  - database
+  - postgresql
+  - schema
+  - migration
+category: architecture
+priority: high
+applyTo: "**/*.prisma"
+relatedDocs:
+  - docs/architecture/api-overview.md
+  - docs/deployment/database-migrations.md
+---
+```
+
+### Status-Werte (Enum)
+
+| Wert | Bedeutung | Verwendung |
+|------|-----------|------------|
+| `ACTIVE` | Aktiv & aktuell | Standard für produktive Dokumentation |
+| `DRAFT` | Entwurf | Work-in-Progress, noch nicht final |
+| `DEPRECATED` | Veraltet | Wird nicht mehr aktualisiert, Hinweis auf Ersatz |
+| `ARCHIVED` | Archiviert | Historisch relevant, nicht mehr aktiv |
+
+### Category-Werte (Konvention)
+
+Empfohlene Kategorien für einheitliche Organisation:
+
+- `architecture` – System-/Service-Architektur
+- `api` – API-Dokumentation
+- `deployment` – Deployment & CI/CD
+- `security` – Sicherheit & Compliance
+- `compliance` – DSGVO, Accessibility, Legal
+- `governance` – Vereinsstatuten, Policies
+- `infrastructure` – Server, Netzwerk, Monitoring
+- `testing` – Testing-Strategien & Tools
+- `onboarding` – Developer-Onboarding
+- `design` – Design System, Figma
+- `automation` – n8n, Workflows
+- `crm` – CiviCRM, Drupal
+- `performance` – Optimization, Tuning
+- `legal` – Rechtsdokumente
+
+### Priority-Werte (Enum)
+
+- `critical` – Kritisch (z.B. Security, Compliance)
+- `high` – Hoch (z.B. Architektur, Core Features)
+- `medium` – Mittel (z.B. Guides, Tutorials)
+- `low` – Niedrig (z.B. Experimental, Nice-to-have)
+
+---
+
+## 📝 Markdown Standards
+
+### CommonMark Compliance
+
+Basis: [CommonMark 0.30](https://spec.commonmark.org/0.30/) mit folgenden Erweiterungen:
+
+#### Erlaubte GFM (GitHub Flavored Markdown) Erweiterungen
+
+- ✅ **Tables** (Pipe Tables)
+- ✅ **Task Lists** (`- [ ]` / `- [x]`)
+- ✅ **Strikethrough** (`~~text~~`)
+- ✅ **Autolinks** (`https://example.com`)
+- ✅ **Footnotes** (`[^1]`)
+- ✅ **Emoji Shortcodes** (`:smile:`)
+
+#### Erlaubte Zusatz-Features
+
+- ✅ **Mermaid Diagramme** (Code-Blocks mit `mermaid`)
+- ✅ **Math (KaTeX)** (Inline `$...$`, Block `$$...$$`)
+- ✅ **Admonitions** (z.B. `:::warning`, `:::info`)
+
+**Beispiel Mermaid:**
+
+````markdown
+```mermaid
+graph TD
+    A[Frontend] --> B[API]
+    B --> C[Database]
+    B --> D[CRM]
+```
+````
+
+**Beispiel Math:**
+
+```markdown
+Die Formel lautet: $E = mc^2$
+
+Komplexere Berechnung:
+
+$$
+\int_0^\infty e^{-x^2} dx = \frac{\sqrt{\pi}}{2}
+$$
+```
+
+**Beispiel Admonition:**
+
+```markdown
+:::warning
+Diese Funktion ist deprecated und wird in v3.0 entfernt.
+:::
+```
+
+### Heading-Hierarchie
+
+- **Level 1 (`#`):** Nur EINMAL pro Datei (Titel, sollte mit Front-Matter `title` übereinstimmen)
+- **Level 2 (`##`):** Hauptabschnitte
+- **Level 3 (`###`):** Unterabschnitte
+- **Level 4 (`####`):** Detail-Unterabschnitte
+- **Level 5+ (`#####`):** Vermeiden (zu tief verschachtelt)
+
+**Beispiel:**
+
+```markdown
+# API Authentication Guide
+
+## OAuth2 Setup
+
+### Client Credentials Flow
+
+#### Token Endpoint Configuration
+
+## JWT Validation
+
+### Token Signature Verification
+```
+
+### Code-Blocks
+
+**Immer Sprache angeben** für Syntax-Highlighting:
+
+````markdown
+```typescript
+// TypeScript Beispiel
+const user: User = { id: 1, name: "Max" };
+```
+
+```bash
+# Bash Beispiel
+npm run dev:all
+```
+
+```yaml
+# YAML Beispiel
+title: Example Document
+status: ACTIVE
+```
+````
+
+**Inline-Code:** Backticks für Variablen, Dateinamen, Befehle:
+
+```markdown
+Die Datei `package.json` enthält den Befehl `npm run dev:all`.
+```
+
+### Links
+
+**Interne Links (Relativ):**
+
+```markdown
+Siehe auch [Architektur Übersicht](./architecture/services-overview.md).
+```
+
+**Externe Links:**
+
+```markdown
+Dokumentation: [FastAPI Docs](https://fastapi.tiangolo.com/)
+```
+
+**Anchor Links (innerhalb Dokument):**
+
+```markdown
+Siehe [Installation](#installation).
+
+## Installation
+```
+
+### Listen
+
+**Unordered Lists:**
+
+```markdown
+- Punkt 1
+- Punkt 2
+  - Unterpunkt 2.1
+  - Unterpunkt 2.2
+- Punkt 3
+```
+
+**Ordered Lists:**
+
+```markdown
+1. Schritt 1
+2. Schritt 2
+   1. Sub-Schritt 2.1
+   2. Sub-Schritt 2.2
+3. Schritt 3
+```
+
+**Task Lists:**
+
+```markdown
+- [x] Aufgabe erledigt
+- [ ] Aufgabe offen
+- [ ] Weitere Aufgabe
+```
+
+### Tabellen
+
+**Alignment:**
+
+```markdown
+| Links | Zentriert | Rechts |
+|-------|:---------:|-------:|
+| A     | B         | C      |
+| D     | E         | F      |
+```
+
+**Empfehlung:** Maximale Tabellenbreite 120 Zeichen (für Lesbarkeit).
+
+### Bilder
+
+```markdown
+![Alt-Text](./images/screenshot.png "Optionaler Titel")
+```
+
+**Empfehlung:**
+
+- Bilder in `./images/` oder `./assets/` relativ zur Markdown-Datei
+- Alt-Text IMMER angeben (Accessibility)
+- WebP oder optimierte PNG/JPG verwenden
+
+### Horizontale Linien
+
+```markdown
+---
+```
+
+Verwenden für thematische Abschnittstrennungen (sparsam einsetzen).
+
+---
+
+## 🔤 Encoding & Line Endings
+
+### Encoding
+
+**UTF-8 ohne BOM** (Byte Order Mark)
+
+### Line Endings
+
+**LF (Line Feed)** – Unix-Style `\n`
+
+**NICHT:** CRLF (Windows-Style `\r\n`)
+
+**.editorconfig:**
+
+```ini
+[*.md]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+```
+
+---
+
+## 📏 Formatierungs-Regeln
+
+### Zeilenlänge
+
+**Maximale Zeilenlänge: 120 Zeichen**
+
+Ausnahmen:
+
+- URLs
+- Code-Blocks
+- Tabellen (wenn nicht anders möglich)
+
+**Soft-Wrap:** Editor-Wrapping erlaubt, aber Markdown-Dateien sollten auf 120 Zeichen hard-wrapped sein (optional).
+
+### Leerzeilen
+
+- **1 Leerzeile** zwischen Paragraphen
+- **1 Leerzeile** vor/nach Code-Blocks
+- **1 Leerzeile** vor/nach Tabellen
+- **1 Leerzeile** vor/nach Headings
+- **Keine Leerzeile** am Ende der Datei (außer final newline)
+
+**Beispiel:**
+
+```markdown
+## Section Title
+
+Dies ist ein Paragraph.
+
+Dies ist ein weiterer Paragraph.
+
+```bash
+npm install
+```
+
+Weiterer Text nach Code-Block.
+```
+
+### Trailing Whitespace
+
+**KEINE** Leerzeichen am Zeilenende (außer Markdown Line-Breaks mit 2 Spaces).
+
+### Indentation
+
+**4 Spaces** für verschachtelte Listen/Code-Blocks innerhalb Listen.
+
+**Beispiel:**
+
+```markdown
+- Hauptpunkt
+    - Unterpunkt (4 Spaces)
+    - Weiterer Unterpunkt
+        ```bash
+        npm run test
+        ```
+```
+
+---
+
+## 🔍 Markdown Linting Rules
+
+Verwende **markdownlint** mit folgenden Rules:
+
+### Aktivierte Rules
+
+| Rule | Beschreibung | Severity |
+|------|--------------|----------|
+| MD001 | Heading levels increment by one | Error |
+| MD003 | Heading style (ATX `#`) | Error |
+| MD004 | Unordered list style (Dash `-`) | Warning |
+| MD005 | Inconsistent list indentation | Error |
+| MD007 | Unordered list indentation (4 spaces) | Warning |
+| MD009 | Trailing spaces | Error |
+| MD010 | Hard tabs | Error |
+| MD011 | Reversed link syntax | Error |
+| MD012 | Multiple consecutive blank lines | Warning |
+| MD013 | Line length (120 chars) | Warning |
+| MD018 | No space after hash in heading | Error |
+| MD019 | Multiple spaces after hash | Error |
+| MD022 | Headings surrounded by blank lines | Warning |
+| MD023 | Headings start at beginning of line | Error |
+| MD025 | Single H1 per document | Error |
+| MD026 | Trailing punctuation in heading | Warning |
+| MD027 | Multiple spaces after blockquote | Error |
+| MD028 | Blank line inside blockquote | Warning |
+| MD029 | Ordered list item prefix (incremental) | Warning |
+| MD030 | Spaces after list markers | Warning |
+| MD031 | Fenced code blocks surrounded by blank lines | Warning |
+| MD032 | Lists surrounded by blank lines | Warning |
+| MD033 | Inline HTML (allowed in specific cases) | Warning |
+| MD034 | Bare URLs (should use link syntax) | Warning |
+| MD036 | Emphasis instead of heading | Warning |
+| MD037 | Spaces inside emphasis markers | Error |
+| MD038 | Spaces inside code span | Error |
+| MD039 | Spaces inside link text | Error |
+| MD040 | Fenced code language (required) | Error |
+| MD041 | First line in file should be H1 | Error |
+| MD042 | No empty links | Error |
+| MD043 | Required heading structure | Info |
+| MD044 | Proper names capitalization | Info |
+| MD045 | Images should have alt text | Error |
+| MD046 | Code block style (fenced) | Warning |
+| MD047 | Files should end with newline | Error |
+| MD048 | Code fence style (backticks) | Warning |
+
+### Deaktivierte/Angepasste Rules
+
+```json
+{
+  "MD013": { "line_length": 120, "code_blocks": false, "tables": false },
+  "MD033": { "allowed_elements": ["details", "summary", "br", "kbd"] },
+  "MD041": { "level": 1 }
+}
+```
+
+---
+
+## 🌍 Sprache & Rechtschreibung
+
+### Primärsprachen
+
+1. **Deutsch (Österreich)** – `de-AT` für Vereinsdokumentation
+2. **Englisch (US)** – `en-US` für technische Dokumentation
+
+### Wörterbücher
+
+**CSpell (Code Spell Checker) Konfiguration:**
+
+```json
+{
+  "language": "de-AT,en-US",
+  "words": [
+    "Menschlichkeit",
+    "Österreich",
+    "CiviCRM",
+    "Drupal",
+    "PostgreSQL",
+    "FastAPI",
+    "Playwright",
+    "Vite",
+    "Tailwind",
+    "DSGVO",
+    "WCAG",
+    "Mitgliedsbeitrag",
+    "Beitragsordnung"
+  ],
+  "ignoreWords": [
+    "mkdir",
+    "chmod",
+    "drush",
+    "npx"
+  ]
+}
+```
+
+### Stilrichtlinien
+
+- **Österreichisches Deutsch:** `ä`, `ö`, `ü`, `ß` verwenden (NICHT `ae`, `oe`, `ue`, `ss`)
+- **Formelle Anrede:** "Sie" (großgeschrieben) in offiziellen Dokumenten
+- **Duzen:** "Du" (kleingeschrieben) in Developer-Dokumentation erlaubt
+- **Gender-Inklusive Sprache:** `*innen`, `:innen` oder `(m/w/d)` verwenden
+
+**Beispiele:**
+
+```markdown
+# Offiziell (Statuten, Legal)
+Die Mitglieder verpflichten sich, die Beiträge fristgerecht zu bezahlen.
+
+# Developer Docs (informell)
+Du kannst den Server mit `npm run dev:all` starten.
+
+# Inklusiv
+Alle Teilnehmer*innen sind willkommen.
+Die Entwickler:innen implementieren neue Features.
+```
+
+---
+
+## 🔗 Link-Validierung
+
+### Regeln
+
+1. **Interne Links:** MÜSSEN relativ sein (`./docs/...` oder `../api/...`)
+2. **Externe Links:** MÜSSEN absolut sein (`https://...`)
+3. **Anchor-Links:** MÜSSEN existieren (`#installation` → `## Installation`)
+4. **Keine toten Links:** Automatisierte Prüfung via `markdown-link-check`
+
+### Automatisierung
+
+**npm Script:**
+
+```json
+{
+  "scripts": {
+    "test:links": "markdown-link-check --config .markdown-link-check.json **/*.md"
+  }
+}
+```
+
+**.markdown-link-check.json:**
+
+```json
+{
+  "ignorePatterns": [
+    { "pattern": "^http://localhost" },
+    { "pattern": "^http://127.0.0.1" }
+  ],
+  "httpHeaders": [
+    {
+      "urls": ["https://github.com"],
+      "headers": {
+        "User-Agent": "Mozilla/5.0"
+      }
+    }
+  ],
+  "timeout": "10s",
+  "retryOn429": true,
+  "retryCount": 3
+}
+```
+
+---
+
+## 🤖 Automatisierung & Tooling
+
+### Empfohlene Tools
+
+1. **markdownlint-cli2** – Linting
+2. **markdown-link-check** – Link-Validierung
+3. **remark** – Markdown-Prozessor (Formatting)
+4. **cspell** – Spell-Checking
+5. **prettier** – Auto-Formatting (optional)
+
+### VS Code Extensions
+
+```json
+{
+  "recommendations": [
+    "yzhang.markdown-all-in-one",
+    "davidanson.vscode-markdownlint",
+    "streetsidesoftware.code-spell-checker",
+    "streetsidesoftware.code-spell-checker-german",
+    "shd101wyy.markdown-preview-enhanced"
+  ]
+}
+```
+
+### Pre-Commit Hooks (husky + lint-staged)
+
+```json
+{
+  "lint-staged": {
+    "**/*.md": [
+      "markdownlint-cli2 --fix",
+      "cspell --no-progress",
+      "markdown-link-check --quiet"
+    ]
+  }
+}
+```
+
+### GitHub Actions Workflow
+
+```yaml
+name: Documentation Quality
+
+on: [push, pull_request]
+
+jobs:
+  lint-markdown:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install -g markdownlint-cli2
+      - run: markdownlint-cli2 "**/*.md"
+      
+  check-links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: gaurav-nelson/github-action-markdown-link-check@v1
+        with:
+          config-file: '.markdown-link-check.json'
+```
+
+---
+
+## 📂 Dateinamens-Konventionen
+
+### Allgemein
+
+- **Lowercase + Kebab-Case:** `database-schema.md`
+- **Keine Leerzeichen:** `deployment guide.md` ❌ → `deployment-guide.md` ✅
+- **Keine Sonderzeichen:** `api_authentication.md` ❌ → `api-authentication.md` ✅
+- **Keine Timestamps in Dateinamen:** `README-20251010.md` ❌
+
+### Spezielle Dateinamen (Root-Level)
+
+Diese Dateinamen MÜSSEN exakt so sein (Großschreibung):
+
+- `README.md`
+- `CHANGELOG.md`
+- `CONTRIBUTING.md`
+- `LICENSE`
+- `SECURITY.md`
+- `CODE_OF_CONDUCT.md`
+- `SUPPORT.md`
+
+### Service-spezifische READMEs
+
+Format: `<service-name>/README.md`
+
+Beispiele:
+
+- `api.menschlichkeit-oesterreich.at/README.md`
+- `frontend/README.md`
+- `crm.menschlichkeit-oesterreich.at/README.md`
+
+---
+
+## 📊 Qualitätsmetriken
+
+### Messgrößen
+
+1. **Front-Matter Adoption:** Prozentsatz Dateien mit vollständigem Front-Matter
+2. **Link Health:** Prozentsatz funktionierender Links
+3. **Linting Pass Rate:** Prozentsatz Dateien ohne Linting-Fehler
+4. **Spell Check Pass Rate:** Prozentsatz Dateien ohne Rechtschreibfehler
+5. **Documentation Coverage:** Anzahl dokumentierter Services/Module
+
+### Qualitätsziele (SLAs)
+
+| Metrik | Zielwert | Kritisch |
+|--------|----------|----------|
+| Front-Matter Adoption | 100% | < 90% |
+| Link Health | 100% | < 95% |
+| Linting Pass Rate | 100% | < 98% |
+| Spell Check Pass | ≥ 95% | < 85% |
+| Documentation Coverage | 100% Services | < 80% |
+
+### Reporting
+
+**npm Script:**
+
+```json
+{
+  "scripts": {
+    "quality:docs": "node scripts/generate-docs-quality-report.js"
+  }
+}
+```
+
+**Output:** `quality-reports/documentation-quality.md`
+
+---
+
+## 🔄 Migration & Adoption
+
+### Phase 1: Critical Files (Woche 1)
+
+- [ ] Root `README.md`
+- [ ] Service READMEs (6 Dateien)
+- [ ] `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`
+
+### Phase 2: Core Documentation (Woche 2-3)
+
+- [ ] `docs/architecture/**/*.md`
+- [ ] `docs/compliance/**/*.md`
+- [ ] `docs/security/**/*.md`
+- [ ] `docs/deployment/**/*.md`
+
+### Phase 3: Extended Documentation (Woche 4-6)
+
+- [ ] `docs/onboarding/**/*.md`
+- [ ] `docs/testing/**/*.md`
+- [ ] `docs/api/**/*.md`
+- [ ] Alle weiteren `docs/**/*.md`
+
+### Phase 4: Automation & Enforcement (Woche 7+)
+
+- [ ] Pre-Commit Hooks aktivieren
+- [ ] GitHub Actions CI/CD Integration
+- [ ] Quality Gates in Merge-Prozess
+- [ ] Quarterly Documentation Review etablieren
+
+---
+
+## 📚 Referenzen
+
+- **CommonMark Spec:** https://spec.commonmark.org/0.30/
+- **GitHub Flavored Markdown:** https://github.github.com/gfm/
+- **Markdownlint Rules:** https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md
+- **Mermaid Documentation:** https://mermaid.js.org/
+- **KaTeX Supported Functions:** https://katex.org/docs/supported.html
+
+---
+
+**Version:** 1.0.0  
+**Letzte Aktualisierung:** 2025-10-10  
+**Nächster Review:** Quartal Q1 2026

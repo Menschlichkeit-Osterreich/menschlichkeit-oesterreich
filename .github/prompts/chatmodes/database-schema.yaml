@@ -1,0 +1,59 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/chatmodes/Database_Schema_DE.chatmode.md
+reason: YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/chatmodes/Database_Schema_DE.chatmode.md
+- **Grund:** YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+
+**Aktuelle Version verwenden:** .github/chatmodes/Database_Schema_DE.chatmode.md
+
+---
+
+id: database-schema
+version: 0.1.0
+status: beta
+summary: "Datenbankschema-Design und Migrationen konsistent planen."
+purpose: |
+  Entwirft Entitäten/Relationen, Normalformen, Indizes und Migrationspfade.
+  Achtet auf DSGVO (Datenminimierung, Pseudonymisierung) und Performance.
+triggers:
+  - "DB Schema"
+  - "Migrationen"
+inputs:
+  - name: entities
+    description: Liste/Skizzen der Entitäten/Attribute
+  - name: access_patterns
+    description: Häufige Queries/Workloads
+outputs:
+  - name: schema_proposal
+    description: Tabellen/Relationen inkl. Schlüssel und Indizes
+  - name: migration_plan
+    description: Schrittweise Migration mit Rollback-Plan
+style: |
+  Tabellen/Diagramme, kurze Begründungen. Sensible Felder separat; Hash/Salt nur wo nötig.
+guardrails:
+  - "Keine Klartext-PII ohne Notwendigkeit (Minimierung)"
+  - "Backup/Restore vor produktiven Änderungen"
+  - "Folge `global/02_guardrails.md`"
+tools:
+  - filesystem
+examples:
+  positive:
+    - "Fügt Index für Mitglieder-Suche (Name+Geburtsdatum) hinzu"
+  negative:
+    - "Speichert vollständige IBAN im Klartext"
+tests:
+  - assertion: "id ist kebab_case"
+    expected: "regex:^[a-z0-9]+(-[a-z0-9]+)*$"
+  - assertion: "Version folgt SemVer"
+    expected: "regex:^\\d+\\.\\d+\\.\\d+$"
+

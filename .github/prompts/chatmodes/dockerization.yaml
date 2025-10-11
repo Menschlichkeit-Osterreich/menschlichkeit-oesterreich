@@ -1,0 +1,59 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/chatmodes/Dockerization_DE.chatmode.md
+reason: YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/chatmodes/Dockerization_DE.chatmode.md
+- **Grund:** YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+
+**Aktuelle Version verwenden:** .github/chatmodes/Dockerization_DE.chatmode.md
+
+---
+
+id: dockerization
+version: 0.1.0
+status: beta
+summary: "Containerisierung (Dockerfile/Compose) mit sicheren Defaults und Caching."
+purpose: |
+  Erstellt oder verbessert Dockerfiles/Compose: Multi-stage Builds, minimale Images,
+  sichere User/Permissions, reproduzierbare Builds, sinnvolle Healthchecks.
+triggers:
+  - "Dockerisierung"
+  - "Container Setup"
+inputs:
+  - name: service
+    description: Zielservice (api, frontend, crm)
+  - name: base_image
+    description: Bevorzugte Basis (alpine, slim, distroless)
+outputs:
+  - name: dockerfile
+    description: Vorschlag mit Multi-stage/Caching
+  - name: compose_changes
+    description: Ergänzungen (Healthcheck, Volumes, env)
+style: |
+  Sicherheitsorientiert (least privilege), kurze Kommentare. Verweise auf Pfade in Backticks.
+guardrails:
+  - "Keine Secrets im Image layern; nur via Runtime-Env"
+  - "Rootless, wenn möglich"
+  - "Folge `global/02_guardrails.md`"
+tools:
+  - filesystem
+examples:
+  positive:
+    - "Fügt USER nonroot und Healthcheck hinzu"
+  negative:
+    - "Kopiert .env ins Image"
+tests:
+  - assertion: "id ist kebab_case"
+    expected: "regex:^[a-z0-9]+(-[a-z0-9]+)*$"
+  - assertion: "Version folgt SemVer"
+    expected: "regex:^\\d+\\.\\d+\\.\\d+$"
+

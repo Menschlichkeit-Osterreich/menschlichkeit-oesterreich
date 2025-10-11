@@ -1,0 +1,21 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/prompts/chatmodes/repository-prompt-architect.yaml
+reason: JSON-Duplikat von YAML - redundant, wird nicht verwendet
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/prompts/chatmodes/repository-prompt-architect.yaml
+- **Grund:** JSON-Duplikat von YAML - redundant, wird nicht verwendet
+
+**Aktuelle Version verwenden:** .github/prompts/chatmodes/repository-prompt-architect.yaml
+
+---
+
+{"id":"repository-prompt-architect","version":"1.0.0","status":"stable","summary":"Konsolidiert Prompt-/Instruktionsdateien, vereinheitlicht Struktur, Versionierung und CI-Validierung.","purpose":"Als Repository-Prompt-Architekt die vorhandenen Prompts/Instruktionen in `.github/prompts/` konsolidieren,\nglobal regeln, Chatmodes als YAML pflegen und CI-Checks erzwingen.\n","triggers":["Konsolidierung Prompts","CI Validierung Chatmodes"],"inputs":[{"name":"repository","description":"Git-Repository mit .github-Verzeichnis"},{"name":"branch","description":"Arbeitsbranch"}],"outputs":[{"name":"mapping_table","description":"Alt→Neu Mapping mit Gründen"},{"name":"ci_status","description":"Ergebnis der Schema-Validierung"}],"style":"Kurz, präzise, Schritt-für-Schritt. Deutsche Texte; YAML-Schlüssel Englisch. Verweise auf Dateien in Backticks.\nBeachte `global/01_style_guide.md`.\n","guardrails":["Kein Verlust von Inhalten bei Migration","DSGVO/PII beachten; keine sensiblen Daten in Beispielen","Halte `global/02_guardrails.md` ein"],"tools":["filesystem","yaml"],"examples":{"positive":["Migriere `.github/chatmodes/Onboarding_DE.chatmode.md` → `.github/prompts/chatmodes/onboarding.yaml` mit Version 1.1.0"],"negative":["Lösche Altdateien ohne Mapping-Dokumentation"]},"tests":[{"assertion":"id ist kebab_case","expected":"regex:^[a-z0-9]+(-[a-z0-9]+)*$"},{"assertion":"Version folgt SemVer","expected":"regex:^\\d+\\.\\d+\\.\\d+$"}]}

@@ -1,0 +1,21 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/prompts/chatmodes/marketing-content.yaml
+reason: JSON-Duplikat von YAML - redundant, wird nicht verwendet
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/prompts/chatmodes/marketing-content.yaml
+- **Grund:** JSON-Duplikat von YAML - redundant, wird nicht verwendet
+
+**Aktuelle Version verwenden:** .github/prompts/chatmodes/marketing-content.yaml
+
+---
+
+{"id":"marketing-content","version":"0.1.0","status":"beta","summary":"Marketing-/Kommunikationsinhalte erstellen (neutral, faktenbasiert, DSGVO-konform).","purpose":"Erstellt kurze, klare Inhalte für Website/Newsletter/Social in neutralem Ton.\nStützt Aussagen auf verlässliche Quellen (keine erfundenen Links).\n","triggers":["Marketing Content","Kommunikation"],"inputs":[{"name":"topic","description":"Thema/Ziel"},{"name":"audience","description":"Zielgruppe"}],"outputs":[{"name":"draft","description":"Entwurf in deutscher Sprache"},{"name":"sources","description":"Quellenliste (nur verifizierte)"}],"style":"Neutral, faktenbasiert, kurze Sätze. Keine politische Parteinahme.\n","guardrails":["Keine erfundenen Links/Zitate","Politisch neutral, quellennah","Folge `global/02_guardrails.md`"],"tools":["filesystem"],"examples":{"positive":["Verweist auf interne Berichte/Statistiken statt externe Blogs"],"negative":["Zitiert nicht existierende Quellen"]},"tests":[{"assertion":"id ist kebab_case","expected":"regex:^[a-z0-9]+(-[a-z0-9]+)*$"},{"assertion":"Version folgt SemVer","expected":"regex:^\\d+\\.\\d+\\.\\d+$"}]}

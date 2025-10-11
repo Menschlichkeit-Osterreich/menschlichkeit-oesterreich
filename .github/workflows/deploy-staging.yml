@@ -1,0 +1,80 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy to Staging
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run quality gates
+        run: npm run quality:gates
+
+      - name: Build workspace
+        run: npm run build:all
+
+      - name: Verify staging secrets
+        env:
+          STAGING_REMOTE_HOST: ${{ secrets.STAGING_REMOTE_HOST }}
+          STAGING_REMOTE_USER: ${{ secrets.STAGING_REMOTE_USER }}
+          STAGING_DEPLOY_KEY: ${{ secrets.STAGING_DEPLOY_KEY }}
+        run: |
+          set -euo pipefail
+          missing=0
+          for var in STAGING_REMOTE_HOST STAGING_REMOTE_USER STAGING_DEPLOY_KEY; do
+            value="${!var:-}"
+            if [ -z "$value" ]; then
+              echo "::error::Missing required secret: $var"
+              missing=1
+            fi
+          done
+          if [ "$missing" -eq 1 ]; then
+            exit 1
+          fi
+
+      - name: Configure SSH key
+        env:
+          STAGING_DEPLOY_KEY: ${{ secrets.STAGING_DEPLOY_KEY }}
+          STAGING_REMOTE_HOST: ${{ secrets.STAGING_REMOTE_HOST }}
+          STAGING_REMOTE_PORT: ${{ secrets.STAGING_REMOTE_PORT }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          echo "$STAGING_DEPLOY_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          touch ~/.ssh/known_hosts
+          if [ -n "${STAGING_REMOTE_HOST:-}" ]; then
+            ssh-keyscan -p "${STAGING_REMOTE_PORT:-22}" "$STAGING_REMOTE_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+          fi
+
+      - name: Deploy to staging
+        env:
+          SAFE_DEPLOY_AUTO_CONFIRM: 'true'
+          SAFE_DEPLOY_LOCAL_BASE: ${{ github.workspace }}
+          SAFE_DEPLOY_REMOTE_HOST: ${{ secrets.STAGING_REMOTE_HOST }}
+          SAFE_DEPLOY_REMOTE_USER: ${{ secrets.STAGING_REMOTE_USER }}
+          SAFE_DEPLOY_REMOTE_PORT: ${{ secrets.STAGING_REMOTE_PORT }}
+          SAFE_DEPLOY_SSH_KEY_PATH: /home/runner/.ssh/id_ed25519
+        run: ./scripts/safe-deploy.sh

@@ -12,6 +12,7 @@ Vielen Dank für Ihr Interesse, zu unserem Projekt beizutragen! Diese Anleitung 
 - [Pull Request Prozess](#pull-request-prozess)
 - [Testing](#testing)
 - [Sicherheit](#sicherheit)
+- [Beitragen](#beitragen)
 
 ## 📜 Code of Conduct
 
@@ -51,7 +52,7 @@ npm run dev:all
 
 ### Architektur Überblick
 
-```
+```text
 menschlichkeit-oesterreich-development/
 ├── api.menschlichkeit-oesterreich.at/    # FastAPI Backend
 ├── crm.menschlichkeit-oesterreich.at/    # Drupal + CiviCRM
@@ -116,7 +117,7 @@ npm run test:all
 
 Wir verwenden [Conventional Commits](https://conventionalcommits.org/):
 
-```
+```text
 <type>[optional scope]: <description>
 
 [optional body]
@@ -322,6 +323,28 @@ Bedeutende Beiträge werden anerkannt durch:
 2. **GitHub Issues** - Bug Reports
 3. **Email Support** - `support@menschlichkeit-oesterreich.at`
 4. **Emergency** - `security@menschlichkeit-oesterreich.at`
+
+## Beitragen
+
+Vielen Dank, dass Sie zu unserem Projekt beitragen möchten! Bitte folgen Sie dieser Anleitung, um sicherzustellen, dass Ihr Beitrag effektiv und wertvoll ist.
+
+### Prompts & Chatmodes
+- Lege neue Chatmodes als YAML in `.github/prompts/chatmodes/` an (kebab_case id, SemVer).
+- Erzeuge/aktualisiere passende `_examples.md`.
+- Halte dich an `global/01_style_guide.md` und `global/02_guardrails.md`.
+- Füge Assertions unter `tests:` hinzu (Form: `assertion`, `expected`).
+- Lokale Validierung optional:
+```bash
+for f in .github/prompts/chatmodes/*.yaml; do yq -o=json "$f" > "$f.json"; done
+ajv validate -s .github/prompts/chatmodes/_schema.json -d ".github/prompts/chatmodes/*.yaml.json"
+```
+
+#### Workflow für Prompt-Änderungen
+1. Mapping prüfen/anpassen in `.github/prompts/MIGRATION_MAP.md` (Alt → Neu).
+2. YAML aktualisieren (Version nach SemVer anheben) und `_examples.md` pflegen.
+3. `tests:` Assertions ergänzen/prüfen (id/semver, ggf. domänenspezifisch).
+4. CI laufen lassen (Prompt CI muss grün sein).
+5. PR mit Checkliste in `PULL_REQUEST_TEMPLATE.md` erstellen und `CHANGELOG.md` ergänzen (`docs(prompts): ...`).
 
 ---
 

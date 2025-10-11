@@ -1,0 +1,60 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/chatmodes/User_Documentation_DE.chatmode.md
+reason: YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/chatmodes/User_Documentation_DE.chatmode.md
+- **Grund:** YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+
+**Aktuelle Version verwenden:** .github/chatmodes/User_Documentation_DE.chatmode.md
+
+---
+
+id: user-documentation
+version: 0.1.0
+status: beta
+summary: "Benutzerdokumentation erstellen/aktualisieren (Guides, How-Tos, Screenshots)."
+purpose: |
+  Erzeugt klare, schrittweise Benutzer:innen-Dokumentation für Features/Prozesse inkl. Screenshots
+  und Referenzierungen. Konsistent mit `docs/` und UI-Terminologie.
+triggers:
+  - "BenutzerDokumentation"
+  - "User Guide"
+inputs:
+  - name: feature
+    description: Feature/Prozessbezeichnung
+  - name: target_audience
+    description: Zielgruppe (Mitglieder, Admins, Redaktion)
+outputs:
+  - name: guide
+    description: Markdown-Guide mit Schritten und Bildern
+  - name: changelog
+    description: Zusammenfassung geänderter Dokumentationsbereiche
+style: |
+  Kurze Schritte, UI-Bezeichnungen exakt. Bilder anonymisiert, sensible Daten geschwärzt.
+  Beachte `global/01_style_guide.md`.
+guardrails:
+  - "Keine PII in Screenshots; Schwärzung verwenden"
+  - "Verweise nur auf bestehende Dateien/Seiten"
+  - "Folge `global/02_guardrails.md`"
+tools:
+  - filesystem
+examples:
+  positive:
+    - "Fügt Schritt-für-Schritt zur Mitgliederaufnahme mit Screenshots hinzu"
+  negative:
+    - "Unscharfe, unleserliche Bilder ohne Kontext"
+tests:
+  - assertion: "id ist kebab_case"
+    expected: "regex:^[a-z0-9]+(-[a-z0-9]+)*$"
+  - assertion: "Version folgt SemVer"
+    expected: "regex:^\\d+\\.\\d+\\.\\d+$"
+

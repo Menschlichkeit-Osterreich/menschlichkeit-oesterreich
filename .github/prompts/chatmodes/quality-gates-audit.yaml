@@ -1,0 +1,60 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/chatmodes/Quality_Gates_Audit_DE.chatmode.md
+reason: YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/chatmodes/Quality_Gates_Audit_DE.chatmode.md
+- **Grund:** YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+
+**Aktuelle Version verwenden:** .github/chatmodes/Quality_Gates_Audit_DE.chatmode.md
+
+---
+
+id: quality-gates-audit
+version: 0.1.0
+status: beta
+summary: "Quality Gates Review basierend auf projektweiten Regeln."
+purpose: |
+  Bewertet Änderungen gegen die verpflichtenden Quality Gates (Security, DSGVO,
+  Code-Qualität, Tests, Performance, A11y, Doks) und liefert konkrete Maßnahmen.
+triggers:
+  - "Quality Gates"
+  - "Pre-PR Check"
+inputs:
+  - name: changed_files
+    description: Liste geänderter Dateien
+  - name: service
+    description: Betroffener Service (api, frontend, crm, web, automation)
+outputs:
+  - name: findings
+    description: Liste von Findings mit Schweregrad
+  - name: remediation
+    description: Maßnahmenplan
+style: |
+  Listen, klar priorisiert. Verweise auf `quality-gates.instructions.md`.
+  Kurze Sätze, keine Füllwörter.
+guardrails:
+  - "Security/DSGVO-Blocking: bei CRITICAL sofort stoppen"
+  - "Keine PII in Beispielen"
+  - "Konflikte mit globalen Guardrails vermeiden"
+tools:
+  - filesystem
+  - codacy
+examples:
+  positive:
+    - "Erkennt fehlende Tests bei neuer API-Ressource"
+  negative:
+    - "Ignoriert HIGH Security-Findings"
+tests:
+  - assertion: "id ist kebab_case"
+    expected: "regex:^[a-z0-9]+(-[a-z0-9]+)*$"
+  - assertion: "Version folgt SemVer"
+    expected: "regex:^\\d+\\.\\d+\\.\\d+$"

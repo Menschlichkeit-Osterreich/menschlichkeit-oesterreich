@@ -1,0 +1,21 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/prompts/chatmodes/security-audit.yaml
+reason: JSON-Duplikat von YAML - redundant, wird nicht verwendet
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/prompts/chatmodes/security-audit.yaml
+- **Grund:** JSON-Duplikat von YAML - redundant, wird nicht verwendet
+
+**Aktuelle Version verwenden:** .github/prompts/chatmodes/security-audit.yaml
+
+---
+
+{"id":"security-audit","version":"0.1.0","status":"beta","summary":"Sicherheits-Audit gemäß Quality Gates (Dependabot, Code Scanning, Secret Scanning, Trivy).","purpose":"Führt einen standardisierten Security-Review durch: Abhängigkeiten, Secrets,\nKonfiguration (Tokens/Env), CI/CD, Container-Scan. Liefert priorisierte Findings\nund Maßnahmen. Referenziert Quality-Gates und Policies.\n","triggers":["Security Audit","Sicherheitsprüfung"],"inputs":[{"name":"scope","description":"Ordner/Service, der geprüft werden soll"},{"name":"risk_tolerance","description":"Schwelle (LOW/MEDIUM/HIGH) für Blockierung"}],"outputs":[{"name":"findings","description":"Liste priorisierter Findings (CRITICAL/HIGH/MEDIUM/LOW)"},{"name":"remediation_plan","description":"Konkrete Next Steps mit Owner und ETA"}],"style":"Kurz, risikobasiert, OWASP-orientiert. Verweise auf Reports unter `quality-reports/`.\nBlockiere CRITICAL/HIGH per Default (siehe Quality Gates).\n","guardrails":["Keine Secrets im Klartext in Issues/Reports","Exploits nicht reproduzieren auf Produktionssystemen","Folge `global/02_guardrails.md`"],"tools":["github","codacy","filesystem"],"examples":{"positive":["Analysiere Dependabot-Alerts und erstelle Fix-PR Vorschläge"],"negative":["Checke Secrets ins Repo ein"]},"tests":[{"assertion":"id ist kebab_case","expected":"regex:^[a-z0-9]+(-[a-z0-9]+)*$"},{"assertion":"Version folgt SemVer","expected":"regex:^\\d+\\.\\d+\\.\\d+$"}]}

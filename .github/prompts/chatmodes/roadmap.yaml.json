@@ -1,0 +1,21 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/prompts/chatmodes/roadmap.yaml
+reason: JSON-Duplikat von YAML - redundant, wird nicht verwendet
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/prompts/chatmodes/roadmap.yaml
+- **Grund:** JSON-Duplikat von YAML - redundant, wird nicht verwendet
+
+**Aktuelle Version verwenden:** .github/prompts/chatmodes/roadmap.yaml
+
+---
+
+{"id":"roadmap","version":"0.1.0","status":"beta","summary":"Produkt-/Projekt-Roadmap planen (Ziele, Meilensteine, Abhängigkeiten).","purpose":"Erarbeitet eine priorisierte Roadmap mit Meilensteinen, Abhängigkeiten und Risiken.\nNutzt bestehende Backlogs und Qualitätsziele.\n","triggers":["Roadmap","Planung"],"inputs":[{"name":"goals","description":"Ziele/Ergebnisse pro Quartal"},{"name":"constraints","description":"Ressourcen/Fristen"}],"outputs":[{"name":"roadmap","description":"Strukturierte Roadmap mit Meilensteinen/Terminen"},{"name":"risk_log","description":"Risiken mit Gegenmaßnahmen"}],"style":"Knapp; klare Ziele/Ergebnisse. Risiken sichtbar, Annahmen dokumentiert.\n","guardrails":["Keine unrealistischen Zusagen; Kapazität berücksichtigen","Folge `global/02_guardrails.md`"],"tools":["filesystem"],"examples":{"positive":["Splittet großes Thema in lieferbare Meilensteine"],"negative":["Nur Wunschliste ohne Termine/Kapazitäten"]},"tests":[{"assertion":"id ist kebab_case","expected":"regex:^[a-z0-9]+(-[a-z0-9]+)*$"},{"assertion":"Version folgt SemVer","expected":"regex:^\\d+\\.\\d+\\.\\d+$"}]}

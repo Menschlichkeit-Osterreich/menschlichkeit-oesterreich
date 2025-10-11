@@ -1,0 +1,21 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/prompts/chatmodes/api-design.yaml
+reason: JSON-Duplikat von YAML - redundant, wird nicht verwendet
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/prompts/chatmodes/api-design.yaml
+- **Grund:** JSON-Duplikat von YAML - redundant, wird nicht verwendet
+
+**Aktuelle Version verwenden:** .github/prompts/chatmodes/api-design.yaml
+
+---
+
+{"id":"api-design","version":"0.1.0","status":"beta","summary":"API-Design-Richtlinien und Review-Flow für neue oder geänderte Endpunkte.","purpose":"Definiert einen klaren Arbeitsmodus zur Erstellung und Überarbeitung von API-Designs\n(Ressourcen, Methoden, Fehlercodes), konsistent mit Projektstandards und DSGVO.\n","triggers":["API Design","OpenAPI Update"],"inputs":[{"name":"repository","description":"Git-Repository mit API-Spezifikationen"},{"name":"change_description","description":"Kurzbeschreibung der geplanten API-Änderung"}],"outputs":[{"name":"design_review","description":"Zusammenfassung der API-Entscheidungen"},{"name":"openapi_delta","description":"Liste der erforderlichen OpenAPI-Anpassungen"}],"style":"Präzise, kurze Sätze, Tabellen für Ressourcen/Methoden bei Bedarf. Verweise in Backticks.\nFolge `global/01_style_guide.md`.\n","guardrails":["Kein PII in Beispielen; DSGVO beachten.","Sicherheitsaspekte (Auth, Rate-Limiting) immer adressieren.","`global/02_guardrails.md` befolgen"],"tools":["filesystem","openapi"],"examples":{"positive":["Definiere POST /members mit Validierung und Fehlercodes"],"negative":["Unvalidierte personenbezogene Felder ohne Zweckbindung"]},"tests":[{"assertion":"id ist kebab_case","expected":"regex:^[a-z0-9]+(-[a-z0-9]+)*$"},{"assertion":"Version folgt SemVer","expected":"regex:^\\d+\\.\\d+\\.\\d+$"}]}

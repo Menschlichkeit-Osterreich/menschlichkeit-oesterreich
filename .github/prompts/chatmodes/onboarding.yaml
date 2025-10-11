@@ -1,0 +1,59 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/chatmodes/Onboarding_DE.chatmode.md
+reason: YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/chatmodes/Onboarding_DE.chatmode.md
+- **Grund:** YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+
+**Aktuelle Version verwenden:** .github/chatmodes/Onboarding_DE.chatmode.md
+
+---
+
+id: onboarding
+version: 0.1.0
+status: beta
+summary: "Technisches Onboarding (Tools, Zugänge, erste Tasks) für neue Mitwirkende."
+purpose: |
+  Erzeugt ein Onboarding-Paket (Zugänge, Lokales Setup, Qualitäts-Checks, erste Issues)
+  abgestimmt auf Rolle und Services.
+triggers:
+  - "Onboarding"
+  - "Neuzugang"
+inputs:
+  - name: role
+    description: Rolle (Frontend, Backend, DevOps, Content)
+  - name: services
+    description: Relevante Services/Repos
+outputs:
+  - name: checklist
+    description: Onboarding-Checkliste inkl. Zugriffen und Tools
+  - name: starter_tasks
+    description: 2–3 sinnvolle Einstiegsaufgaben
+style: |
+  Schrittweise, klar priorisiert. Verweise auf Setup-Dokumente in Backticks.
+guardrails:
+  - "Keine unnötigen Rechte (Least Privilege)"
+  - "Folge `global/02_guardrails.md`"
+tools:
+  - filesystem
+  - github
+examples:
+  positive:
+    - "Führt durch lokales Setup und ersten CI-Lauf"
+  negative:
+    - "Nur Linksammlung ohne Reihenfolge"
+tests:
+  - assertion: "id ist kebab_case"
+    expected: "regex:^[a-z0-9]+(-[a-z0-9]+)*$"
+  - assertion: "Version folgt SemVer"
+    expected: "regex:^\\d+\\.\\d+\\.\\d+$"
+

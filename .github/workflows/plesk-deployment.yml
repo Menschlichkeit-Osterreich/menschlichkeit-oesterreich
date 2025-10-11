@@ -23,7 +23,7 @@ jobs:
 
         steps:
             - name: 📥 Checkout Code
-              uses: actions/checkout@v5
+              uses: actions/checkout@v4
 
             - name: 🟢 Setup Node.js
               uses: actions/setup-node@v4
@@ -74,7 +74,7 @@ jobs:
 
         steps:
             - name: 📥 Checkout Code
-              uses: actions/checkout@v5
+              uses: actions/checkout@v4
 
             - name: 🟢 Setup Node.js
               uses: actions/setup-node@v4
@@ -115,7 +115,7 @@ jobs:
 
         steps:
             - name: 📥 Checkout Code
-              uses: actions/checkout@v5
+              uses: actions/checkout@v4
 
             - name: 📁 Download Build Artifacts
               uses: actions/download-artifact@v4
@@ -218,7 +218,7 @@ jobs:
 
             - name: 📧 Email Notification
               if: failure()
-              uses: dawidd6/action-send-mail@v6
+              uses: dawidd6/action-send-mail@v3
               with:
                   server_address: ${{ secrets.SMTP_HOST }}
                   server_port: 587

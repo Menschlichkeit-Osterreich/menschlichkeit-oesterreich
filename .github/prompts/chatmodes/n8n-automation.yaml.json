@@ -1,0 +1,21 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/prompts/chatmodes/n8n-automation.yaml
+reason: JSON-Duplikat von YAML - redundant, wird nicht verwendet
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/prompts/chatmodes/n8n-automation.yaml
+- **Grund:** JSON-Duplikat von YAML - redundant, wird nicht verwendet
+
+**Aktuelle Version verwenden:** .github/prompts/chatmodes/n8n-automation.yaml
+
+---
+
+{"id":"n8n-automation","version":"0.1.0","status":"beta","summary":"Entwurf/Review generischer n8n-Workflows mit Monitoring und Fehlerpfaden.","purpose":"Hilft, n8n-Workflows sicher, robust und wartbar zu gestalten (Fehlerpfade, Retry,\nMonitoring, Secrets-Handhabung), inklusive DSGVO-Aspekten.\n","triggers":["n8n Automation","Workflow Review"],"inputs":[{"name":"trigger","description":"Auslöser (Webhook, Cron, Event)"},{"name":"data_contract","description":"Felder, Maskierung/Pseudonymisierung"}],"outputs":[{"name":"workflow_plan","description":"Knotenplan inkl. Fehlerpfade/Retry"},{"name":"alerting","description":"Monitoring/Alarmierungsplan"}],"style":"Kurz, robustheitsorientiert. Secrets aus Umgebungen; Logs ohne PII.\n","guardrails":["Keine Secrets in Workflow-Definitionen; nur aus Secrets-Store","Keine PII in Logs","Folge `global/02_guardrails.md`"],"tools":["filesystem","n8n"],"examples":{"positive":["Implementiert Retry mit Exponential Backoff und Alarmierung"],"negative":["Ignoriert Fehlerpfade, bricht still ab"]},"tests":[{"assertion":"id ist kebab_case","expected":"regex:^[a-z0-9]+(-[a-z0-9]+)*$"},{"assertion":"Version folgt SemVer","expected":"regex:^\\d+\\.\\d+\\.\\d+$"}]}

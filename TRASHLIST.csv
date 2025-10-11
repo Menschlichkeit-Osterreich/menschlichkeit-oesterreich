@@ -1,0 +1,11 @@
+FilePath,Reason,CanonicalAlternative,Action,Size,LastModified
+/workspaces/menschlichkeit-oesterreich-development/frontend/1760122668294-README.md,Exaktes Hash-Duplikat von frontend/README.md (Backup/Alt-Version),/frontend/README.md,DELETE,8969,2025-10-10
+/workspaces/menschlichkeit-oesterreich-development/crm.menschlichkeit-oesterreich.at/web/core/tests/Drupal/Tests/Composer/Plugin/Scaffold/fixtures/drupal-composer-drupal-project/docroot/README.md,Drupal Core Test-Fixture (nicht produktiv relevant),N/A,EXCLUDE_FROM_DOCS,9,2025-10-09
+/workspaces/menschlichkeit-oesterreich-development/crm.menschlichkeit-oesterreich.at/web/core/tests/Drupal/Tests/Composer/Plugin/Scaffold/fixtures/project-with-illegal-dir-scaffold/assets/README.md,Drupal Core Test-Fixture (nicht produktiv relevant),N/A,EXCLUDE_FROM_DOCS,9,2025-10-09
+/workspaces/menschlichkeit-oesterreich-development/crm.menschlichkeit-oesterreich.at/web/core/tests/Drupal/Tests/Composer/Plugin/Scaffold/fixtures/drupal-composer-drupal-project/docroot/sites/default/README.md,Drupal Core Test-Fixture (nicht produktiv relevant),N/A,EXCLUDE_FROM_DOCS,9,2025-10-09
+/workspaces/menschlichkeit-oesterreich-development/crm.menschlichkeit-oesterreich.at/web/core/tests/Drupal/Tests/Composer/Plugin/Scaffold/fixtures/README.md,Drupal Core Test-Fixture (nicht produktiv relevant),N/A,EXCLUDE_FROM_DOCS,1888,2025-10-09
+/workspaces/menschlichkeit-oesterreich-development/crm.menschlichkeit-oesterreich.at/web/core/tests/README.md,Drupal Core Test-Doku (Teil von Drupal Core – nicht edieren),N/A,EXCLUDE_FROM_DOCS,6973,2025-10-09
+/workspaces/menschlichkeit-oesterreich-development/crm.menschlichkeit-oesterreich.at/web/core/themes/claro/images/core/README.md,Drupal Core Theme Asset-Hinweis (generiert),N/A,EXCLUDE_FROM_DOCS,228,2025-10-09
+/workspaces/menschlichkeit-oesterreich-development/crm.menschlichkeit-oesterreich.at/web/core/themes/olivero/README.md,Drupal Core Theme-Doku (Teil von Drupal Core),N/A,EXCLUDE_FROM_DOCS,2184,2025-10-09
+/workspaces/menschlichkeit-oesterreich-development/crm.menschlichkeit-oesterreich.at/web/core/themes/starterkit_theme/README.md,Drupal Core Starterkit-Theme (Vorlage – nicht projektspezifisch),N/A,EXCLUDE_FROM_DOCS,529,2025-10-09
+

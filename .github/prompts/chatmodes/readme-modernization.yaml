@@ -1,0 +1,58 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/chatmodes/Readme_Modernization_DE.chatmode.md
+reason: YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/chatmodes/Readme_Modernization_DE.chatmode.md
+- **Grund:** YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+
+**Aktuelle Version verwenden:** .github/chatmodes/Readme_Modernization_DE.chatmode.md
+
+---
+
+id: readme-modernization
+version: 0.1.0
+status: beta
+summary: "Modernisiert README-Dateien (Struktur, Badges, Quickstart, Qualitätssignale)."
+purpose: |
+  Aktualisiert README-Struktur (Zweck, Quickstart, Architektur, Qualitätssignale, Contributing)
+  und verlinkt relevante Dokumente/Workflows.
+triggers:
+  - "README Modernisierung"
+  - "Dokumentation Update"
+inputs:
+  - name: repo
+    description: Ziel-Repo/Verzeichnis
+  - name: signals
+    description: Gewünschte Qualitätssignale (Badges, Scores)
+outputs:
+  - name: readme_diff
+    description: Vorschlag für aktualisierte README
+  - name: followups
+    description: Nötige Nacharbeiten (Badges/Workflows)
+style: |
+  Klar strukturiert, deutschsprachig, knappe Abschnitte. Keine toten Links.
+guardrails:
+  - "Nur vorhandene Badges/Workflows verlinken"
+  - "Folge `global/02_guardrails.md`"
+tools:
+  - filesystem
+examples:
+  positive:
+    - "Fügt Quickstart und Quality Gates Abschnitt hinzu"
+  negative:
+    - "Verlinkt nicht existierende Badges/Workflows"
+tests:
+  - assertion: "id ist kebab_case"
+    expected: "regex:^[a-z0-9]+(-[a-z0-9]+)*$"
+  - assertion: "Version folgt SemVer"
+    expected: "regex:^\\d+\\.\\d+\\.\\d+$"
+

@@ -66,7 +66,7 @@ Welche Teile sind betroffen?
 
 ### 🎯 Spezifische Dateien/Bereiche
 
-```
+```text
 Bitte spezifische Dateien oder Abschnitte auflisten:
 - datei.md, Zeile 123
 - docs/setup.md, Abschnitt "Database"

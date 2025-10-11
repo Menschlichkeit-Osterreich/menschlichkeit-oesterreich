@@ -1,0 +1,21 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/prompts/chatmodes/deployment-operations.yaml
+reason: JSON-Duplikat von YAML - redundant, wird nicht verwendet
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/prompts/chatmodes/deployment-operations.yaml
+- **Grund:** JSON-Duplikat von YAML - redundant, wird nicht verwendet
+
+**Aktuelle Version verwenden:** .github/prompts/chatmodes/deployment-operations.yaml
+
+---
+
+{"id":"deployment-operations","version":"0.1.0","status":"beta","summary":"Operationaler Deployments-Mode (Staging/Production) mit Dry-Run, Qualitätstoren und Rollback.","purpose":"Standardisiert den Deployment-Ablauf: Pre-Checks (Quality Gates), Dry-Run,\nDurchführung (Plesk SFTP), Post-Deployment Smoke-Tests, Rollback-Plan. Bezieht\nvorhandene Skripte und Workflows aus `deployment-scripts/` und `build-pipeline.sh` ein.\n","triggers":["Deploy Staging","Deploy Production"],"inputs":[{"name":"environment","description":"staging | production"},{"name":"skip_tests","description":"true/false (nicht empfohlen)"}],"outputs":[{"name":"deployment_plan","description":"Schritt-für-Schritt Plan inkl. Checks"},{"name":"validation_results","description":"Ergebnisse von Smoke-/E2E-Tests"}],"style":"Vorsichtig, reproduzierbar, mit klaren Abbruchkriterien. Immer Rollback-Schritte nennen.\nVerweise auf `.github/instructions/quality-gates.instructions.md`.\n","guardrails":["Keine Live-DB-Änderungen ohne Migration/Backup","Immer Dry-Run vor Production","Folge `global/02_guardrails.md`"],"tools":["github","filesystem","figma"],"examples":{"positive":["Erzeuge Dry-Run-Bericht und blocke bei Lighthouse < 90"],"negative":["Direkt auf Produktion ohne Tests deployen"]},"tests":[{"assertion":"id ist kebab_case","expected":"regex:^[a-z0-9]+(-[a-z0-9]+)*$"},{"assertion":"Version folgt SemVer","expected":"regex:^\\d+\\.\\d+\\.\\d+$"}]}

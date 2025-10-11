@@ -1,0 +1,59 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/chatmodes/Localization_Plan_DE.chatmode.md
+reason: YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/chatmodes/Localization_Plan_DE.chatmode.md
+- **Grund:** YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+
+**Aktuelle Version verwenden:** .github/chatmodes/Localization_Plan_DE.chatmode.md
+
+---
+
+id: localization-plan
+version: 0.1.0
+status: beta
+summary: "Internationalisierung/Übersetzung planen (Schlüssel, Prozesse, QA)."
+purpose: |
+  Definiert I18n-Strategie (Schlüssel, Namespaces, ICU), Übersetzungsprozesse und QA.
+  Bezieht bestehende i18n-Checks und Tooling ein.
+triggers:
+  - "Lokalisierungsplan"
+  - "i18n"
+inputs:
+  - name: languages
+    description: Zielsprachen/Regionen
+  - name: scope
+    description: Betroffene Module/Views
+outputs:
+  - name: i18n_plan
+    description: Vorgehen, Schlüsselkonventionen, Prozesse
+  - name: qa_checks
+    description: Prüfungen (ICU, fehlende Keys, Pluralisierung)
+style: |
+  Knapp; Beispiele für Schlüssel/ICU. Verweise auf I18n-Workflow.
+guardrails:
+  - "Keine Inline-Texte; nur Schlüssel"
+  - "Kein Übersetzen von Eigennamen ohne Freigabe"
+  - "Folge `global/02_guardrails.md`"
+tools:
+  - filesystem
+examples:
+  positive:
+    - "Definiert ICU-Varianten und QA-Checks für fehlende Keys"
+  negative:
+    - "Hartcodierte Strings im Code belassen"
+tests:
+  - assertion: "id ist kebab_case"
+    expected: "regex:^[a-z0-9]+(-[a-z0-9]+)*$"
+  - assertion: "Version folgt SemVer"
+    expected: "regex:^\\d+\\.\\d+\\.\\d+$"
+

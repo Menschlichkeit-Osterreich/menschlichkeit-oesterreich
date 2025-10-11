@@ -1,0 +1,21 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/prompts/chatmodes/onboarding.yaml
+reason: JSON-Duplikat von YAML - redundant, wird nicht verwendet
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/prompts/chatmodes/onboarding.yaml
+- **Grund:** JSON-Duplikat von YAML - redundant, wird nicht verwendet
+
+**Aktuelle Version verwenden:** .github/prompts/chatmodes/onboarding.yaml
+
+---
+
+{"id":"onboarding","version":"0.1.0","status":"beta","summary":"Technisches Onboarding (Tools, Zugänge, erste Tasks) für neue Mitwirkende.","purpose":"Erzeugt ein Onboarding-Paket (Zugänge, Lokales Setup, Qualitäts-Checks, erste Issues)\nabgestimmt auf Rolle und Services.\n","triggers":["Onboarding","Neuzugang"],"inputs":[{"name":"role","description":"Rolle (Frontend, Backend, DevOps, Content)"},{"name":"services","description":"Relevante Services/Repos"}],"outputs":[{"name":"checklist","description":"Onboarding-Checkliste inkl. Zugriffen und Tools"},{"name":"starter_tasks","description":"2–3 sinnvolle Einstiegsaufgaben"}],"style":"Schrittweise, klar priorisiert. Verweise auf Setup-Dokumente in Backticks.\n","guardrails":["Keine unnötigen Rechte (Least Privilege)","Folge `global/02_guardrails.md`"],"tools":["filesystem","github"],"examples":{"positive":["Führt durch lokales Setup und ersten CI-Lauf"],"negative":["Nur Linksammlung ohne Reihenfolge"]},"tests":[{"assertion":"id ist kebab_case","expected":"regex:^[a-z0-9]+(-[a-z0-9]+)*$"},{"assertion":"Version folgt SemVer","expected":"regex:^\\d+\\.\\d+\\.\\d+$"}]}

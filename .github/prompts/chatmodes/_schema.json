@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Chatmode Schema",
+  "type": "object",
+  "required": [
+    "id", "version", "status", "summary", "purpose", "triggers",
+    "inputs", "outputs", "style", "guardrails", "tools", "examples", "tests"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "status": { "type": "string", "enum": ["stable", "beta", "deprecated"] },
+    "summary": { "type": "string", "minLength": 1 },
+    "purpose": { "type": "string", "minLength": 1 },
+    "triggers": { "type": "array", "items": { "type": "string" } },
+    "inputs": {
+      "type": "array",
+      "items": { "type": "object", "required": ["name", "description"],
+        "properties": {"name": {"type": "string"}, "description": {"type": "string"}}
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": { "type": "object", "required": ["name", "description"],
+        "properties": {"name": {"type": "string"}, "description": {"type": "string"}}
+      }
+    },
+    "style": { "type": "string" },
+    "guardrails": { "type": "array", "items": { "type": "string" } },
+    "tools": { "type": "array", "items": { "type": "string" } },
+    "examples": {
+      "type": "object",
+      "required": ["positive", "negative"],
+      "properties": {
+        "positive": { "type": "array", "items": { "type": "string" } },
+        "negative": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "tests": {
+      "type": "array",
+      "items": { "type": "object", "required": ["assertion", "expected"],
+        "properties": {"assertion": {"type": "string"}, "expected": {"type": "string"}}
+      }
+    }
+  }
+}

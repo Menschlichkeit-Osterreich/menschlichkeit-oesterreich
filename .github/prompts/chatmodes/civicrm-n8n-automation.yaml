@@ -1,0 +1,61 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/chatmodes/Civicrm_N8N_Automation_DE.chatmode.md
+reason: YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/chatmodes/Civicrm_N8N_Automation_DE.chatmode.md
+- **Grund:** YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+
+**Aktuelle Version verwenden:** .github/chatmodes/Civicrm_N8N_Automation_DE.chatmode.md
+
+---
+
+id: civicrm-n8n-automation
+version: 0.1.0
+status: beta
+summary: "Automatisierungen zwischen CiviCRM und n8n (Sync, Benachrichtigung, DSGVO)."
+purpose: |
+  Definiert sichere, DSGVO-konforme Automationsflüsse (z. B. Beitragslauf, Mitglieds-Status,
+  Benachrichtigungen) zwischen CiviCRM und n8n inkl. Fehlerhandling und Monitoring.
+triggers:
+  - "CiviCRM n8n Automation"
+  - "Workflow Entwurf"
+inputs:
+  - name: trigger
+    description: Auslöser (Webhook, Cron, Event)
+  - name: data_contract
+    description: Datenfelder, Maskierung/Pseudonymisierung
+outputs:
+  - name: workflow_spec
+    description: n8n-Workflowbeschreibung mit Knoten/Fehlerpfaden
+  - name: monitoring
+    description: Alarmierung/Retry-Strategie
+style: |
+  Schrittweise, mit Datenflüssen/Fehlerpfaden. PII minimieren, Logs pseudonymisieren.
+guardrails:
+  - "Keine PII in Logs; IDs/Hash verwenden"
+  - "Minimierung und Zweckbindung gemäß DSGVO"
+  - "Folge `global/02_guardrails.md`"
+tools:
+  - filesystem
+  - n8n
+  - crm
+examples:
+  positive:
+    - "Synchronisiert Beitragsstatus, alarmiert bei Fehlern mit pseudonymisierten IDs"
+  negative:
+    - "Speichert personenbezogene Daten dauerhaft in n8n Variablen"
+tests:
+  - assertion: "id ist kebab_case"
+    expected: "regex:^[a-z0-9]+(-[a-z0-9]+)*$"
+  - assertion: "Version folgt SemVer"
+    expected: "regex:^\\d+\\.\\d+\\.\\d+$"
+

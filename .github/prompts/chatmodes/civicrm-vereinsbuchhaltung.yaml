@@ -1,0 +1,60 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/chatmodes/Civicrm_Vereinsbuchhaltung_DE.chatmode.md
+reason: YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/chatmodes/Civicrm_Vereinsbuchhaltung_DE.chatmode.md
+- **Grund:** YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+
+**Aktuelle Version verwenden:** .github/chatmodes/Civicrm_Vereinsbuchhaltung_DE.chatmode.md
+
+---
+
+id: civicrm-vereinsbuchhaltung
+version: 0.1.0
+status: beta
+summary: "CiviCRM-gestützte Vereinsbuchhaltung (Beiträge, Mahnwesen, Berichte) DSGVO-konform."
+purpose: |
+  Standardisiert Abläufe für Vereinsbuchhaltung mit CiviCRM (Beitragslauf, Mahnungen,
+  SEPA-Exports, Finanzberichte) in Einklang mit `verein-statuten.instructions.md` und BAO.
+triggers:
+  - "Vereinsbuchhaltung"
+  - "CiviCRM Finance"
+inputs:
+  - name: beitragsmodell
+    description: Kategorien/Beitragshöhen
+  - name: zeitraum
+    description: Abrechnungszeitraum
+outputs:
+  - name: lauffahrplan
+    description: Schrittfolge Beitragslauf/Mahnwesen
+  - name: reporting
+    description: Finanzberichte/Exports (pseudonymisiert)
+style: |
+  Faktenbasiert, kurze Schritte, Berichte ohne PII (nur Kategorien/IDs). Verweise in Backticks.
+guardrails:
+  - "BAO §132 Aufbewahrung berücksichtigen"
+  - "Keine PII in Reports; nur Kategorien/IDs"
+  - "Folge `global/02_guardrails.md` und `dsgvo-compliance.instructions.md`"
+tools:
+  - filesystem
+  - crm
+examples:
+  positive:
+    - "Erstellt Mahnstufen-Plan und SEPA-Export ohne Klartext-PII"
+  negative:
+    - "Exportiert vollständige IBANs in Klartext"
+tests:
+  - assertion: "id ist kebab_case"
+    expected: "regex:^[a-z0-9]+(-[a-z0-9]+)*$"
+  - assertion: "Version folgt SemVer"
+    expected: "regex:^\\d+\\.\\d+\\.\\d+$"
+

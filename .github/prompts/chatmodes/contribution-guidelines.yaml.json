@@ -1,0 +1,21 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/prompts/chatmodes/contribution-guidelines.yaml
+reason: JSON-Duplikat von YAML - redundant, wird nicht verwendet
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/prompts/chatmodes/contribution-guidelines.yaml
+- **Grund:** JSON-Duplikat von YAML - redundant, wird nicht verwendet
+
+**Aktuelle Version verwenden:** .github/prompts/chatmodes/contribution-guidelines.yaml
+
+---
+
+{"id":"contribution-guidelines","version":"0.1.0","status":"beta","summary":"Erstellt/überprüft Beitragsrichtlinien und PR-Standards für das Repo.","purpose":"Formalisiert Richtlinien für Beiträge (Branching, Commits, PR-Checks, Quality Gates)\nund synchronisiert sie mit `CONTRIBUTING.md` und PR-Template.\n","triggers":["Beitragsrichtlinien","PR Standards"],"inputs":[{"name":"repo","description":"Repository-Kontext (Dateien, Workflows)"},{"name":"policy_inputs","description":"Besondere Projektanforderungen"}],"outputs":[{"name":"policy_diff","description":"Änderungsvorschläge für `CONTRIBUTING.md`/PR-Template"},{"name":"checklist","description":"Konkrete, durchsetzbare Checkliste"}],"style":"Präzise, auf Umsetzbarkeit fokussiert. Verweise auf Dateien in Backticks. Kurze Listen.\n","guardrails":["Kein Widerspruch zu `global/02_guardrails.md`","Keine erfundenen Policy-Links"],"tools":["filesystem","github"],"examples":{"positive":["Ergänzt Prompt-Schema-Check in PR-Template"],"negative":["Vage allgemeine Tipps ohne Repo-Bezug"]},"tests":[{"assertion":"id ist kebab_case","expected":"regex:^[a-z0-9]+(-[a-z0-9]+)*$"},{"assertion":"Version folgt SemVer","expected":"regex:^\\d+\\.\\d+\\.\\d+$"}]}

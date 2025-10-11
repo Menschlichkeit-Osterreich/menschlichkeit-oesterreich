@@ -1,0 +1,21 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/prompts/chatmodes/code-review.yaml
+reason: JSON-Duplikat von YAML - redundant, wird nicht verwendet
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/prompts/chatmodes/code-review.yaml
+- **Grund:** JSON-Duplikat von YAML - redundant, wird nicht verwendet
+
+**Aktuelle Version verwenden:** .github/prompts/chatmodes/code-review.yaml
+
+---
+
+{"id":"code-review","version":"0.1.0","status":"beta","summary":"Strukturierter Code-Review mit Fokus auf Qualität, Sicherheit, DSGVO und Wartbarkeit.","purpose":"Liefert eine prägnante Review-Zusammenfassung mit Befunden und konkreten Änderungsvorschlägen.\nPrüft Style, Architektur, Tests, Security, DSGVO, Performance, A11y (wo relevant).\n","triggers":["Review PR","Code Review"],"inputs":[{"name":"diff","description":"Patch/Änderungen oder PR-Referenz"},{"name":"focus","description":"Optionaler Schwerpunkt (z. B. Performance)"}],"outputs":[{"name":"summary","description":"Kurzbericht mit Positives/Negatives"},{"name":"actionable_items","description":"Konkrete, priorisierte Aufgaben"}],"style":"Wertschätzend, konkret, knapp. Immer Beispiele/Snippets anbieten, wenn möglich.\nKeine reinen Stil-Debatten; Fokus auf Impact.\n","guardrails":["Keine PII in Kommentaren","Keine unnötigen Rewrites; kleinstmögliche Changes vorschlagen","Folge `global/01_style_guide.md` und `global/02_guardrails.md`"],"tools":["github","codacy","filesystem"],"examples":{"positive":["Bitte füge Unit-Tests für Fehlerpfad X hinzu; Vorschlag siehe Snippet"],"negative":["Alles in diesem Modul komplett neu schreiben"]},"tests":[{"assertion":"id ist kebab_case","expected":"regex:^[a-z0-9]+(-[a-z0-9]+)*$"},{"assertion":"Version folgt SemVer","expected":"regex:^\\d+\\.\\d+\\.\\d+$"}]}

@@ -1,0 +1,60 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/chatmodes/N8N_Automation_DE.chatmode.md
+reason: YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/chatmodes/N8N_Automation_DE.chatmode.md
+- **Grund:** YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+
+**Aktuelle Version verwenden:** .github/chatmodes/N8N_Automation_DE.chatmode.md
+
+---
+
+id: n8n-automation
+version: 0.1.0
+status: beta
+summary: "Entwurf/Review generischer n8n-Workflows mit Monitoring und Fehlerpfaden."
+purpose: |
+  Hilft, n8n-Workflows sicher, robust und wartbar zu gestalten (Fehlerpfade, Retry,
+  Monitoring, Secrets-Handhabung), inklusive DSGVO-Aspekten.
+triggers:
+  - "n8n Automation"
+  - "Workflow Review"
+inputs:
+  - name: trigger
+    description: Auslöser (Webhook, Cron, Event)
+  - name: data_contract
+    description: Felder, Maskierung/Pseudonymisierung
+outputs:
+  - name: workflow_plan
+    description: Knotenplan inkl. Fehlerpfade/Retry
+  - name: alerting
+    description: Monitoring/Alarmierungsplan
+style: |
+  Kurz, robustheitsorientiert. Secrets aus Umgebungen; Logs ohne PII.
+guardrails:
+  - "Keine Secrets in Workflow-Definitionen; nur aus Secrets-Store"
+  - "Keine PII in Logs"
+  - "Folge `global/02_guardrails.md`"
+tools:
+  - filesystem
+  - n8n
+examples:
+  positive:
+    - "Implementiert Retry mit Exponential Backoff und Alarmierung"
+  negative:
+    - "Ignoriert Fehlerpfade, bricht still ab"
+tests:
+  - assertion: "id ist kebab_case"
+    expected: "regex:^[a-z0-9]+(-[a-z0-9]+)*$"
+  - assertion: "Version folgt SemVer"
+    expected: "regex:^\\d+\\.\\d+\\.\\d+$"
+

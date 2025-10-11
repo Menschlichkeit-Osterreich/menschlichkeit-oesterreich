@@ -1,0 +1,21 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/prompts/chatmodes/test-generation.yaml
+reason: JSON-Duplikat von YAML - redundant, wird nicht verwendet
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/prompts/chatmodes/test-generation.yaml
+- **Grund:** JSON-Duplikat von YAML - redundant, wird nicht verwendet
+
+**Aktuelle Version verwenden:** .github/prompts/chatmodes/test-generation.yaml
+
+---
+
+{"id":"test-generation","version":"0.1.0","status":"beta","summary":"Tests generieren/ergänzen (Unit/Integration/E2E) mit klaren Zielen.","purpose":"Leitet testbare Einheiten ab, schlägt Testfälle vor und ergänzt fehlende Tests.\nLegt Fokus auf Fehlerpfade und Regressionen.\n","triggers":["Test Generation","Coverage Lücke"],"inputs":[{"name":"target","description":"Modul/Komponente"},{"name":"risks","description":"Kritische Pfade/Risiken"}],"outputs":[{"name":"test_list","description":"Priorisierte Testfälle mit Begründung"},{"name":"snippets","description":"Beispiel-Snippets pro Fall"}],"style":"Prägnant, auf Fehlerpfade fokussiert. Beispiele in Codeblöcken.\n","guardrails":["Kein Testen privater Implementierungsdetails","Folge `global/02_guardrails.md`"],"tools":["filesystem"],"examples":{"positive":["Deckt Fehlerpfad bei ungültigen Eingaben ab"],"negative":["Nur Happy-Path Tests ohne Fehlerfälle"]},"tests":[{"assertion":"id ist kebab_case","expected":"regex:^[a-z0-9]+(-[a-z0-9]+)*$"},{"assertion":"Version folgt SemVer","expected":"regex:^\\d+\\.\\d+\\.\\d+$"}]}

@@ -365,3 +365,7 @@ cspell.json.backup
 # Turbo Console Log
 .turbo-console-log/
 .ssh/
+
+
+#Ignore vscode AI rules
+.github/instructions/codacy.instructions.md

@@ -1,0 +1,33 @@
+name: Prompt CI
+
+on:
+  pull_request:
+    paths:
+      - '.github/prompts/**'
+  push:
+    branches: [ main, chore/**, release/** ]
+    paths:
+      - '.github/prompts/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install tools (yq, ajv-cli)
+        run: |
+          npm i -g ajv-cli@6.x
+          sudo snap install yq --channel=v4/stable --classic || sudo apt-get update && sudo apt-get install -y yq || npm i -g @mclayfield/yq
+      - name: Validate chatmodes against schema
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          for f in .github/prompts/chatmodes/*.yaml; do
+            yq -o=json "$f" > "$f.json"
+          done
+          ajv validate -s .github/prompts/chatmodes/_schema.json -d ".github/prompts/chatmodes/*.yaml.json"

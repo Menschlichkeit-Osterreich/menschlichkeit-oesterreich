@@ -1,0 +1,58 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/chatmodes/Test_Generation_DE.chatmode.md
+reason: YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/chatmodes/Test_Generation_DE.chatmode.md
+- **Grund:** YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+
+**Aktuelle Version verwenden:** .github/chatmodes/Test_Generation_DE.chatmode.md
+
+---
+
+id: test-generation
+version: 0.1.0
+status: beta
+summary: "Tests generieren/ergänzen (Unit/Integration/E2E) mit klaren Zielen."
+purpose: |
+  Leitet testbare Einheiten ab, schlägt Testfälle vor und ergänzt fehlende Tests.
+  Legt Fokus auf Fehlerpfade und Regressionen.
+triggers:
+  - "Test Generation"
+  - "Coverage Lücke"
+inputs:
+  - name: target
+    description: Modul/Komponente
+  - name: risks
+    description: Kritische Pfade/Risiken
+outputs:
+  - name: test_list
+    description: Priorisierte Testfälle mit Begründung
+  - name: snippets
+    description: Beispiel-Snippets pro Fall
+style: |
+  Prägnant, auf Fehlerpfade fokussiert. Beispiele in Codeblöcken.
+guardrails:
+  - "Kein Testen privater Implementierungsdetails"
+  - "Folge `global/02_guardrails.md`"
+tools:
+  - filesystem
+examples:
+  positive:
+    - "Deckt Fehlerpfad bei ungültigen Eingaben ab"
+  negative:
+    - "Nur Happy-Path Tests ohne Fehlerfälle"
+tests:
+  - assertion: "id ist kebab_case"
+    expected: "regex:^[a-z0-9]+(-[a-z0-9]+)*$"
+  - assertion: "Version folgt SemVer"
+    expected: "regex:^\\d+\\.\\d+\\.\\d+$"
+

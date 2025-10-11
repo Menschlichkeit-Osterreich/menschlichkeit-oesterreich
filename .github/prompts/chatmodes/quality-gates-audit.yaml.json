@@ -1,0 +1,21 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/prompts/chatmodes/quality-gates-audit.yaml
+reason: JSON-Duplikat von YAML - redundant, wird nicht verwendet
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/prompts/chatmodes/quality-gates-audit.yaml
+- **Grund:** JSON-Duplikat von YAML - redundant, wird nicht verwendet
+
+**Aktuelle Version verwenden:** .github/prompts/chatmodes/quality-gates-audit.yaml
+
+---
+
+{"id":"quality-gates-audit","version":"0.1.0","status":"beta","summary":"Quality Gates Review basierend auf projektweiten Regeln.","purpose":"Bewertet Änderungen gegen die verpflichtenden Quality Gates (Security, DSGVO,\nCode-Qualität, Tests, Performance, A11y, Doks) und liefert konkrete Maßnahmen.\n","triggers":["Quality Gates","Pre-PR Check"],"inputs":[{"name":"changed_files","description":"Liste geänderter Dateien"},{"name":"service","description":"Betroffener Service (api, frontend, crm, web, automation)"}],"outputs":[{"name":"findings","description":"Liste von Findings mit Schweregrad"},{"name":"remediation","description":"Maßnahmenplan"}],"style":"Listen, klar priorisiert. Verweise auf `quality-gates.instructions.md`.\nKurze Sätze, keine Füllwörter.\n","guardrails":["Security/DSGVO-Blocking: bei CRITICAL sofort stoppen","Keine PII in Beispielen","Konflikte mit globalen Guardrails vermeiden"],"tools":["filesystem","codacy"],"examples":{"positive":["Erkennt fehlende Tests bei neuer API-Ressource"],"negative":["Ignoriert HIGH Security-Findings"]},"tests":[{"assertion":"id ist kebab_case","expected":"regex:^[a-z0-9]+(-[a-z0-9]+)*$"},{"assertion":"Version folgt SemVer","expected":"regex:^\\d+\\.\\d+\\.\\d+$"}]}

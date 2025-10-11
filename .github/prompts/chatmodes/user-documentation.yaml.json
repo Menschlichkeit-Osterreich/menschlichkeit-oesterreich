@@ -1,0 +1,21 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/prompts/chatmodes/user-documentation.yaml
+reason: JSON-Duplikat von YAML - redundant, wird nicht verwendet
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/prompts/chatmodes/user-documentation.yaml
+- **Grund:** JSON-Duplikat von YAML - redundant, wird nicht verwendet
+
+**Aktuelle Version verwenden:** .github/prompts/chatmodes/user-documentation.yaml
+
+---
+
+{"id":"user-documentation","version":"0.1.0","status":"beta","summary":"Benutzerdokumentation erstellen/aktualisieren (Guides, How-Tos, Screenshots).","purpose":"Erzeugt klare, schrittweise Benutzer:innen-Dokumentation für Features/Prozesse inkl. Screenshots\nund Referenzierungen. Konsistent mit `docs/` und UI-Terminologie.\n","triggers":["BenutzerDokumentation","User Guide"],"inputs":[{"name":"feature","description":"Feature/Prozessbezeichnung"},{"name":"target_audience","description":"Zielgruppe (Mitglieder, Admins, Redaktion)"}],"outputs":[{"name":"guide","description":"Markdown-Guide mit Schritten und Bildern"},{"name":"changelog","description":"Zusammenfassung geänderter Dokumentationsbereiche"}],"style":"Kurze Schritte, UI-Bezeichnungen exakt. Bilder anonymisiert, sensible Daten geschwärzt.\nBeachte `global/01_style_guide.md`.\n","guardrails":["Keine PII in Screenshots; Schwärzung verwenden","Verweise nur auf bestehende Dateien/Seiten","Folge `global/02_guardrails.md`"],"tools":["filesystem"],"examples":{"positive":["Fügt Schritt-für-Schritt zur Mitgliederaufnahme mit Screenshots hinzu"],"negative":["Unscharfe, unleserliche Bilder ohne Kontext"]},"tests":[{"assertion":"id ist kebab_case","expected":"regex:^[a-z0-9]+(-[a-z0-9]+)*$"},{"assertion":"Version folgt SemVer","expected":"regex:^\\d+\\.\\d+\\.\\d+$"}]}

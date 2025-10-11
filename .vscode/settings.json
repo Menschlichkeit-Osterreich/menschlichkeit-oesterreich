@@ -2,10 +2,11 @@
     // Copilot-Einstellungen (workspace-weit)
     "github.copilot.enable": {
         "*": true,
-        "markdown": false,
+        "plaintext": true,
+        "markdown": true,
+        "scminput": false,
         "yaml": false,
         "json": false,
-        "scminput": false,
         "dotenv": false
     },
     "github.copilot.nextEditSuggestions.enabled": true,
@@ -17,5 +18,6 @@
         ".github/instructions": true,
         "docs/ai-instructions": true
     },
-    "telemetry.telemetryLevel": "off"
+    "telemetry.telemetryLevel": "off",
+    "editor.codeActions.triggerOnFocusChange": true
 }

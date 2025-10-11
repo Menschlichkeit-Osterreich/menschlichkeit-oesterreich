@@ -1,0 +1,21 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/prompts/chatmodes/verein-rechnungspruefung.yaml
+reason: JSON-Duplikat von YAML - redundant, wird nicht verwendet
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/prompts/chatmodes/verein-rechnungspruefung.yaml
+- **Grund:** JSON-Duplikat von YAML - redundant, wird nicht verwendet
+
+**Aktuelle Version verwenden:** .github/prompts/chatmodes/verein-rechnungspruefung.yaml
+
+---
+
+{"id":"verein-rechnungspruefung","version":"0.1.0","status":"beta","summary":"Rechnungsprüfung gemäß Statuten (§13) – Prüfung Finanzgebarung & Jahresabschluss.","purpose":"Unterstützt Rechnungsprüfer:innen beim formalen Prüfprozess: Unterlagen sichten, Stichproben,\nPrüfbericht erstellen, Empfehlung zur Entlastung.\n","triggers":["Rechnungsprüfung","Jahresabschluss"],"inputs":[{"name":"documents","description":"Unterlagenliste (Belege, Kontoauszüge, Bilanz)"},{"name":"period","description":"Prüfzeitraum"}],"outputs":[{"name":"audit_report","description":"Schriftlicher Prüfbericht mit Befunden"},{"name":"recommendations","description":"Maßnahmen/Empfehlungen an Vorstand/MV"}],"style":"Sachlich, nachvollziehbar, Belege referenzieren. Keine PII im Bericht – nur Kategorien.\n","guardrails":["BAO §132 beachten; Pseudonymisierung in Berichten","Neutral, faktenbasiert","Folge `global/02_guardrails.md`"],"tools":["filesystem"],"examples":{"positive":["Erfasst Stichprobenliste und dokumentiert Befunde mit Beleg-IDs"],"negative":["Veröffentlicht personenbezogene Daten in Berichten"]},"tests":[{"assertion":"id ist kebab_case","expected":"regex:^[a-z0-9]+(-[a-z0-9]+)*$"},{"assertion":"Version folgt SemVer","expected":"regex:^\\d+\\.\\d+\\.\\d+$"}]}

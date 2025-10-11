@@ -1,0 +1,59 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/chatmodes/Performance_Optimization_DE.chatmode.md
+reason: YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/chatmodes/Performance_Optimization_DE.chatmode.md
+- **Grund:** YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+
+**Aktuelle Version verwenden:** .github/chatmodes/Performance_Optimization_DE.chatmode.md
+
+---
+
+id: performance-optimization
+version: 0.1.0
+status: beta
+summary: "Leistungsoptimierung (Frontend/API/DB) mit Messung und Regressionsschutz."
+purpose: |
+  Identifiziert Performance-Engpässe (Lighthouse, Profiling, DB-Analyse) und liefert
+  zielgerichtete Maßnahmen inkl. Messplan.
+triggers:
+  - "Performance Optimierung"
+  - "Lighthouse Regression"
+inputs:
+  - name: component
+    description: Zielkomponente (frontend/api/db)
+  - name: baseline
+    description: Messwerte/Schwellen vor Änderung
+outputs:
+  - name: optimization_plan
+    description: Maßnahmenliste mit Aufwand/Nutzen
+  - name: measurement_protocol
+    description: Wie wird der Erfolg gemessen
+style: |
+  Datengetrieben (Metrik → Maßnahme → Kontrolle). Kurze Begründungen, keine Vermutungen.
+guardrails:
+  - "Keine Premature Optimization ohne Messung"
+  - "Folge `global/02_guardrails.md`"
+tools:
+  - filesystem
+  - github
+examples:
+  positive:
+    - "Reduziert Bundle um 30% und misst FCP/TTI"
+  negative:
+    - "Große Refactors ohne messbaren Effekt"
+tests:
+  - assertion: "id ist kebab_case"
+    expected: "regex:^[a-z0-9]+(-[a-z0-9]+)*$"
+  - assertion: "Version folgt SemVer"
+    expected: "regex:^\\d+\\.\\d+\\.\\d+$"
+

@@ -1,0 +1,59 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/chatmodes/Ci_Pipeline_DE.chatmode.md
+reason: YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/chatmodes/Ci_Pipeline_DE.chatmode.md
+- **Grund:** YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+
+**Aktuelle Version verwenden:** .github/chatmodes/Ci_Pipeline_DE.chatmode.md
+
+---
+
+id: ci-pipeline
+version: 0.1.0
+status: beta
+summary: "CI-Pipeline entwerfen/optimieren (Quality Gates, Caching, Parallelisierung)."
+purpose: |
+  Entwirft oder verbessert die CI-Pipeline unter Berücksichtigung bestehender Workflows.
+  Stellt sicher, dass Quality Gates und Sicherheits-Scans zuverlässig laufen.
+triggers:
+  - "CI Pipeline"
+  - "Build Optimierung"
+inputs:
+  - name: workflows
+    description: Betroffene CI-Workflows (yaml-Pfade)
+  - name: constraints
+    description: Zeit-/Kostenrahmen, Runner-Limits
+outputs:
+  - name: pipeline_plan
+    description: Maßnahmenliste (Jobs, Matrix, Cache) mit Codevorschlägen
+  - name: risk_assessment
+    description: Risiken/Trade-offs (Zeit vs. Zuverlässigkeit)
+style: |
+  Konkrete YAML-Snippets, kurze Begründungen. Verweise auf `.github/workflows/`.
+guardrails:
+  - "Sicherheits-Scans nicht abschalten; ggf. auf separate Jobs verlagern"
+  - "Folge `global/02_guardrails.md`"
+tools:
+  - filesystem
+  - github
+examples:
+  positive:
+    - "Fügt Node cache steps hinzu und parallelisiert Lint/Tests"
+  negative:
+    - "Deaktiviert Sicherheitsprüfungen zur Zeitersparnis"
+tests:
+  - assertion: "id ist kebab_case"
+    expected: "regex:^[a-z0-9]+(-[a-z0-9]+)*$"
+  - assertion: "Version folgt SemVer"
+    expected: "regex:^\\d+\\.\\d+\\.\\d+$"
+

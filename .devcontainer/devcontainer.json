@@ -11,11 +11,14 @@
     "ghcr.io/devcontainers/features/php:1": {
       "version": "8.1"
     },
+    "ghcr.io/devcontainers/features/powershell:1": {
+      "version": "latest"
+    },
     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
     "ghcr.io/devcontainers/features/git:1": {}
   },
   "onCreateCommand": "npm install",
-  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "postCreateCommand": "bash .devcontainer/setup.sh && pwsh .devcontainer/setup-powershell.ps1",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -29,10 +32,21 @@
         "ms-playwright.playwright",
         "bradlc.vscode-tailwindcss",
         "GitHub.copilot",
-        "GitHub.copilot-chat"
+        "GitHub.copilot-chat",
+        "ms-vscode.powershell"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "/bin/bash",
+            "icon": "terminal-bash"
+          },
+          "pwsh": {
+            "path": "pwsh",
+            "icon": "terminal-powershell"
+          }
+        },
         "python.defaultInterpreterPath": "/usr/local/python/current/bin/python",
         "python.linting.enabled": true,
         "python.linting.pylintEnabled": true,

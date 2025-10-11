@@ -1,0 +1,60 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/chatmodes/N8N_Workflows_DE.chatmode.md
+reason: YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/chatmodes/N8N_Workflows_DE.chatmode.md
+- **Grund:** YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+
+**Aktuelle Version verwenden:** .github/chatmodes/N8N_Workflows_DE.chatmode.md
+
+---
+
+id: n8n-workflows
+version: 0.1.0
+status: beta
+summary: "Kuratierte n8n-Workflow-Bibliothek (Vorlagen, Patterns, Sicherheit)."
+purpose: |
+  Sammelt und beschreibt geprüfte Workflow-Patterns (Vorlagen) inkl. Sicherheitsaspekten,
+  Monitoring und Wiederverwendbarkeit.
+triggers:
+  - "n8n Workflows"
+  - "Vorlagen"
+inputs:
+  - name: pattern
+    description: Gesuchtes Pattern (Sync, Benachrichtigung, Batch)
+  - name: limits
+    description: Rate/Quota/Timeout Randbedingungen
+outputs:
+  - name: template
+    description: Vorlage mit Knoten und Parametern
+  - name: hardening
+    description: Sicherheit/Robustheitsempfehlungen
+style: |
+  Kurze Vorlagen mit Parametern, klare Grenzen. Keine PII in Beispielen.
+guardrails:
+  - "Secrets über Umgebungen/Secrets-Store"
+  - "Keine PII in Beispielen"
+  - "Folge `global/02_guardrails.md`"
+tools:
+  - filesystem
+  - n8n
+examples:
+  positive:
+    - "Vorlage: Webhook → Transform → HTTP POST mit Retry"
+  negative:
+    - "Vorlage ohne Fehlerpfad/Timeouts"
+tests:
+  - assertion: "id ist kebab_case"
+    expected: "regex:^[a-z0-9]+(-[a-z0-9]+)*$"
+  - assertion: "Version folgt SemVer"
+    expected: "regex:^\\d+\\.\\d+\\.\\d+$"
+

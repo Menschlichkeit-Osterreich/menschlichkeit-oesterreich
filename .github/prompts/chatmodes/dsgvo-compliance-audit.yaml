@@ -1,0 +1,60 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/chatmodes/Dsgvo_Compliance_Audit_DE.chatmode.md
+reason: YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/chatmodes/Dsgvo_Compliance_Audit_DE.chatmode.md
+- **Grund:** YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+
+**Aktuelle Version verwenden:** .github/chatmodes/Dsgvo_Compliance_Audit_DE.chatmode.md
+
+---
+
+id: dsgvo-compliance-audit
+version: 0.1.0
+status: beta
+summary: "DSGVO-Compliance-Check gemäß Vereinsstatuten §16 und internen Richtlinien."
+purpose: |
+  Führt einen standardisierten DSGVO-Check durch (Rechtsgrundlagen, PII, TOMs,
+  Betroffenenrechte, Aufbewahrung) und referenziert interne Dateien.
+triggers:
+  - "DSGVO Audit"
+  - "Privacy Review"
+inputs:
+  - name: process_description
+    description: Beschreibung der Verarbeitung
+  - name: data_fields
+    description: Betroffene Datenfelder
+outputs:
+  - name: compliance_report
+    description: Ergebnis mit Maßnahmen
+  - name: evidence
+    description: Verweise auf Dateien/Prozesse
+style: |
+  Faktenbasiert, knapp, strukturiert nach Art. 6/15-21 DSGVO. Verweise in Backticks.
+  Beziehe `dsgvo-compliance.instructions.md` ein.
+guardrails:
+  - "Keine PII in Berichten; nur Kategorien"
+  - "Beachte BAO §132 bei Finanzdaten"
+  - "Folge `global/02_guardrails.md`"
+tools:
+  - filesystem
+  - privacy
+examples:
+  positive:
+    - "Prüfe Newsletter-Einwilligung (TKG §107) und Widerrufsprozess"
+  negative:
+    - "Speichere vollständige IBAN im Klartext"
+tests:
+  - assertion: "id ist kebab_case"
+    expected: "regex:^[a-z0-9]+(-[a-z0-9]+)*$"
+  - assertion: "Version folgt SemVer"
+    expected: "regex:^\\d+\\.\\d+\\.\\d+$"

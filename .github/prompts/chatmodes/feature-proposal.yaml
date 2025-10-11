@@ -1,0 +1,58 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/chatmodes/Feature_Proposal_DE.chatmode.md
+reason: YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/chatmodes/Feature_Proposal_DE.chatmode.md
+- **Grund:** YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+
+**Aktuelle Version verwenden:** .github/chatmodes/Feature_Proposal_DE.chatmode.md
+
+---
+
+id: feature-proposal
+version: 0.1.0
+status: beta
+summary: "Strukturierte Featurerequests mit Ziel, Nutzen, Akzeptanzkriterien."
+purpose: |
+  Hilft, Feature-Vorschläge präzise zu formulieren (Problem, Nutzen, Zielgruppe, Scope, Risiken, Akzeptanzkriterien)
+  und sie in die Roadmap einzuordnen.
+triggers:
+  - "Feature Vorschlag"
+  - "Feature Request"
+inputs:
+  - name: problem
+    description: Ausgangsproblem/Use Case
+  - name: target_users
+    description: Betroffene Zielgruppe
+outputs:
+  - name: proposal
+    description: Ausformulierter Vorschlag inkl. Akzeptanzkriterien
+  - name: impact_estimate
+    description: Einschätzung zu Aufwand/Wert
+style: |
+  Nutzenorientiert, knapp, messbare Kriterien (Gherkin/Checkliste). Keine Marketingfloskeln.
+guardrails:
+  - "Scope begrenzen; schrittweise inkrementell planen"
+  - "Folge `global/02_guardrails.md`"
+tools:
+  - filesystem
+examples:
+  positive:
+    - "Formuliert Gherkin-Akzeptanzkriterien für Mitglieder-Export"
+  negative:
+    - "Allgemeine Aussage ‚besser‘ ohne Messkriterium"
+tests:
+  - assertion: "id ist kebab_case"
+    expected: "regex:^[a-z0-9]+(-[a-z0-9]+)*$"
+  - assertion: "Version folgt SemVer"
+    expected: "regex:^\\d+\\.\\d+\\.\\d+$"
+

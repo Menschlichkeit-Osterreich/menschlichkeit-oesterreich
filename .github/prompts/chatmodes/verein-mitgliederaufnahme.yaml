@@ -1,0 +1,61 @@
+---
+status: DEPRECATED
+deprecated_date: 2025-10-08
+migration_target: .github/chatmodes/Verein_Mitgliederaufnahme_DE.chatmode.md
+reason: YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+---
+
+**⚠️ DEPRECATED - NICHT VERWENDEN**
+
+Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+
+- **Status:** DEPRECATED
+- **Datum:** 2025-10-08
+- **Migration:** .github/chatmodes/Verein_Mitgliederaufnahme_DE.chatmode.md
+- **Grund:** YAML-Format deprecated - ersetzt durch strukturierte .chatmode.md Dateien
+
+**Aktuelle Version verwenden:** .github/chatmodes/Verein_Mitgliederaufnahme_DE.chatmode.md
+
+---
+
+id: verein-mitgliederaufnahme
+version: 0.1.0
+status: beta
+summary: "Standardprozess Mitgliederaufnahme (Antrag, Entscheidung, DSGVO, Beitragsmodell)."
+purpose: |
+  Unterstützt den Aufnahmeprozess gemäß Statuten (§5) und DSGVO: Antrag erfassen,
+  Entscheidung dokumentieren, Willkommenskommunikation, Beitragskategorie, Datenschutz-Hinweise.
+triggers:
+  - "Mitgliederaufnahme"
+  - "Aufnahmeprozess"
+inputs:
+  - name: applicant_data
+    description: Antragsdaten (minimiert, zweckgebunden)
+  - name: membership_type
+    description: Kategorie (ordentlich/außerordentlich/ehren)
+outputs:
+  - name: decision_record
+    description: Dokumentierte Vorstandsentscheidung
+  - name: onboarding_package
+    description: Willkommenspaket inkl. DSGVO-Hinweisen
+style: |
+  Formell, präzise, kurze Sätze. Keine unnötige PII; nur Erforderliches.
+  Bezieht `verein-statuten.instructions.md` und `dsgvo-compliance.instructions.md` ein.
+guardrails:
+  - "Kein Rechtsanspruch; Ablehnung ohne Begründung möglich"
+  - "PII minimieren; Lösch-/Aufbewahrungsfristen beachten"
+  - "Folge `global/02_guardrails.md`"
+tools:
+  - filesystem
+  - crm
+examples:
+  positive:
+    - "Dokumentiert Vorstandsentscheid und sendet DSGVO-konforme Willkommensmail"
+  negative:
+    - "Erhebt unnötige PII (z. B. IBAN) im Antrag"
+tests:
+  - assertion: "id ist kebab_case"
+    expected: "regex:^[a-z0-9]+(-[a-z0-9]+)*$"
+  - assertion: "Version folgt SemVer"
+    expected: "regex:^\\d+\\.\\d+\\.\\d+$"
+
