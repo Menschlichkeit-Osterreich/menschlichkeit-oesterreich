@@ -1,0 +1,144 @@
+name: Security Vulnerability Scan
+
+on:
+  push:
+    branches: [ main, develop, 'copilot/**', 'feature/**' ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run weekly on Monday at 3:00 UTC
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+
+jobs:
+  python-security:
+    name: Python Security Scan (Bandit)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    
+    - name: Install Bandit
+      run: |
+        pip install bandit[toml]
+    
+    - name: Run Bandit Security Scan
+      run: |
+        bandit -r scripts/ enterprise-upgrade/scripts/ \
+          -f json -o quality-reports/bandit-security.json \
+          --exit-zero
+        
+        bandit -r scripts/ enterprise-upgrade/scripts/ \
+          -f txt --severity-level medium
+    
+    - name: Upload Security Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: bandit-security-report
+        path: quality-reports/bandit-security.json
+        retention-days: 30
+
+  npm-security:
+    name: NPM Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run npm audit
+      run: |
+        npm audit --json > quality-reports/npm-audit.json || true
+        npm audit
+    
+    - name: Upload NPM Audit Report
+      uses: actions/upload-artifact@v4
+      with:
+        name: npm-audit-report
+        path: quality-reports/npm-audit.json
+        retention-days: 30
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Dependency Review
+      uses: actions/dependency-review-action@v4
+      with:
+        fail-on-severity: high
+        deny-licenses: GPL-2.0, GPL-3.0
+
+  security-summary:
+    name: Security Summary
+    runs-on: ubuntu-latest
+    needs: [python-security, npm-security]
+    if: always()
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download Bandit Report
+      uses: actions/download-artifact@v4
+      with:
+        name: bandit-security-report
+        path: quality-reports/
+      continue-on-error: true
+    
+    - name: Download NPM Audit Report
+      uses: actions/download-artifact@v4
+      with:
+        name: npm-audit-report
+        path: quality-reports/
+      continue-on-error: true
+    
+    - name: Generate Security Summary
+      run: |
+        echo "# Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Python Security (Bandit)" >> $GITHUB_STEP_SUMMARY
+        
+        if [ -f quality-reports/bandit-security.json ]; then
+          BANDIT_ISSUES=$(jq '.results | length' quality-reports/bandit-security.json)
+          echo "- Total Issues: $BANDIT_ISSUES" >> $GITHUB_STEP_SUMMARY
+          
+          HIGH_ISSUES=$(jq '[.results[] | select(.issue_severity == "HIGH")] | length' quality-reports/bandit-security.json)
+          echo "- High Severity: $HIGH_ISSUES" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- Bandit report not available" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## NPM Security" >> $GITHUB_STEP_SUMMARY
+        
+        if [ -f quality-reports/npm-audit.json ]; then
+          NPM_VULNS=$(jq '.metadata.vulnerabilities.total' quality-reports/npm-audit.json)
+          echo "- Total Vulnerabilities: $NPM_VULNS" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "- NPM audit report not available" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Status" >> $GITHUB_STEP_SUMMARY
+        
+        if [ "$HIGH_ISSUES" = "0" ] && [ "$NPM_VULNS" = "0" ]; then
+          echo "✅ No critical vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "⚠️ Security issues require attention" >> $GITHUB_STEP_SUMMARY
+        fi

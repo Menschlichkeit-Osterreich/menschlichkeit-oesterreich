@@ -1,0 +1,17 @@
+# Bandit Security Configuration
+# https://bandit.readthedocs.io/en/latest/config.html
+
+exclude_dirs:
+  - /node_modules/
+  - /vendor/
+  - /.git/
+  - /web/core/
+  - /playwright-results/
+  - /quality-reports/
+  - /logs/
+
+skips:
+  - B404  # subprocess import is necessary for system monitoring
+  - B603  # subprocess without shell=True is safe in controlled environment
+  - B607  # partial paths are acceptable for standard system commands
+

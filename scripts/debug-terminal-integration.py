@@ -192,8 +192,10 @@ class TerminalDebugger:
                         timeout=5,
                     )
                     compatibility["powershell_execution"] = result.returncode == 0
-                except:
-                    pass
+                except (subprocess.TimeoutExpired, OSError) as e:
+                    # Fixed: Added specific exception handling instead of bare except (B110)
+                    compatibility["powershell_execution"] = False
+                    logging.debug(f"PowerShell execution test failed: {e}")
 
             # Test 3: Einfacher Command Test
             result = subprocess.run(

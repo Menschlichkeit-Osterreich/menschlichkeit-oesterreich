@@ -215,8 +215,9 @@ class SSLValidator:
                 directive = directive.strip()
                 if directive.startswith('max-age='):
                     return int(directive.split('=')[1])
-        except:
-            pass
+        except (ValueError, IndexError) as e:
+            # Fixed: Added specific exception handling instead of bare except (B110)
+            logging.debug(f"Failed to parse HSTS max-age: {e}")
         return 0
     
     def check_ssl_labs_rating(self, hostname: str) -> Dict:

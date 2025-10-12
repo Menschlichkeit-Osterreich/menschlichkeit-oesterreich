@@ -52,11 +52,12 @@ class SimpleLogMonitor:
         """Prüfe VS Code Status"""
         try:
             # Prüfe ob VS Code läuft
+            # Fixed: Removed shell=True to prevent command injection (B602)
             result = subprocess.run(
                 ["tasklist", "/FI", "IMAGENAME eq Code*"],
                 capture_output=True,
                 text=True,
-                shell=True,
+                shell=False,
             )
 
             if "Code" in result.stdout:
