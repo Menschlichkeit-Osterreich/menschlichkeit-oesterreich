@@ -114,6 +114,20 @@ app.add_middleware(
     max_age=cors_max_age,
 )
 
+# Add security middlewares
+try:
+    from app.middleware.security import RateLimitMiddleware, SecurityHeadersMiddleware
+    
+    # Rate limiting: 10 req/s for general endpoints, 5 req/min for auth
+    app.add_middleware(RateLimitMiddleware, requests_per_second=10, auth_requests_per_minute=5)
+    
+    # Security headers: CSP, HSTS, X-Frame-Options, etc.
+    app.add_middleware(SecurityHeadersMiddleware)
+    
+    logger.info("Security middlewares enabled (rate limiting + security headers)")
+except Exception as e:
+    logger.warning(f"Failed to load security middlewares: {e}")
+
 # Mount routers
 try:
     from app.routes.privacy import router as privacy_router

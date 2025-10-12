@@ -68,7 +68,8 @@
   - ✅ HttpOnly Cookies
   - ✅ Secure Flag (HTTPS-only)
   - ✅ SameSite=Strict
-  - ⚠️ **TODO:** Implement Content Security Policy (CSP)
+  - ✅ **IMPLEMENTED:** Content Security Policy (CSP) headers
+  - ✅ **ADDED:** X-Frame-Options, X-XSS-Protection, HSTS
 
 #### Threat S-03: MCP Server Impersonation
 - **Component:** MCP Servers
@@ -181,8 +182,10 @@
 - **Threat:** Flooding mit Requests
 - **Impact:** HIGH - Service unavailable
 - **Mitigation:**
-  - ⚠️ **TODO:** Nginx Rate Limiting (10 req/sec/IP)
-  - ⚠️ **TODO:** Application-Level Throttling (Slowapi)
+  - ✅ **IMPLEMENTED:** Application-Level Rate Limiting (RateLimitMiddleware)
+  - ✅ **CONFIGURED:** 10 req/sec for general endpoints, 5 req/min for auth
+  - ⚠️ **TODO:** Nginx Rate Limiting as additional layer
+  - ✅ **MONITORING:** X-RateLimit-* headers for observability
 
 #### Threat D-04: MCP Request Flooding
 - **Component:** MCP `file-server`
@@ -416,11 +419,12 @@ graph LR
 
 ## 6. Empfohlene Sofortmaßnahmen (Next 7 Days)
 
-1. ✅ **DPIA für n8n-Workflows erstellen** (NC-01)
-2. ✅ **Backup-Verschlüsselung implementieren** (DI-01)
-3. ✅ **Content Security Policy (CSP) Header** (S-02)
-4. ✅ **git-secrets Pre-Commit Hook** (I-03)
-5. ✅ **Rate Limiting (Nginx)** (D-01)
+1. ✅ **COMPLETED:** Content Security Policy (CSP) Header (S-02)
+2. ✅ **COMPLETED:** Rate Limiting Implementation (D-01)
+3. ✅ **COMPLETED:** Security Headers (HSTS, X-Frame-Options, etc.)
+4. ⚠️ **TODO:** DPIA für n8n-Workflows erstellen (NC-01)
+5. ⚠️ **TODO:** Backup-Verschlüsselung implementieren (DI-01)
+6. ⚠️ **TODO:** git-secrets Pre-Commit Hook (I-03)
 
 ---
 
