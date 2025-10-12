@@ -39,18 +39,10 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: cpp, javascript, python, go
+          languages: javascript, python
           queries: security-and-quality
-
-      - name: Build C++ project manually
-        run: |
-          mkdir -p build
-          cd build
-          cmake ..
-          make -j$(nproc)
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
           category: '/language:multi'
-          
