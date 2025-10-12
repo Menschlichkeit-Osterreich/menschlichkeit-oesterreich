@@ -71,7 +71,10 @@
     "n8n:restart": "npm run n8n:stop && npm run n8n:start",
     "n8n:webhook": "node automation/n8n/webhook-client.js",
     "n8n:setup": "cd automation/n8n && cp .env.example .env && echo 'Please configure automation/n8n/.env with your settings'",
-    "n8n:smoke": "python3 automation/n8n/smoke-test.py"
+    "n8n:smoke": "python3 automation/n8n/smoke-test.py",
+    "status:check": "python3 scripts/codespace-status-check.py",
+    "status:verbose": "python3 scripts/codespace-status-check.py --verbose",
+    "status:json": "python3 scripts/codespace-status-check.py --json quality-reports/codespace-status.json"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

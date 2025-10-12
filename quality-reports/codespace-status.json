@@ -1,0 +1,71 @@
+{
+  "codespace": {
+    "is_codespace": false,
+    "codespace_name": "N/A",
+    "github_token_available": false,
+    "environment_vars": {
+      "CODESPACES": "Not set",
+      "CODESPACE_NAME": "Not set",
+      "GITHUB_REPOSITORY": "peschull/menschlichkeit-oesterreich-development",
+      "GITHUB_REPOSITORY_OWNER": "peschull",
+      "GITHUB_USER": "Not set"
+    }
+  },
+  "services": {
+    "services": [
+      {
+        "service": "Frontend (Vite)",
+        "port": 5173,
+        "status": "stopped",
+        "details": "Service not running on port"
+      },
+      {
+        "service": "API (FastAPI)",
+        "port": 8001,
+        "status": "stopped",
+        "details": "Service not running on port"
+      },
+      {
+        "service": "CRM (PHP)",
+        "port": 8000,
+        "status": "stopped",
+        "details": "Service not running on port"
+      },
+      {
+        "service": "Games",
+        "port": 3000,
+        "status": "stopped",
+        "details": "Service not running on port"
+      }
+    ]
+  },
+  "pull_requests": {
+    "error": "GITHUB_TOKEN nicht verf\u00fcgbar",
+    "recommendation": "Setze GITHUB_TOKEN environment variable"
+  },
+  "workflow_runs": {
+    "error": "GITHUB_TOKEN nicht verf\u00fcgbar",
+    "recommendation": "Setze GITHUB_TOKEN environment variable"
+  },
+  "system": {
+    "disk": {
+      "size": "72G",
+      "used": "51G",
+      "available": "22G",
+      "use_percent": "71%"
+    },
+    "memory": {
+      "total": "15Gi",
+      "used": "1.6Gi",
+      "free": "11Gi",
+      "available": "14Gi"
+    },
+    "cpu_cores": "4"
+  },
+  "recommendations": [
+    "\u26a0\ufe0f  Nicht in GitHub Codespace - lokale Entwicklung erkannt",
+    "\ud83d\udd34 4 Service(s) gestoppt - verwende 'npm run dev:all' zum Starten",
+    "\u26a0\ufe0f  GITHUB_TOKEN nicht gesetzt - PR und Workflow Informationen nicht verf\u00fcgbar"
+  ],
+  "timestamp": "2025-10-11T14:03:00.768661"
+}

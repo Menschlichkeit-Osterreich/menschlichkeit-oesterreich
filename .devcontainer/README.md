@@ -124,12 +124,31 @@ npm run n8n:logs
 
 ## 🆘 Getting Help
 
+### Quick Status Check
+
+```bash
+# Check all services and pull requests status
+npm run status:check
+
+# Detailed information with system resources
+npm run status:verbose
+
+# Export status as JSON
+npm run status:json
+```
+
+### Manual Troubleshooting
+
 If services won't start:
 
 1. Check the terminal output for specific error messages
 2. Verify prerequisites: `node --version`, `python3 --version`, `php --version`
 3. Try restarting individual services
 4. Check the `.env` files are properly configured
+
+For more help, see:
+- [Codespace Status Checker](../..dokum/CODESPACE-STATUS-CHECKER.md)
+- [Codespace Troubleshooting](../..dokum/CODESPACE-TROUBLESHOOTING.md)
 
 ## 📁 Project Structure
 

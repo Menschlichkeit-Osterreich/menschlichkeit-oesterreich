@@ -130,6 +130,12 @@ cp frontend/.env.example frontend/.env
 ## 🔧 Schnelle Diagnose-Befehle
 
 ```bash
+# ⚡ Automatische Status-Prüfung (EMPFOHLEN!)
+npm run status:check              # Schnelle Übersicht über alle Services & PRs
+npm run status:verbose            # Detaillierte Informationen inkl. Systemressourcen
+npm run status:json              # Speichert Status als JSON für weitere Analyse
+
+# Alternative manuelle Checks
 # System-Check
 node --version && npm --version && python3 --version && php --version
 

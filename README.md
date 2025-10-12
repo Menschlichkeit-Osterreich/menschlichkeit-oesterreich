@@ -109,25 +109,30 @@ Weitere Details: DOCS-INDEX.md → Architecture
 
 ## 🛠️ Entwicklung
 
-Wichtige Kommandos
+### Wichtige Kommandos
 
 ```bash
 # Development
-npm run dev:all
-npm run dev:frontend
-npm run dev:api
-npm run dev:crm
+npm run dev:all              # Alle Services starten
+npm run dev:frontend         # Nur Frontend
+npm run dev:api             # Nur API
+npm run dev:crm             # Nur CRM
+
+# Status & Diagnose (NEU!)
+npm run status:check        # Schneller Status-Check aller Services & PRs
+npm run status:verbose      # Detaillierte System-Informationen
+npm run status:json         # Export als JSON für Analyse
 
 # Quality & Testing
-npm run lint:all
-npm run test:unit
-npm run test:e2e
-npm run quality:gates
+npm run lint:all            # Alle Linter
+npm run test:unit           # Unit Tests
+npm run test:e2e            # E2E Tests (Playwright)
+npm run quality:gates       # Vollständige Quality Gates
 
 # Security
-npm run security:scan
-npm run security:trivy
-npm run security:gitleaks
+npm run security:scan       # Vollständiger Security-Scan
+npm run security:trivy      # Container/Dependencies-Scan
+npm run security:gitleaks   # Secret-Scanning
 
 # Build & Deploy
 ./build-pipeline.sh staging
@@ -135,7 +140,18 @@ npm run security:gitleaks
 ./scripts/safe-deploy.sh --dry-run
 ```
 
-Quality Gates (PR-Blocking)
+### Codespace Troubleshooting
+
+Wenn Services nicht starten oder Sie den Codespace-Status prüfen möchten:
+
+```bash
+npm run status:check        # Zeigt: Services, PRs, Workflow-Status
+```
+
+📚 Ausführliche Diagnose: [Codespace Status Checker](..dokum/CODESPACE-STATUS-CHECKER.md)  
+🔧 Troubleshooting Guide: [CODESPACE-TROUBLESHOOTING.md](..dokum/CODESPACE-TROUBLESHOOTING.md)
+
+### Quality Gates (PR-Blocking)
 
 - Security: 0 offene Issues (Codacy, Trivy, Secret-Scan)
 - Maintainability: ≥85%, Duplication: ≤2%
