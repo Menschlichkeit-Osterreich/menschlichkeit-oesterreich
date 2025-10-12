@@ -1,0 +1,15 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "serialNumber": "urn:uuid:1c374b15-3a5c-4556-acac-ba99cb863802",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2025-10-12T10:46:11Z",
+    "component": {
+      "type": "application",
+      "name": "menschlichkeit-oesterreich",
+      "version": "a874ab3"
+    }
+  },
+  "components": []
+}
