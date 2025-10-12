@@ -79,6 +79,9 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   }
 
   return (
+    // nosemgrep: javascript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml
+    // Safe: Only using dangerouslySetInnerHTML for CSS generation from trusted THEMES object
+    // The THEMES object is defined in code (not user input) and contains only CSS values
     <style
       dangerouslySetInnerHTML={{
         __html: Object.entries(THEMES)

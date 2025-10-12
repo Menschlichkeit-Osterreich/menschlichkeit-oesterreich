@@ -1,0 +1,38 @@
+# Semgrep Configuration for Menschlichkeit Österreich
+# This file allows us to customize rule behavior without modifying the workflow
+
+# Note: Individual rule overrides are better done via inline comments in code
+# or by creating custom rules. This file focuses on global settings.
+
+# Paths to exclude from scanning
+paths:
+  exclude:
+    # Vendor/third-party code
+    - "*/vendor/*"
+    - "*/node_modules/*"
+    - "*/.next/*"
+    - "*/dist/*"
+    - "*/build/*"
+    
+    # Drupal core (not our code)
+    - "crm.menschlichkeit-oesterreich.at/web/core/*"
+    - "crm.menschlichkeit-oesterreich.at/web/modules/contrib/*"
+    - "crm.menschlichkeit-oesterreich.at/web/themes/contrib/*"
+    
+    # Minified files
+    - "*.min.js"
+    - "*.min.css"
+    
+    # Test fixtures
+    - "*/test/fixtures/*"
+    - "*/tests/fixtures/*"
+
+# Include paths (be explicit about what we scan)
+  include:
+    - "*.js"
+    - "*.jsx"
+    - "*.ts"
+    - "*.tsx"
+    - "*.py"
+    - "*.php"
+

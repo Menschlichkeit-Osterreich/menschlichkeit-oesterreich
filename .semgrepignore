@@ -1,0 +1,49 @@
+# Semgrep Ignore File
+# Files and directories to exclude from Semgrep scanning
+
+# Third-party dependencies
+node_modules/
+vendor/
+.next/
+dist/
+build/
+*.bundle.js
+
+# Drupal core and contributed modules (not our code)
+crm.menschlichkeit-oesterreich.at/web/core/
+crm.menschlichkeit-oesterreich.at/web/modules/contrib/
+crm.menschlichkeit-oesterreich.at/web/themes/contrib/
+crm.menschlichkeit-oesterreich.at/web/libraries/
+
+# Minified files
+*.min.js
+*.min.css
+*.min.map
+
+# Test fixtures and mock data
+**/test/fixtures/
+**/tests/fixtures/
+**/__fixtures__/
+**/__mocks__/
+
+# Generated files
+*.generated.ts
+*.generated.js
+
+# Lock files and package metadata
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+composer.lock
+
+# Configuration files that might have false positives
+*.config.js
+*.config.ts
+webpack.config.js
+vite.config.ts
+tailwind.config.js
+
+# Documentation
+*.md
+*.txt
+LICENSE

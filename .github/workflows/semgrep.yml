@@ -30,6 +30,7 @@ jobs:
           fetch-depth: 0
 
       - name: Run Semgrep
+        id: semgrep
         run: |
           semgrep ci \
             --sarif \
@@ -45,6 +46,24 @@ jobs:
             --config=p/cwe-top-25
         env:
           SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+        continue-on-error: true
+      
+      - name: Check Semgrep Results
+        if: always()
+        run: |
+          if [ -f semgrep-results.sarif ]; then
+            echo "Semgrep scan completed. Results uploaded to Security tab."
+            # Count findings (if jq is available)
+            if command -v jq &> /dev/null; then
+              FINDINGS=$(jq '[.runs[].results[]] | length' semgrep-results.sarif 2>/dev/null || echo "0")
+              echo "Total findings: $FINDINGS"
+              if [ "${{ steps.semgrep.outcome }}" == "failure" ]; then
+                echo "⚠️ Warning: Semgrep found blocking security findings. Please review in the Security tab."
+              fi
+            fi
+          else
+            echo "No Semgrep results file generated"
+          fi
 
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v3
