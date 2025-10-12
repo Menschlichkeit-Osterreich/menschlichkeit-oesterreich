@@ -2,9 +2,21 @@ name: Trivy FS Scan
 
 on:
   push:
-    branches: [ main, master, chore/**, feature/** ]
+    branches: [main, master, chore/**, feature/**]
+    paths:
+      - '**'
+      - '!docs/**'
+      - '!Pdf/**'
+      - '!**/*.md'
+      - '!quality-reports/**'
   pull_request:
-    branches: [ main, master, chore/**, feature/** ]
+    branches: [main, master, chore/**, feature/**]
+    paths:
+      - '**'
+      - '!docs/**'
+      - '!Pdf/**'
+      - '!**/*.md'
+      - '!quality-reports/**'
 
 permissions:
   contents: read

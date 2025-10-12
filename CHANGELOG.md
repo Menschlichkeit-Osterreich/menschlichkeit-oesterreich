@@ -5,6 +5,7 @@ Alle relevanten Änderungen an diesem Repository werden in diesem Dokument festg
 ## [Unreleased]
 
 ### Added
+
 - docs(readme): Modernized README with TOC, Configuration, Testing, Deployment, Security & DSGVO sections
 - docs: Added docs/PRIVACY.md (DSGVO overview)
 - docs: Added docs/legal/WCAG-AA-COMPLIANCE-BLUEPRINT.md
@@ -13,7 +14,9 @@ Alle relevanten Änderungen an diesem Repository werden in diesem Dokument festg
 - security: Added SECURITY.md (Responsible Disclosure)
 
 ### Changed
+
 - Updated badges and fixed links to avoid dead references
 
 ### Notes
+
 - Lint errors in compiled dist assets are expected and should be excluded from lint runs.

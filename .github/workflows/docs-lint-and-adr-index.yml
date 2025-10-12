@@ -3,12 +3,14 @@ name: Docs Lint & ADR Index
 on:
   pull_request:
     paths:
+      - 'docs/**'
       - '**/*.md'
       - 'scripts/docs/generate-adr-index.mjs'
       - '.github/workflows/docs-lint-and-adr-index.yml'
   push:
-    branches: [ main, master ]
+    branches: [main, master]
     paths:
+      - 'docs/**'
       - '**/*.md'
       - 'scripts/docs/generate-adr-index.mjs'
 
@@ -24,14 +26,11 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install dependencies
-        run: npm ci
-
       - name: Markdown Lint
-        run: npx markdownlint-cli "**/*.md" --ignore node_modules --ignore vendor || true
+        run: npx -y markdownlint-cli "**/*.md" --ignore node_modules --ignore vendor || true
 
       - name: Generate ADR Index (no commit)
-        run: npm run -s docs:adr-index
+        run: node scripts/docs/generate-adr-index.mjs
 
       - name: Upload ADR Index
         uses: actions/upload-artifact@v4

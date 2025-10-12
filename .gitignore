@@ -323,6 +323,12 @@ logs/
 error.log
 access.log
 
+# Quality reports & CI artifacts (generated)
+quality-reports/
+playwright-results/
+playwright-artifacts/
+coverage/
+
 # Deployment-spezifische Dateien
 deploy.conf
 sftp.conf

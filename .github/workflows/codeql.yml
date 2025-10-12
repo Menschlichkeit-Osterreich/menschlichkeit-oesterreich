@@ -2,9 +2,25 @@ name: CodeQL
 
 on:
   push:
-    branches: [ main, master, chore/**, feature/** ]
+    branches: [main, master, chore/**, feature/**]
+    paths:
+      - 'frontend/**'
+      - 'website/**'
+      - 'api.menschlichkeit-oesterreich.at/**'
+      - 'crm.menschlichkeit-oesterreich.at/**'
+      - 'web/**'
+      - 'servers/**'
+      - '.github/workflows/codeql.yml'
   pull_request:
-    branches: [ main, master, chore/**, feature/** ]
+    branches: [main, master, chore/**, feature/**]
+    paths:
+      - 'frontend/**'
+      - 'website/**'
+      - 'api.menschlichkeit-oesterreich.at/**'
+      - 'crm.menschlichkeit-oesterreich.at/**'
+      - 'web/**'
+      - 'servers/**'
+      - '.github/workflows/codeql.yml'
 
 permissions:
   contents: read
@@ -29,4 +45,4 @@ jobs:
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
         with:
-          category: "/language:multi"
+          category: '/language:multi'

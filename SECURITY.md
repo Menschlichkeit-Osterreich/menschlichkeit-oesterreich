@@ -6,7 +6,7 @@ Wir nehmen Sicherheit ernst. Bitte helfen Sie uns, die Plattform sicher zu halte
 
 1. Melden Sie Schwachstellen NICHT öffentlich.
 2. Erstellen Sie ein Security-Issue mit der Vorlage `.github/ISSUE_TEMPLATE/security_vulnerability.md` oder kontaktieren Sie uns vertraulich (siehe Kontakt unten).
-3. Geben Sie ausreichend Details zur Reproduktion an (ohne sensible Daten). 
+3. Geben Sie ausreichend Details zur Reproduktion an (ohne sensible Daten).
 4. Wir bestätigen den Eingang innerhalb von 72 Stunden und informieren über den Behebungsplan.
 
 ## Scope (Beispiele)

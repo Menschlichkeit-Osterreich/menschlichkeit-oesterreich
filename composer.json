@@ -2,6 +2,7 @@
   "name": "menschlichkeit-oesterreich/php-development-tools",
   "description": "PHP development tools for Menschlichkeit Österreich workspace",
   "type": "project",
+  "license": "MIT",
   "require-dev": {
     "phpstan/phpstan": "^1.12",
     "phpstan/phpstan-symfony": "^1.4",
@@ -46,8 +47,7 @@
     "sort-packages": true,
     "allow-plugins": {
       "symfony/flex": true
-    },
-    "disable-tls": true
+    }
   },
   "minimum-stability": "stable",
   "prefer-stable": true,
