@@ -8,6 +8,6 @@
   },
   "devDependencies": {
     "http-server": "^14.1.1",
-    "lighthouse": "^12.3.0"
+    "lighthouse": "^13.0.0"
   }
 }
