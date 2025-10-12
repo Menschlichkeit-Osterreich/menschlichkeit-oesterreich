@@ -1,23 +1,141 @@
 version: 2
+
+# Dependabot Configuration mit Private Registry Support
+# Siehe: https://docs.github.com/en/code-security/dependabot/working-with-dependabot/configuring-access-to-private-registries
+
+registries:
+  npm-private:
+    type: npm-registry
+    url: https://npm.pkg.github.com
+    token: ${{ secrets.NPM_TOKEN }}
+  
+  composer-private:
+    type: composer-repository
+    url: https://repo.packagist.org
+    username: ${{ secrets.PACKAGIST_USERNAME }}
+    password: ${{ secrets.PACKAGIST_TOKEN }}
+
 updates:
+  # Root npm dependencies
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+      time: "03:00"
+      timezone: "Europe/Vienna"
     open-pull-requests-limit: 10
+    reviewers:
+      - "peschull"
+    assignees:
+      - "peschull"
+    labels:
+      - "dependencies"
+      - "npm"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    registries:
+      - npm-private
+  
+  # MCP File Server
   - package-ecosystem: "npm"
     directory: "/mcp-servers/file-server"
     schedule:
       interval: "weekly"
+      day: "monday"
+      time: "03:00"
+      timezone: "Europe/Vienna"
+    labels:
+      - "dependencies"
+      - "mcp"
+    commit-message:
+      prefix: "chore(mcp-deps)"
+    registries:
+      - npm-private
+  
+  # Frontend dependencies
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "Europe/Vienna"
+    labels:
+      - "dependencies"
+      - "frontend"
+    commit-message:
+      prefix: "chore(frontend-deps)"
+    registries:
+      - npm-private
+  
+  # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "tuesday"
+      time: "03:00"
+      timezone: "Europe/Vienna"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "chore(actions)"
+  
+  # Python API dependencies
   - package-ecosystem: "pip"
     directory: "/api.menschlichkeit-oesterreich.at"
     schedule:
       interval: "weekly"
+      day: "wednesday"
+      time: "03:00"
+      timezone: "Europe/Vienna"
+    labels:
+      - "dependencies"
+      - "api"
+      - "python"
+    commit-message:
+      prefix: "chore(api-deps)"
+    # Allow both direct and indirect dependency updates
+    allow:
+      - dependency-type: "all"
+    # Security updates immediately
+    open-pull-requests-limit: 15
+  
+  # PHP Composer (CRM/Drupal/CiviCRM)
   - package-ecosystem: "composer"
     directory: "/crm.menschlichkeit-oesterreich.at"
     schedule:
       interval: "weekly"
+      day: "thursday"
+      time: "03:00"
+      timezone: "Europe/Vienna"
+    labels:
+      - "dependencies"
+      - "crm"
+      - "php"
+    commit-message:
+      prefix: "chore(crm-deps)"
+    registries:
+      - composer-private
+    # Vendor updates cautiously (Drupal/CiviCRM)
+    allow:
+      - dependency-type: "direct"
+    open-pull-requests-limit: 5
+  
+  # Docker dependencies (n8n, services)
+  - package-ecosystem: "docker"
+    directory: "/automation/n8n"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+      time: "03:00"
+      timezone: "Europe/Vienna"
+    labels:
+      - "dependencies"
+      - "docker"
+      - "n8n"
+    commit-message:
+      prefix: "chore(docker)"

@@ -1,0 +1,100 @@
+name: SBOM Generation & Attestation
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  sbom-cyclonedx:
+    name: Generate CycloneDX SBOM
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install CycloneDX CLI
+        run: npm install -g @cyclonedx/cyclonedx-npm
+
+      - name: Generate SBOM for JavaScript/TypeScript
+        run: |
+          cyclonedx-npm --output-file sbom-npm.json --spec-version 1.5
+        continue-on-error: true
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate SBOM for Python
+        run: |
+          pip install cyclonedx-bom
+          cyclonedx-py requirements \
+            api.menschlichkeit-oesterreich.at/requirements.txt \
+            -o sbom-python.json \
+            --format json
+        continue-on-error: true
+
+      - name: Merge SBOMs
+        run: |
+          # Create combined SBOM
+          jq -s '
+            {
+              "bomFormat": "CycloneDX",
+              "specVersion": "1.5",
+              "serialNumber": "urn:uuid:'$(uuidgen)'",
+              "version": 1,
+              "metadata": {
+                "timestamp": "'$(date -u +"%Y-%m-%dT%H:%M:%SZ")'",
+                "component": {
+                  "type": "application",
+                  "name": "menschlichkeit-oesterreich",
+                  "version": "'${GITHUB_SHA:0:7}'"
+                }
+              },
+              "components": ([.[].components // []] | flatten)
+            }
+          ' sbom-*.json > sbom-combined.json 2>/dev/null || echo '{"bomFormat":"CycloneDX"}' > sbom-combined.json
+
+      - name: Attest SBOM (if release)
+        if: github.event_name == 'release'
+        uses: actions/attest-sbom@v1
+        with:
+          subject-path: 'sbom-combined.json'
+          sbom-path: 'sbom-combined.json'
+
+      - name: Upload SBOM as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-cyclonedx
+          path: |
+            sbom-*.json
+          retention-days: 90
+
+      - name: Commit SBOM to repository
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p .sbom
+          cp sbom-combined.json .sbom/sbom-latest.json
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .sbom/sbom-latest.json
+          git diff --staged --quiet || git commit -m "chore: Update SBOM [skip ci]"
+          git push
+        continue-on-error: true

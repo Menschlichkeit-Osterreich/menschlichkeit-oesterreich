@@ -1,0 +1,65 @@
+name: OpenSSF Scorecard
+
+on:
+  # Run on branch protection rule changes
+  branch_protection_rule:
+  # Run on schedule (weekly)
+  schedule:
+    # Weekly on Sunday at 6:00 UTC
+    - cron: '0 6 * * 0'
+  # Allow manual trigger
+  workflow_dispatch:
+  # Run on push to main
+  push:
+    branches: [main, master]
+
+# Declare default permissions as read only
+permissions: read-all
+
+jobs:
+  analysis:
+    name: Scorecard Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      # Needed to upload the results to code-scanning dashboard
+      security-events: write
+      # Needed to publish results and get a badge
+      id-token: write
+      # Needed to read repository data
+      contents: read
+      # Needed to read actions data
+      actions: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Run OpenSSF Scorecard Analysis
+        uses: ossf/scorecard-action@v2
+        with:
+          results_file: scorecard-results.sarif
+          results_format: sarif
+          # Publish results to OpenSSF REST API for public repositories
+          # Set to true for public repos to enable the badge
+          publish_results: false
+
+      - name: Upload Scorecard results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: scorecard-results.sarif
+          category: scorecard
+
+      - name: Upload results as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: scorecard-results
+          path: scorecard-results.sarif
+          retention-days: 30
+
+      - name: Generate Scorecard Badge (if public)
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "📊 Scorecard results uploaded to Security tab"
+          echo "View at: https://github.com/${{ github.repository }}/security/code-scanning"

@@ -1,0 +1,73 @@
+name: Sync Wiki
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'docs/wiki/**'
+      - '.github/workflows/sync-wiki.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-wiki:
+    name: Sync Documentation to Wiki
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout wiki repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}.wiki
+          path: wiki
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync wiki content
+        run: |
+          echo "📚 Syncing docs/wiki/ to wiki repository..."
+          
+          # Remove old content (except .git)
+          find wiki -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+          
+          # Copy new content
+          if [ -d "docs/wiki" ]; then
+            cp -r docs/wiki/* wiki/
+            echo "✅ Content copied successfully"
+          else
+            echo "❌ docs/wiki directory not found"
+            exit 1
+          fi
+          
+      - name: Commit and push changes
+        run: |
+          cd wiki
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add .
+          
+          if git diff --staged --quiet; then
+            echo "ℹ️  No changes to commit"
+          else
+            git commit -m "docs: Sync from docs/wiki/ (${GITHUB_SHA:0:7})"
+            git push
+            echo "✅ Wiki updated successfully"
+          fi
+
+      - name: Create sync summary
+        run: |
+          echo "## 📖 Wiki Sync Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit**: ${GITHUB_SHA:0:7}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Documentation synchronized to [Wiki](${{ github.server_url }}/${{ github.repository }}/wiki)" >> $GITHUB_STEP_SUMMARY
