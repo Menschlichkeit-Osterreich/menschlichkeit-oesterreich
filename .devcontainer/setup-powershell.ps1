@@ -4,20 +4,29 @@
     PowerShell Setup & Verification für Menschlichkeit Österreich Codespace
 .DESCRIPTION
     Installiert PowerShell-Module, konfiguriert Profile und verifiziert die Umgebung
+    Läuft mit Fehlertoleranz - scheitert nicht bei einzelnen Modulen
 .NOTES
     Author: Menschlichkeit Österreich DevOps Team
     Date: 2025-01-10
+    Updated: 2025-10-12 - Added timeout protection and error handling
 #>
+
+# Set error action to continue (don't stop on errors)
+$ErrorActionPreference = 'Continue'
 
 Write-Host "🚀 PowerShell Setup für Menschlichkeit Österreich" -ForegroundColor Cyan
 Write-Host "=" * 60
 
 # 1. Prüfe PowerShell Version
 Write-Host "`n📋 PowerShell Version:" -ForegroundColor Yellow
-$PSVersionTable.PSVersion | Format-Table
+try {
+    $PSVersionTable.PSVersion | Format-Table
+} catch {
+    Write-Host "  ⚠️ Could not display PowerShell version" -ForegroundColor Yellow
+}
 
-# 2. Installiere nützliche Module
-Write-Host "`n📦 Installiere PowerShell-Module..." -ForegroundColor Yellow
+# 2. Installiere nützliche Module (mit Timeout-Schutz)
+Write-Host "`n📦 Installiere PowerShell-Module (optional)..." -ForegroundColor Yellow
 
 $modules = @(
     'PSReadLine',           # Verbesserte Kommandozeilen-Erfahrung
@@ -27,47 +36,74 @@ $modules = @(
 )
 
 foreach ($module in $modules) {
-    if (!(Get-Module -ListAvailable -Name $module)) {
-        Write-Host "  ⏳ Installiere $module..." -ForegroundColor Gray
-        Install-Module -Name $module -Force -Scope CurrentUser -SkipPublisherCheck
-        Write-Host "  ✅ $module installiert" -ForegroundColor Green
-    } else {
-        Write-Host "  ⏭️  $module bereits installiert" -ForegroundColor Gray
+    try {
+        if (!(Get-Module -ListAvailable -Name $module -ErrorAction SilentlyContinue)) {
+            Write-Host "  ⏳ Installiere $module (timeout: 30s)..." -ForegroundColor Gray
+            
+            # Use timeout with job to prevent hanging
+            $job = Start-Job -ScriptBlock {
+                param($moduleName)
+                Install-Module -Name $moduleName -Force -Scope CurrentUser -SkipPublisherCheck -ErrorAction Stop
+            } -ArgumentList $module
+            
+            $completed = Wait-Job -Job $job -Timeout 30
+            
+            if ($completed) {
+                Receive-Job -Job $job
+                Write-Host "  ✅ $module installiert" -ForegroundColor Green
+            } else {
+                Write-Host "  ⏭️  $module übersprungen (Timeout)" -ForegroundColor Yellow
+                Stop-Job -Job $job
+            }
+            Remove-Job -Job $job -Force
+        } else {
+            Write-Host "  ⏭️  $module bereits installiert" -ForegroundColor Gray
+        }
+    } catch {
+        Write-Host "  ⚠️ $module Installation fehlgeschlagen: $($_.Exception.Message)" -ForegroundColor Yellow
+        Write-Host "     Fahre fort ohne $module" -ForegroundColor Gray
     }
 }
 
 # 3. Erstelle PowerShell-Profil
 Write-Host "`n⚙️  Konfiguriere PowerShell-Profil..." -ForegroundColor Yellow
 
-$profileDir = Split-Path -Parent $PROFILE
-if (!(Test-Path $profileDir)) {
-    New-Item -ItemType Directory -Path $profileDir -Force | Out-Null
-}
+try {
+    $profileDir = Split-Path -Parent $PROFILE
+    if (!(Test-Path $profileDir)) {
+        New-Item -ItemType Directory -Path $profileDir -Force | Out-Null
+    }
 
-$profileContent = @'
+    $profileContent = @'
 # Menschlichkeit Österreich PowerShell Profil
 # Generiert am: {0}
 
-# PSReadLine Konfiguration
-Import-Module PSReadLine
-Set-PSReadLineOption -PredictionSource History
-Set-PSReadLineOption -EditMode Emacs
-Set-PSReadLineKeyHandler -Key Tab -Function Complete
-Set-PSReadLineOption -HistorySearchCursorMovesToEnd
-Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
-Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+# PSReadLine Konfiguration (nur wenn verfügbar)
+if (Get-Module -ListAvailable -Name PSReadLine) {{
+    Import-Module PSReadLine -ErrorAction SilentlyContinue
+    Set-PSReadLineOption -PredictionSource History -ErrorAction SilentlyContinue
+    Set-PSReadLineOption -EditMode Emacs -ErrorAction SilentlyContinue
+    Set-PSReadLineKeyHandler -Key Tab -Function Complete -ErrorAction SilentlyContinue
+    Set-PSReadLineOption -HistorySearchCursorMovesToEnd -ErrorAction SilentlyContinue
+    Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward -ErrorAction SilentlyContinue
+    Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward -ErrorAction SilentlyContinue
+}}
 
-# Git Integration
-Import-Module posh-git
+# Git Integration (nur wenn verfügbar)
+if (Get-Module -ListAvailable -Name posh-git) {{
+    Import-Module posh-git -ErrorAction SilentlyContinue
+}}
 
-# Terminal Icons
-Import-Module Terminal-Icons
+# Terminal Icons (nur wenn verfügbar)
+if (Get-Module -ListAvailable -Name Terminal-Icons) {{
+    Import-Module Terminal-Icons -ErrorAction SilentlyContinue
+}}
 
 # Nützliche Aliase
-Set-Alias -Name g -Value git
-Set-Alias -Name k -Value kubectl
-Set-Alias -Name d -Value docker
-Set-Alias -Name dc -Value docker-compose
+Set-Alias -Name g -Value git -ErrorAction SilentlyContinue
+Set-Alias -Name k -Value kubectl -ErrorAction SilentlyContinue
+Set-Alias -Name d -Value docker -ErrorAction SilentlyContinue
+Set-Alias -Name dc -Value docker-compose -ErrorAction SilentlyContinue
 
 # Projekt-spezifische Funktionen
 function Start-AllServices {{
@@ -109,8 +145,11 @@ function prompt {{
 Write-Host "✅ Menschlichkeit Österreich PowerShell-Umgebung geladen" -ForegroundColor Green
 '@ -f (Get-Date -Format "yyyy-MM-dd HH:mm:ss")
 
-Set-Content -Path $PROFILE -Value $profileContent -Force
-Write-Host "  ✅ Profil erstellt: $PROFILE" -ForegroundColor Green
+    Set-Content -Path $PROFILE -Value $profileContent -Force
+    Write-Host "  ✅ Profil erstellt: $PROFILE" -ForegroundColor Green
+} catch {
+    Write-Host "  ⚠️ Profil konnte nicht erstellt werden: $($_.Exception.Message)" -ForegroundColor Yellow
+}
 
 # 4. Verifiziere Installation
 Write-Host "`n✅ Installations-Verifikation:" -ForegroundColor Yellow
@@ -118,24 +157,29 @@ Write-Host "`n✅ Installations-Verifikation:" -ForegroundColor Yellow
 # Prüfe verfügbare Commands
 $commands = @('git', 'docker', 'npm', 'node', 'python3', 'php', 'pwsh')
 foreach ($cmd in $commands) {
-    $exists = Get-Command $cmd -ErrorAction SilentlyContinue
-    if ($exists) {
-        Write-Host "  ✅ $cmd : verfügbar" -ForegroundColor Green
-    } else {
-        Write-Host "  ❌ $cmd : NICHT gefunden" -ForegroundColor Red
+    try {
+        $exists = Get-Command $cmd -ErrorAction SilentlyContinue
+        if ($exists) {
+            Write-Host "  ✅ $cmd : verfügbar" -ForegroundColor Green
+        } else {
+            Write-Host "  ❌ $cmd : NICHT gefunden" -ForegroundColor Red
+        }
+    } catch {
+        Write-Host "  ⚠️ $cmd : Prüfung fehlgeschlagen" -ForegroundColor Yellow
     }
 }
 
 # 5. Erstelle nützliche PowerShell-Scripts
 Write-Host "`n📝 Erstelle Projekt-Scripts..." -ForegroundColor Yellow
 
-$scriptsDir = Join-Path $PWD "scripts/powershell"
-if (!(Test-Path $scriptsDir)) {
-    New-Item -ItemType Directory -Path $scriptsDir -Force | Out-Null
-}
+try {
+    $scriptsDir = Join-Path $PWD "scripts/powershell"
+    if (!(Test-Path $scriptsDir)) {
+        New-Item -ItemType Directory -Path $scriptsDir -Force | Out-Null
+    }
 
-# Git Helper Script
-$gitHelperContent = @'
+    # Git Helper Script
+    $gitHelperContent = @'
 <#
 .SYNOPSIS
     Git-Workflow-Helfer für Menschlichkeit Österreich
@@ -187,11 +231,11 @@ function Invoke-SafeCommit {
 Export-ModuleMember -Function New-FeatureBranch, Invoke-QualityCheck, Invoke-SafeCommit
 '@
 
-Set-Content -Path (Join-Path $scriptsDir "GitHelper.psm1") -Value $gitHelperContent
-Write-Host "  ✅ GitHelper.psm1 erstellt" -ForegroundColor Green
+    Set-Content -Path (Join-Path $scriptsDir "GitHelper.psm1") -Value $gitHelperContent -ErrorAction Stop
+    Write-Host "  ✅ GitHelper.psm1 erstellt" -ForegroundColor Green
 
-# Deployment Helper Script
-$deployHelperContent = @'
+    # Deployment Helper Script
+    $deployHelperContent = @'
 <#
 .SYNOPSIS
     Deployment-Helfer für Menschlichkeit Österreich
@@ -237,11 +281,15 @@ function Invoke-Rollback {
 Export-ModuleMember -Function Start-StagingDeployment, Start-ProductionDeployment, Invoke-Rollback
 '@
 
-Set-Content -Path (Join-Path $scriptsDir "DeploymentHelper.psm1") -Value $deployHelperContent
-Write-Host "  ✅ DeploymentHelper.psm1 erstellt" -ForegroundColor Green
+    Set-Content -Path (Join-Path $scriptsDir "DeploymentHelper.psm1") -Value $deployHelperContent -ErrorAction Stop
+    Write-Host "  ✅ DeploymentHelper.psm1 erstellt" -ForegroundColor Green
+} catch {
+    Write-Host "  ⚠️ Script-Erstellung fehlgeschlagen: $($_.Exception.Message)" -ForegroundColor Yellow
+}
 
 # 6. Erstelle README für PowerShell-Nutzung
-$readmeContent = @'
+try {
+    $readmeContent = @'
 # PowerShell in Menschlichkeit Österreich Codespace
 
 ## 🚀 Quick Start
@@ -259,10 +307,12 @@ Get-Module -ListAvailable
 
 ## 📦 Installierte Module
 
-- **PSReadLine** - Verbesserte Kommandozeile mit Syntax-Highlighting
-- **posh-git** - Git-Integration im Prompt
-- **Terminal-Icons** - Datei-Icons
-- **PSScriptAnalyzer** - Linting für PowerShell-Scripts
+- **PSReadLine** - Verbesserte Kommandozeile mit Syntax-Highlighting (optional)
+- **posh-git** - Git-Integration im Prompt (optional)
+- **Terminal-Icons** - Datei-Icons (optional)
+- **PSScriptAnalyzer** - Linting für PowerShell-Scripts (optional)
+
+**Note:** Module werden während des Setups versucht zu installieren, aber das Setup schlägt nicht fehl wenn sie nicht verfügbar sind.
 
 ## 🛠️ Projekt-spezifische Funktionen
 
@@ -317,18 +367,30 @@ Invoke-Rollback -Version "v1.2.3"
 - [PowerShell Dokumentation](https://learn.microsoft.com/powershell/)
 - [PSReadLine](https://github.com/PowerShell/PSReadLine)
 - [posh-git](https://github.com/dahlbyk/posh-git)
+
+## ⚠️ Troubleshooting
+
+If PowerShell modules fail to install:
+1. The setup will continue - modules are optional
+2. You can manually install later: `Install-Module -Name <module> -Scope CurrentUser`
+3. Basic PowerShell functionality works without the modules
 '@
 
-Set-Content -Path (Join-Path $PWD ".devcontainer/POWERSHELL.md") -Value $readmeContent
-Write-Host "  ✅ POWERSHELL.md erstellt" -ForegroundColor Green
+    Set-Content -Path (Join-Path $PWD ".devcontainer/POWERSHELL.md") -Value $readmeContent -ErrorAction Stop
+    Write-Host "  ✅ POWERSHELL.md erstellt" -ForegroundColor Green
+} catch {
+    Write-Host "  ⚠️ README konnte nicht erstellt werden: $($_.Exception.Message)" -ForegroundColor Yellow
+}
 
 # Finale Zusammenfassung
 Write-Host "`n" + ("=" * 60)
 Write-Host "✅ PowerShell Setup abgeschlossen!" -ForegroundColor Green
-Write-Host ("=" * 60)
-Write-Host "`n📝 Nächste Schritte:" -ForegroundColor Cyan
-Write-Host "  1. Codespace neu bauen: 'Rebuild Container'" -ForegroundColor White
-Write-Host "  2. PowerShell starten: 'pwsh'" -ForegroundColor White
-Write-Host "  3. Profil laden: '. `$PROFILE'" -ForegroundColor White
-Write-Host "  4. Dokumentation: '.devcontainer/POWERSHELL.md'" -ForegroundColor White
+Write-Host "=" * 60
+Write-Host "`n📝 Hinweise:" -ForegroundColor Cyan
+Write-Host "  - PowerShell-Module sind optional und beeinträchtigen nicht die Hauptfunktionalität" -ForegroundColor White
+Write-Host "  - Bei Problemen: Setup läuft im Hintergrund und stoppt Codespace nicht" -ForegroundColor White
+Write-Host "  - Dokumentation: '.devcontainer/POWERSHELL.md'" -ForegroundColor White
 Write-Host "`n🎯 Viel Erfolg mit PowerShell! 🇦🇹" -ForegroundColor Green
+
+# Exit with success even if some steps failed
+exit 0

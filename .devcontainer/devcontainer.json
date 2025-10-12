@@ -18,7 +18,8 @@
     "ghcr.io/devcontainers/features/git:1": {}
   },
   "onCreateCommand": "npm install",
-  "postCreateCommand": "bash .devcontainer/setup.sh && pwsh .devcontainer/setup-powershell.ps1",
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "postStartCommand": "pwsh .devcontainer/setup-powershell.ps1 || true",
   "customizations": {
     "vscode": {
       "extensions": [

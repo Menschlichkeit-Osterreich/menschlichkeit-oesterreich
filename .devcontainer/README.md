@@ -5,9 +5,27 @@
 When your Codespace starts, it will automatically:
 
 1. Install Node.js dependencies
-2. Attempt to install Python dependencies for the API service
+2. Attempt to install Python dependencies for the API service (with timeout protection)
 3. Set up environment files from examples
 4. Configure development ports
+5. **NEW:** PowerShell setup runs in background (optional, non-blocking)
+
+**Setup Improvements (2025-10-12):**
+- ✅ Timeout protection for all long-running operations
+- ✅ PowerShell setup is now optional and doesn't block Codespace startup
+- ✅ Better error handling - setup continues even if individual steps fail
+- ✅ Resource monitoring - shows available memory, disk, and CPU
+
+## 🧪 Verify Setup
+
+After Codespace starts, verify everything is working:
+
+```bash
+# Run automated tests
+bash .devcontainer/test-setup.sh
+
+# Expected output: "✅ All critical tests passed!"
+```
 
 ## 🌐 Development Servers
 
@@ -26,15 +44,37 @@ npm run dev:games      # Games (Python) - http://localhost:3000
 
 ## 🔧 Troubleshooting
 
+### Common Issues (Updated 2025-10-12)
+
+**Setup hangs or times out:**
+- ✅ The setup now has automatic timeout protection (120-180 seconds per operation)
+- ✅ PowerShell module installation is optional and won't block the setup
+- Check the terminal output for specific error messages
+
 ### Python Dependencies Issue
 
 If the API service fails to start due to missing dependencies:
 
 ```bash
 cd api.menschlichkeit-oesterreich.at
-pip install -r requirements.txt
+# With timeout protection (recommended)
+timeout 120 pip install --user fastapi uvicorn python-dotenv
+# OR for full requirements:
+timeout 180 pip install --user -r requirements.txt
 # OR for minimal setup:
-pip install fastapi uvicorn python-dotenv
+pip install --user -r requirements-minimal.txt
+```
+
+### PowerShell Setup Issues
+
+PowerShell setup is now optional and runs in the background:
+
+```bash
+# PowerShell setup runs automatically but won't block Codespace startup
+# To manually retry if needed:
+pwsh .devcontainer/setup-powershell.ps1
+
+# Codespace works fine without PowerShell modules
 ```
 
 ### Network/Timeout Issues
@@ -43,9 +83,10 @@ If pip installation times out during setup:
 
 ```bash
 cd api.menschlichkeit-oesterreich.at
-pip install --timeout 300 -r requirements.txt
+# The setup script now uses timeout automatically
+timeout 300 pip install --user --timeout 300 -r requirements.txt
 # OR install essentials only:
-pip install -r requirements-minimal.txt
+pip install --user -r requirements-minimal.txt
 ```
 
 ### Environment Configuration
