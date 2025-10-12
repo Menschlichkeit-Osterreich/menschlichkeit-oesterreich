@@ -2,24 +2,24 @@ name: CodeQL
 
 on:
   push:
-    branches: [main, master, chore/**, feature/**]
+    branches: [main, master, aufgabe/**, funktion/**]
     paths:
       - 'frontend/**'
-      - 'website/**'
+      - 'webseite/**'
       - 'api.menschlichkeit-oesterreich.at/**'
       - 'crm.menschlichkeit-oesterreich.at/**'
       - 'web/**'
-      - 'servers/**'
+      - 'Server/**'
       - '.github/workflows/codeql.yml'
   pull_request:
-    branches: [main, master, chore/**, feature/**]
+    branches: [main, master, aufgabe/**, funktion/**]
     paths:
       - 'frontend/**'
-      - 'website/**'
+      - 'webseite/**'
       - 'api.menschlichkeit-oesterreich.at/**'
       - 'crm.menschlichkeit-oesterreich.at/**'
       - 'web/**'
-      - 'servers/**'
+      - 'Server/**'
       - '.github/workflows/codeql.yml'
 
 permissions:
@@ -27,20 +27,27 @@ permissions:
   security-events: write
 
 jobs:
-  CodeQL:
-    name: CodeQL
+  analyze:
+    name: CodeQL Analyse
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
-          languages: javascript, python, cpp, csharp, go, ruby, java
+          languages: cpp, javascript, python, go
+          queries: security-and-quality
 
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
+      - name: Build C++ project manually
+        run: |
+          mkdir -p build
+          cd build
+          cmake ..
+          make -j$(nproc)
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
