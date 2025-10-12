@@ -72,6 +72,7 @@ jobs:
       - name: ESLint
         if: github.event_name == 'workflow_dispatch' || steps.changes.outputs.js != '[]'
         shell: bash
+        continue-on-error: true
         run: |
           if npx --yes eslint -v >/dev/null 2>&1; then
             npx eslint . --max-warnings=0

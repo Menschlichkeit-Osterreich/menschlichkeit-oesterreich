@@ -2,9 +2,35 @@
 import { spawn } from 'node:child_process';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import net from 'node:net';
 
-const PREVIEW_PORT = process.env.LH_PREVIEW_PORT || '4173';
-const PREVIEW_URL = `http://localhost:${PREVIEW_PORT}`;
+async function getFreePort(preferred) {
+  if (preferred) {
+    const ok = await canBind(preferred).catch(() => false);
+    if (ok) return preferred;
+  }
+  // Let the OS assign a free port
+  return await new Promise((resolvePort, reject) => {
+    const srv = net.createServer();
+    srv.listen(0, '127.0.0.1', () => {
+      const address = srv.address();
+      const port = typeof address === 'object' && address ? address.port : preferred || 4173;
+      srv.close(() => resolvePort(String(port)));
+    });
+    srv.on('error', reject);
+  });
+}
+
+function canBind(port) {
+  return new Promise((resolveOk, reject) => {
+    const srv = net.createServer();
+    srv.once('error', reject);
+    srv.listen(Number(port), '127.0.0.1', () => srv.close(() => resolveOk(true)));
+  });
+}
+
+let PREVIEW_PORT = process.env.LH_PREVIEW_PORT || '';
+let PREVIEW_URL = '';
 const REPORT_DIR = resolve(process.cwd(), '.lighthouse');
 const REPORT_BASE = resolve(REPORT_DIR, 'report');
 
@@ -16,7 +42,7 @@ function run(cmd, args, opts = {}) {
   });
 }
 
-async function waitForUrl(url, timeoutMs = 15000) {
+async function waitForUrl(url, timeoutMs = 30000) {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
     try {
@@ -31,6 +57,10 @@ async function waitForUrl(url, timeoutMs = 15000) {
 async function main() {
   mkdirSync(REPORT_DIR, { recursive: true });
   await run('npx', ['vite', 'build']);
+
+  // Determine preview port
+  PREVIEW_PORT = await getFreePort(PREVIEW_PORT);
+  PREVIEW_URL = `http://localhost:${PREVIEW_PORT}`;
 
   const preview = spawn('npx', ['vite', 'preview', '--port', PREVIEW_PORT], { stdio: 'inherit', shell: process.platform === 'win32' });
   try {

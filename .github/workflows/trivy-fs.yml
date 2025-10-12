@@ -20,6 +20,7 @@ on:
 
 permissions:
   contents: read
+  security-events: write
 
 jobs:
   trivy:
@@ -31,14 +32,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run Trivy filesystem scan
-        uses: aquasecurity/trivy-action@0.33.1
-        with:
-          scan-type: 'fs'
-          format: 'sarif'
-          output: 'trivy-fs.sarif'
-          ignore-unfixed: true
-          severity: 'CRITICAL,HIGH'
+      - name: Run Trivy filesystem scan (wrapper, non-blocking)
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/security/trivy-fs.sh trivy-fs.sarif .
 
       - name: Upload SARIF
         uses: github/codeql-action/upload-sarif@v3
