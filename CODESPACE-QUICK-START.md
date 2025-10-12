@@ -97,15 +97,17 @@ cp frontend/.env.example frontend/.env
 | `CODESPACE-STARTUP-FIX.md` | Detaillierte Fix-Dokumentation |
 | `.devcontainer/README.md` | Vollständige Setup-Anleitung |
 
-## ✨ Was wurde behoben
+## ✨ Was wurde behoben (Update 2025-10-12)
 
-| Problem | Status |
-|---------|--------|
-| Codespace öffnet sich nicht | ✅ FIXED |
-| .env Dateien fehlen | ✅ FIXED (automatisch erstellt) |
-| Python Dependencies fehlen | ✅ FIXED (FastAPI/Uvicorn in onCreate) |
-| npm install hängt | ✅ FIXED (300s Timeout) |
-| Setup bricht bei Fehler ab | ✅ FIXED (Fehlertoleranz) |
+| Problem | Status | Details |
+|---------|--------|---------|
+| Codespace öffnet sich nicht | ✅ FIXED | Fehlertoleranz & Timeouts implementiert |
+| .env Dateien fehlen | ✅ FIXED | Automatisch erstellt mit Fallback-Logik |
+| Python Dependencies fehlen | ✅ FIXED | FastAPI/Uvicorn in onCreate |
+| npm install hängt | ✅ FIXED | 300s Timeout |
+| Setup bricht bei Fehler ab | ✅ FIXED | Fehlertoleranz (set +e, exit 0) |
+| requirements.txt nicht gefunden | ✅ FIXED | Intelligente Pfad-Erkennung (app/requirements.txt) |
+| CRM .env Warnung | ✅ IMPROVED | Fallback-Logik für mehrere Pfade |
 
 ## 🎯 Success Indicators
 

@@ -59,7 +59,14 @@ create_env_file() {
 create_env_file ".env.example" ".env"
 create_env_file "api.menschlichkeit-oesterreich.at/.env.example" "api.menschlichkeit-oesterreich.at/.env"
 create_env_file "frontend/.env.example" "frontend/.env"
-create_env_file "crm.menschlichkeit-oesterreich.at/.env.example" "crm.menschlichkeit-oesterreich.at/.env"
+# CRM uses different structure - check multiple possible locations
+if [ -f "crm.menschlichkeit-oesterreich.at/.env.example" ]; then
+    create_env_file "crm.menschlichkeit-oesterreich.at/.env.example" "crm.menschlichkeit-oesterreich.at/.env"
+elif [ -f "crm.menschlichkeit-oesterreich.at/sites/default/.env.example" ]; then
+    create_env_file "crm.menschlichkeit-oesterreich.at/sites/default/.env.example" "crm.menschlichkeit-oesterreich.at/sites/default/.env"
+else
+    echo "  ℹ️  CRM .env.example not found - manual configuration may be needed"
+fi
 create_env_file "automation/n8n/.env.example" "automation/n8n/.env"
 
 # 4. Install critical Python dependencies (FastAPI, Uvicorn)

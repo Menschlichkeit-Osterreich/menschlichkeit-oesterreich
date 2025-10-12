@@ -34,7 +34,14 @@ fi
 # Try full requirements if we have basic packages working
 if python3 -c "import fastapi, uvicorn" 2>/dev/null; then
     echo "📦 Attempting full requirements install (with timeout protection)..."
-    timeout 180 pip install --user --timeout 120 -r requirements.txt || echo "⚠️ Full requirements install failed or timed out, basic functionality should still work"
+    # requirements.txt is in app/ subdirectory
+    if [ -f "app/requirements.txt" ]; then
+        timeout 180 pip install --user --timeout 120 -r app/requirements.txt || echo "⚠️ Full requirements install failed or timed out, basic functionality should still work"
+    elif [ -f "requirements.txt" ]; then
+        timeout 180 pip install --user --timeout 120 -r requirements.txt || echo "⚠️ Full requirements install failed or timed out, basic functionality should still work"
+    else
+        echo "⚠️ No requirements.txt found, skipping"
+    fi
 fi
 
 cd ..
@@ -57,7 +64,14 @@ copy_env_if_missing() {
 copy_env_if_missing ".env.example" ".env"
 copy_env_if_missing "api.menschlichkeit-oesterreich.at/.env.example" "api.menschlichkeit-oesterreich.at/.env"
 copy_env_if_missing "frontend/.env.example" "frontend/.env"
-copy_env_if_missing "crm.menschlichkeit-oesterreich.at/.env.example" "crm.menschlichkeit-oesterreich.at/.env"
+# CRM uses different structure - check multiple possible locations
+if [ -f "crm.menschlichkeit-oesterreich.at/.env.example" ]; then
+    copy_env_if_missing "crm.menschlichkeit-oesterreich.at/.env.example" "crm.menschlichkeit-oesterreich.at/.env"
+elif [ -f "crm.menschlichkeit-oesterreich.at/sites/default/.env.example" ]; then
+    copy_env_if_missing "crm.menschlichkeit-oesterreich.at/sites/default/.env.example" "crm.menschlichkeit-oesterreich.at/sites/default/.env"
+else
+    echo "ℹ️  CRM .env.example not found - manual configuration may be needed"
+fi
 copy_env_if_missing "automation/n8n/.env.example" "automation/n8n/.env"
 
 # Make scripts executable

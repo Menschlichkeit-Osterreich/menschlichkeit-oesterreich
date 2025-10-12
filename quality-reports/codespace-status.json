@@ -51,12 +51,12 @@
     "disk": {
       "size": "72G",
       "used": "51G",
-      "available": "22G",
+      "available": "21G",
       "use_percent": "71%"
     },
     "memory": {
       "total": "15Gi",
-      "used": "1.6Gi",
+      "used": "1.5Gi",
       "free": "11Gi",
       "available": "14Gi"
     },
@@ -67,5 +67,5 @@
     "\ud83d\udd34 4 Service(s) gestoppt - verwende 'npm run dev:all' zum Starten",
     "\u26a0\ufe0f  GITHUB_TOKEN nicht gesetzt - PR und Workflow Informationen nicht verf\u00fcgbar"
   ],
-  "timestamp": "2025-10-11T14:03:00.768661"
+  "timestamp": "2025-10-12T10:06:34.700414"
 }
