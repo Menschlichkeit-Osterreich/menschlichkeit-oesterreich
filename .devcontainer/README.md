@@ -2,19 +2,33 @@
 
 ## 🚀 Quick Start
 
-When your Codespace starts, it will automatically:
+When your Codespace starts, it will automatically run a **3-phase setup**:
 
-1. Install Node.js dependencies
-2. Attempt to install Python dependencies for the API service (with timeout protection)
-3. Set up environment files from examples
-4. Configure development ports
-5. **NEW:** PowerShell setup runs in background (optional, non-blocking)
+### Phase 1: onCreate Setup (Critical - ~2 minutes)
+1. ✅ Install npm dependencies (with 300s timeout protection)
+2. ✅ Create environment files from `.env.example` templates
+3. ✅ Install critical Python dependencies (FastAPI, Uvicorn, python-dotenv)
+4. ✅ Make scripts executable
+5. ✅ Resource monitoring (shows available memory, disk, CPU)
 
-**Setup Improvements (2025-10-12):**
-- ✅ Timeout protection for all long-running operations
-- ✅ PowerShell setup is now optional and doesn't block Codespace startup
-- ✅ Better error handling - setup continues even if individual steps fail
-- ✅ Resource monitoring - shows available memory, disk, and CPU
+### Phase 2: postCreate Setup (~1 minute)
+1. ✅ Install additional Python dependencies (full requirements.txt)
+2. ✅ Install PHP dependencies (if composer.json exists)
+3. ✅ Final environment verification
+
+### Phase 3: postStart Setup (Optional, non-blocking)
+1. ✅ PowerShell module installation (optional, doesn't block)
+2. ✅ PowerShell profile setup
+3. ✅ Helper scripts creation
+
+**Total Setup Time**: ~3-5 minutes
+
+**Key Improvements (2025-10-12):**
+- ✅ **onCreate now creates .env files** - Critical fix
+- ✅ **Python dependencies installed in onCreate** - No more missing FastAPI/Uvicorn
+- ✅ **Timeout protection** on all long-running operations (300s npm, 120-180s pip)
+- ✅ **Graceful degradation** - setup continues even if individual steps fail
+- ✅ **No blocking operations** - Codespace opens reliably
 
 ## 🧪 Verify Setup
 

@@ -2,6 +2,25 @@
 
 ## 🆘 "Warum läuft mein Codespace nicht?" - Häufige Probleme und Lösungen
 
+### ✅ UPDATE 2025-10-12: Codespace Startup Fix Implementiert
+
+**Das Hauptproblem wurde behoben!** Codespace sollte jetzt zuverlässig starten.
+
+**Was wurde geändert:**
+- ✅ `.env` Dateien werden automatisch aus `.env.example` erstellt (im onCreate)
+- ✅ Python Dependencies (FastAPI, Uvicorn) werden im onCreate installiert
+- ✅ npm install hat jetzt Timeout-Schutz (300s)
+- ✅ Setup ist fehlertoleranter - läuft weiter bei einzelnen Fehlern
+
+**Wenn Codespace immer noch nicht startet:**
+1. Prüfe GitHub Codespaces Status: https://www.githubstatus.com/
+2. Lösche das Codespace und erstelle ein neues
+3. Folge der manuellen Setup-Anleitung unten
+
+---
+
+## Häufige Probleme (Legacy - sollten nicht mehr auftreten)
+
 ### Problem: Codespace startet nicht oder ist sehr langsam
 
 **Lösung:**

@@ -1,9 +1,11 @@
 #!/bin/bash
 # Devcontainer setup script for Menschlichkeit Österreich
+# This runs as postCreateCommand AFTER onCreate-setup.sh
 # Exit on error is disabled to allow graceful degradation
 set +e  # Changed from set -e to allow continuing on errors
 
-echo "🚀 Setting up Menschlichkeit Österreich development environment..."
+echo "🚀 Setting up Menschlichkeit Österreich development environment (Phase 2/3)..."
+echo ""
 
 # Create quality-reports directory
 mkdir -p quality-reports
@@ -12,16 +14,21 @@ mkdir -p quality-reports
 echo "🐍 Installing Python dependencies for API service..."
 cd api.menschlichkeit-oesterreich.at
 
-# Try minimal requirements first (more likely to succeed)  
-if [ -f "requirements-minimal.txt" ]; then
-    echo "📦 Installing minimal Python requirements..."
-    timeout 120 pip install --user --timeout 120 -r requirements-minimal.txt || echo "⚠️ Minimal requirements install failed, will try manual install"
-fi
-
-# Try full requirements if minimal succeeded or if minimal doesn't exist
-if ! python3 -c "import fastapi, uvicorn" 2>/dev/null; then
-    echo "📦 Installing essential packages manually..."
-    timeout 120 pip install --user --timeout 120 fastapi uvicorn python-dotenv pydantic requests || echo "⚠️ Manual install failed, API server may not work"
+# Check if we already have the basics (from onCreate)
+if python3 -c "import fastapi, uvicorn" 2>/dev/null; then
+    echo "  ✅ FastAPI and Uvicorn already installed"
+else
+    # Try minimal requirements first (more likely to succeed)  
+    if [ -f "requirements-minimal.txt" ]; then
+        echo "📦 Installing minimal Python requirements..."
+        timeout 120 pip install --user --timeout 120 -r requirements-minimal.txt || echo "⚠️ Minimal requirements install failed, will try manual install"
+    fi
+    
+    # Try full requirements if minimal succeeded or if minimal doesn't exist
+    if ! python3 -c "import fastapi, uvicorn" 2>/dev/null; then
+        echo "📦 Installing essential packages manually..."
+        timeout 120 pip install --user --timeout 120 fastapi uvicorn python-dotenv pydantic requests || echo "⚠️ Manual install failed, API server may not work"
+    fi
 fi
 
 # Try full requirements if we have basic packages working
