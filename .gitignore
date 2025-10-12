@@ -258,7 +258,15 @@ id_ed25519
 # ========================================
 # Logs & Temporary Files
 # ========================================
-logs/
+# Keep log directory structure but ignore content
+logs/*.txt
+logs/*.log
+logs/**/*.txt
+logs/**/*.log
+# But keep README files
+!logs/**/README.md
+!logs/**/.gitkeep
+
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -317,9 +325,8 @@ config/temp*
 config/local*
 *.local.conf
 
-# Logs mit potentiell sensiblen Daten
-logs/
-*.log
+# Logs mit potentiell sensiblen Daten (already configured above)
+# logs/ - see "Logs & Temporary Files" section
 error.log
 access.log
 
