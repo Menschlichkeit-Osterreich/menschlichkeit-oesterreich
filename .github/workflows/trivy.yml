@@ -1,87 +1,90 @@
-- name: Trivy Scan
-  run: trivy --skip-version-check fs .
-  
-  on:
+name: Trivy Scans
+
+on:
   push:
     branches: [main, master, chore/**, feature/**]
   pull_request:
     branches: [main, master]
   schedule:
-    # Daily scan at 4:00 UTC
+    # Daily scan at 04:00 UTC
     - cron: '0 4 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: read
   security-events: write
   actions: read
 
+concurrency:
+  group: trivy-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   trivy-fs:
     name: Trivy Filesystem Scan
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Run Trivy vulnerability scanner (Filesystem)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'sarif'
-          output: 'trivy-fs-results.sarif'
-          severity: 'CRITICAL,HIGH,MEDIUM'
-          scanners: 'vuln,secret,config'
-          # Use trivy.yaml config if exists
-          trivy-config: trivy.yaml
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: trivy-fs-results.sarif
+          severity: CRITICAL,HIGH,MEDIUM
+          scanners: vuln,secret,config
+          # Falls du eine lokale Trivy-Config nutzt, nimm 'args' statt inoffiziellem Input:
+          args: --config trivy.yaml
 
       - name: Upload Trivy FS results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
         if: always()
+        uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: 'trivy-fs-results.sarif'
-          category: 'trivy-filesystem'
+          sarif_file: trivy-fs-results.sarif
+          category: trivy-filesystem
 
       - name: Upload FS results as artifact
-        uses: actions/upload-artifact@v4
         if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: trivy-fs-results
           path: trivy-fs-results.sarif
           retention-days: 30
 
   trivy-config:
-    name: Trivy Config Scan
+    name: Trivy Config Scan (IaC/Misconfig)
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Run Trivy misconfiguration scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0
         with:
-          scan-type: 'config'
-          scan-ref: '.'
-          format: 'sarif'
-          output: 'trivy-config-results.sarif'
-          severity: 'CRITICAL,HIGH,MEDIUM'
-          # Scan for IaC misconfigurations
-          scanners: 'config'
+          scan-type: config
+          scan-ref: .
+          format: sarif
+          output: trivy-config-results.sarif
+          severity: CRITICAL,HIGH,MEDIUM
+          scanners: config
+          # Optional: eigene Config
+          args: --config trivy.yaml
 
       - name: Upload Trivy Config results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
         if: always()
+        uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: 'trivy-config-results.sarif'
-          category: 'trivy-config'
+          sarif_file: trivy-config-results.sarif
+          category: trivy-config
 
       - name: Upload Config results as artifact
-        uses: actions/upload-artifact@v4
         if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: trivy-config-results
           path: trivy-config-results.sarif
