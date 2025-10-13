@@ -1,6 +1,6 @@
-name: Trivy Security Scan
-
-on:
+- name: Trivy Scan
+  run: trivy --skip-version-check fs .on:
+  
   push:
     branches: [main, master, chore/**, feature/**]
   pull_request:
