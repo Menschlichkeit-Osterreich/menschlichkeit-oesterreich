@@ -6,6 +6,12 @@ set +e  # Don't exit on errors
 
 echo "🚀 Codespace onCreate Setup - Critical Phase"
 echo "=============================================="
+echo "📅 Started at: $(date '+%Y-%m-%d %H:%M:%S')"
+echo ""
+
+# Log file for debugging
+LOG_FILE="/tmp/devcontainer-onCreate-setup.log"
+exec > >(tee -a "$LOG_FILE") 2>&1
 
 # Function to run command with timeout
 run_with_timeout() {
@@ -32,12 +38,38 @@ run_with_timeout() {
 # 1. Create essential directories
 echo ""
 echo "📁 Creating essential directories..."
-mkdir -p quality-reports api.menschlichkeit-oesterreich.at frontend scripts/powershell
+mkdir -p quality-reports api.menschlichkeit-oesterreich.at frontend scripts/powershell 2>/dev/null || {
+    echo "  ⚠️  Failed to create some directories, but continuing..."
+}
 
-# 2. Install npm dependencies with timeout
+# Verify critical directories exist
+if [ -d "api.menschlichkeit-oesterreich.at" ]; then
+    echo "  ✅ API directory exists"
+else
+    echo "  ⚠️  API directory missing - may cause issues"
+fi
+
+# 2. Install npm dependencies with timeout and fallback
 echo ""
 echo "📦 Installing npm dependencies..."
-run_with_timeout 300 "npm install" npm install || echo "  ℹ️  npm install failed/timed out - will retry in postCreateCommand"
+
+# Check if package.json exists
+if [ ! -f "package.json" ]; then
+    echo "  ⚠️  package.json not found - skipping npm install"
+else
+    # Check if node_modules already exists (partial install from previous attempt)
+    if [ -d "node_modules" ]; then
+        echo "  ℹ️  node_modules exists - checking if complete..."
+        if npm ls >/dev/null 2>&1; then
+            echo "  ✅ npm dependencies already installed"
+        else
+            echo "  ⚠️  Incomplete installation detected - retrying..."
+            run_with_timeout 300 "npm install" npm install || echo "  ℹ️  npm install failed/timed out - will retry in postCreateCommand"
+        fi
+    else
+        run_with_timeout 300 "npm install" npm install || echo "  ℹ️  npm install failed/timed out - will retry in postCreateCommand"
+    fi
+fi
 
 # 3. Create environment files from examples (CRITICAL)
 echo ""
@@ -103,9 +135,16 @@ fi
 
 echo ""
 echo "✅ onCreate Setup Complete (Phase 1/3)"
+echo "📊 Summary:"
+echo "  - Essential directories: Created"
+echo "  - npm dependencies: $([ -d "node_modules" ] && echo "Installed" || echo "Pending")"
+echo "  - .env files: $([ -f ".env" ] && echo "Created" || echo "Pending")"
+echo "  - Python dependencies: $(python3 -c "import fastapi" 2>/dev/null && echo "Installed" || echo "Pending")"
 echo ""
 echo "ℹ️  Next: postCreateCommand will run .devcontainer/setup.sh"
 echo "ℹ️  Then: postStartCommand will run PowerShell setup"
+echo "📝 Log file: $LOG_FILE"
+echo "📅 Completed at: $(date '+%Y-%m-%d %H:%M:%S')"
 
 # Always exit 0 so Codespace continues even if some steps failed
 exit 0

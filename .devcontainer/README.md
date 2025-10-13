@@ -60,9 +60,22 @@ npm run dev:games      # Games (Python) - http://localhost:3000
 
 ### Common Issues (Updated 2025-10-12)
 
+**Quick Diagnostics:**
+```bash
+# Run comprehensive diagnostics
+bash .devcontainer/diagnose.sh
+
+# Run test suite
+bash .devcontainer/test-setup.sh
+
+# For detailed help
+cat .devcontainer/TROUBLESHOOTING.md
+```
+
 **Setup hangs or times out:**
 - ✅ The setup now has automatic timeout protection (120-180 seconds per operation)
 - ✅ PowerShell module installation is optional and won't block the setup
+- ✅ Comprehensive logging available at `/tmp/devcontainer-onCreate-setup.log`
 - Check the terminal output for specific error messages
 
 ### Python Dependencies Issue
@@ -161,6 +174,10 @@ If services won't start:
 4. Check the `.env` files are properly configured
 
 For more help, see:
+- [Devcontainer Diagnostics](.devcontainer/diagnose.sh) - Run: `bash .devcontainer/diagnose.sh`
+- [Troubleshooting Guide](.devcontainer/TROUBLESHOOTING.md) - Comprehensive troubleshooting
+- [Visual Summary](../DEVCONTAINER-FIX-VISUAL.md) - Overview of all improvements
+- [Detailed Changes](../DEVCONTAINER-IMPROVEMENTS.md) - Technical documentation
 - [Codespace Status Checker](../..dokum/CODESPACE-STATUS-CHECKER.md)
 - [Codespace Troubleshooting](../..dokum/CODESPACE-TROUBLESHOOTING.md)
 

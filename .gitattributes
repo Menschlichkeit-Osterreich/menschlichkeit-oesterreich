@@ -32,3 +32,20 @@
 # Projekt-spezifische Artefakte
 quality-reports/**/*.ndjson filter=lfs diff=lfs merge=lfs -text
 quality-reports/**/*.zip filter=lfs diff=lfs merge=lfs -text
+
+# Shell-Skripte - Ausführbar und mit LF Line Endings (wichtig für Devcontainer)
+*.sh text eol=lf
+.devcontainer/*.sh text eol=lf
+scripts/**/*.sh text eol=lf
+deployment-scripts/**/*.sh text eol=lf
+
+# PowerShell-Skripte - mit LF Line Endings für Cross-Platform
+*.ps1 text eol=lf
+*.psm1 text eol=lf
+
+# Sicherstellen dass Textdateien LF verwenden (Linux/macOS/Codespace)
+*.md text eol=lf
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.env.example text eol=lf
