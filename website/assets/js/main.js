@@ -28,7 +28,7 @@ function initPerformanceMonitoring() {
     const lcpObserver = new PerformanceObserver((list) => {
         const entries = list.getEntries();
         const lastEntry = entries[entries.length - 1];
-        // eslint-disable-next-line no-console
+         
         console.log('LCP:', lastEntry.startTime);
         
         // Send to analytics (replace with your analytics)
@@ -38,14 +38,14 @@ function initPerformanceMonitoring() {
     try {
         lcpObserver.observe({entryTypes: ['largest-contentful-paint']});
     } catch (error) {
-        // eslint-disable-next-line no-console
+         
         console.warn('LCP observation not supported:', error.message);
     }
     
     // First Input Delay (FID) / Interaction to Next Paint (INP)
     const fidObserver = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
-            // eslint-disable-next-line no-console
+             
             console.log('FID:', entry.processingStart - entry.startTime);
             sendVital('fid', entry.processingStart - entry.startTime);
         }
@@ -54,7 +54,7 @@ function initPerformanceMonitoring() {
     try {
         fidObserver.observe({entryTypes: ['first-input']});
     } catch (error) {
-        // eslint-disable-next-line no-console
+         
         console.warn('FID observation not supported:', error.message);
     }
     
@@ -66,7 +66,7 @@ function initPerformanceMonitoring() {
                 clsValue += entry.value;
             }
         }
-        // eslint-disable-next-line no-console
+         
         console.log('CLS:', clsValue);
         sendVital('cls', clsValue);
     });
@@ -74,7 +74,7 @@ function initPerformanceMonitoring() {
     try {
         clsObserver.observe({entryTypes: ['layout-shift']});
     } catch (error) {
-        // eslint-disable-next-line no-console
+         
         console.warn('CLS observation not supported:', error.message);
     }
 }
@@ -956,7 +956,7 @@ function initAuthentication() {
 }
 
 // Enhanced Contact Form Management
-function initFormSubmissions() {
+function initEnhancedForms() {
     const contactForm = document.getElementById('contactForm');
     const newsletterForm = document.getElementById('newsletterForm');
 

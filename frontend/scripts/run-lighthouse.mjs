@@ -48,7 +48,9 @@ async function waitForUrl(url, timeoutMs = 30000) {
     try {
       const res = await fetch(url, { method: 'HEAD' });
       if (res.ok) return true;
-    } catch {}
+    } catch (_error) {
+      // Ignore connection errors while waiting for server to start
+    }
     await new Promise((r) => setTimeout(r, 300));
   }
   throw new Error(`Timeout waiting for ${url}`);

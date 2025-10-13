@@ -11,7 +11,8 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "strict": true,
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+    "typeRoots": ["./node_modules/@types", "../types"]
   },
-  "include": ["src"]
+  "include": ["src", "../types/globals.d.ts"]
 }

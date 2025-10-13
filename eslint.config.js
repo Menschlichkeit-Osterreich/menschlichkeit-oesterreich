@@ -4,9 +4,8 @@ import tseslint from '@typescript-eslint/eslint-plugin';
 import parser from '@typescript-eslint/parser';
 
 export default [
-  js.configs.recommended,
+  // Global ignores (applies to all configurations)
   {
-    files: ['**/*.{js,mjs,cjs}'],
     ignores: [
       'node_modules/**',
       '**/dist/**',
@@ -23,8 +22,16 @@ export default [
       '**/test-results/**',
       '**/vendor/**',
       'crm.menschlichkeit-oesterreich.at/vendor/**',
+      'crm.menschlichkeit-oesterreich.at/web/core/**',
+      '**/web/core/**',
       'automation/n8n/webhook-client.js',
+      '**/sw.js', // Service workers use special globals
+      '**/*.config.{js,ts}', // Config files have their own patterns
     ],
+  },
+  js.configs.recommended,
+  {
+    files: ['**/*.{js,mjs,cjs}'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
@@ -37,15 +44,6 @@ export default [
   },
   {
     files: ['**/*.{ts,tsx}'],
-    ignores: [
-      'node_modules/**',
-      '**/dist/**',
-      '**/build/**',
-      '**/*.d.ts',
-      'frontend/dist/**',
-      'frontend/.next/**',
-      'api.menschlichkeit-oesterreich.at/dist/**',
-    ],
     languageOptions: {
       parser: parser,
       parserOptions: {

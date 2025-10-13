@@ -22,6 +22,13 @@ coverage/
 vendor/
 **/vendor/**
 
+# Drupal core files (use Drupal's own coding standards)
+crm.menschlichkeit-oesterreich.at/web/core/**
+**/web/core/**
+
+# n8n webhook client (CommonJS module)
+automation/n8n/webhook-client.js
+
 # Service Workers (oft generated)
 sw.js
 service-worker.js
