@@ -64,6 +64,8 @@
     "logs:purge:dry-run": "python3 scripts/purge-logs.py --dry-run --verbose",
     "figma:sync": "node scripts/figma-token-sync.cjs",
     "figma:sync:watch": "nodemon --watch figma-design-system scripts/figma-token-sync.cjs",
+    "figma:integrate": "node scripts/figma-mcp-integration.mjs",
+    "figma:components": "npm run figma:integrate",
     "design:tokens": "npm run figma:sync && npm run build:frontend",
     "design:docs": "storybook build && npm run figma:sync",
     "n8n:start": "cd automation/n8n && docker-compose up -d",
