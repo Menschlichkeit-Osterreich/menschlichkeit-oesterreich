@@ -654,7 +654,7 @@ export const SecurityDashboard: React.FC = () => {
     },
   ]);
 
-  const [securityLogs, setSecurityLogs] = useState<SecurityLog[]>([
+  const [securityLogs] = useState<SecurityLog[]>([
     {
       id: '1',
       timestamp: new Date(),

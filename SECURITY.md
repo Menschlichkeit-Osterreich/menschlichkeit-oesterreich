@@ -153,6 +153,15 @@ Automatische Sicherheitschecks:
 
 ## 🌐 Weiterführende Ressourcen
 
+### Security Documentation (Internal)
+- [Security Status Report](docs/SECURITY-STATUS-REPORT.md) - Current security posture and issues
+- [Security Implementation Guide](docs/SECURITY-IMPLEMENTATION-GUIDE.md) - Step-by-step remediation instructions
+- [Security Check Summary](docs/SECURITY-CHECK-SUMMARY.md) - Visual overview and roadmap
+- [Security Vulnerabilities Remediation](docs/SECURITY-VULNERABILITIES-REMEDIATION.md) - Vulnerability tracking
+- [Security Monitoring Module](security/monitoring.py) - Real-time alert detection
+- [Security API Endpoints](api.menschlichkeit-oesterreich.at/app/routers/security.py) - Dashboard integration
+
+### External Resources
 - [GitHub Security Best Practices](https://docs.github.com/en/code-security)
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [CWE/SANS Top 25](https://cwe.mitre.org/top25/)

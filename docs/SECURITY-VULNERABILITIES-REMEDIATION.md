@@ -221,18 +221,37 @@ safety check -r api.menschlichkeit-oesterreich.at/app/requirements.txt
 
 ## 📝 Nächste Schritte
 
-### Kurzfristig (0-7 Tage)
-- [ ] n8n HTTPS-Konfiguration deployen
-- [ ] Log-Sanitization Middleware implementieren
-- [ ] Rate-Limiting für API-Endpoints aktivieren
+### ✅ Security Check Complete (2025-10-13)
 
-### Mittelfristig (7-30 Tage)
-- [ ] JWT auf RS256 umstellen
+**New Documentation & Tools:**
+- ✅ `SECURITY-STATUS-REPORT.md` - Comprehensive security status
+- ✅ `SECURITY-IMPLEMENTATION-GUIDE.md` - Step-by-step implementation guide
+- ✅ `SECURITY-CHECK-SUMMARY.md` - Visual security overview
+- ✅ `security/monitoring.py` - Real-time security monitoring module
+- ✅ `api/routers/security.py` - Security API endpoints
+
+**Monitoring & Detection:**
+- ✅ Real-time brute force attack detection
+- ✅ Automated PII leak detection (DSGVO compliance)
+- ✅ Unusual access pattern detection
+- ✅ Security alert management system
+- ✅ REST API for dashboard integration
+
+### Kurzfristig (0-7 Tage) - CRITICAL
+- [ ] n8n HTTPS-Konfiguration deployen (Guide: SECURITY-IMPLEMENTATION-GUIDE.md §1)
+- [ ] Log-Sanitization Middleware implementieren (Guide: SECURITY-IMPLEMENTATION-GUIDE.md §2)
+- [ ] Audit-Logging aktivieren (Guide: SECURITY-IMPLEMENTATION-GUIDE.md §3)
+- [ ] MCP-Server Sandboxing konfigurieren (Guide: SECURITY-IMPLEMENTATION-GUIDE.md §4)
+
+### Mittelfristig (7-30 Tage) - HIGH
+- [ ] JWT auf RS256 umstellen (Guide: SECURITY-IMPLEMENTATION-GUIDE.md §6)
+- [ ] Rate-Limiting für API-Endpoints aktivieren (Guide: SECURITY-IMPLEMENTATION-GUIDE.md §7)
+- [ ] Git Commit-Signierung aktivieren (Guide: SECURITY-IMPLEMENTATION-GUIDE.md §5)
 - [ ] DPIA (Data Protection Impact Assessment) durchführen
-- [ ] Audit-Logging mit OpenTelemetry implementieren
-- [ ] MCP-Server Container-Limits setzen
 
-### Langfristig (30-90 Tage)
+### Langfristig (30-90 Tage) - MEDIUM
+- [ ] Security Dashboard mit Live-Daten verbinden
+- [ ] Centralized Logging (ELK) deployen
 - [ ] Encryption-at-Rest für CiviCRM-Datenbank
 - [ ] Token-Rotation für JWT implementieren
 - [ ] CDN/Caching-Layer vor API schalten

@@ -1,0 +1,66 @@
+[
+  {
+    "id": "alert_1760337430.961882",
+    "alert_type": "brute_force",
+    "severity": "high",
+    "title": "Brute-Force-Angriff erkannt",
+    "description": "Mehrfache fehlgeschlagene Login-Versuche von IP 198.51.100.1",
+    "timestamp": "2025-10-13T06:37:10.961894",
+    "is_resolved": false,
+    "affected_users": [],
+    "recommended_actions": [
+      "IP-Adresse blockieren",
+      "Rate-Limiting aktivieren",
+      "Betroffene Benutzer benachrichtigen"
+    ],
+    "metadata": {
+      "ip_address": "198.51.100.1",
+      "failed_attempts": 10,
+      "time_window": 10
+    }
+  },
+  {
+    "id": "alert_1760337430.962246",
+    "alert_type": "pii_leak",
+    "severity": "critical",
+    "title": "PII-Datenleck in Logs erkannt",
+    "description": "Personenbezogene Daten in api-server.log gefunden: email_addresses, iban_numbers",
+    "timestamp": "2025-10-13T06:37:10.962252",
+    "is_resolved": false,
+    "affected_users": [],
+    "recommended_actions": [
+      "Logs sofort bereinigen",
+      "PII-Sanitizer aktivieren",
+      "DSGVO-Meldepflicht pr\u00fcfen (Art. 33)",
+      "Betroffene benachrichtigen (Art. 34)"
+    ],
+    "metadata": {
+      "log_source": "api-server.log",
+      "pii_patterns": [
+        "email_addresses",
+        "iban_numbers"
+      ]
+    }
+  },
+  {
+    "id": "alert_1760337430.962562",
+    "alert_type": "unusual_access",
+    "severity": "medium",
+    "title": "Ungew\u00f6hnlicher Zugriff erkannt",
+    "description": "Zugriff von user@example.com aus ungew\u00f6hnlicher Location: Unknown location",
+    "timestamp": "2025-10-13T06:37:10.962568",
+    "is_resolved": false,
+    "affected_users": [
+      "user@example.com"
+    ],
+    "recommended_actions": [
+      "Benutzer \u00fcber verd\u00e4chtige Aktivit\u00e4t informieren",
+      "2FA-Status \u00fcberpr\u00fcfen",
+      "Session invalidieren falls n\u00f6tig"
+    ],
+    "metadata": {
+      "ip_address": "45.123.67.89",
+      "location": "Unknown location"
+    }
+  }
+]
