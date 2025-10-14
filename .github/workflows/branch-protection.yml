@@ -25,9 +25,11 @@ jobs:
           set -euo pipefail
           OWNER_REPO="${GITHUB_REPOSITORY}"
           OWNER="${OWNER_REPO%/*}"; REPO="${OWNER_REPO#*/}"
-          # Standard: main + alle release/* Branches automatisch entdecken (für schedule)
+          # Standard: main + alle release/* Branches automatisch
+          # entdecken (für schedule)
           BRANCHES=""
-          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ -n "${INPUT_BRANCHES}" ]; then
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && \
+             [ -n "${INPUT_BRANCHES}" ]; then
             BRANCHES="$INPUT_BRANCHES"
           else
             echo "Ermittle release/* Branches..."
@@ -35,7 +37,11 @@ jobs:
             if ! command -v jq >/dev/null 2>&1; then
               sudo apt-get update -y && sudo apt-get install -y jq >/dev/null
             fi
-            RELEASES=$(curl -sS -H "Authorization: Bearer ${GH_TOKEN}" -H "Accept: application/vnd.github+json" "${GITHUB_API}/repos/${OWNER}/${REPO}/branches?per_page=100" | jq -r '.[].name' | awk '/^release\// {print}')
+            RELEASES=$(curl -sS \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "Accept: application/vnd.github+json" \
+              "${GITHUB_API}/repos/${OWNER}/${REPO}/branches?per_page=100" \
+              | jq -r '.[].name' | awk '/^release\// {print}')
             BRANCHES="main"
             if [ -n "$RELEASES" ]; then
               BRANCHES+="$(printf ',%s' ${RELEASES})"
@@ -57,7 +63,10 @@ jobs:
           set -euo pipefail
           TOKEN="${TOKEN_1:-${TOKEN_2:-${TOKEN_3:-}}}"
           if [ -z "$TOKEN" ]; then
-            echo "::error::Kein Admin-Token in Secrets gefunden (GH_ADMIN_TOKEN/ADMIN_GITHUB_TOKEN/REPO_ADMIN_TOKEN)"; exit 1; fi
+            echo "::error::Kein Admin-Token in Secrets gefunden"
+            echo "(GH_ADMIN_TOKEN/ADMIN_GITHUB_TOKEN/REPO_ADMIN_TOKEN)"
+            exit 1
+          fi
           OWNER="${OWNER_REPO%/*}"; REPO="${OWNER_REPO#*/}";
           IFS=',' read -ra BR_LIST <<< "$BRANCHES"
           read -r -d '' BODY <<'JSON' || true
@@ -82,7 +91,8 @@ jobs:
           JSON
           for BR in "${BR_LIST[@]}"; do
             BR_TRIM=$(echo "$BR" | xargs)
-            echo "Konfiguriere Required Checks für $OWNER/$REPO@$BR_TRIM..."
+            echo "Konfiguriere Required Checks für"
+            echo "$OWNER/$REPO@$BR_TRIM..."
             curl -sS -X PUT \
               -H "Authorization: Bearer ${TOKEN}" \
               -H "Accept: application/vnd.github+json" \

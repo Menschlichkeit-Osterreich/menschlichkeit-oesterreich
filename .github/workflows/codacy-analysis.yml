@@ -20,7 +20,8 @@ jobs:
         run: |
           mkdir -p quality-reports
           if [ -z "${CODACY_PROJECT_TOKEN}" ]; then
-            echo "CODACY_PROJECT_TOKEN is not configured. Skipping Codacy Analysis."
+            echo "CODACY_PROJECT_TOKEN is not configured."
+            echo "Skipping Codacy Analysis."
             exit 0
           fi
           docker pull codacy/codacy-analysis-cli:latest

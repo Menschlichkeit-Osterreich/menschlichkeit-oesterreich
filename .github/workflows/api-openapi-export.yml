@@ -2,7 +2,7 @@ name: API OpenAPI Export
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
     paths:
       - 'api.menschlichkeit-oesterreich.at/**'
       - 'scripts/export-openapi.py'
@@ -37,14 +37,20 @@ jobs:
             --out api.menschlichkeit-oesterreich.at/openapi.generated.json
 
       - name: Upload OpenAPI (generated JSON)
-        if: ${{ hashFiles('api.menschlichkeit-oesterreich.at/openapi.generated.json') != '' }}
+        if: >-
+          ${{ hashFiles(
+          'api.menschlichkeit-oesterreich.at/openapi.generated.json') != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: api-openapi
           path: api.menschlichkeit-oesterreich.at/openapi.generated.json
 
       - name: Upload OpenAPI (fallback YAML)
-        if: ${{ hashFiles('api.menschlichkeit-oesterreich.at/openapi.generated.json') == '' && hashFiles('api.menschlichkeit-oesterreich.at/openapi.yaml') != '' }}
+        if: >-
+          ${{ hashFiles(
+          'api.menschlichkeit-oesterreich.at/openapi.generated.json') == ''
+          && hashFiles(
+          'api.menschlichkeit-oesterreich.at/openapi.yaml') != '' }}
         uses: actions/upload-artifact@v4
         with:
           name: api-openapi

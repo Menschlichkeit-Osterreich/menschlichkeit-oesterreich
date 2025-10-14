@@ -16,7 +16,7 @@ jobs:
     name: Sync Documentation to Wiki
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -33,10 +33,10 @@ jobs:
       - name: Sync wiki content
         run: |
           echo "📚 Syncing docs/wiki/ to wiki repository..."
-          
+
           # Remove old content (except .git)
           find wiki -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
-          
+
           # Copy new content
           if [ -d "docs/wiki" ]; then
             cp -r docs/wiki/* wiki/
@@ -45,15 +45,15 @@ jobs:
             echo "❌ docs/wiki directory not found"
             exit 1
           fi
-          
+
       - name: Commit and push changes
         run: |
           cd wiki
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           git add .
-          
+
           if git diff --staged --quiet; then
             echo "ℹ️  No changes to commit"
           else

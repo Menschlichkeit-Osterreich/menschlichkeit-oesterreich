@@ -5,7 +5,7 @@ on:
     paths:
       - '.github/prompts/**'
   push:
-    branches: [ main, chore/**, release/** ]
+    branches: [main, chore/**, release/**]
     paths:
       - '.github/prompts/**'
 

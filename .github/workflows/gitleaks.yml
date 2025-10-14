@@ -2,9 +2,9 @@ name: Gitleaks
 
 on:
   push:
-    branches: [ main, master, chore/**, feature/** ]
+    branches: [main, master, chore/**, feature/**]
   pull_request:
-    branches: [ main, master, chore/**, feature/** ]
+    branches: [main, master, chore/**, feature/**]
 
 permissions:
   contents: read

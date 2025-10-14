@@ -1,9 +1,9 @@
 name: 🔄 CI/CD Pipeline
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
   schedule:
     # Daily at 6 AM UTC
     - cron: '0 6 * * *'
@@ -44,32 +44,49 @@ jobs:
         with:
           fetch-depth: 0
 
-- name: 🔍 Detect Changes
-  id: detect-changes
-  run: |
-    matrix='{"include":['
-    if git diff --name-only HEAD~1 | grep -E "^frontend/|^figma-design-system/" || [ "${{ github.event_name }}" = "schedule" ]; then
-      matrix+='{"service":"frontend","path":"frontend/","port":"3000"},'
-    fi
-    if git diff --name-only HEAD~1 | grep -E "^api\.|^requirements\.txt" || [ "${{ github.event_name }}" = "schedule" ]; then
-      matrix+='{"service":"api","path":"api.menschlichkeit-oesterreich.at/","port":"8001"},'
-    fi
-    if git diff --name-only HEAD~1 | grep -E "^crm\.|^composer\.json" || [ "${{ github.event_name }}" = "schedule" ]; then
-      matrix+='{"service":"crm","path":"crm.menschlichkeit-oesterreich.at/","port":"8000"},'
-    fi
-    if git diff --name-only HEAD~1 | grep -E "^web/games|^web/themes" || [ "${{ github.event_name }}" = "schedule" ]; then
-      matrix+='{"service":"games","path":"web/","port":"3001"},'
-    fi
-    if git diff --name-only HEAD~1 | grep -E "^website/" || [ "${{ github.event_name }}" = "schedule" ]; then
-      matrix+='{"service":"website","path":"website/","port":"8080"},'
-    fi
-    if git diff --name-only HEAD~1 | grep -E "^automation/n8n/" || [ "${{ github.event_name }}" = "schedule" ]; then
-      matrix+='{"service":"n8n","path":"automation/n8n/","port":"5678"},'
-    fi
-    # Remove trailing comma if present
-    matrix="${matrix%,}"
-    matrix+=']}'
-    echo "matrix=$matrix" >> $GITHUB_OUTPUT
+      - name: 🔍 Detect Changes
+        id: detect-changes
+        run: |
+          matrix='{"include":['
+          if git diff --name-only HEAD~1 | \
+             grep -E "^frontend/|^figma-design-system/" || \
+             [ "${{ github.event_name }}" = "schedule" ]; then
+            matrix+='{"service":"frontend","path":"frontend/",
+            "port":"3000"},'
+          fi
+          if git diff --name-only HEAD~1 | \
+             grep -E "^api\.|^requirements\.txt" || \
+             [ "${{ github.event_name }}" = "schedule" ]; then
+            matrix+='{"service":"api",
+            "path":"api.menschlichkeit-oesterreich.at/","port":"8001"},'
+          fi
+          if git diff --name-only HEAD~1 | \
+             grep -E "^crm\.|^composer\.json" || \
+             [ "${{ github.event_name }}" = "schedule" ]; then
+            matrix+='{"service":"crm",
+            "path":"crm.menschlichkeit-oesterreich.at/","port":"8000"},'
+          fi
+          if git diff --name-only HEAD~1 | \
+             grep -E "^web/games|^web/themes" || \
+             [ "${{ github.event_name }}" = "schedule" ]; then
+            matrix+='{"service":"games","path":"web/","port":"3001"},'
+          fi
+          if git diff --name-only HEAD~1 | \
+             grep -E "^website/" || \
+             [ "${{ github.event_name }}" = "schedule" ]; then
+            matrix+='{"service":"website","path":"website/",
+            "port":"8080"},'
+          fi
+          if git diff --name-only HEAD~1 | \
+             grep -E "^automation/n8n/" || \
+             [ "${{ github.event_name }}" = "schedule" ]; then
+            matrix+='{"service":"n8n","path":"automation/n8n/",
+            "port":"5678"},'
+          fi
+          # Remove trailing comma if present
+          matrix="${matrix%,}"
+          matrix+=']}'
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT
 
   # ===============================
   # QUALITY GATES - STAGE 1

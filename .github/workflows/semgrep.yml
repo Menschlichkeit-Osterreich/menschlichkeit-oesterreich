@@ -19,7 +19,7 @@ jobs:
     name: Semgrep SAST Analysis
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    
+
     container:
       image: semgrep/semgrep
 
@@ -47,7 +47,7 @@ jobs:
         env:
           SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
         continue-on-error: true
-      
+
       - name: Check Semgrep Results
         if: always()
         run: |

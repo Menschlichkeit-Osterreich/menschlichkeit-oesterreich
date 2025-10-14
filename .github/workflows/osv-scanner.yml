@@ -19,7 +19,7 @@ jobs:
     name: OSV Vulnerability Scanner
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -53,7 +53,7 @@ jobs:
     name: OSV Lockfile Analysis
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

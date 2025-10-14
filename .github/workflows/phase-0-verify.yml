@@ -3,7 +3,7 @@ name: Phase 0 Verification
 on:
   pull_request:
   push:
-    branches: [ main, master, chore/**, feature/** ]
+    branches: [main, master, chore/**, feature/**]
   release:
     types: [published]
 

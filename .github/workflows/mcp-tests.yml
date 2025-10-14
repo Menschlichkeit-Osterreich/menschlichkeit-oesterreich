@@ -2,7 +2,7 @@ name: MCP Server Tests
 
 on:
   push:
-    branches: [ main, master, chore/**, feature/** ]
+    branches: [main, master, chore/**, feature/**]
     paths:
       - 'mcp-servers/file-server/**'
       - '.github/workflows/mcp-tests.yml'
