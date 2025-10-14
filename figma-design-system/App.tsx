@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Navigation } from './components/Navigation';
 import { Hero } from './components/Hero';
 import { About } from './components/About';
@@ -11,6 +12,38 @@ import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
 
 export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const handleLogin = () => {
+    // TODO: Implementiere tatsächliche Login-Logik
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    // TODO: Implementiere tatsächliche Logout-Logik
+    setIsAuthenticated(false);
+  };
+
+  const handleProfile = () => {
+    // TODO: Navigate to profile page
+    console.log('Navigate to profile');
+  };
+
+  const handleSecurity = () => {
+    // TODO: Navigate to security settings
+    console.log('Navigate to security settings');
+  };
+
+  const handleSupport = () => {
+    // TODO: Navigate to support page
+    console.log('Navigate to support');
+  };
+
+  const handleSettings = () => {
+    // TODO: Navigate to settings page
+    console.log('Navigate to settings');
+  };
+
   return (
     <div className="min-h-screen">
       {/* Skip to main content link for accessibility */}
@@ -21,7 +54,15 @@ export default function App() {
         Zum Hauptinhalt springen
       </a>
 
-      <Navigation />
+      <Navigation 
+        isAuthenticated={isAuthenticated}
+        onLogin={handleLogin}
+        onLogout={handleLogout}
+        onProfile={handleProfile}
+        onSecurity={handleSecurity}
+        onSupport={handleSupport}
+        onSettings={handleSettings}
+      />
       
       <main id="main-content" className="relative">
         <Hero />
