@@ -386,5 +386,14 @@ cspell.json.backup
 .ssh/
 
 
+# ========================================
+# DRUPAL CORE DOCUMENTATION EXCLUSIONS
+# ========================================
+
+# Exclude Drupal Core test fixtures and theme READMEs from docs hygiene
+crm.menschlichkeit-oesterreich.at/web/core/tests/**/README.md
+crm.menschlichkeit-oesterreich.at/web/core/themes/**/README.md
+crm.menschlichkeit-oesterreich.at/web/core/modules/**/tests/**/README.md
+
 #Ignore vscode AI rules
 .github/instructions/codacy.instructions.md

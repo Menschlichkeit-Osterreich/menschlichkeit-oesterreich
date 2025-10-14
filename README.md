@@ -1,3 +1,24 @@
+---
+title: Menschlichkeit Österreich – Multi-Service NGO Platform
+description: Eine umfassende digitale Plattform für demokratische Teilhabe, Bildung und Community-Engagement in Österreich
+lastUpdated: 2025-10-13
+status: ACTIVE
+category: project
+tags:
+  - ngo
+  - platform
+  - austria
+  - dsgvo
+  - multi-service
+version: 2.0.0
+language: de-AT
+audience:
+  - Developers
+  - End Users
+  - Contributors
+priority: critical
+---
+
 # Menschlichkeit Österreich – Multi-Service NGO Platform
 
 > Eine umfassende digitale Plattform für demokratische Teilhabe, Bildung und Community-Engagement in Österreich

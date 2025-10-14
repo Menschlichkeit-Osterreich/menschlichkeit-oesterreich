@@ -1,3 +1,21 @@
+---
+title: Changelog
+description: Alle relevanten Änderungen an diesem Repository werden in diesem Dokument festgehalten.
+lastUpdated: 2025-10-13
+status: ACTIVE
+category: project
+tags:
+  - changelog
+  - version-history
+  - releases
+version: 1.0.0
+language: de-AT
+audience:
+  - Developers
+  - Contributors
+  - Users
+---
+
 # Changelog
 
 Alle relevanten Änderungen an diesem Repository werden in diesem Dokument festgehalten.
