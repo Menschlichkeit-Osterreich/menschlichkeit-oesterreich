@@ -25,7 +25,7 @@ Date: 2025-10-03
 import re
 import logging
 import hashlib
-from typing import Any, Dict, Set, Optional, Union, List
+from typing import Any, Dict, Set, Optional, Union
 from enum import Enum
 from dataclasses import dataclass, field
 
@@ -76,7 +76,8 @@ IBAN_RE = re.compile(
 
 # IPv4
 IPv4_RE = re.compile(
-    r"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b"
+    r"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}"
+    r"(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b"
 )
 
 # IPv6 (simplified)
@@ -88,6 +89,9 @@ IPv6_RE = re.compile(
 SECRET_PREFIX_RE = re.compile(
     r"\b(AKIA|ghp_|gho_|github_pat_|glpat-|xoxb-|xoxp-)[A-Za-z0-9_-]+\b"
 )
+
+# Generische Bearer Tokens (auch nicht standardisierte gekürzte Tokens)
+BEARER_GENERIC_RE = re.compile(r"\bBearer\s+[A-Za-z0-9._\-]{6,}\b", re.IGNORECASE)
 
 
 class RedactionStrategy(Enum):
@@ -101,7 +105,9 @@ class RedactionStrategy(Enum):
 @dataclass
 class SanitizationConfig:
     """Konfiguration für PII-Sanitizer"""
-    sensitive_keys: Set[str] = field(default_factory=lambda: SENSITIVE_KEYS.copy())
+    sensitive_keys: Set[str] = field(
+        default_factory=lambda: SENSITIVE_KEYS.copy()
+    )
     enable_email_detection: bool = True
     enable_phone_detection: bool = True
     enable_card_detection: bool = True
@@ -110,7 +116,10 @@ class SanitizationConfig:
     enable_jwt_detection: bool = True
     enable_secrets_detection: bool = True
     mask_char: str = "*"
-    default_strategy: RedactionStrategy = RedactionStrategy.MASK
+    # Default-Strategie auf REDACT gesetzt, damit sensitive Keys vollständig
+    # durch "[REDACTED]" ersetzt werden. Tests erwarten dieses Verhalten für
+    # Passwort/api_key Felder ohne explizite Strategie.
+    default_strategy: RedactionStrategy = RedactionStrategy.REDACT
     
 
 class PiiSanitizer:
@@ -153,33 +162,21 @@ class PiiSanitizer:
         
         result = text
         
-        # Email
         if self.config.enable_email_detection:
             result = self._scrub_emails(result)
-        
-        # Phone
-        if self.config.enable_phone_detection:
-            result = self._scrub_phones(result)
-        
-        # JWT/Bearer
         if self.config.enable_jwt_detection:
+            result = self._scrub_bearer_generic(result)
             result = self._scrub_jwts(result)
-        
-        # Secrets (AWS, GitHub, etc.)
         if self.config.enable_secrets_detection:
             result = self._scrub_secrets(result)
-        
-        # Credit Cards (mit Luhn)
-        if self.config.enable_card_detection:
-            result = self._scrub_cards(result)
-        
-        # IBAN
         if self.config.enable_iban_detection:
             result = self._scrub_ibans(result)
-        
-        # IP
+        if self.config.enable_card_detection:
+            result = self._scrub_cards(result)
         if self.config.enable_ip_detection:
             result = self._scrub_ips(result)
+        if self.config.enable_phone_detection:
+            result = self._scrub_phones(result)
         
         return result
     
@@ -263,6 +260,14 @@ class PiiSanitizer:
         def replacer(match):
             self.metrics["phones_redacted"] += 1
             phone = match.group(0)
+            # Heuristik: Wenn angrenzendes Zeichen ein Punkt ist,
+            # handelt es sich sehr wahrscheinlich um ein IP-Oktett
+            # (z.B. "192.168.") → nicht maskieren.
+            start, end = match.start(), match.end()
+            prev_char = text[start - 1] if start > 0 else ""
+            next_char = text[end] if end < len(text) else ""
+            if prev_char == "." or next_char == ".":
+                return phone
             if phone.startswith("+"):
                 # International: +43******
                 return phone[:3] + self.config.mask_char * (len(phone) - 3)
@@ -280,12 +285,28 @@ class PiiSanitizer:
             return "[JWT_REDACTED]"
         
         return JWT_RE.sub(replacer, text)
+
+    def _scrub_bearer_generic(self, text: str) -> str:
+        """Redaktiert generische Bearer Tokens unabhängig von JWT-Struktur"""
+        def replacer(match):
+            self.metrics["jwts_redacted"] += 1
+            return "Bearer [REDACTED]"
+        return BEARER_GENERIC_RE.sub(replacer, text)
     
     def _scrub_secrets(self, text: str) -> str:
         """Maskiert Secret-Präfixe"""
         def replacer(match):
             self.metrics["secrets_redacted"] += 1
             prefix = match.group(1)
+            p = prefix.lower()
+            if p.startswith("ghp_") or p.startswith("github_pat_"):
+                return "[GITHUB_TOKEN]"
+            if p.startswith("glpat-"):
+                return "[GITLAB_TOKEN]"
+            if p.startswith("akia"):
+                return "[AWS_KEY]"
+            if p.startswith("xoxb-") or p.startswith("xoxp-"):
+                return "[SLACK_TOKEN]"
             return f"[{prefix.upper()}_REDACTED]"
         
         return SECRET_PREFIX_RE.sub(replacer, text)
@@ -294,7 +315,35 @@ class PiiSanitizer:
         """Maskiert Kreditkarten (nur gültige Luhn)"""
         def replacer(match):
             card = match.group(0).replace(" ", "").replace("-", "")
-            if self._luhn_check(card):
+            # Plausibilitäts-Check basierend auf BIN/IIN-Präfixen
+            clen = len(card)
+            plausible = False
+            try:
+                first2 = int(card[:2]) if clen >= 2 else -1
+                first3 = int(card[:3]) if clen >= 3 else -1
+                first4 = int(card[:4]) if clen >= 4 else -1
+            except ValueError:
+                first2 = first3 = first4 = -1
+            # Visa
+            if card.startswith("4") and clen in (13, 16, 19):
+                plausible = True
+            # MasterCard
+            if (51 <= first2 <= 55 and clen == 16) or (
+                2221 <= first4 <= 2720 and clen == 16
+            ):
+                plausible = True
+            # Amex
+            if card.startswith(("34", "37")) and clen == 15:
+                plausible = True
+            # Discover (Teilmenge)
+            if (
+                card.startswith("6011")
+                or card.startswith("65")
+                or 644 <= first3 <= 649
+            ) and clen in (16, 19):
+                plausible = True
+
+            if self._luhn_check(card) or plausible:
                 self.metrics["cards_redacted"] += 1
                 return "[CARD]"
             return match.group(0)  # Luhn invalid -> behalten
@@ -317,7 +366,11 @@ class PiiSanitizer:
         def replacer_v4(match):
             self.metrics["ips_redacted"] += 1
             parts = match.group(0).split(".")
-            return f"{parts[0]}.{parts[1]}.{self.config.mask_char}.{self.config.mask_char}"
+            return (
+                f"{parts[0]}.{parts[1]}."  # Erste zwei Oktetts erhalten
+                f"{self.config.mask_char}."  # drittes Oktett maskiert
+                f"{self.config.mask_char}"  # viertes Oktett maskiert
+            )
         
         def replacer_v6(match):
             self.metrics["ips_redacted"] += 1
@@ -390,7 +443,11 @@ class PiiSanitizer:
         str_val = str(value)
         if len(str_val) <= 4:
             return self.config.mask_char * len(str_val)
-        return str_val[:2] + self.config.mask_char * (len(str_val) - 4) + str_val[-2:]
+        return (
+            str_val[:2]
+            + self.config.mask_char * (len(str_val) - 4)
+            + str_val[-2:]
+        )
     
     def _hash_value(self, value: Any) -> str:
         """SHA256-Hash eines Werts"""
@@ -427,7 +484,9 @@ class LoggingPiiFilter(logging.Filter):
                 record.args = self.sanitizer.scrub_dict(record.args)
             elif isinstance(record.args, tuple):
                 record.args = tuple(
-                    self.sanitizer.scrub_text(arg) if isinstance(arg, str) else arg
+                    self.sanitizer.scrub_text(arg)
+                    if isinstance(arg, str)
+                    else arg
                     for arg in record.args
                 )
         
@@ -437,6 +496,7 @@ class LoggingPiiFilter(logging.Filter):
 # Convenience Functions
 
 _default_sanitizer = None
+
 
 def scrub(text: str) -> str:
     """
@@ -452,7 +512,10 @@ def scrub(text: str) -> str:
     return _default_sanitizer.scrub_text(text)
 
 
-def scrub_dict(data: Dict[str, Any], strategy: RedactionStrategy = RedactionStrategy.DROP) -> Dict[str, Any]:
+def scrub_dict(
+    data: Dict[str, Any],
+    strategy: RedactionStrategy = RedactionStrategy.REDACT,
+) -> Dict[str, Any]:
     """
     Shortcut für Dictionary-Sanitization.
     
@@ -463,4 +526,6 @@ def scrub_dict(data: Dict[str, Any], strategy: RedactionStrategy = RedactionStra
     global _default_sanitizer
     if _default_sanitizer is None:
         _default_sanitizer = PiiSanitizer()
+    # Convenience-Funktion soll Felder nicht standardmäßig entfernen, sondern
+    # redaktieren. Deshalb Default-Strategie hier auf REDACT überschreiben.
     return _default_sanitizer.scrub_dict(data, strategy)

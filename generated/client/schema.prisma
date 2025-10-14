@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Core Models für Educational Gaming Platform
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  role      UserRole @default(STUDENT)
+  level     Int      @default(1)
+  totalXP   Int      @default(0)
+  currentXP Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  achievements UserAchievement[]
+  gameSession  GameSession[]
+  progress     GameProgress[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+model Achievement {
+  id          Int               @id @default(autoincrement())
+  name        String
+  description String?
+  icon        String?
+  rarity      AchievementRarity @default(BRONZE)
+  xpReward    Int               @default(0)
+
+  // Relations
+  users UserAchievement[]
+
+  @@map("achievements")
+}
+
+enum AchievementRarity {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+  LEGENDARY
+}
+
+model UserAchievement {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  achievementId Int
+  unlockedAt    DateTime @default(now())
+
+  // Relations
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+}
+
+model GameSession {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  gameType    GameType
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+  score       Int       @default(0)
+  xpEarned    Int       @default(0)
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("game_sessions")
+}
+
+enum GameType {
+  VOTING_PUZZLE
+  BRIDGE_BUILDER
+  DEBATE_ARENA
+  CONSTITUTION_QUEST
+  DEMOCRACY_SIMULATOR
+  RIGHTS_DEFENDER
+  PARTICIPATION_CHALLENGE
+}
+
+model GameProgress {
+  id           Int       @id @default(autoincrement())
+  userId       Int
+  gameType     GameType
+  levelReached Int       @default(1)
+  bestScore    Int       @default(0)
+  timesPlayed  Int       @default(0)
+  lastPlayed   DateTime?
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, gameType])
+  @@map("game_progress")
+}
+
+// CRM Integration Models
+model Contact {
+  id        Int      @id @default(autoincrement())
+  firstName String
+  lastName  String
+  email     String   @unique
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("contacts")
+}
+
+model Event {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime?
+  location    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("events")
+}

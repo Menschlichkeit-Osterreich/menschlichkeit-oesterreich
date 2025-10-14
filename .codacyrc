@@ -1,0 +1,17 @@
+{
+  "codacyrc": {
+    "version": 1,
+    "tools": [
+      {
+        "name": "eslint-8",
+        "files": ["frontend/src/**/*.ts", "frontend/src/**/*.tsx"],
+        "enabled": true
+      }
+    ],
+    "excludePaths": [
+      "node_modules/",
+      "frontend/dist/",
+      "logs/"
+    ]
+  }
+}

@@ -1,14 +1,14 @@
 {
   "codespace": {
-    "is_codespace": false,
-    "codespace_name": "N/A",
-    "github_token_available": false,
+    "is_codespace": true,
+    "codespace_name": "urban-winner-44vwxq7g7wj35gr6",
+    "github_token_available": true,
     "environment_vars": {
-      "CODESPACES": "Not set",
-      "CODESPACE_NAME": "Not set",
+      "CODESPACES": "true",
+      "CODESPACE_NAME": "urban-winner-44vwxq7g7wj35gr6",
       "GITHUB_REPOSITORY": "peschull/menschlichkeit-oesterreich-development",
-      "GITHUB_REPOSITORY_OWNER": "peschull",
-      "GITHUB_USER": "Not set"
+      "GITHUB_REPOSITORY_OWNER": "Not set",
+      "GITHUB_USER": "peschull"
     }
   },
   "services": {
@@ -16,8 +16,8 @@
       {
         "service": "Frontend (Vite)",
         "port": 5173,
-        "status": "stopped",
-        "details": "Service not running on port"
+        "status": "running",
+        "details": "Service is active"
       },
       {
         "service": "API (FastAPI)",
@@ -28,44 +28,123 @@
       {
         "service": "CRM (PHP)",
         "port": 8000,
-        "status": "stopped",
-        "details": "Service not running on port"
+        "status": "running",
+        "details": "Service is active"
       },
       {
         "service": "Games",
         "port": 3000,
-        "status": "stopped",
-        "details": "Service not running on port"
+        "status": "running",
+        "details": "Service is active"
       }
     ]
   },
   "pull_requests": {
-    "error": "GITHUB_TOKEN nicht verf\u00fcgbar",
-    "recommendation": "Setze GITHUB_TOKEN environment variable"
+    "pull_requests": [],
+    "count": 0
   },
   "workflow_runs": {
-    "error": "GITHUB_TOKEN nicht verf\u00fcgbar",
-    "recommendation": "Setze GITHUB_TOKEN environment variable"
+    "workflow_runs": [
+      {
+        "id": 18505940264,
+        "name": "Sync Wiki",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2025-10-14T18:13:00Z",
+        "url": "https://github.com/peschull/menschlichkeit-oesterreich-development/actions/runs/18505940264"
+      },
+      {
+        "id": 18505940255,
+        "name": "Phase 0 Verification",
+        "status": "completed",
+        "conclusion": "failure",
+        "created_at": "2025-10-14T18:13:00Z",
+        "url": "https://github.com/peschull/menschlichkeit-oesterreich-development/actions/runs/18505940255"
+      },
+      {
+        "id": 18505940224,
+        "name": "Trivy FS Scan",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2025-10-14T18:13:00Z",
+        "url": "https://github.com/peschull/menschlichkeit-oesterreich-development/actions/runs/18505940224"
+      },
+      {
+        "id": 18505940223,
+        "name": "Validate .github metadata",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2025-10-14T18:13:00Z",
+        "url": "https://github.com/peschull/menschlichkeit-oesterreich-development/actions/runs/18505940223"
+      },
+      {
+        "id": 18505940221,
+        "name": "Quality",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2025-10-14T18:13:00Z",
+        "url": "https://github.com/peschull/menschlichkeit-oesterreich-development/actions/runs/18505940221"
+      },
+      {
+        "id": 18505940219,
+        "name": "OpenSSF Scorecard",
+        "status": "completed",
+        "conclusion": "failure",
+        "created_at": "2025-10-14T18:13:00Z",
+        "url": "https://github.com/peschull/menschlichkeit-oesterreich-development/actions/runs/18505940219"
+      },
+      {
+        "id": 18505940216,
+        "name": "SBOM Generation & Attestation",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2025-10-14T18:13:00Z",
+        "url": "https://github.com/peschull/menschlichkeit-oesterreich-development/actions/runs/18505940216"
+      },
+      {
+        "id": 18505940213,
+        "name": "Security Vulnerability Scan",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2025-10-14T18:13:00Z",
+        "url": "https://github.com/peschull/menschlichkeit-oesterreich-development/actions/runs/18505940213"
+      },
+      {
+        "id": 18505940206,
+        "name": "Validate Secrets",
+        "status": "completed",
+        "conclusion": "failure",
+        "created_at": "2025-10-14T18:13:00Z",
+        "url": "https://github.com/peschull/menschlichkeit-oesterreich-development/actions/runs/18505940206"
+      },
+      {
+        "id": 18505940201,
+        "name": "Deploy Staging",
+        "status": "completed",
+        "conclusion": "failure",
+        "created_at": "2025-10-14T18:13:00Z",
+        "url": "https://github.com/peschull/menschlichkeit-oesterreich-development/actions/runs/18505940201"
+      }
+    ],
+    "count": 10
   },
   "system": {
     "disk": {
-      "size": "72G",
-      "used": "51G",
-      "available": "21G",
-      "use_percent": "71%"
+      "size": "32G",
+      "used": "28G",
+      "available": "2.3G",
+      "use_percent": "93%"
     },
     "memory": {
-      "total": "15Gi",
-      "used": "1.5Gi",
-      "free": "11Gi",
-      "available": "14Gi"
+      "total": "7.8Gi",
+      "used": "4.3Gi",
+      "free": "168Mi",
+      "available": "3.1Gi"
     },
-    "cpu_cores": "4"
+    "cpu_cores": "2"
   },
   "recommendations": [
-    "\u26a0\ufe0f  Nicht in GitHub Codespace - lokale Entwicklung erkannt",
-    "\ud83d\udd34 4 Service(s) gestoppt - verwende 'npm run dev:all' zum Starten",
-    "\u26a0\ufe0f  GITHUB_TOKEN nicht gesetzt - PR und Workflow Informationen nicht verf\u00fcgbar"
+    "\ud83d\udd34 1 Service(s) gestoppt - verwende 'npm run dev:all' zum Starten"
   ],
-  "timestamp": "2025-10-12T10:06:34.700414"
+  "timestamp": "2025-10-14T20:38:10.831372"
 }

@@ -1,0 +1,28 @@
+engines:
+  eslint-8:
+    enabled: true
+  remark-lint:
+    enabled: true
+  stylelint:
+    enabled: false
+  trivy:
+    enabled: false
+  pmd:
+    enabled: false
+
+exclude_paths:
+  - "crm.menschlichkeit-oesterreich.at/web/core/tests/**"
+  - "docs/archive/**"
+  - "figma-design-system/components/**"
+
+categories:
+  CodeStyle:
+    enabled: true
+  ErrorProne:
+    enabled: true
+  Security:
+    enabled: true
+  Performance:
+    enabled: true
+
+max-allowed-issues: 0

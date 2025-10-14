@@ -157,6 +157,63 @@
         "group": "reports"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "🛡️ Security: Trivy FS Scan",
+      "type": "shell",
+      "command": "trivy",
+      "args": ["fs", "--format", "sarif", "--output", "quality-reports/trivy-security.sarif", "."],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "group": "security"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🛡️ Security: Gitleaks Secrets Scan",
+      "type": "shell",
+      "command": "gitleaks",
+      "args": ["detect", "--report-path", "quality-reports/secrets-scan.json", "--report-format", "json"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "group": "security"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🔍 Code Quality: Codacy Docker Analyze",
+      "type": "shell",
+      "command": "bash",
+      "args": ["scripts/codacy/codacy-cli.sh", "analyze", "--path", ".", "--format", "json", "--output", "quality-reports/codacy-analysis.json"],
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "group": "quality"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Plesk: Verbindung testen",
+      "type": "shell",
+      "command": "ssh -v plesk-prod-cs",
+      "problemMatcher": []
+    },
+    {
+      "label": "Plesk: Deploy httpdocs (rsync)",
+      "type": "shell",
+      "command": "rsync -avz --delete ./site/ plesk-prod-cs:/var/www/vhosts/menschlichkeit-oesterreich.at/httpdocs/",
+      "problemMatcher": []
     }
   ]
 }

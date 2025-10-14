@@ -2,9 +2,9 @@
   "version": "1",
   "servers": {
     "filesystem": {
-      "command": "filesystem",
+      "command": "bash",
       "args": {
-        "root": "${workspaceFolder}"
+        "script": "scripts/mcp/wrapper-filesystem.sh"
       }
     },
     "git": {
@@ -16,11 +16,13 @@
       "args": {}
     },
     "codacy-cli": {
-      "command": "codacy-analysis-cli",
+      "command": "bash",
       "args": {
-        "project-directory": "${workspaceFolder}",
-        "format": "sarif",
-        "output": "quality-reports/codacy-analysis.sarif"
+        "script": "scripts/codacy/codacy-cli.sh",
+        "mode": "analyze",
+        "output": "quality-reports/codacy-analysis.json",
+        "format": "json",
+        "path": "${workspaceFolder}"
       }
     },
     "prisma": {
@@ -71,6 +73,59 @@
       "args": {
         "script": "scripts/generate-quality-report.js",
         "output-dir": "quality-reports"
+      }
+    },
+    "figma": {
+      "command": "node",
+      "args": {
+        "script": "scripts/figma-token-sync.cjs",
+        "mode": "sync"
+      }
+    },
+    "github-cli": {
+      "command": "node",
+      "args": {
+        "script": "scripts/validate-github-files.py",
+        "mode": "issues"
+      }
+    },
+    "memory": {
+      "command": "bash",
+      "args": {
+        "script": "scripts/mcp/wrapper-memory.sh"
+      }
+    },
+    "sequential-thinking": {
+      "command": "bash",
+      "args": {
+        "script": "scripts/mcp/wrapper-sequential-thinking.sh"
+      }
+    },
+    "context7": {
+      "command": "bash",
+      "args": {
+        "script": "scripts/mcp/wrapper-context7.sh"
+      }
+    },
+    "gitleaks": {
+      "command": "gitleaks",
+      "args": {
+        "config": "gitleaks.toml",
+        "report": "quality-reports/gitleaks-report.json"
+      }
+    },
+    "pii-sanitizer-test": {
+      "command": "pytest",
+      "args": {
+        "file": "tests/test_pii_sanitizer.py",
+        "output": "quality-reports/pii-sanitizer-test.txt"
+      }
+    },
+    "design-tokens-validate": {
+      "command": "node",
+      "args": {
+        "script": "scripts/validate-design-tokens.js",
+        "tokens": "figma-design-system/00_design-tokens.json"
       }
     }
   }

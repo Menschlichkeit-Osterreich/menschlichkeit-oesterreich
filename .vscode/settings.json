@@ -9,7 +9,7 @@
         "json": false,
         "dotenv": false
     },
-    "github.copilot.nextEditSuggestions.enabled": true,
+    "github.copilot.nextEditSuggestions.enabled": false,
     "editor.inlineSuggest.edits.allowCodeShifting": "never",
     "github.copilot.chat.localeOverride": "de",
     "github.copilot.chat.codesearch.enabled": true,

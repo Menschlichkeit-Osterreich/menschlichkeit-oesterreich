@@ -294,6 +294,66 @@ Environments (Beispiel):
 
 ## 🤝 Contributing
 
+## 🧩 MCP Server & Automatisierung
+
+Die Datei `mcp.json` konfiguriert automatisierte Entwicklungs- und Compliance-Flüsse. Aktueller Stand (2025-10-14):
+
+| Server | Zweck | Status | Anmerkung |
+|--------|-------|--------|-----------|
+| filesystem (Wrapper) | Dateizugriff Basis | OK (Wrapper) | `scripts/mcp/wrapper-filesystem.sh` |
+| docker | Container Mgmt | OK | Docker CLI verfügbar |
+| codacy-cli | Code Analyse | TEILWEISE (Analyse fehlerhaft) | Docker Wrapper vorhanden, Parsing `.codacyrc` schlägt fehl |
+| prisma | DB Schema/Client | OK | Installiert (prisma & @prisma/client) |
+| lighthouse | Performance Audit | TEILWEISE | CLI installiert, Chrome fehlt (Headless Browser nachinstallieren) |
+| trivy-security | Security Scan | OK | Trivy Binary installiert |
+| n8n-webhook | Webhook Client | OK | `automation/n8n/webhook-client.js` |
+| build-pipeline | Build Dry-Run | OK | `./build-pipeline.sh` |
+| plesk-deploy | Deploy Dry-Run | OK | `./scripts/safe-deploy.sh` |
+| quality-reporter | Reports Aggregation | OK | `scripts/generate-quality-report.js` |
+| figma | Design Tokens Sync | OK | `scripts/figma-token-sync.cjs` |
+| github-cli | Repo Validierung | OK | `scripts/validate-github-files.py` |
+| memory (Wrapper) | Session Speicher | OK | Platzhalter `scripts/mcp/wrapper-memory.sh` |
+| sequential-thinking (Wrapper) | Schrittplanung | OK | Platzhalter `scripts/mcp/wrapper-sequential-thinking.sh` |
+| context7 (Wrapper) | Code-Suche | OK | Platzhalter `scripts/mcp/wrapper-context7.sh` |
+| gitleaks | Secret Scan | OK | Binary installiert (v8.x) |
+| pii-sanitizer-test | DSGVO Test | OK | `pytest tests/test_pii_sanitizer.py` |
+| design-tokens-validate | Token Qualität | OK | `scripts/validate-design-tokens.js` |
+
+### Installation fehlender Komponenten
+```bash
+# Node Tooling
+npm install -D prisma @prisma/client @lhci/cli
+
+# Trivy (Security Scan)
+curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+
+# Gitleaks (Secret Scan)
+curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks_linux_x64.tar.gz | tar -xz -C /usr/local/bin gitleaks
+
+# Optional: Chrome für Lighthouse (Performance)
+apt-get update && apt-get install -y chromium-browser || echo "Chromium Installation optional fehlgeschlagen"
+
+# Codacy: kein funktionierendes npm Paket, Wrapper verwendet Docker Image automatisch beim ersten Lauf
+docker pull codacy/codacy-analysis-cli:latest
+```
+
+### Validierung
+```bash
+npx prisma --version || echo 'Prisma fehlt'
+npx lhci healthcheck || echo 'Lighthouse CI benötigt ggf. Chrome'
+trivy --version || echo 'Trivy fehlt'
+gitleaks version || echo 'Gitleaks fehlt'
+./scripts/codacy/codacy-cli.sh version || echo 'Codacy Wrapper Problem'
+```
+
+### Pflege & Sicherheit
+- Tabelle bei Änderungen aktualisieren
+- Nach Installation: Security- und Secret-Scan ausführen
+- Wrapper durch echte MCP Server ersetzen, falls verfügbar
+- Codacy Analyse aktuell via Docker Wrapper (keine npm Distribution verfügbar)
+- Lighthouse: für vollständige Audits Headless Chrome installieren
+
+
 Wir verwenden Conventional Commits und Branch Protection:
 
 1. Fork das Repository

@@ -102,7 +102,9 @@
     "prettier": "^3.4.2",
     "ts-jest": "^29.4.5",
     "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+  "vitest": "^3.2.4",
+  "prisma": "^5.19.1",
+  "@lhci/cli": "^0.13.0"
   },
   "engines": {
     "node": ">=18.0.0",
@@ -120,7 +122,8 @@
   "author": "Menschlichkeit Österreich",
   "license": "MIT",
   "dependencies": {
-    "vite": "7.1.9"
+    "vite": "7.1.9",
+    "@prisma/client": "^5.19.1"
   },
   "overrides": {
     "form-data": ">=4.0.4"

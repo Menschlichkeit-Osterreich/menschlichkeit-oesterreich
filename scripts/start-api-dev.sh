@@ -16,11 +16,11 @@ fi
 
 # Try uvicorn first (if available)
 if command -v uvicorn >/dev/null 2>&1; then
-    echo "✅ Using uvicorn (system installation)"
-    uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+    echo "✅ Using uvicorn (system installation) with --env-file"
+    uvicorn --env-file .env app.main:app --host 0.0.0.0 --port 8001 --reload
 elif python3 -c "import uvicorn" 2>/dev/null; then
-    echo "✅ Using uvicorn (Python module)"
-    python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
+    echo "✅ Using uvicorn (Python module) with --env-file"
+    python3 -m uvicorn --env-file .env app.main:app --host 0.0.0.0 --port 8001 --reload
 elif python3 -c "import fastapi" 2>/dev/null; then
     echo "⚠️ FastAPI available but uvicorn missing, using basic Python server"
     # Fallback to basic Python HTTP server with FastAPI

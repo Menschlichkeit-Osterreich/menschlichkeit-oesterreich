@@ -18,7 +18,7 @@
     "ghcr.io/devcontainers/features/git:1": {}
   },
   "onCreateCommand": "bash .devcontainer/onCreate-setup.sh",
-  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "postCreateCommand": "bash .devcontainer/setup.sh && bash scripts/dev/codespace-ssh-setup.sh",
   "postStartCommand": "pwsh .devcontainer/setup-powershell.ps1 || true",
   "customizations": {
     "vscode": {
