@@ -116,9 +116,10 @@ echo ""
 # 8. Network Connectivity
 echo -e "${BLUE}🌐 Network Connectivity${NC}"
 echo "======================="
-check_item "Internet (github.com)" "ping -c 1 github.com"
-check_item "npm registry" "ping -c 1 registry.npmjs.org"
-check_item "PyPI" "ping -c 1 pypi.org"
+check_item "Internet (github.com)" "ping -c 1 -W 2 github.com"
+check_item "Internet (8.8.8.8)" "ping -c 1 -W 2 8.8.8.8"
+check_item "npm registry" "ping -c 1 -W 2 registry.npmjs.org"
+check_item "PyPI" "ping -c 1 -W 2 pypi.org"
 echo ""
 
 # 9. Log Files
@@ -165,6 +166,17 @@ echo ""
 # 11. Recommendations
 echo -e "${BLUE}💡 Recommendations${NC}"
 echo "=================="
+
+# Check network first
+if ! ping -c 1 -W 2 github.com >/dev/null 2>&1 && ! ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1; then
+    echo -e "${RED}⚠️  No network connectivity detected${NC}"
+    echo "   This may be a CI/test environment or network is down"
+    echo "   Some features require internet access:"
+    echo "   - npm install (downloading packages)"
+    echo "   - pip install (downloading Python packages)"
+    echo "   - Git operations (clone, push, pull)"
+    echo ""
+fi
 
 if ! python3 -c "import fastapi" 2>/dev/null; then
     echo -e "${YELLOW}⚠️  FastAPI not installed${NC}"

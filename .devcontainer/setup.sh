@@ -7,6 +7,17 @@ set +e  # Changed from set -e to allow continuing on errors
 echo "🚀 Setting up Menschlichkeit Österreich development environment (Phase 2/3)..."
 echo ""
 
+# Check network connectivity
+echo "🌐 Checking network connectivity..."
+if ping -c 1 -W 2 github.com >/dev/null 2>&1 || ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1; then
+    echo "  ✅ Network is available"
+    NETWORK_AVAILABLE=true
+else
+    echo "  ⚠️  No network connectivity - skipping package installations"
+    NETWORK_AVAILABLE=false
+fi
+echo ""
+
 # Create quality-reports directory
 mkdir -p quality-reports
 
@@ -18,21 +29,25 @@ cd api.menschlichkeit-oesterreich.at
 if python3 -c "import fastapi, uvicorn" 2>/dev/null; then
     echo "  ✅ FastAPI and Uvicorn already installed"
 else
-    # Try minimal requirements first (more likely to succeed)  
-    if [ -f "requirements-minimal.txt" ]; then
-        echo "📦 Installing minimal Python requirements..."
-        timeout 120 pip install --user --timeout 120 -r requirements-minimal.txt || echo "⚠️ Minimal requirements install failed, will try manual install"
-    fi
-    
-    # Try full requirements if minimal succeeded or if minimal doesn't exist
-    if ! python3 -c "import fastapi, uvicorn" 2>/dev/null; then
-        echo "📦 Installing essential packages manually..."
-        timeout 120 pip install --user --timeout 120 fastapi uvicorn python-dotenv pydantic requests || echo "⚠️ Manual install failed, API server may not work"
+    if [ "$NETWORK_AVAILABLE" = true ]; then
+        # Try minimal requirements first (more likely to succeed)  
+        if [ -f "requirements-minimal.txt" ]; then
+            echo "📦 Installing minimal Python requirements..."
+            timeout 120 pip install --user --timeout 120 -r requirements-minimal.txt || echo "⚠️ Minimal requirements install failed, will try manual install"
+        fi
+        
+        # Try full requirements if minimal succeeded or if minimal doesn't exist
+        if ! python3 -c "import fastapi, uvicorn" 2>/dev/null; then
+            echo "📦 Installing essential packages manually..."
+            timeout 120 pip install --user --timeout 120 fastapi uvicorn python-dotenv pydantic requests || echo "⚠️ Manual install failed, API server may not work"
+        fi
+    else
+        echo "  ⚠️  No network - skipping Python package installation"
     fi
 fi
 
 # Try full requirements if we have basic packages working
-if python3 -c "import fastapi, uvicorn" 2>/dev/null; then
+if python3 -c "import fastapi, uvicorn" 2>/dev/null && [ "$NETWORK_AVAILABLE" = true ]; then
     echo "📦 Attempting full requirements install (with timeout protection)..."
     # requirements.txt is in app/ subdirectory
     if [ -f "app/requirements.txt" ]; then

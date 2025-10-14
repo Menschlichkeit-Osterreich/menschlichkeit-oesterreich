@@ -13,6 +13,17 @@ echo ""
 LOG_FILE="/tmp/devcontainer-onCreate-setup.log"
 exec > >(tee -a "$LOG_FILE") 2>&1
 
+# Check network connectivity
+echo "🌐 Checking network connectivity..."
+if ping -c 1 -W 2 github.com >/dev/null 2>&1 || ping -c 1 -W 2 8.8.8.8 >/dev/null 2>&1; then
+    echo "  ✅ Network is available"
+    NETWORK_AVAILABLE=true
+else
+    echo "  ⚠️  No network connectivity detected - will work offline where possible"
+    NETWORK_AVAILABLE=false
+fi
+echo ""
+
 # Function to run command with timeout
 run_with_timeout() {
     local timeout_seconds=$1
@@ -64,10 +75,18 @@ else
             echo "  ✅ npm dependencies already installed"
         else
             echo "  ⚠️  Incomplete installation detected - retrying..."
-            run_with_timeout 300 "npm install" npm install || echo "  ℹ️  npm install failed/timed out - will retry in postCreateCommand"
+            if [ "$NETWORK_AVAILABLE" = true ]; then
+                run_with_timeout 300 "npm install" npm install || echo "  ℹ️  npm install failed/timed out - will retry in postCreateCommand"
+            else
+                echo "  ⚠️  No network - skipping npm install (will retry when network available)"
+            fi
         fi
     else
-        run_with_timeout 300 "npm install" npm install || echo "  ℹ️  npm install failed/timed out - will retry in postCreateCommand"
+        if [ "$NETWORK_AVAILABLE" = true ]; then
+            run_with_timeout 300 "npm install" npm install || echo "  ℹ️  npm install failed/timed out - will retry in postCreateCommand"
+        else
+            echo "  ⚠️  No network - skipping npm install (will retry when network available)"
+        fi
     fi
 fi
 
@@ -107,9 +126,15 @@ echo "🐍 Installing critical Python dependencies..."
 
 # First try to install just the essentials
 if ! python3 -c "import fastapi" 2>/dev/null; then
-    run_with_timeout 120 "FastAPI + Uvicorn + python-dotenv" \
-        pip install --user --timeout 60 fastapi uvicorn python-dotenv pydantic || \
-        echo "  ℹ️  Will retry in postCreateCommand"
+    if [ "$NETWORK_AVAILABLE" = true ]; then
+        run_with_timeout 120 "FastAPI + Uvicorn + python-dotenv" \
+            pip install --user --timeout 60 fastapi uvicorn python-dotenv pydantic || \
+            echo "  ℹ️  Will retry in postCreateCommand"
+    else
+        echo "  ⚠️  No network - skipping Python package installation (will retry when network available)"
+    fi
+else
+    echo "  ✅ Critical Python packages already installed"
 fi
 
 # 5. Make scripts executable

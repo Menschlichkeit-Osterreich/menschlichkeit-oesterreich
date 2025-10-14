@@ -30,6 +30,34 @@
    bash .devcontainer/manual-setup.sh
    ```
 
+### Problem: Keine Netzwerkverbindung (Offline-Modus)
+
+**Symptome:**
+- `Network connectivity failed` Meldungen
+- npm/pip Installation schlägt fehl
+- Git clone/push funktioniert nicht
+
+**Erklärung:**
+- Dies ist normal in CI/Test-Umgebungen ohne Internet
+- Setup-Scripts erkennen dies automatisch und arbeiten offline
+
+**Lösung:**
+
+```bash
+# Die Setup-Scripts funktionieren bereits offline
+# Wenn später Netzwerk verfügbar ist:
+
+# npm Pakete nachinstallieren
+npm install
+
+# Python Pakete nachinstallieren  
+pip install --user fastapi uvicorn python-dotenv pydantic
+
+# Vollständige API Requirements
+cd api.menschlichkeit-oesterreich.at
+pip install --user -r app/requirements.txt
+```
+
 ### Problem: Python Dependencies fehlen (FastAPI/Uvicorn)
 
 **Symptome:**

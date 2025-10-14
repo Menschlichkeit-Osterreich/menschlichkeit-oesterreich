@@ -23,11 +23,15 @@ When your Codespace starts, it will automatically run a **3-phase setup**:
 
 **Total Setup Time**: ~3-5 minutes
 
-**Key Improvements (2025-10-12):**
+**Key Improvements (2025-10-14):**
+- ✅ **Network connectivity detection** - Scripts now detect offline environments (CI/tests)
+- ✅ **Graceful offline fallback** - Setup works even without internet
+- ✅ **Node version compatibility** - Using LTS instead of specific version 22
+- ✅ **Python version updated** - Matches actual system Python 3.12
 - ✅ **onCreate now creates .env files** - Critical fix
 - ✅ **Python dependencies installed in onCreate** - No more missing FastAPI/Uvicorn
-- ✅ **Timeout protection** on all long-running operations (300s npm, 120-180s pip)
-- ✅ **Graceful degradation** - setup continues even if individual steps fail
+- ✅ **Timeout protection** - All long-running operations (300s npm, 120-180s pip)
+- ✅ **Graceful degradation** - Setup continues even if individual steps fail
 - ✅ **No blocking operations** - Codespace opens reliably
 
 ## 🧪 Verify Setup
