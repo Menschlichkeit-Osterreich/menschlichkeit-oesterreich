@@ -75,7 +75,7 @@ jobs:
         continue-on-error: true
 
       - name: Scan requirements.txt
-        uses: google/osv-scanner-action@v1
+        uses: google/osv-scanner-action
         if: hashFiles('**/requirements.txt') != ''
         with:
           scan-args: |-
