@@ -59,7 +59,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Scan package-lock.json
-        uses: google/osv-scanner-action@v1
+        uses: google/osv-scanner-action@
         if: hashFiles('**/package-lock.json') != ''
         with:
           scan-args: |-
