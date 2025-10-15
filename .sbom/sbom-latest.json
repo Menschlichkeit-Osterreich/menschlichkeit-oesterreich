@@ -1,14 +1,14 @@
 {
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
-  "serialNumber": "urn:uuid:29d4d487-261b-4b1b-b652-a315d0b64063",
+  "serialNumber": "urn:uuid:0c84eb30-cd0c-40e3-be59-fa33f5886a7e",
   "version": 1,
   "metadata": {
-    "timestamp": "2025-10-15T14:23:03Z",
+    "timestamp": "2025-10-15T15:43:11Z",
     "component": {
       "type": "application",
       "name": "menschlichkeit-oesterreich",
-      "version": "6444ce2"
+      "version": "7f65920"
     }
   },
   "components": []
