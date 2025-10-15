@@ -19,5 +19,6 @@
         "docs/ai-instructions": true
     },
     "telemetry.telemetryLevel": "off",
-    "editor.codeActions.triggerOnFocusChange": true
+    "editor.codeActions.triggerOnFocusChange": true,
+    "remote.autoForwardPortsFallback": 0
 }
