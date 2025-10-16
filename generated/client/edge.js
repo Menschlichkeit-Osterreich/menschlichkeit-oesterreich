@@ -217,7 +217,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/workspaces/menschlichkeit-oesterreich-development/generated/client",
+      "value": "D:\\Arbeitsverzeichniss\\menschlichkeit-oesterreich-development\\generated\\client",
       "fromEnvVar": null
     },
     "config": {
@@ -226,17 +226,16 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "debian-openssl-1.1.x",
+        "value": "windows",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/workspaces/menschlichkeit-oesterreich-development/schema.prisma",
+    "sourceFilePath": "D:\\Arbeitsverzeichniss\\menschlichkeit-oesterreich-development\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": "../../.env",
-    "schemaEnvPath": "../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../..",
   "clientVersion": "5.22.0",
@@ -245,7 +244,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": true,
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
