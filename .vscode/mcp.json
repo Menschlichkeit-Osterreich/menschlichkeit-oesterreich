@@ -1,15 +1,56 @@
 {
   "$schema": "https://raw.githubusercontent.com/modelcontextprotocol/servers/main/schema/mcp.schema.json",
+  "version": "1.0",
+  "description": "MCP Configuration für Menschlichkeit Österreich - GitHub Copilot Integration",
+  "inputs": [
+    {
+      "id": "figma-api-token",
+      "type": "promptString", 
+      "password": true,
+      "description": "Figma Personal Access Token für Design-zu-Code Generation"
+    }
+  ],
   "servers": {
     "figma": {
       "type": "http",
-      "url": "https://mcp.figma.com/mcp",
-      "description": "Figma MCP Remote Server for Design System Integration",
+      "url": "http://127.0.0.1:3845/mcp",
+      "env": {
+        "FIGMA_API_TOKEN": "${input:figma-api-token}",
+        "FIGMA_FILE_KEY": "mTlUSy9BQk4326cvwNa8zQ"
+      },
+      "description": "Lokaler Figma MCP Server für Design-zu-Code Generation",
       "metadata": {
+        "projectName": "Menschlichkeit Österreich - Website Design System", 
         "designTokens": "figma-design-system/00_design-tokens.json",
         "syncCommand": "npm run figma:sync",
-        "frameworks": ["react", "tailwind"],
-        "languages": ["typescript", "javascript", "css"]
+        "frameworks": ["react", "tailwind", "typescript"],
+        "languages": ["typescript", "javascript", "css"],
+        "supportedOutputs": ["jsx", "tsx", "css", "scss"],
+        "qualityGates": ["codacy", "accessibility", "dsgvo"]
+      }
+    },
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "gallery": "https://api.mcp.github.com/2025-09-15",
+      "version": "0.13.0",
+      "metadata": {
+        "repository": "peschull/menschlichkeit-oesterreich-development",
+        "branch": "main"
+      }
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "metadata": {
+        "description": "Session-persistenter Speicher für Multi-Turn-Conversations"
+      }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "${workspaceFolder}"],
+      "metadata": {
+        "description": "Workspace Dateisystem-Zugriff für Code-Generierung"
       }
     }
   }

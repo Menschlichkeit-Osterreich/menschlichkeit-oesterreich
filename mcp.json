@@ -82,6 +82,20 @@
         "mode": "sync"
       }
     },
+    "figma-mcp-server": {
+      "type": "http",
+      "url": "http://127.0.0.1:3845/mcp",
+      "env": {
+        "FIGMA_API_TOKEN": "${env:FIGMA_API_TOKEN}",
+        "FIGMA_FILE_KEY": "${env:FIGMA_FILE_KEY}"
+      },
+      "metadata": {
+        "description": "Figma Design-to-Code MCP Server für Menschlichkeit Österreich",
+        "version": "1.0.0",
+        "fileKey": "mTlUSy9BQk4326cvwNa8zQ",
+        "projectName": "Menschlichkeit Österreich - Website Design System"
+      }
+    },
     "github-cli": {
       "command": "node",
       "args": {
