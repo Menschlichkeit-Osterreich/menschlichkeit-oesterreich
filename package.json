@@ -19,8 +19,8 @@
     "test:all": "npm run test --workspaces",
     "lint:js": "eslint . --ext .js,.ts --fix",
     "lint:md": "markdownlint . --ignore node_modules --ignore vendor",
-  "format": "prettier --write .",
-  "format:check": "prettier --check .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "format:php": "composer exec php-cs-fixer fix",
     "lint:php": "composer exec phpstan analyse",
     "setup:dev": "npm run install:all && npm run setup:composer && npm run setup:environments",
@@ -53,12 +53,12 @@
     "lint:sarif": "eslint . -f sarif -o eslint.sarif || true",
     "lint:all": "npm run lint:js && npm run lint:php && npm run lint:md",
     "format:all": "npm run format && npm run format:php",
-  "quality:codacy": "node scripts/ci/run-codacy.mjs",
-  "security:trivy": "node scripts/ci/run-trivy.mjs",
-  "security:bandit": "node scripts/ci/run-bandit.mjs",
-  "security:gitleaks": "node scripts/ci/run-gitleaks.mjs",
-  "security:scan": "npm run security:trivy && npm run security:bandit && npm run security:gitleaks",
-  "performance:lighthouse": "npm run lh:ci --workspace=frontend",
+    "quality:codacy": "node scripts/ci/run-codacy.mjs",
+    "security:trivy": "node scripts/ci/run-trivy.mjs",
+    "security:bandit": "node scripts/ci/run-bandit.mjs",
+    "security:gitleaks": "node scripts/ci/run-gitleaks.mjs",
+    "security:scan": "npm run security:trivy && npm run security:bandit && npm run security:gitleaks",
+    "performance:lighthouse": "npm run lh:ci --workspace=frontend",
     "compliance:dsgvo": "pwsh scripts/dsgvo-check.ps1",
     "quality:reports": "node scripts/generate-quality-report.js",
     "quality:gates": "npm run quality:codacy && npm run security:scan && npm run performance:lighthouse && npm run compliance:dsgvo && npm run quality:reports",
@@ -102,7 +102,7 @@
     "@eslint/js": "^9.36.0",
     "@figma/rest-api-spec": "^0.34.0",
     "@jest/globals": "^30.2.0",
-    "@lhci/cli": "^0.13.0",
+    "@lhci/cli": "^0.15.1",
     "@modelcontextprotocol/sdk": "^1.20.1",
     "@playwright/test": "^1.56.0",
     "@tailwindcss/postcss": "^4.1.14",
@@ -123,6 +123,7 @@
     "jsdom-global": "^3.0.2",
     "markdownlint-cli": "^0.43.0",
     "n8n-workflow": "^1.112.0",
+    "pa11y-ci": "^4.0.1",
     "prettier": "^3.4.2",
     "prisma": "^5.19.1",
     "ts-jest": "^29.4.5",
@@ -150,6 +151,8 @@
     "vite": "7.1.9"
   },
   "overrides": {
-    "form-data": ">=4.0.4"
+    "form-data": ">=4.0.4",
+    "semver": ">=7.5.2",
+    "tmp": ">=0.2.4"
   }
 }
