@@ -1,13 +1,31 @@
 <!doctype html>
-<html lang="de" data-theme="light">
+<html lang="de-AT" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Menschlichkeit Österreich – Frontend</title>
+    <title data-i18n-key="seo.home.title">Menschlichkeit Österreich – Gemeinsam gestalten</title>
+    <meta name="description" content="Initiative für soziale Gerechtigkeit und demokratische Teilhabe." data-i18n-key="seo.home.desc" />
+    <link rel="canonical" href="https://www.menschlichkeit-oesterreich.at/" />
+  <link rel="icon" href="/favicon.ico" sizes="any" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Start", "item": "https://www.menschlichkeit-oesterreich.at/" }
+        ]
+      }
+    </script>
   </head>
   <body class="antialiased bg-semantic-surface text-semantic-text-primary">
-    <div id="root"></div>
+    <div id="root">
+      <noscript>Bitte aktivieren Sie JavaScript, um diese Anwendung zu nutzen.</noscript>
+      <div style="padding:16px;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#111">
+        <h1 style="margin:0 0 8px 0;font-size:20px;line-height:1.2">Menschlichkeit Österreich</h1>
+        <p style="margin:0;color:#444">Wird geladen …</p>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
   </html>

@@ -5,6 +5,7 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { api, CreateContactRequest, CreateMembershipRequest } from '../services/api';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
+import { PageHeader } from '../components/ui/PageHeader';
 
 export default function MemberAreaPage() {
   const { token } = useAuth();
@@ -48,9 +49,11 @@ export default function MemberAreaPage() {
 
   return (
     <div className="mx-auto max-w-5xl p-4 space-y-3">
-      <Breadcrumb items={[{ label: 'Mitgliederbereich' }]} />
-      <h1 className="text-2xl font-semibold">Member‑Area</h1>
-      <p className="text-secondary-700">Nur mit Login erreichbar.</p>
+      <PageHeader
+        title="Mitgliederbereich"
+        description="Nur mit Login erreichbar."
+        breadcrumb={<Breadcrumb items={[{ label: 'Mitgliederbereich' }]} />}
+      />
       {message && <Alert variant="success">{message}</Alert>}
       {error && <Alert variant="error">{error}</Alert>}
       <Card className="p-4">

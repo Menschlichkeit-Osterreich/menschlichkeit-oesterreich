@@ -16,7 +16,7 @@ function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
 }
 
 export default function NavBar() {
-  const { token, logout } = useAuth();
+  const { token, logout, isAdmin } = useAuth();
   const [menuOpen, setMenuOpen] = React.useState(false);
   const menuRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -45,12 +45,20 @@ export default function NavBar() {
       <div className="mx-auto max-w-6xl px-3 h-12 flex items-center justify-between">
         <nav className="flex items-center gap-1">
           <NavLink to="/home">Home</NavLink>
+          <NavLink to="/mitglied-werden">Mitglied werden</NavLink>
+          <NavLink to="/spenden">Spenden</NavLink>
+          <NavLink to="/statuten">Statuten</NavLink>
+          <NavLink to="/beitragsordnung">Beitragsordnung</NavLink>
           {token && <NavLink to="/member">Mitgliederbereich</NavLink>}
           {token && <NavLink to="/account/privacy">Datenschutz</NavLink>}
+          {token && isAdmin && <NavLink to="/admin/queue">Admin</NavLink>}
         </nav>
         <div className="relative flex items-center gap-2" ref={menuRef}>
           {!token && (
-            <Link to="/Login" className="px-3 py-2 rounded bg-primary-600 text-white hover:bg-primary-700">
+            <Link
+              to="/Login"
+              className="px-3 py-2 rounded bg-primary-700 text-white hover:bg-primary-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500"
+            >
               Login
             </Link>
           )}
@@ -77,6 +85,11 @@ export default function NavBar() {
                     <Link role="menuitem" className="block px-3 py-2 hover:bg-secondary-50" to="/account/privacy" onClick={() => setMenuOpen(false)}>
                       Datenschutz
                     </Link>
+                    {isAdmin && (
+                      <Link role="menuitem" className="block px-3 py-2 hover:bg-secondary-50" to="/admin/queue" onClick={() => setMenuOpen(false)}>
+                        Admin
+                      </Link>
+                    )}
                   </div>
                   <div className="py-1" role="none">
                     <button

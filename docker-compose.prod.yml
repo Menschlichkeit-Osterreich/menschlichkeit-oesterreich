@@ -1,0 +1,178 @@
+version: '3.9'
+
+services:
+  api:
+    build:
+      context: ./api.menschlichkeit-oesterreich.at/app
+      dockerfile: Dockerfile
+    image: menschlichkeit/api:latest
+    restart: unless-stopped
+    env_file:
+      - ./.env.prod
+    environment:
+      - APP_ENV=${APP_ENV}
+      - JWT_SECRET=${JWT_SECRET}
+      - CIVI_BASE_URL=${CIVI_BASE_URL}
+      - CIVI_SITE_KEY=${CIVI_SITE_KEY}
+      - CIVI_API_KEY=${CIVI_API_KEY}
+      - FRONTEND_ORIGINS=${FRONTEND_ORIGINS}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+      - PAYPAL_CLIENT_ID=${PAYPAL_CLIENT_ID}
+      - PAYPAL_CLIENT_SECRET=${PAYPAL_CLIENT_SECRET}
+      - PAYPAL_API_BASE=${PAYPAL_API_BASE}
+      - PAYMENT_INSTRUMENT_MAP_JSON=${PAYMENT_INSTRUMENT_MAP_JSON}
+      - FINANCIAL_TYPE_MAP_JSON=${FINANCIAL_TYPE_MAP_JSON}
+      - ORG_NAME=${ORG_NAME}
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_FROM=${SMTP_FROM}
+      - SMTP_USE_TLS=${SMTP_USE_TLS}
+      - ORG_ADDRESS_LINE1=${ORG_ADDRESS_LINE1}
+      - ORG_ADDRESS_LINE2=${ORG_ADDRESS_LINE2}
+      - ORG_ADDRESS_ZIP=${ORG_ADDRESS_ZIP}
+      - ORG_ADDRESS_CITY=${ORG_ADDRESS_CITY}
+      - ORG_ADDRESS_COUNTRY=${ORG_ADDRESS_COUNTRY}
+      - ORG_LOGO_PATH=${ORG_LOGO_PATH}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  redis:
+    image: redis:7-alpine
+    container_name: menschlichkeit-redis-prod
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+        reservations:
+          cpus: '0.10'
+          memory: 128M
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+        VITE_STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY}
+        VITE_PAYPAL_CLIENT_ID: ${VITE_PAYPAL_CLIENT_ID}
+    image: menschlichkeit/frontend:latest
+    restart: unless-stopped
+    env_file:
+      - ./.env.prod
+    ports:
+      - "8080:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 192M
+        reservations:
+          cpus: '0.10'
+          memory: 96M
+
+  redis_backup:
+    image: alpine:3.20
+    container_name: menschlichkeit-redis-backup
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data:ro
+      - redis_backups:/backups
+      - ./deployment-scripts/redis-backup.sh:/backup.sh:ro
+      - ./deployment-scripts/redis-crontab:/etc/crontabs/root:ro
+    environment:
+      - RETENTION_DAYS=${REDIS_BACKUP_RETENTION_DAYS:-14}
+      - S3_ENDPOINT=${S3_ENDPOINT}
+      - S3_BUCKET=${S3_BUCKET}
+      - S3_REGION=${S3_REGION}
+      - S3_PREFIX=${S3_PREFIX}
+      - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID}
+      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY}
+      - S3_SSL=${S3_SSL:-true}
+    environment:
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+      - SMTP_FROM=${SMTP_FROM}
+      - SMTP_USE_TLS=${SMTP_USE_TLS}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+      - BACKUP_NOTIFY_EMAIL_TO=${BACKUP_NOTIFY_EMAIL_TO}
+    command: ["/bin/sh", "-c", "apk add --no-cache python3 py3-pip groff less curl msmtp ca-certificates && pip install awscli && chmod +x /backup.sh && crond -f -l 2"]
+
+  s3_mirror:
+    image: alpine:3.20
+    container_name: menschlichkeit-s3-mirror
+    restart: unless-stopped
+    volumes:
+      - redis_backups:/backups
+      - ./deployment-scripts/s3-mirror.sh:/mirror.sh:ro
+      - ./deployment-scripts/redis-crontab:/etc/crontabs/root:ro
+    environment:
+      - S3_ENDPOINT=${S3_ENDPOINT}
+      - S3_BUCKET=${S3_BUCKET}
+      - S3_REGION=${S3_REGION}
+      - S3_PREFIX=${S3_PREFIX}
+      - S3_ACCESS_KEY_ID=${S3_ACCESS_KEY_ID}
+      - S3_SECRET_ACCESS_KEY=${S3_SECRET_ACCESS_KEY}
+    command: ["/bin/sh", "-c", "apk add --no-cache python3 py3-pip groff less && pip install awscli && echo '0 * * * * /mirror.sh >> /var/log/cron.log 2>&1' > /etc/crontabs/root && crond -f -l 2"]
+    depends_on:
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 64M
+        reservations:
+          cpus: '0.05'
+          memory: 32M
+
+networks:
+  default:
+    name: menschlichkeit-prod
+
+volumes:
+  redis_data:
+    driver: local
+  redis_backups:
+    driver: local
+  
+  
