@@ -192,7 +192,7 @@ test.describe('Democracy Game Accessibility', () => {
     expect(htmlLang).toMatch(/^de(-AT)?$/);
     
     // Check for any English content that should be marked differently
-    const englishContent = page.locator('text=/^[A-Za-z\s]+$/').filter({
+    const englishContent = page.locator('text=/^[A-Za-z\\s]+$/').filter({
       hasText: /^(english|login|password|email|submit|click|download|upload)$/i
     });
     
