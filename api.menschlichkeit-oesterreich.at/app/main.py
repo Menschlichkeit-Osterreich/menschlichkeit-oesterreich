@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends, Header, Body, Path
+from fastapi import FastAPI, HTTPException, Depends, Header, Body, Path, Request
 from fastapi.responses import Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
@@ -610,6 +610,72 @@ async def create_contact(contact: ContactCreate, _: Dict[str, Any] = Depends(ver
     created = await _civicrm_contact_create_or_update(params)
     return ApiResponse(success=True, data=_serialize_contact(created).model_dump(), message="Contact created")
 
+@app.get("/contacts/search", response_model=ApiResponse)
+async def search_all_contacts(_: Dict[str, Any] = Depends(verify_jwt_token), limit: int = 100, offset: int = 0) -> ApiResponse:
+    """Search for all contacts with membership information (DSGVO-compliant)"""
+    try:
+        # Get contacts with memberships
+        params = {
+            "select": [
+                "id",
+                "first_name",
+                "last_name",
+                "email",
+                "phone",
+                "birth_date",
+                "street_address",
+                "city",
+                "postal_code",
+                "modified_date",
+            ],
+            "limit": limit,
+            "offset": offset,
+            "orderBy": {"modified_date": "DESC"},
+        }
+        
+        contacts_data = await civicrm_api_call("Contact", "get", params)
+        contacts = contacts_data.get("values", [])
+        
+        # Get memberships for each contact
+        enriched_contacts = []
+        for contact in contacts:
+            contact_id = contact.get("id")
+            memberships = await _civicrm_memberships_get(contact_id)
+            
+            # Get active membership if exists
+            active_membership = None
+            if memberships:
+                active_membership = next(
+                    (m for m in memberships if m.get("status_id") == 1),
+                    memberships[0] if memberships else None
+                )
+            
+            enriched_contact = {
+                "id": contact_id,
+                "first_name": contact.get("first_name", ""),
+                "last_name": contact.get("last_name", ""),
+                "email": contact.get("email", ""),
+                "phone": contact.get("phone"),
+                "birth_date": contact.get("birth_date"),
+                "address": contact.get("street_address"),
+                "city": contact.get("city"),
+                "postal_code": contact.get("postal_code"),
+                "membership_type": active_membership.get("membership_name") if active_membership else None,
+                "membership_status": "active" if active_membership and active_membership.get("status_id") == 1 else "inactive",
+                "join_date": active_membership.get("join_date") if active_membership else None,
+                "end_date": active_membership.get("end_date") if active_membership else None,
+            }
+            enriched_contacts.append(enriched_contact)
+        
+        return ApiResponse(
+            success=True,
+            data={"contacts": enriched_contacts, "total": len(enriched_contacts)},
+            message="Contacts fetched successfully"
+        )
+    except Exception as e:
+        logger.error(f"Error fetching contacts: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch contacts")
+
 @app.get("/contacts/{contact_id}", response_model=ApiResponse)
 async def get_contact(contact_id: int = Path(..., gt=0), _: Dict[str, Any] = Depends(verify_jwt_token)) -> ApiResponse:
     contact_record = await _civicrm_contact_get(contact_id=contact_id)
@@ -617,6 +683,7 @@ async def get_contact(contact_id: int = Path(..., gt=0), _: Dict[str, Any] = Dep
 
 @app.put("/contacts/{contact_id}", response_model=ApiResponse)
 async def update_contact(contact_id: int, update: ContactUpdate, _: Dict[str, Any] = Depends(verify_jwt_token)) -> ApiResponse:
+    """Update contact information (DSGVO-compliant with audit log)"""
     if not any([update.email, update.first_name is not None, update.last_name is not None]):
         raise HTTPException(status_code=400, detail="No update fields supplied")
 
@@ -627,6 +694,19 @@ async def update_contact(contact_id: int, update: ContactUpdate, _: Dict[str, An
         params["first_name"] = update.first_name
     if update.last_name is not None:
         params["last_name"] = update.last_name
+    
+    # Extended fields from request body
+    raw_body = await request.json() if hasattr(request, 'json') else {}
+    if "phone" in raw_body:
+        params["phone"] = raw_body["phone"]
+    if "birth_date" in raw_body:
+        params["birth_date"] = raw_body["birth_date"]
+    if "street_address" in raw_body:
+        params["street_address"] = raw_body["street_address"]
+    if "city" in raw_body:
+        params["city"] = raw_body["city"]
+    if "postal_code" in raw_body:
+        params["postal_code"] = raw_body["postal_code"]
 
     updated_contact = await _civicrm_contact_create_or_update(params)
     return ApiResponse(success=True, data=_serialize_contact(updated_contact).model_dump(), message="Contact updated")
