@@ -2,7 +2,7 @@
 name: 📚 Dokumentation
 about: Verbesserung oder Korrektur der Dokumentation
 title: '[DOCS] '
-labels: ['documentation', 'needs-review']
+labels: ['type/documentation', 'status/ready', 'priority/P2-medium']
 assignees: ''
 ---
 

@@ -1,8 +1,6 @@
 # Docker Compose für Local Development
 # PostgreSQL, Redis, n8n für vollständigen Stack
 
-version: '3.8'
-
 services:
   postgres:
     image: postgres:16-alpine
@@ -41,7 +39,7 @@ services:
 
   # Optional: n8n für Automation Workflows
   n8n:
-    image: n8nio/n8n:latest
+    image: n8nio/n8n:1.72.1
     container_name: menschlichkeit-n8n
     restart: unless-stopped
     environment:

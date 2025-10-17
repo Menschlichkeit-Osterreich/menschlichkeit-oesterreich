@@ -1,12 +1,14 @@
 module.exports = {
   extends: 'lighthouse:default',
   settings: {
-    formFactor: 'mobile',
+    // Stabilere Defaults für CI/Windows-Headless
+    formFactor: 'desktop',
+    // Explizite Desktop-Emulation sorgt für konsistente Paint-Metriken (verhindert NO_FCP)
     screenEmulation: {
-      mobile: true,
-      width: 360,
-      height: 640,
-      deviceScaleFactor: 2,
+      mobile: false,
+      width: 1366,
+      height: 768,
+      deviceScaleFactor: 1,
       disabled: false,
     },
     throttling: {

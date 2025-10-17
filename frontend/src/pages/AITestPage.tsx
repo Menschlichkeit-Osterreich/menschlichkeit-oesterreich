@@ -1,10 +1,21 @@
 // AI Integration Test Page
-import React from 'react';
-import { AIIntegrationDemo } from '../components/demo/AIIntegrationDemo';
-import { AuthSystem } from '../components/auth/AuthSystem';
-import { SepaManagement } from '../components/sepa/SepaManagement';
-import { PrivacyCenter } from '../components/privacy/PrivacyCenter';
-import { SecurityDashboard } from '../components/security/SecurityDashboard';
+import React, { Suspense } from 'react';
+// Heavy sections: lazy-load to reduce JS on initial route (Performance)
+const AIIntegrationDemo = React.lazy(() =>
+  import('../components/demo/AIIntegrationDemo').then(mod => ({ default: mod.AIIntegrationDemo }))
+);
+const AuthSystem = React.lazy(() =>
+  import('../components/auth/AuthSystem').then(mod => ({ default: mod.AuthSystem }))
+);
+const SepaManagement = React.lazy(() =>
+  import('../components/sepa/SepaManagement').then(mod => ({ default: mod.SepaManagement }))
+);
+const PrivacyCenter = React.lazy(() =>
+  import('../components/privacy/PrivacyCenter').then(mod => ({ default: mod.PrivacyCenter }))
+);
+const SecurityDashboard = React.lazy(() =>
+  import('../components/security/SecurityDashboard').then(mod => ({ default: mod.SecurityDashboard }))
+);
 
 /**
  * Test Page für alle AI-integrierten Komponenten
@@ -12,10 +23,11 @@ import { SecurityDashboard } from '../components/security/SecurityDashboard';
  */
 export const AITestPage: React.FC = () => {
   const [activeDemo, setActiveDemo] = React.useState<
-    'ai-demo' | 'auth' | 'sepa' | 'privacy' | 'security'
-  >('ai-demo');
+    'overview' | 'ai-demo' | 'auth' | 'sepa' | 'privacy' | 'security'
+  >('overview');
 
   const demos = [
+    { id: 'overview' as const, title: 'Übersicht', icon: 'bi-house' },
     { id: 'ai-demo' as const, title: 'AI Integration Demo', icon: 'bi-robot' },
     { id: 'auth' as const, title: 'Auth System', icon: 'bi-shield-lock' },
     { id: 'sepa' as const, title: 'SEPA Management', icon: 'bi-bank' },
@@ -37,7 +49,7 @@ export const AITestPage: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-2 text-sm text-muted">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
               <span>ChatGPT + Codex + Copilot Active</span>
             </div>
           </div>
@@ -45,20 +57,33 @@ export const AITestPage: React.FC = () => {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Navigation */}
-        <div className="flex flex-wrap gap-2 mb-8">
+        {/* Navigation (as accessible tabs) */}
+        <div
+          className="flex flex-wrap gap-2 mb-8"
+          role="tablist"
+          aria-label="Demo-Bereiche"
+        >
           {demos.map(demo => (
             <button
               key={demo.id}
               onClick={() => setActiveDemo(demo.id)}
               className={`
-                flex items-center gap-2 px-4 py-2 rounded-lg transition-colors
+                flex items-center gap-2 px-4 py-2 rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500
                 ${
                   activeDemo === demo.id
-                    ? 'bg-primary-500 text-white'
+                    ? 'bg-primary-50 text-primary-800 ring-1 ring-inset ring-primary-200'
                     : 'bg-white text-text hover:bg-surface-elevated border border-border'
                 }
               `}
+              id={`tab-${demo.id}`}
+              role="tab"
+              aria-selected={activeDemo === demo.id}
+              aria-controls={`panel-${demo.id}`}
+              tabIndex={activeDemo === demo.id ? 0 : -1}
+              onKeyDown={(e) => {
+                // sichtbarer Fokus für Tastaturbedienung
+                if (e.key === 'Enter' || e.key === ' ') setActiveDemo(demo.id);
+              }}
             >
               <i className={demo.icon} aria-hidden="true"></i>
               <span>{demo.title}</span>
@@ -66,52 +91,107 @@ export const AITestPage: React.FC = () => {
           ))}
         </div>
 
-        {/* Demo Content */}
-        <div className="bg-white rounded-lg border border-border min-h-96">
-          {activeDemo === 'ai-demo' && <AIIntegrationDemo />}
+        {/* Demo Content: remove heavy min-height to improve LCP */}
+        <div className="bg-white rounded-lg border border-border">
+          <Suspense
+            fallback={
+              <div className="p-8" role="status" aria-live="polite">
+                <p className="text-muted">Inhalt wird geladen …</p>
+              </div>
+            }
+          >
+            {activeDemo === 'overview' && (
+              <section
+                id="panel-overview"
+                role="tabpanel"
+                aria-labelledby="tab-overview"
+                className="p-8"
+              >
+                <h2 className="text-2xl font-bold mb-4">Willkommen</h2>
+                <p className="text-muted mb-6">
+                  Wähle einen Bereich oben, um eine bestimmte Demo zu laden. Die Inhalte werden
+                  aus Performance-Gründen erst bei Bedarf nachgeladen.
+                </p>
+                <ul className="list-disc ml-6 text-sm text-text space-y-2">
+                  <li>Keine Drittanbieter-Skripte ohne Interaktion</li>
+                  <li>DSGVO: Keine PII in Logs, Maskierung aktiv</li>
+                  <li>Barrierefreiheit: Tastaturbedienung, reduzierte Bewegung</li>
+                </ul>
+              </section>
+            )}
+            {activeDemo === 'ai-demo' && (
+              <section
+                id="panel-ai-demo"
+                role="tabpanel"
+                aria-labelledby="tab-ai-demo"
+              >
+                <AIIntegrationDemo />
+              </section>
+            )}
 
-          {activeDemo === 'auth' && (
-            <div className="p-8">
-              <h2 className="text-2xl font-bold mb-4">🔐 Authentication System Demo</h2>
-              <p className="text-muted mb-6">
-                KI-generierte Authentication mit 2FA, österreichischen DSGVO-Standards und
-                Vereins-Rollensystem.
-              </p>
-              <AuthSystem isOpen={true} onClose={() => {}} />
-            </div>
-          )}
+            {activeDemo === 'auth' && (
+              <section
+                id="panel-auth"
+                role="tabpanel"
+                aria-labelledby="tab-auth"
+                className="p-8"
+              >
+                <h2 className="text-2xl font-bold mb-4">🔐 Authentication System Demo</h2>
+                <p className="text-muted mb-6">
+                  KI-generierte Authentication mit 2FA, österreichischen DSGVO-Standards und
+                  Vereins-Rollensystem.
+                </p>
+                <AuthSystem isOpen={true} onClose={() => {}} />
+              </section>
+            )}
 
-          {activeDemo === 'sepa' && (
-            <div className="p-8">
-              <h2 className="text-2xl font-bold mb-4">🏦 SEPA Management Demo</h2>
-              <p className="text-muted mb-6">
-                KI-optimierte SEPA-Lastschrift mit österreichischen Banken und DSGVO-Compliance.
-              </p>
-              <SepaManagement
-                onComplete={mandate => console.log('SEPA Mandat erstellt:', mandate)}
-              />
-            </div>
-          )}
+            {activeDemo === 'sepa' && (
+              <section
+                id="panel-sepa"
+                role="tabpanel"
+                aria-labelledby="tab-sepa"
+                className="p-8"
+              >
+                <h2 className="text-2xl font-bold mb-4">🏦 SEPA Management Demo</h2>
+                <p className="text-muted mb-6">
+                  KI-optimierte SEPA-Lastschrift mit österreichischen Banken und DSGVO-Compliance.
+                </p>
+                <SepaManagement
+                  onComplete={mandate => console.log('SEPA Mandat erstellt:', mandate)}
+                />
+              </section>
+            )}
 
-          {activeDemo === 'privacy' && (
-            <div className="p-8">
-              <h2 className="text-2xl font-bold mb-4">🛡️ Privacy Center Demo</h2>
-              <p className="text-muted mb-6">
-                KI-unterstütztes DSGVO-Compliance Center für österreichische Vereine.
-              </p>
-              <PrivacyCenter isOpen={true} onClose={() => {}} />
-            </div>
-          )}
+            {activeDemo === 'privacy' && (
+              <section
+                id="panel-privacy"
+                role="tabpanel"
+                aria-labelledby="tab-privacy"
+                className="p-8"
+              >
+                <h2 className="text-2xl font-bold mb-4">🛡️ Privacy Center Demo</h2>
+                <p className="text-muted mb-6">
+                  KI-unterstütztes DSGVO-Compliance Center für österreichische Vereine.
+                </p>
+                <PrivacyCenter isOpen={true} onClose={() => {}} />
+              </section>
+            )}
 
-          {activeDemo === 'security' && (
-            <div className="p-8">
-              <h2 className="text-2xl font-bold mb-4">🚨 Security Dashboard Demo</h2>
-              <p className="text-muted mb-6">
-                KI-powered Security-Monitoring mit österreichischen Compliance-Standards.
-              </p>
-              <SecurityDashboard />
-            </div>
-          )}
+            {activeDemo === 'security' && (
+              <section
+                id="panel-security"
+                role="tabpanel"
+                aria-labelledby="tab-security"
+                className="p-8"
+              >
+                <h2 className="text-2xl font-bold mb-4">🚨 Security Dashboard Demo</h2>
+                <p className="text-muted mb-6">
+                  KI-powered Security-Monitoring mit österreichischen Compliance-Standards.
+                </p>
+                <SecurityDashboard />
+              </section>
+            )}
+          </Suspense>
         </div>
 
         {/* Footer Info */}

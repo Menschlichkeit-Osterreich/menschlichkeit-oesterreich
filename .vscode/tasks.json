@@ -191,8 +191,8 @@
     {
       "label": "🔍 Code Quality: Codacy Docker Analyze",
       "type": "shell",
-      "command": "bash",
-      "args": ["scripts/codacy/codacy-cli.sh", "analyze", "--path", ".", "--format", "json", "--output", "quality-reports/codacy-analysis.json"],
+      "command": "npm",
+      "args": ["run", "quality:codacy"],
       "group": "test",
       "presentation": {
         "echo": true,

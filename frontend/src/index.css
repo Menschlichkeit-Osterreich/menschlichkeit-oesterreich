@@ -142,6 +142,12 @@
       padding-bottom: var(--ds-spacing-24);
     }
   }
+
+  /* Reduce rendering cost for large offscreen content */
+  .cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 800px 600px; /* prevents layout shift when revealed */
+  }
 }
 
 /* Austrian Wave Animation */

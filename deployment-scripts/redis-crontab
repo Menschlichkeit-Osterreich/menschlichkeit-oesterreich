@@ -1,0 +1,6 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Run daily at 03:00 UTC
+0 3 * * * /backup.sh >> /var/log/cron.log 2>&1
+

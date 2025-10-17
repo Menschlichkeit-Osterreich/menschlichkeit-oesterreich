@@ -18,13 +18,21 @@ const __dirname = path.dirname(__filename);
 class FigmaMCPIntegration {
     constructor(config = {}) {
         this.figmaFileKey = config.figmaFileKey || 'mTlUSy9BQk4326cvwNa8zQ';
-        this.nodeId = config.nodeId || '0:1';
+        this.nodeId = this.normalizeNodeId(config.nodeId || '0:1');
         this.projectName = config.projectName || 'Website';
         this.mcpEndpoint = config.mcpEndpoint || 'http://127.0.0.1:3845/mcp';
         this.figmaToken = config.figmaToken || process.env.FIGMA_API_TOKEN;
         this.outputDir = config.outputDir || path.join(__dirname, '../frontend/src/components/figma');
         this.designSystemDir = path.join(__dirname, '../figma-design-system');
         this.qualityGatesEnabled = config.qualityGates !== false;
+    }
+
+    /**
+     * Normalize node id from formats like "0-1" to "0:1"
+     */
+    normalizeNodeId(nodeId) {
+        if (!nodeId) return '0:1';
+        return String(nodeId).replace('-', ':');
     }
 
     /**
@@ -107,7 +115,7 @@ class FigmaMCPIntegration {
         
         if (!this.figmaToken) {
             console.warn('⚠️  No Figma token available, using mock data');
-            return this.getMockData();
+            return await this.getMockData();
         }
 
         try {
@@ -122,10 +130,10 @@ class FigmaMCPIntegration {
             }
 
             const data = await response.json();
-            return this.processFigmaAPIResponse(data);
+            return await this.processFigmaAPIResponse(data);
         } catch (error) {
             console.warn('⚠️  Figma API fetch failed, using mock data');
-            return this.getMockData();
+            return await this.getMockData();
         }
     }
 
@@ -148,7 +156,7 @@ class FigmaMCPIntegration {
     /**
      * Process Figma API response
      */
-    processFigmaAPIResponse(data) {
+    async processFigmaAPIResponse(data) {
         const document = data.document;
         const rootNode = this.findNodeById(document, this.nodeId);
         
@@ -169,7 +177,7 @@ class FigmaMCPIntegration {
     /**
      * Get mock data when APIs are not available
      */
-    getMockData() {
+    async getMockData() {
         console.log('🚪 Using mock data for development...');
         return {
             fileKey: this.figmaFileKey,
@@ -285,30 +293,7 @@ class FigmaMCPIntegration {
         // Implementation would validate token consistency
         return Promise.resolve();
     }
-            fileKey: this.figmaFileKey,
-            nodeId: this.nodeId,
-            projectName: this.projectName,
-            nodes: [
-                {
-                    id: '0:1',
-                    name: 'Desktop 1280x1080',
-                    type: 'FRAME',
-                    children: [
-                        { id: '1:1', name: 'Header/Navigation', type: 'COMPONENT' },
-                        { id: '1:2', name: 'Hero Section', type: 'COMPONENT' },
-                        { id: '1:3', name: 'Features Grid', type: 'COMPONENT' },
-                        { id: '1:4', name: 'CTA Section', type: 'COMPONENT' },
-                        { id: '1:5', name: 'Footer', type: 'COMPONENT' }
-                    ]
-                }
-            ],
-            styles: {
-                colors: await this.loadDesignTokens('colors'),
-                typography: await this.loadDesignTokens('typography'),
-                spacing: await this.loadDesignTokens('spacing')
-            }
-        };
-    }
+    
 
     /**
      * Load existing design tokens
@@ -374,7 +359,7 @@ ${componentName}.displayName = '${componentName}';
 export default ${componentName};
 `;
 
-        return { fileName, componentCode, componentName };
+    return { fileName, componentCode, componentName };
     }
 
     /**
@@ -545,6 +530,20 @@ node scripts/figma-mcp-integration.mjs
     }
 
     /**
+     * Write a file only if it does not already exist (prevent overwriting handcrafted components)
+     */
+    async writeFileIfNew(filePath, content) {
+        try {
+            await fs.access(filePath);
+            console.log(`   ⏭️  Skipping existing file: ${path.basename(filePath)}`);
+            return false;
+        } catch {
+            await fs.writeFile(filePath, content);
+            return true;
+        }
+    }
+
+    /**
      * Main integration function
      */
     async integrate() {
@@ -571,10 +570,12 @@ node scripts/figma-mcp-integration.mjs
                 const { fileName, componentCode, componentName } = 
                     await this.generateComponent(child, metadata.styles);
                 
-                // Write component file
+                // Write component file (no overwrite)
                 const componentPath = path.join(this.outputDir, fileName);
-                await fs.writeFile(componentPath, componentCode);
-                console.log(`   ✅ ${fileName}`);
+                const written = await this.writeFileIfNew(componentPath, componentCode);
+                if (written) {
+                    console.log(`   ✅ ${fileName}`);
+                }
 
                 // Run quality gates for this component
                 const qualityPassed = await this.runQualityGates(componentPath);
@@ -585,8 +586,10 @@ node scripts/figma-mcp-integration.mjs
                 // Write story file
                 const storyCode = this.generateStory(componentName, child);
                 const storyPath = path.join(this.outputDir, 'stories', `${componentName}.stories.tsx`);
-                await fs.writeFile(storyPath, storyCode);
-                console.log(`   📖 ${componentName}.stories.tsx`);
+                const storyWritten = await this.writeFileIfNew(storyPath, storyCode);
+                if (storyWritten) {
+                    console.log(`   📖 ${componentName}.stories.tsx`);
+                }
 
                 generatedComponents.push({ fileName, componentName, node: child });
                 componentNames.push(componentName);

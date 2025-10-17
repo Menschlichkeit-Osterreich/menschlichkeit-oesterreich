@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { api, DataDeletionCreateRequest, DeletionRequestItem } from '../services/api';
+import { PageHeader } from '../components/ui/PageHeader';
+import { Breadcrumb } from '../components/ui/Breadcrumb';
 
 export default function PrivacySettings() {
   const { token } = useAuth();
@@ -62,6 +64,11 @@ export default function PrivacySettings() {
 
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-6">
+      <PageHeader
+        title="Mein Konto löschen (DSGVO Art. 17)"
+        description="Anfragen können rechtliche Ausnahmen (z. B. Aufbewahrungspflichten) berücksichtigen und ggf. zur Anonymisierung führen."
+        breadcrumb={<Breadcrumb items={[{ label: 'Einstellungen' }, { label: 'Datenschutz' }]} />}
+      />
       <header>
         <h1 className="text-2xl font-semibold">Mein Konto löschen (DSGVO Art. 17)</h1>
         <p className="text-sm text-gray-600">Anfragen können rechtliche Ausnahmen (z. B. Aufbewahrungspflichten) berücksichtigen und ggf. zur Anonymisierung führen.</p>
@@ -123,4 +130,3 @@ export default function PrivacySettings() {
     </div>
   );
 }
-

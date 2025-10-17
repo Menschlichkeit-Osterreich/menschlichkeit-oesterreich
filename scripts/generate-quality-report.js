@@ -4,11 +4,12 @@
  * Aggregates quality metrics from various tools into unified report
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'node:fs';
+import path from 'node:path';
 
 const REPORTS_DIR = 'quality-reports';
 const OUTPUT_FILE = path.join(REPORTS_DIR, 'complete-analysis.json');
+const FIGMA_DOCS_DIR = path.join('figma-design-system', 'figmadocs');
 
 console.log('📊 Generating comprehensive quality report...');
 
@@ -41,6 +42,7 @@ const report = {
     dsgvo: null,
     lighthouse: null,
     eslint: null,
+    design_docs: null,
   },
   quality_gates: {
     security_gate: { passed: false, details: 'CVE count unknown' },
@@ -62,6 +64,45 @@ function readJsonReport(filePath) {
     console.warn(`⚠️  Warning: Could not read ${filePath}: ${error.message}`);
   }
   return null;
+}
+
+// Helper: Recursively scan figmadocs
+function scanFigmadocs(baseDir) {
+  const absBase = path.resolve(baseDir);
+  if (!fs.existsSync(absBase)) {
+    return null;
+  }
+
+  const categories = [];
+  let totalFiles = 0;
+
+  const topEntries = fs.readdirSync(absBase, { withFileTypes: true });
+  for (const entry of topEntries) {
+    if (entry.isDirectory()) {
+      const catDir = path.join(absBase, entry.name);
+      const files = [];
+
+      const walk = dir => {
+        const ents = fs.readdirSync(dir, { withFileTypes: true });
+        for (const e of ents) {
+          const full = path.join(dir, e.name);
+          if (e.isDirectory()) walk(full);
+          else if (e.isFile()) files.push(path.relative(absBase, full).replace(/\\/g, '/'));
+        }
+      };
+
+      walk(catDir);
+      totalFiles += files.length;
+      categories.push({ name: entry.name, file_count: files.length, files });
+    }
+  }
+
+  return {
+    baseDir: baseDir.replace(/\\/g, '/'),
+    total_files: totalFiles,
+    categories,
+    last_updated: new Date().toISOString(),
+  };
 }
 
 // Load individual reports
@@ -155,6 +196,66 @@ if (eslintReport && eslintReport.runs) {
   };
 }
 
+// Lighthouse Report (from frontend workspace)
+// Try multiple locations: frontend/.lighthouse and quality-reports fallback copy
+const lighthouseCandidates = [
+  path.join('frontend', '.lighthouse', 'report.report.json'),
+  path.join('quality-reports', 'lighthouse-report.json'),
+];
+let lighthouseJson = null;
+let lighthouseUsedPath = null;
+for (const p of lighthouseCandidates) {
+  const j = readJsonReport(p);
+  if (j) { lighthouseJson = j; lighthouseUsedPath = p; break; }
+}
+if (lighthouseJson) {
+  const perf = lighthouseJson.categories?.performance?.score ?? 0;
+  const a11y = lighthouseJson.categories?.accessibility?.score ?? 0;
+  const bestPractices = lighthouseJson.categories?.['best-practices']?.score ?? 0;
+  const seo = lighthouseJson.categories?.seo?.score ?? 0;
+
+  report.reports.lighthouse = {
+    performance: perf,
+    accessibility: a11y,
+    best_practices: bestPractices,
+    seo,
+    audits_count: Array.isArray(lighthouseJson.audits)
+      ? lighthouseJson.audits.length
+      : Object.keys(lighthouseJson.audits || {}).length,
+    fetchedAt: lighthouseJson.fetchTime || new Date().toISOString(),
+  };
+
+  // Convert perf to percent score for summary
+  report.summary.performance_score = Math.round((perf || 0) * 100);
+
+  // Update gates based on thresholds defined in run-lighthouse script
+  const perfOk = perf >= 0.9;
+  const a11yOk = a11y >= 0.95;
+  const bpOk = bestPractices >= 0.95;
+  const seoOk = seo >= 0.9;
+
+  report.quality_gates.performance_gate = {
+    passed: perfOk && bpOk && seoOk,
+    details: `Scores: performance=${(perf * 100).toFixed(0)} a11y=${(a11y * 100).toFixed(0)} best-practices=${(bestPractices * 100).toFixed(0)} seo=${(seo * 100).toFixed(0)} (source: ${lighthouseUsedPath})`,
+  };
+  report.quality_gates.accessibility_gate = {
+    passed: a11yOk,
+    details: `Accessibility score ${(a11y * 100).toFixed(0)} (source: ${lighthouseUsedPath})`,
+  };
+}
+
+// Figma Design Docs (figmadocs)
+const designDocs = scanFigmadocs(FIGMA_DOCS_DIR);
+if (designDocs) {
+  report.reports.design_docs = designDocs;
+  // Optionally: consider docs presence in maintainability gate (informative)
+  if (designDocs.total_files > 0) {
+    report.summary.recommendations.push('📚 Design-Dokumentation gefunden (figmadocs) – in Reports aufgenommen');
+  } else {
+    report.summary.recommendations.push('📝 figmadocs ist leer – bitte Design-Dokumentation ergänzen');
+  }
+}
+
 // Calculate overall metrics
 report.summary.total_issues =
   (report.reports.codacy?.total_issues || 0) +
@@ -231,6 +332,9 @@ console.log(`📈 Quality Score: ${report.summary.quality_score}%`);
 console.log(`⚖️ Compliance Score: ${report.summary.compliance_score}%`);
 console.log(`🚨 Critical Issues: ${report.summary.critical_issues}`);
 console.log(`📝 Total Issues: ${report.summary.total_issues}`);
+if (report.reports.design_docs) {
+  console.log(`📚 Design Docs: ${report.reports.design_docs.total_files} Dateien in ${report.reports.design_docs.categories.length} Kategorien`);
+}
 
 console.log('\n🚪 Quality Gates:');
 Object.entries(report.quality_gates).forEach(([gate, status]) => {

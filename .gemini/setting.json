@@ -1,0 +1,112 @@
+{
+  "$schema": "https://raw.githubusercontent.com/modelcontextprotocol/servers/main/schema/mcp.schema.json",
+  "version": "1.1.0",
+  "lastUpdated": "2025-10-17",
+  "description": "Zentrale Konfiguration des Model Context Protocol (MCP) für das Projekt 'Menschlichkeit Österreich'. Definiert verfügbare KI-Tools (Server) und erforderliche Benutzereingaben (Inputs) für den Gemini Code Agent.",
+
+  "inputs": [
+    {
+      "id": "figma-api-token",
+      "type": "promptString",
+      "password": true,
+      "description": "Figma Personal Access Token für die Synchronisation von Design-Tokens und die Code-Generierung."
+    },
+    {
+      "id": "ado_org",
+      "type": "promptString",
+      "description": "Name der Azure DevOps Organisation (z.B. 'contoso')."
+    },
+    {
+      "id": "ado_domain",
+      "type": "promptString",
+      "description": "Zu verwendende Azure DevOps-Domänen (z.B. 'core, work, repos, pipelines')."
+    },
+    {
+      "id": "clarity_api_token",
+      "type": "promptString",
+      "password": true,
+      "description": "API-Token für den Datenexport aus Microsoft Clarity."
+    }
+  ],
+
+  "mcp": {
+    "servers": {
+      "azure-devops": {
+        "name": "Azure DevOps",
+        "type": "stdio",
+        "command": "npx",
+        "args": [
+          "-y",
+          "@azure-devops/mcp@latest",
+          "${input:ado_org}",
+          "-d",
+          "${input:ado_domain}"
+        ],
+        "description": "Stellt eine Verbindung zu Azure DevOps her, um auf Work Items, Repositories und Pipelines zuzugreifen."
+      },
+      "clarity": {
+        "name": "Clarity",
+        "type": "stdio",
+        "command": "npx",
+        "args": [
+          "@microsoft/clarity-mcp-server@latest",
+          "--clarity_api_token",
+          "${input:clarity_api_token}"
+        ],
+        "description": "Integriert Microsoft Clarity zur Analyse von Benutzerverhaltensdaten und Heatmaps."
+      },
+      "figma": {
+        "name": "Figma",
+        "type": "http",
+        "url": "http://127.0.0.1:3845/mcp",
+        "env": {
+          "FIGMA_API_TOKEN": "${input:figma-api-token}",
+          "FIGMA_FILE_KEY": "mTlUSy9BQk4326cvwNa8zQ"
+        },
+        "description": "Ermöglicht den Zugriff auf Figma-Designs, um Design-Tokens zu extrahieren und UI-Komponenten zu generieren."
+      },
+      "filesystem": {
+        "name": "Filesystem",
+        "type": "stdio",
+        "command": "npx",
+        "args": [
+          "-y",
+          "@modelcontextprotocol/server-filesystem",
+          "${workspaceFolder}"
+        ],
+        "description": "Gewährt Lese- und Schreibzugriff auf das lokale Dateisystem im Projektordner."
+      },
+      "github": {
+        "name": "GitHub",
+        "type": "http",
+        "url": "https://api.githubcopilot.com/mcp/",
+        "metadata": {
+          "repository": "peschull/menschlichkeit-oesterreich-development",
+          "branch": "main"
+        },
+        "description": "Bietet Zugriff auf die GitHub-API zur Verwaltung von Repositories, Issues, Pull Requests und Security Alerts."
+      },
+      "markitdown": {
+        "name": "MarkItDown",
+        "type": "stdio",
+        "command": "uvx",
+        "args": ["markitdown-mcp==0.0.1a4"],
+        "description": "Konvertiert verschiedene Dateiformate (PDF, DOCX, Bilder) in Markdown."
+      },
+      "memory": {
+        "name": "Memory",
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-memory"],
+        "description": "Dient als Kurzzeitgedächtnis für den Agenten, um den Kontext während einer Sitzung zu behalten."
+      },
+      "playwright": {
+        "name": "Playwright",
+        "type": "stdio",
+        "command": "npx",
+        "args": ["@playwright/mcp@latest"],
+        "description": "Ermöglicht die Automatisierung von Browsern für End-to-End-Tests und Web-Scraping."
+      }
+    }
+  }
+}

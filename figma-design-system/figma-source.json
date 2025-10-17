@@ -1,0 +1,6 @@
+{
+  "teamUrl": "https://www.figma.com/files/team/1509619257517961777/project/472312846/Web?fuid=1509619255157053626",
+  "fileUrl": "https://www.figma.com/make/mTlUSy9BQk4326cvwNa8zQ/Website?t=6O6bqo7iByAejHk4-6",
+  "fileKey": "mTlUSy9BQk4326cvwNa8zQ",
+  "notes": "Maintain FIGMA_API_TOKEN in secrets; local FIGMA_FILE_KEY should match fileKey. Optional: provide NODE_IDS for targeted sync."
+}
