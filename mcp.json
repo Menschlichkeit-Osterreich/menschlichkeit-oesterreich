@@ -97,10 +97,14 @@
       }
     },
     "github-cli": {
-      "command": "node",
+      "command": "python",
       "args": {
         "script": "scripts/validate-github-files.py",
         "mode": "issues"
+      },
+      "env": {
+        "GH_TOKEN": "${env:GH_TOKEN}",
+        "GITHUB_TOKEN": "${env:GITHUB_TOKEN}"
       }
     },
     "memory": {

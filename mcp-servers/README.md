@@ -1,4 +1,35 @@
-# MCP-Servers – Model Context Protocol
+# MCP Debugging (VS Code Copilot)
+
+Kurzleitfaden zum Debuggen der MCP-Server in diesem Workspace.
+
+## 1) Konfiguration prüfen
+- VS Code: `.vscode/mcp.json` (diese Datei wird von Copilot gelesen)
+- Repository-Metakonfig: `mcp.json` (nur Referenz; nicht von Copilot geladen)
+
+## 2) Health-Checks
+- Gesamtreport: `npm run mcp:check` → schreibt `quality-reports/mcp-access.json`
+- Figma-Server: `npm run figma:mcp:check`
+- Figma-MCP-Server starten: `npm run figma:mcp:server`
+
+## 3) Häufige Probleme & Lösungen
+- uvx nicht installiert (Python-Tool „uv“):
+  - Lösung: `scripts/mcp/uvx-stdio.mjs` Wrapper verwendet; meldet klaren Fehler → installiere uv nach Doku.
+- HTTP MCP (Figma) nicht erreichbar:
+  - Server starten (`npm run figma:mcp:server`) und Port 3845 freigeben
+  - Token/Keys in `.env` setzen: `FIGMA_API_TOKEN`, `FIGMA_FILE_KEY`
+- GitHub Copilot lädt MCP nicht:
+  - VS Code Neustart: „Developer: Reload Window“
+  - Copilot Features: https://github.com/settings/copilot/features
+  - Workspace Settings: `.vscode/settings.json` checken
+
+## 4) Logs
+- Copilot Language Server Logs (lokal):
+  - macOS/Linux: `~/.vscode/extensions/github.copilot-*/language-server.log`
+  - Windows: `%USERPROFILE%\.vscode\extensions\github.copilot-*\language-server.log`
+
+## 5) Support/Upgrade
+- MCP Server-Versionen sind in `.vscode/mcp.json` fixiert.
+- Bei Problemen bitte Versionen kurz anheben oder fixieren und erneut `npm run mcp:check` ausführen.# MCP-Servers – Model Context Protocol
 
 Dieser Ordner enthält interne MCP-Server, die Entwicklungs- und QA-Workflows unterstützen (z. B. Codacy, Figma, Filesystem, Docker).
 

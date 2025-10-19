@@ -214,6 +214,177 @@
       "type": "shell",
       "command": "rsync -avz --delete ./site/ plesk-prod-cs:/var/www/vhosts/menschlichkeit-oesterreich.at/httpdocs/",
       "problemMatcher": []
+    },
+    {
+      "label": "🔐 GPG: Export Keys",
+      "type": "shell",
+      "command": "bash",
+      "args": ["scripts/gpg/export-keys.sh"],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "group": "security"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🔐 GPG: Verify Signature (README)",
+      "type": "shell",
+      "command": "bash",
+      "args": ["scripts/gpg/verify-signature.sh", "README.md", "README.md.asc"],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "group": "security"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🔧 GitHub: Repository Settings Update",
+      "type": "shell",
+      "command": "bash",
+      "args": ["scripts/gh/repo-settings.sh"],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "group": "github"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🔗 GitHub: Setup n8n Webhook",
+      "type": "shell",
+      "command": "bash",
+      "args": ["scripts/gh/webhook-setup.sh"],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "group": "github"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🔄 GitHub: Sync Secret (PowerShell)",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "${workspaceFolder}/scripts/gh/secret-sync.ps1",
+        "-SecretName",
+        "${input:secretName}",
+        "-TargetRepo",
+        "${input:targetRepo}"
+      ],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "group": "github"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🐙 GitHub: Auth Status",
+      "type": "shell",
+      "command": "gh",
+      "args": ["auth", "status"],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "group": "github"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🐙 GitHub: List Repos",
+      "type": "shell",
+      "command": "gh",
+      "args": [
+        "repo",
+        "list",
+        "--limit",
+        "50",
+        "--json",
+        "name,visibility,updatedAt"
+      ],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "group": "github"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🐙 GitHub: List Open Issues",
+      "type": "shell",
+      "command": "gh",
+      "args": [
+        "issue",
+        "list",
+        "--state",
+        "open",
+        "--json",
+        "number,title,labels,createdAt"
+      ],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "group": "github"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🐙 GitHub: Validate Token",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "${workspaceFolder}/scripts/gh/Run-GitHubTokenValidation.ps1"
+      ],
+      "group": "none",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": true,
+        "panel": "shared",
+        "group": "github"
+      },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "secretName",
+      "type": "promptString",
+      "description": "Secret-Name (z.B. DATABASE_URL, GH_TOKEN)"
+    },
+    {
+      "id": "targetRepo",
+      "type": "promptString",
+      "description": "Ziel-Repository (owner/repo)"
     }
   ]
 }

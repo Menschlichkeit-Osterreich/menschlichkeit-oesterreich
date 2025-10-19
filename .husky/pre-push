@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+. "$(dirname "$0")/_/husky.sh"
+
+set -eu
+
+echo "[pre-push] Codacy Analyse läuft…"
+# env via .env.local/.env lädt das Node-Skript selbst
+LOG_FILE="${TMPDIR:-/tmp}/codacy-run.log"
+node ./scripts/ci/run-codacy.mjs >"$LOG_FILE" 2>&1 || {
+  echo "[pre-push] Codacy-Analyse fehlgeschlagen. Log-Auszug:"
+  tail -n 200 "$LOG_FILE" || true
+  exit 1
+}
+
+# Findings via Node zählen (SARIF im Repo-Root)
+COUNT=$(node -e "const fs=require('fs');try{const s=fs.readFileSync('codacy-analysis.sarif','utf8');const j=JSON.parse(s);const c=(j.runs||[]).reduce((a,r)=>a+((r.results||[]).length||0),0);console.log(String(c));}catch(e){console.log('0')}")
+
+echo "[pre-push] Findings gesamt: ${COUNT}"
+if [ "${CODACY_FAIL_ON_FINDINGS:-true}" = "true" ] && [ "$COUNT" -gt 0 ]; then
+  echo "[pre-push] ❌ Push gestoppt (Findings > 0). Setze temporär CODACY_FAIL_ON_FINDINGS=false um lokal zu überbrücken."
+  exit 2
+fi
+
+echo "[pre-push] ✅ OK – keine blockierenden Findings."

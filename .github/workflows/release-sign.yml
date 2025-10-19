@@ -1,0 +1,62 @@
+name: 🔐 Release Signing (GPG)
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔑 Import GPG key
+        run: |
+          mkdir -p ~/.gnupg
+          chmod 700 ~/.gnupg
+          echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
+          echo "$GPG_PRIVATE_KEY" | gpg --batch --import
+          gpg --list-secret-keys --keyid-format=long
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+
+      - name: 📦 Create release artifacts
+        run: |
+          tar -czf artifact.tar.gz LICENSE README.md CHANGELOG.md
+          ls -lh artifact.tar.gz
+
+      - name: 🔏 Sign artifact (detached, ASCII)
+        run: |
+          echo "${{ secrets.GPG_PASSPHRASE }}" | gpg --batch --yes --pinentry-mode loopback \
+            --passphrase-fd 0 -u "${{ secrets.GPG_KEY_ID }}" \
+            --armor --detach-sign artifact.tar.gz
+          ls -lh artifact.tar.gz.asc
+
+      - name: ✅ Verify signature
+        run: |
+          gpg --verify artifact.tar.gz.asc artifact.tar.gz
+
+      - name: 🚀 Upload release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifact.tar.gz
+            artifact.tar.gz.asc
+          body: |
+            ## 🔐 GPG-signiertes Release
+            
+            **Verifikation:**
+            ```bash
+            # Public Key importieren (falls noch nicht geschehen):
+            curl -sL https://github.com/peschull.gpg | gpg --import
+            
+            # Signatur prüfen:
+            gpg --verify artifact.tar.gz.asc artifact.tar.gz
+            ```
+            
+            **Erwarteter Fingerprint:** siehe `docs/security/GPG-KEYS.md`

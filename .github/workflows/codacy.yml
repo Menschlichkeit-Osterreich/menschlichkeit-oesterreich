@@ -1,0 +1,51 @@
+name: Codacy Analysis (SARIF Gate)
+"on":
+  pull_request: {}
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  codacy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Analyze with Codacy (Node script → SARIF)
+        run: |
+          node ./scripts/ci/run-codacy.mjs
+
+      - name: Upload SARIF to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: codacy-analysis.sarif
+          category: codacy
+
+      - name: Fail if findings > 0 (hard gate)
+        id: gate
+        run: |
+          sudo apt-get update -y && sudo apt-get install -y jq
+          COUNT=$(jq -r '[.runs[].results|length] | add // 0' codacy-analysis.sarif || echo 0)
+          echo "findings=$COUNT" >> $GITHUB_OUTPUT
+          echo "Findings: $COUNT"
+          if [ "$COUNT" -gt 0 ]; then
+            echo "::error::Codacy findings detected ($COUNT)."
+            exit 1
+          fi
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Codacy SARIF Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- Findings: ${{ steps.gate.outputs.findings }}" >> $GITHUB_STEP_SUMMARY

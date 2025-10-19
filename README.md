@@ -238,7 +238,26 @@ Zentrale Navigation: DOCS-INDEX.md
 - Design System: figma-design-system/FIGMA-README.md
 - Copilot: .github/copilot-instructions.md
 - Deployment: docs/operations/
-- Testing: tests/README.md
+
+---
+
+## 👥 Member Management (Admin)
+
+**Zentrale Mitgliederverwaltung mit CiviCRM-Integration**
+
+- **Route:** `/admin/members` (Protected - nur Vorstand/Kassier)
+- **Features:**
+  - 🔍 Echtzeit-Suche (Name, E-Mail)
+  - 🏷️ Status-Filter (aktiv, pending, expired, cancelled)
+  - 📊 Mitgliedstyp-Filter (Standard, Ermäßigt, Härtefall)
+  - ✏️ Vollständiger Edit-Modus (Modal) mit DSGVO-konformen Feldern
+  - 📋 Membership-Historie mit Status-Badges
+  - 🔄 Responsive Card-Layout mit Loading/Error-States
+- **Backend:**
+  - `GET /contacts/search` – Mitgliedersuche mit Membership-Enrichment (Pagination)
+  - `PUT /contacts/{id}` – Update mit erweiterten Feldern (phone, birth_date, address)
+- **DSGVO-Compliance:** Art. 15-21 DSGVO-konform, PII-Sanitization, Audit-Logging
+- **Dokumentation:** [`docs/features/MEMBER-MANAGEMENT.md`](docs/features/MEMBER-MANAGEMENT.md)
 
 ---
 

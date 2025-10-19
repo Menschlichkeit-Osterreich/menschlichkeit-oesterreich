@@ -54,6 +54,8 @@
     "lint:all": "npm run lint:js && npm run lint:php && npm run lint:md",
     "format:all": "npm run format && npm run format:php",
     "quality:codacy": "node scripts/ci/run-codacy.mjs",
+    "analyze:codacy": "node scripts/ci/run-codacy.mjs",
+    "prepare": "husky install",
     "security:trivy": "node scripts/ci/run-trivy.mjs",
     "security:bandit": "node scripts/ci/run-bandit.mjs",
     "security:gitleaks": "node scripts/ci/run-gitleaks.mjs",
@@ -68,7 +70,7 @@
     "figma:sync:watch": "nodemon --watch figma-design-system scripts/figma-token-sync.cjs",
     "figma:integrate": "node scripts/figma-mcp-integration.mjs",
     "figma:components": "npm run figma:integrate",
-    "figma:mcp:server": "node mcp-servers/figma-mcp-server/index.js",
+    "figma:mcp:server": "node mcp-servers/figma-mcp-server/index.cjs",
     "figma:mcp:check": "node scripts/check-figma-mcp.mjs",
     "figma:generate": "node scripts/figma-mcp-integration.mjs",
     "figma:ws:start": "node dist/socket.js",
@@ -96,9 +98,14 @@
     "status:verbose": "python3 scripts/codespace-status-check.py --verbose",
     "status:json": "python3 scripts/codespace-status-check.py --json quality-reports/codespace-status.json",
     "mcp:check": "node scripts/mcp-check.mjs",
-    "mcp:figma:health": "node scripts/figma-mcp-health.mjs"
+    "mcp:figma:health": "node scripts/figma-mcp-health.mjs",
+    "mcp:health": "node scripts/mcp-health-simple.mjs"
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
+      "husky": "^9.1.6",
+      "lint-staged": "^15.2.10",
     "@eslint/js": "^9.36.0",
     "@figma/rest-api-spec": "^0.34.0",
     "@jest/globals": "^30.2.0",

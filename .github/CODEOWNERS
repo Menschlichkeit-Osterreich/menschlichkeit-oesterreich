@@ -1,5 +1,14 @@
 * @peschull
 
+# =============================================================================
+# ENV, Deployment & Mail-Standard (Doppel-Freigabe mandatory)
+# =============================================================================
+docs/ENV-DEPLOYMENT-MAIL-STANDARD.md  @peschull @vorstand
+.githooks/*                            @peschull
+.github/workflows/env-guard.yml        @peschull
+
+# =============================================================================
 # Beispiel für Bereichsverantwortliche (anpassen/nachtragen):
+# =============================================================================
 # mcp-servers/* @peschull
 # frontend/*    @peschull

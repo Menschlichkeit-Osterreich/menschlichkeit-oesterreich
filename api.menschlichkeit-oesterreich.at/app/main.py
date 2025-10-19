@@ -121,6 +121,10 @@ app.add_middleware(
     max_age=cors_max_age,
 )
 
+# Include API routers
+from app.routers import metrics
+app.include_router(metrics.router)
+
 # Add security middlewares
 try:
     from app.middleware.security import RateLimitMiddleware, SecurityHeadersMiddleware

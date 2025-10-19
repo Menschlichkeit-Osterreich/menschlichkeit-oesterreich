@@ -1,0 +1,52 @@
+[
+  {
+    "Check": "A (menschlichkeit-oesterreich.at)",
+    "OK": true,
+    "Detail": "5.183.217.146"
+  },
+  {
+    "Check": "MX",
+    "OK": true,
+    "Detail": "plesk7.digimagical.com (10)"
+  },
+  {
+    "Check": "SPF",
+    "OK": true,
+    "Detail": "v=spf1 a mx -all"
+  },
+  {
+    "Check": "DKIM (default)",
+    "OK": true,
+    "Detail": "v=DKIM1; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAichaO..."
+  },
+  {
+    "Check": "DMARC",
+    "OK": true,
+    "Detail": "v=DMARC1; p=reject; sp=none; pct=100; ri=86400; rua=mailto:abuse@menschlichkeit-oesterreich.at"
+  },
+  {
+    "Check": "MTA-STS TXT",
+    "OK": false,
+    "Detail": "_mta-sts.menschlichkeit-oesterreich.at : Der DNS-Name ist nicht vorhanden."
+  },
+  {
+    "Check": "MTA-STS HTTPS",
+    "OK": false,
+    "Detail": "Der angegebene Host ist unbekannt. (mta-sts.menschlichkeit-oesterreich.at:443)"
+  },
+  {
+    "Check": "TLS-RPT",
+    "OK": false,
+    "Detail": "_smtp._tls.menschlichkeit-oesterreich.at : Der DNS-Name ist nicht vorhanden."
+  },
+  {
+    "Check": "CAA",
+    "OK": false,
+    "Detail": "Cannot bind parameter 'Type'. Cannot convert value \"CAA\" to type \"Microsoft.DnsClient.Commands.RecordType\". Error: \"Unable to match the identifier name CAA to a valid enumerator name. Specify one of the following enumerator names and try again:\r\nUNKNOWN, A_AAAA, A, NS, MD, MF, CNAME, SOA, MB, MG, MR, NULL, WKS, PTR, HINFO, MINFO, MX, TXT, RP, AFSDB, X25, ISDN, RT, AAAA, SRV, DNAME, OPT, DS, RRSIG, NSEC, DNSKEY, DHCID, NSEC3, NSEC3PARAM, ANY, ALL, WINS\""
+  },
+  {
+    "Check": "A (mail.menschlichkeit-oesterreich.at)",
+    "OK": false,
+    "Detail": "mail.menschlichkeit-oesterreich.at : Der DNS-Name ist nicht vorhanden."
+  }
+]

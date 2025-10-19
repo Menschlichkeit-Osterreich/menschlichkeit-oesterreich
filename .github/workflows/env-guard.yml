@@ -1,0 +1,51 @@
+name: ENV Guard (Secrets Protection)
+
+on:
+  push:
+    branches: [main, develop, staging]
+  pull_request:
+    branches: [main, develop, staging]
+
+jobs:
+  check-env:
+    name: Verify .env.example & Block Real .env
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Verify .env.example exists and is non-empty
+        run: |
+          if [ ! -s .env.example ]; then
+            echo "❌ .env.example fehlt oder ist leer!"
+            echo "Lösung: Pflege zentrale .env.example im Repo-Root"
+            exit 1
+          fi
+          echo "✅ .env.example vorhanden ($(wc -l < .env.example) Zeilen)"
+      
+      - name: Ensure no real .env committed
+        run: |
+          found=$(git ls-files | grep -E '(^|/)\.env($|[^a-z])' | grep -v '\.example' || true)
+          if [ -n "$found" ]; then
+            echo "❌ ECHTE .ENV IM REPO GEFUNDEN (SECRETS-LEAK!):"
+            echo "$found"
+            echo ""
+            echo "Lösung:"
+            echo "  1. git rm --cached <datei>"
+            echo "  2. Secrets rotieren (GitHub Secrets, dotenv-vault)"
+            echo "  3. .gitignore prüfen"
+            exit 1
+          fi
+          echo "✅ Keine echten .env-Dateien im Repo (Secrets-Check passed)"
+      
+      - name: Check .env in .gitignore
+        run: |
+          if ! grep -q '^\.env$' .gitignore; then
+            echo "⚠️ WARNING: .env nicht in .gitignore gefunden!"
+            echo "Empfehlung: .gitignore ergänzen"
+          else
+            echo "✅ .env in .gitignore geschützt"
+          fi

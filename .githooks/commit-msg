@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -e
+
+commit="${1}"
+
+# Prüft, ob commit signiert ist (nur lokal, best effort)
+if ! git verify-commit "$commit" >/dev/null 2>&1; then
+  echo "❌ Commit nicht GPG-signiert!"
+  echo "Bitte mit 'git commit -S' oder aktiviere commit.gpgsign:"
+  echo "  git config --global commit.gpgsign true"
+  exit 1
+fi

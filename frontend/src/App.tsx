@@ -5,6 +5,7 @@ import PrivacySettings from './pages/PrivacySettings';
 import ProtectedRoute from './components/ProtectedRoute';
 import MemberArea from './pages/MemberArea';
 import MemberManagement from './pages/MemberManagement';
+import BoardTreasurerDashboard from './pages/BoardTreasurerDashboard';
 import Login from './pages/Login';
 import SkipLink from './components/SkipLink';
 import FigmaDemo from './pages/FigmaDemo';
@@ -66,6 +67,7 @@ export default function App() {
               <Route path="/member" element={<MemberArea />} />
               <Route path="/admin/queue" element={<AdminQueuePage />} />
               <Route path="/admin/members" element={<MemberManagement />} />
+              <Route path="/admin/dashboard" element={<BoardTreasurerDashboard />} />
             </Route>
 
             <Route element={<ProtectedRoute><SettingsLayout /></ProtectedRoute>}>

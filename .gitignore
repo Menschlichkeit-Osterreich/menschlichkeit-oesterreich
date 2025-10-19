@@ -397,3 +397,8 @@ crm.menschlichkeit-oesterreich.at/web/core/modules/**/tests/**/README.md
 
 #Ignore vscode AI rules
 .github/instructions/codacy.instructions.md
+
+.env*
+.flaskenv*
+!.env.project
+!.env.vault
