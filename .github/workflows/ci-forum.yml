@@ -1,0 +1,25 @@
+name: ci-forum
+on:
+  pull_request:
+    paths:
+      - 'docs/forum/**'
+      - 'web/forum/**'
+  workflow_dispatch:
+jobs:
+  validate-structure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check required files
+        run: |
+          test -f docs/forum/README.md
+          test -f docs/forum/OPERATIONS.md
+          test -f docs/forum/SECURITY.md
+          test -f docs/forum/STYLE-GUIDE.md
+          test -f docs/forum/MODERATION.md
+          test -f docs/forum/KI-MODERATION.md
+          test -f docs/forum/COMMUNITY-GROWTH.md
+          test -f docs/forum/GAMIFICATION.md
+          test -f docs/forum/DSGVO.md
+          test -f docs/forum/VISION.md
+          test -f docs/forum/ADR/ADR-0001-forum-subdomain.md

@@ -8,7 +8,12 @@ docs/ENV-DEPLOYMENT-MAIL-STANDARD.md  @peschull @vorstand
 .github/workflows/env-guard.yml        @peschull
 
 # =============================================================================
-# Beispiel für Bereichsverantwortliche (anpassen/nachtragen):
+# Bereichsverantwortliche
 # =============================================================================
 # mcp-servers/* @peschull
 # frontend/*    @peschull
+
+# Forum & Community
+/web/forum/**           @peschull
+/docs/forum/**          @peschull
+/automation/n8n/workflows/forum-*.json @peschull

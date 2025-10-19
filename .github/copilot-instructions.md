@@ -7,6 +7,7 @@ Dieser Monorepo bündelt 5 Services mit gemeinsamer PostgreSQL-DB und DSGVO-Firs
 - API: `api.menschlichkeit-oesterreich.at/` (FastAPI, Python 3.11+, Alembic) – Port 8001
 - Frontend: `frontend/` (React 18 + TS + Vite, Design Tokens) – Port 5173
 - Games: `web/` (Prisma-Schema im Repo; lokaler Dev-Server via Python) – Port 3000
+- Forum: `web/forum/` (phpBB, SMTP/reCAPTCHA, optional OIDC-SSO) – Subdomain `forum.menschlichkeit-oesterreich.at`
 - Automation: `automation/n8n/` (Docker, Webhooks) – Port 5678
 Gemeinsame DB (PostgreSQL ≥15) via `DATABASE_URL`. Schema-Änderungen: koordinieren (API Alembic vs. Games Prisma).
 
@@ -612,7 +613,18 @@ cat ~/.vscode/extensions/github.copilot-*/language-server.log | grep -i error
 # VS Code reload: Cmd/Ctrl + Shift + P → "Developer: Reload Window"
 ```text
 
+### Forum-Spezifisches (phpBB)
+- **Dokumentation:** `docs/forum/` (README, OPERATIONS, SECURITY, DSGVO, KI-MODERATION, SSO-OIDC)
+- **Deployment:** `.github/workflows/deploy-forum.yml` (Safety-Gate bis Go-Live: `if: ${{ false }}`)
+- **Secrets:** FORUM_SMTP_PASS, FORUM_RECAPTCHA_SECRET, OIDC_CLIENT_SECRET (siehe `secrets/SECRETS-AUDIT.md`)
+- **n8n Integration:** `automation/n8n/workflows/forum-viral.json` (Social Crossposting)
+- **CODEOWNERS:** `/web/forum/**` und `/docs/forum/**` → @peschull
+- **Style-Sync:** Figma Design Tokens → phpBB Theme (via Tailwind CSS)
+- **DSGVO:** Cookie-Banner, PII-Retention-Policy, Anonymisierungs-Scripts
+- **SSO (optional):** OIDC-Integration nach vollständigem Testing aktivieren
+
 ---
 
 **Philosophy:** Security > Data Integrity > Production Stability > Developer Velocity  
 **Goal:** Zero production incidents, 100% quality gate pass rate, GDPR-compliant by default
+

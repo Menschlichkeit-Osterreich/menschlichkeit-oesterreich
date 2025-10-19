@@ -1,0 +1,58 @@
+{
+  "name": "forum-moderation",
+  "nodes": [
+    {
+      "id": "webhook",
+      "type": "webhook",
+      "path": "/phpbb/post"
+    },
+    {
+      "id": "ai-moderation",
+      "type": "function",
+      "desc": "spam/toxicity/summaries/nudging"
+    },
+    {
+      "id": "route-ok",
+      "type": "if",
+      "cond": "ok"
+    },
+    {
+      "id": "route-flag",
+      "type": "if",
+      "cond": "flag"
+    },
+    {
+      "id": "notify",
+      "type": "slack",
+      "channel": "#mods"
+    },
+    {
+      "id": "quarantine",
+      "type": "http-request",
+      "method": "POST",
+      "url": "https://forum.example.at/api/quarantine"
+    }
+  ],
+  "connections": [
+    [
+      "webhook",
+      "ai-moderation"
+    ],
+    [
+      "ai-moderation",
+      "route-ok"
+    ],
+    [
+      "ai-moderation",
+      "route-flag"
+    ],
+    [
+      "route-flag",
+      "notify"
+    ],
+    [
+      "route-flag",
+      "quarantine"
+    ]
+  ]
+}

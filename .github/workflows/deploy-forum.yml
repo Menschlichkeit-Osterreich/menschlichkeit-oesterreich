@@ -1,0 +1,33 @@
+name: deploy-forum
+on:
+  workflow_dispatch: {}
+  push:
+    branches: [ main ]
+    paths:
+      - 'web/forum/**'
+jobs:
+  deploy:
+    if: ${{ false }}  # bis Go-Live deaktiviert
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Rsync to Plesk
+        uses: burnett01/rsync-deployments@5.2
+        with:
+          switches: -avzr --delete
+          path: web/forum/
+          remote_path: /var/www/vhosts/<VHOST>/forum/httpdocs/
+          remote_host: ${{ secrets.PLESK_HOST }}
+          remote_user: ${{ secrets.PLESK_USER }}
+          remote_key:  ${{ secrets.PLESK_SSH_KEY }}
+      - name: Post-Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PLESK_HOST }}
+          username: ${{ secrets.PLESK_USER }}
+          key: ${{ secrets.PLESK_SSH_KEY }}
+          script: |
+            cd /var/www/vhosts/<VHOST>/forum/httpdocs
+            find ./cache -type f -not -name 'index.htm*' -delete || true
+            chown -R <plesk_user>:psacln ./cache ./files ./store ./images/avatars/upload
+            chmod -R 775 ./cache ./files ./store ./images/avatars/upload

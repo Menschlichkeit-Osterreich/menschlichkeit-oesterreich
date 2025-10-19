@@ -1,0 +1,21 @@
+name: moderation-ai
+on:
+  schedule:
+    - cron: "0 6 * * MON"
+  workflow_dispatch: {}
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run AI Moderation Report
+        run: |
+          mkdir -p reports
+          echo "# Weekly Moderation Report" > reports/forum-moderation.md
+          echo "" >> reports/forum-moderation.md
+          echo "- Reviewed posts: TBD" >> reports/forum-moderation.md
+      - name: Upload Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: forum-moderation-report
+          path: reports/forum-moderation.md
