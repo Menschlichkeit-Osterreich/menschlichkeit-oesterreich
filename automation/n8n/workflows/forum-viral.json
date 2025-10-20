@@ -1,0 +1,62 @@
+{
+  "name": "forum-viral",
+  "nodes": [
+    {
+      "id": "trigger",
+      "type": "cron",
+      "schedule": "0 * * * *",
+      "desc": "st\u00fcndlich Top-Posts pr\u00fcfen"
+    },
+    {
+      "id": "api",
+      "type": "http-request",
+      "method": "GET",
+      "url": "https://forum.example.at/api/top-posts"
+    },
+    {
+      "id": "ai",
+      "type": "function",
+      "desc": "generate social captions/snippets"
+    },
+    {
+      "id": "post-x",
+      "type": "http-request",
+      "method": "POST",
+      "url": "https://api.twitter.com/..."
+    },
+    {
+      "id": "post-ig",
+      "type": "http-request",
+      "method": "POST",
+      "url": "https://graph.facebook.com/..."
+    },
+    {
+      "id": "post-tt",
+      "type": "http-request",
+      "method": "POST",
+      "url": "https://open.tiktokapis.com/..."
+    }
+  ],
+  "connections": [
+    [
+      "trigger",
+      "api"
+    ],
+    [
+      "api",
+      "ai"
+    ],
+    [
+      "ai",
+      "post-x"
+    ],
+    [
+      "ai",
+      "post-ig"
+    ],
+    [
+      "ai",
+      "post-tt"
+    ]
+  ]
+}

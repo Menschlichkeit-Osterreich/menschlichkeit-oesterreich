@@ -379,6 +379,46 @@ python scripts/validate-secrets.py
 
 ---
 
+### 11. Forum (phpBB)
+
+#### FORUM_SMTP_PASS
+```yaml
+KEY: FORUM_SMTP_PASS
+VALUE: [SMTP_PASSWORD_PLACEHOLDER]
+SOURCE: Mail-Provider (Plesk/Mailbox-Konfiguration)
+PURPOSE: SMTP-Authentifizierung für Forum-Benachrichtigungen
+SCOPE: production, staging
+NOTES: Teilt Mailbox mit Newsletter (noreply@menschlichkeit-oesterreich.at)
+ROTATION: Quartalsweise (gemeinsam mit Newsletter-Credentials)
+VALIDATION: Alphanumerisch, min. 16 Zeichen
+```
+
+#### FORUM_RECAPTCHA_SECRET
+```yaml
+KEY: FORUM_RECAPTCHA_SECRET
+VALUE: [RECAPTCHA_V3_SECRET_PLACEHOLDER]
+SOURCE: Google reCAPTCHA v3 Console
+PURPOSE: Bot-Schutz für Forum-Registrierung und Login
+SCOPE: production
+NOTES: Site Key ist öffentlich (FORUM_RECAPTCHA_SITE_KEY)
+ROTATION: Jährlich oder bei Verdacht auf Kompromittierung
+VALIDATION: ^6L[A-Za-z0-9_-]{38}$
+```
+
+#### OIDC_CLIENT_SECRET
+```yaml
+KEY: OIDC_CLIENT_SECRET
+VALUE: [OIDC_CLIENT_SECRET_PLACEHOLDER]
+SOURCE: Identity Provider (Keycloak/Auth0)
+PURPOSE: SSO-Integration für Forum (optional)
+SCOPE: production (nach SSO-Rollout)
+NOTES: Nur aktivieren nach vollständigem SSO-Testing
+ROTATION: Bei jeder IdP-Konfigurationsänderung
+VALIDATION: UUID v4 oder Provider-spezifisch
+```
+
+---
+
 ## 📚 Weiterführende Dokumentation
 
 - **Setup:** `docs/ENV-DEPLOYMENT-MAIL-STANDARD.md`
