@@ -113,7 +113,7 @@ Die neuen Commits wurden noch nicht von Codacy analysiert. Gründe:
    ```
 
 5. **Warten auf Codacy Webhook** (ca. 2-5 Minuten)
-6. **Review Codacy Dashboard:** <https://app.codacy.com/gh/peschull/menschlichkeit-oesterreich-development>
+6. **Review Codacy Dashboard:** <https://app.codacy.com/gh/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development>
 
 ### Quality Gate Targets (Langfristig)
 
@@ -173,4 +173,4 @@ git push origin chore/figma-mcp-make --force-with-lease
 **Erstellt:** 2025-10-04 20:15 UTC  
 **Autor:** Peter Schuller  
 **Branch:** chore/figma-mcp-make (1011ac0d)  
-**Codacy Dashboard:** <https://app.codacy.com/gh/peschull/menschlichkeit-oesterreich-development>
+**Codacy Dashboard:** <https://app.codacy.com/gh/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development>

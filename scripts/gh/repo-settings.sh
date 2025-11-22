@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-REPO="${1:-peschull/menschlichkeit-oesterreich-development}"
+REPO="${1:-Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development}"
 
 echo "🔧 Aktualisiere Repository-Einstellungen für: $REPO"
 

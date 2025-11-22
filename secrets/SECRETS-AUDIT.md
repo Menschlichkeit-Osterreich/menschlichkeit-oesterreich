@@ -1,7 +1,7 @@
 # 🔐 Secret-Dokumentation & Audit-Template
 
 **Projekt:** Menschlichkeit Österreich  
-**Repository:** peschull/menschlichkeit-oesterreich-development  
+**Repository:** Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development  
 **Umgebung:** Development (lokal)  
 **Stand:** 18. Oktober 2025  
 **Verantwortlich:** Peter Schuller (peschull)  

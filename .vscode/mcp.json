@@ -114,7 +114,7 @@
 			"version": "0.13.0",
 			"description": "GitHub Copilot MCP – Issues, PRs, Repositories, Security",
 			"metadata": {
-				"repository": "peschull/menschlichkeit-oesterreich-development",
+				"repository": "Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development",
 				"branch": "main"
 			}
 		},

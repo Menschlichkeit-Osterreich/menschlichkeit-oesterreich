@@ -81,7 +81,7 @@
         "type": "http",
         "url": "https://api.githubcopilot.com/mcp/",
         "metadata": {
-          "repository": "peschull/menschlichkeit-oesterreich-development",
+          "repository": "Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development",
           "branch": "main"
         },
         "description": "Bietet Zugriff auf die GitHub-API zur Verwaltung von Repositories, Issues, Pull Requests und Security Alerts."

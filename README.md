@@ -23,7 +23,7 @@ priority: critical
 
 > Eine umfassende digitale Plattform für demokratische Teilhabe, Bildung und Community-Engagement in Österreich
 
-[![Quality Gate](https://img.shields.io/badge/Quality%20Gate-Passing-brightgreen)](https://app.codacy.com/gh/peschull/menschlichkeit-oesterreich-development)
+[![Quality Gate](https://img.shields.io/badge/Quality%20Gate-Passing-brightgreen)](https://app.codacy.com/gh/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development)
 [![Security Scan](https://img.shields.io/badge/Security-DSGVO%20Compliant-blue)](docs/PRIVACY.md)
 [![WCAG AA](https://img.shields.io/badge/Accessibility-WCAG%20AA-success)](docs/legal/WCAG-AA-COMPLIANCE-BLUEPRINT.md)
 
@@ -76,7 +76,7 @@ Architektur: Monorepo mit npm workspaces, Multi-Subdomain Plesk Hosting, Docker 
 
 ```bash
 # 1) Repository klonen
-git clone https://github.com/peschull/menschlichkeit-oesterreich-development.git
+git clone https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development.git
 cd menschlichkeit-oesterreich-development
 
 # 2) Dev-Setup (Workspaces, Composer, Environments)
@@ -395,9 +395,9 @@ Third-Party Notices: docs/legal/THIRD-PARTY-NOTICES.md
 
 ## 🆘 Support
 
-- **Bugs**: [GitHub Issues](https://github.com/peschull/menschlichkeit-oesterreich-development/issues/new?template=bug_report.md)
-- **Features**: [Feature Request](https://github.com/peschull/menschlichkeit-oesterreich-development/issues/new?template=feature_request.md)
-- **Security**: [Security Vulnerability Report](https://github.com/peschull/menschlichkeit-oesterreich-development/issues/new?template=security_vulnerability.md)
+- **Bugs**: [GitHub Issues](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues/new?template=bug_report.md)
+- **Features**: [Feature Request](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues/new?template=feature_request.md)
+- **Security**: [Security Vulnerability Report](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues/new?template=security_vulnerability.md)
 - **Dokumentation**: [DOCS-INDEX.md](DOCS-INDEX.md)
 
 ---

@@ -130,7 +130,7 @@ curl -X PUT \
 **Schritt 1:** Zu GitHub-Repository gehen
 
 ```
-https://github.com/peschull/menschlichkeit-oesterreich-development/settings/branches
+https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/settings/branches
 ```
 
 **Schritt 2:** Branch-Protection-Rule für `chore/figma-mcp-make` bearbeiten

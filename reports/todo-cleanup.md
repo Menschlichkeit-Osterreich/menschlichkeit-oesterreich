@@ -1,7 +1,7 @@
 # TODO-Cleanup Report – Menschlichkeit Österreich
 
 **Generated:** 2025-10-17  
-**Repository:** peschull/menschlichkeit-oesterreich-development  
+**Repository:** Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development  
 **Branch:** chore/repo-docs-issues-reorg  
 **Scope:** Source-Code-TODOs/FIXMEs/HACKs (TypeScript, JavaScript, Python, PHP)
 

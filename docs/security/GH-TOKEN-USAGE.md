@@ -42,7 +42,7 @@ grep "^GH_TOKEN=" .env.local
 
 ### GitHub Actions (CI/CD)
 
-**Repository Secrets:** https://github.com/peschull/menschlichkeit-oesterreich-development/settings/secrets/actions
+**Repository Secrets:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/settings/secrets/actions
 
 **Zugriff in Workflows:**
 
@@ -74,7 +74,7 @@ gh pr view 123
 
 ```bash
 # Clone (Token wird automatisch genutzt, wenn gh auth aktiv)
-gh repo clone peschull/menschlichkeit-oesterreich-development
+gh repo clone Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
 
 # Push (bevorzugt SSH, aber HTTPS funktioniert auch)
 git push origin main
@@ -88,7 +88,7 @@ curl -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/user
 
 # Repository-Info
 curl -H "Authorization: Bearer $GH_TOKEN" \
-  https://api.github.com/repos/peschull/menschlichkeit-oesterreich-development
+  https://api.github.com/repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
 ```
 
 ### GitHub Actions (Workflows)
@@ -275,7 +275,7 @@ echo "NEW_VALUE" | gh secret set MY_SECRET
 ### Repo klonen (mit Submodules)
 
 ```bash
-gh repo clone peschull/menschlichkeit-oesterreich-development -- --recurse-submodules
+gh repo clone Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development -- --recurse-submodules
 ```
 
 ---

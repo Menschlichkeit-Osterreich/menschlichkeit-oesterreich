@@ -253,7 +253,7 @@ Plesk unterstützt **Git-basierte Deployments** (benötigt Git-Extension).
 1. Plesk → **Domains** → `menschlichkeit-oesterreich.at` → **Git**
 2. **Add Repository**
 3. Konfiguration:
-   - **Repository-URL:** `https://github.com/peschull/menschlichkeit-oesterreich-development.git`
+   - **Repository-URL:** `https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development.git`
    - **Branch:** `main` (oder `production`)
    - **Repository-Pfad:** `/httpdocs` (oder `/frontend`, `/crm`, etc.)
    - **Deployment-Mode:**
@@ -295,7 +295,7 @@ ssh user@menschlichkeit-oesterreich.at
 cd httpdocs/crm
 
 # 3. Git-Repository klonen (Erstes Mal)
-git clone https://github.com/peschull/menschlichkeit-oesterreich-development.git .
+git clone https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development.git .
 
 # 4. Oder: Pull bei Updates
 git pull origin main
@@ -313,8 +313,8 @@ chown -R user:psacln sites/default/files  # user = Domain-User
 ```
 
 **WICHTIG:**
-- **GitHub-Token erforderlich** (für private Repos): `git clone https://<TOKEN>@github.com/peschull/menschlichkeit-oesterreich-development.git`
-- **SSH-Key-Auth bevorzugt:** `git clone git@github.com:peschull/menschlichkeit-oesterreich-development.git` (SSH-Key in GitHub-Account hinterlegen)
+- **GitHub-Token erforderlich** (für private Repos): `git clone https://<TOKEN>@github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development.git`
+- **SSH-Key-Auth bevorzugt:** `git clone git@github.com:Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development.git` (SSH-Key in GitHub-Account hinterlegen)
 
 ---
 

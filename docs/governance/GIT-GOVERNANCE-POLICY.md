@@ -108,7 +108,7 @@ protection:
 curl -X PUT \
   -H "Authorization: Bearer $GITHUB_TOKEN" \
   -H "Accept: application/vnd.github+json" \
-  https://api.github.com/repos/peschull/menschlichkeit-oesterreich-development/branches/chore%2Ffigma-mcp-make/protection \
+  https://api.github.com/repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/branches/chore%2Ffigma-mcp-make/protection \
   -d @- <<EOF
 {
   "required_pull_request_reviews": {

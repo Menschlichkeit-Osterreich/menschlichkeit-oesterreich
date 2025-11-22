@@ -1,7 +1,7 @@
 # Compliance-Secrets-Audit – Menschlichkeit Österreich
 
 **Generated:** 2025-10-17  
-**Repository:** peschull/menschlichkeit-oesterreich-development  
+**Repository:** Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development  
 **Branch:** chore/repo-docs-issues-reorg  
 **Scope:** Gitleaks-Audit, secrets/-Struktur, Rotation-Policies, GitHub-Secrets-Status
 
@@ -180,7 +180,7 @@ secrets/
 - **Snyk Token:**
   - Setup: https://app.snyk.io → Account Settings → API Token → Generate Token
 - **GitHub Secrets Link:**
-  - https://github.com/peschull/menschlichkeit-oesterreich-development/settings/secrets/actions
+  - https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/settings/secrets/actions
 
 **Zeitaufwand (laut Dokument):**
 - Codacy Account + Token: 10 Min
@@ -365,7 +365,7 @@ gh auth login
 
 **3. Secrets auflisten:**
 ```powershell
-gh secret list --repo peschull/menschlichkeit-oesterreich-development
+gh secret list --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
 
 # Erwartete Ausgabe (26 Secrets):
 # CODACY_API_TOKEN     Updated 2025-XX-XX
@@ -390,7 +390,7 @@ $REQUIRED_SECRETS = @(
     # ... 18 weitere STAGING_REMOTE_* Secrets
 )
 
-$EXISTING_SECRETS = gh secret list --repo peschull/menschlichkeit-oesterreich-development --json name | ConvertFrom-Json | Select-Object -ExpandProperty name
+$EXISTING_SECRETS = gh secret list --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development --json name | ConvertFrom-Json | Select-Object -ExpandProperty name
 
 $MISSING = $REQUIRED_SECRETS | Where-Object { $_ -notin $EXISTING_SECRETS }
 

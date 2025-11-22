@@ -51,7 +51,7 @@ API Examples (curl)
 ```sh
 curl -s -X POST -H "Authorization: token $GH_TOKEN" -H "Accept: application/vnd.github+json" \
   -d '{"body":"Backend queue + monitoring delivered..."}' \
-  https://api.github.com/repos/peschull/menschlichkeit-oesterreich-development/issues/145/comments
+  https://api.github.com/repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues/145/comments
 ```
 
 Helper scripts (env: GH_TOKEN, GITHUB_OWNER, GITHUB_REPO)

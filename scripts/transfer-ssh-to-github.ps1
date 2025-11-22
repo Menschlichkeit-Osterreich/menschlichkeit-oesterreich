@@ -35,7 +35,7 @@ Write-Host $PublicKeyContent.Trim() -ForegroundColor Gray
 
 # Anweisungen für GitHub Secrets
 Write-Host "`n📋 GITHUB SECRETS SETUP:" -ForegroundColor Yellow
-Write-Host "1. Gehe zu: https://github.com/peschull/menschlichkeit-oesterreich-development/settings/secrets/actions" -ForegroundColor Cyan
+Write-Host "1. Gehe zu: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/settings/secrets/actions" -ForegroundColor Cyan
 Write-Host "2. Klicke 'New repository secret'" -ForegroundColor Cyan
 Write-Host "3. Name: SSH_PRIVATE_KEY" -ForegroundColor Cyan
 Write-Host "4. Value: Kopiere den PRIVATE KEY Inhalt oben (inkl. -----BEGIN/END-----)" -ForegroundColor Cyan

@@ -80,7 +80,7 @@
 # ========================================
 
 # GitHub Web UI Export:
-# 1. Navigate to: https://github.com/peschull/menschlichkeit-oesterreich-development/issues
+# 1. Navigate to: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues
 # 2. Click "Export" → "Export as CSV"
 # 3. Save to: reports/issues-inventory-raw.csv
 # 4. Process with PowerShell:

@@ -1,7 +1,7 @@
 # Security & DSGVO Implementation - Complete Report
 
 **Projekt:** Menschlichkeit Österreich  
-**Repository:** peschull/menschlichkeit-oesterreich-development  
+**Repository:** Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development  
 **Datum:** 2025-10-12  
 **Status:** ✅ ABGESCHLOSSEN  
 
@@ -158,7 +158,7 @@ Alle Scan-Ergebnisse werden zentral im **Security Tab** aggregiert:
 - **Dependency Alerts:** Dependabot
 - **Supply Chain:** Scorecard Badge
 
-**URL:** `https://github.com/peschull/menschlichkeit-oesterreich-development/security`
+**URL:** `https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/security`
 
 ---
 
@@ -242,7 +242,7 @@ Alle Scan-Ergebnisse werden zentral im **Security Tab** aggregiert:
    # Via GitHub UI oder API
    curl -X PUT \
      -H "Authorization: Bearer $GITHUB_TOKEN" \
-     https://api.github.com/repos/peschull/menschlichkeit-oesterreich-development/branches/main/protection \
+     https://api.github.com/repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/branches/main/protection \
      -d @.github/branch-protection.json
    ```
 

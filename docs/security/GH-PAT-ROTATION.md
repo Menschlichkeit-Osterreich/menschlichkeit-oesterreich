@@ -40,7 +40,7 @@
 |------|------|
 | **Token name** | `GH_TOKEN 2026-2027` |
 | **Expiration** | **Custom:** 2027-10-18 (1 Jahr) |
-| **Repository access** | **All repositories** (oder spezifisch: `peschull/menschlichkeit-oesterreich-development`) |
+| **Repository access** | **All repositories** (oder spezifisch: `Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development`) |
 
 ### 5. Scopes auswählen (Minimum)
 
@@ -74,7 +74,7 @@
 
 **Methode A: GitHub UI**
 
-1. Navigiere zu: https://github.com/peschull/menschlichkeit-oesterreich-development/settings/secrets/actions
+1. Navigiere zu: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/settings/secrets/actions
 2. `GH_TOKEN` → **Update**
 3. Neuen Token einfügen → **Update secret**
 
@@ -83,10 +83,10 @@
 ```bash
 # Token aus Passwort-Manager kopieren und eingeben
 echo "github_pat_11A43OH4Y0..." | gh secret set GH_TOKEN \
-  --repo peschull/menschlichkeit-oesterreich-development
+  --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
 
 # Bestätigung
-gh secret list --repo peschull/menschlichkeit-oesterreich-development | grep GH_TOKEN
+gh secret list --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development | grep GH_TOKEN
 ```
 
 ### 8. Lokale .env.local aktualisieren
@@ -150,7 +150,7 @@ gh run view <RUN_ID> --log
   ```
 - [ ] **Secret-Scanning:** Funktioniert weiterhin
   ```bash
-  gh api repos/peschull/menschlichkeit-oesterreich-development/secret-scanning/alerts
+  gh api repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/secret-scanning/alerts
   ```
 
 ### 12. Externe Integrationen testen

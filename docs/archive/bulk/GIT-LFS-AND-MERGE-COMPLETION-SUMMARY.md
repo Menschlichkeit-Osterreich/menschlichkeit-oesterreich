@@ -423,7 +423,7 @@ cddcbf7e - fix(scripts): Remove incompatible --fixup flag
    ```
 
 2. **Codacy-Analyse abwarten** (2-5 Minuten)
-3. **Dashboard Review:** <https://app.codacy.com/gh/peschull/menschlichkeit-oesterreich-development>
+3. **Dashboard Review:** <https://app.codacy.com/gh/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development>
 
 ### Kurz darauf
 
@@ -540,8 +540,8 @@ cddcbf7e - fix(scripts): Remove incompatible --fixup flag
 
 ### Links
 
-- **Codacy Dashboard:** <https://app.codacy.com/gh/peschull/menschlichkeit-oesterreich-development>
-- **GitHub Repository:** <https://github.com/peschull/menschlichkeit-oesterreich-development>
+- **Codacy Dashboard:** <https://app.codacy.com/gh/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development>
+- **GitHub Repository:** <https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development>
 - **Plesk Panel:** <https://5.183.217.146:8443>
 - **CiviCRM:** <https://crm.menschlichkeit-oesterreich.at>
 - **API:** <https://api.menschlichkeit-oesterreich.at>

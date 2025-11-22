@@ -6,7 +6,7 @@
 set -e
 
 PR_NUMBER=69
-REPO="peschull/menschlichkeit-oesterreich-development"
+REPO="Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development"
 
 echo "🤖 Posting '@dependabot rebase' to PR #${PR_NUMBER}..."
 

@@ -202,10 +202,10 @@ gh pr close 147 --comment "Merge operations completed. PR #146 merged, PR #87 in
 
 ## 🔗 Referenzen
 
-- **PR #146:** https://github.com/peschull/menschlichkeit-oesterreich-development/pull/146
-- **PR #87:** https://github.com/peschull/menschlichkeit-oesterreich-development/pull/87
+- **PR #146:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/146
+- **PR #87:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/87
 - **Issue #410:** CodeQL & Codespace Problems (fixed by PR #146)
-- **Issues Dashboard:** https://github.com/peschull/menschlichkeit-oesterreich-development/issues
+- **Issues Dashboard:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues
 
 ---
 

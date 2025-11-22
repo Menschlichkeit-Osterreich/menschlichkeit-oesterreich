@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-REPO="${1:-peschull/menschlichkeit-oesterreich-development}"
+REPO="${1:-Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development}"
 WEBHOOK_URL="${2:-https://n8n.menschlichkeit-oesterreich.at/webhook/github-events}"
 
 # Webhook-Secret generieren (falls nicht gesetzt)

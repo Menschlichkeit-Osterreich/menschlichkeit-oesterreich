@@ -96,7 +96,7 @@ def main() -> int:
 		return 0
 
 	# 2) Fallback für Fine-Grained, repo-gebundene PATs: prüfe Repo-Metadatenzugriff
-	fallback_repo = "peschull/menschlichkeit-oesterreich-development"
+	fallback_repo = "Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development"
 	repo_res = github_get(f"/repos/{fallback_repo}", token)
 	if isinstance(repo_res, dict) and not repo_res.get("error") and repo_res.get("full_name") == fallback_repo:
 		print(json.dumps({

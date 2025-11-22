@@ -300,10 +300,10 @@ Letzte Aktualisierung: 2025-10-10
 
 ## 📞 Hilfe & Support
 
-- **Bugs**: [GitHub Issues](https://github.com/peschull/menschlichkeit-oesterreich-development/issues/new?template=bug_report.md)
-- **Feature Requests**: [Feature Request](https://github.com/peschull/menschlichkeit-oesterreich-development/issues/new?template=feature_request.md)
-- **Security**: [Security Vulnerability](https://github.com/peschull/menschlichkeit-oesterreich-development/issues/new?template=security_vulnerability.md)
-- **Documentation Issues**: [Documentation Request](https://github.com/peschull/menschlichkeit-oesterreich-development/issues/new?template=documentation.md)
+- **Bugs**: [GitHub Issues](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues/new?template=bug_report.md)
+- **Feature Requests**: [Feature Request](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues/new?template=feature_request.md)
+- **Security**: [Security Vulnerability](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues/new?template=security_vulnerability.md)
+- **Documentation Issues**: [Documentation Request](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues/new?template=documentation.md)
 
 ---
 

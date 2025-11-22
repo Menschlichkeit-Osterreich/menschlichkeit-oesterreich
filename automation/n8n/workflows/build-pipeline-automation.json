@@ -48,7 +48,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.github.com/repos/peschull/menschlichkeit-oesterreich-development/issues",
+        "url": "https://api.github.com/repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "githubApi",
         "sendHeaders": true,

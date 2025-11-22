@@ -109,7 +109,7 @@ Archivierte Dokumente werden **NICHT gelöscht**, außer:
 
 Bei Fragen zur archivierten Dokumentation:
 
-- **GitHub Issues**: [Documentation Request](https://github.com/peschull/menschlichkeit-oesterreich-development/issues/new?template=documentation.md)
+- **GitHub Issues**: [Documentation Request](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues/new?template=documentation.md)
 - **DOCS-INDEX**: [Vollständige Dokumentationsübersicht](../DOCS-INDEX.md)
 
 ---

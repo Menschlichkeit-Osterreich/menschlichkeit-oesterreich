@@ -2,7 +2,7 @@
 
 ## 📊 Status: READY FOR ACTION
 
-**Pull Request:** [#69](https://github.com/peschull/menschlichkeit-oesterreich-development/pull/69)  
+**Pull Request:** [#69](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/69)  
 **Issue:** Merge conflicts with main branch (unrelated histories)  
 **Solution:** Comment `@dependabot rebase` to trigger automatic rebase  
 
@@ -27,14 +27,14 @@
 
 #### Method 1: Manual (Easiest) ⭐ RECOMMENDED
 ```
-1. Go to: https://github.com/peschull/menschlichkeit-oesterreich-development/pull/69
+1. Go to: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/69
 2. Add comment: @dependabot rebase
 3. Submit
 ```
 
 #### Method 2: GitHub CLI
 ```bash
-gh pr comment 69 --body "@dependabot rebase" --repo peschull/menschlichkeit-oesterreich-development
+gh pr comment 69 --body "@dependabot rebase" --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
 ```
 
 #### Method 3: Quick Script
@@ -44,7 +44,7 @@ gh pr comment 69 --body "@dependabot rebase" --repo peschull/menschlichkeit-oest
 
 #### Method 4: GitHub Actions (Manual Trigger)
 ```
-1. Go to: https://github.com/peschull/menschlichkeit-oesterreich-development/actions/workflows/resolve-pr-conflicts.yml
+1. Go to: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/actions/workflows/resolve-pr-conflicts.yml
 2. Click "Run workflow"
 3. Enter PR number: 69
 4. Select command: @dependabot rebase
@@ -154,8 +154,8 @@ All solutions are documented in:
 
 ## 🔗 Links
 
-- **PR #69:** https://github.com/peschull/menschlichkeit-oesterreich-development/pull/69
-- **Workflow:** https://github.com/peschull/menschlichkeit-oesterreich-development/actions/workflows/resolve-pr-conflicts.yml
+- **PR #69:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/69
+- **Workflow:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/actions/workflows/resolve-pr-conflicts.yml
 - **Dependabot Docs:** https://docs.github.com/en/code-security/dependabot/working-with-dependabot/managing-pull-requests-for-dependency-updates
 
 ---
