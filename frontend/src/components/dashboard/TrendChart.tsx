@@ -17,8 +17,8 @@ import { TimeSeriesPoint } from '@/lib/metricsAPI';
 export interface TrendChartProps {
   data: TimeSeriesPoint[];
   title: string;
-  xKey?: keyof TimeSeriesPoint;
-  yKey?: keyof TimeSeriesPoint;
+  xKey?: string;
+  yKey?: string;
   color?: string;
   formatYAxis?: (value: number) => string;
   loading?: boolean;
@@ -53,7 +53,6 @@ export const TrendChart: React.FC<TrendChartProps> = ({
             stroke="#6b7280"
             style={{ fontSize: 12 }}
             tickFormatter={(value: string) => {
-              // Format date: "2025-10-01" -> "Okt 25"
               const date = new Date(value);
               return date.toLocaleDateString('de-AT', { month: 'short', year: '2-digit' });
             }}
@@ -61,7 +60,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({
           <YAxis
             stroke="#6b7280"
             style={{ fontSize: 12 }}
-            tickFormatter={formatYAxis || ((value) => value.toString())}
+            tickFormatter={formatYAxis ?? ((value: number) => value.toString())}
           />
           <Tooltip
             contentStyle={{
@@ -78,7 +77,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({
                 year: 'numeric',
               });
             }}
-            formatter={formatYAxis ? [(value: number) => formatYAxis(value)] : undefined}
+            formatter={formatYAxis ? (value: number) => [formatYAxis(value)] : undefined}
           />
           <Line type="monotone" dataKey={yKey} stroke={color} strokeWidth={2} dot={false} />
         </LineChart>

@@ -48,10 +48,10 @@ export default function App() {
         >
           <Routes>
             <Route element={<PublicLayout />}>
-              <Route path="/" element={<AITestPage />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/home" element={<Home />} />
               <Route path="/ai-demo" element={<AITestPage />} />
               <Route path="/figma-demo" element={<FigmaDemo />} />
-              <Route path="/home" element={<Home />} />
               <Route path="/mitglied-werden" element={<JoinPage />} />
               <Route path="/spenden" element={<DonatePage />} />
               <Route path="/erfolg" element={<SuccessPage />} />
