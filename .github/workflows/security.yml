@@ -57,7 +57,7 @@ jobs:
           output: 'trivy-results.sarif'
 
       - name: 📊 Upload Trivy Results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: 'trivy-results.sarif'
@@ -89,7 +89,7 @@ jobs:
           fi
 
       - name: 📊 Upload Gitleaks Results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: 'gitleaks-results.sarif'
@@ -127,7 +127,7 @@ jobs:
           fi
 
       - name: 📊 Upload Semgrep Results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         if: always()
         with:
           sarif_file: 'semgrep-results.sarif'

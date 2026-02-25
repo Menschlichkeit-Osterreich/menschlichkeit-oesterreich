@@ -27,7 +27,7 @@ jobs:
           node ./scripts/ci/run-codacy.mjs
 
       - name: Upload SARIF to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: codacy-analysis.sarif
           category: codacy
