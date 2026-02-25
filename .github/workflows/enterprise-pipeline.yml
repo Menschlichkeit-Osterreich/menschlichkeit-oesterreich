@@ -132,7 +132,7 @@ jobs:
         run: vendor/bin/phpstan analyse --no-progress
 
       - name: 🔒 Security Check - Trivy
-        uses: aquasecurity/trivy-action@0.19.0
+        uses: aquasecurity/trivy-action@0.33.1
         with:
           scan-type: 'fs'
           scan-ref: '.'
