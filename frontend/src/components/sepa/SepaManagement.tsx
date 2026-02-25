@@ -87,13 +87,15 @@ const validateIban = (iban: string): { isValid: boolean; country?: string; bankC
   const rearranged = cleanIban.substring(4) + cleanIban.substring(0, 4);
   const numericString = rearranged.replace(/[A-Z]/g, char => (char.charCodeAt(0) - 55).toString());
 
-  let remainder = '';
-  for (const char of numericString) {
-    remainder = (parseInt(remainder + char, 10) % 97).toString();
+  // Process in chunks to avoid number overflow
+  let remainder = 0;
+  for (let i = 0; i < numericString.length; i += 7) {
+    const chunk = String(remainder) + numericString.substring(i, i + 7);
+    remainder = parseInt(chunk, 10) % 97;
   }
 
   return {
-    isValid: parseInt(remainder, 10) === 1,
+    isValid: remainder === 1,
     country: cleanIban.substring(0, 2),
   };
 };
