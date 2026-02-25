@@ -154,19 +154,19 @@
         <div class="collapse navbar-collapse" id="navbarNav">
           <ul class="navbar-nav ms-auto" role="menubar">
             <li class="nav-item" role="none">
-              <a class="nav-link" href="#home" role="menuitem">Startseite</a>
+              <a class="nav-link active" href="index.html" role="menuitem" aria-current="page">Startseite</a>
             </li>
             <li class="nav-item" role="none">
-              <a class="nav-link" href="#about" role="menuitem">Über uns</a>
+              <a class="nav-link" href="ueber-uns.html" role="menuitem">Über uns</a>
             </li>
             <li class="nav-item" role="none">
-              <a class="nav-link" href="#join" role="menuitem">Mitmachen</a>
+              <a class="nav-link" href="mitmachen.html" role="menuitem">Mitmachen</a>
             </li>
             <li class="nav-item" role="none">
-              <a class="nav-link" href="#fees" role="menuitem">Beiträge</a>
+              <a class="nav-link" href="beitritt.html" role="menuitem">Mitglied werden</a>
             </li>
             <li class="nav-item" role="none">
-              <a class="nav-link" href="#contact" role="menuitem">Kontakt</a>
+              <a class="nav-link" href="kontakt.html" role="menuitem">Kontakt</a>
             </li>
           </ul>
         </div>
@@ -180,8 +180,8 @@
         <div class="container">
           <div class="row align-items-center min-vh-100">
             <div class="col-lg-8 mx-auto text-center">
-              <h1 class="display-4 fw-bold mb-4 text-primary">
-                "Ein Österreich, das niemanden zurücklässt."
+              <h1 class="display-4 fw-bold mb-4 text-white">
+                „Ein Österreich, das niemanden zurücklässt."
               </h1>
               <p class="lead mb-4 fs-3 fw-semibold">Menschlichkeit ist Pflicht, nicht Kür.</p>
               <p class="fs-5 mb-5 text-white-50">
@@ -190,10 +190,10 @@
                 Ausgrenzung und Umweltzerstörung.
               </p>
               <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
-                <a href="#join" class="btn btn-primary btn-lg px-4 py-3" role="button">
-                  <i class="bi bi-person-plus me-2" aria-hidden="true"></i>Jetzt Mitmachen
+                <a href="beitritt.html" class="btn btn-primary btn-lg px-4 py-3" role="button">
+                  <i class="bi bi-person-plus me-2" aria-hidden="true"></i>Jetzt Mitglied werden
                 </a>
-                <a href="#about" class="btn btn-outline-primary btn-lg px-4 py-3" role="button">
+                <a href="ueber-uns.html" class="btn btn-outline-light btn-lg px-4 py-3" role="button">
                   <i class="bi bi-info-circle me-2" aria-hidden="true"></i>Mehr erfahren
                 </a>
               </div>
@@ -249,8 +249,31 @@
         </div>
       </section>
 
+      <!-- Mitmachen / Call to Action -->
+      <section id="join" class="py-5">
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+              <h2 class="display-6 fw-bold mb-3">Werde Teil der Bewegung</h2>
+              <p class="lead text-muted mb-4">
+                Als Mitglied gestaltest du aktiv mit und stärkst die Gemeinschaft. Alle sind
+                herzlich willkommen.
+              </p>
+              <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
+                <a href="beitritt.html" class="btn btn-primary btn-lg px-4">
+                  <i class="bi bi-person-plus me-2" aria-hidden="true"></i>Mitglied werden
+                </a>
+                <a href="mitmachen.html" class="btn btn-outline-primary btn-lg px-4">
+                  <i class="bi bi-info-circle me-2" aria-hidden="true"></i>Weitere Möglichkeiten
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- Kontakt (Kurzfassung) -->
-      <section id="contact" class="py-5">
+      <section id="contact" class="py-5 bg-light">
         <div class="container">
           <div class="row">
             <div class="col-lg-8 mx-auto text-center">
@@ -307,8 +330,9 @@
           </div>
           <div class="col-md-6 text-end">
             <nav aria-label="Footer-Navigation">
-              <a href="#" class="text-white me-3">Impressum</a>
-              <a href="#" class="text-white">Datenschutz</a>
+              <a href="impressum.html" class="text-white me-3">Impressum</a>
+              <a href="datenschutz.html" class="text-white me-3">Datenschutz</a>
+              <a href="kontakt.html" class="text-white">Kontakt</a>
             </nav>
           </div>
         </div>

@@ -99,7 +99,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refreshUser,
   };
 
-  return React.createElement(AuthContext.Provider, { value }, children);
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 // Auth Hook
@@ -169,7 +169,7 @@ export function useRevokeAllSessions() {
 // Profile Management Hooks
 export function useUpdateProfile() {
   const { refreshUser } = useAuth();
-
+  
   return useMutation(async (data: Parameters<typeof authService.updateProfile>[0]) => {
     const result = await authService.updateProfile(data);
     if (result.success) {
@@ -181,7 +181,7 @@ export function useUpdateProfile() {
 
 export function useDeleteAccount() {
   const { logout } = useAuth();
-
+  
   return useMutation(async (password: string) => {
     const result = await authService.deleteAccount(password);
     if (result.success) {
@@ -199,7 +199,7 @@ export function useSecurityLogs() {
 // Role-based Hooks
 export function usePermissions() {
   const { user } = useAuth();
-
+  
   return {
     isAdmin: user?.role === 'admin',
     isModerator: user?.role === 'admin' || user?.role === 'moderator',
@@ -218,20 +218,20 @@ export function usePermissions() {
 // Protected Route Hook
 export function useRequireAuth(redirectTo = '/login') {
   const { isAuthenticated, isLoading } = useAuth();
-
+  
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       window.location.href = redirectTo;
     }
   }, [isAuthenticated, isLoading, redirectTo]);
-
+  
   return { isAuthenticated, isLoading };
 }
 
 // Auth Status Hook (for components that need to know auth state)
 export function useAuthStatus() {
   const { user, isAuthenticated, isLoading } = useAuth();
-
+  
   return {
     user,
     isAuthenticated,
