@@ -1,0 +1,10 @@
+name: Menschlichkeit Games
+type: module
+description: 'Interactive educational games for democracy and human rights education'
+package: Menschlichkeit
+core_version_requirement: ^9 || ^10
+dependencies:
+  - drupal:block
+  - drupal:field
+  - drupal:text
+  - drupal:link

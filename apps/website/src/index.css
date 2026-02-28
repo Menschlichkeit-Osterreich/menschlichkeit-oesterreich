@@ -1,0 +1,181 @@
+@import './styles/tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+    /* Austrian Brand Colors */
+    --brand-austria-red: #ed1c24;
+    --brand-austria-white: #ffffff;
+    --brand-gradient: linear-gradient(135deg, #dc2626 0%, #ff6b35 100%);
+  }
+  [data-theme='dark'] {
+    color-scheme: dark;
+    --semantic-background: var(--ds-colors-secondary-900);
+    --semantic-text-primary: var(--ds-colors-semantic-text-inverse);
+  }
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-semantic-background text-semantic-text-primary;
+    font-family: var(--ds-typography-font-family-primary);
+    font-feature-settings:
+      'rlig' 1,
+      'calt' 1;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all;
+    @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+    transition-duration: var(--ds-animation-duration-normal);
+    transition-timing-function: var(--ds-animation-easing-ease-out);
+  }
+
+  .btn-primary {
+    @apply bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800;
+    box-shadow: var(--ds-shadows-sm);
+  }
+
+  .btn-primary:hover {
+    box-shadow: var(--ds-shadows-md);
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    background: var(--brand-gradient);
+    @apply text-white hover:opacity-90 active:opacity-100;
+    box-shadow: var(--ds-shadows-sm);
+  }
+
+  .btn-secondary:hover {
+    box-shadow: var(--ds-shadows-md);
+    transform: translateY(-1px);
+  }
+
+  .btn-ghost {
+    @apply bg-transparent text-semantic-text-primary border border-semantic-border hover:bg-semantic-surface;
+  }
+
+  .card-modern {
+    @apply bg-semantic-background rounded-lg border border-semantic-border;
+    box-shadow: var(--ds-shadows-sm);
+    transition: all var(--ds-animation-duration-normal) var(--ds-animation-easing-ease-out);
+  }
+
+  .card-modern:hover {
+    box-shadow: var(--ds-shadows-md);
+    transform: translateY(-2px);
+  }
+
+  .text-gradient {
+    background: var(--brand-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .austria-border {
+    @apply relative border-t-2 border-b-2;
+    border-top-color: var(--brand-austria-red);
+    border-bottom-color: var(--brand-austria-red);
+  }
+
+  .austria-border::before {
+    content: '';
+    @apply absolute top-0.5 left-0 right-0 h-0.5;
+    background-color: var(--brand-austria-white);
+  }
+
+  /* AI Integration Status Styles */
+  .ai-status-active {
+    @apply text-success-700 bg-success-50 border border-success-200 rounded-full px-2 py-1 text-xs font-medium;
+  }
+
+  .ai-status-inactive {
+    @apply text-secondary-600 bg-secondary-50 border border-secondary-200 rounded-full px-2 py-1 text-xs font-medium;
+  }
+
+  .ai-status-loading {
+    @apply text-accent-700 bg-accent-50 border border-accent-200 rounded-full px-2 py-1 text-xs font-medium;
+  }
+
+  .ai-code-block {
+    @apply bg-secondary-900 text-success-400 rounded-lg p-4 overflow-x-auto;
+    font-family: var(--ds-typography-font-family-mono);
+    font-size: var(--ds-typography-font-size-sm);
+    line-height: var(--ds-line-height-relaxed);
+  }
+
+  .loading-spinner {
+    @apply inline-block animate-spin rounded-full border-2 border-solid border-current border-r-transparent;
+    animation-duration: var(--ds-animation-duration-slow);
+  }
+}
+
+@layer utilities {
+  .interactive-hover {
+    transition: all var(--ds-animation-duration-normal) var(--ds-animation-easing-ease-out);
+  }
+
+  .interactive-hover:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--ds-shadows-md);
+  }
+
+  .section-padding {
+    padding-top: var(--ds-spacing-20);
+    padding-bottom: var(--ds-spacing-20);
+  }
+
+  @screen md {
+    .section-padding {
+      padding-top: var(--ds-spacing-24);
+      padding-bottom: var(--ds-spacing-24);
+    }
+  }
+
+  /* Reduce rendering cost for large offscreen content */
+  .cv-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 800px 600px; /* prevents layout shift when revealed */
+  }
+}
+
+/* Austrian Wave Animation */
+@keyframes austria-wave {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-austria-wave {
+  animation: austria-wave 2s var(--ds-animation-easing-ease-in-out) infinite;
+}
+
+/* AI Pulse Animation */
+@keyframes ai-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-ai-pulse {
+  animation: ai-pulse 2s var(--ds-animation-easing-ease-in-out) infinite;
+}

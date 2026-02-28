@@ -109,14 +109,24 @@
     <link rel="manifest" href="manifest.json" />
     <meta name="theme-color" content="#2563eb" />
 
-    <!-- Open Graph -->
-    <meta property="og:title" content="Menschlichkeit Österreich" />
-    <meta property="og:description" content="Ein Österreich, das niemanden zurücklässt" />
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://menschlichkeit-oesterreich.at/" />
+
+    <!-- Open Graph (vollständig) -->
+    <meta property="og:title" content="Menschlichkeit Österreich – Ein Österreich, das niemanden zurücklässt" />
+    <meta property="og:description" content="Verein für eine solidarische, gerechte und ökologisch verantwortungsvolle Gesellschaft in Österreich." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://menschlichkeit-oesterreich.at" />
+    <meta property="og:url" content="https://menschlichkeit-oesterreich.at/" />
+    <meta property="og:locale" content="de_AT" />
+    <meta property="og:site_name" content="Menschlichkeit Österreich" />
+    <meta property="og:image" content="https://menschlichkeit-oesterreich.at/assets/images/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Menschlichkeit Österreich – Solidarität, Gerechtigkeit, Nachhaltigkeit" />
 
     <!-- Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@menschlichkeit_at" />
     <meta name="twitter:title" content="Menschlichkeit Österreich" />
     <meta
       name="twitter:description"
@@ -124,8 +134,52 @@
     />
     <meta
       name="twitter:image"
-      content="https://menschlichkeit-oesterreich.at/assets/images/twitter-card.jpg"
+      content="https://menschlichkeit-oesterreich.at/assets/images/og-image.jpg"
     />
+
+    <!-- Structured Data: Organisation (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "NGO",
+      "name": "Menschlichkeit Österreich",
+      "alternateName": "Verein Menschlichkeit Österreich",
+      "url": "https://menschlichkeit-oesterreich.at",
+      "logo": "https://menschlichkeit-oesterreich.at/assets/images/logo.png",
+      "description": "Verein für eine solidarische, gerechte und ökologisch verantwortungsvolle Gesellschaft in Österreich.",
+      "foundingDate": "2024",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Pottenbrunner Hauptstraße 108/1",
+        "addressLocality": "St. Pölten",
+        "postalCode": "3140",
+        "addressCountry": "AT"
+      },
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "email": "info@menschlichkeit-oesterreich.at",
+          "contactType": "customer support",
+          "availableLanguage": "German"
+        }
+      ],
+      "sameAs": [
+        "https://www.facebook.com/menschlichkeit.oesterreich",
+        "https://www.instagram.com/menschlichkeit_at"
+      ]
+    }
+    </script>
+    <!-- Structured Data: WebSite -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "url": "https://menschlichkeit-oesterreich.at",
+      "name": "Menschlichkeit Österreich",
+      "description": "Verein für eine solidarische, gerechte und ökologisch verantwortungsvolle Gesellschaft.",
+      "inLanguage": "de-AT"
+    }
+    </script>
 
     <!-- Preload JS -->
     <link rel="preload" href="assets/js/main.js" as="script" />

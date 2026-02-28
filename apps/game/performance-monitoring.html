@@ -1,0 +1,836 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Democracy Metaverse - Performance Monitoring</title>
+
+    <!-- Performance Monitoring Scripts -->
+    <script src="js/performance-monitor.js" defer></script>
+    <script src="js/performance-dashboard.js" defer></script>
+
+    <!-- Analytics Integration (optional) -->
+    <script src="js/user-testing-analytics.js" defer></script>
+
+    <!-- Main Game Files -->
+    <script src="js/DemocracyGameBlock.js" defer></script>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        position: relative;
+      }
+
+      .main-container {
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .header {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+
+      .header h1 {
+        margin: 0 0 8px 0;
+        color: #2c3e50;
+        font-size: 28px;
+      }
+
+      .header p {
+        margin: 0;
+        color: #6c757d;
+        font-size: 16px;
+      }
+
+      .monitoring-controls {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+
+      .controls-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      .control-card {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 16px;
+        text-align: center;
+      }
+
+      .control-card h3 {
+        margin: 0 0 8px 0;
+        font-size: 16px;
+        color: #495057;
+      }
+
+      .control-btn {
+        width: 100%;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 8px;
+      }
+
+      .control-btn.primary {
+        background: #007bff;
+        color: white;
+      }
+
+      .control-btn.primary:hover {
+        background: #0056b3;
+      }
+
+      .control-btn.success {
+        background: #28a745;
+        color: white;
+      }
+
+      .control-btn.success:hover {
+        background: #1e7e34;
+      }
+
+      .control-btn.info {
+        background: #17a2b8;
+        color: white;
+      }
+
+      .control-btn.info:hover {
+        background: #117a8b;
+      }
+
+      .control-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .status-display {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 16px;
+        margin-top: 16px;
+      }
+
+      .status-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+      }
+
+      .status-item {
+        text-align: center;
+      }
+
+      .status-label {
+        font-size: 12px;
+        color: #6c757d;
+        margin-bottom: 4px;
+      }
+
+      .status-value {
+        font-size: 18px;
+        font-weight: bold;
+        color: #495057;
+      }
+
+      .status-value.good {
+        color: #28a745;
+      }
+
+      .status-value.warning {
+        color: #ffc107;
+      }
+
+      .status-value.error {
+        color: #dc3545;
+      }
+
+      .game-container {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        min-height: 400px;
+      }
+
+      .dashboard-toggle {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 12px 20px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        font-weight: 500;
+        z-index: 10000;
+        transition: all 0.3s ease;
+      }
+
+      .dashboard-toggle:hover {
+        background: #0056b3;
+        transform: translateY(-2px);
+      }
+
+      .monitoring-status {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 12px;
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .status-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #dc3545;
+        animation: pulse 2s infinite;
+      }
+
+      .status-indicator.active {
+        background: #28a745;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      .log-console {
+        background: #1e1e1e;
+        color: #d4d4d4;
+        border-radius: 8px;
+        padding: 16px;
+        margin-top: 16px;
+        max-height: 200px;
+        overflow-y: auto;
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+      }
+
+      .log-entry {
+        margin-bottom: 4px;
+        word-wrap: break-word;
+      }
+
+      .log-entry.info {
+        color: #4fc3f7;
+      }
+
+      .log-entry.warning {
+        color: #ffb74d;
+      }
+
+      .log-entry.error {
+        color: #f48fb1;
+      }
+
+      .log-entry.success {
+        color: #81c784;
+      }
+
+      @media (max-width: 768px) {
+        .controls-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .status-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .dashboard-toggle {
+          position: relative;
+          width: 100%;
+          margin-bottom: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Dashboard Toggle Button -->
+    <button id="dashboard-toggle" class="dashboard-toggle">📊 Performance Dashboard</button>
+
+    <!-- Monitoring Status Indicator -->
+    <div class="monitoring-status">
+      <div id="status-indicator" class="status-indicator"></div>
+      <span id="status-text">Performance Monitor: Initializing...</span>
+    </div>
+
+    <div class="main-container">
+      <!-- Header -->
+      <div class="header">
+        <h1>🔍 Democracy Metaverse Performance Monitor</h1>
+        <p>Real-time System Monitoring für 176+ Nutzer | Production Readiness Dashboard</p>
+      </div>
+
+      <!-- Monitoring Controls -->
+      <div class="monitoring-controls">
+        <h2 style="margin: 0 0 16px 0; color: #495057">🛠️ Monitoring Controls</h2>
+
+        <div class="controls-grid">
+          <div class="control-card">
+            <h3>🚀 System Monitoring</h3>
+            <p style="font-size: 12px; color: #6c757d; margin: 8px 0">
+              Monitor system performance and resource usage
+            </p>
+            <button id="start-monitoring" class="control-btn primary">Start Monitoring</button>
+            <button id="stop-monitoring" class="control-btn primary" disabled>
+              Stop Monitoring
+            </button>
+          </div>
+
+          <div class="control-card">
+            <h3>📊 Dashboard</h3>
+            <p style="font-size: 12px; color: #6c757d; margin: 8px 0">
+              View real-time performance metrics
+            </p>
+            <button id="show-dashboard" class="control-btn info" disabled>Show Dashboard</button>
+            <button id="hide-dashboard" class="control-btn info" disabled>Hide Dashboard</button>
+          </div>
+
+          <div class="control-card">
+            <h3>📈 Load Testing</h3>
+            <p style="font-size: 12px; color: #6c757d; margin: 8px 0">Simulate high user load</p>
+            <button id="simulate-load" class="control-btn success">Simulate Load</button>
+            <button id="stress-test" class="control-btn success">Stress Test</button>
+          </div>
+
+          <div class="control-card">
+            <h3>💾 Data Export</h3>
+            <p style="font-size: 12px; color: #6c757d; margin: 8px 0">Export performance data</p>
+            <button id="export-metrics" class="control-btn info" disabled>Export Metrics</button>
+            <button id="export-logs" class="control-btn info" disabled>Export Logs</button>
+          </div>
+        </div>
+
+        <!-- Status Display -->
+        <div class="status-display">
+          <h3 style="margin: 0 0 12px 0; color: #495057">📋 Current Status</h3>
+          <div class="status-grid">
+            <div class="status-item">
+              <div class="status-label">Monitoring Status</div>
+              <div id="monitoring-status" class="status-value">Inactive</div>
+            </div>
+            <div class="status-item">
+              <div class="status-label">Active Sessions</div>
+              <div id="active-sessions" class="status-value good">0</div>
+            </div>
+            <div class="status-item">
+              <div class="status-label">Memory Usage</div>
+              <div id="memory-status" class="status-value good">--</div>
+            </div>
+            <div class="status-item">
+              <div class="status-label">Error Rate</div>
+              <div id="error-status" class="status-value good">0%</div>
+            </div>
+            <div class="status-item">
+              <div class="status-label">Network Latency</div>
+              <div id="latency-status" class="status-value good">-- ms</div>
+            </div>
+            <div class="status-item">
+              <div class="status-label">Uptime</div>
+              <div id="uptime-status" class="status-value good">00:00:00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Container -->
+      <div class="game-container">
+        <h2 style="margin: 0 0 16px 0; color: #495057">🎮 Democracy Metaverse Game</h2>
+        <div id="game-content">
+          <p style="color: #6c757d; text-align: center; padding: 40px">
+            Democracy Game wird hier geladen...<br />
+            <small>Performance Monitoring läuft im Hintergrund</small>
+          </p>
+
+          <!-- Placeholder for game content -->
+          <div
+            style="
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              min-height: 200px;
+              background: #f8f9fa;
+              border-radius: 8px;
+              margin-top: 16px;
+            "
+          >
+            <div style="text-align: center">
+              <div style="font-size: 48px; margin-bottom: 16px">🏛️</div>
+              <h3 style="margin: 0; color: #495057">Democracy Metaverse</h3>
+              <p style="margin: 8px 0 0 0; color: #6c757d">
+                Interactive Democracy Education Platform
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Performance Log Console -->
+        <div style="margin-top: 24px">
+          <h3 style="margin: 0 0 12px 0; color: #495057">🖥️ Performance Log</h3>
+          <div id="log-console" class="log-console">
+            <div class="log-entry info">[INFO] Performance Monitor ready for initialization</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /**
+       * Performance Monitoring Interface
+       * Integration script for Democracy Metaverse monitoring
+       */
+
+      let performanceMonitor = null;
+      let performanceDashboard = null;
+      let isMonitoring = false;
+      let loadSimulationInterval = null;
+
+      /**
+       * Initialize Performance Monitoring System
+       */
+      function initializePerformanceMonitoring() {
+        try {
+          // Initialize performance monitor
+          performanceMonitor = new DemocracyPerformanceMonitor();
+
+          // Initialize dashboard
+          performanceDashboard = new DemocracyPerformanceDashboard();
+          performanceDashboard.initialize(performanceMonitor);
+
+          // Setup UI event handlers
+          setupEventHandlers();
+
+          logMessage('Performance monitoring system initialized successfully', 'success');
+
+          return true;
+        } catch (error) {
+          logMessage('Failed to initialize performance monitoring: ' + error.message, 'error');
+          return false;
+        }
+      }
+
+      /**
+       * Setup UI event handlers
+       */
+      function setupEventHandlers() {
+        // Start/Stop monitoring
+        document.getElementById('start-monitoring').addEventListener('click', startMonitoring);
+        document.getElementById('stop-monitoring').addEventListener('click', stopMonitoring);
+
+        // Dashboard controls
+        document.getElementById('show-dashboard').addEventListener('click', () => {
+          performanceDashboard.show();
+        });
+
+        document.getElementById('hide-dashboard').addEventListener('click', () => {
+          performanceDashboard.hide();
+        });
+
+        // Dashboard toggle button
+        document.getElementById('dashboard-toggle').addEventListener('click', () => {
+          performanceDashboard.toggle();
+        });
+
+        // Load testing
+        document.getElementById('simulate-load').addEventListener('click', simulateLoad);
+        document.getElementById('stress-test').addEventListener('click', performStressTest);
+
+        // Data export
+        document.getElementById('export-metrics').addEventListener('click', exportMetrics);
+        document.getElementById('export-logs').addEventListener('click', exportLogs);
+      }
+
+      /**
+       * Start performance monitoring
+       */
+      function startMonitoring() {
+        if (!performanceMonitor) {
+          logMessage('Performance monitor not initialized', 'error');
+          return;
+        }
+
+        try {
+          performanceMonitor.start();
+          isMonitoring = true;
+
+          // Update UI
+          updateMonitoringStatus(true);
+
+          // Start status updates
+          startStatusUpdates();
+
+          logMessage('Performance monitoring started', 'success');
+        } catch (error) {
+          logMessage('Failed to start monitoring: ' + error.message, 'error');
+        }
+      }
+
+      /**
+       * Stop performance monitoring
+       */
+      function stopMonitoring() {
+        if (!performanceMonitor) return;
+
+        try {
+          performanceMonitor.stop();
+          isMonitoring = false;
+
+          // Update UI
+          updateMonitoringStatus(false);
+
+          // Stop status updates
+          if (window.statusUpdateInterval) {
+            clearInterval(window.statusUpdateInterval);
+          }
+
+          logMessage('Performance monitoring stopped', 'info');
+        } catch (error) {
+          logMessage('Failed to stop monitoring: ' + error.message, 'error');
+        }
+      }
+
+      /**
+       * Update monitoring status UI
+       */
+      function updateMonitoringStatus(active) {
+        const startBtn = document.getElementById('start-monitoring');
+        const stopBtn = document.getElementById('stop-monitoring');
+        const showBtn = document.getElementById('show-dashboard');
+        const hideBtn = document.getElementById('hide-dashboard');
+        const exportBtn = document.getElementById('export-metrics');
+        const logsBtn = document.getElementById('export-logs');
+        const statusIndicator = document.getElementById('status-indicator');
+        const statusText = document.getElementById('status-text');
+        const monitoringStatus = document.getElementById('monitoring-status');
+
+        if (active) {
+          startBtn.disabled = true;
+          stopBtn.disabled = false;
+          showBtn.disabled = false;
+          hideBtn.disabled = false;
+          exportBtn.disabled = false;
+          logsBtn.disabled = false;
+
+          statusIndicator.classList.add('active');
+          statusText.textContent = 'Performance Monitor: Active';
+          monitoringStatus.textContent = 'Active';
+          monitoringStatus.className = 'status-value good';
+        } else {
+          startBtn.disabled = false;
+          stopBtn.disabled = true;
+          showBtn.disabled = true;
+          hideBtn.disabled = true;
+          exportBtn.disabled = true;
+          logsBtn.disabled = true;
+
+          statusIndicator.classList.remove('active');
+          statusText.textContent = 'Performance Monitor: Inactive';
+          monitoringStatus.textContent = 'Inactive';
+          monitoringStatus.className = 'status-value error';
+        }
+      }
+
+      /**
+       * Start periodic status updates
+       */
+      function startStatusUpdates() {
+        window.statusUpdateInterval = setInterval(() => {
+          if (performanceMonitor && isMonitoring) {
+            updateStatusDisplay();
+          }
+        }, 2000);
+      }
+
+      /**
+       * Update status display
+       */
+      function updateStatusDisplay() {
+        const summary = performanceMonitor.getPerformanceSummary();
+
+        // Active sessions
+        const sessions = summary.system.sessions?.active || 0;
+        document.getElementById('active-sessions').textContent = sessions;
+
+        // Memory usage
+        if (summary.system.memory?.usage !== null) {
+          const usage = Math.round(summary.system.memory.usage * 100);
+          const memoryElement = document.getElementById('memory-status');
+          memoryElement.textContent = `${usage}%`;
+
+          if (usage > 80) {
+            memoryElement.className = 'status-value error';
+          } else if (usage > 60) {
+            memoryElement.className = 'status-value warning';
+          } else {
+            memoryElement.className = 'status-value good';
+          }
+        }
+
+        // Error rate
+        const errorRate = Math.round(summary.errors.rate * 100);
+        const errorElement = document.getElementById('error-status');
+        errorElement.textContent = `${errorRate}%`;
+
+        if (errorRate > 5) {
+          errorElement.className = 'status-value error';
+        } else if (errorRate > 1) {
+          errorElement.className = 'status-value warning';
+        } else {
+          errorElement.className = 'status-value good';
+        }
+
+        // Network latency
+        if (summary.system.network?.rtt) {
+          const latency = summary.system.network.rtt;
+          const latencyElement = document.getElementById('latency-status');
+          latencyElement.textContent = `${latency} ms`;
+
+          if (latency > 500) {
+            latencyElement.className = 'status-value error';
+          } else if (latency > 200) {
+            latencyElement.className = 'status-value warning';
+          } else {
+            latencyElement.className = 'status-value good';
+          }
+        }
+
+        // Uptime
+        const uptime = summary.uptime;
+        const hours = Math.floor(uptime / 3600000);
+        const minutes = Math.floor((uptime % 3600000) / 60000);
+        const seconds = Math.floor((uptime % 60000) / 1000);
+        const uptimeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        document.getElementById('uptime-status').textContent = uptimeString;
+      }
+
+      /**
+       * Simulate high user load
+       */
+      function simulateLoad() {
+        logMessage('Starting load simulation (50 virtual users)', 'info');
+
+        const button = document.getElementById('simulate-load');
+        const originalText = button.textContent;
+        button.textContent = 'Simulating...';
+        button.disabled = true;
+
+        // Simulate user interactions
+        loadSimulationInterval = setInterval(() => {
+          // Generate fake user activities
+          for (let i = 0; i < 5; i++) {
+            const event = new Event('click');
+            document.dispatchEvent(event);
+
+            // Simulate memory pressure
+            const largeArray = new Array(10000).fill(Math.random());
+            setTimeout(() => (largeArray.length = 0), 100);
+          }
+        }, 100);
+
+        // Stop simulation after 30 seconds
+        setTimeout(() => {
+          if (loadSimulationInterval) {
+            clearInterval(loadSimulationInterval);
+            loadSimulationInterval = null;
+          }
+
+          button.textContent = originalText;
+          button.disabled = false;
+
+          logMessage('Load simulation completed', 'success');
+        }, 30000);
+      }
+
+      /**
+       * Perform stress test
+       */
+      function performStressTest() {
+        logMessage('Starting stress test (100+ virtual users)', 'warning');
+
+        const button = document.getElementById('stress-test');
+        const originalText = button.textContent;
+        button.textContent = 'Stress Testing...';
+        button.disabled = true;
+
+        // Intensive stress test
+        const stressInterval = setInterval(() => {
+          // CPU intensive operations
+          const startTime = Date.now();
+          while (Date.now() - startTime < 50) {
+            Math.random() * Math.random();
+          }
+
+          // Memory intensive operations
+          const bigData = new Array(50000).fill().map(() => ({
+            id: Math.random(),
+            data: new Array(100).fill(Math.random()),
+          }));
+
+          // Network simulation
+          for (let i = 0; i < 10; i++) {
+            fetch('data:text/plain,test').catch(() => {});
+          }
+
+          setTimeout(() => (bigData.length = 0), 200);
+        }, 50);
+
+        // Stop after 15 seconds to prevent damage
+        setTimeout(() => {
+          clearInterval(stressInterval);
+
+          button.textContent = originalText;
+          button.disabled = false;
+
+          logMessage('Stress test completed', 'success');
+        }, 15000);
+      }
+
+      /**
+       * Export performance metrics
+       */
+      function exportMetrics() {
+        if (performanceDashboard) {
+          performanceDashboard.exportData();
+          logMessage('Performance metrics exported', 'success');
+        }
+      }
+
+      /**
+       * Export performance logs
+       */
+      function exportLogs() {
+        const logEntries = Array.from(document.querySelectorAll('.log-entry')).map(
+          entry => entry.textContent
+        );
+
+        const logData = {
+          timestamp: new Date().toISOString(),
+          entries: logEntries,
+          userAgent: navigator.userAgent,
+          url: window.location.href,
+        };
+
+        const blob = new Blob([JSON.stringify(logData, null, 2)], {
+          type: 'application/json',
+        });
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `performance-logs-${new Date().toISOString().slice(0, 19)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        logMessage('Performance logs exported', 'success');
+      }
+
+      /**
+       * Log message to console
+       */
+      function logMessage(message, type = 'info') {
+        const console = document.getElementById('log-console');
+        const entry = document.createElement('div');
+        entry.className = `log-entry ${type}`;
+
+        const timestamp = new Date().toLocaleTimeString();
+        entry.textContent = `[${timestamp}] ${message}`;
+
+        console.appendChild(entry);
+        console.scrollTop = console.scrollHeight;
+
+        // Limit log entries
+        const entries = console.querySelectorAll('.log-entry');
+        if (entries.length > 50) {
+          entries[0].remove();
+        }
+
+        // Also log to browser console
+        console.log(`[Performance Monitor] ${message}`);
+      }
+
+      /**
+       * Initialize on page load
+       */
+      window.addEventListener('DOMContentLoaded', () => {
+        logMessage('Democracy Metaverse Performance Monitor initializing...', 'info');
+
+        // Wait for required scripts to load
+        const checkDependencies = () => {
+          if (
+            typeof DemocracyPerformanceMonitor !== 'undefined' &&
+            typeof DemocracyPerformanceDashboard !== 'undefined'
+          ) {
+            const success = initializePerformanceMonitoring();
+            if (success) {
+              logMessage('Ready for performance monitoring', 'success');
+              logMessage('Click "Start Monitoring" to begin system analysis', 'info');
+            }
+          } else {
+            setTimeout(checkDependencies, 100);
+          }
+        };
+
+        checkDependencies();
+      });
+
+      // Handle page unload
+      window.addEventListener('beforeunload', () => {
+        if (performanceMonitor && isMonitoring) {
+          performanceMonitor.stop();
+        }
+      });
+
+      // Export for debugging
+      window.performanceDebug = {
+        monitor: () => performanceMonitor,
+        dashboard: () => performanceDashboard,
+        isMonitoring: () => isMonitoring,
+        simulate: simulateLoad,
+        stress: performStressTest,
+      };
+
+      console.log('[Performance] Democracy Metaverse Performance Monitor Interface loaded');
+    </script>
+  </body>
+</html>

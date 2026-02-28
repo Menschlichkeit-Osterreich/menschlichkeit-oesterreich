@@ -1,0 +1,1027 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Democracy Metaverse - Multiplayer Kollaborativ</title>
+
+    <!-- PeerJS für WebRTC -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+
+    <!-- Analytics & Testing (falls gewünscht) -->
+    <script src="js/user-testing-analytics.js" defer></script>
+    <script src="js/teacher-dashboard.js" defer></script>
+    <script src="js/ab-testing-framework.js" defer></script>
+    <script src="js/user-testing-integration.js" defer></script>
+
+    <!-- Multiplayer System -->
+    <script src="js/multiplayer-webrtc.js" defer></script>
+    <script src="js/multiplayer-sync.js" defer></script>
+    <script src="js/multiplayer-lobby.js" defer></script>
+
+    <!-- Main Game Files -->
+    <script src="js/DemocracyGameBlock.js" defer></script>
+    <script src="js/game-engine.js" defer></script>
+
+    <!-- Styling -->
+    <link rel="stylesheet" href="css/democracy-game.css" />
+    <link rel="stylesheet" href="css/multiplayer.css" />
+
+    <style>
+      /* Multiplayer UI Enhancements */
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+      }
+
+      .multiplayer-container {
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+
+      /* Connection Status Bar */
+      .connection-bar {
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 8px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 14px;
+        z-index: 1000;
+      }
+
+      .connection-status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .status-indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #dc3545;
+        animation: pulse 2s infinite;
+      }
+
+      .status-indicator.connected {
+        background: #28a745;
+      }
+
+      .status-indicator.connecting {
+        background: #ffc107;
+      }
+
+      .player-info {
+        display: flex;
+        gap: 16px;
+        font-size: 12px;
+      }
+
+      /* Game Area with Multiplayer Sidebar */
+      .game-area {
+        display: flex;
+        flex: 1;
+      }
+
+      .game-main {
+        flex: 1;
+        position: relative;
+      }
+
+      .multiplayer-sidebar {
+        width: 300px;
+        background: white;
+        border-left: 2px solid #dee2e6;
+        display: flex;
+        flex-direction: column;
+        max-height: 100vh;
+        overflow-y: auto;
+      }
+
+      .sidebar-section {
+        padding: 16px;
+        border-bottom: 1px solid #e9ecef;
+      }
+
+      .sidebar-section h3 {
+        margin: 0 0 12px 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: #495057;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      /* Players Panel */
+      .players-panel .player-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px;
+        border-radius: 6px;
+        margin-bottom: 4px;
+        background: #f8f9fa;
+      }
+
+      .players-panel .player-item.local {
+        background: #e3f2fd;
+        border-left: 3px solid #2196f3;
+      }
+
+      .players-panel .player-item.host {
+        background: #fff3e0;
+        border-left: 3px solid #ff9800;
+      }
+
+      .player-avatar-small {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+      }
+
+      .player-name {
+        flex: 1;
+        font-size: 13px;
+        font-weight: 500;
+      }
+
+      .player-status-icon {
+        font-size: 12px;
+      }
+
+      /* Chat Panel */
+      .chat-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .chat-messages {
+        flex: 1;
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 8px;
+        background: #fafafa;
+        font-size: 12px;
+      }
+
+      .chat-message {
+        margin-bottom: 8px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        background: white;
+      }
+
+      .chat-message.system {
+        background: #e3f2fd;
+        color: #1976d2;
+        font-style: italic;
+      }
+
+      .chat-sender {
+        font-weight: bold;
+        color: #495057;
+      }
+
+      .chat-input-area {
+        margin-top: 8px;
+        display: flex;
+        gap: 4px;
+      }
+
+      .chat-input {
+        flex: 1;
+        padding: 6px 8px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+
+      .chat-send {
+        padding: 6px 12px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      /* Discussion Panel */
+      .discussion-panel .scenario-info {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 12px;
+      }
+
+      .scenario-title {
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: #495057;
+      }
+
+      .discussion-timer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 4px;
+        padding: 8px 12px;
+        margin-bottom: 8px;
+        font-size: 12px;
+      }
+
+      .timer-display {
+        font-weight: bold;
+        color: #856404;
+      }
+
+      .phase-indicator {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      /* Voting Panel */
+      .voting-options {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .voting-option {
+        padding: 12px;
+        border: 2px solid #e9ecef;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+        font-size: 13px;
+      }
+
+      .voting-option:hover {
+        border-color: #007bff;
+        background: #f8f9fa;
+      }
+
+      .voting-option.selected {
+        border-color: #28a745;
+        background: #d4edda;
+      }
+
+      .voting-option.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* Vote Results */
+      .vote-results {
+        margin-top: 12px;
+      }
+
+      .vote-result-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 8px;
+        margin-bottom: 4px;
+        background: #f8f9fa;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+
+      .vote-count {
+        background: #007bff;
+        color: white;
+        padding: 2px 6px;
+        border-radius: 12px;
+        font-size: 10px;
+        font-weight: bold;
+      }
+
+      /* Controls Panel */
+      .controls-panel .control-btn {
+        width: 100%;
+        padding: 10px 16px;
+        margin-bottom: 8px;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .control-btn.primary {
+        background: #007bff;
+        color: white;
+      }
+
+      .control-btn.primary:hover {
+        background: #0056b3;
+      }
+
+      .control-btn.success {
+        background: #28a745;
+        color: white;
+      }
+
+      .control-btn.success:hover {
+        background: #1e7e34;
+      }
+
+      .control-btn.danger {
+        background: #dc3545;
+        color: white;
+      }
+
+      .control-btn.danger:hover {
+        background: #c82333;
+      }
+
+      .control-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 1024px) {
+        .multiplayer-sidebar {
+          width: 250px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .game-area {
+          flex-direction: column;
+        }
+
+        .multiplayer-sidebar {
+          width: 100%;
+          max-height: 300px;
+          order: -1;
+        }
+
+        .connection-bar {
+          flex-direction: column;
+          gap: 8px;
+          text-align: center;
+        }
+
+        .player-info {
+          justify-content: center;
+        }
+      }
+
+      /* Hidden states */
+      .hidden {
+        display: none !important;
+      }
+
+      /* Loading states */
+      .loading {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="multiplayer-container">
+      <!-- Connection Status Bar -->
+      <div class="connection-bar">
+        <div class="connection-status">
+          <div id="connection-indicator" class="status-indicator"></div>
+          <span id="connection-text">Verbindung wird hergestellt...</span>
+        </div>
+        <div class="player-info">
+          <span>Raum: <strong id="room-code-display">------</strong></span>
+          <span>Spieler: <span id="connected-players">1</span>/4</span>
+          <span id="game-phase">Lobby</span>
+        </div>
+      </div>
+
+      <div class="game-area">
+        <!-- Main Game Area -->
+        <div class="game-main">
+          <!-- Lobby Container (initially visible) -->
+          <div id="lobby-container"></div>
+
+          <!-- Game Container (hidden initially) -->
+          <div id="game-container" class="hidden">
+            <!-- Democracy Game wird hier geladen -->
+          </div>
+        </div>
+
+        <!-- Multiplayer Sidebar -->
+        <div class="multiplayer-sidebar">
+          <!-- Connected Players -->
+          <div class="sidebar-section">
+            <h3>👥 Teilnehmer</h3>
+            <div id="players-list" class="players-panel">
+              <!-- Players werden dynamisch hinzugefügt -->
+            </div>
+          </div>
+
+          <!-- Chat (während Diskussion) -->
+          <div id="chat-section" class="sidebar-section hidden">
+            <h3>💬 Chat</h3>
+            <div class="chat-panel">
+              <div id="chat-messages" class="chat-messages">
+                <!-- Chat messages werden hier angezeigt -->
+              </div>
+              <div class="chat-input-area">
+                <input
+                  type="text"
+                  id="chat-input"
+                  class="chat-input"
+                  placeholder="Nachricht eingeben..."
+                  maxlength="200"
+                />
+                <button id="chat-send" class="chat-send">Senden</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Current Discussion/Voting -->
+          <div id="discussion-section" class="sidebar-section hidden">
+            <h3>🏛️ Aktuelle Diskussion</h3>
+            <div class="discussion-panel">
+              <div id="scenario-info" class="scenario-info">
+                <div class="scenario-title">Warten auf Szenario...</div>
+              </div>
+
+              <div id="discussion-timer" class="discussion-timer hidden">
+                <span class="phase-indicator">Diskussion</span>
+                <span id="timer-display" class="timer-display">2:00</span>
+              </div>
+
+              <div id="voting-section" class="hidden">
+                <h4>Abstimmung:</h4>
+                <div id="voting-options" class="voting-options">
+                  <!-- Voting options werden dynamisch erstellt -->
+                </div>
+
+                <div id="vote-results" class="vote-results hidden">
+                  <h4>Ergebnisse:</h4>
+                  <div id="vote-results-list">
+                    <!-- Vote results werden hier angezeigt -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Host Controls -->
+          <div id="host-controls" class="sidebar-section hidden">
+            <h3>👑 Host-Steuerung</h3>
+            <div class="controls-panel">
+              <button id="start-discussion-btn" class="control-btn primary" disabled>
+                Diskussion starten
+              </button>
+              <button id="start-voting-btn" class="control-btn success" disabled>
+                Abstimmung starten
+              </button>
+              <button id="next-level-btn" class="control-btn primary" disabled>
+                Nächstes Level
+              </button>
+              <button id="end-session-btn" class="control-btn danger">Session beenden</button>
+            </div>
+          </div>
+
+          <!-- Connection Controls -->
+          <div class="sidebar-section">
+            <h3>🔧 Verbindung</h3>
+            <div class="controls-panel">
+              <button id="reconnect-btn" class="control-btn primary hidden">
+                Erneut verbinden
+              </button>
+              <button id="leave-session-btn" class="control-btn danger">Session verlassen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /**
+       * Multiplayer Democracy Game Integration
+       * Kombiniert Lobby, WebRTC, Sync und Game Engine
+       */
+
+      let democracyLobby = null;
+      let democracyMultiplayer = null;
+      let democracySync = null;
+      let gameEngine = null;
+
+      let currentGamePhase = 'lobby';
+      let isHost = false;
+      let playerId = '';
+      let playerName = '';
+
+      /**
+       * Initialize Multiplayer System
+       */
+      async function initializeMultiplayer() {
+        try {
+          console.log('[Multiplayer] Initializing Democracy Multiplayer System...');
+
+          // Check for required dependencies
+          if (typeof Peer === 'undefined') {
+            throw new Error('PeerJS library not loaded');
+          }
+
+          // Initialize Lobby System
+          democracyLobby = new DemocracyLobby();
+          democracyLobby.initialize('lobby-container');
+
+          // Setup lobby event handlers
+          setupLobbyEventHandlers();
+
+          // Update connection status
+          updateConnectionStatus('ready', 'Bereit für Multiplayer');
+
+          console.log('[Multiplayer] Initialization complete');
+        } catch (error) {
+          console.error('[Multiplayer] Initialization failed:', error);
+          updateConnectionStatus('error', 'Fehler: ' + error.message);
+        }
+      }
+
+      /**
+       * Setup Lobby Event Handlers
+       */
+      function setupLobbyEventHandlers() {
+        // Game started - transition to game
+        democracyLobby.on('gameStarted', data => {
+          console.log('[Multiplayer] Game starting with players:', data.players);
+
+          isHost = data.players.find(p => p.isLocal)?.isHost || false;
+          democracyMultiplayer = data.multiplayer;
+
+          // Initialize synchronization
+          initializeSynchronization();
+
+          // Transition to game
+          transitionToGame(data);
+        });
+
+        // Player joined/left updates
+        democracyLobby.on('playerJoined', data => {
+          updatePlayersList();
+          addChatMessage('system', `${data.playerName} ist beigetreten`);
+        });
+
+        democracyLobby.on('playerLeft', data => {
+          updatePlayersList();
+          addChatMessage('system', 'Ein Spieler hat die Session verlassen');
+        });
+      }
+
+      /**
+       * Initialize Synchronization System
+       */
+      function initializeSynchronization() {
+        if (!democracyMultiplayer) return;
+
+        try {
+          democracySync = new DemocracySync();
+          democracySync.initialize(democracyMultiplayer, gameEngine);
+
+          // Setup sync event handlers
+          setupSyncEventHandlers();
+
+          console.log('[Multiplayer] Synchronization initialized');
+        } catch (error) {
+          console.error('[Multiplayer] Failed to initialize sync:', error);
+        }
+      }
+
+      /**
+       * Setup Sync Event Handlers
+       */
+      function setupSyncEventHandlers() {
+        if (!democracySync) return;
+
+        democracyMultiplayer.on('discussionStarted', data => {
+          currentGamePhase = 'discussion';
+          updateGamePhaseUI('discussion', data);
+          showChatSection(true);
+        });
+
+        democracyMultiplayer.on('votingStarted', data => {
+          currentGamePhase = 'voting';
+          updateGamePhaseUI('voting', data);
+          showVotingSection(true);
+        });
+
+        democracyMultiplayer.on('consensusReached', data => {
+          currentGamePhase = 'consensus';
+          updateGamePhaseUI('consensus', data);
+          showVoteResults(data);
+        });
+
+        democracyMultiplayer.on('chatMessageReceived', data => {
+          addChatMessage('player', data.text, data.playerName);
+        });
+      }
+
+      /**
+       * Transition from Lobby to Game
+       */
+      function transitionToGame(gameData) {
+        // Hide lobby
+        document.getElementById('lobby-container').classList.add('hidden');
+
+        // Show game container
+        document.getElementById('game-container').classList.remove('hidden');
+
+        // Update connection info
+        updateConnectionStatus('connected', 'Im Spiel');
+        document.getElementById('room-code-display').textContent = democracyLobby.lobbyId;
+        document.getElementById('connected-players').textContent = gameData.players.length;
+        document.getElementById('game-phase').textContent = 'Aktiv';
+
+        // Show multiplayer panels
+        document.getElementById('discussion-section').classList.remove('hidden');
+
+        if (isHost) {
+          document.getElementById('host-controls').classList.remove('hidden');
+          setupHostControls();
+        }
+
+        // Initialize game engine integration
+        initializeGameEngine();
+
+        currentGamePhase = 'active';
+        console.log('[Multiplayer] Transitioned to game mode');
+      }
+
+      /**
+       * Initialize Game Engine Integration
+       */
+      function initializeGameEngine() {
+        // Initialize Democracy Game Engine with multiplayer support
+        if (typeof DemocracyGameBlock !== 'undefined') {
+          gameEngine = new DemocracyGameBlock();
+
+          // Configure for multiplayer
+          gameEngine.multiplayerMode = true;
+          gameEngine.multiplayerSystem = democracyMultiplayer;
+          gameEngine.syncSystem = democracySync;
+
+          // Initialize game
+          gameEngine.initialize();
+
+          console.log('[Multiplayer] Game engine initialized with multiplayer support');
+        } else {
+          console.warn('[Multiplayer] DemocracyGameBlock not available');
+        }
+      }
+
+      /**
+       * Setup Host Controls
+       */
+      function setupHostControls() {
+        document.getElementById('start-discussion-btn').addEventListener('click', () => {
+          if (gameEngine && gameEngine.currentScenario) {
+            democracyMultiplayer.startDiscussion(
+              gameEngine.currentScenario.id,
+              gameEngine.currentScenario.options
+            );
+          }
+        });
+
+        document.getElementById('start-voting-btn').addEventListener('click', () => {
+          if (gameEngine && gameEngine.currentScenario) {
+            democracyMultiplayer.startVoting(
+              gameEngine.currentScenario.id,
+              gameEngine.currentScenario.options
+            );
+          }
+        });
+
+        document.getElementById('next-level-btn').addEventListener('click', () => {
+          democracyMultiplayer.progressToNextLevel();
+        });
+
+        document.getElementById('end-session-btn').addEventListener('click', () => {
+          if (confirm('Session wirklich beenden?')) {
+            endMultiplayerSession();
+          }
+        });
+      }
+
+      /**
+       * Update Game Phase UI
+       */
+      function updateGamePhaseUI(phase, data) {
+        document.getElementById('game-phase').textContent = phase;
+
+        switch (phase) {
+          case 'discussion':
+            document.getElementById('discussion-timer').classList.remove('hidden');
+            if (data.scenarioId && gameEngine) {
+              updateScenarioInfo(gameEngine.getScenario(data.scenarioId));
+            }
+            startTimer(data.timeLimit);
+            break;
+
+          case 'voting':
+            document.getElementById('discussion-timer').classList.add('hidden');
+            showVotingSection(true);
+            if (data.options) {
+              createVotingOptions(data.options);
+            }
+            break;
+
+          case 'consensus':
+            showVotingSection(false);
+            break;
+        }
+      }
+
+      /**
+       * Update Players List
+       */
+      function updatePlayersList() {
+        const container = document.getElementById('players-list');
+        container.innerHTML = '';
+
+        const players = democracyLobby ? democracyLobby.getConnectedPlayers() : [];
+
+        for (const player of players) {
+          const playerItem = document.createElement('div');
+          playerItem.className = `player-item ${player.isLocal ? 'local' : ''} ${player.isHost ? 'host' : ''}`;
+
+          playerItem.innerHTML = `
+                    <div class="player-avatar-small">${player.playerName.charAt(0).toUpperCase()}</div>
+                    <div class="player-name">${player.playerName}</div>
+                    <div class="player-status-icon">${player.isHost ? '👑' : player.isLocal ? '👤' : '🧑‍🤝‍🧑'}</div>
+                `;
+
+          container.appendChild(playerItem);
+        }
+      }
+
+      /**
+       * Chat Functions
+       */
+      function showChatSection(show) {
+        const chatSection = document.getElementById('chat-section');
+        if (show) {
+          chatSection.classList.remove('hidden');
+          setupChatHandlers();
+        } else {
+          chatSection.classList.add('hidden');
+        }
+      }
+
+      function setupChatHandlers() {
+        const chatInput = document.getElementById('chat-input');
+        const chatSend = document.getElementById('chat-send');
+
+        function sendChatMessage() {
+          const text = chatInput.value.trim();
+          if (text && democracyMultiplayer) {
+            democracyMultiplayer.sendChatMessage(text);
+            addChatMessage('local', text, 'Du');
+            chatInput.value = '';
+          }
+        }
+
+        chatSend.addEventListener('click', sendChatMessage);
+        chatInput.addEventListener('keypress', e => {
+          if (e.key === 'Enter') {
+            sendChatMessage();
+          }
+        });
+      }
+
+      function addChatMessage(type, text, senderName = '') {
+        const container = document.getElementById('chat-messages');
+        const message = document.createElement('div');
+        message.className = `chat-message ${type}`;
+
+        if (type === 'system') {
+          message.innerHTML = `<em>${text}</em>`;
+        } else {
+          message.innerHTML = `<span class="chat-sender">${senderName}:</span> ${text}`;
+        }
+
+        container.appendChild(message);
+        container.scrollTop = container.scrollHeight;
+      }
+
+      /**
+       * Voting Functions
+       */
+      function showVotingSection(show) {
+        const votingSection = document.getElementById('voting-section');
+        if (show) {
+          votingSection.classList.remove('hidden');
+        } else {
+          votingSection.classList.add('hidden');
+        }
+      }
+
+      function createVotingOptions(options) {
+        const container = document.getElementById('voting-options');
+        container.innerHTML = '';
+
+        for (const option of options) {
+          const optionElement = document.createElement('div');
+          optionElement.className = 'voting-option';
+          optionElement.textContent = option.text || option.title;
+          optionElement.dataset.optionId = option.id;
+
+          optionElement.addEventListener('click', () => {
+            // Clear previous selection
+            container.querySelectorAll('.voting-option').forEach(el => {
+              el.classList.remove('selected');
+            });
+
+            // Select this option
+            optionElement.classList.add('selected');
+
+            // Cast vote
+            if (democracyMultiplayer) {
+              democracyMultiplayer.castVote(gameEngine.currentScenario.id, option.id);
+            }
+          });
+
+          container.appendChild(optionElement);
+        }
+      }
+
+      /**
+       * Timer Functions
+       */
+      let timerInterval = null;
+
+      function startTimer(duration) {
+        let timeRemaining = duration;
+
+        timerInterval = setInterval(() => {
+          timeRemaining -= 1000;
+
+          const minutes = Math.floor(timeRemaining / 60000);
+          const seconds = Math.floor((timeRemaining % 60000) / 1000);
+
+          document.getElementById('timer-display').textContent =
+            `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+          if (timeRemaining <= 0) {
+            clearInterval(timerInterval);
+          }
+        }, 1000);
+      }
+
+      /**
+       * Utility Functions
+       */
+      function updateConnectionStatus(status, message) {
+        const indicator = document.getElementById('connection-indicator');
+        const text = document.getElementById('connection-text');
+
+        indicator.className = `status-indicator ${status}`;
+        text.textContent = message;
+      }
+
+      function updateScenarioInfo(scenario) {
+        if (!scenario) return;
+
+        const container = document.getElementById('scenario-info');
+        container.innerHTML = `
+                <div class="scenario-title">${scenario.title}</div>
+                <div>${scenario.description}</div>
+            `;
+      }
+
+      function showVoteResults(data) {
+        const container = document.getElementById('vote-results-list');
+        container.innerHTML = '';
+
+        if (data.voteData && data.voteData.voteCounts) {
+          for (const [option, count] of Object.entries(data.voteData.voteCounts)) {
+            const resultItem = document.createElement('div');
+            resultItem.className = 'vote-result-item';
+            resultItem.innerHTML = `
+                        <span>Option ${option}</span>
+                        <span class="vote-count">${count}</span>
+                    `;
+            container.appendChild(resultItem);
+          }
+        }
+
+        document.getElementById('vote-results').classList.remove('hidden');
+      }
+
+      function endMultiplayerSession() {
+        // Cleanup multiplayer systems
+        if (democracySync) {
+          democracySync.cleanup();
+        }
+
+        if (democracyMultiplayer) {
+          democracyMultiplayer.disconnect();
+        }
+
+        // Return to lobby or home
+        window.location.reload();
+      }
+
+      /**
+       * Setup Global Event Handlers
+       */
+      function setupGlobalEventHandlers() {
+        // Leave session button
+        document.getElementById('leave-session-btn').addEventListener('click', () => {
+          if (confirm('Session wirklich verlassen?')) {
+            endMultiplayerSession();
+          }
+        });
+
+        // Reconnect button
+        document.getElementById('reconnect-btn').addEventListener('click', () => {
+          // Attempt to reconnect
+          window.location.reload();
+        });
+
+        // Handle page unload
+        window.addEventListener('beforeunload', () => {
+          if (democracyMultiplayer) {
+            democracyMultiplayer.disconnect();
+          }
+        });
+      }
+
+      /**
+       * Initialize on Page Load
+       */
+      window.addEventListener('DOMContentLoaded', () => {
+        console.log('[Multiplayer] Democracy Multiplayer Interface Loading...');
+
+        setupGlobalEventHandlers();
+        initializeMultiplayer();
+
+        // Check for auto-join from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const joinCode = urlParams.get('join');
+
+        if (joinCode) {
+          // Auto-fill join form if available
+          setTimeout(() => {
+            const roomCodeInput = document.getElementById('room-code');
+            if (roomCodeInput) {
+              roomCodeInput.value = joinCode.toUpperCase();
+            }
+          }, 1000);
+        }
+      });
+
+      // Export for debugging
+      window.multiplayerDebug = {
+        lobby: () => democracyLobby,
+        multiplayer: () => democracyMultiplayer,
+        sync: () => democracySync,
+        gameEngine: () => gameEngine,
+        status: () => ({
+          phase: currentGamePhase,
+          isHost: isHost,
+          playerId: playerId,
+          playerName: playerName,
+        }),
+      };
+
+      console.log('[Multiplayer] Democracy Multiplayer Interface loaded');
+    </script>
+  </body>
+</html>

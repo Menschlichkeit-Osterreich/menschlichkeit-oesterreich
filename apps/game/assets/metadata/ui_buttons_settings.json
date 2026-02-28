@@ -1,0 +1,43 @@
+{
+  "id": "ui_buttons_settings",
+  "title": "Einstellungen Button",
+  "alt_text": "Einstellungen Button - Grauer Kreis mit Zahnrad-Symbol für Konfiguration",
+  "description": "Generiertes SVG Asset für ui_buttons - settings",
+  "tags": [
+    "settings",
+    "educational",
+    "democracy",
+    "control",
+    "svg",
+    "button",
+    "interface",
+    "ui",
+    "interactive",
+    "gaming",
+    "accessible"
+  ],
+  "file_info": {
+    "path": "d:\\Arbeitsverzeichniss\\web\\games\\assets\\generated\\ui_buttons_settings.svg",
+    "format": "svg",
+    "size_bytes": 1344,
+    "hash": "1d3ca30276bbc8cc1587586f768751f98cae3398daa2c020c4087665c4a0f84f"
+  },
+  "colors": ["url(#settingsGrad)", "#334155", "white", "rgba(0,0,0,0.2)"],
+  "accessibility": {
+    "alt_text_provided": true,
+    "high_contrast": true,
+    "semantic_meaning": true
+  },
+  "usage": {
+    "category": "ui_buttons",
+    "subcategory": "settings",
+    "recommended_contexts": ["Game controls", "Interface elements", "Navigation"]
+  },
+  "metadata": {
+    "created_at": "2025-09-26T04:10:36.447540",
+    "generator": "SimpleAssetManager",
+    "version": "1.0.0",
+    "license": "Educational Use",
+    "attribution": "Auto-generated for Educational Gaming System"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "id": "map_regions_st_poelten",
+  "title": "St Poelten (Map Regions)",
+  "alt_text": "St Poelten (Map Regions) - Grafisches Element für das Educational Gaming System",
+  "description": "Generiertes SVG Asset für map_regions - st_poelten",
+  "tags": [
+    "educational",
+    "democracy",
+    "geography",
+    "svg",
+    "ui",
+    "gaming",
+    "austria",
+    "map",
+    "region",
+    "st-poelten",
+    "isometric",
+    "accessible"
+  ],
+  "file_info": {
+    "path": "d:\\Arbeitsverzeichniss\\web\\games\\assets\\generated\\map_regions_st_poelten.svg",
+    "format": "svg",
+    "size_bytes": 998,
+    "hash": "758c2c187ebf2fe30b1b791bfbd56e481fe4455b7beb16624ce3dfd5d3709a6e"
+  },
+  "colors": ["#6366f1", "url(#st_poeltenGrad)"],
+  "accessibility": {
+    "alt_text_provided": true,
+    "high_contrast": true,
+    "semantic_meaning": true
+  },
+  "usage": {
+    "category": "map_regions",
+    "subcategory": "st_poelten",
+    "recommended_contexts": ["Geography games", "Regional quizzes", "Austria exploration"]
+  },
+  "metadata": {
+    "created_at": "2025-09-26T04:10:36.438711",
+    "generator": "SimpleAssetManager",
+    "version": "1.0.0",
+    "license": "Educational Use",
+    "attribution": "Auto-generated for Educational Gaming System"
+  }
+}

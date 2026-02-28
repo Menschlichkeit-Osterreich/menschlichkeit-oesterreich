@@ -1,0 +1,501 @@
+/**
+ * Democracy Metaverse - Prototype Design Tokens
+ * Glassmorphism Design System für Democratic Values
+ * 
+ * Colors basieren auf den 4 demokratischen Werten:
+ * - Empathy (Empathie): Purple/Magenta
+ * - Rights (Rechtsstaatlichkeit): Cyan/Blue  
+ * - Participation (Partizipation): Emerald/Green
+ * - Courage (Zivilcourage): Amber/Orange
+ */
+
+:root {
+  /* === DEMOCRATIC VALUES COLORS === */
+  --empathy-50: #fdf4ff;
+  --empathy-100: #fae8ff;
+  --empathy-200: #f5d0fe;
+  --empathy-300: #f0abfc;
+  --empathy-400: #e879f9;    /* Primary Empathy */
+  --empathy-500: #d946ef;
+  --empathy-600: #c026d3;
+  --empathy-700: #a21caf;
+  --empathy-800: #86198f;
+  --empathy-900: #701a75;
+  
+  --rights-50: #ecfeff;
+  --rights-100: #cffafe;
+  --rights-200: #a5f3fc;
+  --rights-300: #67e8f9;
+  --rights-400: #22d3ee;
+  --rights-500: #06b6d4;     /* Primary Rights */
+  --rights-600: #0891b2;
+  --rights-700: #0e7490;
+  --rights-800: #155e75;
+  --rights-900: #164e63;
+  
+  --participation-50: #ecfdf5;
+  --participation-100: #d1fae5;
+  --participation-200: #a7f3d0;
+  --participation-300: #6ee7b7;
+  --participation-400: #34d399;
+  --participation-500: #10b981;  /* Primary Participation */
+  --participation-600: #059669;
+  --participation-700: #047857;
+  --participation-800: #065f46;
+  --participation-900: #064e3b;
+  
+  --courage-50: #fffbeb;
+  --courage-100: #fef3c7;
+  --courage-200: #fde68a;
+  --courage-300: #fcd34d;
+  --courage-400: #fbbf24;
+  --courage-500: #f59e0b;     /* Primary Courage */
+  --courage-600: #d97706;
+  --courage-700: #b45309;
+  --courage-800: #92400e;
+  --courage-900: #78350f;
+  
+  /* === GLASSMORPHISM BASE === */
+  --glass-bg-primary: rgba(255, 255, 255, 0.15);
+  --glass-bg-secondary: rgba(255, 255, 255, 0.08);
+  --glass-bg-tertiary: rgba(255, 255, 255, 0.05);
+  
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-border-secondary: rgba(255, 255, 255, 0.1);
+  
+  --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+  --glass-shadow-hover: 0 12px 40px rgba(31, 38, 135, 0.2);
+  --glass-shadow-active: 0 4px 16px rgba(31, 38, 135, 0.1);
+  
+  --glass-blur: blur(15px);
+  --glass-blur-strong: blur(25px);
+  
+  /* === NEUTRAL COLORS === */
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  
+  /* === SEMANTIC COLORS === */
+  --success-400: #4ade80;
+  --success-500: #22c55e;
+  --warning-400: #facc15;
+  --warning-500: #eab308;
+  --error-400: #f87171;
+  --error-500: #ef4444;
+  --info-400: #60a5fa;
+  --info-500: #3b82f6;
+  
+  /* === TYPOGRAPHY === */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-size-xs: 0.75rem;    /* 12px */
+  --font-size-sm: 0.875rem;   /* 14px */
+  --font-size-base: 1rem;     /* 16px */
+  --font-size-lg: 1.125rem;   /* 18px */
+  --font-size-xl: 1.25rem;    /* 20px */
+  --font-size-2xl: 1.5rem;    /* 24px */
+  --font-size-3xl: 1.875rem;  /* 30px */
+  --font-size-4xl: 2.25rem;   /* 36px */
+  
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-loose: 1.75;
+  
+  /* === SPACING === */
+  --space-1: 0.25rem;    /* 4px */
+  --space-2: 0.5rem;     /* 8px */
+  --space-3: 0.75rem;    /* 12px */
+  --space-4: 1rem;       /* 16px */
+  --space-5: 1.25rem;    /* 20px */
+  --space-6: 1.5rem;     /* 24px */
+  --space-8: 2rem;       /* 32px */
+  --space-10: 2.5rem;    /* 40px */
+  --space-12: 3rem;      /* 48px */
+  --space-16: 4rem;      /* 64px */
+  --space-20: 5rem;      /* 80px */
+  
+  /* === BORDER RADIUS === */
+  --radius-sm: 0.375rem;   /* 6px */
+  --radius-md: 0.5rem;     /* 8px */
+  --radius-lg: 0.75rem;    /* 12px */
+  --radius-xl: 1rem;       /* 16px */
+  --radius-2xl: 1.5rem;    /* 24px */
+  --radius-full: 9999px;
+  
+  /* === TRANSITIONS === */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* === Z-INDEX SCALE === */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  --z-toast: 1080;
+  
+  /* === LAYOUT === */
+  --container-max-width: 1200px;
+  --sidebar-width: 280px;
+  --header-height: 70px;
+  
+  /* === ANIMATIONS === */
+  --animation-bounce: bounce 1s infinite;
+  --animation-pulse: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animation-spin: spin 1s linear infinite;
+  --animation-fade-in: fadeIn 0.3s ease-out;
+  --animation-slide-up: slideUp 0.3s ease-out;
+}
+
+/* === DARK THEME === */
+[data-theme="dark"] {
+  --glass-bg-primary: rgba(0, 0, 0, 0.15);
+  --glass-bg-secondary: rgba(0, 0, 0, 0.08);
+  --glass-bg-tertiary: rgba(0, 0, 0, 0.05);
+  
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-border-secondary: rgba(255, 255, 255, 0.05);
+  
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.4);
+  --glass-shadow-active: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* === HIGH CONTRAST MODE === */
+@media (prefers-contrast: high) {
+  :root {
+    --glass-bg-primary: rgba(255, 255, 255, 0.9);
+    --glass-bg-secondary: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(0, 0, 0, 0.3);
+    --glass-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  }
+  
+  [data-theme="dark"] {
+    --glass-bg-primary: rgba(0, 0, 0, 0.9);
+    --glass-bg-secondary: rgba(0, 0, 0, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* === REDUCED MOTION === */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition-fast: 0ms;
+    --transition-normal: 0ms;
+    --transition-slow: 0ms;
+    --glass-blur: none;
+    --glass-blur-strong: none;
+  }
+  
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* === KEYFRAME ANIMATIONS === */
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40%, 43% {
+    transform: translate3d(0, -30px, 0);
+  }
+  70% {
+    transform: translate3d(0, -15px, 0);
+  }
+  90% {
+    transform: translate3d(0, -4px, 0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+@keyframes bridgeGlow {
+  0%, 100% {
+    text-shadow: 0 0 5px var(--empathy-400), 0 0 10px var(--rights-500), 0 0 15px var(--participation-500);
+  }
+  50% {
+    text-shadow: 0 0 10px var(--empathy-400), 0 0 20px var(--rights-500), 0 0 30px var(--participation-500);
+  }
+}
+
+/* === UTILITY CLASSES === */
+
+/* Glassmorphism Components */
+.glass-panel {
+  background: var(--glass-bg-primary);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-panel-secondary {
+  background: var(--glass-bg-secondary);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border-secondary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow);
+}
+
+/* Value-Based Backgrounds */
+.bg-empathy {
+  background: linear-gradient(135deg, var(--empathy-400), var(--empathy-600));
+}
+
+.bg-rights {
+  background: linear-gradient(135deg, var(--rights-400), var(--rights-600));
+}
+
+.bg-participation {
+  background: linear-gradient(135deg, var(--participation-400), var(--participation-600));
+}
+
+.bg-courage {
+  background: linear-gradient(135deg, var(--courage-400), var(--courage-600));
+}
+
+/* Democratic Values Gradient Background */
+.bg-democracy-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--empathy-500) 0%,
+    var(--rights-500) 25%,
+    var(--participation-500) 50%,
+    var(--courage-500) 75%,
+    var(--empathy-500) 100%
+  );
+  background-size: 400% 400%;
+  animation: gradientShift 8s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Text Utilities */
+.text-empathy { color: var(--empathy-500); }
+.text-rights { color: var(--rights-500); }
+.text-participation { color: var(--participation-500); }
+.text-courage { color: var(--courage-500); }
+
+.text-xs { font-size: var(--font-size-xs); }
+.text-sm { font-size: var(--font-size-sm); }
+.text-base { font-size: var(--font-size-base); }
+.text-lg { font-size: var(--font-size-lg); }
+.text-xl { font-size: var(--font-size-xl); }
+.text-2xl { font-size: var(--font-size-2xl); }
+.text-3xl { font-size: var(--font-size-3xl); }
+.text-4xl { font-size: var(--font-size-4xl); }
+
+.font-light { font-weight: var(--font-weight-light); }
+.font-normal { font-weight: var(--font-weight-normal); }
+.font-medium { font-weight: var(--font-weight-medium); }
+.font-semibold { font-weight: var(--font-weight-semibold); }
+.font-bold { font-weight: var(--font-weight-bold); }
+
+/* Spacing Utilities */
+.p-1 { padding: var(--space-1); }
+.p-2 { padding: var(--space-2); }
+.p-3 { padding: var(--space-3); }
+.p-4 { padding: var(--space-4); }
+.p-5 { padding: var(--space-5); }
+.p-6 { padding: var(--space-6); }
+.p-8 { padding: var(--space-8); }
+
+.m-1 { margin: var(--space-1); }
+.m-2 { margin: var(--space-2); }
+.m-3 { margin: var(--space-3); }
+.m-4 { margin: var(--space-4); }
+.m-5 { margin: var(--space-5); }
+.m-6 { margin: var(--space-6); }
+.m-8 { margin: var(--space-8); }
+
+/* Display Utilities */
+.hidden { display: none; }
+.block { display: block; }
+.flex { display: flex; }
+.grid { display: grid; }
+
+/* Flexbox Utilities */
+.items-center { align-items: center; }
+.items-start { align-items: flex-start; }
+.items-end { align-items: flex-end; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.justify-start { justify-content: flex-start; }
+.justify-end { justify-content: flex-end; }
+
+/* Border Radius */
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-xl { border-radius: var(--radius-xl); }
+.rounded-2xl { border-radius: var(--radius-2xl); }
+.rounded-full { border-radius: var(--radius-full); }
+
+/* Transitions */
+.transition { transition: all var(--transition-normal); }
+.transition-fast { transition: all var(--transition-fast); }
+.transition-slow { transition: all var(--transition-slow); }
+
+/* Effects */
+.hover\:glass-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--glass-shadow-hover);
+}
+
+.active\:glass-press:active {
+  transform: translateY(1px);
+  box-shadow: var(--glass-shadow-active);
+}
+
+.bridge-glow {
+  animation: bridgeGlow 3s ease-in-out infinite;
+}
+
+/* Screen Reader Only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Focus Styles (Accessibility) */
+.focus\:outline-democracy:focus {
+  outline: 2px solid var(--empathy-500);
+  outline-offset: 2px;
+}
+
+.focus\:ring-democracy:focus {
+  box-shadow: 0 0 0 3px rgba(232, 121, 249, 0.3);
+}
+
+/* Progress Meter Default Styles */
+.meter-fill,
+.progress-fill,
+.mini-progress-fill {
+  width: 0%;
+  transition: width var(--transition-normal);
+}
+
+/* Hidden by Default Styles */
+#app {
+  display: none;
+}
+
+#result-panel,
+#settings-modal {
+  display: none;
+}
+
+/* Show when active */
+#app.active,
+.screen.active {
+  display: block;
+}
+
+#result-panel.active,
+#settings-modal.active {
+  display: flex;
+}
+
+/* Initial meter states */
+.meter-fill,
+.progress-fill,
+.mini-progress-fill {
+  width: 0%;
+}
+
+/* Progressive fill states for different percentages */
+.meter-fill[data-percentage="0"],
+.progress-fill[data-percentage="0"],
+.mini-progress-fill[data-percentage="0"] {
+  width: 0%;
+}
+
+.meter-fill[data-percentage="10"] { width: 10%; }
+.meter-fill[data-percentage="20"] { width: 20%; }
+.meter-fill[data-percentage="30"] { width: 30%; }
+.meter-fill[data-percentage="40"] { width: 40%; }
+.meter-fill[data-percentage="50"] { width: 50%; }
+.meter-fill[data-percentage="60"] { width: 60%; }
+.meter-fill[data-percentage="70"] { width: 70%; }
+.meter-fill[data-percentage="80"] { width: 80%; }
+.meter-fill[data-percentage="90"] { width: 90%; }
+.meter-fill[data-percentage="100"] { width: 100%; }

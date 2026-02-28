@@ -1,0 +1,175 @@
+{
+  "name": "Democracy Metaverse - Prototype",
+  "short_name": "Democracy Metaverse",
+  "description": "Interaktives Lernspiel für demokratische Werte. Erlebe Demokratie in Nachbarschaft, Schule und digitalen Räumen.",
+  "version": "1.0.0",
+  "start_url": "/web/games/prototype/index.html",
+  "display": "standalone",
+  "background_color": "#b80000",
+  "theme_color": "#b80000",
+  "orientation": "portrait-primary",
+  "scope": "/web/games/prototype/",
+
+  "icons": [
+    {
+      "src": "assets/icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icons/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+
+  "screenshots": [
+    {
+      "src": "assets/screenshots/desktop-1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Democracy Metaverse - Hauptmenü"
+    },
+    {
+      "src": "assets/screenshots/mobile-1.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Democracy Metaverse - Mobil"
+    }
+  ],
+
+  "categories": ["education", "games", "social"],
+
+  "lang": "de",
+
+  "shortcuts": [
+    {
+      "name": "Neues Spiel",
+      "short_name": "Start",
+      "description": "Starte ein neues Democracy Metaverse Spiel",
+      "url": "/web/games/prototype/index.html?mode=new",
+      "icons": [
+        {
+          "src": "assets/icons/shortcut-new.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Spiel fortsetzen",
+      "short_name": "Fortsetzen",
+      "description": "Setze dein gespeichertes Spiel fort",
+      "url": "/web/games/prototype/index.html?mode=continue",
+      "icons": [
+        {
+          "src": "assets/icons/shortcut-continue.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Mini-Spiele",
+      "short_name": "Mini-Games",
+      "description": "Direkt zu den Mini-Spielen",
+      "url": "/web/games/prototype/index.html?mode=minigames",
+      "icons": [
+        {
+          "src": "assets/icons/shortcut-minigames.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://menschlichkeit-oesterreich.at/web/games/prototype/manifest.json"
+    }
+  ],
+
+  "prefer_related_applications": false,
+
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+
+  "protocol_handlers": [
+    {
+      "protocol": "web+democracymetaverse",
+      "url": "/web/games/prototype/index.html?action=%s"
+    }
+  ],
+
+  "file_handlers": [
+    {
+      "action": "/web/games/prototype/index.html?file_handler=save",
+      "accept": {
+        "application/json": [".json"],
+        "text/plain": [".save"]
+      },
+      "launch_type": "single-client"
+    }
+  ],
+
+  "share_target": {
+    "action": "/web/games/prototype/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+
+  "display_override": ["window-controls-overlay", "minimal-ui", "standalone", "browser"],
+
+  "id": "democracy-metaverse-prototype-v1",
+
+  "handle_links": "preferred"
+}
