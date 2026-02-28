@@ -1,0 +1,1059 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Level Progression - Demokratie Lernspiele</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        color: #333;
+      }
+
+      .progression-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+        color: white;
+        position: relative;
+      }
+
+      .header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+      }
+
+      .header-icon {
+        font-size: 1.2em;
+        animation: bounce 2s infinite;
+      }
+
+      @keyframes bounce {
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+          transform: translateY(0);
+        }
+        40% {
+          transform: translateY(-10px);
+        }
+        60% {
+          transform: translateY(-5px);
+        }
+      }
+
+      .level-path-illustration {
+        margin: 20px auto;
+        max-width: 800px;
+      }
+
+      .level-path-illustration svg {
+        width: 100%;
+        height: auto;
+      }
+
+      .player-stats {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 25px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+      }
+
+      .stat-card {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+      }
+
+      .stat-card:hover {
+        border-color: #3498db;
+        transform: translateY(-5px);
+      }
+
+      .stat-value {
+        font-size: 2.5em;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        color: #666;
+        font-size: 0.9em;
+        margin-bottom: 10px;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745, #20c997);
+        transition: width 0.8s ease;
+      }
+
+      .level-progression {
+        display: grid;
+        gap: 30px;
+      }
+
+      .level-tier {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .tier-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f1f1f1;
+      }
+
+      .tier-title {
+        font-size: 1.8em;
+        font-weight: bold;
+        color: #2c3e50;
+      }
+
+      .tier-range {
+        background: #3498db;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        font-weight: bold;
+      }
+
+      .tier-description {
+        color: #666;
+        margin-bottom: 20px;
+        font-size: 1.1em;
+      }
+
+      .games-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .game-card {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+      }
+
+      .game-card.locked {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+
+      .game-card.completed {
+        border-color: #28a745;
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+      }
+
+      .game-card.current {
+        border-color: #ffc107;
+        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .game-icon {
+        font-size: 3em;
+        margin-bottom: 10px;
+      }
+
+      .game-title {
+        font-size: 1.2em;
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: #2c3e50;
+      }
+
+      .game-description {
+        font-size: 0.9em;
+        color: #666;
+        margin-bottom: 15px;
+      }
+
+      .game-progress {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.8em;
+      }
+
+      .mastery-level {
+        background: #e9ecef;
+        padding: 3px 8px;
+        border-radius: 10px;
+        font-weight: bold;
+      }
+
+      .mastery-level.bronze {
+        background: #cd7f32;
+        color: white;
+      }
+      .mastery-level.silver {
+        background: #c0c0c0;
+        color: #333;
+      }
+      .mastery-level.gold {
+        background: #ffd700;
+        color: #333;
+      }
+      .mastery-level.platinum {
+        background: #e5e4e2;
+        color: #333;
+      }
+
+      .competency-section {
+        margin-top: 25px;
+      }
+
+      .competency-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 15px;
+      }
+
+      .competency-card {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+        border-left: 5px solid #3498db;
+      }
+
+      .competency-title {
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #2c3e50;
+      }
+
+      .competency-skills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .skill-tag {
+        background: #e9ecef;
+        padding: 4px 8px;
+        border-radius: 15px;
+        font-size: 0.8em;
+        color: #495057;
+      }
+
+      .skill-tag.mastered {
+        background: #28a745;
+        color: white;
+      }
+
+      .achievement-showcase {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 25px;
+        margin-top: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .achievements-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+      }
+
+      .achievement-badge {
+        background: linear-gradient(135deg, #fff, #f8f9fa);
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+      }
+
+      .achievement-badge.unlocked {
+        border-color: #28a745;
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+      }
+
+      .achievement-badge.rare {
+        border-color: #6f42c1;
+        background: linear-gradient(135deg, #e2d9f3, #d1c4e9);
+      }
+
+      .achievement-icon {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+      }
+
+      .achievement-title {
+        font-weight: bold;
+        margin-bottom: 5px;
+        font-size: 0.9em;
+      }
+
+      .achievement-description {
+        font-size: 0.8em;
+        color: #666;
+      }
+
+      .next-objectives {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 20px;
+        padding: 25px;
+        margin-top: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .objective-item {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-left: 5px solid #ffc107;
+      }
+
+      .objective-title {
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: #2c3e50;
+      }
+
+      .objective-progress {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .status-indicator {
+        padding: 4px 8px;
+        border-radius: 10px;
+        font-size: 0.8em;
+        font-weight: bold;
+      }
+
+      .status-locked {
+        background: #6c757d;
+        color: white;
+      }
+      .status-available {
+        background: #28a745;
+        color: white;
+      }
+      .status-current {
+        background: #ffc107;
+        color: #333;
+      }
+      .status-completed {
+        background: #17a2b8;
+        color: white;
+      }
+
+      @media (max-width: 768px) {
+        .player-stats {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .games-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .competency-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="progression-container">
+      <div class="header">
+        <h1>
+          <span class="header-icon">🏆</span>
+          Deine Lernreise durch die Demokratie
+        </h1>
+        <p>Entdecke, lerne und wachse auf deinem Weg zum Demokratie-Experten</p>
+
+        <!-- Level Path Illustration -->
+        <div class="level-path-illustration">
+          <svg viewBox="0 0 800 120" role="img" aria-label="Demokratie-Lernpfad Visualisierung">
+            <defs>
+              <linearGradient id="pathGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#e74c3c" />
+                <stop offset="20%" stop-color="#f39c12" />
+                <stop offset="40%" stop-color="#f1c40f" />
+                <stop offset="60%" stop-color="#2ecc71" />
+                <stop offset="80%" stop-color="#3498db" />
+                <stop offset="100%" stop-color="#9b59b6" />
+              </linearGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="3" result="coloredBlur" />
+                <feMerge>
+                  <feMergeNode in="coloredBlur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
+            <!-- Main Learning Path -->
+            <path
+              d="M20 80 Q200 40 400 60 Q600 80 780 40"
+              stroke="url(#pathGradient)"
+              stroke-width="6"
+              fill="none"
+              filter="url(#glow)"
+              stroke-linecap="round"
+            />
+
+            <!-- Level Milestones -->
+            <g class="level-milestones">
+              <!-- Demokratie-Neuling -->
+              <circle cx="80" cy="65" r="12" fill="#e74c3c" class="animate-pulse" />
+              <text
+                x="80"
+                y="70"
+                text-anchor="middle"
+                fill="white"
+                font-size="12"
+                font-weight="bold"
+              >
+                🌱
+              </text>
+              <text x="80" y="95" text-anchor="middle" fill="white" font-size="10">Level 1-10</text>
+
+              <!-- Aktiver Bürger -->
+              <circle cx="240" cy="50" r="14" fill="#f39c12" class="animate-pulse" />
+              <text
+                x="240"
+                y="56"
+                text-anchor="middle"
+                fill="white"
+                font-size="14"
+                font-weight="bold"
+              >
+                🗳️
+              </text>
+              <text x="240" y="105" text-anchor="middle" fill="white" font-size="10">
+                Level 11-25
+              </text>
+
+              <!-- Kritischer Denker -->
+              <circle cx="400" cy="60" r="16" fill="#2ecc71" class="animate-float" />
+              <text
+                x="400"
+                y="67"
+                text-anchor="middle"
+                fill="white"
+                font-size="16"
+                font-weight="bold"
+              >
+                🧠
+              </text>
+              <text x="400" y="90" text-anchor="middle" fill="white" font-size="10">
+                Level 26-45
+              </text>
+
+              <!-- Gesellschaftsgestalter -->
+              <circle cx="600" cy="80" r="18" fill="#3498db" />
+              <text
+                x="600"
+                y="87"
+                text-anchor="middle"
+                fill="white"
+                font-size="18"
+                font-weight="bold"
+              >
+                👑
+              </text>
+              <text x="600" y="110" text-anchor="middle" fill="white" font-size="10">
+                Level 46-70
+              </text>
+
+              <!-- Demokratie-Experte -->
+              <circle cx="760" cy="45" r="20" fill="#9b59b6" class="animate-float" />
+              <text
+                x="760"
+                y="53"
+                text-anchor="middle"
+                fill="white"
+                font-size="20"
+                font-weight="bold"
+              >
+                ⭐
+              </text>
+              <text x="760" y="80" text-anchor="middle" fill="white" font-size="10">
+                Level 71-100
+              </text>
+            </g>
+
+            <!-- Progress Indicator (Current Position) -->
+            <g class="current-position">
+              <circle
+                cx="240"
+                cy="50"
+                r="25"
+                fill="none"
+                stroke="#ffffff"
+                stroke-width="3"
+                class="animate-pulse"
+              />
+              <text
+                x="240"
+                y="25"
+                text-anchor="middle"
+                fill="white"
+                font-size="12"
+                font-weight="bold"
+              >
+                Du bist hier!
+              </text>
+            </g>
+
+            <!-- Floating Achievement Stars -->
+            <g class="achievement-stars" opacity="0.7">
+              <text x="150" y="30" fill="#ffd700" font-size="16" class="animate-float">⭐</text>
+              <text x="320" y="25" fill="#ffd700" font-size="14" class="animate-pulse">🌟</text>
+              <text x="480" y="35" fill="#ffd700" font-size="18" class="animate-float">✨</text>
+              <text x="680" y="25" fill="#ffd700" font-size="16" class="animate-pulse">💫</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Spieler-Statistiken -->
+      <div class="player-stats">
+        <div class="stat-card">
+          <div class="stat-value" id="playerLevel">15</div>
+          <div class="stat-label">Aktuelles Level</div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="levelProgress" style="width: 60%"></div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-value" id="totalXP">12,450</div>
+          <div class="stat-label">Gesammelte XP</div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 85%"></div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-value" id="achievementCount">8/25</div>
+          <div class="stat-label">Errungenschaften</div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 32%"></div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-value" id="gamesCompleted">12</div>
+          <div class="stat-label">Spiele gemeistert</div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 70%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Level-Progression -->
+      <div class="level-progression">
+        <!-- Demokratie-Neuling (1-10) -->
+        <div class="level-tier">
+          <div class="tier-header">
+            <div>
+              <div class="tier-title">🌱 Demokratie-Neuling</div>
+              <div class="tier-description">Erste Schritte in der demokratischen Bildung</div>
+            </div>
+            <div class="tier-range">Level 1-10</div>
+          </div>
+
+          <div class="games-grid">
+            <div class="game-card completed">
+              <div class="game-icon">🔍</div>
+              <div class="game-title">Fact-Check Arena</div>
+              <div class="game-description">
+                Lerne Fake News von echten Nachrichten zu unterscheiden
+              </div>
+              <div class="game-progress">
+                <span>Fortschritt: 100%</span>
+                <span class="mastery-level gold">Gold</span>
+              </div>
+            </div>
+
+            <div class="game-card completed">
+              <div class="game-icon">🌉</div>
+              <div class="game-title">Brücken-Puzzle</div>
+              <div class="game-description">
+                Finde Kompromisse zwischen verschiedenen Standpunkten
+              </div>
+              <div class="game-progress">
+                <span>Fortschritt: 85%</span>
+                <span class="mastery-level silver">Silber</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="competency-section">
+            <h3>📚 Kernkompetenzen</h3>
+            <div class="competency-grid">
+              <div class="competency-card">
+                <div class="competency-title">Informationskompetenz</div>
+                <div class="competency-skills">
+                  <span class="skill-tag mastered">Quellenbewertung</span>
+                  <span class="skill-tag mastered">Bias-Erkennung</span>
+                  <span class="skill-tag">Faktenprüfung</span>
+                </div>
+              </div>
+
+              <div class="competency-card">
+                <div class="competency-title">Grundwissen Bürgerkunde</div>
+                <div class="competency-skills">
+                  <span class="skill-tag mastered">Demokratie-Prinzipien</span>
+                  <span class="skill-tag">Verfassungsgrundlagen</span>
+                  <span class="skill-tag">Wahlsystem</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Aktiver Bürger (11-25) -->
+        <div class="level-tier">
+          <div class="tier-header">
+            <div>
+              <div class="tier-title">🗳️ Aktiver Bürger</div>
+              <div class="tier-description">Verstehen und Anwenden demokratischer Prozesse</div>
+            </div>
+            <div class="tier-range">Level 11-25</div>
+          </div>
+
+          <div class="games-grid">
+            <div class="game-card current">
+              <div class="game-icon">⚖️</div>
+              <div class="game-title">Debatte-Duell</div>
+              <div class="game-description">Führe faire und respektvolle Diskussionen</div>
+              <div class="game-progress">
+                <span>Fortschritt: 45%</span>
+                <span class="mastery-level bronze">Bronze</span>
+              </div>
+            </div>
+
+            <div class="game-card">
+              <div class="game-icon">🏙️</div>
+              <div class="game-title">Stadt-Simulation</div>
+              <div class="game-description">
+                Gestalte eine nachhaltige und gerechte Gemeinschaft
+              </div>
+              <div class="game-progress">
+                <span>Fortschritt: 0%</span>
+                <span class="status-indicator status-available">Verfügbar</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="competency-section">
+            <h3>🎯 Neue Fähigkeiten</h3>
+            <div class="competency-grid">
+              <div class="competency-card">
+                <div class="competency-title">Argumentation & Rhetorik</div>
+                <div class="competency-skills">
+                  <span class="skill-tag">Argumentaufbau</span>
+                  <span class="skill-tag">Gegenargumente</span>
+                  <span class="skill-tag">Respektvolle Diskussion</span>
+                </div>
+              </div>
+
+              <div class="competency-card">
+                <div class="competency-title">Systemisches Denken</div>
+                <div class="competency-skills">
+                  <span class="skill-tag">Ursache-Wirkung</span>
+                  <span class="skill-tag">Komplexität verstehen</span>
+                  <span class="skill-tag">Lösungsfindung</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Kritischer Denker (26-45) -->
+        <div class="level-tier">
+          <div class="tier-header">
+            <div>
+              <div class="tier-title">🧠 Kritischer Denker</div>
+              <div class="tier-description">Komplexe Analyse gesellschaftlicher Themen</div>
+            </div>
+            <div class="tier-range">Level 26-45</div>
+          </div>
+
+          <div class="games-grid">
+            <div class="game-card locked">
+              <div class="game-icon">🕸️</div>
+              <div class="game-title">Netzwerk-Analyse</div>
+              <div class="game-description">Erkenne Manipulation in sozialen Netzwerken</div>
+              <div class="game-progress">
+                <span>Fortschritt: 0%</span>
+                <span class="status-indicator status-locked">Level 26 benötigt</span>
+              </div>
+            </div>
+
+            <div class="game-card locked">
+              <div class="game-icon">🚨</div>
+              <div class="game-title">Krisenstab</div>
+              <div class="game-description">Treffe schwierige Entscheidungen unter Zeitdruck</div>
+              <div class="game-progress">
+                <span>Fortschritt: 0%</span>
+                <span class="status-indicator status-locked">Level 30 benötigt</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gesellschaftsgestalter (46-70) -->
+        <div class="level-tier">
+          <div class="tier-header">
+            <div>
+              <div class="tier-title">👑 Gesellschaftsgestalter</div>
+              <div class="tier-description">Führung und Innovation in demokratischen Prozessen</div>
+            </div>
+            <div class="tier-range">Level 46-70</div>
+          </div>
+
+          <div class="games-grid">
+            <div class="game-card locked">
+              <div class="game-icon">🎭</div>
+              <div class="game-title">Dialog-RPG</div>
+              <div class="game-description">
+                Meistere empathische Kommunikation und Konfliktlösung
+              </div>
+              <div class="game-progress">
+                <span>Fortschritt: 0%</span>
+                <span class="status-indicator status-locked">Level 46 benötigt</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Demokratie-Experte (71-100) -->
+        <div class="level-tier">
+          <div class="tier-header">
+            <div>
+              <div class="tier-title">⭐ Demokratie-Experte</div>
+              <div class="tier-description">
+                Meisterhafte Beherrschung demokratischer Prinzipien
+              </div>
+            </div>
+            <div class="tier-range">Level 71-100</div>
+          </div>
+
+          <div class="games-grid">
+            <div class="game-card locked">
+              <div class="game-icon">🎨</div>
+              <div class="game-title">Kreativ-Modus</div>
+              <div class="game-description">Erschaffe eigene demokratische Innovationen</div>
+              <div class="game-progress">
+                <span>Fortschritt: 0%</span>
+                <span class="status-indicator status-locked">Experten-Level</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Errungenschaften -->
+      <div class="achievement-showcase">
+        <h2>🏅 Deine Errungenschaften</h2>
+        <div class="achievements-grid" id="achievementGrid">
+          <!-- Wird dynamisch befüllt -->
+        </div>
+      </div>
+
+      <!-- Nächste Ziele -->
+      <div class="next-objectives">
+        <h2>🎯 Nächste Ziele</h2>
+        <div class="objective-item">
+          <div class="objective-title">Debatte-Duell meistern</div>
+          <div class="objective-progress">
+            <div class="progress-bar" style="flex: 1">
+              <div class="progress-fill" style="width: 45%"></div>
+            </div>
+            <span class="status-indicator status-current">In Bearbeitung</span>
+          </div>
+        </div>
+
+        <div class="objective-item">
+          <div class="objective-title">5 Konflikte erfolgreich mediieren</div>
+          <div class="objective-progress">
+            <div class="progress-bar" style="flex: 1">
+              <div class="progress-fill" style="width: 60%"></div>
+            </div>
+            <span>3/5 erledigt</span>
+          </div>
+        </div>
+
+        <div class="objective-item">
+          <div class="objective-title">Stadt-Simulation freischalten</div>
+          <div class="objective-progress">
+            <div class="progress-bar" style="flex: 1">
+              <div class="progress-fill" style="width: 80%"></div>
+            </div>
+            <span class="status-indicator status-available">Bereit!</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/game-graphics.js"></script>
+    <script src="js/advanced-gameplay.js"></script>
+    <script>
+      class LevelProgressionUI {
+        constructor() {
+          this.gameplaySystem = new AdvancedGameplaySystem();
+          this.playerProfile = this.loadPlayerProfile();
+          this.init();
+        }
+
+        init() {
+          this.renderAchievements();
+          this.setupAnimations();
+          this.updateProgress();
+        }
+
+        loadPlayerProfile() {
+          // Simulierte Spielerdaten
+          return {
+            id: 'player_demo',
+            level: 15,
+            experience: 12450,
+            nextLevelXP: 15000,
+            competencies: {
+              information_literacy: 0.85,
+              critical_thinking: 0.6,
+              argumentation: 0.4,
+              empathy: 0.7,
+            },
+            achievements: [
+              'fact_checker_bronze',
+              'bridge_builder_novice',
+              'first_debate_win',
+              'collaborative_spirit',
+              'media_detective',
+            ],
+            gamesCompleted: 12,
+            streaks: {
+              daily_engagement: 7,
+              collaborative_sessions: 3,
+            },
+          };
+        }
+
+        renderAchievements() {
+          const achievements = [
+            {
+              id: 'fact_checker_bronze',
+              title: 'Fakten-Scout',
+              description: '50 Fake News erkannt',
+              icon: '🔍',
+              unlocked: true,
+              rarity: 'common',
+            },
+            {
+              id: 'bridge_builder',
+              title: 'Brückenbauer',
+              description: '10 Kompromisse gefunden',
+              icon: '🌉',
+              unlocked: true,
+              rarity: 'common',
+            },
+            {
+              id: 'debate_champion',
+              title: 'Debattier-Champion',
+              description: '5 Debatten gewonnen',
+              icon: '⚖️',
+              unlocked: false,
+              rarity: 'rare',
+            },
+            {
+              id: 'empathy_master',
+              title: 'Empathie-Meister',
+              description: 'Außergewöhnliches Verständnis',
+              icon: '💝',
+              unlocked: false,
+              rarity: 'legendary',
+            },
+            {
+              id: 'team_catalyst',
+              title: 'Team-Katalysator',
+              description: 'Gruppe 10x verbessert',
+              icon: '⚡',
+              unlocked: true,
+              rarity: 'rare',
+            },
+            {
+              id: 'democracy_guardian',
+              title: 'Demokratie-Wächter',
+              description: 'Werte in Krisen verteidigt',
+              icon: '🛡️',
+              unlocked: false,
+              rarity: 'legendary',
+            },
+          ];
+
+          const grid = document.getElementById('achievementGrid');
+          grid.innerHTML = achievements
+            .map(
+              achievement => `
+                    <div class="achievement-badge ${achievement.unlocked ? 'unlocked' : ''} ${achievement.rarity === 'legendary' || achievement.rarity === 'rare' ? 'rare' : ''}">
+                        <div class="achievement-icon">${achievement.icon}</div>
+                        <div class="achievement-title">${achievement.title}</div>
+                        <div class="achievement-description">${achievement.description}</div>
+                        ${achievement.unlocked ? '<div style="color: #28a745; font-weight: bold; margin-top: 10px;">✓ Freigeschaltet</div>' : ''}
+                    </div>
+                `
+            )
+            .join('');
+        }
+
+        setupAnimations() {
+          // Intersection Observer für Scroll-Animationen
+          const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+              }
+            });
+          });
+
+          document
+            .querySelectorAll('.level-tier, .achievement-showcase, .next-objectives')
+            .forEach(el => {
+              el.style.opacity = '0';
+              el.style.transform = 'translateY(30px)';
+              el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+              observer.observe(el);
+            });
+        }
+
+        updateProgress() {
+          // Animiere Fortschrittsbalken
+          setTimeout(() => {
+            document.querySelectorAll('.progress-fill').forEach(fill => {
+              const width = fill.style.width;
+              fill.style.width = '0%';
+              setTimeout(() => {
+                fill.style.width = width;
+              }, 100);
+            });
+          }, 500);
+
+          // Update Level-Informationen
+          this.updateLevelInfo();
+        }
+
+        updateLevelInfo() {
+          const profile = this.playerProfile;
+
+          document.getElementById('playerLevel').textContent = profile.level;
+          document.getElementById('totalXP').textContent = profile.experience.toLocaleString();
+          document.getElementById('achievementCount').textContent =
+            `${profile.achievements.length}/25`;
+          document.getElementById('gamesCompleted').textContent = profile.gamesCompleted;
+
+          // Berechne Level-Fortschritt
+          const levelProgress = ((profile.experience % 1000) / 1000) * 100;
+          document.getElementById('levelProgress').style.width = `${levelProgress}%`;
+        }
+
+        // Spiel starten
+        startGame(gameId) {
+          console.log(`Starte Spiel: ${gameId}`);
+          // Integration mit dem Hauptspiel-System
+          window.location.href = `game.html?game=${gameId}`;
+        }
+
+        // Achievement Details anzeigen
+        showAchievementDetails(achievementId) {
+          console.log(`Zeige Achievement: ${achievementId}`);
+          // Modal oder Popup mit Details
+        }
+      }
+
+      // Event Listeners für Spiel-Karten
+      document.addEventListener('DOMContentLoaded', () => {
+        const progressionUI = new LevelProgressionUI();
+
+        // Spiel-Karten klickbar machen
+        document.querySelectorAll('.game-card:not(.locked)').forEach(card => {
+          card.addEventListener('click', () => {
+            const gameTitle = card.querySelector('.game-title').textContent;
+            console.log(`Spiel ausgewählt: ${gameTitle}`);
+            // Hier würde das entsprechende Spiel gestartet
+          });
+        });
+
+        // Achievement-Badges klickbar machen
+        document.querySelectorAll('.achievement-badge').forEach(badge => {
+          badge.addEventListener('click', () => {
+            const title = badge.querySelector('.achievement-title').textContent;
+            console.log(`Achievement ausgewählt: ${title}`);
+            // Hier würden Achievement-Details angezeigt
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

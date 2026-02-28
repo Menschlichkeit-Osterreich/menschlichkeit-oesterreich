@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Democracy Metaverse Prototype - Interaktives Lernspiel für demokratische Werte">
+    
+    <title>Democracy Metaverse - Prototype v1.0</title>
+    
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#b80000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Democracy Metaverse">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="css/prototype-tokens.css" as="style">
+    <link rel="preload" href="js/prototype-core.js" as="script">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="css/prototype-tokens.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/animations.css">
+    
+    <!-- Accessibility -->
+    <meta name="color-scheme" content="light dark">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="prototype-app" data-theme="light">
+    
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen" role="status" aria-live="polite">
+        <div class="loading-content">
+            <div class="bridge-loader">
+                <span class="bridge-emoji">🌉</span>
+                <div class="loading-progress">
+                    <div class="progress-bar" id="loading-progress"></div>
+                </div>
+            </div>
+            <h1 class="loading-title">Democracy Metaverse</h1>
+            <p class="loading-subtitle">Prototype wird geladen...</p>
+            <div class="loading-stats" id="loading-stats">
+                <small>Engine initialisiert...</small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main App Container -->
+    <div id="app" class="app-container">
+        
+        <!-- Navigation Header -->
+        <header class="app-header glass-panel">
+            <div class="header-content">
+                <div class="logo-section">
+                    <span class="bridge-icon">🌉</span>
+                    <div class="title-section">
+                        <h1 class="app-title">Democracy Metaverse</h1>
+                        <span class="version-badge">Prototype v1.0</span>
+                    </div>
+                </div>
+                
+                <div class="header-controls">
+                    <!-- Settings Button -->
+                    <button class="icon-button" id="settings-btn" aria-label="Einstellungen öffnen">
+                        ⚙️
+                    </button>
+                    
+                    <!-- Accessibility Toggle -->
+                    <button class="icon-button" id="accessibility-btn" aria-label="Barrierefreiheit umschalten" data-active="false">
+                        ♿
+                    </button>
+                    
+                    <!-- Save Indicator -->
+                    <div class="save-indicator" id="save-indicator" aria-live="polite">
+                        <span class="save-icon">💾</span>
+                        <span class="save-text">Gespeichert</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Values Dashboard -->
+        <aside class="values-panel glass-panel">
+            <h2 class="panel-title">Deine demokratischen Werte</h2>
+            
+            <div class="values-grid">
+                <div class="value-meter" id="empathy-meter">
+                    <div class="value-icon">💜</div>
+                    <div class="value-info">
+                        <label class="value-label">Empathie</label>
+                        <div class="meter-container">
+                            <div class="meter-bar">
+                                <div class="meter-fill" id="value-empathy" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Empathie-Wert" role="progressbar"></div>
+                            </div>
+                            <span class="meter-value" id="empathy-value">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="value-meter" id="rights-meter">
+                    <div class="value-icon">⚖️</div>
+                    <div class="value-info">
+                        <label class="value-label">Rechtsstaatlichkeit</label>
+                        <div class="meter-container">
+                            <div class="meter-bar">
+                                <div class="meter-fill" id="value-rights" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Rechtsstaatlichkeits-Wert" role="progressbar"></div>
+                            </div>
+                            <span class="meter-value" id="rights-value">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="value-meter" id="participation-meter">
+                    <div class="value-icon">🗳️</div>
+                    <div class="value-info">
+                        <label class="value-label">Partizipation</label>
+                        <div class="meter-container">
+                            <div class="meter-bar">
+                                <div class="meter-fill" id="value-participation" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Partizipations-Wert" role="progressbar"></div>
+                            </div>
+                            <span class="meter-value" id="participation-value">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="value-meter" id="courage-meter">
+                    <div class="value-icon">🦁</div>
+                    <div class="value-info">
+                        <label class="value-label">Zivilcourage</label>
+                        <div class="meter-container">
+                            <div class="meter-bar">
+                                <div class="meter-fill" id="value-courage" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Zivilcourage-Wert" role="progressbar"></div>
+                            </div>
+                            <span class="meter-value" id="courage-value">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Progress Overview -->
+            <div class="progress-section">
+                <h3 class="progress-title">Fortschritt</h3>
+                <div class="progress-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Level:</span>
+                        <span class="stat-value" id="current-level">1</span>
+                        <span class="stat-max">/ 30</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Kapitel:</span>
+                        <span class="stat-value" id="current-chapter">1</span>
+                        <span class="stat-max">/ 3</span>
+                    </div>
+                </div>
+                <div class="level-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="level-progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Level-Fortschritt" role="progressbar"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Game Area -->
+        <main class="game-main" id="game-main">
+            
+            <!-- Chapter Selection Screen -->
+            <section class="screen chapter-screen active" id="chapter-screen">
+                <div class="screen-content">
+                    <h2 class="screen-title">Wähle dein Kapitel</h2>
+                    <p class="screen-subtitle">Erlebe Demokratie in verschiedenen Lebensbereichen</p>
+                    
+                    <div class="chapters-grid">
+                        <div class="chapter-card glass-panel" data-chapter="1">
+                            <div class="chapter-icon">🏘️</div>
+                            <div class="chapter-info">
+                                <h3 class="chapter-title">Nachbarschaft</h3>
+                                <p class="chapter-description">Lerne demokratische Werte im direkten Umfeld kennen</p>
+                                <div class="chapter-progress">
+                                    <span class="progress-text">0 / 10 Level</span>
+                                    <div class="mini-progress">
+                                        <div class="mini-progress-fill"></div>
+                                    </div>
+                                </div>
+                                <button class="chapter-btn primary" data-chapter="1">
+                                    Starten
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="chapter-card glass-panel locked" data-chapter="2">
+                            <div class="chapter-icon">🏫</div>
+                            <div class="chapter-info">
+                                <h3 class="chapter-title">Schule & Arbeit</h3>
+                                <p class="chapter-description">Demokratie am Lern- und Arbeitsplatz leben</p>
+                                <div class="chapter-progress">
+                                    <span class="progress-text">Gesperrt</span>
+                                </div>
+                                <button class="chapter-btn locked" disabled>
+                                    🔒 Erst Kapitel 1 abschließen
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="chapter-card glass-panel locked" data-chapter="3">
+                            <div class="chapter-icon">💻</div>
+                            <div class="chapter-info">
+                                <h3 class="chapter-title">Digitale Demokratie</h3>
+                                <p class="chapter-description">Demokratische Teilhabe im digitalen Zeitalter</p>
+                                <div class="chapter-progress">
+                                    <span class="progress-text">Gesperrt</span>
+                                </div>
+                                <button class="chapter-btn locked" disabled>
+                                    🔒 Erst Kapitel 2 abschließen
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Level Selection Screen -->
+            <section class="screen level-screen" id="level-screen">
+                <div class="screen-content">
+                    <div class="breadcrumb">
+                        <button class="breadcrumb-btn" id="back-to-chapters">← Kapitel</button>
+                        <span class="breadcrumb-divider">/</span>
+                        <span class="breadcrumb-current" id="current-chapter-name">Nachbarschaft</span>
+                    </div>
+                    
+                    <h2 class="screen-title" id="chapter-title">Kapitel 1: Nachbarschaft</h2>
+                    <p class="screen-subtitle" id="chapter-description">Demokratie beginnt vor der eigenen Haustür</p>
+                    
+                    <div class="levels-grid" id="levels-grid">
+                        <!-- Level Cards werden dynamisch generiert -->
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Game Screen -->
+            <section class="screen game-screen" id="game-screen">
+                <div class="game-content">
+                    
+                    <!-- Level Header -->
+                    <header class="level-header">
+                        <div class="level-nav">
+                            <button class="nav-btn" id="back-to-levels">← Level</button>
+                            <div class="level-info">
+                                <span class="level-number" id="level-number">Level 1</span>
+                                <h3 class="level-title" id="level-title">Lärm im Hof</h3>
+                            </div>
+                        </div>
+                        
+                        <div class="level-meta">
+                            <span class="level-type" id="level-type">Tutorial</span>
+                            <span class="level-time" id="level-time">~3 min</span>
+                        </div>
+                    </header>
+                    
+                    <!-- Scenario Display -->
+                    <div class="scenario-panel glass-panel">
+                        <div class="scenario-content">
+                            <div class="scenario-visual" id="scenario-visual">
+                                <!-- Character visuals and scene -->
+                            </div>
+                            
+                            <div class="scenario-text">
+                                <p class="scenario-description" id="scenario-description">
+                                    <!-- Level description -->
+                                </p>
+                                <div class="scenario-context" id="scenario-context">
+                                    <!-- Detailed scenario -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Choices Panel -->
+                    <div class="choices-panel">
+                        <h4 class="choices-title">Wie gehst du vor?</h4>
+                        <div class="choices-grid" id="choices-grid">
+                            <!-- Choice buttons werden dynamisch generiert -->
+                        </div>
+                    </div>
+                    
+                    <!-- Result Panel (initially hidden) -->
+                    <div class="result-panel glass-panel" id="result-panel">
+                        <div class="result-content">
+                            <div class="result-header">
+                                <h4 class="result-title" id="result-title">Resultat</h4>
+                                <div class="result-rating" id="result-rating">
+                                    <!-- Stars or score -->
+                                </div>
+                            </div>
+                            
+                            <div class="result-body">
+                                <p class="result-consequence" id="result-consequence">
+                                    <!-- Consequence text -->
+                                </p>
+                                
+                                <div class="value-changes" id="value-changes">
+                                    <!-- Value change indicators -->
+                                </div>
+                                
+                                <div class="learning-points" id="learning-points">
+                                    <h5>Das hast du gelernt:</h5>
+                                    <ul id="learning-list">
+                                        <!-- Learning objectives -->
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="result-actions">
+                                <button class="action-btn secondary" id="retry-level">
+                                    🔄 Nochmal versuchen
+                                </button>
+                                <button class="action-btn primary" id="next-level">
+                                    ➡️ Nächstes Level
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Boss Battle Screen -->
+            <section class="screen boss-screen" id="boss-screen">
+                <div class="boss-content">
+                    <!-- Boss battle UI wird in separater Datei implementiert -->
+                </div>
+            </section>
+            
+        </main>
+        
+    </div>
+    
+    <!-- Error Toast Container -->
+    <div id="toast-container" class="toast-container" aria-live="assertive"></div>
+    
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal glass-panel" role="dialog" aria-labelledby="settings-title">
+            <header class="modal-header">
+                <h2 class="modal-title" id="settings-title">Einstellungen</h2>
+                <button class="modal-close" id="close-settings" aria-label="Schließen">×</button>
+            </header>
+            
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label class="setting-label">
+                        <input type="checkbox" id="sound-toggle" checked>
+                        <span class="setting-text">Sound aktiviert</span>
+                    </label>
+                </div>
+                
+                <div class="setting-group">
+                    <label class="setting-label">
+                        <input type="checkbox" id="animations-toggle" checked>
+                        <span class="setting-text">Animationen aktiviert</span>
+                    </label>
+                </div>
+                
+                <div class="setting-group">
+                    <label class="setting-label">
+                        <input type="checkbox" id="accessibility-toggle">
+                        <span class="setting-text">Erweiterter Barrierefreiheits-Modus</span>
+                    </label>
+                </div>
+                
+                <div class="setting-group">
+                    <label class="setting-label">
+                        <span class="setting-text">Schwierigkeitsgrad</span>
+                        <select id="difficulty-select">
+                            <option value="easy">Einfach</option>
+                            <option value="adaptive" selected>Adaptiv</option>
+                            <option value="hard">Schwer</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="action-btn secondary" id="reset-progress">
+                    🗑️ Fortschritt zurücksetzen
+                </button>
+                <button class="action-btn primary" id="save-settings">
+                    💾 Speichern
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="js/prototype-core.js"></script>
+    <script src="js/minigames-basic.js"></script>
+    <script src="js/world-map.js"></script>
+    <script src="js/boss-ai.js"></script>
+    
+    <!-- PWA Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => console.log('✅ SW registered'))
+                    .catch(error => console.log('❌ SW registration failed'));
+            });
+        }
+    </script>
+    
+</body>
+</html>

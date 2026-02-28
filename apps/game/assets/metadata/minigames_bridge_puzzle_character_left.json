@@ -1,0 +1,44 @@
+{
+  "id": "minigames_bridge_puzzle_character_left",
+  "title": "Character Left (Minigames Bridge Puzzle)",
+  "alt_text": "Character Left (Minigames Bridge Puzzle) - Grafisches Element für das Educational Gaming System",
+  "description": "Generiertes SVG Asset für minigames_bridge_puzzle - character_left",
+  "tags": [
+    "game",
+    "educational",
+    "democracy",
+    "svg",
+    "interactive",
+    "ui",
+    "character-left",
+    "gaming",
+    "bridge",
+    "puzzle",
+    "element",
+    "accessible"
+  ],
+  "file_info": {
+    "path": "d:\\Arbeitsverzeichniss\\web\\games\\assets\\generated\\minigames_bridge_puzzle_character_left.svg",
+    "format": "svg",
+    "size_bytes": 1054,
+    "hash": "da56250fbf34076ff3ef15eb6de41a14b73065e5d4501881965ce0ba9821f916"
+  },
+  "colors": ["#1f2937"],
+  "accessibility": {
+    "alt_text_provided": true,
+    "high_contrast": true,
+    "semantic_meaning": true
+  },
+  "usage": {
+    "category": "minigames_bridge_puzzle",
+    "subcategory": "character_left",
+    "recommended_contexts": ["Bridge building game", "Logic puzzles", "Problem solving"]
+  },
+  "metadata": {
+    "created_at": "2025-09-26T04:10:36.442731",
+    "generator": "SimpleAssetManager",
+    "version": "1.0.0",
+    "license": "Educational Use",
+    "attribution": "Auto-generated for Educational Gaming System"
+  }
+}

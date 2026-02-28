@@ -1,0 +1,150 @@
+<?php
+
+/**
+ * @file
+ * PII Sanitizer module hooks for Drupal logging integration.
+ */
+
+use Drupal\pii_sanitizer\PiiSanitizer;
+
+/**
+ * Implements hook_watchdog().
+ *
+ * Sanitizes all Drupal watchdog log entries for PII before storage.
+ */
+function pii_sanitizer_watchdog(array $log_entry) {
+  // Get sanitizer instance
+  $config = \Drupal::config('pii_sanitizer.settings');
+  $sanitizer = new PiiSanitizer([
+    'enabled' => $config->get('enabled') ?? TRUE,
+    'default_strategy' => $config->get('default_strategy') ?? PiiSanitizer::STRATEGY_MASK,
+  ]);
+
+  // Sanitize message
+  if (isset($log_entry['message'])) {
+    $log_entry['message'] = $sanitizer->scrubText($log_entry['message']);
+  }
+
+  // Sanitize variables (used in watchdog placeholders)
+  if (isset($log_entry['variables']) && is_array($log_entry['variables'])) {
+    $log_entry['variables'] = $sanitizer->scrubDict(
+      $log_entry['variables'],
+      PiiSanitizer::STRATEGY_DROP
+    );
+  }
+
+  // Sanitize context
+  if (isset($log_entry['context']) && is_array($log_entry['context'])) {
+    $log_entry['context'] = $sanitizer->scrubDict(
+      $log_entry['context'],
+      PiiSanitizer::STRATEGY_MASK
+    );
+  }
+
+  return $log_entry;
+}
+
+/**
+ * Implements hook_logger_log_alter().
+ *
+ * Alternative hook for PSR-3 logger integration.
+ */
+function pii_sanitizer_logger_log_alter(&$context) {
+  $config = \Drupal::config('pii_sanitizer.settings');
+  $sanitizer = new PiiSanitizer([
+    'enabled' => $config->get('enabled') ?? TRUE,
+  ]);
+
+  // Sanitize log message
+  if (isset($context['message'])) {
+    $context['message'] = $sanitizer->scrubText($context['message']);
+  }
+
+  // Sanitize context array
+  if (isset($context['context']) && is_array($context['context'])) {
+    $context['context'] = $sanitizer->scrubDict(
+      $context['context'],
+      PiiSanitizer::STRATEGY_DROP
+    );
+  }
+}
+
+/**
+ * Implements hook_mail_alter().
+ *
+ * Ensures email logs don't contain recipient PII.
+ */
+function pii_sanitizer_mail_alter(&$message) {
+  $config = \Drupal::config('pii_sanitizer.settings');
+  
+  // Only sanitize if logging emails
+  if ($config->get('sanitize_mail_logs') ?? FALSE) {
+    $sanitizer = new PiiSanitizer(['enabled' => TRUE]);
+
+    // Sanitize subject (but keep recipient email for routing)
+    if (isset($message['subject'])) {
+      $message['subject'] = $sanitizer->scrubText($message['subject']);
+    }
+
+    // Sanitize body
+    if (isset($message['body']) && is_array($message['body'])) {
+      foreach ($message['body'] as $key => $body_part) {
+        $message['body'][$key] = $sanitizer->scrubText($body_part);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_alter().
+ *
+ * Prevent PII in form validation error messages.
+ */
+function pii_sanitizer_form_alter(&$form, &$form_state, $form_id) {
+  // Add validation handler for all forms
+  array_unshift($form['#validate'], 'pii_sanitizer_form_validate');
+}
+
+/**
+ * Custom validation handler to sanitize error messages.
+ */
+function pii_sanitizer_form_validate(&$form, &$form_state) {
+  $config = \Drupal::config('pii_sanitizer.settings');
+  
+  if ($config->get('sanitize_form_errors') ?? TRUE) {
+    $sanitizer = new PiiSanitizer(['enabled' => TRUE]);
+    
+    // Get form errors
+    $errors = $form_state->getErrors();
+    
+    // Sanitize each error message
+    $sanitized_errors = [];
+    foreach ($errors as $element => $message) {
+      $sanitized_errors[$element] = $sanitizer->scrubText((string) $message);
+    }
+    
+    // Replace errors with sanitized versions
+    if (!empty($sanitized_errors)) {
+      $form_state->clearErrors();
+      foreach ($sanitized_errors as $element => $message) {
+        $form_state->setErrorByName($element, $message);
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_cron().
+ *
+ * Log metrics periodically for monitoring.
+ */
+function pii_sanitizer_cron() {
+  $metrics = PiiSanitizer::getMetrics();
+  
+  \Drupal::logger('pii_sanitizer')->info('Redaction metrics: @metrics', [
+    '@metrics' => json_encode($metrics),
+  ]);
+  
+  // Store in state for Grafana/Prometheus scraping
+  \Drupal::state()->set('pii_sanitizer.metrics', $metrics);
+}

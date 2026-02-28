@@ -1,0 +1,127 @@
+/* Dynamic Progress Bar Styles */
+.score-fill {
+  transition: width 0.3s ease-in-out;
+}
+
+.score-fill[data-score='0'] {
+  width: 0%;
+}
+.score-fill[data-score='25'] {
+  width: 25%;
+}
+.score-fill[data-score='32'] {
+  width: 32%;
+}
+.score-fill[data-score='45'] {
+  width: 45%;
+}
+.score-fill[data-score='60'] {
+  width: 60%;
+}
+.score-fill[data-score='65'] {
+  width: 65%;
+}
+.score-fill[data-score='70'] {
+  width: 70%;
+}
+.score-fill[data-score='75'] {
+  width: 75%;
+}
+.score-fill[data-score='80'] {
+  width: 80%;
+}
+.score-fill[data-score='85'] {
+  width: 85%;
+}
+
+/* Progress Bar Containers */
+.progress-fill[data-level='beginner'] {
+  width: 32%;
+}
+.progress-fill[data-level='intermediate'] {
+  width: 60%;
+}
+.progress-fill[data-level='advanced'] {
+  width: 85%;
+}
+
+/* Monitoring Controls Styles */
+.monitoring-title {
+  margin: 0 0 16px 0;
+  color: #495057;
+}
+
+.monitoring-subtitle {
+  margin: 0 0 12px 0;
+  color: #495057;
+}
+
+.monitoring-description {
+  font-size: 12px;
+  color: #6c757d;
+  margin: 8px 0;
+}
+
+.status-text {
+  color: #6c757d;
+  text-align: center;
+  padding: 40px;
+}
+
+.metaverse-container {
+  text-align: center;
+}
+
+.metaverse-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.metaverse-title {
+  margin: 0;
+  color: #495057;
+}
+
+.metaverse-description {
+  margin: 8px 0 0 0;
+  color: #6c757d;
+}
+
+.performance-log-container {
+  margin-top: 24px;
+}
+
+/* Flexbox utilities for dynamic layouts */
+.flex-1 {
+  flex: 1;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+/* Dashboard Container Controls */
+.hidden-dashboard {
+  display: none;
+}
+
+/* Backdrop Filter Cross-Browser Support */
+.glass-effect {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* User Select Cross-Browser Support */
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Text Size Adjust Cross-Browser Support */
+.text-adjust {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}

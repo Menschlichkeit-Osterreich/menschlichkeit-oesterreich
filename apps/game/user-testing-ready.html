@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Democracy Metaverse - User Testing Ready</title>
+
+    <!-- DSGVO-Compliant Analytics & Testing Integration -->
+    <script src="js/user-testing-analytics.js" defer></script>
+    <script src="js/teacher-dashboard.js" defer></script>
+    <script src="js/ab-testing-framework.js" defer></script>
+    <script src="js/user-testing-integration.js" defer></script>
+
+    <!-- Main Game Files -->
+    <script src="js/DemocracyGameBlock.js" defer></script>
+    <script src="js/game-engine.js" defer></script>
+
+    <!-- Styling -->
+    <link rel="stylesheet" href="css/democracy-game.css" />
+    <link rel="stylesheet" href="css/analytics-dashboard.css" />
+
+    <style>
+      /* Testing Environment Indicators */
+      .testing-banner {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: #2196f3;
+        color: white;
+        text-align: center;
+        padding: 8px;
+        font-size: 14px;
+        z-index: 10000;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .testing-banner.production {
+        background: #4caf50;
+      }
+
+      .testing-banner.staging {
+        background: #ff9800;
+      }
+
+      .analytics-consent {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: white;
+        border: 2px solid #2196f3;
+        border-radius: 8px;
+        padding: 16px;
+        max-width: 300px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 9999;
+      }
+
+      .analytics-consent.hidden {
+        display: none;
+      }
+
+      .consent-buttons {
+        margin-top: 12px;
+        display: flex;
+        gap: 8px;
+      }
+
+      .consent-btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+      }
+
+      .consent-btn.accept {
+        background: #4caf50;
+        color: white;
+      }
+
+      .consent-btn.decline {
+        background: #f44336;
+        color: white;
+      }
+
+      /* Teacher Dashboard Toggle */
+      .teacher-toggle {
+        position: fixed;
+        top: 60px;
+        right: 20px;
+        background: #6366f1;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 16px;
+        cursor: pointer;
+        font-weight: 500;
+        z-index: 9998;
+        box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+      }
+
+      .teacher-toggle:hover {
+        background: #5b5bf6;
+      }
+
+      /* Experiment Indicator */
+      .experiment-badge {
+        position: fixed;
+        top: 60px;
+        left: 20px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 16px;
+        font-size: 12px;
+        font-family: monospace;
+        z-index: 9997;
+      }
+
+      .experiment-badge.control {
+        background: rgba(108, 117, 125, 0.8);
+      }
+
+      .experiment-badge.variant-a {
+        background: rgba(40, 167, 69, 0.8);
+      }
+
+      .experiment-badge.variant-b {
+        background: rgba(255, 193, 7, 0.8);
+      }
+
+      /* Loading States */
+      .analytics-loading {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 4px;
+        font-size: 12px;
+        z-index: 9996;
+      }
+
+      .analytics-loading.ready {
+        background: rgba(40, 167, 69, 0.8);
+      }
+
+      .analytics-loading.error {
+        background: rgba(220, 53, 69, 0.8);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Environment Banner -->
+    <div id="testing-banner" class="testing-banner production">
+      🎓 Democracy Metaverse - Schul-Deployment Aktiv | User Testing System: Bereit für 150+ Nutzer
+    </div>
+
+    <!-- DSGVO Consent (nur für neue Nutzer) -->
+    <div id="analytics-consent" class="analytics-consent">
+      <h4>Lern-Analytics</h4>
+      <p>
+        Zur Verbesserung des Spielerlebnisses sammeln wir anonyme Lern-Daten. Keine persönlichen
+        Informationen werden gespeichert.
+      </p>
+      <div class="consent-buttons">
+        <button class="consent-btn accept" onclick="acceptAnalytics()">Zustimmen</button>
+        <button class="consent-btn decline" onclick="declineAnalytics()">Ablehnen</button>
+      </div>
+    </div>
+
+    <!-- Teacher Dashboard Toggle -->
+    <button
+      id="teacher-toggle"
+      class="teacher-toggle"
+      onclick="toggleTeacherDashboard()"
+      style="display: none"
+    >
+      📊 Lehrkraft-Dashboard
+    </button>
+
+    <!-- Experiment Badge -->
+    <div id="experiment-badge" class="experiment-badge control">Variant: Loading...</div>
+
+    <!-- Analytics Status -->
+    <div id="analytics-status" class="analytics-loading">Analytics: Initialisierung...</div>
+
+    <!-- Main Game Container -->
+    <div id="democracy-game-container">
+      <div id="game-loading">
+        <h2>Democracy Metaverse lädt...</h2>
+        <div class="loading-progress">
+          <div class="progress-bar"></div>
+        </div>
+        <p>Vorbereitung der User Testing Umgebung...</p>
+      </div>
+
+      <!-- Game will be inserted here -->
+    </div>
+
+    <!-- Teacher Dashboard Container (hidden by default) -->
+    <div id="teacher-dashboard-container" style="display: none">
+      <!-- Dashboard content will be loaded here -->
+    </div>
+
+    <script>
+      /**
+       * Production Deployment Integration Script
+       * Handles initialization, consent, and error recovery
+       */
+
+      let userTestingSystem = null;
+      let gameInstance = null;
+      let userType = 'student'; // Default to student
+
+      // Configuration
+      const config = {
+        environment: 'production', // production, staging, development
+        schoolId: new URLSearchParams(window.location.search).get('school') || 'default',
+        classId: new URLSearchParams(window.location.search).get('class') || null,
+        teacherMode: new URLSearchParams(window.location.search).get('teacher') === 'true',
+      };
+
+      // Set user type based on URL parameters
+      if (config.teacherMode) {
+        userType = 'teacher';
+        document.getElementById('teacher-toggle').style.display = 'block';
+      }
+
+      /**
+       * Initialize Testing System
+       */
+      async function initializeUserTesting() {
+        try {
+          updateStatus('Analytics: Initialisierung...', 'loading');
+
+          // Wait for all scripts to load
+          await waitForScripts();
+
+          // Initialize user testing system
+          userTestingSystem = new UserTestingIntegration();
+          const result = await userTestingSystem.initialize(gameInstance, userType);
+
+          if (result.success) {
+            updateStatus('Analytics: Bereit ✓', 'ready');
+
+            // Update experiment badge
+            updateExperimentBadge(result.experimentVariant);
+
+            // Apply experiment features if game is loaded
+            if (gameInstance) {
+              userTestingSystem.applyExperimentFeatures(gameInstance);
+            }
+
+            console.log('[Production] User testing system ready');
+            console.log('[Production] Features:', result.features);
+          } else {
+            throw new Error(result.error || 'Unknown initialization error');
+          }
+        } catch (error) {
+          console.error('[Production] User testing initialization failed:', error);
+          updateStatus('Analytics: Fehler', 'error');
+
+          // Continue without analytics if it fails
+          initializeGameOnly();
+        }
+      }
+
+      /**
+       * Wait for Required Scripts
+       */
+      function waitForScripts() {
+        return new Promise(resolve => {
+          const checkScripts = () => {
+            if (typeof UserTestingIntegration !== 'undefined') {
+              resolve();
+            } else {
+              setTimeout(checkScripts, 100);
+            }
+          };
+          checkScripts();
+        });
+      }
+
+      /**
+       * Initialize Game Only (fallback)
+       */
+      function initializeGameOnly() {
+        console.log('[Production] Initializing game without analytics');
+
+        // Initialize basic game
+        if (typeof DemocracyGameBlock !== 'undefined') {
+          gameInstance = new DemocracyGameBlock();
+          gameInstance.initialize();
+
+          // Hide loading
+          document.getElementById('game-loading').style.display = 'none';
+        }
+      }
+
+      /**
+       * Update Status Display
+       */
+      function updateStatus(message, type) {
+        const statusEl = document.getElementById('analytics-status');
+        statusEl.textContent = message;
+        statusEl.className = `analytics-loading ${type}`;
+
+        // Hide after 3 seconds if ready
+        if (type === 'ready') {
+          setTimeout(() => {
+            statusEl.style.opacity = '0.7';
+          }, 3000);
+        }
+      }
+
+      /**
+       * Update Experiment Badge
+       */
+      function updateExperimentBadge(variant) {
+        const badge = document.getElementById('experiment-badge');
+        badge.textContent = `Variant: ${variant || 'control'}`;
+        badge.className = `experiment-badge ${variant || 'control'}`;
+      }
+
+      /**
+       * Analytics Consent Functions
+       */
+      function acceptAnalytics() {
+        localStorage.setItem('analytics_consent', 'true');
+        document.getElementById('analytics-consent').style.display = 'none';
+        initializeUserTesting();
+      }
+
+      function declineAnalytics() {
+        localStorage.setItem('analytics_consent', 'false');
+        document.getElementById('analytics-consent').style.display = 'none';
+        initializeGameOnly();
+      }
+
+      /**
+       * Teacher Dashboard Functions
+       */
+      function toggleTeacherDashboard() {
+        const container = document.getElementById('teacher-dashboard-container');
+        const gameContainer = document.getElementById('democracy-game-container');
+
+        if (container.style.display === 'none') {
+          container.style.display = 'block';
+          gameContainer.style.display = 'none';
+
+          // Initialize dashboard if not done
+          if (userTestingSystem && userTestingSystem.dashboardConnection) {
+            userTestingSystem.dashboardConnection.show();
+          }
+        } else {
+          container.style.display = 'none';
+          gameContainer.style.display = 'block';
+        }
+      }
+
+      /**
+       * Error Recovery
+       */
+      window.addEventListener('error', event => {
+        console.error('[Production] JavaScript Error:', event.error);
+
+        // Try to continue with basic game if analytics fails
+        if (!gameInstance && typeof DemocracyGameBlock !== 'undefined') {
+          console.log('[Production] Attempting error recovery...');
+          initializeGameOnly();
+        }
+      });
+
+      /**
+       * Page Load Handler
+       */
+      window.addEventListener('DOMContentLoaded', () => {
+        console.log('[Production] Democracy Metaverse User Testing Environment');
+        console.log('[Production] School:', config.schoolId, 'Class:', config.classId);
+        console.log('[Production] User Type:', userType);
+
+        // Check analytics consent
+        const consent = localStorage.getItem('analytics_consent');
+
+        if (consent === 'true') {
+          document.getElementById('analytics-consent').style.display = 'none';
+          initializeUserTesting();
+        } else if (consent === 'false') {
+          document.getElementById('analytics-consent').style.display = 'none';
+          initializeGameOnly();
+        } else {
+          // Show consent dialog
+          document.getElementById('analytics-consent').style.display = 'block';
+        }
+
+        // Update environment banner
+        const banner = document.getElementById('testing-banner');
+        banner.className = `testing-banner ${config.environment}`;
+      });
+
+      /**
+       * Performance Monitoring
+       */
+      function logPerformanceMetrics() {
+        if (performance && performance.timing) {
+          const timing = performance.timing;
+          const loadTime = timing.loadEventEnd - timing.navigationStart;
+
+          console.log('[Production] Page Load Time:', loadTime + 'ms');
+
+          // Track to analytics if available
+          if (userTestingSystem) {
+            userTestingSystem.trackEvent('page_performance', {
+              loadTime: loadTime,
+              domContentLoaded: timing.domContentLoadedEventEnd - timing.navigationStart,
+              timestamp: Date.now(),
+            });
+          }
+        }
+      }
+
+      // Log performance after page loads
+      window.addEventListener('load', () => {
+        setTimeout(logPerformanceMetrics, 100);
+      });
+
+      /**
+       * Cleanup on Page Unload
+       */
+      window.addEventListener('beforeunload', () => {
+        if (userTestingSystem) {
+          userTestingSystem.cleanup();
+        }
+      });
+
+      // Export for debugging
+      window.userTestingSystem = userTestingSystem;
+      window.config = config;
+
+      console.log('[Production] Integration script loaded successfully');
+    </script>
+  </body>
+</html>

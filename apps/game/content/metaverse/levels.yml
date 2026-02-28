@@ -1,0 +1,445 @@
+# Democracy Metaverse - Level Definitions
+# 100+ Levels with Enhanced Mechanics and Progressive Difficulty
+
+metaverse_levels:
+  
+  # ===============================================
+  # CHAPTER 1: NACHBARSCHAFT (Levels 1-10)
+  # Focus: Empathie, kleine Konflikte, erste Brücken
+  # ===============================================
+  
+  chapter_1:
+    id: "neighborhood"
+    name: "Alltag & Nachbarschaft"
+    description: "Lerne die Grundlagen demokratischen Zusammenlebens in deiner unmittelbaren Umgebung"
+    difficulty: 1
+    unlocked_by_default: true
+    
+    levels:
+      "1.1":
+        title: "Lärm im Hof"
+        type: "scenario"
+        description: "Familie Ahmeti arbeitet in Schichten. Ihre Kinder spielen abends im Hof, während Nachbar Müller schlafen möchte."
+        characters: ["familie_ahmeti", "herr_mueller", "hausmeister"]
+        setting: "apartment_courtyard"
+        time_of_day: "evening"
+        
+        dilemma:
+          situation: "Kinder spielen bis 22 Uhr im Hof. Nachtschichtarbeiter beschwert sich über Lärm."
+          perspectives:
+            - character: "mutter_ahmeti"
+              viewpoint: "Kinder brauchen Bewegung, wir haben wenig Zeit tagsüber"
+              emotion: "gestresst"
+            - character: "herr_mueller"  
+              viewpoint: "Ich brauche Schlaf vor der Nachtschicht, das ist rücksichtslos"
+              emotion: "verärgert"
+            - character: "hausmeister"
+              viewpoint: "Muss zwischen allen vermitteln, Hausordnung beachten"
+              emotion: "neutral"
+        
+        decisions:
+          option_a:
+            text: "Ich organisiere ein Nachbarschaftsgespräch, um gemeinsame Spielzeiten zu finden"
+            effects:
+              E: 3  # Empathie
+              R: 1  # Menschenrechte
+              P: 2  # Partizipation  
+              Z: 1  # Zivilcourage
+            consequences:
+              immediate: "Alle Parteien fühlen sich gehört"
+              long_term: "Nachbarschaftsnetzwerk stärkt sich"
+              bridge_impact: +15
+            
+          option_b:
+            text: "Ich schlage Kopfhörer für Herrn Müller vor - Problem gelöst"
+            effects:
+              E: 1
+              R: 0
+              P: 0
+              Z: 0
+            consequences:
+              immediate: "Oberflächliche Lösung"
+              long_term: "Grundkonflikt bleibt bestehen"
+              bridge_impact: +2
+              
+          option_c:
+            text: "Ich verweise auf die Hausordnung - Ruhezeiten ab 22 Uhr"
+            effects:
+              E: 0
+              R: 2
+              P: 1
+              Z: 1
+            consequences:
+              immediate: "Regel durchgesetzt"
+              long_term: "Konfrontation statt Verständigung"
+              bridge_impact: +5
+        
+        minigame: "empathy_dialogue"
+        learning_objectives:
+          - "Verschiedene Lebenssituationen verstehen"
+          - "Mediation als demokratisches Werkzeug erkennen"
+          - "Win-Win-Lösungen entwickeln"
+        
+        reflection_questions:
+          - "Welche Bedürfnisse hatte jede Person?"
+          - "Wie könnte eine faire Lösung aussehen?"
+          - "Was würdest du in deinem Alltag anders machen?"
+
+      "1.2":
+        title: "Essensgerüche"
+        type: "scenario" 
+        description: "Frau Nguyen kocht traditionelle vietnamesische Gerichte. Einige Nachbarn beschweren sich über 'fremde' Gerüche."
+        characters: ["frau_nguyen", "familie_weber", "jugendliche_anna"]
+        
+        dilemma:
+          situation: "Intensive Gewürze aus Wohnung 3B sorgen für Nachbarschaftsdiskussion"
+          cultural_sensitivity: high
+          
+        decisions:
+          option_a:
+            text: "Ich organisiere ein interkulturelles Kochfest für alle Nachbarn"
+            effects: { E: 3, R: 2, P: 3, Z: 2 }
+            unlocks: ["cultural_bridge_skill"]
+            
+          option_b: 
+            text: "Ich schlage bessere Küchenabzüge für alle vor"
+            effects: { E: 1, R: 1, P: 2, Z: 0 }
+            
+          option_c:
+            text: "Jeder soll kochen was er will - das ist Privatsache"
+            effects: { E: 0, R: 2, P: 0, Z: 1 }
+
+      "1.3":
+        title: "Müll oder Kultur?"
+        type: "scenario"
+        description: "Kunstlehrer Berger stellt eine Sperrmüll-Installation in den Hof. 'Kunst oder Müll?' - die Nachbarn sind gespalten."
+        
+        decisions:
+          option_a:
+            text: "Ich moderiere eine Abstimmung über die Installation"
+            effects: { E: 2, R: 1, P: 3, Z: 1 }
+            minigame: "bridge_puzzle"
+            
+          option_b:
+            text: "Ich informiere mich über moderne Kunst und erkläre das Werk"
+            effects: { E: 3, R: 2, P: 1, Z: 2 }
+            
+          option_c:
+            text: "Hausordnung ist klar - keine privaten Gegenstände im Hof"
+            effects: { E: 0, R: 2, P: 0, Z: 0 }
+
+      # Levels 1.4 - 1.8 follow similar pattern...
+      
+      "1.9":
+        title: "Nachbarschaftskarte"
+        type: "special"
+        description: "Special Level: Erstelle eine Karte der Nachbarschaftsbeziehungen"
+        minigame: "neighborhood_mapping"
+        mechanics: 
+          - "Drag & Drop Beziehungen"
+          - "Konfliktpunkte identifizieren" 
+          - "Brücken-Potentiale finden"
+        
+        success_criteria:
+          - "Alle Charaktere verbunden"
+          - ">80% positive Verbindungen"
+          - "Mindestens 3 Brücken gebaut"
+
+      "1.10":
+        title: "Boss: Der Sturkopf-Nachbar"
+        type: "boss"
+        description: "Herr Grimmig lehnt jede Kompromisse ab. Kannst du ihn überzeugen?"
+        
+        boss_mechanics:
+          name: "Herr Grimmig"
+          type: "stubborn_neighbor"
+          health: 100
+          special_attacks: 
+            - "Rechthaberei" 
+            - "Lärmbeschwerde"
+            - "Hausordnungs-Keule"
+          weaknesses:
+            - "Empathische Argumente"
+            - "Gemeinsame Interessen"
+            - "Respektvolle Kommunikation"
+            
+        victory_conditions:
+          - "Grimmig um 50+ Punkte überzeugt"
+          - "Keine aggressiven Antworten gewählt"
+          - "Mindestens 2 Win-Win-Lösungen gefunden"
+          
+        rewards:
+          stats: { E: 5, R: 3, P: 4, Z: 3 }
+          skills: ["neighborhood_mediator"]
+          unlocks: ["chapter_2"]
+          achievements: ["first_boss_defeated"]
+
+  # ===============================================
+  # CHAPTER 2: SCHULE & ARBEIT (Levels 11-20) 
+  # Focus: Zivilcourage, Fairness, Rechte
+  # ===============================================
+
+  chapter_2:
+    id: "education_work"
+    name: "Schule & Arbeit"
+    description: "Erkenne und bekämpfe Ungerechtigkeit in Bildung und Beruf"
+    difficulty: 2
+    unlocked_by: ["1.10"]
+    
+    levels:
+      "2.1":
+        title: "Mobbing stoppen"
+        type: "scenario"
+        description: "Kevin wird systematisch ausgegrenzt. Die Klasse schaut weg, die Lehrerin bemerkt es nicht."
+        content_warning: ["bullying"]
+        
+        dilemma:
+          situation: "Subtiles Mobbing in der Klassengemeinschaft"
+          moral_complexity: high
+          bystander_effect: true
+          
+        decisions:
+          option_a:
+            text: "Ich spreche Kevin direkt an und biete Unterstützung an"
+            effects: { E: 3, R: 2, P: 1, Z: 3 }
+            risk_level: medium
+            
+          option_b:
+            text: "Ich organisiere Klassenaktivitäten, die Kevin einbeziehen"
+            effects: { E: 2, R: 1, P: 3, Z: 2 }
+            
+          option_c:
+            text: "Ich informiere die Lehrerin über die Situation"
+            effects: { E: 1, R: 2, P: 2, Z: 2 }
+            
+          option_d:
+            text: "Das ist nicht mein Problem, jeder muss selbst klarkommen"
+            effects: { E: -2, R: -1, P: 0, Z: -2 }
+            negative_outcome: true
+
+      "2.5":
+        title: "Unfaire Bewertung"
+        type: "scenario" 
+        description: "Lehrerin Streng bewertet Schüler*innen mit Migrationshintergrund systematisch schlechter"
+        
+        boss_preview: true  # Führt zu Boss-Level
+        institutional_bias: true
+        
+        decisions:
+          option_a:
+            text: "Ich sammle Beweise und wende mich an die Schulleitung"
+            effects: { E: 2, R: 3, P: 2, Z: 3 }
+            unlocks: ["evidence_collector_skill"]
+            
+          option_b:
+            text: "Ich organisiere Nachhilfe für betroffene Schüler*innen"
+            effects: { E: 3, R: 1, P: 2, Z: 1 }
+            
+          option_c:
+            text: "Ich spreche Frau Streng auf ihre Vorurteile an"
+            effects: { E: 2, R: 2, P: 1, Z: 3 }
+            risk_level: high
+
+      # Boss Level der Schule
+      "2.10":
+        title: "Boss: Ungerechter Chef Direktor Macht"
+        type: "boss"
+        description: "Direktor Macht vertuscht systematische Probleme. Konfrontiere ihn mit Fakten und Mut!"
+        
+        boss_mechanics:
+          name: "Direktor Macht"
+          type: "institutional_authority"
+          health: 150
+          special_attacks:
+            - "Autoritäts-Argument"
+            - "Vertuschungs-Manöver" 
+            - "Hierarchie-Keule"
+          phases:
+            1: "Leugnung"
+            2: "Ablenkung"
+            3: "Einschüchterung"
+            4: "Verhandlung"
+            
+        victory_conditions:
+          - "Systematische Reformen durchgesetzt"
+          - "Beweise klar präsentiert"
+          - "Schüler*innen-Rechte gestärkt"
+          
+        defeat_conditions:
+          - "Autoritäts-Argument nicht entkräftet"
+          - "Keine konkreten Lösungen vorgeschlagen"
+
+  # ===============================================
+  # CHAPTER 3: DIGITALE DEMOKRATIE (Levels 21-30)
+  # Focus: Medienkompetenz, Fake News, Cyberethik  
+  # ===============================================
+  
+  chapter_3:
+    id: "digital"
+    name: "Digitale Demokratie"
+    description: "Navigiere durch die komplexe Welt der Online-Information und digitalen Teilhabe"
+    difficulty: 3
+    
+    levels:
+      "3.1":
+        title: "Like vs. Hass"
+        type: "scenario"
+        description: "Shitstorm gegen lokale Politikerin wegen unbedachtem Post. Social Media eskaliert."
+        
+        digital_literacy_focus: true
+        real_time_elements: true
+        
+        decisions:
+          option_a:
+            text: "Ich fact-checke die Vorwürfe und teile sachliche Korrekturen"
+            effects: { E: 2, R: 3, P: 2, Z: 2 }
+            minigame: "fact_check_speedrun"
+            
+          option_b:
+            text: "Ich starte eine Gegen-Kampagne mit positiven Inhalten"
+            effects: { E: 3, R: 1, P: 3, Z: 1 }
+            
+          option_c:
+            text: "Ich melde Hate Speech und rufe zu Zivilcourage auf"
+            effects: { E: 1, R: 3, P: 1, Z: 3 }
+
+      "3.7":
+        title: "Filterblase"
+        type: "scenario"
+        description: "Du erkennst, dass dein Social Media Feed nur gleichgesinnte Meinungen zeigt"
+        
+        metacognition_required: true
+        algorithm_awareness: true
+        
+        minigame: "network_analysis"
+        mechanics:
+          - "Echo-Kammer visualisieren"
+          - "Diverse Quellen finden"
+          - "Algorithmus-Bias erkennen"
+
+      "3.10":
+        title: "Boss: Fake News Mastermind"
+        type: "boss"
+        description: "Der digitale Demagoge verbreitet Desinformation. Entlarve ihn mit Fakten!"
+        
+        boss_mechanics:
+          name: "Dr. Desinformation"
+          type: "disinformation_spreader"
+          health: 200
+          special_attacks:
+            - "Deepfake-Attacke"
+            - "Verschwörungs-Spam"
+            - "Emotion-Manipulation"
+            - "Source-Overwhelm"
+          
+          real_time_mechanics:
+            - "Fact-Check unter Zeitdruck"
+            - "Quellen-Validierung"
+            - "Narrative-Counter"
+
+  # Continue pattern for Chapters 4-10 and Endgame...
+  
+  # ===============================================
+  # ENDGAME: PLANETARE DEMOKRATIE (Levels 101-110)
+  # Focus: Globale Krisen, planetare Zusammenarbeit
+  # ===============================================
+  
+  endgame:
+    id: "planetary_endgame" 
+    name: "Planetare Demokratie"
+    description: "Die ultimative Herausforderung: Kann die Menschheit gemeinsam überleben?"
+    difficulty: 5
+    unlocked_by: ["10.10"]
+    
+    global_mechanics:
+      - "8-Milliarden-Simulation"
+      - "Klimakrise-Countdown" 
+      - "Ressourcen-Management"
+      - "Species-Council"
+      
+    levels:
+      "endgame.1":
+        title: "Klimaflucht"
+        description: "1 Milliarde Klimaflüchtlinge braucht neue Heimat. Globale Solidarität gefordert."
+        
+        scale: "planetary"
+        time_pressure: "extreme"
+        stakeholders: ["all_nations", "refugee_populations", "host_communities"]
+        
+        victory_condition: "≥70% Weltbevölkerung stimmt für Solidaritätspakt"
+
+      "endgame.10":
+        title: "Final Boss: Die Brücke der Zukunft"
+        type: "final_boss"
+        description: "Das ultimative Demokratie-Experiment: Entscheide über die Zukunft der Menschheit"
+        
+        boss_mechanics:
+          name: "Die Zukunft selbst"
+          type: "existential_challenge"
+          phases: 
+            1: "Vergangenheit verstehen"
+            2: "Gegenwart gestalten" 
+            3: "Zukunft erschaffen"
+            
+        victory_conditions:
+          - "Alle 4 Werte-Achsen ≥80"
+          - "Planetare Brücken-Integrität ≥90"
+          - "Mindestens 7/10 Kapitel 'thriving'"
+          - "Kooperations-Score ≥70"
+          
+        possible_endings:
+          - "Gespaltene Welt" # <50% Erfolg
+          - "Fragile Hoffnung" # 50-65% 
+          - "Stabile Demokratie" # 65-80%
+          - "Modellplanet" # 80-95%
+          - "Kosmische Brücke" # 95-100% + Spezial-Bedingungen
+
+# Skill definitions for progression system
+skills:
+  mediation:
+    tier_1: "active_listening"
+    tier_2: "conflict_resolution" 
+    tier_3: "community_building"
+    
+  fact_checking:
+    tier_1: "source_verification"
+    tier_2: "bias_detection"
+    tier_3: "narrative_analysis"
+    
+  participation:
+    tier_1: "civic_engagement"
+    tier_2: "coalition_building"
+    tier_3: "democratic_leadership"
+    
+  courage:
+    tier_1: "bystander_intervention"
+    tier_2: "whistleblowing"
+    tier_3: "system_reform"
+
+# Boss definitions with adaptive AI
+bosses:
+  stubborn_neighbor:
+    ai_type: "emotional_resistance"
+    learning_model: "argument_adaptation"
+    
+  institutional_authority: 
+    ai_type: "power_preservation"
+    learning_model: "hierarchy_defense"
+    
+  fake_news_mastermind:
+    ai_type: "disinformation_spread"
+    learning_model: "narrative_manipulation"
+    
+  # Additional boss types...
+
+# Achievement system
+achievements:
+  progression:
+    - "first_steps" # Complete Chapter 1
+    - "bridge_builder" # Build 10 bridges
+    - "democracy_champion" # Reach max level in all values
+    
+  special:
+    - "perfect_consensus" # Achieve 100% agreement in multiplayer
+    - "hidden_explorer" # Find all hidden areas
+    - "future_visionary" # Unlock cosmic ending

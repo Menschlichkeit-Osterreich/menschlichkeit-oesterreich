@@ -1,0 +1,44 @@
+{
+  "id": "map_regions_innsbruck",
+  "title": "Innsbruck (Map Regions)",
+  "alt_text": "Innsbruck (Map Regions) - Grafisches Element für das Educational Gaming System",
+  "description": "Generiertes SVG Asset für map_regions - innsbruck",
+  "tags": [
+    "educational",
+    "innsbruck",
+    "democracy",
+    "geography",
+    "svg",
+    "ui",
+    "gaming",
+    "austria",
+    "map",
+    "region",
+    "isometric",
+    "accessible"
+  ],
+  "file_info": {
+    "path": "d:\\Arbeitsverzeichniss\\web\\games\\assets\\generated\\map_regions_innsbruck.svg",
+    "format": "svg",
+    "size_bytes": 995,
+    "hash": "66abeec30550457d191cfec4c6891009ab2ced8863be68742f1c1f6eb575b035"
+  },
+  "colors": ["url(#innsbruckGrad)", "#06b6d4"],
+  "accessibility": {
+    "alt_text_provided": true,
+    "high_contrast": true,
+    "semantic_meaning": true
+  },
+  "usage": {
+    "category": "map_regions",
+    "subcategory": "innsbruck",
+    "recommended_contexts": ["Geography games", "Regional quizzes", "Austria exploration"]
+  },
+  "metadata": {
+    "created_at": "2025-09-26T04:10:36.436039",
+    "generator": "SimpleAssetManager",
+    "version": "1.0.0",
+    "license": "Educational Use",
+    "attribution": "Auto-generated for Educational Gaming System"
+  }
+}

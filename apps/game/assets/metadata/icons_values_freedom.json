@@ -1,0 +1,43 @@
+{
+  "id": "icons_values_freedom",
+  "title": "Freiheit Icon",
+  "alt_text": "Symbol für Freiheit - Stilisierter Vogel im Flug über dem Horizont, symbolisiert Bewegungsfreiheit und Selbstbestimmung",
+  "description": "Generiertes SVG Asset für icons_values - freedom",
+  "tags": [
+    "icon",
+    "educational",
+    "value",
+    "democracy",
+    "svg",
+    "symbol",
+    "ui",
+    "concept",
+    "gaming",
+    "freedom",
+    "accessible"
+  ],
+  "file_info": {
+    "path": "d:\\Arbeitsverzeichniss\\web\\games\\assets\\generated\\icons_values_freedom.svg",
+    "format": "svg",
+    "size_bytes": 829,
+    "hash": "3a193440a8e017cdebd0999f8b1785a531ec1e06750d82c5d3e235e60c446b76"
+  },
+  "colors": ["#22c55e"],
+  "accessibility": {
+    "alt_text_provided": true,
+    "high_contrast": true,
+    "semantic_meaning": true
+  },
+  "usage": {
+    "category": "icons_values",
+    "subcategory": "freedom",
+    "recommended_contexts": ["Democracy learning modules", "Value-based exercises", "Concept explanation"]
+  },
+  "metadata": {
+    "created_at": "2025-09-26T04:10:36.428147",
+    "generator": "SimpleAssetManager",
+    "version": "1.0.0",
+    "license": "Educational Use",
+    "attribution": "Auto-generated for Educational Gaming System"
+  }
+}

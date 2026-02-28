@@ -1,0 +1,44 @@
+{
+  "id": "map_regions_linz",
+  "title": "Linz (Map Regions)",
+  "alt_text": "Linz (Map Regions) - Grafisches Element für das Educational Gaming System",
+  "description": "Generiertes SVG Asset für map_regions - linz",
+  "tags": [
+    "linz",
+    "educational",
+    "democracy",
+    "geography",
+    "svg",
+    "ui",
+    "gaming",
+    "austria",
+    "map",
+    "region",
+    "isometric",
+    "accessible"
+  ],
+  "file_info": {
+    "path": "d:\\Arbeitsverzeichniss\\web\\games\\assets\\generated\\map_regions_linz.svg",
+    "format": "svg",
+    "size_bytes": 980,
+    "hash": "ea176f4ca81a6c983b340ac626eb8029697707a739cd2d05445e8755d00ccac9"
+  },
+  "colors": ["#ef4444", "url(#linzGrad)"],
+  "accessibility": {
+    "alt_text_provided": true,
+    "high_contrast": true,
+    "semantic_meaning": true
+  },
+  "usage": {
+    "category": "map_regions",
+    "subcategory": "linz",
+    "recommended_contexts": ["Geography games", "Regional quizzes", "Austria exploration"]
+  },
+  "metadata": {
+    "created_at": "2025-09-26T04:10:36.432650",
+    "generator": "SimpleAssetManager",
+    "version": "1.0.0",
+    "license": "Educational Use",
+    "attribution": "Auto-generated for Educational Gaming System"
+  }
+}

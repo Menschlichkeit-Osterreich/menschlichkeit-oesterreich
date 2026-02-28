@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Brücken Bauen - Ein interaktives Lernspiel über Empathie, Menschenrechte und demokratischen Zusammenhalt">
+    <meta name="keywords" content="Demokratie, Menschenrechte, Empathie, Bildungsspiel, Menschlichkeit Österreich">
+    <meta name="author" content="Menschlichkeit Österreich">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Brücken Bauen - Democracy Game">
+    <meta property="og:description" content="Ein interaktives Lernspiel über Empathie, Menschenrechte und demokratischen Zusammenhalt">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="./assets/icons/og-image.png">
+    <meta property="og:url" content="https://menschlichkeit-oesterreich.at/games/">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="./manifest.json">
+    <meta name="theme-color" content="#b80000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Brücken Bauen">
+    <link rel="apple-touch-icon" href="./assets/icons/icon-192x192.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="./assets/icons/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="./assets/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./assets/icons/favicon-16x16.png">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="./css/main.css">
+    <link rel="stylesheet" href="./css/components.css">
+    <link rel="stylesheet" href="./css/animations.css">
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="./js/game.js" as="script">
+    <link rel="preload" href="./js/scenarios.js" as="script">
+    
+    <title>Brücken Bauen - Interactive Democracy Game | Menschlichkeit Österreich</title>
+</head>
+<body>
+    <!-- Skip Navigation für Screen Reader -->
+    <a href="#main-content" class="skip-link">Zum Hauptinhalt springen</a>
+    
+    <!-- Header -->
+    <header class="game-header" role="banner">
+        <div class="header-content">
+            <div class="logo-section">
+                <svg class="logo-icon" width="40" height="40" viewBox="0 0 40 40" aria-hidden="true">
+                    <circle cx="20" cy="20" r="18" fill="#b80000" opacity="0.1"/>
+                    <path d="M10 20 L20 15 L30 20 L20 25 Z" fill="#b80000"/>
+                    <circle cx="20" cy="20" r="3" fill="#ffffff"/>
+                </svg>
+                <h1 class="game-title">Brücken Bauen</h1>
+            </div>
+            <div class="progress-section">
+                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="8" aria-label="Spielfortschritt">
+                    <div class="progress-fill"></div>
+                </div>
+                <span class="progress-text" aria-live="polite">Szenario <span id="current-scenario">1</span> von 8</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content" class="game-main" role="main">
+        
+        <!-- Start Screen -->
+        <section id="start-screen" class="screen active" aria-labelledby="start-title">
+            <div class="container">
+                <div class="welcome-card glass-card">
+                    <h2 id="start-title" class="screen-title">Willkommen bei Brücken Bauen</h2>
+                    <p class="screen-subtitle">Ein interaktives Lernspiel über Empathie, Menschenrechte und demokratischen Zusammenhalt</p>
+                    
+                    <div class="game-info">
+                        <div class="info-item">
+                            <svg class="info-icon" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/>
+                            </svg>
+                            <span><strong>8 Szenarien</strong> aus dem echten Leben</span>
+                        </div>
+                        <div class="info-item">
+                            <svg class="info-icon" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" fill="currentColor"/>
+                            </svg>
+                            <span><strong>20-30 Minuten</strong> Spieldauer</span>
+                        </div>
+                        <div class="info-item">
+                            <svg class="info-icon" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" fill="none" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                            <span><strong>Keine Anmeldung</strong> erforderlich</span>
+                        </div>
+                    </div>
+                    
+                    <div class="learning-goals">
+                        <h3>Das lernst du:</h3>
+                        <ul>
+                            <li>Empathie für verschiedene Perspektiven entwickeln</li>
+                            <li>Demokratische Werte im Alltag anwenden</li>
+                            <li>Menschenrechte als Grundlage erkennen</li>
+                            <li>Zivilcourage in schwierigen Situationen</li>
+                        </ul>
+                    </div>
+                    
+                    <button id="start-game-btn" class="cta-button primary-button" type="button">
+                        <svg class="button-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+                            <path d="M6 4l8 6-8 6V4z" fill="currentColor"/>
+                        </svg>
+                        Spiel starten
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Game Screen -->
+        <section id="game-screen" class="screen" aria-labelledby="scenario-title">
+            <div class="container">
+                <div class="scenario-card glass-card">
+                    
+                    <!-- Scenario Header -->
+                    <div class="scenario-header">
+                        <span class="scenario-category" id="scenario-category">Szenario</span>
+                        <h2 id="scenario-title" class="scenario-title">Szenario wird geladen...</h2>
+                    </div>
+                    
+                    <!-- Scenario Content -->
+                    <div class="scenario-content">
+                        <div class="scenario-image-container">
+                            <div id="scenario-image" class="scenario-image" aria-hidden="true"></div>
+                        </div>
+                        <div class="scenario-text">
+                            <p id="scenario-description" class="scenario-description">
+                                Beschreibung wird geladen...
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Decision Options -->
+                    <div class="decisions-section">
+                        <h3 class="decisions-title">Was machst du?</h3>
+                        <div id="decision-options" class="decision-options" role="radiogroup" aria-labelledby="decisions-title">
+                            <!-- Decision buttons will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Action Button -->
+                    <div class="action-section">
+                        <button id="submit-decision-btn" class="cta-button secondary-button" type="button" disabled>
+                            Entscheidung treffen
+                        </button>
+                    </div>
+                    
+                </div>
+            </div>
+        </section>
+
+        <!-- Result Screen -->
+        <section id="result-screen" class="screen" aria-labelledby="result-title">
+            <div class="container">
+                <div class="result-card glass-card">
+                    <div class="result-header">
+                        <h2 id="result-title" class="result-title">Deine Entscheidung</h2>
+                    </div>
+                    
+                    <div class="result-content">
+                        <div id="result-feedback" class="result-feedback">
+                            <p id="feedback-text" class="feedback-text"></p>
+                        </div>
+                        
+                        <div class="perspectives-section">
+                            <h3>Andere Perspektiven:</h3>
+                            <div id="perspectives-list" class="perspectives-list">
+                                <!-- Perspectives will be populated by JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <div class="score-section">
+                            <h3>Dein Demokratie-Score:</h3>
+                            <div class="score-display">
+                                <div class="score-item">
+                                    <span class="score-label">Empathie</span>
+                                    <div class="score-bar">
+                                        <div id="empathy-score" class="score-fill" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                <div class="score-item">
+                                    <span class="score-label">Menschenrechte</span>
+                                    <div class="score-bar">
+                                        <div id="rights-score" class="score-fill" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                <div class="score-item">
+                                    <span class="score-label">Partizipation</span>
+                                    <div class="score-bar">
+                                        <div id="participation-score" class="score-fill" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                <div class="score-item">
+                                    <span class="score-label">Zivilcourage</span>
+                                    <div class="score-bar">
+                                        <div id="courage-score" class="score-fill" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-actions">
+                        <button id="continue-btn" class="cta-button primary-button" type="button">
+                            Weiter zum nächsten Szenario
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final Screen -->
+        <section id="final-screen" class="screen" aria-labelledby="final-title">
+            <div class="container">
+                <div class="final-card glass-card">
+                    <div class="final-header">
+                        <svg class="achievement-icon" width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
+                            <circle cx="32" cy="32" r="30" fill="#b80000" opacity="0.1"/>
+                            <path d="M32 8 L40 24 L56 24 L44 36 L48 52 L32 44 L16 52 L20 36 L8 24 L24 24 Z" fill="#b80000"/>
+                        </svg>
+                        <h2 id="final-title" class="final-title">Herzlichen Glückwunsch!</h2>
+                        <p class="final-subtitle">Du hast alle Szenarien erfolgreich durchgespielt</p>
+                    </div>
+                    
+                    <div class="final-content">
+                        <div class="final-score">
+                            <h3>Dein Demokratie-Profil:</h3>
+                            <div id="democracy-profile" class="democracy-profile">
+                                <!-- Profile will be generated by JavaScript -->
+                            </div>
+                        </div>
+                        
+                        <div class="reflection-section">
+                            <h3>Deine Reflexion:</h3>
+                            <textarea 
+                                id="reflection-text" 
+                                class="reflection-textarea" 
+                                placeholder="Was hast du aus diesem Spiel gelernt? Welche Erkenntnisse nimmst du für deinen Alltag mit?"
+                                rows="4"
+                                aria-label="Persönliche Reflexion über das Spiel"
+                            ></textarea>
+                        </div>
+                        
+                        <div class="resources-section">
+                            <h3>Weiterführende Ressourcen:</h3>
+                            <div class="resource-links">
+                                <a href="https://menschlichkeit-oesterreich.at/mitmachen" class="resource-link" target="_blank" rel="noopener">
+                                    <svg class="link-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+                                        <path d="M17 2h-4v2h2.6l-3.3 3.3 1.4 1.4L17 5.4V8h2V2zM3 14V4h6V2H3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-6h-2v6H3z" fill="currentColor"/>
+                                    </svg>
+                                    Bei Menschlichkeit Österreich mitmachen
+                                </a>
+                                <a href="https://menschlichkeit-oesterreich.at/bildung" class="resource-link" target="_blank" rel="noopener">
+                                    <svg class="link-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+                                        <path d="M10 2L3 7v10h4v-6h6v6h4V7l-7-5z" fill="currentColor"/>
+                                    </svg>
+                                    Bildungsmaterialien herunterladen
+                                </a>
+                                <a href="https://menschlichkeit-oesterreich.at/spenden" class="resource-link" target="_blank" rel="noopener">
+                                    <svg class="link-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+                                        <path d="M10 2C5.6 2 2 5.6 2 10s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zm3.5 6L10 11.5 6.5 8 8 6.5l2 2 4-4L15.5 6z" fill="currentColor"/>
+                                    </svg>
+                                    Demokratieförderung unterstützen
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="final-actions">
+                        <button id="share-btn" class="cta-button secondary-button" type="button">
+                            <svg class="button-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+                                <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" fill="currentColor"/>
+                            </svg>
+                            Spiel teilen
+                        </button>
+                        <button id="restart-btn" class="cta-button primary-button" type="button">
+                            <svg class="button-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+                                <path d="M4 2a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm0 2h12v10H4V4zm2 2v6l4-3-4-3z" fill="currentColor"/>
+                            </svg>
+                            Nochmal spielen
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="game-footer" role="contentinfo">
+        <div class="footer-content">
+            <div class="footer-info">
+                <p class="footer-text">
+                    Entwickelt von 
+                    <a href="https://menschlichkeit-oesterreich.at" class="footer-link" target="_blank" rel="noopener">
+                        Menschlichkeit Österreich
+                    </a>
+                </p>
+                <p class="footer-mission">Für eine Gesellschaft der Empathie und des Zusammenhalts</p>
+            </div>
+            <div class="footer-links">
+                <a href="https://menschlichkeit-oesterreich.at/datenschutz" class="footer-link" target="_blank" rel="noopener">Datenschutz</a>
+                <a href="https://menschlichkeit-oesterreich.at/impressum" class="footer-link" target="_blank" rel="noopener">Impressum</a>
+                <a href="https://menschlichkeit-oesterreich.at/kontakt" class="footer-link" target="_blank" rel="noopener">Kontakt</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen" aria-hidden="true">
+        <div class="loading-content">
+            <div class="loading-spinner" aria-label="Laden..."></div>
+            <p class="loading-text">Spiel wird geladen...</p>
+        </div>
+    </div>
+
+    <!-- Accessibility Announcements -->
+    <div id="announcements" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- JavaScript -->
+    <script src="./js/scenarios.js"></script>
+    <script src="./js/ui.js"></script>
+    <script src="./js/game.js"></script>
+    <script src="./js/pwa.js"></script>
+
+</body>
+</html>

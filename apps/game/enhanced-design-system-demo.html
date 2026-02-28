@@ -1,0 +1,603 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enhanced Design System Demo - Educational Gaming Platform</title>
+
+    <!-- Design System Styles -->
+    <link rel="stylesheet" href="css/graphics.css" />
+    <link rel="stylesheet" href="css/enhanced-components.css" />
+
+    <style>
+      body {
+        font-family: var(--font-family-primary);
+        background: var(--background);
+        color: var(--text-primary);
+        margin: 0;
+        padding: var(--spacing-4);
+        line-height: var(--line-height-normal);
+      }
+
+      .demo-container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .demo-section {
+        margin-bottom: var(--spacing-8);
+        padding: var(--spacing-6);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--border-radius-lg);
+      }
+
+      .demo-section h2 {
+        color: var(--primary-600);
+        margin-bottom: var(--spacing-4);
+        font-weight: var(--font-weight-bold);
+      }
+
+      .demo-section h3 {
+        color: var(--secondary-700);
+        margin: var(--spacing-4) 0 var(--spacing-2) 0;
+        font-weight: var(--font-weight-semibold);
+      }
+
+      .demo-grid {
+        display: grid;
+        gap: var(--spacing-4);
+        margin-bottom: var(--spacing-4);
+      }
+
+      .demo-grid.cols-2 {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .demo-grid.cols-3 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .demo-grid.cols-4 {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .button-group {
+        display: flex;
+        gap: var(--spacing-3);
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .hero {
+        text-align: center;
+        padding: var(--spacing-8) var(--spacing-4);
+        background: linear-gradient(135deg, var(--primary-50) 0%, var(--secondary-50) 100%);
+        border-radius: var(--border-radius-xl);
+        margin-bottom: var(--spacing-8);
+      }
+
+      .hero h1 {
+        font-size: var(--font-size-4xl);
+        font-weight: var(--font-weight-bold);
+        color: var(--primary-700);
+        margin-bottom: var(--spacing-2);
+      }
+
+      .hero p {
+        font-size: var(--font-size-lg);
+        color: var(--text-secondary);
+        margin-bottom: var(--spacing-6);
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--spacing-4);
+        margin-bottom: var(--spacing-6);
+      }
+
+      @media (max-width: 768px) {
+        .demo-grid.cols-2,
+        .demo-grid.cols-3,
+        .demo-grid.cols-4 {
+          grid-template-columns: 1fr;
+        }
+
+        .button-group {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .hero h1 {
+          font-size: var(--font-size-2xl);
+        }
+
+        .hero p {
+          font-size: var(--font-size-base);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo-container">
+      <!-- Hero Section -->
+      <div class="hero">
+        <h1>🎮 Enhanced Design System Demo</h1>
+        <p>Educational Gaming Platform mit professionellen UI-Komponenten</p>
+        <div id="hero-buttons" class="button-group" style="justify-content: center"></div>
+      </div>
+
+      <!-- Asset Overview -->
+      <div class="demo-section">
+        <h2>📊 Asset Generation Übersicht</h2>
+        <p>Alle 28 Assets wurden erfolgreich generiert und sind verfügbar:</p>
+
+        <div class="stats-grid" id="asset-stats"></div>
+
+        <h3>Generierte Asset-Familien:</h3>
+        <div class="demo-grid cols-2">
+          <div>
+            <strong>Icons Values (4 Assets):</strong>
+            <ul>
+              <li>Gleichheit Icon</li>
+              <li>Freiheit Icon</li>
+              <li>Solidarität Icon</li>
+              <li>Gerechtigkeit Icon</li>
+            </ul>
+          </div>
+          <div>
+            <strong>Map Regions (10 Assets):</strong>
+            <ul>
+              <li>Österreich Regionen</li>
+              <li>Isometrische Karten-Tiles</li>
+              <li>Wien, Graz, Linz, Salzburg...</li>
+            </ul>
+          </div>
+          <div>
+            <strong>Bridge Puzzle (8 Assets):</strong>
+            <ul>
+              <li>Brückenelemente</li>
+              <li>Charaktere links/rechts</li>
+              <li>Planken horizontal/vertikal</li>
+              <li>Wasser-Textur</li>
+            </ul>
+          </div>
+          <div>
+            <strong>UI Buttons (3 Assets):</strong>
+            <ul>
+              <li>Play Button</li>
+              <li>Pause Button</li>
+              <li>Settings Button</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Enhanced Buttons Demo -->
+      <div class="demo-section">
+        <h2>🎯 Enhanced Buttons</h2>
+        <p>Professionelle Button-Komponenten mit verschiedenen Varianten und Größen:</p>
+
+        <h3>Button Varianten:</h3>
+        <div id="button-variants" class="button-group"></div>
+
+        <h3>Button Größen:</h3>
+        <div id="button-sizes" class="button-group"></div>
+
+        <h3>Icon Buttons:</h3>
+        <div id="icon-buttons" class="button-group"></div>
+      </div>
+
+      <!-- Achievement Badges Demo -->
+      <div class="demo-section">
+        <h2>🏆 Achievement Badges</h2>
+        <p>5-stufiges Seltenheitssystem für Achievements:</p>
+
+        <div id="achievement-badges" class="demo-grid cols-3"></div>
+      </div>
+
+      <!-- Level Progress Demo -->
+      <div class="demo-section">
+        <h2>📈 Level Progress Cards</h2>
+        <p>Animierte Fortschrittsanzeigen für das Levelsystem:</p>
+
+        <div id="level-progress" class="demo-grid cols-2"></div>
+      </div>
+
+      <!-- Player Profiles Demo -->
+      <div class="demo-section">
+        <h2>👥 Player Profiles</h2>
+        <p>Spielerprofile mit generierten Charakter-Avataren:</p>
+
+        <div id="player-profiles" class="demo-grid cols-3"></div>
+      </div>
+
+      <!-- Minigame Cards Demo -->
+      <div class="demo-section">
+        <h2>🎲 Minigame Cards</h2>
+        <p>Interaktive Karten für die 7 Minigames:</p>
+
+        <div id="minigame-cards" class="demo-grid cols-2"></div>
+      </div>
+
+      <!-- Teacher Dashboard Demo -->
+      <div class="demo-section">
+        <h2>📊 Teacher Dashboard Cards</h2>
+        <p>Dashboard-Komponenten für Lehrer-Interface:</p>
+
+        <div id="dashboard-cards" class="demo-grid cols-4"></div>
+      </div>
+
+      <!-- Alerts Demo -->
+      <div class="demo-section">
+        <h2>⚠️ Game Status Alerts</h2>
+        <p>Verschiedene Alert-Typen für Spiel-Feedback:</p>
+
+        <div id="game-alerts"></div>
+      </div>
+
+      <!-- Design Tokens Demo -->
+      <div class="demo-section">
+        <h2>🎨 Design System Tokens</h2>
+        <p>Integrierte professionelle Design Tokens aus dem Figma Design System:</p>
+
+        <div class="demo-grid cols-2">
+          <div>
+            <h3>Farben:</h3>
+            <ul>
+              <li><strong>Primary:</strong> 10-stufige Blau-Skala</li>
+              <li><strong>Secondary:</strong> 10-stufige Grau-Skala</li>
+              <li><strong>Success/Warning/Error:</strong> Semantische Farben</li>
+              <li><strong>Accent:</strong> Rosa-Akzentfarben</li>
+            </ul>
+
+            <h3>Typography:</h3>
+            <ul>
+              <li><strong>Primary:</strong> Inter Font Family</li>
+              <li><strong>Größen:</strong> xs (0.75rem) bis 7xl (4.5rem)</li>
+              <li><strong>Gewichte:</strong> 100 bis 900</li>
+              <li><strong>Zeilenhöhen:</strong> none bis loose</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Spacing:</h3>
+            <ul>
+              <li><strong>System:</strong> 0px bis 16rem (0-64)</li>
+              <li><strong>Konsistent:</strong> 0.25rem Schritte</li>
+              <li><strong>Responsive:</strong> Em/Rem basiert</li>
+            </ul>
+
+            <h3>Animationen:</h3>
+            <ul>
+              <li><strong>Dauer:</strong> Fast (150ms), Normal (300ms), Slow (500ms)</li>
+              <li><strong>Easing:</strong> Cubic-bezier Kurven</li>
+              <li><strong>Accessibility:</strong> prefers-reduced-motion Support</li>
+            </ul>
+
+            <h3>Schatten & Radien:</h3>
+            <ul>
+              <li><strong>Schatten:</strong> sm bis 2xl + inner</li>
+              <li><strong>Radien:</strong> none bis full (9999px)</li>
+              <li><strong>Z-Index:</strong> Systematisches Layering</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enhanced Components JavaScript -->
+    <script src="js/enhanced-components.js"></script>
+
+    <script>
+      // Demo-Daten
+      const demoData = {
+        achievements: [
+          {
+            name: 'Erste Schritte',
+            icon: '👶',
+            rarity: 'bronze',
+            progress: { current: 1, total: 1 },
+          },
+          {
+            name: 'Demokratie-Experte',
+            icon: '🎓',
+            rarity: 'silver',
+            progress: { current: 5, total: 10 },
+          },
+          {
+            name: 'Bürgerbeteiligung',
+            icon: '🗳️',
+            rarity: 'gold',
+            progress: { current: 3, total: 3 },
+          },
+          {
+            name: 'Verfassungskenner',
+            icon: '📜',
+            rarity: 'platinum',
+            progress: { current: 8, total: 10 },
+          },
+          {
+            name: 'Legendary Civic Leader',
+            icon: '👑',
+            rarity: 'legendary',
+            progress: { current: 1, total: 1 },
+          },
+        ],
+        players: [
+          { name: 'Anna Müller', level: 15, role: 'student_female', gamesPlayed: 45, gamesWon: 38 },
+          { name: 'Max Schmidt', level: 12, role: 'student_male', gamesPlayed: 32, gamesWon: 24 },
+          { name: 'Prof. Weber', level: 25, role: 'teacher', gamesPlayed: 120, gamesWon: 95 },
+        ],
+        minigames: [
+          {
+            name: 'Wahlsystem Puzzle',
+            description: 'Verstehe wie Wahlen funktionieren durch interaktive Puzzles.',
+            valueType: 'equality',
+            difficulty: 2,
+            xpReward: 150,
+            completed: false,
+            progress: { percentage: 65 },
+          },
+          {
+            name: 'Meinungsfreiheit Arena',
+            description: 'Debattiere verschiedene Standpunkte in sicherer Umgebung.',
+            valueType: 'freedom',
+            difficulty: 3,
+            xpReward: 200,
+            completed: true,
+            progress: { percentage: 100 },
+          },
+          {
+            name: 'Solidarität Simulator',
+            description: 'Erlebe wie Zusammenhalt Gemeinschaften stärkt.',
+            valueType: 'solidarity',
+            difficulty: 1,
+            xpReward: 100,
+            completed: false,
+            progress: { percentage: 25 },
+          },
+          {
+            name: 'Rechtsstaat Challenge',
+            description: 'Lerne die Grundlagen des Rechtsstaats kennen.',
+            valueType: 'justice',
+            difficulty: 4,
+            xpReward: 250,
+            completed: false,
+            disabled: true,
+          },
+        ],
+        dashboardData: [
+          {
+            title: 'Aktive Spieler',
+            value: '176',
+            trend: { direction: 'up', value: '+12%' },
+            icon: '👥',
+          },
+          {
+            title: 'Abgeschlossene Spiele',
+            value: '2.847',
+            trend: { direction: 'up', value: '+8%' },
+            icon: '🎮',
+          },
+          {
+            title: 'Erfolgsrate',
+            value: '74%',
+            trend: { direction: 'stable', value: '±0%' },
+            icon: '🎯',
+          },
+          {
+            title: 'Durchschnittszeit',
+            value: '8:42',
+            trend: { direction: 'down', value: '-5%' },
+            icon: '⏱️',
+          },
+        ],
+      };
+
+      // Demo initialisieren
+      function initializeDemo() {
+        const components = window.enhancedGameComponents;
+
+        // Hero Buttons
+        const heroContainer = document.getElementById('hero-buttons');
+        heroContainer.appendChild(
+          components.createGameButton({
+            text: 'Demo Starten',
+            variant: 'default',
+            size: 'lg',
+            icon: '🚀',
+            onClick: () =>
+              showAlert('Demo gestartet! Alle Komponenten sind funktionsbereit.', 'success'),
+          })
+        );
+
+        heroContainer.appendChild(
+          components.createGameButton({
+            text: 'Asset Gallerie',
+            variant: 'outline',
+            size: 'lg',
+            icon: '🖼️',
+            onClick: () => window.open('/games/assets/generated/', '_blank'),
+          })
+        );
+
+        // Asset Stats
+        const assetStatsContainer = document.getElementById('asset-stats');
+        const assetFamilies = [
+          { name: 'Icons Values', count: 4, color: 'var(--primary-500)' },
+          { name: 'Map Regions', count: 10, color: 'var(--success-500)' },
+          { name: 'Bridge Puzzle', count: 8, color: 'var(--warning-500)' },
+          { name: 'UI Buttons', count: 3, color: 'var(--error-500)' },
+          { name: 'Characters', count: 3, color: 'var(--secondary-500)' },
+        ];
+
+        assetFamilies.forEach(family => {
+          assetStatsContainer.appendChild(
+            components.createTeacherDashboardCard({
+              title: family.name,
+              value: family.count,
+              description: `${family.count} Assets generiert`,
+              icon: '📁',
+            })
+          );
+        });
+
+        // Button Variants
+        const variantsContainer = document.getElementById('button-variants');
+        ['default', 'outline', 'secondary', 'destructive', 'ghost'].forEach(variant => {
+          variantsContainer.appendChild(
+            components.createGameButton({
+              text: variant.charAt(0).toUpperCase() + variant.slice(1),
+              variant: variant,
+              onClick: () => showAlert(`${variant} Button geklickt!`, 'info'),
+            })
+          );
+        });
+
+        // Button Sizes
+        const sizesContainer = document.getElementById('button-sizes');
+        ['sm', 'default', 'lg'].forEach(size => {
+          sizesContainer.appendChild(
+            components.createGameButton({
+              text: `Size ${size}`,
+              size: size,
+              onClick: () => showAlert(`${size} Button geklickt!`, 'info'),
+            })
+          );
+        });
+
+        // Icon Buttons
+        const iconContainer = document.getElementById('icon-buttons');
+        [
+          { text: 'Play', icon: '▶', variant: 'default' },
+          { text: 'Pause', icon: '⏸️', variant: 'secondary' },
+          { text: 'Stop', icon: '⏹️', variant: 'destructive' },
+          { text: 'Settings', icon: '⚙️', variant: 'outline' },
+        ].forEach(btn => {
+          iconContainer.appendChild(
+            components.createGameButton({
+              text: btn.text,
+              icon: btn.icon,
+              variant: btn.variant,
+              onClick: () => showAlert(`${btn.text} Button geklickt!`, 'info'),
+            })
+          );
+        });
+
+        // Achievement Badges
+        const badgesContainer = document.getElementById('achievement-badges');
+        demoData.achievements.forEach(achievement => {
+          badgesContainer.appendChild(
+            components.createAchievementBadge(achievement, {
+              rarity: achievement.rarity,
+              showProgress: true,
+            })
+          );
+        });
+
+        // Level Progress Cards
+        const levelContainer = document.getElementById('level-progress');
+        [
+          { currentLevel: 15, progress: 1250, nextLevelXP: 2000, totalXP: 18750 },
+          { currentLevel: 8, progress: 450, nextLevelXP: 800, totalXP: 5650 },
+        ].forEach(levelData => {
+          levelContainer.appendChild(components.createLevelProgressCard(levelData));
+        });
+
+        // Player Profiles
+        const profilesContainer = document.getElementById('player-profiles');
+        demoData.players.forEach(player => {
+          profilesContainer.appendChild(components.createPlayerProfile(player));
+        });
+
+        // Minigame Cards
+        const minigamesContainer = document.getElementById('minigame-cards');
+        demoData.minigames.forEach(game => {
+          minigamesContainer.appendChild(
+            components.createMinigameCard(game, game => {
+              showAlert(`Minigame "${game.name}" wird gestartet...`, 'success');
+            })
+          );
+        });
+
+        // Dashboard Cards
+        const dashboardContainer = document.getElementById('dashboard-cards');
+        demoData.dashboardData.forEach(data => {
+          dashboardContainer.appendChild(components.createTeacherDashboardCard(data));
+        });
+
+        // Alerts Demo
+        const alertsContainer = document.getElementById('game-alerts');
+        [
+          {
+            type: 'info',
+            title: 'Information',
+            message: 'Das ist eine Info-Nachricht für allgemeine Informationen.',
+            icon: 'ℹ️',
+          },
+          {
+            type: 'success',
+            title: 'Erfolg',
+            message: 'Glückwunsch! Du hast das Level erfolgreich abgeschlossen.',
+            icon: '✅',
+          },
+          {
+            type: 'warning',
+            title: 'Warnung',
+            message: 'Achtung: Du hast nur noch 2 Versuche übrig.',
+            icon: '⚠️',
+          },
+          {
+            type: 'error',
+            title: 'Fehler',
+            message: 'Ein Fehler ist aufgetreten. Bitte versuche es erneut.',
+            icon: '❌',
+          },
+        ].forEach(alert => {
+          alertsContainer.appendChild(
+            components.createGameStatusAlert({
+              ...alert,
+              onDismiss: () => console.log(`${alert.type} Alert geschlossen`),
+            })
+          );
+        });
+
+        console.log('🎮 Enhanced Design System Demo initialisiert');
+        console.log('📊 Alle 28 Assets verfügbar in /games/assets/generated/');
+        console.log('🎨 Design Tokens integriert aus Figma Design System');
+      }
+
+      function showAlert(message, type = 'info') {
+        const alertContainer = document.createElement('div');
+        alertContainer.style.position = 'fixed';
+        alertContainer.style.top = '20px';
+        alertContainer.style.right = '20px';
+        alertContainer.style.zIndex = 'var(--z-index-toast)';
+
+        const alert = window.enhancedGameComponents.createGameStatusAlert({
+          type: type,
+          message: message,
+          onDismiss: () => alertContainer.remove(),
+        });
+
+        alertContainer.appendChild(alert);
+        document.body.appendChild(alertContainer);
+
+        // Auto-remove nach 5 Sekunden
+        setTimeout(() => {
+          if (alertContainer.parentNode) {
+            alertContainer.remove();
+          }
+        }, 5000);
+      }
+
+      // Demo starten wenn DOM bereit ist
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeDemo);
+      } else {
+        initializeDemo();
+      }
+    </script>
+  </body>
+</html>

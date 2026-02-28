@@ -1,0 +1,54 @@
+/* CSS Browser Compatibility Fixes */
+
+/* Fix backdrop-filter issues */
+.card,
+.game-header,
+.modal-overlay,
+.notification {
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+
+/* Fix user-select issues */
+button,
+.btn,
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Fix text-size-adjust issues */
+html {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+/* Teacher Dashboard backdrop fix */
+.teacher-dashboard-modal {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* Progress bars cross-browser compatibility */
+.progress-bar {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Focus states for better accessibility */
+button:focus,
+.btn:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Theme color meta tag fallback */
+body {
+  background-color: #b80000; /* Fallback for browsers without theme-color support */
+}
