@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -34,7 +35,7 @@ type Instrument =
 import { useNavigate } from 'react-router-dom';
 
 export default function DonatePage() {
-  const { setAuth, token } = useAuth();
+  const { token } = useAuth();
   const navigate = useNavigate();
   const [firstName, setFirstName] = React.useState('');
   const [lastName, setLastName] = React.useState('');
@@ -92,7 +93,7 @@ export default function DonatePage() {
       const reg = await api.auth.register({ email, first_name: firstName, last_name: lastName });
       const tokens = (reg.data as any)?.tokens;
       if (!tokens?.token) throw new Error('Registrierung fehlgeschlagen');
-      setAuth({ token: tokens.token, expiresIn: tokens.expires_in, refreshToken: tokens.refresh_token });
+      sessionStorage.setItem('moe_auth_token', tokens.token);
 
       // 2) PSP flows
       if (['eps', 'sofort'].includes(instrument)) {
@@ -284,7 +285,7 @@ export default function DonatePage() {
 
             {instrument === 'paypal' && (
               <div className="mt-2">
-                <PayPalScriptProvider options={{ 'client-id': (import.meta as any).env.VITE_PAYPAL_CLIENT_ID || 'sb', currency: 'EUR' }}>
+                <PayPalScriptProvider options={{ clientId: import.meta.env.VITE_PAYPAL_CLIENT_ID || 'sb', currency: 'EUR' }}>
                   <PayPalButtonsReact
                     style={{ layout: 'vertical' }}
                     createOrder={async () => {

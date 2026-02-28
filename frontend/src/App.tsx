@@ -19,6 +19,10 @@ import AuthLayout from './layouts/AuthLayout';
 import DashboardLayout from './layouts/DashboardLayout';
 import SettingsLayout from './layouts/SettingsLayout';
 import AdminQueuePage from './pages/AdminQueue';
+import ImpressumPage from './pages/Impressum';
+import DatenschutzPage from './pages/Datenschutz';
+import UeberUnsPage from './pages/UeberUns';
+import KontaktPage from './pages/Kontakt';
 
 // Fallback für fehlende Components
 const Home = React.lazy(() =>
@@ -48,15 +52,19 @@ export default function App() {
         >
           <Routes>
             <Route element={<PublicLayout />}>
-              <Route path="/" element={<AITestPage />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/home" element={<Home />} />
               <Route path="/ai-demo" element={<AITestPage />} />
               <Route path="/figma-demo" element={<FigmaDemo />} />
-              <Route path="/home" element={<Home />} />
               <Route path="/mitglied-werden" element={<JoinPage />} />
               <Route path="/spenden" element={<DonatePage />} />
               <Route path="/erfolg" element={<SuccessPage />} />
               <Route path="/statuten" element={<StatutenPage />} />
               <Route path="/beitragsordnung" element={<BeitragsordnungPage />} />
+              <Route path="/ueber-uns" element={<UeberUnsPage />} />
+              <Route path="/kontakt" element={<KontaktPage />} />
+              <Route path="/impressum" element={<ImpressumPage />} />
+              <Route path="/datenschutz" element={<DatenschutzPage />} />
             </Route>
 
             <Route element={<AuthLayout />}>

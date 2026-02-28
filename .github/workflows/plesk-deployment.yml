@@ -26,7 +26,7 @@ jobs:
               uses: actions/checkout@v4
 
             - name: 🟢 Setup Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
                   node-version: ${{ env.NODE_VERSION }}
                   cache: "npm"
@@ -77,7 +77,7 @@ jobs:
               uses: actions/checkout@v4
 
             - name: 🟢 Setup Node.js
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v6
               with:
                   node-version: ${{ env.NODE_VERSION }}
                   cache: "npm"
@@ -218,7 +218,7 @@ jobs:
 
             - name: 📧 Email Notification
               if: failure()
-              uses: dawidd6/action-send-mail@v3
+              uses: dawidd6/action-send-mail@v6
               with:
                   server_address: ${{ secrets.SMTP_HOST }}
                   server_port: 587

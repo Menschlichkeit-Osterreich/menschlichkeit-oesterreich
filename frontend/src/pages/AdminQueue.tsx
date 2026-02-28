@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { api } from '../services/api';
@@ -21,7 +22,8 @@ export default function AdminQueuePage() {
       const res = await api.queue.stats(token);
       setStats(res.data);
       const d = await api.queue.dlqList(token, 50, 0);
-      setDlq({ total: d?.data?.total || 0, items: d?.data?.items || [] });
+      const dlqData = d?.data as { total?: number; items?: unknown[] } | undefined;
+      setDlq({ total: dlqData?.total || 0, items: dlqData?.items || [] });
     } catch (e: any) {
       setError(e?.message || 'Konnte Queue-Status nicht laden');
     } finally {

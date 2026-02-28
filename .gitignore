@@ -330,6 +330,9 @@ config/local*
 error.log
 access.log
 
+# Prisma auto-generated client files
+generated/
+
 # Quality reports & CI artifacts (generated)
 quality-reports/
 playwright-results/
