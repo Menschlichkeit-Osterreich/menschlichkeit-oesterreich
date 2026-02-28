@@ -770,9 +770,69 @@ class DemocracySync {
     console.log('[Sync] Rejected state update from:', conflictData.senderId);
   }
 
-  requestConflictVote(_conflictData) {
-    // Implementation for vote-based conflict resolution
-    console.log('[Sync] Vote-based conflict resolution not implemented');
+  requestConflictVote(conflictData) {
+    // Vote-based conflict resolution: broadcast conflict to all peers and collect votes
+    if (!this.multiplayer) return;
+
+    const voteRequest = {
+      type: 'conflict_vote_request',
+      conflictId: `conflict_${Date.now()}`,
+      conflictData: {
+        localState: conflictData.localState,
+        remoteState: conflictData.remoteState,
+        sequenceId: conflictData.sequenceId,
+      },
+      requesterId: this.multiplayer.playerId,
+      timestamp: Date.now(),
+      timeout: 3000, // 3 seconds to vote
+    };
+
+    // Initialize vote tracking
+    this._pendingVotes = this._pendingVotes || new Map();
+    this._pendingVotes.set(voteRequest.conflictId, {
+      votes: new Map(),
+      conflictData,
+      timeout: setTimeout(() => {
+        this._resolveConflictVote(voteRequest.conflictId);
+      }, voteRequest.timeout),
+    });
+
+    // Broadcast vote request to all peers
+    if (this.multiplayer.broadcastToPeers) {
+      this.multiplayer.broadcastToPeers(voteRequest);
+    }
+
+    // Cast own vote (prefer local state)
+    this._castConflictVote(voteRequest.conflictId, 'local', this.multiplayer.playerId);
+
+    console.log('[Sync] Vote-based conflict resolution initiated:', voteRequest.conflictId);
+  }
+
+  _castConflictVote(conflictId, vote, voterId) {
+    const pending = this._pendingVotes?.get(conflictId);
+    if (!pending) return;
+    pending.votes.set(voterId, vote);
+    // If all connected peers voted, resolve immediately
+    const peerCount = this.multiplayer?.connectedPeers?.size || 1;
+    if (pending.votes.size >= peerCount) {
+      clearTimeout(pending.timeout);
+      this._resolveConflictVote(conflictId);
+    }
+  }
+
+  _resolveConflictVote(conflictId) {
+    const pending = this._pendingVotes?.get(conflictId);
+    if (!pending) return;
+    const votes = Array.from(pending.votes.values());
+    const localVotes = votes.filter(v => v === 'local').length;
+    const remoteVotes = votes.filter(v => v === 'remote').length;
+    const winner = localVotes >= remoteVotes ? 'local' : 'remote';
+    if (winner === 'remote' && pending.conflictData.remoteState) {
+      this.applyStateUpdate(pending.conflictData.remoteState);
+    }
+    this.syncStats.conflictsResolved++;
+    this._pendingVotes.delete(conflictId);
+    console.log(`[Sync] Conflict ${conflictId} resolved via vote: ${winner} (${localVotes} vs ${remoteVotes})`);
   }
 
   /**

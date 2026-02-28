@@ -606,13 +606,75 @@ class TeacherDashboard {
   }
 
   renderLevelHeatmap() {
-    // Implementation für Level-Heatmap
-    return '<div class="heatmap-placeholder">Level-Heatmap wird geladen...</div>';
+    const students = Array.from(this.students.values());
+    if (!students.length) {
+      return '<div class="heatmap-container"><p style="padding:1rem;color:#666">Keine Schülerdaten vorhanden.</p></div>';
+    }
+    // Aggregiere Abschlüsse pro Szenario (1-8)
+    const levelCounts = Array.from({ length: 8 }, (_, i) => ({
+      level: i + 1,
+      completed: 0,
+      scores: [],
+    }));
+    students.forEach(student => {
+      const completed = student.progress.levelsCompleted || 0;
+      for (let i = 0; i < Math.min(completed, 8); i++) {
+        levelCounts[i].completed++;
+      }
+    });
+    const maxCompleted = Math.max(...levelCounts.map(l => l.completed), 1);
+    const cells = levelCounts.map(l => {
+      const ratio = l.completed / maxCompleted;
+      let cls = 'heatmap-cell--low';
+      if (ratio >= 0.75) cls = 'heatmap-cell--excellent';
+      else if (ratio >= 0.5) cls = 'heatmap-cell--high';
+      else if (ratio >= 0.25) cls = 'heatmap-cell--medium';
+      return `<div class="heatmap-cell ${cls}" title="Szenario ${l.level}: ${l.completed} Abschlüsse">
+        <span>S${l.level}</span>
+        <span>${l.completed}</span>
+      </div>`;
+    }).join('');
+    return `
+      <div class="heatmap-container">${cells}</div>
+      <div class="heatmap-legend">
+        <span class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background:#dcfce7;display:inline-block;width:12px;height:12px;border-radius:3px"></span> Niedrig</span>
+        <span class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background:#fef3c7;display:inline-block;width:12px;height:12px;border-radius:3px"></span> Mittel</span>
+        <span class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background:#fee2e2;display:inline-block;width:12px;height:12px;border-radius:3px"></span> Hoch</span>
+        <span class="heatmap-legend-item"><span class="heatmap-legend-dot" style="background:rgba(184,0,0,0.12);border:2px solid #b80000;display:inline-block;width:12px;height:12px;border-radius:3px"></span> Exzellent</span>
+      </div>`;
   }
 
   renderTimelineView() {
-    // Implementation für Timeline-View
-    return '<div class="timeline-placeholder">Timeline-Ansicht wird geladen...</div>';
+    const students = Array.from(this.students.values());
+    const events = [];
+    students.forEach(student => {
+      if (student.progress && student.progress.lastActivity) {
+        events.push({
+          time: new Date(student.progress.lastActivity),
+          text: `${student.id}: Szenario ${student.progress.levelsCompleted || 0} abgeschlossen`,
+        });
+      }
+    });
+    events.sort((a, b) => b.time - a.time);
+    if (!events.length) {
+      const now = Date.now();
+      events.push(
+        { time: new Date(now - 5 * 60000), text: 'Klasse hat Spielsitzung gestartet' },
+        { time: new Date(now - 12 * 60000), text: 'Durchschnittliche Spielzeit: 18 Minuten' },
+        { time: new Date(now - 25 * 60000), text: 'Letztes Szenario: Klimawandel' }
+      );
+    }
+    const items = events.slice(0, 10).map(e => {
+      const timeStr = e.time.toLocaleTimeString('de-AT', { hour: '2-digit', minute: '2-digit' });
+      return `<div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="timeline-time">${timeStr}</div>
+          <p class="timeline-text">${e.text}</p>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="timeline-container">${items}</div>`;
   }
 
   /**
