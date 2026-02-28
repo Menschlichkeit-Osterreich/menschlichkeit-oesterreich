@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from 'react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -10,7 +11,7 @@ type MembershipType = 'ordentlich' | 'ausserordentlich' | 'ehrenmitglied';
 type FeeCategory = 'standard' | 'ermaessigt' | 'haertefall';
 
 export default function JoinPage() {
-  const { setAuth } = useAuth();
+  useAuth(); // ensure we're within AuthProvider
   const [firstName, setFirstName] = React.useState('');
   const [lastName, setLastName] = React.useState('');
   const [email, setEmail] = React.useState('');
@@ -43,8 +44,8 @@ export default function JoinPage() {
       const reg = await api.auth.register({ email, first_name: firstName, last_name: lastName });
       const tokens = (reg.data as any)?.tokens;
       if (!tokens?.token) throw new Error('Registrierung fehlgeschlagen');
-      // set auth context so subsequent calls include token
-      setAuth({ token: tokens.token, expiresIn: tokens.expires_in, refreshToken: tokens.refresh_token });
+      // Store token so user is logged in after registration
+      sessionStorage.setItem('moe_auth_token', tokens.token);
 
       // 2) Create membership (basic demo: type mapping -> numeric id)
       const membershipTypeId = type === 'ordentlich' ? 1 : type === 'ausserordentlich' ? 2 : 3;

@@ -31,13 +31,6 @@ export const VereinApp: React.FC = () => {
     },
   ];
 
-  const handleLogin = (credentials: { email: string; password: string }) => {
-    // Mock login - in Produktion mit echten APIs
-    setIsAuthenticated(true);
-    setUser({ email: credentials.email, role: 'admin' });
-    setCurrentView('dashboard');
-  };
-
   const handleLogout = () => {
     setIsAuthenticated(false);
     setUser(null);
@@ -227,8 +220,6 @@ export const VereinApp: React.FC = () => {
                 <AuthSystem
                   isOpen={true}
                   onClose={() => setCurrentView('dashboard')}
-                  onLogin={handleLogin}
-                  onRegister={data => console.log('Registration:', data)}
                 />
               ) : (
                 <div className="text-center py-12">
