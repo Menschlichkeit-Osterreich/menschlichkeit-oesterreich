@@ -24,13 +24,21 @@ const ImpressumPage           = React.lazy(() => import('./pages/Impressum'));
 const DatenschutzPage         = React.lazy(() => import('./pages/Datenschutz'));
 const NotFoundPage            = React.lazy(() => import('./pages/NotFound'));
 
-// ── Lazy Imports (Auth & Dashboard) ──────────────────────────────────────────
+// ── Lazy Imports (Mitgliederbereich) ────────────────────────────────────────
 const MemberArea              = React.lazy(() => import('./pages/MemberArea'));
+const PrivacySettings         = React.lazy(() => import('./pages/PrivacySettings'));
+
+// ── Lazy Imports (Admin-Bereich) ─────────────────────────────────────────────
+const AdminDashboard          = React.lazy(() => import('./pages/admin/AdminDashboard'));
 const MemberManagement        = React.lazy(() => import('./pages/MemberManagement'));
 const BoardTreasurerDashboard = React.lazy(() => import('./pages/BoardTreasurerDashboard'));
 const AdminQueuePage          = React.lazy(() => import('./pages/AdminQueue'));
 const FinanceDashboard        = React.lazy(() => import('./pages/admin/FinanceDashboard'));
-const PrivacySettings         = React.lazy(() => import('./pages/PrivacySettings'));
+const AdminEvents             = React.lazy(() => import('./pages/admin/AdminEvents'));
+const AdminNewsletter         = React.lazy(() => import('./pages/admin/AdminNewsletter'));
+const AdminDSGVO              = React.lazy(() => import('./pages/admin/AdminDSGVO'));
+const AdminReports            = React.lazy(() => import('./pages/admin/AdminReports'));
+const AdminSettings           = React.lazy(() => import('./pages/admin/AdminSettings'));
 
 function PageLoader() {
   return (
@@ -87,10 +95,18 @@ export default function App() {
 
             {/* ── Admin-Bereich ── */}
             <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
-              <Route path="/admin/dashboard" element={<BoardTreasurerDashboard />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/vorstand" element={<BoardTreasurerDashboard />} />
               <Route path="/admin/members" element={<MemberManagement />} />
               <Route path="/admin/queue" element={<AdminQueuePage />} />
               <Route path="/admin/finanzen" element={<FinanceDashboard />} />
+              <Route path="/admin/rechnungen" element={<FinanceDashboard />} />
+              <Route path="/admin/events" element={<AdminEvents />} />
+              <Route path="/admin/newsletter" element={<AdminNewsletter />} />
+              <Route path="/admin/dsgvo" element={<AdminDSGVO />} />
+              <Route path="/admin/reports" element={<AdminReports />} />
+              <Route path="/admin/settings" element={<AdminSettings />} />
             </Route>
 
             {/* ── Einstellungen ── */}
