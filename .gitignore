@@ -405,3 +405,7 @@ crm.menschlichkeit-oesterreich.at/web/core/modules/**/tests/**/README.md
 .flaskenv*
 !.env.project
 !.env.vault
+# OpenClaw – lokale Konfiguration (niemals einchecken)
+.openclaw/
+automation/openclaw/.env
+automation/openclaw/config/config.yaml
