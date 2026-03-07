@@ -1,0 +1,107 @@
+{
+  "name": "Finance: SEPA Export",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "unit": "weeks",
+              "value": 1
+            }
+          ]
+        }
+      },
+      "id": "weekly-trigger",
+      "name": "Run Weekly",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.API_BASE_URL }}/finance/sepa/collectible",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "get-collectible-invoices",
+      "name": "API: Get Collectible Invoices",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [460, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-backend-auth",
+          "name": "API Backend Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const invoices = $input.all().map(i => i.json);\nif (invoices.length === 0) {\n  return [];\n}\nreturn [{ json: { transactions: invoices } }];"
+      },
+      "id": "check-for-transactions",
+      "name": "Check for Transactions",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.API_BASE_URL }}/finance/sepa/export-batch",
+        "method": "POST",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ transactions: $json.transactions, collection_date: $now.plus({days: 7}).toFormat(\'yyyy-MM-dd\') }) }}",
+        "options": {}
+      },
+      "id": "export-sepa-batch",
+      "name": "API: Export SEPA Batch",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-backend-auth",
+          "name": "API Backend Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "to": "buchhaltung@menschlichkeit-oesterreich.at",
+        "subject": "SEPA-Sammellastschrift für KW {{ $now.toFormat(\'WW’) }}",
+        "html": "<h1>SEPA-Sammellastschrift</h1><p>Im Anhang befindet sich die SEPA-XML-Datei für die Einreichung bei der Bank.</p>",
+        "attachments": {
+          "attachments": [
+            {
+              "content": "={{ $json.body.xml_content }}",
+              "name": "sepa-{{ $json.body.batch_id }}.xml"
+            }
+          ]
+        }
+      },
+      "id": "send-sepa-xml-email",
+      "name": "Send SEPA XML Email",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 1,
+      "position": [1120, 300],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-prod",
+          "name": "SMTP Prod"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "weekly-trigger": { "main": [[{ "node": "API: Get Collectible Invoices", "type": "main", "index": 0 }]] },
+    "get-collectible-invoices": { "main": [[{ "node": "Check for Transactions", "type": "main", "index": 0 }]] },
+    "check-for-transactions": { "main": [[{ "node": "API: Export SEPA Batch", "type": "main", "index": 0 }]] },
+    "export-sepa-batch": { "main": [[{ "node": "Send SEPA XML Email", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": ["finance", "sepa", "automation", "export"]
+}

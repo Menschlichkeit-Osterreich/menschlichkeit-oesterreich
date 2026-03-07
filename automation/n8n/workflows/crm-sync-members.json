@@ -1,0 +1,129 @@
+{
+  "name": "CRM: Mitglieder-Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "member-updated",
+        "options": {}
+      },
+      "name": "Webhook: Member Updated",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "c1b2a3d4-e5f6-a7b8-c9d0-e1f2a3b4c5d6"
+    },
+    {
+      "parameters": {
+        "authentication": "predefinedCredential",
+        "credentialName": "CiviCRM API",
+        "entity": "Contact",
+        "action": "update",
+        "contactId": "{{$json.body.civicrm_id}}",
+        "fields": {
+          "email": "{{$json.body.email}}",
+          "first_name": "{{$json.body.first_name}}",
+          "last_name": "{{$json.body.last_name}}",
+          "custom_1": "{{$json.body.xp_level}}",
+          "custom_2": "{{$json.body.badge_count}}"
+        }
+      },
+      "name": "Update CiviCRM Contact",
+      "type": "n8n-nodes-civicrm.civicrm",
+      "typeVersion": 1,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "{{$node[\"Update CiviCRM Contact\"].json.is_error}}",
+              "value2": false
+            }
+          ]
+        }
+      },
+      "name": "Check: Success",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "message": "✅ CiviCRM-Kontakt für {{$node[\"Webhook: Member Updated\"].json.body.email}} erfolgreich aktualisiert.",
+        "channel": "#system-logs"
+      },
+      "name": "Log Success",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        900,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "message": "🚨 Fehler beim CiviCRM-Sync für {{$node[\"Webhook: Member Updated\"].json.body.email}}: {{$node[\"Update CiviCRM Contact\"].json.error_message}}",
+        "channel": "#system-alerts"
+      },
+      "name": "Log Error",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [
+        900,
+        400
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook: Member Updated": {
+      "main": [
+        [
+          {
+            "node": "Update CiviCRM Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update CiviCRM Contact": {
+      "main": [
+        [
+          {
+            "node": "Check: Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check: Success": {
+      "main": [
+        [
+          {
+            "node": "Log Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
