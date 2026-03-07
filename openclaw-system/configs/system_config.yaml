@@ -1,0 +1,102 @@
+# ============================================================
+# OpenClaw – System-Konfiguration
+# ============================================================
+
+system:
+  name: "OpenClaw Multi-Agent System"
+  version: "1.0.0"
+  namespace: "oc"
+  environment: ${OC_ENV:-development}
+
+# ─── Service-URLs ─────────────────────────────────────────
+services:
+  nats_url: ${OC_NATS_URL:-nats://localhost:4222}
+  redis_url: ${OC_REDIS_URL:-redis://localhost:6380}
+  postgres_dsn: ${OC_PG_DSN:-postgresql://oc:oc_dev_only@localhost:55432/oc}
+  qdrant_url: ${OC_QDRANT_URL:-http://localhost:6333}
+  tool_gateway_url: ${OC_TOOL_GATEWAY_URL:-http://localhost:9101}
+  agent_runtime_url: ${OC_AGENT_RUNTIME_URL:-http://localhost:9100}
+  n8n_url: ${N8N_URL:-http://localhost:5678}
+  ollama_url: ${OC_OLLAMA_URL:-http://localhost:11434}
+
+# ─── NATS Subjects ────────────────────────────────────────
+nats:
+  subjects:
+    events:
+      agent: "oc.events.agent.{agent_id}"
+      system: "oc.events.system"
+      audit: "oc.events.audit"
+    tasks:
+      inbox: "oc.tasks.inbox"
+      role_queue: "oc.tasks.{role}.queue"
+      deadletter: "oc.tasks.deadletter"
+    health:
+      agent: "oc.health.agent.{agent_id}"
+      system: "oc.health.system"
+  jetstream:
+    stream_name: "OC_TASKS"
+    retention: "workqueue"
+    max_age: "24h"
+    replicas: 1
+
+# ─── Redis Key-Konventionen ───────────────────────────────
+redis:
+  keys:
+    context: "oc:ctx:{agent_id}"
+    lock: "oc:lock:{resource}"
+    rate: "oc:rate:{agent_id}:{tool}"
+    cache: "oc:cache:web:{hash}"
+  ttl:
+    context_seconds: 86400      # 24h
+    lock_seconds: 60
+    rate_seconds: 60
+    cache_seconds: 3600         # 1h
+
+# ─── Qdrant Collections ───────────────────────────────────
+qdrant:
+  collections:
+    docs: "oc_docs"
+    code: "oc_code"
+    events_sem: "oc_events_sem"
+  vector_size: 1536             # OpenAI text-embedding-3-small
+  distance: "Cosine"
+
+# ─── LLM-Konfiguration ────────────────────────────────────
+llm:
+  default_provider: ${OC_LLM_PROVIDER:-openai}
+  default_model: ${OC_DEFAULT_MODEL:-gpt-4.1-mini}
+  fallback_model: ${OC_FALLBACK_MODEL:-gpt-4.1-nano}
+  local_model: ${OC_LOCAL_MODEL:-llama3.2}
+  providers:
+    openai:
+      api_key: ${OPENAI_API_KEY}
+      base_url: "https://api.openai.com/v1"
+    ollama:
+      base_url: ${OC_OLLAMA_URL:-http://localhost:11434}
+    groq:
+      api_key: ${GROQ_API_KEY:-}
+    gemini:
+      api_key: ${GEMINI_API_KEY:-}
+
+# ─── Observability ────────────────────────────────────────
+observability:
+  log_format: "json"
+  log_level: ${LOG_LEVEL:-INFO}
+  metrics_enabled: true
+  metrics_path: "/metrics"
+  tracing_enabled: false        # OpenTelemetry (optional)
+  otel_endpoint: ${OTEL_ENDPOINT:-}
+
+# ─── GitHub-Integration ───────────────────────────────────
+github:
+  token: ${GITHUB_TOKEN}
+  personal_repos:
+    - owner: ${GITHUB_PERSONAL_USER:-}
+      repos: []
+  organisation:
+    name: "Menschlichkeit-Osterreich"
+    repos:
+      - "menschlichkeit-oesterreich-development"
+  default_branch: "main"
+  commit_signing: false
+  conventional_commits: true

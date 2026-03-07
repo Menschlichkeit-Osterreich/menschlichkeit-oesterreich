@@ -1,7 +1,10 @@
-#!/usr/bin/env sh
-. "$(dirname "$0")/_/husky.sh"
-
 set -eu
+
+# Skip Codacy analysis if Docker is not available
+if ! docker info >/dev/null 2>&1; then
+  echo "[pre-push] Docker nicht verfügbar – Codacy-Analyse übersprungen."
+  exit 0
+fi
 
 echo "[pre-push] Codacy Analyse läuft…"
 # env via .env.local/.env lädt das Node-Skript selbst
@@ -17,7 +20,7 @@ COUNT=$(node -e "const fs=require('fs');try{const s=fs.readFileSync('codacy-anal
 
 echo "[pre-push] Findings gesamt: ${COUNT}"
 if [ "${CODACY_FAIL_ON_FINDINGS:-true}" = "true" ] && [ "$COUNT" -gt 0 ]; then
-  echo "[pre-push] ❌ Push gestoppt (Findings > 0). Setze temporär CODACY_FAIL_ON_FINDINGS=false um lokal zu überbrücken."
+  echo "[pre-push] ❌ Push gestoppt (Findings > 0). Setze CODACY_FAIL_ON_FINDINGS=false um lokal zu überbrücken."
   exit 2
 fi
 
