@@ -26,6 +26,8 @@ const NotFoundPage            = React.lazy(() => import('./pages/NotFound'));
 
 // ── Lazy Imports (Mitgliederbereich) ────────────────────────────────────────
 const MemberArea              = React.lazy(() => import('./pages/MemberArea'));
+const MemberDashboard         = React.lazy(() => import('./pages/MemberDashboard'));
+const MemberOnboarding        = React.lazy(() => import('./pages/MemberOnboarding'));
 const PrivacySettings         = React.lazy(() => import('./pages/PrivacySettings'));
 
 // ── Lazy Imports (Admin-Bereich) ─────────────────────────────────────────────
@@ -91,6 +93,8 @@ export default function App() {
             <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
               <Route path="/member" element={<MemberArea />} />
               <Route path="/member/profil" element={<MemberArea />} />
+              <Route path="/member/dashboard" element={<MemberDashboard />} />
+              <Route path="/member/onboarding" element={<MemberOnboarding />} />
             </Route>
 
             {/* ── Admin-Bereich ── */}
