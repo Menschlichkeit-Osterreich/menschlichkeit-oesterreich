@@ -28,6 +28,8 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      changes: ${{ steps.check_changes.outputs.changes }}
 
     steps:
       - name: 📥 Checkout Repository
