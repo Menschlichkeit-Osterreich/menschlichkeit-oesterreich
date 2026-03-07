@@ -44,7 +44,7 @@ echo "🎯 IDENTIFIZIERTE REPOSITORIES ZUM LÖSCHEN:"
 echo "============================================"
 echo
 echo "✅ BEHALTEN (Haupt-Repository):"
-echo "   - peschull/menschlichkeit-oesterreich-development"
+echo "   - Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development"
 echo
 echo "❌ ZU LÖSCHEN (konsolidiert in Haupt-Repository):"
 echo "   - peschull/menschlichkeit-oesterreich-monorepo"

@@ -15,7 +15,7 @@ Kurzanleitung, um das Monorepo lokal in < 10 Minuten lauffähig zu bekommen.
 1. Repository klonen
 
 ```bash
-git clone https://github.com/peschull/menschlichkeit-oesterreich-development.git
+git clone https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development.git
 cd menschlichkeit-oesterreich-development
 ```
 

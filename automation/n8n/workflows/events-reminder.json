@@ -1,0 +1,131 @@
+{
+  "name": "Events: Erinnerungen",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "value": 24
+            }
+          ]
+        }
+      },
+      "name": "Schedule: Daily",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.menschlichkeit-oesterreich.at/v2/events/upcoming",
+        "options": {}
+      },
+      "name": "Get Upcoming Events",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "{{$json.days_until}}",
+              "operation": "smallerEqual",
+              "value2": 7
+            }
+          ]
+        }
+      },
+      "name": "Check: Event in < 7 Days",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.menschlichkeit-oesterreich.at/v2/events/{{$json.id}}/attendees",
+        "options": {}
+      },
+      "name": "Get Attendees",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        900,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "events@menschlichkeit-oesterreich.at",
+        "toEmail": "{{$json.email}}",
+        "subject": "Erinnerung: Dein Event \"{{$node[\"Get Upcoming Events\"].json.title}}\" findet bald statt!",
+        "html": "(Inhalt von event_reminder_email.html)"
+      },
+      "name": "Send Reminder Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        200
+      ]
+    }
+  ],
+  "connections": {
+    "Schedule: Daily": {
+      "main": [
+        [
+          {
+            "node": "Get Upcoming Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Upcoming Events": {
+      "main": [
+        [
+          {
+            "node": "Check: Event in < 7 Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check: Event in < 7 Days": {
+      "main": [
+        [
+          {
+            "node": "Get Attendees",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Attendees": {
+      "main": [
+        [
+          {
+            "node": "Send Reminder Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -125,7 +125,7 @@ U6N6texSyKIDkeksBGl/AAAADGRtcGwyMDIzMDA1NAE=
 ## 🚀 SETUP SCHRITTE
 
 ### 1. GitHub Secrets Konfiguration
-1. **Gehe zu:** `https://github.com/peschull/menschlichkeit-oesterreich-development/settings/secrets/actions`
+1. **Gehe zu:** `https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/settings/secrets/actions`
 2. **Für jeden Secret:** Klicke "New repository secret"
 3. **Name:** Exakt wie oben angegeben eingeben
 4. **Value:** Entsprechenden Wert einfügen

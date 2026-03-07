@@ -1,0 +1,19 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git curl wget \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY openclaw-system/core/ /app/core/
+COPY openclaw-system/agents/ /app/agents/
+COPY openclaw-system/configs/ /app/configs/
+
+# Requirements aus core/agent_runtime
+COPY openclaw-system/core/agent_runtime/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+EXPOSE 9100
+
+CMD ["python", "-m", "core.agent_runtime.main"]

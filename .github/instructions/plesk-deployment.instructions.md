@@ -7,7 +7,7 @@ applyTo: '**'
 
 **Zielgruppe:** DevOps Engineer, Lead Architect  
 **Umgebung:** Plesk Obsidian (Web Host Edition) - Chrooted Shell `/bin/bash (chrooted)`  
-**Hosting:** menschlichkeit-oesterreich.at (Production), Staging-Subdomains  
+**Hosting:** menschlichkeit-oesterreich.at (Production), Staging-Subdomains
 
 ---
 
@@ -18,12 +18,14 @@ applyTo: '**'
 Als **Chroot-Admin** arbeiten Sie auf Plesk-Servern mit SSH in einer **chrooted Shell** für den jeweiligen Domain-Benutzer. Standard-Shell: `/bin/bash (chrooted)`.
 
 **Einschränkungen:**
+
 - ❌ Nur minimales Grund-Toolset verfügbar (ls, cat, cp, mv, rm, basic shell)
 - ❌ Kein direkter Root-Zugriff
 - ❌ Fehlende Standard-Tools: ssh-Client, Git, Composer, PHP-CLI, npm, curl, wget
 - ❌ Keine `/dev/tty`, `/etc/ld.so.conf`, `/usr/share/zoneinfo` (müssen manuell hinzugefügt werden)
 
 **Voraussetzung:**
+
 - Domain-Hosting-Einstellungen: **Web Hosting Access** → `/bin/bash (chrooted)` (in Plesk UI)
 - SSH-Zugang aktiviert (Password oder SSH-Key)
 
@@ -108,15 +110,18 @@ chmod 700 update-chroot.sh
 #### Bekannte Limitierungen
 
 **Warnung von Plesk:**
+
 > „Nicht jede Software funktioniert im Chroot. Bei komplexen Anforderungen ggf. auf dedizierte Server umsteigen."
 
 **Typische Probleme:**
+
 - ❌ Docker funktioniert NICHT in Chroot (benötigt Docker-Extension + Root-Rechte)
 - ❌ Systemd-Services können nicht gestartet werden
 - ❌ Kernel-Module (z.B. iptables, fuse) nicht verfügbar
 - ⚠️ n8n-Docker-Container: **NICHT** via SSH im Chroot startbar → Muss via Plesk-Docker-Extension oder extern gehostet werden
 
 **Workaround für n8n:**
+
 1. **Option A:** Plesk-Docker-Extension installieren (siehe 1.5) → Container via Plesk-UI verwalten
 2. **Option B:** n8n extern hosten (z.B. Railway.app, fly.io, eigener VPS)
 3. **Option C:** n8n als Node.js-App im Plesk-Chroot (ohne Docker) → `npm install n8n && npx n8n start` (siehe 1.4.3)
@@ -151,6 +156,7 @@ sudo cp -r /usr/share/zoneinfo/* /var/www/vhosts/menschlichkeit-oesterreich.at/u
 Plesk bietet einen **Application Catalog** mit vorgefertigten Web-Applikationen:
 
 **Häufige CMS:**
+
 - ✅ WordPress (Latest)
 - ✅ Joomla (4.x)
 - ✅ **Drupal 10** (offiziell unterstützt, siehe 2.2)
@@ -159,6 +165,7 @@ Plesk bietet einen **Application Catalog** mit vorgefertigten Web-Applikationen:
 - ✅ PrestaShop (Shop)
 
 **WICHTIG:**
+
 - ❌ Drupal 9: **NICHT** mehr offiziell unterstützt (EOL 2023-11-01)
 - ⚠️ Nextcloud: **NICHT** im Standard-Katalog → Manuelle Installation erforderlich (siehe 3.2)
 - ⚠️ CiviCRM: **NICHT** im Katalog → Muss als Drupal-Extension manuell installiert werden
@@ -187,6 +194,7 @@ Plesk bietet einen **Application Catalog** mit vorgefertigten Web-Applikationen:
    - SSL-Zertifikat (Let's Encrypt)
 
 **Nach Installation:**
+
 - Drupal-Admin-Panel: `https://menschlichkeit-oesterreich.at/admin` (oder `/crm/admin` bei Subdirectory)
 - CiviCRM manuell via Composer installieren (siehe 3.3)
 
@@ -270,9 +278,11 @@ Plesk unterstützt **Git-basierte Deployments** (benötigt Git-Extension).
 5. **Add Repository** → Plesk klont Repository
 
 **Manueller Deploy:**
+
 - Plesk-UI → **Git** → **Pull Updates** → Bestätigen
 
 **Automatischer Deploy (Webhook):**
+
 - GitHub → **Settings** → **Webhooks** → **Add webhook**
 - **Payload URL:** `https://menschlichkeit-oesterreich.at:8443/modules/git/webhook?repository_id=<REPO_ID>`
 - **Content type:** `application/json`
@@ -313,6 +323,7 @@ chown -R user:psacln sites/default/files  # user = Domain-User
 ```
 
 **WICHTIG:**
+
 - **GitHub-Token erforderlich** (für private Repos): `git clone https://<TOKEN>@github.com/peschull/menschlichkeit-oesterreich-development.git`
 - **SSH-Key-Auth bevorzugt:** `git clone git@github.com:peschull/menschlichkeit-oesterreich-development.git` (SSH-Key in GitHub-Account hinterlegen)
 
@@ -341,6 +352,7 @@ rsync -avz --delete \
 ```
 
 **WICHTIG:**
+
 - `--delete` löscht alte Dateien im Ziel (Vorsicht bei Produktions-Deployments!)
 - **Dry-Run empfohlen:** `rsync --dry-run -avz ...` (zeigt Änderungen ohne Ausführung)
 
@@ -389,6 +401,7 @@ chown -R user:psacln sites/default/files/civicrm
 3. **Apply Changes** → Plesk installiert Node.js
 
 **Nach Installation:**
+
 - Node.js-Binaries: `/opt/plesk/node/<VERSION>/bin/node`
 - npm: `/opt/plesk/node/<VERSION>/bin/npm`
 - npx: `/opt/plesk/node/<VERSION>/bin/npx`
@@ -448,6 +461,7 @@ app.listen(PORT, () => {
 ```
 
 **Plesk kümmert sich automatisch um:**
+
 - ✅ Prozess-Management (Start/Stop/Restart)
 - ✅ Auto-Restart bei Crashes
 - ✅ Reverse-Proxy (Apache/Nginx → Node.js-App)
@@ -482,6 +496,7 @@ pm2 startup  # Auto-Start nach Reboot (benötigt Root für systemd)
 ```
 
 **WICHTIG:**
+
 - ⚠️ **PM2-Startup benötigt Root** → Nicht im Chroot möglich → Kontaktieren Sie Hosting-Provider
 - ⚠️ **n8n-Tunnel-Modus:** Nur für Development, NICHT für Production (Sicherheitsrisiko)
 - ✅ **Empfehlung:** n8n via Plesk-Node.js-App (siehe 4.2) oder externe Hosting-Platform (Railway.app)
@@ -501,6 +516,7 @@ pm2 startup  # Auto-Start nach Reboot (benötigt Root für systemd)
 3. Nach Installation: **Docker** im Plesk-Menü verfügbar
 
 **Verfügbare Features:**
+
 - ✅ Docker-Images aus Docker Hub ziehen
 - ✅ Container starten/stoppen/löschen
 - ✅ Port-Mapping (z.B. n8n auf Port 5678)
@@ -549,6 +565,7 @@ pm2 startup  # Auto-Start nach Reboot (benötigt Root für systemd)
 3. **SSL aktivieren** (Let's Encrypt)
 
 **Backup-Empfehlung (von Plesk):**
+
 > "Sichern Sie Docker-Volumes regelmäßig, da Plesk-Backups nur Konfigurationen, nicht Container-Daten enthalten."
 
 **Backup-Script (Beispiel):**
@@ -571,6 +588,7 @@ pm2 startup  # Auto-Start nach Reboot (benötigt Root für systemd)
 3. **Apply Changes** → Plesk installiert PHP-Versionen
 
 **Pro Domain konfigurierbar:**
+
 - Plesk → **Domains** → `menschlichkeit-oesterreich.at` → **PHP Settings**
 - **PHP-Version:** 8.1 (für Drupal 10 + CiviCRM)
 - **Extensions:** mbstring, xml, gd, curl, zip, pdo_mysql (automatisch aktiviert)
@@ -580,15 +598,18 @@ pm2 startup  # Auto-Start nach Reboot (benötigt Root für systemd)
 ### 6.2 Datenbanken
 
 **Verfügbare DB-Systeme:**
+
 - ✅ MySQL 5.7, 8.0
 - ✅ PostgreSQL 12, 13, 14, 15, 16
 - ✅ MariaDB 10.x
 
 **Installation:**
+
 - **Tools & Settings** → **Updates** → **Add/Remove Components**
 - **PostgreSQL 15** auswählen → **Apply Changes**
 
 **Datenbank erstellen:**
+
 - Plesk → **Databases** → **Add Database**
 - **Database Name:** `menschlichkeit_db`
 - **Database Type:** PostgreSQL
@@ -600,6 +621,7 @@ pm2 startup  # Auto-Start nach Reboot (benötigt Root für systemd)
 ### 6.3 Weitere Komponenten
 
 **Verfügbar via Add/Remove Components:**
+
 - Python (2.7, 3.6-3.11)
 - Ruby (2.x, 3.x)
 - Perl (5.x)
@@ -643,6 +665,7 @@ graph LR
 **Regel:** Minimale Toolset-Installation im Chroot.
 
 **NUR hinzufügen, was wirklich benötigt wird:**
+
 - ✅ Git (für Deployments)
 - ✅ PHP-CLI (für Drupal/Composer)
 - ✅ Node.js (für Frontend-Builds)
@@ -650,6 +673,7 @@ graph LR
 - ❌ NICHT: sudo, su (im Chroot nicht verfügbar)
 
 **Regelmäßige Audits:**
+
 ```bash
 # Alle installierten Binaries im Chroot auflisten
 ls -lh /var/www/vhosts/menschlichkeit-oesterreich.at/bin/
@@ -660,11 +684,13 @@ ls -lh /var/www/vhosts/menschlichkeit-oesterreich.at/bin/
 ### 7.3 SSL-Zertifikate (Let's Encrypt)
 
 **Plesk kümmert sich automatisch um:**
+
 - ✅ Let's Encrypt-Integration (kostenlos)
 - ✅ Auto-Renewal (alle 90 Tage)
 - ✅ Wildcard-Zertifikate (via DNS-Challenge)
 
 **Manuelle Aktivierung:**
+
 1. Plesk → **Domains** → `menschlichkeit-oesterreich.at`
 2. **SSL/TLS Certificates**
 3. **Let's Encrypt** → **Get it free**
@@ -673,6 +699,7 @@ ls -lh /var/www/vhosts/menschlichkeit-oesterreich.at/bin/
 6. **Get it free** → Plesk beantragt Zertifikat
 
 **Monitoring:**
+
 - Plesk zeigt Ablaufdatum in Domain-Übersicht
 - Email-Benachrichtigung 30 Tage vor Ablauf
 
@@ -681,12 +708,14 @@ ls -lh /var/www/vhosts/menschlichkeit-oesterreich.at/bin/
 ### 7.4 Backup & Rollback
 
 **Plesk-Backup (empfohlen):**
+
 1. **Tools & Settings** → **Backup Manager**
 2. **Schedule:** Täglich (inkrementell), Wöchentlich (voll)
 3. **Storage:** Lokaler Server + FTP/SFTP/Cloud (Backblaze B2, AWS S3)
 4. **Retention:** 7 Tage (täglich), 4 Wochen (wöchentlich), 12 Monate (monatlich)
 
 **Rollback-Workflow:**
+
 1. Plesk → **Domains** → `menschlichkeit-oesterreich.at`
 2. **Backup Manager** → **Restore**
 3. **Select Backup** → Zeitpunkt auswählen
@@ -694,6 +723,7 @@ ls -lh /var/www/vhosts/menschlichkeit-oesterreich.at/bin/
 5. **Restore** → Bestätigen
 
 **Git-Rollback (Alternative):**
+
 ```bash
 # SSH
 ssh user@menschlichkeit-oesterreich.at
@@ -717,6 +747,7 @@ git pull origin production
 **Problem:** `bash: git: command not found`
 
 **Lösung:**
+
 ```bash
 ./update-chroot.sh --add git
 ./update-chroot.sh --apply menschlichkeit-oesterreich.at
@@ -729,6 +760,7 @@ git pull origin production
 **Problem:** `fatal: could not create work tree dir 'xxx': Permission denied`
 
 **Lösung:**
+
 ```bash
 # Dateirechte korrigieren
 chmod 755 /httpdocs
@@ -747,6 +779,7 @@ git clone ...
 **Problem:** Plesk zeigt "Stopped" Status
 
 **Lösung:**
+
 1. **Check Logs:** Plesk → **Node.js** → **Show Logs**
 2. **Häufige Fehler:**
    - Port bereits belegt → In `app.js` anderen Port verwenden
@@ -766,6 +799,7 @@ git clone ...
 **Problem:** `http://localhost:5678` gibt Timeout
 
 **Lösung:**
+
 1. **Container-Status prüfen:** Plesk → **Docker** → Container-Liste
 2. **Logs anzeigen:** Docker → Container → **Logs**
 3. **Port-Mapping prüfen:** Container-Port 5678 → Host-Port 5678

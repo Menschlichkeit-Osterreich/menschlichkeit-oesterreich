@@ -72,7 +72,7 @@ applyTo: **/*.md
 ### Setup
 ```
 # 1. Repository klonen
-git clone https://github.com/peschull/menschlichkeit-oesterreich-development.git
+git clone https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development.git
 
 # 2. Dependencies installieren
 npm install
@@ -166,8 +166,8 @@ Dieses Projekt ist lizenziert unter der [MIT License](./LICENSE).
 ## 📞 Kontakt
 
 - **Website**: https://menschlichkeit-oesterreich.at
-- **Issues**: https://github.com/peschull/menschlichkeit-oesterreich-development/issues
-- **Discussions**: https://github.com/peschull/menschlichkeit-oesterreich-development/discussions
+- **Issues**: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues
+- **Discussions**: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/discussions
 ```
 
 ## Formatting Best Practices

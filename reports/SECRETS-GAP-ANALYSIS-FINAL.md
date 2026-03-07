@@ -964,7 +964,7 @@ git push origin main
 **Tech Lead:** Peter Schuller (peter@menschlichkeit-oesterreich.at)
 **Vorstand:** Michael Schuller (michael@menschlichkeit-oesterreich.at)
 
-**Issue-Tracker:** https://github.com/peschull/menschlichkeit-oesterreich-development/issues
+**Issue-Tracker:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues
 **Quarterly Review:** 2026-01-15
 
 ---

@@ -64,7 +64,7 @@ npx dotenv-vault push production
 ### 3. Team-Kollegen: Pull secrets
 ```powershell
 # Auf anderem Rechner:
-git clone https://github.com/peschull/menschlichkeit-oesterreich-development.git
+git clone https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development.git
 cd menschlichkeit-oesterreich-development
 
 # Secrets aus Vault holen

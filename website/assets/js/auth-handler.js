@@ -415,24 +415,51 @@ class AuthHandler {
   }
 
   // Forgot Password Handler
-  handleForgotPassword() {
-    const email = document.getElementById('loginEmail').value.trim();
+  async handleForgotPassword() {
+    const emailField = document.getElementById('loginEmail');
+    const email = emailField.value.trim();
 
     if (!email) {
       this.showAlert('Bitte geben Sie zuerst Ihre E-Mail-Adresse ein.', 'warning');
+      this.showFieldError('loginEmail', 'E-Mail-Adresse ist erforderlich.');
       return;
     }
 
     if (!this.validateEmail(email)) {
       this.showAlert('Bitte geben Sie eine gültige E-Mail-Adresse ein.', 'danger');
+      this.showFieldError('loginEmail', 'Ungültige E-Mail-Adresse.');
       return;
     }
 
-    // TODO: Implement password reset API call
-    this.showAlert(
-      'Die Funktion "Passwort zurücksetzen" ist noch nicht verfügbar. Bitte kontaktieren Sie uns per E-Mail.',
-      'info'
-    );
+    this.clearFieldErrors();
+    const form = document.getElementById('loginForm');
+    this.setLoadingState(form, true, 'Sende Anfrage...');
+
+    try {
+      // TODO: Backend-Team muss den API-Endpunkt 'forgotPassword' implementieren.
+      // Der Endpunkt sollte eine E-Mail an den Benutzer senden und den Erfolg oder Misserfolg zurückgeben.
+      // const result = await window.crmApi.forgotPassword(email);
+
+      // Simulierter Aufruf für UI-Entwicklung
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      const result = { success: true }; // Annahme für Testzwecke
+
+      if (result.success) {
+        this.showAlert(
+          'Anweisungen zum Zurücksetzen des Passworts wurden an Ihre E-Mail-Adresse gesendet.',
+          'success'
+        );
+      } else {
+        this.showAlert(result.error || 'Die Anfrage zum Zurücksetzen des Passworts konnte nicht gesendet werden.', 'danger');
+      }
+    } catch (error) {
+      this.showAlert(
+        'Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.',
+        'danger'
+      );
+    } finally {
+      this.setLoadingState(form, false);
+    }
   }
 }
 

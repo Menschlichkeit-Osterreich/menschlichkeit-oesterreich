@@ -260,7 +260,7 @@ sha256sum build2.tar.gz
 curl -X PUT \
   -H "Authorization: Bearer $GITHUB_TOKEN" \
   -H "Accept: application/vnd.github+json" \
-  https://api.github.com/repos/peschull/menschlichkeit-oesterreich-development/branches/chore/figma-mcp-make/protection \
+  https://api.github.com/repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/branches/chore/figma-mcp-make/protection \
   -d '{
     "required_pull_request_reviews": {
       "required_approving_review_count": 2,

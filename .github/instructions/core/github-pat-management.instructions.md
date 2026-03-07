@@ -54,7 +54,7 @@ Dieser Leitfaden definiert **verbindliche Regeln** für den Umgang mit GitHub Pe
 ```yaml
 Resource owner: peschull (persönlich) oder "Menschlichkeit Österreich" (Organisation)
 Repository access: Only select repositories
-  - peschull/menschlichkeit-oesterreich-development
+  - Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
 
 Permissions:
   Repository permissions:
@@ -143,7 +143,7 @@ gh auth status
 # → Sollte zeigen: "Logged in to github.com as <username>"
 
 # Token verwenden (automatisch aus Credential Store)
-gh repo clone peschull/menschlichkeit-oesterreich-development
+gh repo clone Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
 gh issue list
 gh pr create
 ```

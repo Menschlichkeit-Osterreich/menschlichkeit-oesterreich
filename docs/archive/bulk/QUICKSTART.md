@@ -27,7 +27,7 @@
 
 ```bash
 # Repository klonen
-git clone https://github.com/peschull/menschlichkeit-oesterreich-development.git
+git clone https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development.git
 cd menschlichkeit-oesterreich-development
 
 # Dependencies installieren (npm workspaces)
