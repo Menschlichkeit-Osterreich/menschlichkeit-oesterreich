@@ -1,0 +1,32 @@
+Kontonummer,Kontoname,Kontenklasse,Kontengruppe,Typ,Beschreibung
+1000,Kassa,1,Umlaufvermögen,Aktiv,Bargeldbestand
+1100,Bankguthaben,1,Umlaufvermögen,Aktiv,Guthaben bei Kreditinstituten
+1200,Forderungen aus Mitgliedsbeiträgen,1,Umlaufvermögen,Aktiv,Offene Mitgliedsbeiträge
+1300,Forderungen aus Spenden,1,Umlaufvermögen,Aktiv,Zugesagte, aber noch nicht erhaltene Spenden
+1400,Sonstige Forderungen,1,Umlaufvermögen,Aktiv,Andere kurzfristige Forderungen
+1500,Vorsteuer,1,Umlaufvermögen,Aktiv,Abziehbare Vorsteuer (relevant für wirtschaftliche Geschäftsbetriebe)
+2000,Anlagevermögen,2,Anlagevermögen,Aktiv,Sachanlagen, immaterielle Vermögensgegenstände
+2100,Kumulierte Abschreibungen,2,Anlagevermögen,Aktiv,Wertberichtigungen auf das Anlagevermögen (Passiv-Posten mit Minus-Vorzeichen)
+3000,Verbindlichkeiten aus Lieferungen und Leistungen,3,Fremdkapital,Passiv,Offene Rechnungen von Lieferanten
+3100,Sonstige Verbindlichkeiten,3,Fremdkapital,Passiv,Andere kurzfristige Verbindlichkeiten
+3200,Umsatzsteuer,3,Fremdkapital,Passiv,Umsatzsteuerverbindlichkeiten
+3300,Rückstellungen,3,Fremdkapital,Passiv,Rückstellungen für ungewisse Verbindlichkeiten
+4000,Vereinskapital,4,Eigenkapital,Passiv,Grundkapital des Vereins
+4100,Ergebnisvortrag,4,Eigenkapital,Passiv,Gewinn-/Verlustvortrag aus Vorjahren
+4200,Jahresergebnis,4,Eigenkapital,Passiv,Aktuelles Jahresergebnis (Einnahmen - Ausgaben)
+5000,Einnahmen aus Mitgliedsbeiträgen,5,Erträge,Ertrag,Reguläre Mitgliedsbeiträge
+5100,Einnahmen aus Spenden,5,Erträge,Ertrag,Geldspenden ohne Zweckbindung
+5200,Einnahmen aus Projektförderungen,5,Erträge,Ertrag,Öffentliche und private Zuschüsse für Projekte
+5300,Einnahmen aus Veranstaltungen,5,Erträge,Ertrag,Erlöse aus Eintritten, Verkauf, etc.
+5400,Sonstige Einnahmen ideeller Bereich,5,Erträge,Ertrag,Zinserträge, sonstige nicht-zweckgebundene Einnahmen
+5500,Einnahmen wirtschaftlicher Geschäftsbetrieb,5,Erträge,Ertrag,Erlöse aus steuerpflichtigen Aktivitäten
+6000,Personalaufwand,6,Aufwendungen,Aufwand,Gehälter, Löhne, Sozialversicherungsbeiträge
+6100,Miete und Betriebskosten,6,Aufwendungen,Aufwand,Miete für Büroräumlichkeiten, Strom, Heizung
+6200,Bürobedarf und Verwaltung,6,Aufwendungen,Aufwand,Büromaterial, Porto, Telefon, Internet
+6300,Projekt- und Veranstaltungsaufwand,6,Aufwendungen,Aufwand,Direkte Kosten für Projekte und Veranstaltungen
+6400,Werbe- und Reisekosten,6,Aufwendungen,Aufwand,Kosten für Öffentlichkeitsarbeit, Reisekosten
+6500,Abschreibungen (AfA),6,Aufwendungen,Aufwand,Planmäßige Abschreibungen auf das Anlagevermögen
+6600,Steuern und Abgaben,6,Aufwendungen,Aufwand,Körperschaftssteuer (für wirt. Geschäftsbetrieb), sonstige Abgaben
+6700,Sonstiger betrieblicher Aufwand,6,Aufwendungen,Aufwand,Versicherungen, Beratungskosten, Bankspesen
+9000,Eröffnungsbilanzkonto,9,Technische Konten,Technisch,Konto für die Eröffnungsbuchungen
+9001,Saldenvortragskonto,9,Technische Konten,Technisch,Konto für den Vortrag der Salden

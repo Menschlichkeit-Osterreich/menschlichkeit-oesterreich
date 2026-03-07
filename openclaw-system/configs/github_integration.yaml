@@ -1,0 +1,126 @@
+# ============================================================
+# OpenClaw – GitHub-Integration
+# Personal Account + Organisation Menschlichkeit-Osterreich
+# ============================================================
+
+github:
+  # ─── Personal Account ─────────────────────────────────
+  personal:
+    token: ${GITHUB_TOKEN}                    # PAT mit: repo, workflow, read:org
+    username: ${GITHUB_PERSONAL_USER}
+    # Repos die der Agent lesen/schreiben darf
+    allowed_repos:
+      - "*"                                   # Alle eigenen Repos (einschränkbar)
+    # Aktionen die erlaubt sind
+    allowed_actions:
+      - read_repo
+      - create_branch
+      - create_commit
+      - create_pr
+      - read_issues
+      - create_issue_comment
+
+  # ─── Organisation ─────────────────────────────────────
+  organisation:
+    name: "Menschlichkeit-Osterreich"
+    token: ${GITHUB_ORG_TOKEN:-${GITHUB_TOKEN}}   # Kann separater Org-Token sein
+    # Repos mit expliziten Berechtigungen
+    repos:
+      - name: "menschlichkeit-oesterreich-development"
+        branch_protection: true
+        default_branch: "main"
+        allowed_actions:
+          - read_repo
+          - create_branch
+          - create_commit
+          - create_pr
+          - read_issues
+          - create_issue_comment
+          - read_actions
+        # Workflow-Dateien: nur via PR, nicht direkt
+        workflow_files: pr_only
+
+  # ─── Commit-Konfiguration ─────────────────────────────
+  commits:
+    author_name: "OpenClaw Agent"
+    author_email: "openclaw@menschlichkeit-oesterreich.at"
+    conventional_commits: true
+    sign_commits: false
+    # Erlaubte Commit-Typen
+    allowed_types:
+      - feat
+      - fix
+      - docs
+      - style
+      - refactor
+      - test
+      - chore
+      - ci
+
+  # ─── Branch-Strategie ─────────────────────────────────
+  branching:
+    main_branch: "main"
+    # Branches die der Agent erstellen darf
+    allowed_prefixes:
+      - "feat/"
+      - "fix/"
+      - "docs/"
+      - "chore/"
+      - "openclaw/"
+    # Branches die NIEMALS direkt beschrieben werden dürfen
+    protected_branches:
+      - "main"
+      - "production"
+      - "staging"
+
+  # ─── PR-Konfiguration ─────────────────────────────────
+  pull_requests:
+    auto_create: true
+    require_human_review: true
+    labels:
+      - "openclaw-generated"
+    # PR-Template
+    template: |
+      ## 🤖 OpenClaw Agent PR
+
+      **Task:** {task_title}
+      **Agent-Rolle:** {agent_role}
+      **Task-ID:** {task_id}
+
+      ### Änderungen
+      {changes_summary}
+
+      ### QA-Score
+      {qa_score}/100
+
+      ### Checkliste
+      - [ ] Code reviewed
+      - [ ] Tests bestanden
+      - [ ] Dokumentation aktualisiert
+
+      ---
+      *Automatisch generiert von OpenClaw Agent Runtime*
+
+  # ─── Webhook-Konfiguration ────────────────────────────
+  webhooks:
+    # GitHub sendet Events an n8n
+    events:
+      - push
+      - pull_request
+      - issues
+      - workflow_run
+    # n8n-Endpoint für GitHub-Events
+    target_url: ${N8N_URL}/webhook/github-events
+    secret: ${GITHUB_WEBHOOK_SECRET}
+
+  # ─── GitHub Actions Integration ───────────────────────
+  actions:
+    # Der Agent kann CI-Status lesen
+    read_workflow_runs: true
+    # Der Agent kann Workflows NICHT direkt triggern
+    trigger_workflows: false
+    # Nur diese Workflows darf der Agent überwachen
+    monitored_workflows:
+      - "deploy.yml"
+      - "test.yml"
+      - "lint.yml"

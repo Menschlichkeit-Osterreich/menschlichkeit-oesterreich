@@ -1,0 +1,95 @@
+{
+  "name": "Finance: Payment Confirmation",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "finance-payment-confirmed",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook: Payment Confirmed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const body = $input.first().json.body;\nconst invoiceId = body.invoice_id;\nconst paymentData = body.payment_data;\n\nif (!invoiceId || !paymentData) {\n  throw new Error('Missing invoice_id or payment_data');\n}\n\nreturn [{ json: { invoice_id: invoiceId, payment: paymentData } }];"
+      },
+      "id": "validate-input",
+      "name": "Validate & Extract Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.API_BASE_URL }}/finance/invoices/{{ $json.invoice_id }}/payment",
+        "method": "POST",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify($json.payment) }}",
+        "options": {}
+      },
+      "id": "update-invoice-api",
+      "name": "API: Update Invoice Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [680, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-backend-auth",
+          "name": "API Backend Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "contribution",
+        "operation": "update",
+        "contributionId": "={{ $json.body.civicrm_contribution_id }}",
+        "params": {
+          "contribution_status_id": 1, // Completed
+          "receive_date": "{{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}"
+        }
+      },
+      "id": "update-civicrm",
+      "name": "CiviCRM: Update Contribution",
+      "type": "n8n-nodes-base.civicrm",
+      "typeVersion": 1,
+      "position": [900, 300],
+      "credentials": {
+        "civiCRM": {
+          "id": "civicrm-prod",
+          "name": "CiviCRM Prod"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "to": "={{ $('API: Update Invoice Status').first().json.body.recipient_email }}",
+        "subject": "✅ Deine Zahlung für Rechnung {{ $('API: Update Invoice Status').first().json.body.invoice_number }} ist eingegangen",
+        "html": "<h1>Vielen Dank!</h1><p>Wir haben deine Zahlung in Höhe von {{ $('API: Update Invoice Status').first().json.body.paid_amount }} EUR erhalten.</p>"
+      },
+      "id": "send-confirmation-email",
+      "name": "Send Confirmation Email",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 1,
+      "position": [1120, 300],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-prod",
+          "name": "SMTP Prod"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "webhook-trigger": { "main": [[{ "node": "Validate & Extract Data", "type": "main", "index": 0 }]] },
+    "validate-input": { "main": [[{ "node": "API: Update Invoice Status", "type": "main", "index": 0 }]] },
+    "update-invoice-api": { "main": [[{ "node": "CiviCRM: Update Contribution", "type": "main", "index": 0 }]] },
+    "update-civicrm": { "main": [[{ "node": "Send Confirmation Email", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": ["finance", "payment", "automation"]
+}

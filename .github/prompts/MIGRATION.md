@@ -7,7 +7,7 @@ Status: DEPRECATED → Migration zu Chatmodes/Instructions
 
 - Gesamt-Mappings: 137
 - Migriert: 131
-- Offen (TBD): 6
+- Offen (TBD): 0
 
 ## Mapping-Tabelle
 
@@ -126,9 +126,9 @@ Status: DEPRECATED → Migration zu Chatmodes/Instructions
 | `prompts/Dockerisierung_DE.prompt.md` | `.github/chatmodes/Dockerisierung_DE.chatmode.md` | ✅ |
 | `prompts/FeatureVorschlag_DE.prompt.md` | `.github/chatmodes/FeatureVorschlag_DE.chatmode.md` | ✅ |
 | `prompts/FehlerberichtVorlage_DE.prompt.md` | `.github/chatmodes/FehlerberichtVorlage_DE.chatmode.md` | ✅ |
-| `prompts/global/00_glossary.md` | `TBD - Siehe Migration Guide` | TBD |
-| `prompts/global/01_style_guide.md` | `TBD - Siehe Migration Guide` | TBD |
-| `prompts/global/02_guardrails.md` | `TBD - Siehe Migration Guide` | TBD |
+| `prompts/global/00_glossary.md` | `.github/instructions/core/glossary.instructions.md` | ✅ DEPRECATED |
+| `prompts/global/01_style_guide.md` | `.github/instructions/core/style-guide.instructions.md` | ✅ DEPRECATED |
+| `prompts/global/02_guardrails.md` | `.github/instructions/core/guardrails.instructions.md` | ✅ DEPRECATED |
 | `prompts/Lokalisierungsplan_DE.prompt.md` | `.github/chatmodes/Lokalisierungsplan_DE.chatmode.md` | ✅ |
 | `prompts/MarketingContent_DE.prompt.md` | `.github/chatmodes/MarketingContent_DE.chatmode.md` | ✅ |
 | `prompts/MCPDatabaseMigration_DE.prompt.md` | `.github/chatmodes/MCPDatabaseMigration_DE.chatmode.md` | ✅ |
@@ -139,9 +139,9 @@ Status: DEPRECATED → Migration zu Chatmodes/Instructions
 | `prompts/MIGRATION_MAP.md` | `.github/chatmodes/MIGRATION_MAP_DE.chatmode.md` | ✅ |
 | `prompts/mitgliederaufnahme.prompt.md` | `.github/chatmodes/mitgliederaufnahme.prompt_DE.chatmode.md` | ✅ |
 | `prompts/mitgliederversammlung.prompt.md` | `.github/chatmodes/mitgliederversammlung.prompt_DE.chatmode.md` | ✅ |
-| `prompts/n8n/06-quality-reporting.md` | `TBD - Siehe Migration Guide` | TBD |
-| `prompts/n8n/07-monitoring.md` | `TBD - Siehe Migration Guide` | TBD |
-| `prompts/n8n/08-backup-automation.md` | `TBD - Siehe Migration Guide` | TBD |
+| `prompts/n8n/06-quality-reporting.md` | `.github/chatmodes/N8N_Automation_DE.chatmode.md` | ✅ DEPRECATED |
+| `prompts/n8n/07-monitoring.md` | `.github/chatmodes/N8N_Automation_DE.chatmode.md` | ✅ DEPRECATED |
+| `prompts/n8n/08-backup-automation.md` | `.github/chatmodes/N8N_Automation_DE.chatmode.md` | ✅ DEPRECATED |
 | `prompts/Onboarding_DE.prompt.md` | `.github/chatmodes/Onboarding_DE.chatmode.md` | ✅ |
 | `prompts/PerformanceOptimierung_DE.prompt.md` | `.github/chatmodes/PerformanceOptimierung_DE.chatmode.md` | ✅ |
 | `prompts/README.md` | `.github/chatmodes/README_DE.chatmode.md` | ✅ |
