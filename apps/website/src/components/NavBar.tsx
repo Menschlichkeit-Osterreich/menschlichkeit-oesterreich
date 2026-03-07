@@ -110,6 +110,9 @@ export default function NavBar() {
                     <Link role="menuitem" className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-secondary-50 transition-colors" to="/member" onClick={() => setMenuOpen(false)}>
                       <span aria-hidden="true">👤</span> Mitgliederbereich
                     </Link>
+                    <Link role="menuitem" className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-secondary-50 transition-colors" to="/member/dashboard" onClick={() => setMenuOpen(false)}>
+                      <span aria-hidden="true">📊</span> Dashboard
+                    </Link>
                     <Link role="menuitem" className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-secondary-50 transition-colors" to="/account/privacy" onClick={() => setMenuOpen(false)}>
                       <span aria-hidden="true">🔒</span> Datenschutz
                     </Link>
