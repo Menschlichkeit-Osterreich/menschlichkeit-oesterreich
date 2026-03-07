@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://menschlichkeit-oesterreich.at/schemas/repo-manifest.schema.json",
+  "title": "Repo Manifest",
+  "type": "object",
+  "required": [
+    "repo_name",
+    "default_branch",
+    "generated_at",
+    "commit_sha",
+    "services",
+    "databases",
+    "ci_workflows",
+    "docs",
+    "artifact_paths",
+    "security_tooling"
+  ],
+  "properties": {
+    "repo_name": { "type": "string" },
+    "default_branch": { "type": "string" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "commit_sha": { "type": "string" },
+    "services": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "databases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "engine", "evidence"],
+        "properties": {
+          "name": { "type": "string" },
+          "engine": { "type": "string" },
+          "evidence": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "ci_workflows": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "docs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "artifact_paths": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "security_tooling": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": false
+}
