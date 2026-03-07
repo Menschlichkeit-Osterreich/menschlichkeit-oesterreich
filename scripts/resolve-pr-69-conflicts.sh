@@ -5,7 +5,7 @@
 
 set -euo pipefail
 
-REPO="peschull/menschlichkeit-oesterreich-development"
+REPO="Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development"
 PR_NUMBER=69
 COMMENT_BODY="@dependabot rebase"
 

@@ -381,7 +381,7 @@ npm run docs:spell-check
 
 ### Fragen zu diesem Document?
 - **Email:** dev@menschlichkeit-oesterreich.at
-- **GitHub Issues:** [Issues](https://github.com/peschull/menschlichkeit-oesterreich-development/issues)
+- **GitHub Issues:** [Issues](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues)
 - **Support:** Siehe [SUPPORT.md](SUPPORT.md)
 
 ### Technische Probleme?

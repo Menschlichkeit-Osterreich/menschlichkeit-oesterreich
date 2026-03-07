@@ -330,6 +330,9 @@ config/local*
 error.log
 access.log
 
+# Prisma auto-generated client files
+generated/
+
 # Quality reports & CI artifacts (generated)
 quality-reports/
 playwright-results/
@@ -402,3 +405,7 @@ crm.menschlichkeit-oesterreich.at/web/core/modules/**/tests/**/README.md
 .flaskenv*
 !.env.project
 !.env.vault
+# OpenClaw – lokale Konfiguration (niemals einchecken)
+.openclaw/
+automation/openclaw/.env
+automation/openclaw/config/config.yaml

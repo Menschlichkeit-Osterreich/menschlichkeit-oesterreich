@@ -193,7 +193,7 @@ Date:   Thu Oct 3 22:30:00 2025 +0000
 git push origin chore/figma-mcp-make
 
 # Dann auf GitHub prüfen:
-# https://github.com/peschull/menschlichkeit-oesterreich-development/commits/chore/figma-mcp-make
+# https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/commits/chore/figma-mcp-make
 # → "Verified" Badge sollte sichtbar sein
 ```
 
@@ -237,7 +237,7 @@ curl -X PUT \
 # Branch-Protection-Status abrufen
 curl -H "Authorization: Bearer $GITHUB_TOKEN" \
   -H "Accept: application/vnd.github+json" \
-  "https://api.github.com/repos/peschull/menschlichkeit-oesterreich-development/branches/chore%2Ffigma-mcp-make/protection" \
+  "https://api.github.com/repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/branches/chore%2Ffigma-mcp-make/protection" \
   | jq '.required_signatures.enabled'
 
 # Sollte "true" zurückgeben

@@ -1,0 +1,165 @@
+version: "3.9"
+
+# ============================================================
+# OpenClaw Multi-Agent-System – Docker Compose Stack
+# Menschlichkeit Österreich
+# Ports: kollisionsfrei zu 5173, 8001, 8000, 3000, 5678
+# ============================================================
+
+services:
+
+  # ─── NATS + JetStream (Event-Bus + Task-Queue) ────────────
+  nats:
+    image: nats:2.10-alpine
+    container_name: oc_nats
+    command: ["-js", "-m", "8222", "--name", "oc-nats"]
+    ports:
+      - "4222:4222"   # Client
+      - "8222:8222"   # Monitoring
+    networks: [oc_net]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8222/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Redis (Short-Term Memory + Locks + Rate Limiting) ────
+  redis:
+    image: redis:7-alpine
+    container_name: oc_redis
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6380:6379"   # Host 6380 → Container 6379
+    networks: [oc_net]
+    volumes:
+      - oc_redis:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── PostgreSQL (Long-Term Memory + Audit) ────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: oc_postgres
+    environment:
+      POSTGRES_DB: oc
+      POSTGRES_USER: oc
+      POSTGRES_PASSWORD: ${OC_PG_PASSWORD:-oc_dev_only}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    ports:
+      - "55432:5432"  # Host 55432 → Container 5432
+    networks: [oc_net]
+    volumes:
+      - oc_pg:/var/lib/postgresql/data
+      - ../services/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U oc -d oc"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Qdrant (Semantic / Vector Memory) ───────────────────
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: oc_qdrant
+    ports:
+      - "6333:6333"   # REST API
+      - "6334:6334"   # gRPC
+    networks: [oc_net]
+    volumes:
+      - oc_qdrant:/qdrant/storage
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:6333/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─── Tool-Gateway (FastAPI, Port 9101) ───────────────────
+  tool-gateway:
+    build:
+      context: ../
+      dockerfile: openclaw-system/docker/Dockerfile.tool-gateway
+    container_name: oc_tool_gateway
+    ports:
+      - "9101:9101"
+    networks: [oc_net]
+    environment:
+      OC_WORKSPACE_ROOT: /workspace
+      OC_PG_DSN: postgresql://oc:${OC_PG_PASSWORD:-oc_dev_only}@postgres:5432/oc
+      OC_REDIS_URL: redis://redis:6379
+      OC_NATS_URL: nats://nats:4222
+      OC_GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      OC_ALLOWED_DOMAINS: ${OC_ALLOWED_DOMAINS:-github.com,api.github.com,menschlichkeit-oesterreich.at}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - ../:/workspace:rw
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9101/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ─── Agent-Runtime (Python asyncio, Port 9100) ───────────
+  agent-runtime:
+    build:
+      context: ../
+      dockerfile: openclaw-system/docker/Dockerfile.agent-runtime
+    container_name: oc_agent_runtime
+    ports:
+      - "9100:9100"
+    networks: [oc_net]
+    environment:
+      OC_NATS_URL: nats://nats:4222
+      OC_REDIS_URL: redis://redis:6379
+      OC_PG_DSN: postgresql://oc:${OC_PG_PASSWORD:-oc_dev_only}@postgres:5432/oc
+      OC_QDRANT_URL: http://qdrant:6333
+      OC_TOOL_GATEWAY_URL: http://tool-gateway:9101
+      OC_OLLAMA_URL: ${OC_OLLAMA_URL:-http://host.docker.internal:11434}
+      OC_OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OC_DEFAULT_MODEL: ${OC_DEFAULT_MODEL:-gpt-4.1-mini}
+      OC_MAX_TOOL_CALLS: ${OC_MAX_TOOL_CALLS:-20}
+      OC_MAX_MINUTES: ${OC_MAX_MINUTES:-15}
+      OC_MAX_COST_EUR: ${OC_MAX_COST_EUR:-0.20}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - ../:/workspace:rw
+    depends_on:
+      tool-gateway:
+        condition: service_healthy
+      qdrant:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9100/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+# ─── Networks ─────────────────────────────────────────────
+networks:
+  oc_net:
+    name: oc_net
+    driver: bridge
+
+# ─── Volumes ──────────────────────────────────────────────
+volumes:
+  oc_redis:
+    name: oc_redis
+  oc_pg:
+    name: oc_pg
+  oc_qdrant:
+    name: oc_qdrant

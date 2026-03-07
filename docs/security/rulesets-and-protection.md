@@ -1,7 +1,7 @@
 # Repository Rulesets & Branch Protection
 
 **Organisation:** Menschlichkeit Österreich  
-**Repository:** peschull/menschlichkeit-oesterreich-development  
+**Repository:** Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development  
 **Stand:** 2025-10-12
 
 ---
@@ -334,7 +334,7 @@ az ad app federated-credential create \
   --parameters '{
     "name": "github-actions",
     "issuer": "https://token.actions.githubusercontent.com",
-    "subject": "repo:peschull/menschlichkeit-oesterreich-development:ref:refs/heads/main",
+    "subject": "repo:Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development:ref:refs/heads/main",
     "audiences": ["api://AzureADTokenExchange"]
   }'
 ```
@@ -370,7 +370,7 @@ jobs:
       "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
         "StringEquals": {
-          "token.actions.githubusercontent.com:sub": "repo:peschull/menschlichkeit-oesterreich-development:ref:refs/heads/main"
+          "token.actions.githubusercontent.com:sub": "repo:Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development:ref:refs/heads/main"
         }
       }
     }

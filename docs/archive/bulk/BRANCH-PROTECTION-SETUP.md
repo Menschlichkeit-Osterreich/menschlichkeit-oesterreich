@@ -4,7 +4,7 @@
 
 ### Schritt 1: Branch Protection aktivieren
 
-Öffnen Sie: https://github.com/peschull/menschlichkeit-oesterreich-development/settings/branches
+Öffnen Sie: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/settings/branches
 
 ### Schritt 2: Neue Rule hinzufügen
 

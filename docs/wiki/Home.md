@@ -36,7 +36,7 @@ Diese Wiki dient als zentrale Anlaufstelle für Entwickler:innen, DevOps, und al
 
 1. **Repository Setup**
    ```bash
-   git clone https://github.com/peschull/menschlichkeit-oesterreich-development.git
+   git clone https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development.git
    cd menschlichkeit-oesterreich-development
    npm run setup:dev
    ```
@@ -154,7 +154,7 @@ Siehe [Security Guide](Security) und [Privacy Documentation](Privacy) für Detai
 ### Vulnerability Reporting
 
 **Private Vulnerability Reporting** verfügbar:
-1. Navigate to [Security → Advisories](https://github.com/peschull/menschlichkeit-oesterreich-development/security/advisories)
+1. Navigate to [Security → Advisories](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/security/advisories)
 2. Click "New draft security advisory"
 3. Describe the vulnerability (details ohne sensitive data)
 4. Wir antworten innerhalb 72 Stunden
@@ -190,10 +190,10 @@ docs/
 
 ### Externe Links
 
-- **GitHub Issues**: [Issues Tracker](https://github.com/peschull/menschlichkeit-oesterreich-development/issues)
-- **Pull Requests**: [PR Workflow](https://github.com/peschull/menschlichkeit-oesterreich-development/pulls)
-- **Discussions**: [Community Discussions](https://github.com/peschull/menschlichkeit-oesterreich-development/discussions)
-- **Security Advisories**: [Security Tab](https://github.com/peschull/menschlichkeit-oesterreich-development/security)
+- **GitHub Issues**: [Issues Tracker](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues)
+- **Pull Requests**: [PR Workflow](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pulls)
+- **Discussions**: [Community Discussions](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/discussions)
+- **Security Advisories**: [Security Tab](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/security)
 
 ---
 
@@ -221,12 +221,12 @@ Siehe [Contributing Guide](Community#contributing) für Details.
 ## 📞 Support & Kontakt
 
 ### Für Entwickler-Fragen:
-- **GitHub Discussions**: [Fragen stellen](https://github.com/peschull/menschlichkeit-oesterreich-development/discussions)
-- **Issues**: [Bug melden oder Feature vorschlagen](https://github.com/peschull/menschlichkeit-oesterreich-development/issues)
+- **GitHub Discussions**: [Fragen stellen](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/discussions)
+- **Issues**: [Bug melden oder Feature vorschlagen](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues)
 
 ### Für Security-Themen:
 - **E-Mail**: security@menschlichkeit-oesterreich.at
-- **Private Vulnerability Reporting**: [Security Tab](https://github.com/peschull/menschlichkeit-oesterreich-development/security/advisories/new)
+- **Private Vulnerability Reporting**: [Security Tab](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/security/advisories/new)
 
 ### Für DSGVO/Datenschutz:
 - **Datenschutzbeauftragte:r**: [DPO_EMAIL]

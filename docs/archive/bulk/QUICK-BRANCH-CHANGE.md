@@ -4,7 +4,7 @@
 
 **Klicken Sie hier und folgen Sie den Schritten:**
 
-➡️ **https://github.com/peschull/menschlichkeit-oesterreich-development/settings/branches**
+➡️ **https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/settings/branches**
 
 ### Was Sie sehen werden:
 

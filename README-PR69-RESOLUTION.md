@@ -5,7 +5,7 @@
 ### 🌟 Method 1: Manual Comment (2 clicks, 10 seconds)
 **RECOMMENDED - Works for everyone**
 
-1. **[Click here to open PR #69](https://github.com/peschull/menschlichkeit-oesterreich-development/pull/69)**
+1. **[Click here to open PR #69](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/69)**
 2. **Scroll to bottom and add this comment:**
    ```
    @dependabot rebase
@@ -19,7 +19,7 @@
 **For developers with GitHub CLI installed**
 
 ```bash
-gh pr comment 69 --body "@dependabot rebase" --repo peschull/menschlichkeit-oesterreich-development
+gh pr comment 69 --body "@dependabot rebase" --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
 ```
 
 ---
@@ -36,7 +36,7 @@ gh pr comment 69 --body "@dependabot rebase" --repo peschull/menschlichkeit-oest
 ### 🔧 Method 4: GitHub Actions Workflow (Manual Trigger)
 **For those who prefer UI**
 
-1. **[Go to Actions](https://github.com/peschull/menschlichkeit-oesterreich-development/actions/workflows/resolve-pr-conflicts.yml)**
+1. **[Go to Actions](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/actions/workflows/resolve-pr-conflicts.yml)**
 2. **Click "Run workflow"**
 3. **Enter PR number:** `69`
 4. **Select command:** `@dependabot rebase`

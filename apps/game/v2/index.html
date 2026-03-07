@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brücken Bauen 3D – Demokratie erleben | Menschlichkeit Österreich</title>
+  <meta name="description" content="Das 3D-Demokratiespiel: 100 Level, 6 Rollen, echte Entscheidungen. Lerne demokratische Teilhabe spielerisch kennen." />
+
+  <!-- Three.js r160 via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- GSAP für UI-Animationen -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <!-- Howler.js für Audio -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/game.css" />
+</head>
+<body>
+
+<!-- ── Loading Screen ──────────────────────────────────────────────────────── -->
+<div id="loading-screen">
+  <div class="loading-content">
+    <div class="logo-3d-container">
+      <canvas id="logo-canvas" width="200" height="200"></canvas>
+    </div>
+    <h1 class="loading-title">BRÜCKEN BAUEN</h1>
+    <p class="loading-subtitle">Demokratie in 3D erleben</p>
+    <div class="loading-bar-wrap">
+      <div class="loading-bar" id="loading-bar"></div>
+    </div>
+    <p class="loading-percent" id="loading-percent">0%</p>
+  </div>
+</div>
+
+<!-- ── Main Menu ───────────────────────────────────────────────────────────── -->
+<div id="main-menu" class="screen hidden">
+  <div class="menu-bg-canvas-wrap">
+    <canvas id="menu-bg-canvas"></canvas>
+  </div>
+  <div class="menu-content">
+    <div class="menu-logo">
+      <span class="logo-icon">🏛️</span>
+      <h1>BRÜCKEN BAUEN</h1>
+      <p>Demokratie erleben · 100 Level · 6 Rollen</p>
+    </div>
+    <div class="menu-buttons">
+      <button class="btn-primary btn-xl" id="btn-new-game">🎮 Neues Spiel</button>
+      <button class="btn-secondary btn-xl" id="btn-continue" disabled>▶ Fortsetzen</button>
+      <button class="btn-secondary btn-xl" id="btn-role-select">👤 Rolle wählen</button>
+      <button class="btn-secondary btn-xl" id="btn-leaderboard">🏆 Rangliste</button>
+      <button class="btn-secondary btn-xl" id="btn-settings">⚙️ Einstellungen</button>
+      <button class="btn-ghost btn-xl" id="btn-teacher">👩‍🏫 Lehrkräfte-Modus</button>
+    </div>
+    <div class="menu-footer">
+      <span>v2.0 · Menschlichkeit Österreich · DSGVO-konform</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── Role Selection ──────────────────────────────────────────────────────── -->
+<div id="role-select-screen" class="screen hidden">
+  <div class="screen-header">
+    <button class="btn-back" id="btn-back-from-role">← Zurück</button>
+    <h2>Wähle deine Rolle</h2>
+    <p>Jede Rolle bietet einzigartige Perspektiven und Fähigkeiten</p>
+  </div>
+  <div class="roles-grid" id="roles-grid">
+    <!-- Dynamisch befüllt durch JS -->
+  </div>
+</div>
+
+<!-- ── World Map ───────────────────────────────────────────────────────────── -->
+<div id="world-map-screen" class="screen hidden">
+  <div class="world-map-header">
+    <div class="player-hud">
+      <div class="hud-avatar" id="hud-avatar">🏛️</div>
+      <div class="hud-info">
+        <span class="hud-name" id="hud-name">Spieler</span>
+        <span class="hud-role" id="hud-role">Bürger:in</span>
+      </div>
+      <div class="hud-xp">
+        <span class="hud-level" id="hud-level">Lvl 1</span>
+        <div class="xp-bar-wrap">
+          <div class="xp-bar" id="xp-bar" style="width:0%"></div>
+        </div>
+        <span class="hud-xp-text" id="hud-xp-text">0 / 100 XP</span>
+      </div>
+    </div>
+    <div class="map-title">
+      <h2>Demokratie-Karte Österreichs</h2>
+      <p id="map-region-name">Wähle eine Region</p>
+    </div>
+    <div class="hud-stats">
+      <div class="stat-badge" title="Empathie">❤️ <span id="stat-empathy">0</span></div>
+      <div class="stat-badge" title="Rechte">⚖️ <span id="stat-rights">0</span></div>
+      <div class="stat-badge" title="Teilhabe">🗳️ <span id="stat-participation">0</span></div>
+      <div class="stat-badge" title="Mut">💪 <span id="stat-courage">0</span></div>
+    </div>
+  </div>
+
+  <!-- 3D World Map Canvas -->
+  <canvas id="world-canvas"></canvas>
+
+  <!-- Level Selection Panel -->
+  <div class="level-panel" id="level-panel">
+    <div class="level-panel-header">
+      <h3 id="level-panel-title">Wähle ein Level</h3>
+      <button class="btn-close-panel" id="btn-close-panel">✕</button>
+    </div>
+    <div class="level-list" id="level-list"></div>
+  </div>
+</div>
+
+<!-- ── Game Scene ──────────────────────────────────────────────────────────── -->
+<div id="game-screen" class="screen hidden">
+  <!-- 3D Scene Canvas -->
+  <canvas id="game-canvas"></canvas>
+
+  <!-- Game HUD Overlay -->
+  <div class="game-hud">
+    <div class="game-hud-top">
+      <button class="btn-pause" id="btn-pause">⏸</button>
+      <div class="scenario-info">
+        <span class="scenario-chapter" id="scenario-chapter">Kapitel 1</span>
+        <span class="scenario-title" id="scenario-title">Szenario</span>
+      </div>
+      <div class="game-timer" id="game-timer">⏱ 00:00</div>
+    </div>
+
+    <!-- Dialogue Box -->
+    <div class="dialogue-box" id="dialogue-box">
+      <div class="dialogue-speaker">
+        <div class="speaker-avatar" id="speaker-avatar">👤</div>
+        <span class="speaker-name" id="speaker-name">Name</span>
+      </div>
+      <div class="dialogue-text" id="dialogue-text">
+        <p id="dialogue-content">...</p>
+      </div>
+      <div class="dialogue-choices" id="dialogue-choices">
+        <!-- Dynamisch befüllt -->
+      </div>
+    </div>
+
+    <!-- Consequence Feedback -->
+    <div class="consequence-popup hidden" id="consequence-popup">
+      <div class="consequence-icon" id="consequence-icon">✅</div>
+      <div class="consequence-text" id="consequence-text"></div>
+      <div class="consequence-stats" id="consequence-stats"></div>
+    </div>
+
+    <!-- Mini-Map -->
+    <div class="mini-map" id="mini-map">
+      <canvas id="mini-map-canvas" width="120" height="120"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- ── Level Complete ──────────────────────────────────────────────────────── -->
+<div id="level-complete-screen" class="screen hidden">
+  <div class="complete-content">
+    <div class="complete-animation" id="complete-animation">
+      <canvas id="fireworks-canvas" width="600" height="400"></canvas>
+    </div>
+    <div class="complete-info">
+      <h2 id="complete-title">Level abgeschlossen!</h2>
+      <div class="star-rating" id="star-rating">
+        <span class="star" data-star="1">⭐</span>
+        <span class="star" data-star="2">⭐</span>
+        <span class="star" data-star="3">⭐</span>
+      </div>
+      <div class="complete-stats">
+        <div class="stat-row"><span>XP gewonnen:</span><span id="xp-earned">+0</span></div>
+        <div class="stat-row"><span>Zeit:</span><span id="time-taken">00:00</span></div>
+        <div class="stat-row"><span>Entscheidungen:</span><span id="decisions-made">0</span></div>
+        <div class="stat-row"><span>Empathie:</span><span id="empathy-delta">+0</span></div>
+      </div>
+      <div class="badges-earned" id="badges-earned"></div>
+      <div class="complete-lesson" id="complete-lesson">
+        <h4>🎓 Was du gelernt hast:</h4>
+        <p id="lesson-text"></p>
+      </div>
+      <div class="complete-buttons">
+        <button class="btn-primary" id="btn-next-level">Nächstes Level →</button>
+        <button class="btn-secondary" id="btn-retry">↺ Wiederholen</button>
+        <button class="btn-ghost" id="btn-world-map">🗺 Weltkarte</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Leaderboard ─────────────────────────────────────────────────────────── -->
+<div id="leaderboard-screen" class="screen hidden">
+  <div class="screen-header">
+    <button class="btn-back" id="btn-back-from-lb">← Zurück</button>
+    <h2>🏆 Rangliste</h2>
+  </div>
+  <div class="leaderboard-tabs">
+    <button class="tab active" data-tab="global">Global</button>
+    <button class="tab" data-tab="regional">Regional</button>
+    <button class="tab" data-tab="class">Klasse</button>
+    <button class="tab" data-tab="weekly">Diese Woche</button>
+  </div>
+  <div class="leaderboard-list" id="leaderboard-list"></div>
+</div>
+
+<!-- ── Settings ───────────────────────────────────────────────────────────── -->
+<div id="settings-screen" class="screen hidden">
+  <div class="screen-header">
+    <button class="btn-back" id="btn-back-from-settings">← Zurück</button>
+    <h2>⚙️ Einstellungen</h2>
+  </div>
+  <div class="settings-content">
+    <div class="settings-group">
+      <h3>Grafik</h3>
+      <label>Qualität: <select id="setting-quality"><option value="low">Niedrig</option><option value="medium" selected>Mittel</option><option value="high">Hoch</option></select></label>
+      <label>Schatten: <input type="checkbox" id="setting-shadows" checked /></label>
+      <label>Partikel: <input type="checkbox" id="setting-particles" checked /></label>
+    </div>
+    <div class="settings-group">
+      <h3>Audio</h3>
+      <label>Musik: <input type="range" id="setting-music" min="0" max="100" value="60" /></label>
+      <label>Effekte: <input type="range" id="setting-sfx" min="0" max="100" value="80" /></label>
+    </div>
+    <div class="settings-group">
+      <h3>Barrierefreiheit</h3>
+      <label>Schriftgröße: <select id="setting-fontsize"><option value="normal" selected>Normal</option><option value="large">Groß</option><option value="xlarge">Sehr groß</option></select></label>
+      <label>Hoher Kontrast: <input type="checkbox" id="setting-contrast" /></label>
+      <label>Animationen reduzieren: <input type="checkbox" id="setting-reduce-motion" /></label>
+    </div>
+    <div class="settings-group">
+      <h3>Datenschutz</h3>
+      <label>Fortschritt speichern: <input type="checkbox" id="setting-save" checked /></label>
+      <label>Anonyme Statistiken: <input type="checkbox" id="setting-analytics" /></label>
+      <button class="btn-danger" id="btn-delete-data">Alle Daten löschen</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Teacher Dashboard ───────────────────────────────────────────────────── -->
+<div id="teacher-screen" class="screen hidden">
+  <div class="screen-header">
+    <button class="btn-back" id="btn-back-from-teacher">← Zurück</button>
+    <h2>👩‍🏫 Lehrkräfte-Dashboard</h2>
+  </div>
+  <div class="teacher-content">
+    <div class="teacher-code-section">
+      <h3>Klassen-Code</h3>
+      <div class="class-code" id="class-code">----</div>
+      <button class="btn-primary" id="btn-generate-code">Neuen Code generieren</button>
+    </div>
+    <div class="teacher-stats">
+      <div class="teacher-stat-card"><h4>Aktive Schüler:innen</h4><span id="t-students">0</span></div>
+      <div class="teacher-stat-card"><h4>Ø Level</h4><span id="t-avg-level">0</span></div>
+      <div class="teacher-stat-card"><h4>Abgeschlossene Level</h4><span id="t-completed">0</span></div>
+      <div class="teacher-stat-card"><h4>Ø Empathie-Score</h4><span id="t-empathy">0</span></div>
+    </div>
+    <div class="teacher-heatmap">
+      <h3>Klassen-Heatmap</h3>
+      <canvas id="teacher-heatmap-canvas" width="600" height="200"></canvas>
+    </div>
+    <div class="teacher-curriculum">
+      <h3>Lehrplan-Alignment</h3>
+      <div id="curriculum-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Pause Menu ──────────────────────────────────────────────────────────── -->
+<div id="pause-menu" class="overlay hidden">
+  <div class="pause-content">
+    <h2>⏸ Pause</h2>
+    <button class="btn-primary" id="btn-resume">▶ Weiter</button>
+    <button class="btn-secondary" id="btn-restart">↺ Neustart</button>
+    <button class="btn-ghost" id="btn-quit-to-map">🗺 Zur Karte</button>
+    <button class="btn-ghost" id="btn-quit-to-menu">🏠 Hauptmenü</button>
+  </div>
+</div>
+
+<!-- ── Achievement Toast ───────────────────────────────────────────────────── -->
+<div id="achievement-toast" class="toast hidden">
+  <div class="toast-icon" id="toast-icon">🏅</div>
+  <div class="toast-text">
+    <strong id="toast-title">Achievement!</strong>
+    <span id="toast-desc">Beschreibung</span>
+  </div>
+</div>
+
+<!-- ── Scripts ─────────────────────────────────────────────────────────────── -->
+<script src="js/config.js"></script>
+<script src="js/data-roles.js"></script>
+<script src="js/data-levels.js"></script>
+<script src="js/data-scenarios.js"></script>
+<script src="js/engine-3d.js"></script>
+<script src="js/engine-particles.js"></script>
+<script src="js/engine-audio.js"></script>
+<script src="js/system-progression.js"></script>
+<script src="js/system-achievements.js"></script>
+<script src="js/system-save.js"></script>
+<script src="js/ui-screens.js"></script>
+<script src="js/ui-hud.js"></script>
+<script src="js/ui-dialogue.js"></script>
+<script src="js/scene-menu.js"></script>
+<script src="js/scene-worldmap.js"></script>
+<script src="js/scene-game.js"></script>
+<script src="js/analytics.js"></script>
+<script src="js/teacher-dashboard.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+</html>

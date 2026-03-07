@@ -51,7 +51,7 @@ Dieser Token hat folgende Berechtigungen:
 
    ```bash
    curl -H "Authorization: Bearer ${GITHUB_TOKEN}" \
-     https://api.github.com/repos/peschull/menschlichkeit-oesterreich-development
+     https://api.github.com/repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
    ```
 
 3. **Branch Protection & Settings:**
@@ -96,7 +96,7 @@ Alles ist eingerichtet! Sie können jetzt:
 ---
 
 **Token gespeichert am:** 3. Oktober 2025
-**Gültig für:** peschull/menschlichkeit-oesterreich-development
+**Gültig für:** Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
 **Status:** ✅ Aktiv und validiert
 
 Diese Datei kann gelöscht werden, nachdem Sie die Konfiguration überprüft haben.

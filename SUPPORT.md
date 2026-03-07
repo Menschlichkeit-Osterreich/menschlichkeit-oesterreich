@@ -24,8 +24,8 @@ This document provides guidance on how to get support for this project.
 
 1. **Search existing resources:**
    - Check the [Documentation](docs/)
-   - Search [existing Issues](https://github.com/peschull/menschlichkeit-oesterreich-development/issues)
-   - Review [Discussions](https://github.com/peschull/menschlichkeit-oesterreich-development/discussions)
+   - Search [existing Issues](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues)
+   - Review [Discussions](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/discussions)
 
 2. **Try debugging:**
    - Enable debug mode: `DEBUG=* npm run dev`
@@ -50,9 +50,9 @@ This document provides guidance on how to get support for this project.
 
 For questions, ideas, and general discussion:
 
-- **[Q&A](https://github.com/peschull/menschlichkeit-oesterreich-development/discussions/categories/q-a)** - Ask questions
-- **[Ideas](https://github.com/peschull/menschlichkeit-oesterreich-development/discussions/categories/ideas)** - Suggest improvements
-- **[Show and Tell](https://github.com/peschull/menschlichkeit-oesterreich-development/discussions/categories/show-and-tell)** - Share what you've built
+- **[Q&A](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/discussions/categories/q-a)** - Ask questions
+- **[Ideas](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/discussions/categories/ideas)** - Suggest improvements
+- **[Show and Tell](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/discussions/categories/show-and-tell)** - Share what you've built
 
 #### 🐛 GitHub Issues
 
@@ -297,9 +297,9 @@ npm run build
 
 ### GitHub
 
-- **Issues:** [github.com/peschull/menschlichkeit-oesterreich-development/issues](https://github.com/peschull/menschlichkeit-oesterreich-development/issues)
-- **Discussions:** [github.com/peschull/menschlichkeit-oesterreich-development/discussions](https://github.com/peschull/menschlichkeit-oesterreich-development/discussions)
-- **Pull Requests:** [github.com/peschull/menschlichkeit-oesterreich-development/pulls](https://github.com/peschull/menschlichkeit-oesterreich-development/pulls)
+- **Issues:** [github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues)
+- **Discussions:** [github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/discussions](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/discussions)
+- **Pull Requests:** [github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pulls](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pulls)
 
 ### Response Times
 
@@ -313,7 +313,7 @@ npm run build
 For complex issues, we offer virtual office hours:
 
 - **When:** Every Friday, 14:00-16:00 CET/CEST
-- **Where:** [GitHub Discussions - Office Hours](https://github.com/peschull/menschlichkeit-oesterreich-development/discussions/categories/office-hours)
+- **Where:** [GitHub Discussions - Office Hours](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/discussions/categories/office-hours)
 - **How:** Post your question beforehand, join the discussion on Friday
 
 ---

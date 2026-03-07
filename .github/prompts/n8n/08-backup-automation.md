@@ -91,7 +91,7 @@ Workflow:
   2. Bundle Creation:
      ```bash
      cd /tmp/git-backups
-     git clone --mirror git@github.com:peschull/menschlichkeit-oesterreich-development.git
+     git clone --mirror git@github.com:Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development.git
      cd menschlichkeit-oesterreich-development.git
      git bundle create ../repo-{date}.bundle --all
      ```
