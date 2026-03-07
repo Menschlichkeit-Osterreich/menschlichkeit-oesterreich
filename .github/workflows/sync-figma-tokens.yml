@@ -37,7 +37,7 @@ jobs:
           fetch-depth: 0
 
       - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: 'npm'
@@ -90,7 +90,7 @@ jobs:
 
       - name: 🔄 Create Pull Request
         if: steps.check_changes.outputs.changes == 'true' && (github.event_name == 'schedule' || inputs.create_pr == true)
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: |
@@ -212,7 +212,7 @@ jobs:
           ref: figma-sync-${{ github.run_number }}
 
       - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: 'npm'
@@ -251,7 +251,7 @@ jobs:
           fetch-depth: 0
 
       - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
           cache: 'npm'
