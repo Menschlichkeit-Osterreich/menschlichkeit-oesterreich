@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://menschlichkeit-oesterreich.at/schemas/data-flows.schema.json",
+  "title": "Data Flows",
+  "type": "object",
+  "required": ["flows"],
+  "properties": {
+    "flows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "flow_id",
+          "source",
+          "target",
+          "interface",
+          "payload_class",
+          "personal_data",
+          "special_category_data",
+          "auth_context",
+          "trust_boundary_crossing",
+          "retention_notes",
+          "evidence",
+          "assumptions"
+        ],
+        "properties": {
+          "flow_id": { "type": "string" },
+          "source": { "type": "string" },
+          "target": { "type": "string" },
+          "interface": { "type": "string" },
+          "payload_class": { "type": "string" },
+          "personal_data": { "type": "boolean" },
+          "special_category_data": { "type": "boolean" },
+          "auth_context": { "type": "string" },
+          "trust_boundary_crossing": { "type": "boolean" },
+          "retention_notes": { "type": "string" },
+          "evidence": { "type": "string" },
+          "assumptions": { "type": "array", "items": { "type": "string" } }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

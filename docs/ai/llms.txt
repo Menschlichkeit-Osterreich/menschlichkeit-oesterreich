@@ -1,0 +1,33 @@
+Project: menschlichkeit-oesterreich-development
+Summary: Monorepo for NGO civic-tech platform with FastAPI APIs, Drupal/CiviCRM, n8n automation, and containerized operations.
+
+Primary services:
+- apps/api (FastAPI)
+- api.menschlichkeit-oesterreich.at (FastAPI + CiviCRM integration)
+- apps/crm (Drupal 10 + CiviCRM runtime)
+- automation/n8n (workflow automation)
+- apps/website (web frontend)
+
+AI artifacts (generated):
+- docs/ai/repo-manifest.json
+- docs/ai/service-map.json
+- docs/ai/dependency-graph.json
+- docs/ai/data-flows.json
+- docs/ai/entrypoints.json
+- docs/ai/schemas/*.schema.json
+
+OpenAPI endpoints (service-defined):
+- apps/api: /api/openapi.json
+- api.menschlichkeit-oesterreich.at: /openapi.json (runtime default)
+
+Generation sources:
+- scripts/ai/generate_*.py
+- docker-compose*.yml
+- .github/workflows/*.yml
+- package.json and service manifests
+
+Validation:
+- scripts/ai/validate_ai_artifacts.py
+
+Note:
+- Unsicherheiten sind pro Objekt als assumptions markiert.
