@@ -247,6 +247,51 @@ class SecurityMonitor:
             }
         )
     
+    def _query_total_logins(self) -> int:
+        """
+        Placeholder for querying total logins from authentication logs.
+        TODO: DevOps to integrate with auth log system (e.g., Auth0, Keycloak).
+              Should return total successful logins in the last 24 hours.
+        """
+        logger.info("Using placeholder for total_logins metric.")
+        return 1337
+
+    def _query_active_sessions(self) -> int:
+        """
+        Placeholder for querying active user sessions.
+        TODO: DevOps to integrate with session store (e.g., Redis, DB table).
+              Should return current count of valid, active user sessions.
+        """
+        logger.info("Using placeholder for active_sessions metric.")
+        return 42
+
+    def _query_two_factor_usage(self) -> int:
+        """
+        Placeholder for querying 2FA usage percentage.
+        TODO: DevOps to integrate with auth system. Should return the
+              percentage of users with 2FA enabled as an integer.
+        """
+        logger.info("Using placeholder for two_factor_usage metric.")
+        return 75
+
+    def _query_data_exports(self) -> int:
+        """
+        Placeholder for querying data export events.
+        TODO: DevOps to integrate with audit log system. Should count data
+              export events in last 24h (DSGVO/GDPR Art. 15).
+        """
+        logger.info("Using placeholder for data_exports metric.")
+        return 5
+
+    def _query_password_changes(self) -> int:
+        """
+        Placeholder for querying password change events.
+        TODO: DevOps to integrate with auth or audit log system. Should
+              count password changes in the last 24 hours.
+        """
+        logger.info("Using placeholder for password_changes metric.")
+        return 12
+
     def get_security_metrics(self) -> SecurityMetrics:
         """Get current security metrics"""
         # In production, this would query actual databases
@@ -261,13 +306,13 @@ class SecurityMonitor:
             last_incident = critical_alerts[-1].timestamp
         
         return SecurityMetrics(
-            total_logins=0,  # TODO: Query from auth logs
+            total_logins=self._query_total_logins(),
             failed_logins=len([a for a in self.alerts if a.alert_type == AlertType.BRUTE_FORCE.value]),
-            active_sessions=0,  # TODO: Query from session store
-            two_factor_usage=0,  # TODO: Query from auth system
+            active_sessions=self._query_active_sessions(),
+            two_factor_usage=self._query_two_factor_usage(),
             suspicious_activities=len(self.get_active_alerts()),
-            data_exports=0,  # TODO: Query from audit logs
-            password_changes=0,  # TODO: Query from auth logs
+            data_exports=self._query_data_exports(),
+            password_changes=self._query_password_changes(),
             last_security_incident=last_incident
         )
     

@@ -5,7 +5,7 @@
 
 **Version:** 2.0.0  
 **Gültig ab:** 2025-10-17  
-**Nächste Review:** 2026-01-15  
+**Nächste Review:** 2026-01-15
 
 ---
 
@@ -16,6 +16,7 @@ Diese Datei ist die **zentrale Steuerdatei** für alle AI Coding Agents im Proje
 **Philosophie:** Sicherheit > Datenintegrität > Produktionsstabilität > Developer-Velocity
 
 **Anwendungsbereich:**
+
 - GitHub Copilot (VS Code, CLI, Codespaces)
 - Cursor AI
 - Aider
@@ -23,6 +24,7 @@ Diese Datei ist die **zentrale Steuerdatei** für alle AI Coding Agents im Proje
 - ChatGPT Enterprise (Code Interpreter, Plugins)
 - Gemini Pro (Code-Assist)
 - Sonstige AI-Coding-Tools
+
 ---
 
 ## 1. Rollen & Agenten (Role-Based Workflows)
@@ -32,12 +34,14 @@ Diese Datei ist die **zentrale Steuerdatei** für alle AI Coding Agents im Proje
 **Zweck:** Strategische Planung, Architekturentscheidungen (ADRs), Dokumentations-Governance, Roadmap-Management.
 
 **Trigger:**
+
 - User fragt: "Wie ist die Architektur?" / "Welche Entscheidungen wurden getroffen?"
 - Neue Milestones/Epics definieren
 - Dokumentations-Neuordnung / Archive-Management
 - Issue-Backlog-Sanierung
 
 **Verantwortungen:**
+
 - ✅ Erstellen/Aktualisieren von ADRs (Architecture Decision Records) in `docs/adr/`
 - ✅ Roadmap-Pflege (`reports/roadmap.md`)
 - ✅ Dokumentations-Qualität (Markdown-Linting, Terminologie, DSGVO-Compliance)
@@ -45,6 +49,7 @@ Diese Datei ist die **zentrale Steuerdatei** für alle AI Coding Agents im Proje
 - ✅ Archive-Management (Reaktivierung, Retention-Policies)
 
 **Quellen (verbindliche Instruktionen):**
+
 - `.github/instructions/verein-statuten.instructions.md` (Governance, Rechtlicher Rahmen)
 - `.github/instructions/dsgvo-compliance.instructions.md` (Datenschutz)
 - `.github/instructions/mitgliedsbeitraege.instructions.md` (Finanz-Regeln)
@@ -53,6 +58,7 @@ Diese Datei ist die **zentrale Steuerdatei** für alle AI Coding Agents im Proje
 - `reports/roadmap.md` (Milestones & Epics)
 
 **Output-Beispiele:**
+
 - `docs/adr/ADR-001-figma-mcp-integration.md`
 - `reports/archive-recovery.md`
 - `reports/label-mapping.csv`
@@ -64,12 +70,14 @@ Diese Datei ist die **zentrale Steuerdatei** für alle AI Coding Agents im Proje
 **Zweck:** Feature-Implementierung, Bug-Fixes, Code-Reviews, Test-Erstellung.
 
 **Trigger:**
+
 - User fragt: "Implementiere Feature X" / "Behebe Bug Y"
 - Pull-Request-Review
 - Test-Erstellung (Unit, Integration, E2E)
 - Dokumentations-Updates (JSDoc, Docstrings)
 
 **Verantwortungen:**
+
 - ✅ Feature-Code schreiben (Frontend/API/CRM/Games)
 - ✅ Bug-Fixes inkl. Regression-Tests
 - ✅ Code-Qualität (ESLint, PHPStan, Vitest, Playwright)
@@ -78,6 +86,7 @@ Diese Datei ist die **zentrale Steuerdatei** für alle AI Coding Agents im Proje
 - ✅ Copilot-Prompts für komplexe Tasks (siehe unten)
 
 **Quellen (verbindliche Instruktionen):**
+
 - `.github/instructions/core/code-quality-guidelines.instructions.md`
 - `.github/instructions/core/testing-standards.instructions.md`
 - `.github/instructions/dsgvo-compliance.instructions.md` (PII-Regeln)
@@ -86,6 +95,7 @@ Diese Datei ist die **zentrale Steuerdatei** für alle AI Coding Agents im Proje
 - `.github/prompts/01_code_review_standardization.md`
 
 **Output-Beispiele:**
+
 - `frontend/src/components/MembershipForm.tsx` (Feature)
 - `tests/e2e/membership-flow.spec.ts` (E2E-Test)
 - `api/app/endpoints/members.py` (API-Endpunkt)
@@ -97,11 +107,13 @@ Diese Datei ist die **zentrale Steuerdatei** für alle AI Coding Agents im Proje
 **Zweck:** Pipeline-Wartung, Deployment-Automatisierung, Monitoring, Incident-Response.
 
 **Trigger:**
+
 - User fragt: "Deploy zu Staging/Production" / "Pipeline-Fehler beheben"
 - Deployment-Rollback erforderlich
 - Infra-Änderungen (Plesk, SSH, n8n)
 
 **Verantwortungen:**
+
 - ✅ CI/CD-Pipeline-Wartung (`.github/workflows/*.yml`)
 - ✅ Deployment-Scripts (`deployment-scripts/`, `build-pipeline.sh`)
 - ✅ Rollback-Mechanismen (`deployment-scripts/rollback.sh`)
@@ -109,6 +121,7 @@ Diese Datei ist die **zentrale Steuerdatei** für alle AI Coding Agents im Proje
 - ✅ Plesk-Konfiguration (SSH-Tunnel, SFTP-Deploy)
 
 **Quellen (verbindliche Instruktionen):**
+
 - `.github/instructions/core/deployment-procedures.instructions.md`
 - `.github/chatmodes/operations/deployment-workflow.md`
 - `.github/chatmodes/operations/rollback-emergency.md`
@@ -116,6 +129,7 @@ Diese Datei ist die **zentrale Steuerdatei** für alle AI Coding Agents im Proje
 - `docs/infrastructure/plesk-ssh-setup.md` (reaktiviert aus Archive)
 
 **Output-Beispiele:**
+
 - `.github/workflows/deploy-staging.yml` (CI/CD)
 - `deployment-scripts/smoke-tests.sh` (Smoke-Tests)
 - `quality-reports/deployment-metrics/*.ndjson` (Metriken)
@@ -127,11 +141,13 @@ Diese Datei ist die **zentrale Steuerdatei** für alle AI Coding Agents im Proje
 **Zweck:** Security-Scans, DSGVO-Audits, Vulnerability-Management, Incident-Response.
 
 **Trigger:**
+
 - User fragt: "Führe Security-Scan durch" / "DSGVO-Compliance prüfen"
 - Trivy/Gitleaks HIGH/CRITICAL Findings
 - Datenpanne (Art. 33 DSGVO)
 
 **Verantwortungen:**
+
 - ✅ Security-Scans (Trivy, Gitleaks, npm audit, Semgrep)
 - ✅ DSGVO-Compliance-Checks (PII-Logs, Consent-Management)
 - ✅ Vulnerability-Management (CVE-Tracking, Patching)
@@ -141,6 +157,7 @@ Diese Datei ist die **zentrale Steuerdatei** für alle AI Coding Agents im Proje
 - ✅ Copilot-Prompts für Security-Tasks (siehe unten)
 
 **Quellen (verbindliche Instruktionen):**
+
 - `.github/instructions/dsgvo-compliance.instructions.md` (DSGVO Art. 15-21, 33-34)
 - `.github/instructions/core/security-best-practices.instructions.md`
 - `.github/chatmodes/compliance/dsgvo-audit-workflow.md`
@@ -148,6 +165,7 @@ Diese Datei ist die **zentrale Steuerdatei** für alle AI Coding Agents im Proje
 - `.github/prompts/11_security_vulnerability_assessment.md`
 
 **Output-Beispiele:**
+
 - `quality-reports/trivy-security.sarif` (Scan-Resultate)
 - `quality-reports/incident-2025-10-17.md` (Post-Mortem)
 - `docs/security/audits/2025-10-17-gitleaks.json` (Audit-Trail)
@@ -159,11 +177,13 @@ Diese Datei ist die **zentrale Steuerdatei** für alle AI Coding Agents im Proje
 **Zweck:** Quality-Gates-Enforcement, Performance-Optimierung, Accessibility-Audits.
 
 **Trigger:**
+
 - User fragt: "Führe Quality-Gates durch" / "Lighthouse-Score verbessern"
 - Pre-Deployment-Checks
 - Performance-Degradation (Response-Time >2s)
 
 **Verantwortungen:**
+
 - ✅ Quality-Gates ausführen (`npm run quality:gates`)
 - ✅ Performance-Optimierung (Lighthouse ≥0.90)
 - ✅ Accessibility-Audits (pa11y-ci, WCAG 2.2 AAA)
@@ -171,6 +191,7 @@ Diese Datei ist die **zentrale Steuerdatei** für alle AI Coding Agents im Proje
 - ✅ Regression-Tests (bei Bug-Fixes)
 
 **Quellen (verbindliche Instruktions):**
+
 - `.github/instructions/core/quality-gates.instructions.md`
 - `.github/instructions/core/testing-standards.instructions.md`
 - `.github/chatmodes/general/performance-optimization.md`
@@ -178,6 +199,7 @@ Diese Datei ist die **zentrale Steuerdatei** für alle AI Coding Agents im Proje
 - `.github/prompts/13_performance_optimization.md`
 
 **Output-Beispiele:**
+
 - `playwright-results/html/index.html` (E2E-Test-Report)
 - `quality-reports/lighthouse/frontend-2025-10-17.json` (Lighthouse-Audit)
 - `quality-reports/codacy-analysis.json` (Code-Quality)
@@ -190,23 +212,23 @@ Diese Datei ist die **zentrale Steuerdatei** für alle AI Coding Agents im Proje
 
 Gelten für **alle Rollen**, sofern nicht explizit überschrieben.
 
-| Datei | Zweck | Rollen |
-|-------|-------|--------|
-| `code-quality-guidelines.instructions.md` | ESLint, PHPStan, Code-Style | Developer, QA |
-| `deployment-procedures.instructions.md` | CI/CD, Rollback, Smoke-Tests | DevOps, Lead Architect |
-| `quality-gates.instructions.md` | Codacy, Trivy, Lighthouse, DSGVO | QA, Security Analyst |
-| `security-best-practices.instructions.md` | Secrets, TLS, Zugriffsrechte | Security Analyst, DevOps |
-| `testing-standards.instructions.md` | Unit, Integration, E2E, Coverage | Developer, QA |
+| Datei                                     | Zweck                            | Rollen                   |
+| ----------------------------------------- | -------------------------------- | ------------------------ |
+| `code-quality-guidelines.instructions.md` | ESLint, PHPStan, Code-Style      | Developer, QA            |
+| `deployment-procedures.instructions.md`   | CI/CD, Rollback, Smoke-Tests     | DevOps, Lead Architect   |
+| `quality-gates.instructions.md`           | Codacy, Trivy, Lighthouse, DSGVO | QA, Security Analyst     |
+| `security-best-practices.instructions.md` | Secrets, TLS, Zugriffsrechte     | Security Analyst, DevOps |
+| `testing-standards.instructions.md`       | Unit, Integration, E2E, Coverage | Developer, QA            |
 
 ### 2.2 Domain-Specific Instructions (`.github/instructions/`)
 
-| Datei | Zweck | Rollen |
-|-------|-------|--------|
-| `dsgvo-compliance.instructions.md` | DSGVO Art. 15-21, PII-Sanitization, Betroffenenrechte | **Alle (mandatory)** |
-| `mitgliedsbeitraege.instructions.md` | Beitragsordnung, Mahnwesen, Zahlungsarten | Developer (Billing), Lead Architect |
-| `verein-statuten.instructions.md` | Rechtsrahmen, Vereinsorgane, Ehrenamtspauschale | Lead Architect, Security Analyst |
-| `copilot.mcp-servers.instructions.md` | MCP-Server-Integration (Figma, GitHub, Filesystem) | **Alle** |
-| `codacy.instructions.md` | Code-Quality-Automatisierung nach Edits | Developer, QA |
+| Datei                                 | Zweck                                                 | Rollen                              |
+| ------------------------------------- | ----------------------------------------------------- | ----------------------------------- |
+| `dsgvo-compliance.instructions.md`    | DSGVO Art. 15-21, PII-Sanitization, Betroffenenrechte | **Alle (mandatory)**                |
+| `mitgliedsbeitraege.instructions.md`  | Beitragsordnung, Mahnwesen, Zahlungsarten             | Developer (Billing), Lead Architect |
+| `verein-statuten.instructions.md`     | Rechtsrahmen, Vereinsorgane, Ehrenamtspauschale       | Lead Architect, Security Analyst    |
+| `copilot.mcp-servers.instructions.md` | MCP-Server-Integration (Figma, GitHub, Filesystem)    | **Alle**                            |
+| `codacy.instructions.md`              | Code-Quality-Automatisierung nach Edits               | Developer, QA                       |
 
 ### 2.3 Chatmodes (`.github/chatmodes/`)
 
@@ -214,32 +236,32 @@ Kontext-spezifische Workflows für verschiedene Szenarien.
 
 #### Compliance (`.github/chatmodes/compliance/`)
 
-| Datei | Trigger | Rollen |
-|-------|---------|--------|
-| `dsgvo-audit-workflow.md` | "Führe DSGVO-Audit durch" | Security Analyst, Lead Architect |
-| `accessibility-wcag-audit.md` | "Prüfe WCAG 2.2 AAA" | QA Engineer |
-| `security-incident-response.md` | P0-Security-Issue, Datenpanne | Security Analyst, DevOps |
+| Datei                           | Trigger                       | Rollen                           |
+| ------------------------------- | ----------------------------- | -------------------------------- |
+| `dsgvo-audit-workflow.md`       | "Führe DSGVO-Audit durch"     | Security Analyst, Lead Architect |
+| `accessibility-wcag-audit.md`   | "Prüfe WCAG 2.2 AAA"          | QA Engineer                      |
+| `security-incident-response.md` | P0-Security-Issue, Datenpanne | Security Analyst, DevOps         |
 
 #### Development (`.github/chatmodes/development/`)
 
-| Datei | Trigger | Rollen |
-|-------|---------|--------|
+| Datei                    | Trigger                   | Rollen    |
+| ------------------------ | ------------------------- | --------- |
 | `feature-development.md` | "Implementiere Feature X" | Developer |
-| `debugging-workflow.md` | "Behebe Bug Y" | Developer |
+| `debugging-workflow.md`  | "Behebe Bug Y"            | Developer |
 
 #### General (`.github/chatmodes/general/`)
 
-| Datei | Trigger | Rollen |
-|-------|---------|--------|
-| `performance-optimization.md` | "Lighthouse-Score verbessern" | QA Engineer, Developer |
-| `documentation-update.md` | "Aktualisiere Dokumentation" | Lead Architect, Developer |
+| Datei                         | Trigger                       | Rollen                    |
+| ----------------------------- | ----------------------------- | ------------------------- |
+| `performance-optimization.md` | "Lighthouse-Score verbessern" | QA Engineer, Developer    |
+| `documentation-update.md`     | "Aktualisiere Dokumentation"  | Lead Architect, Developer |
 
 #### Operations (`.github/chatmodes/operations/`)
 
-| Datei | Trigger | Rollen |
-|-------|---------|--------|
-| `deployment-workflow.md` | "Deploy zu Staging/Production" | DevOps Engineer |
-| `rollback-emergency.md` | "Rollback zu vorheriger Version" | DevOps Engineer |
+| Datei                    | Trigger                          | Rollen          |
+| ------------------------ | -------------------------------- | --------------- |
+| `deployment-workflow.md` | "Deploy zu Staging/Production"   | DevOps Engineer |
+| `rollback-emergency.md`  | "Rollback zu vorheriger Version" | DevOps Engineer |
 
 ### 2.4 Prompts (`.github/prompts/`)
 
@@ -247,18 +269,18 @@ Kontext-spezifische Workflows für verschiedene Szenarien.
 
 **Auswahl (Top 10 relevanteste):**
 
-| Prompt | Zweck | Rollen |
-|--------|-------|--------|
-| `01_code_review_standardization.md` | PR-Review-Checkliste | Developer |
-| `06_deployment_automation.md` | CI/CD-Pipeline-Optimierung | DevOps |
-| `11_security_vulnerability_assessment.md` | CVE-Tracking, Patching | Security Analyst |
-| `13_performance_optimization.md` | Lighthouse, Bundlesize | QA Engineer |
-| `15_dsgvo_compliance_check.md` | PII-Logs, Consent | Security Analyst |
-| `17_figma_design_sync.md` | Design-Token-Synchronisation | Developer, Lead Architect |
-| `19_issue_triage_automation.md` | Label-Normalisierung, Stale-Bot | Lead Architect |
-| `21_n8n_workflow_creation.md` | Automation-Flows (Newsletter, Billing) | DevOps |
-| `23_test_coverage_improvement.md` | Coverage ≥80%, Regression-Tests | QA Engineer |
-| `24_documentation_generation.md` | ADRs, OpenAPI, README | Lead Architect |
+| Prompt                                    | Zweck                                  | Rollen                    |
+| ----------------------------------------- | -------------------------------------- | ------------------------- |
+| `01_code_review_standardization.md`       | PR-Review-Checkliste                   | Developer                 |
+| `06_deployment_automation.md`             | CI/CD-Pipeline-Optimierung             | DevOps                    |
+| `11_security_vulnerability_assessment.md` | CVE-Tracking, Patching                 | Security Analyst          |
+| `13_performance_optimization.md`          | Lighthouse, Bundlesize                 | QA Engineer               |
+| `15_dsgvo_compliance_check.md`            | PII-Logs, Consent                      | Security Analyst          |
+| `17_figma_design_sync.md`                 | Design-Token-Synchronisation           | Developer, Lead Architect |
+| `19_issue_triage_automation.md`           | Label-Normalisierung, Stale-Bot        | Lead Architect            |
+| `21_n8n_workflow_creation.md`             | Automation-Flows (Newsletter, Billing) | DevOps                    |
+| `23_test_coverage_improvement.md`         | Coverage ≥80%, Regression-Tests        | QA Engineer               |
+| `24_documentation_generation.md`          | ADRs, OpenAPI, README                  | Lead Architect            |
 
 **Vollständige Liste:** Siehe `.github/prompts/INDEX.md` (auto-generated)
 
@@ -288,6 +310,7 @@ Kontext-spezifische Workflows für verschiedene Szenarien.
 **Szenario:** Developer will Feature X deployen, aber Quality-Gates schlagen fehl (Trivy: 1 HIGH Vulnerability).
 
 **Lösung:**
+
 1. ❌ **KEIN Deploy** (Priorität 1: Sicherheit)
 2. ✅ Security Analyst fixen lassen (CVE patchen oder Workaround)
 3. ✅ Nach Fix: Quality-Gates erneut durchlaufen
@@ -297,12 +320,12 @@ Kontext-spezifische Workflows für verschiedene Szenarien.
 
 ### 3.2 Eskalations-Matrix
 
-| Konflikt-Typ | Entscheidungs-Instanz | Eskalations-Pfad |
-|--------------|------------------------|------------------|
-| **Security vs. Feature-Deadline** | Security Analyst → Tech Lead | Bei Unsicherheit: **Security wins** (P0-Priorität) |
-| **DSGVO vs. Performance** | Security Analyst + Lead Architect | DSGVO-Compliance mandatory (Art. 25 DSGVO: Privacy by Design) |
-| **Test-Coverage vs. Sprint-Ziel** | QA Engineer → Tech Lead | Coverage ≥80% mandatory (Quality-Gates blockieren PR) |
-| **Refactoring vs. Deadline** | Developer → Tech Lead | Tech-Debt-Issue anlegen (P2), Refactoring in nächsten Sprint |
+| Konflikt-Typ                      | Entscheidungs-Instanz             | Eskalations-Pfad                                              |
+| --------------------------------- | --------------------------------- | ------------------------------------------------------------- |
+| **Security vs. Feature-Deadline** | Security Analyst → Tech Lead      | Bei Unsicherheit: **Security wins** (P0-Priorität)            |
+| **DSGVO vs. Performance**         | Security Analyst + Lead Architect | DSGVO-Compliance mandatory (Art. 25 DSGVO: Privacy by Design) |
+| **Test-Coverage vs. Sprint-Ziel** | QA Engineer → Tech Lead           | Coverage ≥80% mandatory (Quality-Gates blockieren PR)         |
+| **Refactoring vs. Deadline**      | Developer → Tech Lead             | Tech-Debt-Issue anlegen (P2), Refactoring in nächsten Sprint  |
 
 ---
 
@@ -328,6 +351,7 @@ graph TD
 ### 4.2 Issue-Pflicht-Felder (Definition of Ready)
 
 **Alle Issues müssen haben (vor `ready`):**
+
 - ✅ **Titel:** Action-orientiert (Verb + Objekt: "Implementiere X", "Behebe Y")
 - ✅ **Type-Label:** `bug`, `feature`, `task`, `chore`, `documentation`, `refactor`, `spike`
 - ✅ **Priority-Label:** `P0-Critical`, `P1-High`, `P2-Medium`, `P3-Low`
@@ -335,6 +359,7 @@ graph TD
 - ✅ **Kontext:** User Story (Als [Rolle] möchte ich [Aktion], damit [Nutzen])
 
 **P0/P1 zusätzlich:**
+
 - ✅ **Akzeptanzkriterien (Gherkin):**
   ```gherkin
   Gegeben sei [Ausgangslage]
@@ -430,6 +455,7 @@ npm run test:e2e && npm run test:unit
 4. ✅ **Changelog-Eintrag:** Version-Bump + Datum
 
 **Beispiel-PR-Titel:**
+
 ```text
 chore(agents): Update Quellen-Matrix – Add new chatmodes for i18n
 
@@ -456,6 +482,7 @@ PATCH: Typos, Link-Updates, Formatierung
 **Regel:** Jede Instruktion/Prompt/Chatmode existiert **nur einmal**. Statt Duplikate → Links in agents.md.
 
 ❌ **Falsch:**
+
 ```text
 # .github/chatmodes/development/feature-development.md
 [...vollständige Anleitung zum Feature-Development...]
@@ -465,15 +492,19 @@ PATCH: Typos, Link-Updates, Formatierung
 ```
 
 ✅ **Richtig:**
+
 ```markdown
 # .github/chatmodes/development/feature-development.md
+
 [...vollständige Anleitung zum Feature-Development...]
 
 # .github/prompts/05_feature_implementation.md
+
 Siehe `.github/chatmodes/development/feature-development.md` für vollständige Anleitung.
 ```
 
 **agents.md (Quellen-Matrix):**
+
 ```markdown
 | `feature-development.md` | "Implementiere Feature X" | Developer |
 | `05_feature_implementation.md` | → Link zu chatmodes/development/feature-development.md | Developer |
@@ -484,6 +515,7 @@ Siehe `.github/chatmodes/development/feature-development.md` für vollständige 
 ## 8. Beispiel-Flows (End-to-End)
 
 Siehe `.github/instructions/.ai/flow-examples/` für vollständige Diagramme:
+
 - `newsletter-doi.md` - Newsletter Double-Opt-In (n8n + API + CRM)
 - `sepa-billing.md` - Beitragsrechnung + SEPA-Lastschrift (Stripe + n8n + CRM)
 - `hotfix-emergency.md` - P0-Security-Issue → Hotfix → Rollback
@@ -494,14 +526,14 @@ Siehe `.github/instructions/.ai/flow-examples/` für vollständige Diagramme:
 
 **Aktive MCP-Server (6 konfiguriert):**
 
-| Server | Zweck | Trigger | Rollen |
-|--------|-------|---------|--------|
-| `memory` | Session-Persistence | Automatisch | Alle |
-| `sequential-thinking` | Multi-Step-Reasoning | Komplexe Aufgaben | Lead Architect, DevOps |
-| `figma` | Design-Token-Sync | "Sync Figma Tokens" | Developer, Lead Architect |
-| `github` | Issue-Management, PR-Automation | "Erstelle Issue" | Lead Architect, Security |
-| `filesystem` | File-Operationen | "Suche alle TODOs" | Alle |
-| `upstash-context7` | Library-Dokumentation | "Wie funktioniert X?" | Developer, QA |
+| Server                | Zweck                           | Trigger               | Rollen                    |
+| --------------------- | ------------------------------- | --------------------- | ------------------------- |
+| `memory`              | Session-Persistence             | Automatisch           | Alle                      |
+| `sequential-thinking` | Multi-Step-Reasoning            | Komplexe Aufgaben     | Lead Architect, DevOps    |
+| `figma`               | Design-Token-Sync               | "Sync Figma Tokens"   | Developer, Lead Architect |
+| `github`              | Issue-Management, PR-Automation | "Erstelle Issue"      | Lead Architect, Security  |
+| `filesystem`          | File-Operationen                | "Suche alle TODOs"    | Alle                      |
+| `upstash-context7`    | Library-Dokumentation           | "Wie funktioniert X?" | Developer, QA             |
 
 **Siehe:** `.github/instructions/copilot.mcp-servers.instructions.md`
 
@@ -519,30 +551,30 @@ Siehe `.github/instructions/.ai/flow-examples/` für vollständige Diagramme:
 
 Alle unter `reports/`:
 
-| Datei | Verantwortlich | Frequenz |
-|-------|----------------|----------|
-| `file-inventory-tracked.csv` | Lead Architect | Quarterly |
-| `duplicates.csv` | Lead Architect | Quarterly |
-| `dead-links.csv` | QA Engineer | Monthly |
-| `reorg-plan.md` | Lead Architect | On-Demand |
-| `archive-recovery.md` | Lead Architect | Quarterly |
-| `label-mapping.csv` | Lead Architect | On-Demand |
-| `triage-rules.md` | Lead Architect | Quarterly |
-| `roadmap.md` | Lead Architect | Quarterly |
-| `todo-cleanup.md` | Developer | Sprint-weise |
-| `compliance-secrets.md` | Security Analyst | Weekly |
-| `gov-gap-analysis.md` | Lead Architect | Annually |
-| `issues-inventory.csv` | Lead Architect | Monthly |
-| `issues-duplicates.csv` | Lead Architect | Monthly |
+| Datei                        | Verantwortlich   | Frequenz     |
+| ---------------------------- | ---------------- | ------------ |
+| `file-inventory-tracked.csv` | Lead Architect   | Quarterly    |
+| `duplicates.csv`             | Lead Architect   | Quarterly    |
+| `dead-links.csv`             | QA Engineer      | Monthly      |
+| `reorg-plan.md`              | Lead Architect   | On-Demand    |
+| `archive-recovery.md`        | Lead Architect   | Quarterly    |
+| `label-mapping.csv`          | Lead Architect   | On-Demand    |
+| `triage-rules.md`            | Lead Architect   | Quarterly    |
+| `roadmap.md`                 | Lead Architect   | Quarterly    |
+| `todo-cleanup.md`            | Developer        | Sprint-weise |
+| `compliance-secrets.md`      | Security Analyst | Weekly       |
+| `gov-gap-analysis.md`        | Lead Architect   | Annually     |
+| `issues-inventory.csv`       | Lead Architect   | Monthly      |
+| `issues-duplicates.csv`      | Lead Architect   | Monthly      |
 
 ---
 
 ## 11. Änderungs-Changelog
 
-| Version | Datum | Änderung | Autor |
-|---------|-------|----------|-------|
-| 2.0.0 | 2025-10-17 | 🎉 Kompletter Neuaufbau: 5 Rollen, Quellen-Matrix, Beispiel-Flows, MCP-Integration | Tech Lead (Peter Schuller) |
-| 1.0.0 | 2025-10-15 | Initial Version (3 Sektionen) | Tech Lead (Peter Schuller) |
+| Version | Datum      | Änderung                                                                           | Autor                      |
+| ------- | ---------- | ---------------------------------------------------------------------------------- | -------------------------- |
+| 2.0.0   | 2025-10-17 | 🎉 Kompletter Neuaufbau: 5 Rollen, Quellen-Matrix, Beispiel-Flows, MCP-Integration | Tech Lead (Peter Schuller) |
+| 1.0.0   | 2025-10-15 | Initial Version (3 Sektionen)                                                      | Tech Lead (Peter Schuller) |
 
 ---
 
@@ -550,7 +582,7 @@ Alle unter `reports/`:
 
 **Tech Lead und Obmann:** Peter Schuller (peter@menschlichkeit-oesterreich.at)  
 **Vorstand und Obmann Stv.:** Michael Schuller (michael@menschlichkeit-oesterreich.at)  
-**Issue-Tracker:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues  
+**Issue-Tracker:** https://github.com/peschull/menschlichkeit-oesterreich-development/issues
 
 **Quarterly Review:** 2026-01-15
 

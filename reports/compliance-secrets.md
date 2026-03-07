@@ -1,7 +1,7 @@
 # Compliance-Secrets-Audit – Menschlichkeit Österreich
 
 **Generated:** 2025-10-17  
-**Repository:** Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development  
+**Repository:** peschull/menschlichkeit-oesterreich-development  
 **Branch:** chore/repo-docs-issues-reorg  
 **Scope:** Gitleaks-Audit, secrets/-Struktur, Rotation-Policies, GitHub-Secrets-Status
 
@@ -11,23 +11,23 @@
 
 ### Audit-Status
 
-| Kategorie | Status | Findings | Kritikalität |
-|-----------|--------|----------|--------------|
-| **Gitleaks Installation** | ❌ **FEHLT** | Tool nicht verfügbar | **P0-Critical** |
-| **secrets/-Struktur** | ✅ **VORHANDEN** | 4 Subdirectories + 2 Checklisten | **OK** |
-| **.gitleaksignore** | ✅ **KONFIGURIERT** | 40+ Allowlist-Regeln | **OK** |
-| **gitleaks.toml** | ✅ **KONFIGURIERT** | 5 Custom Rules + 50+ Allowlist-Paths | **OK** |
-| **GitHub Secrets** | 🟡 **UNBEKANNT** | Keine Validierung möglich (kein gh CLI) | **P1-High** |
-| **Rotation-Policy** | ❌ **FEHLT** | Keine automatisierte Rotation | **P1-High** |
+| Kategorie                 | Status              | Findings                                | Kritikalität    |
+| ------------------------- | ------------------- | --------------------------------------- | --------------- |
+| **Gitleaks Installation** | ❌ **FEHLT**        | Tool nicht verfügbar                    | **P0-Critical** |
+| **secrets/-Struktur**     | ✅ **VORHANDEN**    | 4 Subdirectories + 2 Checklisten        | **OK**          |
+| **.gitleaksignore**       | ✅ **KONFIGURIERT** | 40+ Allowlist-Regeln                    | **OK**          |
+| **gitleaks.toml**         | ✅ **KONFIGURIERT** | 5 Custom Rules + 50+ Allowlist-Paths    | **OK**          |
+| **GitHub Secrets**        | 🟡 **UNBEKANNT**    | Keine Validierung möglich (kein gh CLI) | **P1-High**     |
+| **Rotation-Policy**       | ❌ **FEHLT**        | Keine automatisierte Rotation           | **P1-High**     |
 
 ### Risiko-Bewertung
 
-| Risiko | Beschreibung | Impact | Mitigations |
-|--------|--------------|--------|-------------|
-| **Keine Secrets-Scans** | Gitleaks nicht installiert → Secrets könnten committed werden | **HIGH** | ⚠️ **P0:** Gitleaks installieren + Pre-Commit-Hook |
-| **Keine Secret-Rotation** | Produktionsgeheimnisse möglicherweise veraltet | **MEDIUM** | 📅 **P1:** 90-Tage-Rotation einführen (siehe todo-cleanup.md SEC-02) |
-| **GitHub Secrets unvalidiert** | Unklar, ob alle 26 Secrets korrekt gesetzt sind | **MEDIUM** | 🔍 **P1:** `gh secret list` ausführen + Validation-Script |
-| **secrets/ teilweise committed** | Checklisten/Templates in Git (OK), aber Prüfung empfohlen | **LOW** | ✅ .gitignore deckt production/** ab |
+| Risiko                           | Beschreibung                                                  | Impact     | Mitigations                                                          |
+| -------------------------------- | ------------------------------------------------------------- | ---------- | -------------------------------------------------------------------- |
+| **Keine Secrets-Scans**          | Gitleaks nicht installiert → Secrets könnten committed werden | **HIGH**   | ⚠️ **P0:** Gitleaks installieren + Pre-Commit-Hook                   |
+| **Keine Secret-Rotation**        | Produktionsgeheimnisse möglicherweise veraltet                | **MEDIUM** | 📅 **P1:** 90-Tage-Rotation einführen (siehe todo-cleanup.md SEC-02) |
+| **GitHub Secrets unvalidiert**   | Unklar, ob alle 26 Secrets korrekt gesetzt sind               | **MEDIUM** | 🔍 **P1:** `gh secret list` ausführen + Validation-Script            |
+| **secrets/ teilweise committed** | Checklisten/Templates in Git (OK), aber Prüfung empfohlen     | **LOW**    | ✅ .gitignore deckt production/\*\* ab                               |
 
 ---
 
@@ -47,17 +47,20 @@
 ### Empfohlene Installation (Windows)
 
 **Option 1: Scoop (empfohlen)**
+
 ```powershell
 scoop bucket add gitleaks https://github.com/gitleaks/gitleaks.git
 scoop install gitleaks
 ```
 
 **Option 2: Chocolatey**
+
 ```powershell
 choco install gitleaks
 ```
 
 **Option 3: Manual Download**
+
 ```powershell
 # Download von https://github.com/gitleaks/gitleaks/releases/latest
 # Extrahieren nach C:\Program Files\gitleaks\
@@ -65,6 +68,7 @@ choco install gitleaks
 ```
 
 **Validierung:**
+
 ```powershell
 gitleaks version
 # Erwartete Ausgabe: 8.18.x oder höher
@@ -73,6 +77,7 @@ gitleaks version
 ### Pre-Commit-Hook Setup (nach Installation)
 
 **1. Git Hook erstellen (.git/hooks/pre-commit):**
+
 ```bash
 #!/bin/sh
 # Gitleaks Pre-Commit Hook
@@ -92,6 +97,7 @@ exit 0
 ```
 
 **2. Hook ausführbar machen:**
+
 ```powershell
 # PowerShell (Windows Git Bash nutzt Unix-Permissions)
 git config core.hooksPath .git/hooks
@@ -99,6 +105,7 @@ chmod +x .git/hooks/pre-commit  # In Git Bash ausführen
 ```
 
 **3. GitHub Action ergänzen (.github/workflows/secrets-audit.yml):**
+
 ```yaml
 name: Secrets Audit
 
@@ -113,8 +120,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history für Historie-Scan
-      
+          fetch-depth: 0 # Full history für Historie-Scan
+
       - name: Run Gitleaks
         uses: gitleaks/gitleaks-action@v2
         env:
@@ -145,6 +152,7 @@ secrets/
 **Zweck:** Checkliste für erforderliche Secrets (26 Stück)
 
 **Kategorien:**
+
 - **Database Credentials (2):**
   - ❌ Laravel Database Password
   - ❌ CiviCRM Database Password
@@ -160,11 +168,13 @@ secrets/
   - 🟡 Stripe Secret Key (sk_live_xxx)
 
 **Status-Legende:**
+
 - ❌ = Fehlt, muss generiert/beschafft werden
 - 🟡 = Optional/Low-Priority
 - ✅ = Vorhanden (nicht im Grep sichtbar, da keine Matches)
 
 **Action Items:**
+
 - [ ] JWT Secret generieren: `openssl rand -base64 32`
 - [ ] Codacy Account erstellen → API Token holen
 - [ ] Snyk Account erstellen → API Token holen
@@ -175,20 +185,23 @@ secrets/
 **Zweck:** Schritt-für-Schritt-Anleitung zur Secrets-Beschaffung
 
 **Key Findings:**
+
 - **Codacy API Token:**
   - Setup: https://app.codacy.com → Account → API Tokens → Create Token
 - **Snyk Token:**
   - Setup: https://app.snyk.io → Account Settings → API Token → Generate Token
 - **GitHub Secrets Link:**
-  - https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/settings/secrets/actions
+  - https://github.com/peschull/menschlichkeit-oesterreich-development/settings/secrets/actions
 
 **Zeitaufwand (laut Dokument):**
+
 - Codacy Account + Token: 10 Min
 - Snyk Account + Token: 10 Min
 - Alle Secrets in GitHub eintragen: 15 Min
 - **Gesamt:** ~35 Min
 
 **Empfohlener Workflow:**
+
 1. JWT Secret generieren: `openssl rand -base64 32`
 2. Codacy/Snyk Accounts erstellen + Tokens holen
 3. `.\scripts\extract-secrets-for-github.ps1` ausführen (falls vorhanden)
@@ -197,6 +210,7 @@ secrets/
 #### 3. secrets/development/ (Allowlisted in .gitleaksignore)
 
 **Status:** ✅ **SAFE** – In `.gitleaksignore` allowlisted
+
 ```
 # Development templates (contain placeholders, not real secrets)
 secrets/development/**
@@ -211,6 +225,7 @@ secrets/development/**
 **Status:** ✅ **PROTECTED** – Via `.gitignore` ausgeschlossen
 
 **Erwartete Struktur (sollte lokal existieren, aber nicht in Git):**
+
 ```
 secrets/production/
 ├── api-keys.yaml           # API-Keys für Services (Codacy, Snyk, Stripe)
@@ -221,6 +236,7 @@ secrets/production/
 ```
 
 **Validierung:**
+
 ```powershell
 # Check ob production-Secrets in Git sind (sollte LEER sein)
 git ls-files secrets/production/*.yaml
@@ -242,30 +258,34 @@ git ls-files secrets/production/*.yaml
 
 ### Custom Rules (5 Regeln)
 
-| Rule ID | Beschreibung | Regex | Allowlist |
-|---------|--------------|-------|-----------|
-| **generic-api-key** | API-Keys/Tokens detektieren | `api[_-]?key\|token\|secret` + 16+ chars | ✅ 30+ Pfade (vendor, tests, docs) |
-| **private-key** | Private-Keys (PEM-Format) | `-----BEGIN.*PRIVATE KEY-----` | ✅ venv, tests, docs |
-| **aws-access-token** | AWS Access Keys | `AKIA[0-9A-Z]{16}` | ✅ docs (nur `AKIAIOSFODNN7EXAMPLE`) |
-| **hashicorp-tf-password** | Terraform Passwords | `Password\s*=\s*"[^"]*"` | ✅ PowerShell-Scripts (`SECURE_LARAVEL_2025`) |
+| Rule ID                   | Beschreibung                | Regex                                    | Allowlist                                     |
+| ------------------------- | --------------------------- | ---------------------------------------- | --------------------------------------------- |
+| **generic-api-key**       | API-Keys/Tokens detektieren | `api[_-]?key\|token\|secret` + 16+ chars | ✅ 30+ Pfade (vendor, tests, docs)            |
+| **private-key**           | Private-Keys (PEM-Format)   | `-----BEGIN.*PRIVATE KEY-----`           | ✅ venv, tests, docs                          |
+| **aws-access-token**      | AWS Access Keys             | `AKIA[0-9A-Z]{16}`                       | ✅ docs (nur `AKIAIOSFODNN7EXAMPLE`)          |
+| **hashicorp-tf-password** | Terraform Passwords         | `Password\s*=\s*"[^"]*"`                 | ✅ PowerShell-Scripts (`SECURE_LARAVEL_2025`) |
 
 ### Global Allowlist (50+ Paths)
 
 **Vendor-Code (automatisch allowlisted):**
+
 - `api.*/venv/**`, `api.*/.venv/**` (Python Virtual Envs)
 - `crm.*/web/core/**`, `crm.*/web/modules/contrib/**` (Drupal Core)
 - `**/node_modules/**`, `**/bower_components/**` (Node Dependencies)
 
 **Test-Code (automatisch allowlisted):**
+
 - `**/tests/**`, `**/test_*.py`, `**/*Test.php`
 - `tests/test_pii_sanitizer.py` (enthält absichtlich Dummy-Credentials für Tests)
 
 **Dokumentation (allowlisted):**
+
 - `**/*.md` (Markdown-Dateien mit Beispiel-Secrets)
 - `.github/copilot-instructions.md`, `quality-reports/**/*.md`
 - `.github/prompts/**/*.md` (AI-Prompts mit API-Beispielen)
 
 **Templates/Examples (allowlisted):**
+
 - `secrets/development/**` (Dev-Templates)
 - `secrets/production/*.example.yaml` (Production-Templates)
 - `.env.example`, `.env.sample` (Environment-Templates)
@@ -290,12 +310,14 @@ test_key_.*         # Test-Keys
 ### Aktuelle Allowlist (40+ Zeilen)
 
 **Python Virtual Environments:**
+
 ```
 api.menschlichkeit-oesterreich.at/venv/**
 api.menschlichkeit-oesterreich.at/.venv/**
 ```
 
 **CRM Vendor-Code:**
+
 ```
 crm.menschlichkeit-oesterreich.at/web/core/**
 crm.menschlichkeit-oesterreich.at/web/modules/contrib/**
@@ -303,12 +325,14 @@ crm.menschlichkeit-oesterreich.at/vendor/**
 ```
 
 **Development Templates:**
+
 ```
 secrets/development/**
 config-templates/**
 ```
 
 **Test-Fixtures:**
+
 ```
 **/tests/**
 **/test_*.py
@@ -316,6 +340,7 @@ config-templates/**
 ```
 
 **Build Artifacts:**
+
 ```
 **/node_modules/**
 **/bower_components/**
@@ -332,19 +357,20 @@ config-templates/**
 
 ### 26 Erforderliche Secrets (laut ZUGANGSDATEN-CHECKLISTE.md)
 
-| Kategorie | Secret Name | Beschreibung | Status |
-|-----------|-------------|--------------|--------|
-| **Database** | `LARAVEL_DB_PASSWORD` | Laravel Database Password | 🟡 Unvalidiert |
-| **Database** | `CIVICRM_DB_PASSWORD` | CiviCRM Database Password | 🟡 Unvalidiert |
-| **API Security** | `JWT_SECRET` | JWT Secret (32+ chars) | 🟡 Unvalidiert |
-| **Automation** | `N8N_ADMIN_PASSWORD` | n8n Admin Password | 🟡 Unvalidiert |
-| **Code Quality** | `CODACY_API_TOKEN` | Codacy API Token | 🟡 Unvalidiert |
-| **Security Scanning** | `SNYK_TOKEN` | Snyk Token | 🟡 Unvalidiert |
-| **Optional** | `SONARQUBE_TOKEN` | SonarQube Token (optional) | 🟡 Unvalidiert |
-| **Payments** | `STRIPE_SECRET_KEY` | Stripe Secret Key (sk_live_xxx) | 🟡 Unvalidiert |
-| **Deployment** | `STAGING_REMOTE_*` | 18 Plesk-Deploy-Secrets (SSH, SFTP) | 🟡 Unvalidiert |
+| Kategorie             | Secret Name           | Beschreibung                        | Status         |
+| --------------------- | --------------------- | ----------------------------------- | -------------- |
+| **Database**          | `LARAVEL_DB_PASSWORD` | Laravel Database Password           | 🟡 Unvalidiert |
+| **Database**          | `CIVICRM_DB_PASSWORD` | CiviCRM Database Password           | 🟡 Unvalidiert |
+| **API Security**      | `JWT_SECRET`          | JWT Secret (32+ chars)              | 🟡 Unvalidiert |
+| **Automation**        | `N8N_ADMIN_PASSWORD`  | n8n Admin Password                  | 🟡 Unvalidiert |
+| **Code Quality**      | `CODACY_API_TOKEN`    | Codacy API Token                    | 🟡 Unvalidiert |
+| **Security Scanning** | `SNYK_TOKEN`          | Snyk Token                          | 🟡 Unvalidiert |
+| **Optional**          | `SONARQUBE_TOKEN`     | SonarQube Token (optional)          | 🟡 Unvalidiert |
+| **Payments**          | `STRIPE_SECRET_KEY`   | Stripe Secret Key (sk_live_xxx)     | 🟡 Unvalidiert |
+| **Deployment**        | `STAGING_REMOTE_*`    | 18 Plesk-Deploy-Secrets (SSH, SFTP) | 🟡 Unvalidiert |
 
 **Status-Legende:**
+
 - 🟡 **Unvalidiert** = Keine Validierung möglich (gh CLI nicht verfügbar)
 - ✅ **Vorhanden** = Via `gh secret list` validiert
 - ❌ **Fehlt** = Nicht in GitHub Secrets
@@ -352,6 +378,7 @@ config-templates/**
 ### Validierungs-Script (gh CLI erforderlich)
 
 **1. gh CLI installieren (falls fehlt):**
+
 ```powershell
 scoop install gh
 # ODER
@@ -359,13 +386,15 @@ choco install gh
 ```
 
 **2. Authentifizieren:**
+
 ```powershell
 gh auth login
 ```
 
 **3. Secrets auflisten:**
+
 ```powershell
-gh secret list --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
+gh secret list --repo peschull/menschlichkeit-oesterreich-development
 
 # Erwartete Ausgabe (26 Secrets):
 # CODACY_API_TOKEN     Updated 2025-XX-XX
@@ -375,6 +404,7 @@ gh secret list --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-devel
 ```
 
 **4. Validation-Script erstellen (scripts/validate-github-secrets.ps1):**
+
 ```powershell
 # GitHub Secrets Validation Script
 # Prüft ob alle 26 erforderlichen Secrets vorhanden sind
@@ -390,7 +420,7 @@ $REQUIRED_SECRETS = @(
     # ... 18 weitere STAGING_REMOTE_* Secrets
 )
 
-$EXISTING_SECRETS = gh secret list --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development --json name | ConvertFrom-Json | Select-Object -ExpandProperty name
+$EXISTING_SECRETS = gh secret list --repo peschull/menschlichkeit-oesterreich-development --json name | ConvertFrom-Json | Select-Object -ExpandProperty name
 
 $MISSING = $REQUIRED_SECRETS | Where-Object { $_ -notin $EXISTING_SECRETS }
 
@@ -414,21 +444,22 @@ if ($MISSING.Count -eq 0) {
 
 **Kritikalitäts-Matrix:**
 
-| Secret-Typ | Rotation-Intervall | Automation | Begründung |
-|------------|-------------------|------------|------------|
-| **Database Passwords** | **90 Tage** | ⚠️ Manuell | DSGVO Art. 32 (TOMs) – Regelmäßige Erneuerung |
-| **JWT Secret** | **90 Tage** | ⚠️ Manuell | Security-Best-Practice (OWASP) |
-| **API-Tokens (Codacy/Snyk)** | **180 Tage** | ✅ Via API (falls verfügbar) | Service-Provider-Policy |
-| **Stripe Keys** | **365 Tage** | ⚠️ Manuell | Payment-Provider-Requirement |
-| **n8n Admin Password** | **90 Tage** | ⚠️ Manuell | Privileged-Account-Policy |
-| **GitHub PATs** | **90 Tage** | ✅ Via API | GitHub-Best-Practice |
-| **SSH Keys (Plesk)** | **180 Tage** | ⚠️ Manuell | Infrastructure-Security |
+| Secret-Typ                   | Rotation-Intervall | Automation                   | Begründung                                    |
+| ---------------------------- | ------------------ | ---------------------------- | --------------------------------------------- |
+| **Database Passwords**       | **90 Tage**        | ⚠️ Manuell                   | DSGVO Art. 32 (TOMs) – Regelmäßige Erneuerung |
+| **JWT Secret**               | **90 Tage**        | ⚠️ Manuell                   | Security-Best-Practice (OWASP)                |
+| **API-Tokens (Codacy/Snyk)** | **180 Tage**       | ✅ Via API (falls verfügbar) | Service-Provider-Policy                       |
+| **Stripe Keys**              | **365 Tage**       | ⚠️ Manuell                   | Payment-Provider-Requirement                  |
+| **n8n Admin Password**       | **90 Tage**        | ⚠️ Manuell                   | Privileged-Account-Policy                     |
+| **GitHub PATs**              | **90 Tage**        | ✅ Via API                   | GitHub-Best-Practice                          |
+| **SSH Keys (Plesk)**         | **180 Tage**       | ⚠️ Manuell                   | Infrastructure-Security                       |
 
 ### Rotation-Script (scripts/rotate-secrets.sh)
 
 **Siehe todo-cleanup-COMPLETE.md SEC-02 (P1-High, 1d Aufwand)**
 
 **Beispiel-Implementierung:**
+
 ```bash
 #!/bin/bash
 # Secret Rotation Script – Automated Rotation for API-Tokens
@@ -444,7 +475,7 @@ if [ -n "$CODACY_API_TOKEN" ]; then
         -H "api-token: $CODACY_API_TOKEN" \
         -H "Content-Type: application/json" \
         -d '{"name":"Auto-Rotated-Token"}' | jq -r '.token')
-    
+
     gh secret set CODACY_API_TOKEN --body "$NEW_CODACY_TOKEN"
     echo "✅ Codacy Token rotated"
 fi
@@ -462,6 +493,7 @@ echo "✅ Secret Rotation complete!"
 ```
 
 **Cron-Job Setup (quartalsweise Rotation):**
+
 ```bash
 # Crontab-Eintrag (alle 90 Tage am 1. des Monats, 02:00 UTC)
 0 2 1 */3 * /path/to/scripts/rotate-secrets.sh >> /var/log/secret-rotation.log 2>&1
@@ -473,11 +505,11 @@ echo "✅ Secret Rotation complete!"
 
 ### P0-Critical (BLOCKING – diese Woche erledigen)
 
-| # | Action | Aufwand | Verantwortlich | Deliverable |
-|---|--------|---------|----------------|-------------|
-| **1** | **Gitleaks installieren** | 0.5h | DevOps | `gitleaks version` erfolgreich |
-| **2** | **Pre-Commit-Hook einrichten** | 0.5h | DevOps | `.git/hooks/pre-commit` funktional |
-| **3** | **GitHub Action ergänzen** | 0.5h | DevOps | `.github/workflows/secrets-audit.yml` |
+| #     | Action                         | Aufwand | Verantwortlich | Deliverable                           |
+| ----- | ------------------------------ | ------- | -------------- | ------------------------------------- |
+| **1** | **Gitleaks installieren**      | 0.5h    | DevOps         | `gitleaks version` erfolgreich        |
+| **2** | **Pre-Commit-Hook einrichten** | 0.5h    | DevOps         | `.git/hooks/pre-commit` funktional    |
+| **3** | **GitHub Action ergänzen**     | 0.5h    | DevOps         | `.github/workflows/secrets-audit.yml` |
 
 **Gesamt P0:** **1.5h** (gleicher Tag)
 
@@ -485,13 +517,13 @@ echo "✅ Secret Rotation complete!"
 
 ### P1-High (Sprint 1-2 – nächste 2 Wochen)
 
-| # | Action | Aufwand | Verantwortlich | Deliverable |
-|---|--------|---------|----------------|-------------|
-| **4** | **gh CLI installieren** | 0.5h | DevOps | `gh --version` erfolgreich |
-| **5** | **GitHub Secrets validieren** | 1h | Security-Analyst | `scripts/validate-github-secrets.ps1` Output |
-| **6** | **Fehlende Secrets beschaffen** | 2h | Vorstand + DevOps | Codacy/Snyk-Accounts + Tokens |
-| **7** | **Secret-Rotation-Policy implementieren** | 1d | DevOps | `scripts/rotate-secrets.sh` + Cron |
-| **8** | **secrets/production/ validieren** | 1h | Security-Analyst | Keine Production-Secrets in Git |
+| #     | Action                                    | Aufwand | Verantwortlich    | Deliverable                                  |
+| ----- | ----------------------------------------- | ------- | ----------------- | -------------------------------------------- |
+| **4** | **gh CLI installieren**                   | 0.5h    | DevOps            | `gh --version` erfolgreich                   |
+| **5** | **GitHub Secrets validieren**             | 1h      | Security-Analyst  | `scripts/validate-github-secrets.ps1` Output |
+| **6** | **Fehlende Secrets beschaffen**           | 2h      | Vorstand + DevOps | Codacy/Snyk-Accounts + Tokens                |
+| **7** | **Secret-Rotation-Policy implementieren** | 1d      | DevOps            | `scripts/rotate-secrets.sh` + Cron           |
+| **8** | **secrets/production/ validieren**        | 1h      | Security-Analyst  | Keine Production-Secrets in Git              |
 
 **Gesamt P1:** **1.5d** (2 Arbeitswochen)
 
@@ -499,10 +531,10 @@ echo "✅ Secret Rotation complete!"
 
 ### P2-Medium (Sprint 3-4 – nächste 4 Wochen)
 
-| # | Action | Aufwand | Verantwortlich | Deliverable |
-|---|--------|---------|----------------|-------------|
-| **9** | **BFG Repo-Cleaner Historie-Scan** | 2h | Security-Analyst | Historie-Clean (falls Secrets in Git-History) |
-| **10** | **Vault Integration** | 5d | DevOps | HashiCorp Vault für API-Keys/DB-Credentials (siehe todo-cleanup-COMPLETE.md SEC-01) |
+| #      | Action                             | Aufwand | Verantwortlich   | Deliverable                                                                         |
+| ------ | ---------------------------------- | ------- | ---------------- | ----------------------------------------------------------------------------------- |
+| **9**  | **BFG Repo-Cleaner Historie-Scan** | 2h      | Security-Analyst | Historie-Clean (falls Secrets in Git-History)                                       |
+| **10** | **Vault Integration**              | 5d      | DevOps           | HashiCorp Vault für API-Keys/DB-Credentials (siehe todo-cleanup-COMPLETE.md SEC-01) |
 
 ---
 
@@ -510,19 +542,19 @@ echo "✅ Secret Rotation complete!"
 
 ### DSGVO-Bezug
 
-| Artikel | Anforderung | Status | Maßnahme |
-|---------|-------------|--------|----------|
-| **Art. 32 Abs. 1** | Sicherheit der Verarbeitung (TOMs) | 🟡 **TEILWEISE** | ⚠️ P0: Gitleaks + Pre-Commit-Hook |
-| **Art. 32 Abs. 1 lit. d** | Verfahren zur regelmäßigen Überprüfung (Audits) | 🟡 **TEILWEISE** | 📅 P1: Secret-Rotation-Policy |
-| **Art. 33 Abs. 1** | Meldung von Datenpannen (binnen 72h) | ✅ **ERFÜLLT** | Incident-Response-Plan existiert (siehe docs/compliance/) |
+| Artikel                   | Anforderung                                     | Status           | Maßnahme                                                  |
+| ------------------------- | ----------------------------------------------- | ---------------- | --------------------------------------------------------- |
+| **Art. 32 Abs. 1**        | Sicherheit der Verarbeitung (TOMs)              | 🟡 **TEILWEISE** | ⚠️ P0: Gitleaks + Pre-Commit-Hook                         |
+| **Art. 32 Abs. 1 lit. d** | Verfahren zur regelmäßigen Überprüfung (Audits) | 🟡 **TEILWEISE** | 📅 P1: Secret-Rotation-Policy                             |
+| **Art. 33 Abs. 1**        | Meldung von Datenpannen (binnen 72h)            | ✅ **ERFÜLLT**   | Incident-Response-Plan existiert (siehe docs/compliance/) |
 
 ### ISO 27001-Bezug
 
-| Control | Anforderung | Status | Maßnahme |
-|---------|-------------|--------|----------|
-| **A.9.4.3** | Password management system | 🟡 **TEILWEISE** | 📅 P2: Vault Integration (SEC-01) |
-| **A.10.1.1** | Policy on the use of cryptographic controls | ✅ **ERFÜLLT** | Encryption-Policy in TOMs (NC-02) |
-| **A.10.1.2** | Key management | 🟡 **TEILWEISE** | 📅 P1: Secret-Rotation-Policy (SEC-02) |
+| Control      | Anforderung                                 | Status           | Maßnahme                               |
+| ------------ | ------------------------------------------- | ---------------- | -------------------------------------- |
+| **A.9.4.3**  | Password management system                  | 🟡 **TEILWEISE** | 📅 P2: Vault Integration (SEC-01)      |
+| **A.10.1.1** | Policy on the use of cryptographic controls | ✅ **ERFÜLLT**   | Encryption-Policy in TOMs (NC-02)      |
+| **A.10.1.2** | Key management                              | 🟡 **TEILWEISE** | 📅 P1: Secret-Rotation-Policy (SEC-02) |
 
 ---
 

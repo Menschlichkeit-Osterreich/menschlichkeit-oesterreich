@@ -1,0 +1,192 @@
+{
+  "name": "Finance: Membership Invoicing (Annual & Monthly)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months",
+              "unit": "months",
+              "value": 1
+            }
+          ]
+        }
+      },
+      "id": "monthly-trigger",
+      "name": "Run 1st of Month",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 200]
+    },
+    {
+      "parameters": {
+        "functionCode": "const today = new Date();\nconst isFirstOfMonth = today.getDate() === 1;\nconst isJanuaryFirst = isFirstOfMonth && today.getMonth() === 0;\n\n// Trigger annual run in January, monthly run otherwise\nif (isJanuaryFirst) {\n  return [null, $input.first()]; // Output 2: Annual\n} else if (isFirstOfMonth) {\n  return [$input.first(), null]; // Output 1: Monthly\n}\nreturn []; // Do nothing on other days"
+      },
+      "id": "check-run-type",
+      "name": "Check Run Type",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "resource": "contribution",
+        "operation": "getAll",
+        "filters": {
+          "return": "membership_id.membership_type_id,contact_id",
+          "contribution_status_id": 1, // Completed
+          "receive_date": {
+            "after": "{{ $now.minus({months: 1}).startOf('month').toFormat('yyyy-MM-dd') }}",
+            "before": "{{ $now.minus({months: 1}).endOf('month').toFormat('yyyy-MM-dd') }}"
+          },
+          "financial_type_id": 2 // Member Dues
+        },
+        "options": {
+          "limit": 5000
+        }
+      },
+      "id": "get-monthly-members",
+      "name": "CiviCRM: Get Monthly Members",
+      "type": "n8n-nodes-base.civicrm",
+      "typeVersion": 1,
+      "position": [680, 200],
+      "credentials": {
+        "civiCRM": {
+          "id": "civicrm-prod",
+          "name": "CiviCRM Prod"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "contribution",
+        "operation": "getAll",
+        "filters": {
+          "return": "membership_id.membership_type_id,contact_id",
+          "contribution_status_id": 1,
+          "receive_date": {
+            "after": "{{ $now.minus({years: 1}).startOf('year').toFormat('yyyy-MM-dd') }}",
+            "before": "{{ $now.minus({years: 1}).endOf('year').toFormat('yyyy-MM-dd') }}"
+          },
+          "financial_type_id": 2
+        },
+        "options": {
+          "limit": 10000
+        }
+      },
+      "id": "get-annual-members",
+      "name": "CiviCRM: Get Annual Members",
+      "type": "n8n-nodes-base.civicrm",
+      "typeVersion": 1,
+      "position": [680, 400],
+      "credentials": {
+        "civiCRM": {
+          "id": "civicrm-prod",
+          "name": "CiviCRM Prod"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const uniqueContactIds = [...new Set($input.all().map(item => item.json.contact_id))];\nreturn uniqueContactIds.map(id => ({ json: { contact_id: id } }));"
+      },
+      "id": "deduplicate-contacts",
+      "name": "Deduplicate Contacts",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "resource": "contact",
+        "operation": "get",
+        "contactId": "={{ $json.contact_id }}",
+        "options": {
+          "return": "display_name,email,street_address,city,postal_code,country"
+        }
+      },
+      "id": "get-contact-details",
+      "name": "CiviCRM: Get Contact Details",
+      "type": "n8n-nodes-base.civicrm",
+      "typeVersion": 1,
+      "position": [1120, 300],
+      "credentials": {
+        "civiCRM": {
+          "id": "civicrm-prod",
+          "name": "CiviCRM Prod"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.API_BASE_URL }}/finance/invoices",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "method": "POST",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({\n  contact: $json,\n  invoice_type: 'membership',\n  items: [{\n    description: `Mitgliedsbeitrag ${$now.toFormat('yyyy')}`,
+    quantity: 1,\n    unit_price: 120.00 // TODO: Get price from membership type
+  }]\n}) }}",
+        "options": {}
+      },
+      "id": "create-invoice-api",
+      "name": "API: Create Invoice",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1340, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-backend-auth",
+          "name": "API Backend Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const summary = {\n  total: $input.all().length,\n  success: $input.all('0').length,\n  errors: $input.all('1').length,\n  run_date: new Date().toISOString()\n};\nreturn [{ json: summary }];"
+      },
+      "id": "summarize-run",
+      "name": "Summarize Run",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "to": "devops@menschlichkeit-oesterreich.at",
+        "subject": "✅ Membership Invoicing Run Completed",
+        "html": "<h2>Membership Invoicing Run Summary</h2>\n<p><strong>Date:</strong> {{ $json.run_date }}</p>\n<p><strong>Total Members Processed:</strong> {{ $json.total }}</p>\n<p><strong>Invoices Created:</strong> {{ $json.success }}</p>\n<p><strong>Errors:</strong> {{ $json.errors }}</p>"
+      },
+      "id": "send-summary-email",
+      "name": "Send Summary Email",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 1,
+      "position": [1780, 300],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-prod",
+          "name": "SMTP Prod"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "monthly-trigger": { "main": [[{ "node": "Check Run Type", "type": "main", "index": 0 }]] },
+    "check-run-type": {
+      "main": [
+        [{ "node": "Get Monthly Members", "type": "main", "index": 0 }],
+        [{ "node": "Get Annual Members", "type": "main", "index": 0 }]
+      ]
+    },
+    "get-monthly-members": { "main": [[{ "node": "Deduplicate Contacts", "type": "main", "index": 0 }]] },
+    "get-annual-members": { "main": [[{ "node": "Deduplicate Contacts", "type": "main", "index": 0 }]] },
+    "deduplicate-contacts": { "main": [[{ "node": "Get Contact Details", "type": "main", "index": 0 }]] },
+    "get-contact-details": { "main": [[{ "node": "Create Invoice API", "type": "main", "index": 0 }]] },
+    "create-invoice-api": { "main": [[{ "node": "Summarize Run", "type": "main", "index": 0 }]] },
+    "summarize-run": { "main": [[{ "node": "Send Summary Email", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": ["finance", "membership", "automation", "invoice"]
+}

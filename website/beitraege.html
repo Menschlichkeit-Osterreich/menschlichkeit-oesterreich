@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beiträge - Menschlichkeit Österreich</title>
+
+    <!-- Meta Tags für SEO -->
+    <meta name="description" content="Neuigkeiten und Beiträge von Menschlichkeit Österreich - Aktuelle Informationen über unsere Aktivitäten, Veranstaltungen und Themen.">
+    <meta name="keywords" content="Beiträge, Neuigkeiten, Menschlichkeit Österreich, Aktuelles, Veranstaltungen">
+    <meta name="author" content="Menschlichkeit Österreich">
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="Beiträge - Menschlichkeit Österreich">
+    <meta property="og:description" content="Aktuelle Beiträge und Neuigkeiten von Menschlichkeit Österreich.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://menschlichkeit-oesterreich.at/beitraege.html">
+
+    <!-- Bootstrap CSS (SRI) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha256-MBffSnbbXwHCuZtgPYiwMQbfE7z+GOZ7fBPCNB06Z98=" crossorigin="anonymous">
+
+    <!-- Bootstrap Icons (SRI) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" integrity="sha256-u2/YzYU5TLNn6KxY5HKS8taOsoj6Evq2jmVDCl3fzkg=" crossorigin="anonymous">
+
+    <!-- Self-hosted Inter Fonts -->
+    <link rel="preload" as="font" type="font/woff2" href="assets/fonts/Inter-roman.var.woff2" crossorigin>
+    <link rel="stylesheet" href="assets/css/fonts.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles-optimized.css">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+
+    <style>
+      body { font-family: 'Inter', sans-serif; padding-top: 76px; color: #1f2937; }
+      .navbar { background: #fff !important; box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075) !important; }
+      .navbar-brand { font-size: 1.25rem; font-weight: 700; color: #2563eb !important; }
+      .page-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 4rem 0; }
+      .card-article { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+      .card-article:hover { transform: translateY(-4px); box-shadow: 0 1rem 2rem rgba(0,0,0,.1) !important; }
+      .badge-category { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+      .article-meta { font-size: 0.875rem; color: #6b7280; }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="index.html">
+                <i class="bi bi-heart-fill text-danger me-2"></i>
+                Menschlichkeit Österreich
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Navigation umschalten">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="index.html">Startseite</a></li>
+                    <li class="nav-item"><a class="nav-link" href="ueber-uns.html">Über uns</a></li>
+                    <li class="nav-item"><a class="nav-link" href="mitmachen.html">Mitmachen</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="beitraege.html">Beiträge</a></li>
+                    <li class="nav-item"><a class="nav-link" href="verein.html">Verein</a></li>
+                    <li class="nav-item"><a class="nav-link" href="kontakt.html">Kontakt</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <section class="page-header text-white">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h1 class="display-4 fw-bold mb-3">Beiträge &amp; Aktuelles</h1>
+                    <p class="lead">Neuigkeiten, Berichte und Informationen aus dem Verein</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="py-4 bg-light border-bottom">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button class="btn btn-primary btn-sm">Alle</button>
+                        <button class="btn btn-outline-secondary btn-sm">Veranstaltungen</button>
+                        <button class="btn btn-outline-secondary btn-sm">Berichte</button>
+                        <button class="btn btn-outline-secondary btn-sm">Themen</button>
+                        <button class="btn btn-outline-secondary btn-sm">Vereinsnews</button>
+                    </div>
+                </div>
+                <div class="col-md-6 mt-3 mt-md-0">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                        <input type="search" class="form-control" placeholder="Beiträge durchsuchen...">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Articles -->
+    <main id="main-content" role="main">
+        <section class="py-5">
+            <div class="container">
+
+                <!-- Featured Article -->
+                <div class="row mb-5">
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm card-article">
+                            <div class="row g-0">
+                                <div class="col-md-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 280px; border-radius: .375rem 0 0 .375rem; display:flex; align-items:center; justify-content:center;">
+                                    <i class="bi bi-newspaper text-white" style="font-size: 5rem; opacity: 0.6;"></i>
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="card-body p-4 p-lg-5">
+                                        <div class="mb-3">
+                                            <span class="badge bg-primary badge-category me-2">Vereinsnews</span>
+                                            <span class="badge bg-success badge-category">Neu</span>
+                                        </div>
+                                        <h2 class="card-title fw-bold h3">Verein Menschlichkeit Österreich gegründet</h2>
+                                        <p class="article-meta mb-3">
+                                            <i class="bi bi-calendar3 me-1"></i> 28. Mai 2025
+                                            &nbsp;·&nbsp;
+                                            <i class="bi bi-person me-1"></i> Vorstand
+                                        </p>
+                                        <p class="card-text text-muted">
+                                            Am 28. Mai 2025 wurde der Verein Menschlichkeit Österreich offiziell gegründet. Mit dem Ziel,
+                                            eine solidarische, gerechte und ökologisch verantwortungsvolle Gesellschaft zu fördern, haben
+                                            wir uns zusammengefunden, um eine Bewegung zu schaffen, die niemanden zurücklässt.
+                                        </p>
+                                        <p class="card-text text-muted">
+                                            Der Verein ist nach BAO als gemeinnützig anerkannt und unter der ZVR-Zahl 1182213083
+                                            registriert. Wir freuen uns auf alle, die unsere Vision teilen und Teil dieser Bewegung
+                                            werden möchten.
+                                        </p>
+                                        <a href="beitritt.html" class="btn btn-primary mt-2">
+                                            <i class="bi bi-person-plus me-2"></i>Mitglied werden
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Article Grid -->
+                <div class="row g-4">
+
+                    <!-- Article 1 -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 border-0 shadow-sm card-article">
+                            <div class="card-body p-4">
+                                <div class="mb-3">
+                                    <span class="badge bg-info text-dark badge-category">Themen</span>
+                                </div>
+                                <h3 class="card-title fw-bold h5">Solidarität in der Praxis: Was bedeutet es, füreinander einzustehen?</h3>
+                                <p class="article-meta mb-3">
+                                    <i class="bi bi-calendar3 me-1"></i> Juni 2025
+                                </p>
+                                <p class="card-text text-muted">
+                                    Solidarität ist mehr als ein Wort – es ist eine Handlung, eine Haltung und eine Verpflichtung
+                                    gegenüber unserer Gemeinschaft. In diesem Beitrag beleuchten wir, was gelebte Solidarität
+                                    im Alltag bedeutet.
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 pt-0 pb-4 px-4">
+                                <a href="kontakt.html" class="btn btn-outline-primary btn-sm">Weiterlesen</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Article 2 -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 border-0 shadow-sm card-article">
+                            <div class="card-body p-4">
+                                <div class="mb-3">
+                                    <span class="badge bg-success badge-category">Klimaschutz</span>
+                                </div>
+                                <h3 class="card-title fw-bold h5">Ökologische Verantwortung: Gemeinsam für kommende Generationen</h3>
+                                <p class="article-meta mb-3">
+                                    <i class="bi bi-calendar3 me-1"></i> Juli 2025
+                                </p>
+                                <p class="card-text text-muted">
+                                    Klimagerechtigkeit ist untrennbar mit sozialer Gerechtigkeit verbunden. Die Folgen des
+                                    Klimawandels treffen Menschen unterschiedlich stark – wir setzen uns für eine gerechte
+                                    Klimapolitik ein.
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 pt-0 pb-4 px-4">
+                                <a href="kontakt.html" class="btn btn-outline-primary btn-sm">Weiterlesen</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Article 3 -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 border-0 shadow-sm card-article">
+                            <div class="card-body p-4">
+                                <div class="mb-3">
+                                    <span class="badge bg-warning text-dark badge-category">Soziales</span>
+                                </div>
+                                <h3 class="card-title fw-bold h5">Soziale Gerechtigkeit: Chancengleichheit für alle</h3>
+                                <p class="article-meta mb-3">
+                                    <i class="bi bi-calendar3 me-1"></i> August 2025
+                                </p>
+                                <p class="card-text text-muted">
+                                    Jede Person in Österreich soll die gleichen Möglichkeiten haben, unabhängig von Herkunft,
+                                    Bildung oder wirtschaftlicher Situation. Wir erläutern unsere Position zur sozialen
+                                    Gerechtigkeit und was wir konkret fordern.
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 pt-0 pb-4 px-4">
+                                <a href="kontakt.html" class="btn btn-outline-primary btn-sm">Weiterlesen</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Article 4 -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 border-0 shadow-sm card-article">
+                            <div class="card-body p-4">
+                                <div class="mb-3">
+                                    <span class="badge bg-danger badge-category">Veranstaltung</span>
+                                </div>
+                                <h3 class="card-title fw-bold h5">Erste Mitgliederversammlung: Gemeinsam die Zukunft gestalten</h3>
+                                <p class="article-meta mb-3">
+                                    <i class="bi bi-calendar3 me-1"></i> Herbst 2025
+                                </p>
+                                <p class="card-text text-muted">
+                                    Die erste ordentliche Mitgliederversammlung ist ein wichtiger Meilenstein für unseren Verein.
+                                    Alle Mitglieder sind eingeladen, gemeinsam die Weichen für die Zukunft zu stellen und
+                                    aktiv mitzugestalten.
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 pt-0 pb-4 px-4">
+                                <a href="kontakt.html" class="btn btn-outline-primary btn-sm">Weiterlesen</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Article 5 -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 border-0 shadow-sm card-article">
+                            <div class="card-body p-4">
+                                <div class="mb-3">
+                                    <span class="badge bg-primary badge-category">Vereinsnews</span>
+                                </div>
+                                <h3 class="card-title fw-bold h5">Mitgliedschaft: Warum deine Stimme zählt</h3>
+                                <p class="article-meta mb-3">
+                                    <i class="bi bi-calendar3 me-1"></i> 2025
+                                </p>
+                                <p class="card-text text-muted">
+                                    Als Mitglied hast du nicht nur Rechte, sondern auch Mitspracherecht bei allen wichtigen
+                                    Entscheidungen des Vereins. Erfahre, wie du aktiv zur Gestaltung unserer Gemeinschaft
+                                    beitragen kannst.
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 pt-0 pb-4 px-4">
+                                <a href="beitritt.html" class="btn btn-outline-primary btn-sm">Mitglied werden</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Article 6 -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 border-0 shadow-sm card-article">
+                            <div class="card-body p-4">
+                                <div class="mb-3">
+                                    <span class="badge bg-secondary badge-category">Berichte</span>
+                                </div>
+                                <h3 class="card-title fw-bold h5">Ehrenamtliches Engagement: Gemeinsam mehr erreichen</h3>
+                                <p class="article-meta mb-3">
+                                    <i class="bi bi-calendar3 me-1"></i> 2025
+                                </p>
+                                <p class="card-text text-muted">
+                                    Ehrenamtliches Engagement ist das Herzstück unseres Vereins. Hier berichten unsere
+                                    Freiwilligen über ihre Erfahrungen und zeigen, wie gemeinsames Handeln Großes bewirken kann.
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 pt-0 pb-4 px-4">
+                                <a href="mitmachen.html" class="btn btn-outline-primary btn-sm">Mitmachen</a>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Newsletter CTA -->
+                <div class="row mt-5">
+                    <div class="col-lg-8 mx-auto">
+                        <div class="card border-0 bg-primary text-white">
+                            <div class="card-body p-4 p-lg-5 text-center">
+                                <i class="bi bi-envelope-heart mb-3" style="font-size: 2.5rem;"></i>
+                                <h3 class="fw-bold mb-3">Immer informiert bleiben</h3>
+                                <p class="mb-4 opacity-75">
+                                    Erhalten Sie aktuelle Beiträge und Neuigkeiten direkt in Ihr Postfach.
+                                    Kein Spam – nur relevante Informationen aus dem Verein.
+                                </p>
+                                <a href="mailto:menschlichkeit-oesterreich@outlook.at?subject=Newsletter Anmeldung" class="btn btn-light btn-lg">
+                                    <i class="bi bi-envelope me-2"></i>Newsletter abonnieren
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h5 class="fw-bold mb-3">Menschlichkeit Österreich</h5>
+                    <p class="text-muted">Ein Österreich, das niemanden zurücklässt.</p>
+                    <div class="social-links">
+                        <a href="#" class="text-white me-3" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="text-white me-3" aria-label="Twitter/X"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" class="text-white me-3" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="text-white" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-3 col-6 mb-4">
+                    <h6 class="fw-bold mb-3">Navigation</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="index.html" class="text-muted text-decoration-none">Startseite</a></li>
+                        <li><a href="ueber-uns.html" class="text-muted text-decoration-none">Über uns</a></li>
+                        <li><a href="mitmachen.html" class="text-muted text-decoration-none">Mitmachen</a></li>
+                        <li><a href="verein.html" class="text-muted text-decoration-none">Verein</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-2 col-md-3 col-6 mb-4">
+                    <h6 class="fw-bold mb-3">Service</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="kontakt.html" class="text-muted text-decoration-none">Kontakt</a></li>
+                        <li><a href="beitraege.html" class="text-muted text-decoration-none">Beiträge</a></li>
+                        <li><a href="impressum.html" class="text-muted text-decoration-none">Impressum</a></li>
+                        <li><a href="datenschutz.html" class="text-muted text-decoration-none">Datenschutz</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <h6 class="fw-bold mb-3">Kontakt</h6>
+                    <p class="text-muted mb-2">
+                        <i class="bi bi-geo-alt me-2"></i>
+                        Pottenbrunner Hauptstraße 108/1<br>
+                        <span class="ms-4">3140 St. Pölten</span>
+                    </p>
+                    <p class="text-muted mb-2">
+                        <i class="bi bi-envelope me-2"></i>
+                        <a href="mailto:menschlichkeit-oesterreich@outlook.at" class="text-muted text-decoration-none">
+                            menschlichkeit-oesterreich@outlook.at
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-0 text-muted">&copy; 2025 Menschlichkeit Österreich. Alle Rechte vorbehalten.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <small class="text-muted">ZVR: 1182213083 | Gemeinnützig nach BAO anerkannt</small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha256-gvZPYrsDwbwYJLD5yeBfcNujPhRoGOY831wwbIzz3t0=" crossorigin="anonymous"></script>
+
+    <!-- Main JavaScript -->
+    <script src="assets/js/main.js" defer></script>
+</body>
+</html>
