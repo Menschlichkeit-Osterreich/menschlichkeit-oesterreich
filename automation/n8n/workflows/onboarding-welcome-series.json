@@ -1,0 +1,178 @@
+{
+  "name": "Onboarding: Welcome-Serie",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "new-member",
+        "options": {}
+      },
+      "name": "Webhook: New Member",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "e8a3b8e8-5b3a-4f3b-8f3e-3e8a3b8e8a3b"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "{{$json.body.member_status}}",
+              "value2": "active"
+            }
+          ]
+        }
+      },
+      "name": "Check: Active Member",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "office@menschlichkeit-oesterreich.at",
+        "toEmail": "{{$node[\"Webhook: New Member\"].json.body.email}}",
+        "subject": "🎉 Willkommen bei Menschlichkeit Österreich!",
+        "html": "(Inhalt von welcome_email.html)"
+      },
+      "name": "Send Welcome Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [
+        680,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "time": 3,
+        "unit": "days"
+      },
+      "name": "Wait 3 Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        900,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "office@menschlichkeit-oesterreich.at",
+        "toEmail": "{{$node[\"Webhook: New Member\"].json.body.email}}",
+        "subject": "🎮 Hast du schon das Demokratiespiel entdeckt?",
+        "html": "(Inhalt von game_intro_email.html)"
+      },
+      "name": "Send Game Intro Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "time": 7,
+        "unit": "days"
+      },
+      "name": "Wait 7 Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "office@menschlichkeit-oesterreich.at",
+        "toEmail": "{{$node[\"Webhook: New Member\"].json.body.email}}",
+        "subject": "📅 Nächste Events & Workshops",
+        "html": "(Inhalt von event_reminder_email.html)"
+      },
+      "name": "Send Event Reminder",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [
+        1560,
+        200
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook: New Member": {
+      "main": [
+        [
+          {
+            "node": "Check: Active Member",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check: Active Member": {
+      "main": [
+        [
+          {
+            "node": "Send Welcome Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Welcome Email": {
+      "main": [
+        [
+          {
+            "node": "Wait 3 Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 3 Days": {
+      "main": [
+        [
+          {
+            "node": "Send Game Intro Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Game Intro Email": {
+      "main": [
+        [
+          {
+            "node": "Wait 7 Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 7 Days": {
+      "main": [
+        [
+          {
+            "node": "Send Event Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
+}
