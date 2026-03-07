@@ -237,7 +237,7 @@ Write-Info "Folgende Secrets MÜSSEN in GitHub Actions verfügbar sein:"
 $ghSecrets | ForEach-Object { Write-Host "  - $_" }
 
 Write-Info "`n⚠️  Manuelle Prüfung erforderlich:"
-Write-Host "    https://github.com/peschull/menschlichkeit-oesterreich-development/settings/secrets/actions" -ForegroundColor Cyan
+Write-Host "    https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/settings/secrets/actions" -ForegroundColor Cyan
 
 # ================== SECTION 8: Service-spezifische Tests ==================
 Write-Section "8. Service-spezifische Validierung"

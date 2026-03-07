@@ -12,7 +12,7 @@ Da die GitHub API-Berechtigung nicht ausreicht, müssen Sie den Default-Branch *
 
 ### Schritt 1: Default-Branch ändern
 
-1. Öffnen Sie: https://github.com/peschull/menschlichkeit-oesterreich-development/settings/branches
+1. Öffnen Sie: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/settings/branches
 2. Unter "Default branch" klicken Sie auf den **Umschalter** (Switch-Icon)
 3. Wählen Sie `main` aus der Liste
 4. Klicken Sie auf **Update**
@@ -30,7 +30,7 @@ git push origin --delete chore/figma-mcp-make
 
 Falls Branch-Protection-Regeln existieren:
 
-1. Gehen Sie zu: https://github.com/peschull/menschlichkeit-oesterreich-development/settings/branch_protection_rules
+1. Gehen Sie zu: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/settings/branch_protection_rules
 2. Aktualisieren Sie Regeln von `chore/figma-mcp-make` auf `main`
 3. Oder erstellen Sie neue Regeln für `main`
 

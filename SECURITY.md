@@ -17,7 +17,7 @@ Wir bieten Sicherheitsupdates für folgende Versionen:
 
 GitHub bietet **Private Vulnerability Reporting** für vertrauliche Sicherheitsmeldungen an:
 
-1. **Navigieren Sie zu**: [Security → Advisories → New draft security advisory](https://github.com/peschull/menschlichkeit-oesterreich-development/security/advisories/new)
+1. **Navigieren Sie zu**: [Security → Advisories → New draft security advisory](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/security/advisories/new)
 2. **Beschreiben Sie** die Schwachstelle mit ausreichend Details zur Reproduktion
 3. **Vermeiden Sie** die Preisgabe sensibler Daten (Credentials, PII)
 4. **Wir bestätigen** den Eingang innerhalb von **72 Stunden**

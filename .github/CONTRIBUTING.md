@@ -32,7 +32,7 @@ Dieses Projekt folgt unserem [Code of Conduct](CODE_OF_CONDUCT.md). Durch die Te
 
 ```bash
 # Repository klonen
-git clone git@github.com:peschull/menschlichkeit-oesterreich-development.git
+git clone git@github.com:Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development.git
 cd menschlichkeit-oesterreich-development
 
 # Abhängigkeiten installieren

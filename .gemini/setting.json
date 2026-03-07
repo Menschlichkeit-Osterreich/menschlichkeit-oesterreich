@@ -35,24 +35,14 @@
         "name": "Azure DevOps",
         "type": "stdio",
         "command": "npx",
-        "args": [
-          "-y",
-          "@azure-devops/mcp@latest",
-          "${input:ado_org}",
-          "-d",
-          "${input:ado_domain}"
-        ],
+        "args": ["-y", "@azure-devops/mcp@latest", "${input:ado_org}", "-d", "${input:ado_domain}"],
         "description": "Stellt eine Verbindung zu Azure DevOps her, um auf Work Items, Repositories und Pipelines zuzugreifen."
       },
       "clarity": {
         "name": "Clarity",
         "type": "stdio",
         "command": "npx",
-        "args": [
-          "@microsoft/clarity-mcp-server@latest",
-          "--clarity_api_token",
-          "${input:clarity_api_token}"
-        ],
+        "args": ["@microsoft/clarity-mcp-server@latest", "--clarity_api_token", "${input:clarity_api_token}"],
         "description": "Integriert Microsoft Clarity zur Analyse von Benutzerverhaltensdaten und Heatmaps."
       },
       "figma": {
@@ -69,11 +59,7 @@
         "name": "Filesystem",
         "type": "stdio",
         "command": "npx",
-        "args": [
-          "-y",
-          "@modelcontextprotocol/server-filesystem",
-          "${workspaceFolder}"
-        ],
+        "args": ["-y", "@modelcontextprotocol/server-filesystem", "${workspaceFolder}"],
         "description": "Gewährt Lese- und Schreibzugriff auf das lokale Dateisystem im Projektordner."
       },
       "github": {

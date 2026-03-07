@@ -309,7 +309,7 @@ async def get_donations():
 
 ### Responsible Disclosure
 - **Method:** GitHub Private Vulnerability Reporting
-- **Link:** https://github.com/peschull/menschlichkeit-oesterreich-development/security/advisories/new
+- **Link:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/security/advisories/new
 
 ### Datenschutzbeauftragte:r (DPO)
 - **Email:** [DPO_EMAIL]

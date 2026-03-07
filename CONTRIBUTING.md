@@ -75,7 +75,7 @@ Dieses Projekt folgt dem [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.
 
 ```bash
 # 1. Repository klonen
-git clone https://github.com/peschull/menschlichkeit-oesterreich-development.git
+git clone https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development.git
 cd menschlichkeit-oesterreich-development
 
 # 2. Dependencies installieren
@@ -580,15 +580,15 @@ Bestimmte Dateien/Directories benötigen Review von spezifischen Teams:
 ### Fragen?
 
 - 📧 **Email:** dev@menschlichkeit-oesterreich.at
-- 💬 **Discussions:** [GitHub Discussions](https://github.com/peschull/menschlichkeit-oesterreich-development/discussions)
-- 🐛 **Issues:** [GitHub Issues](https://github.com/peschull/menschlichkeit-oesterreich-development/issues)
+- 💬 **Discussions:** [GitHub Discussions](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/discussions)
+- 🐛 **Issues:** [GitHub Issues](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues)
 
 ### Resources
 
 - 📚 [Documentation](docs/)
 - 🏗️ [Architecture Guide](docs/architecture/)
 - 🔒 [Security Policy](SECURITY.md)
-- 📊 [Project Board](https://github.com/peschull/menschlichkeit-oesterreich-development/projects)
+- 📊 [Project Board](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/projects)
 
 ---
 
@@ -596,7 +596,7 @@ Bestimmte Dateien/Directories benötigen Review von spezifischen Teams:
 
 Vielen Dank an alle Contributors, die zu diesem Projekt beigetragen haben! 🎉
 
-[Contributors](https://github.com/peschull/menschlichkeit-oesterreich-development/graphs/contributors)
+[Contributors](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/graphs/contributors)
 
 ---
 

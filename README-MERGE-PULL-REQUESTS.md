@@ -73,16 +73,16 @@ gh pr close 147 --comment "✅ Merge operations completed"
 
 ### Option 3: GitHub UI
 
-1. Navigiere zu [PR #146](https://github.com/peschull/menschlichkeit-oesterreich-development/pull/146)
+1. Navigiere zu [PR #146](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/146)
    - Convert from Draft
    - Approve
    - Merge (Squash)
    
-2. Navigiere zu [PR #87](https://github.com/peschull/menschlichkeit-oesterreich-development/pull/87)
+2. Navigiere zu [PR #87](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/87)
    - Approve
    - Merge (Squash)
    
-3. Navigiere zu [PR #147](https://github.com/peschull/menschlichkeit-oesterreich-development/pull/147)
+3. Navigiere zu [PR #147](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/147)
    - Close
 
 ---
@@ -238,11 +238,11 @@ Siehe `MERGE-EXECUTION-PLAN.md` Section "Rollback Plan"
 
 ## 🔗 Links
 
-- **PR #146:** https://github.com/peschull/menschlichkeit-oesterreich-development/pull/146
-- **PR #87:** https://github.com/peschull/menschlichkeit-oesterreich-development/pull/87
-- **PR #147 (Meta-PR):** https://github.com/peschull/menschlichkeit-oesterreich-development/pull/147
-- **Issue #410:** https://github.com/peschull/menschlichkeit-oesterreich-development/issues/410
-- **Issues Dashboard:** https://github.com/peschull/menschlichkeit-oesterreich-development/issues
+- **PR #146:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/146
+- **PR #87:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/87
+- **PR #147 (Meta-PR):** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/147
+- **Issue #410:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues/410
+- **Issues Dashboard:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues
 
 ---
 

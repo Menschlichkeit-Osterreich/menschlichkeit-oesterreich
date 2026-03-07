@@ -443,8 +443,8 @@ sudo mv trivy /usr/local/bin/
 
 ### GitHub
 
-- Repository: <https://github.com/peschull/menschlichkeit-oesterreich-development>
-- PR #40: <https://github.com/peschull/menschlichkeit-oesterreich-development/pull/40>
+- Repository: <https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development>
+- PR #40: <https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/40>
 - GPG-Keys: <https://github.com/settings/gpg/new>
 
 ### Dokumentation (neu erstellt)

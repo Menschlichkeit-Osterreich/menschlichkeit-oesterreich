@@ -350,7 +350,7 @@ N8N_WEBHOOK_QUALITY_DAILY=https://n8n.example.com/webhook/quality-daily
 
 # GitHub
 GITHUB_TOKEN=ghp_xxxxxxxxxxxxx
-GITHUB_REPO=peschull/menschlichkeit-oesterreich-development
+GITHUB_REPO=Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
 
 # Slack
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/T00000000/B00000000/xxxxxxxxxxxx

@@ -2,7 +2,7 @@
 
 ## 📋 Issue Summary
 
-**Pull Request:** [#69](https://github.com/peschull/menschlichkeit-oesterreich-development/pull/69)  
+**Pull Request:** [#69](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/69)  
 **Title:** chore(deps): bump pyjwt from 2.8.0 to 2.10.1 in /api.menschlichkeit-oesterreich.at  
 **Type:** Dependabot dependency update  
 **Status:** ⚠️ Has conflicts with main branch  
@@ -37,7 +37,7 @@ The simplest and safest solution is to ask Dependabot to rebase the PR. This wil
 
 ### Method 1: Manual Comment (Recommended for humans)
 
-1. Go to the PR: https://github.com/peschull/menschlichkeit-oesterreich-development/pull/69
+1. Go to the PR: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/69
 2. Add a comment with **exactly** this text:
    ```
    @dependabot rebase
@@ -137,7 +137,7 @@ cat api.menschlichkeit-oesterreich.at/requirements.txt | grep pyjwt
 
 ## 📚 References
 
-- [Dependabot PR #69](https://github.com/peschull/menschlichkeit-oesterreich-development/pull/69)
+- [Dependabot PR #69](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/69)
 - [Dependabot Commands Documentation](https://docs.github.com/en/code-security/dependabot/working-with-dependabot/managing-pull-requests-for-dependency-updates#managing-dependabot-pull-requests-with-comment-commands)
 - [PyJWT Changelog](https://github.com/jpadilla/pyjwt/blob/master/CHANGELOG.md)
 

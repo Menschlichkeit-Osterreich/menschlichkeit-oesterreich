@@ -1,0 +1,168 @@
+{
+  "name": "Finance: Donation Processing & Receipting",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "finance-donation-received",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook: Donation Received",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const body = $input.first().json.body;\nif (!body.donor || !body.amount) {\n  throw new Error('Missing donor or amount');\n}\nreturn [{ json: body }];"
+      },
+      "id": "validate-input",
+      "name": "Validate & Extract Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "resource": "contribution",
+        "operation": "create",
+        "params": {
+          "contact_id": "={{ $json.donor.civicrm_id }}",
+          "total_amount": "={{ $json.amount }}",
+          "financial_type_id": 1, // Donation
+          "contribution_status_id": 2, // Pending
+          "source": "={{ $json.source || 'Website' }}"
+        }
+      },
+      "id": "create-contribution-civicrm",
+      "name": "CiviCRM: Create Contribution",
+      "type": "n8n-nodes-base.civicrm",
+      "typeVersion": 1,
+      "position": [680, 300],
+      "credentials": {
+        "civiCRM": {
+          "id": "civicrm-prod",
+          "name": "CiviCRM Prod"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.API_BASE_URL }}/finance/donations",
+        "method": "POST",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ ...$json, civicrm_contribution_id: $('CiviCRM: Create Contribution').first().json.id }) }}",
+        "options": {}
+      },
+      "id": "log-donation-api",
+      "name": "API: Log Donation",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [900, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-backend-auth",
+          "name": "API Backend Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.receipt_eligible }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "check-receipt-eligibility",
+      "name": "Receipt Eligible?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.API_BASE_URL }}/finance/receipts/generate-pdf",
+        "method": "POST",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "generate-receipt-pdf",
+      "name": "API: Generate Receipt PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1340, 200],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-backend-auth",
+          "name": "API Backend Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "to": "={{ $json.donor.email }}",
+        "subject": "Vielen Dank für deine Spende an Menschlichkeit Österreich!",
+        "html": "<h1>Danke!</h1><p>Deine Spende in Höhe von {{ $json.amount }} EUR ist bei uns eingegangen. Im Anhang findest du deine Spendenquittung.</p>",
+        "attachments": {
+          "attachments": [
+            {
+              "content": "={{ $node[\'API: Generate Receipt PDF\'].json.body.pdf_path }}',
+              "name": "Spendenquittung-{{ $now.toFormat('yyyy-MM-dd') }}.pdf"
+            }
+          ]
+        }
+      },
+      "id": "send-thank-you-email-with-receipt",
+      "name": "Send Thank You Email w/ Receipt",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 1,
+      "position": [1560, 200],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-prod",
+          "name": "SMTP Prod"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "to": "={{ $json.donor.email }}",
+        "subject": "Vielen Dank für deine Spende!",
+        "html": "<h1>Danke!</h1><p>Deine Spende in Höhe von {{ $json.amount }} EUR ist bei uns eingegangen.</p>"
+      },
+      "id": "send-thank-you-email-no-receipt",
+      "name": "Send Thank You Email w/o Receipt",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 1,
+      "position": [1340, 400],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-prod",
+          "name": "SMTP Prod"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "webhook-trigger": { "main": [[{ "node": "Validate & Extract Data", "type": "main", "index": 0 }]] },
+    "validate-input": { "main": [[{ "node": "CiviCRM: Create Contribution", "type": "main", "index": 0 }]] },
+    "create-contribution-civicrm": { "main": [[{ "node": "API: Log Donation", "type": "main", "index": 0 }]] },
+    "log-donation-api": { "main": [[{ "node": "Receipt Eligible?", "type": "main", "index": 0 }]] },
+    "check-receipt-eligibility": {
+      "main": [
+        [{ "node": "API: Generate Receipt PDF", "type": "main", "index": 0 }],
+        [{ "node": "Send Thank You Email w/o Receipt", "type": "main", "index": 0 }]
+      ]
+    },
+    "generate-receipt-pdf": { "main": [[{ "node": "Send Thank You Email w/ Receipt", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": ["finance", "donation", "automation", "receipt"]
+}

@@ -255,7 +255,7 @@ Wenn nichts hilft:
 ## 🆘 Wenn nichts funktioniert
 
 1. **Issue erstellen**
-   - Repository: github.com/peschull/menschlichkeit-oesterreich-development
+   - Repository: github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
    - Template: Bug Report
    - Anhängen: Output von `bash .devcontainer/diagnose.sh`
 

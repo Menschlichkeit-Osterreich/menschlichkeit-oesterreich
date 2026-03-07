@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Codespace SSH Setup (GitHub + Plesk) – idempotent
-# Repo: peschull/menschlichkeit-oesterreich-development
+# Repo: Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
 # Codespace Host: $(hostname)
 
 # --- feste Zielwerte ---

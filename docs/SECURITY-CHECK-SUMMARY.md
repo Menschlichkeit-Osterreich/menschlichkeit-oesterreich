@@ -354,7 +354,7 @@ uvicorn app.main:app --reload
 ### Reporting Security Issues
 
 - **Method:** GitHub Private Vulnerability Reporting
-- **Link:** https://github.com/peschull/menschlichkeit-oesterreich-development/security/advisories/new
+- **Link:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/security/advisories/new
 - **Alternative:** security@menschlichkeit-oesterreich.at (with PGP)
 
 ### Datenschutzbeauftragte:r (DPO)

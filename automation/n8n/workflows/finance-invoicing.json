@@ -1,0 +1,108 @@
+{
+  "name": "Finance: Automated Invoicing for Memberships",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "unit": "hours",
+              "value": 24
+            }
+          ]
+        }
+      },
+      "name": "Daily Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $secrets.CIVICRM_URL }}/api/v4/Membership?select=["contact_id.display_name","contact_id.email","start_date"]&where=[["start_date","=","-1 day"]",["status_id.name","=","New"]",["financial_type_id.name","=","Member Dues"]",["contribution.id","IS NULL"]]
+      },
+      "name": "Get New Members from CiviCRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {},
+      "name": "Loop Over New Members",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 1,
+      "position": [750, 300]
+    },
+    {
+      "parameters": {
+        "template": "(Content of templates/finance/invoice-template.md)",
+        "data": "={{ { date: new Date().toLocaleDateString('de-AT'), invoice_number: 'RE-' + new Date().getFullYear() + '-' + $json.id, member_id: $json.contact_id, first_name: $json.contact_id.display_name.split(' ')[0], last_name: $json.contact_id.display_name.split(' ')[1], address: '', postal_code: '', city: '', year: new Date().getFullYear(), amount: 60 } }}"
+      },
+      "name": "Generate Invoice from Template",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [1000, 300]
+    },
+    {
+      "parameters": {
+        "to": "={{ $json.contact_id.email }}",
+        "subject": "Ihre Rechnung für die Mitgliedschaft bei Menschlichkeit Österreich",
+        "html": "={{ $json.generated_invoice }}"
+      },
+      "name": "Send Invoice via Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [1250, 300]
+    }
+  ],
+  "connections": {
+    "Daily Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get New Members from CiviCRM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get New Members from CiviCRM": {
+      "main": [
+        [
+          {
+            "node": "Loop Over New Members",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over New Members": {
+      "main": [
+        [
+          {
+            "node": "Generate Invoice from Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Invoice from Template": {
+      "main": [
+        [
+          {
+            "node": "Send Invoice via Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "id": "finance-invoicing"
+}

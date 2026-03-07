@@ -28,7 +28,7 @@ echo "   - peschull/crm.menschlichkeit-oesterreich"
 echo "   - peschull/api.menschlichkeit-oesterreich"
 echo
 echo "✅ BEHALTEN:"
-echo "   - peschull/menschlichkeit-oesterreich-development (Haupt-Repository)"
+echo "   - Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development (Haupt-Repository)"
 echo "   - peschull/webgames (anderes Projekt)"
 echo
 
@@ -85,7 +85,7 @@ echo
 echo "🎉 Repository-Cleanup abgeschlossen!"
 echo
 echo "✅ Verbleibende Repositories:"
-echo "   - peschull/menschlichkeit-oesterreich-development (Haupt-Repository)"
+echo "   - Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development (Haupt-Repository)"
 echo "   - peschull/webgames (separates Projekt)"
 echo
 echo "🔍 Überprüfung:"
@@ -94,4 +94,4 @@ gh repo list
 echo
 echo "✨ GitHub-Account ist jetzt bereinigt!"
 echo "   Alle Projektinhalte befinden sich in:"
-echo "   github.com/peschull/menschlichkeit-oesterreich-development"
+echo "   github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development"

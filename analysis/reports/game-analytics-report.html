@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brücken Bauen – Analytics Report February 2026</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #F8FAFC; color: #1E293B; line-height: 1.6; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+    header { background: linear-gradient(135deg, #1E40AF, #3B82F6); color: white; padding: 2.5rem; border-radius: 1rem; margin-bottom: 2rem; }
+    header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    header p { opacity: 0.85; font-size: 0.95rem; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .kpi-card { background: white; border-radius: 0.75rem; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); border-left: 4px solid var(--color); }
+    .kpi-value { font-size: 1.6rem; font-weight: 700; color: var(--color); }
+    .kpi-label { font-size: 0.8rem; color: #64748B; margin-top: 0.25rem; }
+    .section { background: white; border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .section h2 { font-size: 1.15rem; font-weight: 700; color: #1E293B; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #E2E8F0; }
+    .section img { width: 100%; border-radius: 0.5rem; }
+    .insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+    .insight { background: #F1F5F9; border-radius: 0.5rem; padding: 1rem; }
+    .insight h3 { font-size: 0.9rem; font-weight: 600; color: #475569; margin-bottom: 0.5rem; }
+    .insight p { font-size: 0.875rem; color: #1E293B; }
+    .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+    .badge-green { background: #D1FAE5; color: #065F46; }
+    .badge-blue { background: #DBEAFE; color: #1E40AF; }
+    .badge-orange { background: #FEF3C7; color: #92400E; }
+    footer { text-align: center; color: #94A3B8; font-size: 0.8rem; margin-top: 2rem; padding: 1rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th { background: #F1F5F9; padding: 0.75rem; text-align: left; font-weight: 600; color: #475569; }
+    td { padding: 0.75rem; border-bottom: 1px solid #E2E8F0; color: #1E293B; }
+    tr:hover td { background: #F8FAFC; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Brücken Bauen – Analytics Report</h1>
+    <p>Generiert am 28. February 2026, 14:34 Uhr &bull; Zeitraum: letzte 90 Tage</p>
+  </header>
+
+  <div class="kpi-grid">
+    <div class="kpi-card" style="--color: #3B82F6">
+      <div class="kpi-value">500</div>
+      <div class="kpi-label">Gesamte Spielsessions</div>
+    </div>
+    <div class="kpi-card" style="--color: #10B981">
+      <div class="kpi-value">51%</div>
+      <div class="kpi-label">Ø Abschlussrate</div>
+    </div>
+    <div class="kpi-card" style="--color: #F59E0B">
+      <div class="kpi-value">23 Min.</div>
+      <div class="kpi-label">Ø Spielzeit</div>
+    </div>
+    <div class="kpi-card" style="--color: #8B5CF6">
+      <div class="kpi-value">38</div>
+      <div class="kpi-label">Lehrer-Sessions</div>
+    </div>
+    <div class="kpi-card" style="--color: #EF4444">
+      <div class="kpi-value">44</div>
+      <div class="kpi-label">Ø Gesamtscore (max. 128)</div>
+    </div>
+    <div class="kpi-card" style="--color: #06B6D4">
+      <div class="kpi-value">24</div>
+      <div class="kpi-label">Vollständige Durchläufe</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Übersichts-Dashboard</h2>
+    <img src="dashboard.png" alt="Analytics Dashboard">
+  </div>
+
+  <div class="section">
+    <h2>Entscheidungsanalyse</h2>
+    <img src="decisions.png" alt="Entscheidungsanalyse">
+  </div>
+
+  <div class="section">
+    <h2>Wichtigste Erkenntnisse</h2>
+    <div class="insight-grid">
+      <div class="insight">
+        <h3>Stärkste Dimension</h3>
+        <p><span class="badge badge-green">Empathie</span> ist die am stärksten ausgeprägte Dimension bei den Spieler:innen (Ø 11.8/32).</p>
+      </div>
+      <div class="insight">
+        <h3>Verbesserungspotenzial</h3>
+        <p><span class="badge badge-orange">Zivilcourage</span> zeigt das größte Verbesserungspotenzial (Ø 10.0/32). Hier sollten mehr Szenarien angeboten werden.</p>
+      </div>
+      <div class="insight">
+        <h3>Beste Entscheidungsqualität</h3>
+        <p>Im Bereich <span class="badge badge-blue">Europa</span> treffen Spieler:innen am häufigsten die beste Entscheidung (A).</p>
+      </div>
+      <div class="insight">
+        <h3>Abbruchpunkte</h3>
+        <p>Die meisten Abbrüche erfolgen nach Szenario 7. Hier könnte eine motivierende Zwischennachricht helfen.</p>
+      </div>
+      <div class="insight">
+        <h3>Mobile Nutzung</h3>
+        <p>34% der Sessions werden auf mobilen Geräten gespielt. Mobile-Optimierung ist entscheidend.</p>
+      </div>
+      <div class="insight">
+        <h3>Lehrer-Engagement</h3>
+        <p>38 Lehrer-Sessions mit durchschnittlich 2 Schüler:innen pro Klasse. Das Spiel wird aktiv im Unterricht eingesetzt.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Score-Übersicht nach Dimension</h2>
+    <table>
+      <thead>
+        <tr><th>Dimension</th><th>Ø Score</th><th>Min.</th><th>Max.</th><th>Std.-Abw.</th><th>Bewertung</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Empathie</strong></td><td>11.8</td><td>0</td><td>32</td><td>7.7</td><td><span class="badge badge-orange">Ausbaufähig</span></td></tr>
+<tr><td><strong>Rechtsbewusstsein</strong></td><td>10.9</td><td>0</td><td>32</td><td>7.2</td><td><span class="badge badge-orange">Ausbaufähig</span></td></tr>
+<tr><td><strong>Partizipation</strong></td><td>11.5</td><td>0</td><td>31</td><td>7.5</td><td><span class="badge badge-orange">Ausbaufähig</span></td></tr>
+<tr><td><strong>Zivilcourage</strong></td><td>10.0</td><td>0</td><td>30</td><td>7.0</td><td><span class="badge badge-orange">Ausbaufähig</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer>
+    Brücken Bauen – Menschlichkeit Österreich &bull; Analytics Report &bull; Alle Daten aggregiert und anonymisiert (DSGVO-konform)
+  </footer>
+</div>
+</body>
+</html>
