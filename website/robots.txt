@@ -1,0 +1,19 @@
+# robots.txt – Menschlichkeit Österreich
+# https://menschlichkeit-oesterreich.at
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /member/
+Disallow: /account/
+Disallow: /api/
+Disallow: /login
+Disallow: /Login
+Disallow: /*.json$
+Disallow: /sw.js
+
+# Crawl-delay für höfliches Crawling
+Crawl-delay: 10
+
+# Sitemap
+Sitemap: https://menschlichkeit-oesterreich.at/sitemap.xml
