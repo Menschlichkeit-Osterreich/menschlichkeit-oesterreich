@@ -2,7 +2,7 @@
 
 **Datum**: 2025-01-30
 **Status**: ✅ ERFOLGREICH ABGESCHLOSSEN
-**Repository**: https://github.com/peschull/menschlichkeit-oesterreich-development.git
+**Repository**: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development.git
 
 ---
 
@@ -195,7 +195,7 @@ Das Menschlichkeit Österreich Development Environment ist jetzt bereit für pro
 
 **Team**: GitHub Copilot AI Agent
 **Completion Date**: 2025-01-30
-**Repository**: https://github.com/peschull/menschlichkeit-oesterreich-development.git
+**Repository**: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development.git
 
 ---
 

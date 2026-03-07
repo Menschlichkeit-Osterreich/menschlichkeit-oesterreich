@@ -1,7 +1,7 @@
 # Phase 0: Deep Analysis – FINAL REPORT
 
 **Projekt:** Menschlichkeit Österreich Development  
-**Repository:** peschull/menschlichkeit-oesterreich-development  
+**Repository:** Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development  
 **Branch:** chore/figma-mcp-make  
 **Analysezeitraum:** 2025-10-03  
 **Status:** ✅ PHASE 0 ABGESCHLOSSEN
@@ -280,7 +280,7 @@ find build/ -exec touch -d @$SOURCE_DATE_EPOCH {} +
 # Branch Protection via API
 curl -X PUT \
   -H "Authorization: Bearer $GITHUB_TOKEN" \
-  https://api.github.com/repos/peschull/menschlichkeit-oesterreich-development/branches/chore%2Ffigma-mcp-make/protection \
+  https://api.github.com/repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/branches/chore%2Ffigma-mcp-make/protection \
   -d '{"required_pull_request_reviews":{"required_approving_review_count":1},"required_signatures":true}'
 ```
 

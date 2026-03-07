@@ -25,7 +25,7 @@ class CodespaceStatusChecker:
     def __init__(self, project_root: Optional[Path] = None):
         self.project_root = project_root or Path.cwd()
         self.github_token = os.getenv("GITHUB_TOKEN")
-        self.github_repo = "peschull/menschlichkeit-oesterreich-development"
+        self.github_repo = "Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development"
         self.results = {}
 
     def is_codespace(self) -> bool:

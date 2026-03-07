@@ -172,7 +172,7 @@ powershell -ExecutionPolicy Bypass -File scripts/validate-secrets.ps1
 - `Get-Help .\scripts\validate-secrets.ps1`
 
 **Issues:**
-- GitHub: [peschull/menschlichkeit-oesterreich-development/issues](https://github.com/peschull/menschlichkeit-oesterreich-development/issues)
+- GitHub: [Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues)
 - Label: `area/security` + `P1-High`
 
 ---

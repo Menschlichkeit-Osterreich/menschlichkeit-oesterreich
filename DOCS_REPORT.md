@@ -20,7 +20,7 @@ priority: critical
 
 **Erstellungsdatum:** 2025-10-10  
 **Modus:** Dry-Run (keine Dateiänderungen)  
-**Repository:** peschull/menschlichkeit-oesterreich-development  
+**Repository:** Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development  
 **Branch:** main
 
 ---

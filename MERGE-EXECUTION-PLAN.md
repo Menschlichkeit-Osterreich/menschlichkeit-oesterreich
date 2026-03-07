@@ -75,7 +75,7 @@ Beide PRs sind sicher zu mergen ohne Breaking Changes.
 
 ```bash
 # Convert from draft to ready
-gh pr ready 146 --repo peschull/menschlichkeit-oesterreich-development
+gh pr ready 146 --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
 
 # Add approval
 gh pr review 146 --approve \
@@ -94,7 +94,7 @@ gh pr review 146 --approve \
   - Test pass rate: +170% improvement
   
   Ready to merge. No breaking changes." \
-  --repo peschull/menschlichkeit-oesterreich-development
+  --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
 ```
 
 ### Step 2: Merge PR #146
@@ -111,7 +111,7 @@ gh pr merge 146 --squash --delete-branch \
   - All tests passing (19/19)
   
   Closes #410" \
-  --repo peschull/menschlichkeit-oesterreich-development
+  --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
 ```
 
 ### Step 3: Verify Main Branch
@@ -119,10 +119,10 @@ gh pr merge 146 --squash --delete-branch \
 ```bash
 # Check main branch status after merge
 gh run list --branch main --limit 3 \
-  --repo peschull/menschlichkeit-oesterreich-development
+  --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
 
 # Wait for CI/CD to complete (~2-3 minutes)
-gh run watch --repo peschull/menschlichkeit-oesterreich-development
+gh run watch --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
 ```
 
 ### Step 4: Prepare PR #87 for Merge
@@ -146,7 +146,7 @@ gh pr review 87 --approve \
   - Workflows: Optimized and focused
   
   Safe to merge. No breaking changes." \
-  --repo peschull/menschlichkeit-oesterreich-development
+  --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
 ```
 
 ### Step 5: Merge PR #87
@@ -164,7 +164,7 @@ gh pr merge 87 --squash --delete-branch \
   - Security: Removed disable-tls from composer
   
   All files preserved, just better organized." \
-  --repo peschull/menschlichkeit-oesterreich-development
+  --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
 ```
 
 ### Step 6: Verify and Cleanup
@@ -172,7 +172,7 @@ gh pr merge 87 --squash --delete-branch \
 ```bash
 # Check main branch status
 gh run list --branch main --limit 5 \
-  --repo peschull/menschlichkeit-oesterreich-development
+  --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
 
 # Close this meta PR #147
 gh pr close 147 \
@@ -192,7 +192,7 @@ gh pr close 147 \
   - Monitor main branch stability
   - Address open issues via normal workflow
   - Documentation updated" \
-  --repo peschull/menschlichkeit-oesterreich-development
+  --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
 ```
 
 ---
@@ -327,10 +327,10 @@ Questions? Reply to this thread.
 
 ## 🔗 References
 
-- **PR #146:** https://github.com/peschull/menschlichkeit-oesterreich-development/pull/146
-- **PR #87:** https://github.com/peschull/menschlichkeit-oesterreich-development/pull/87
-- **PR #147:** https://github.com/peschull/menschlichkeit-oesterreich-development/pull/147
-- **Issue #410:** https://github.com/peschull/menschlichkeit-oesterreich-development/issues/410
+- **PR #146:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/146
+- **PR #87:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/87
+- **PR #147:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/147
+- **Issue #410:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues/410
 
 ---
 

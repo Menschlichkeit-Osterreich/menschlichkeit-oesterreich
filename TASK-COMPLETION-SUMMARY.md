@@ -158,9 +158,9 @@ gh pr close 147 --comment "✅ Merge operations completed"
 - [MERGE-EXECUTION-PLAN.md](MERGE-EXECUTION-PLAN.md) - Execution Plan
 
 **Pull Requests:**
-- [PR #146](https://github.com/peschull/menschlichkeit-oesterreich-development/pull/146) - CodeQL Fix
-- [PR #87](https://github.com/peschull/menschlichkeit-oesterreich-development/pull/87) - Secrets & Docs
-- [PR #147](https://github.com/peschull/menschlichkeit-oesterreich-development/pull/147) - This Meta PR
+- [PR #146](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/146) - CodeQL Fix
+- [PR #87](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/87) - Secrets & Docs
+- [PR #147](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/147) - This Meta PR
 
 ---
 

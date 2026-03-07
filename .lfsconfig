@@ -2,4 +2,4 @@
     # Disable automatic file downloading on checkout for faster clones
     fetchinclude = /Pdf/**,*.pdf
     # Push all LFS files on push
-    pushurl = https://github.com/peschull/menschlichkeit-oesterreich-development.git/info/lfs
+    pushurl = https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development.git/info/lfs

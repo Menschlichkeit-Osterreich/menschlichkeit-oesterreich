@@ -10,7 +10,7 @@
 
 ### 1. Default-Branch umstellen
 
-1. Öffnen Sie: https://github.com/peschull/menschlichkeit-oesterreich-development/settings/branches
+1. Öffnen Sie: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/settings/branches
 2. Unter "Default branch" klicken Sie auf das ⇄ Symbol (Switch)
 3. Wählen Sie `chore/figma-mcp-make` aus
 4. Klicken Sie "Update" und bestätigen Sie die Warnung
@@ -21,7 +21,7 @@ Nach dem Umstellen des Default-Branches können Sie `main` löschen:
 
 **Option A: Über GitHub UI**
 
-1. Gehen Sie zu: https://github.com/peschull/menschlichkeit-oesterreich-development/branches
+1. Gehen Sie zu: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/branches
 2. Suchen Sie `main` in der Liste
 3. Klicken Sie auf das 🗑️ Symbol (Delete)
 

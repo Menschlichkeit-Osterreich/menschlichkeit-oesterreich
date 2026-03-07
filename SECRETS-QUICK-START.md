@@ -63,7 +63,7 @@ start https://github.com/settings/tokens/new
 GH_TOKEN=ghp_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 # 5. GitHub Secret setzen:
-start https://github.com/peschull/menschlichkeit-oesterreich-development/settings/secrets/actions/new
+start https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/settings/secrets/actions/new
 # Name: GH_TOKEN
 # Secret: ghp_XXX... (aus Schritt 3)
 ```

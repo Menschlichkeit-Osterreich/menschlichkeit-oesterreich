@@ -1,10 +1,10 @@
 ## MCP Health — run 18397937636
-URL: https://github.com/peschull/menschlichkeit-oesterreich-development/actions/runs/18397937636
+URL: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/actions/runs/18397937636
 -- last 80 error lines --
 208:quick	UNKNOWN STEP	2025-10-10T06:03:47.2193649Z ##[error]Process completed with exit code 1.
 
 ## Prompt CI — run 18397937632
-URL: https://github.com/peschull/menschlichkeit-oesterreich-development/actions/runs/18397937632
+URL: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/actions/runs/18397937632
 -- last 80 error lines --
 204:validate	UNKNOWN STEP	2025-10-10T06:03:52.2732737Z npm error code ETARGET
 205:validate	UNKNOWN STEP	2025-10-10T06:03:52.2733241Z npm error notarget No matching version found for ajv-cli@6.x.
@@ -14,7 +14,7 @@ URL: https://github.com/peschull/menschlichkeit-oesterreich-development/actions/
 209:validate	UNKNOWN STEP	2025-10-10T06:03:52.2812572Z ##[error]Process completed with exit code 1.
 
 ## Quality — run 18397937645
-URL: https://github.com/peschull/menschlichkeit-oesterreich-development/actions/runs/18397937645
+URL: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/actions/runs/18397937645
 -- last 80 error lines --
 611:Lint & Checks	UNKNOWN STEP	2025-10-10T06:03:51.8108859Z [added] quality-reports/LINT-ERROR-CLEANUP-REPORT.md
 619:Lint & Checks	UNKNOWN STEP	2025-10-10T06:03:51.8112221Z [added] quality-reports/MCP-PARSING-ERROR-FIX-REPORT.md
@@ -24,11 +24,11 @@ URL: https://github.com/peschull/menschlichkeit-oesterreich-development/actions/
 870:Lint & Checks	UNKNOWN STEP	2025-10-10T06:04:12.0991931Z ##[error]Process completed with exit code 1.
 
 ## Trivy FS Scan — run 18397937637
-URL: https://github.com/peschull/menschlichkeit-oesterreich-development/actions/runs/18397937637
+URL: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/actions/runs/18397937637
 -- last 80 error lines --
 
 ## CodeQL — run 18397937664
-URL: https://github.com/peschull/menschlichkeit-oesterreich-development/actions/runs/18397937664
+URL: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/actions/runs/18397937664
 -- last 80 error lines --
 306:CodeQL	UNKNOWN STEP	2025-10-10T06:03:52.1680299Z                 "description" : "Controls the level of verbosity of the CodeQL Python extractor.\nThe supported levels are (in order of increasing verbosity):\n\n  - off\n  - errors\n  - warnings\n  - info or progress\n  - debug or progress+\n  - trace or progress++\n  - progress+++\n",
 308:CodeQL	UNKNOWN STEP	2025-10-10T06:03:52.1682690Z                 "pattern" : "^(off|errors|warnings|(info|progress)|(debug|progress\\+)|(trace|progress\\+\\+)|progress\\+\\+\\+)$"

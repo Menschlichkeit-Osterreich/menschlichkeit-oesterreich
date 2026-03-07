@@ -3,7 +3,7 @@
 ## ⚡ Quick Action (30 seconds)
 
 ### Step 1: Open PR
-👉 **[CLICK HERE TO OPEN PR #69](https://github.com/peschull/menschlichkeit-oesterreich-development/pull/69)**
+👉 **[CLICK HERE TO OPEN PR #69](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/69)**
 
 ### Step 2: Post Comment
 Scroll to the bottom of the PR and add this exact comment:
@@ -48,7 +48,7 @@ gh pr comment 69 --body "@dependabot rebase"
 ```
 
 ### GitHub Actions
-[Run this workflow](https://github.com/peschull/menschlichkeit-oesterreich-development/actions/workflows/resolve-pr-conflicts.yml)
+[Run this workflow](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/actions/workflows/resolve-pr-conflicts.yml)
 
 ---
 
