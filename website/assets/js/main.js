@@ -1,12 +1,12 @@
 // Main JavaScript for Menschlichkeit Österreich Website
 /* eslint-env browser */
-/* global gtag */
+/* global gtag, bootstrap */
 
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize all functionality
     initNavbarScroll();
     initSmoothScrolling();
-    initFormSubmissions();
+    initEnhancedForms();
     initAnimations();
     initAccessibility();
     initPerformanceMonitoring();
@@ -134,21 +134,8 @@ function initSmoothScrolling() {
     });
 }
 
-// Form submissions
-function initFormSubmissions() {
-    // Newsletter form
-    const newsletterForm = document.querySelector('#newsletter form');
-    if (newsletterForm) {
-        newsletterForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            handleNewsletterSubmission(this);
-        });
-    }
-}
-
 // Handle newsletter subscription
 function handleNewsletterSubmission(form) {
-    const email = form.querySelector('input[type="email"]').value;
     const button = form.querySelector('button[type="submit"]');
     
     // Show loading state
@@ -311,8 +298,8 @@ function validateForm(form) {
 // Initialize tooltips (if Bootstrap 5 is loaded)
 if (typeof bootstrap !== 'undefined') {
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
+    tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+        new bootstrap.Tooltip(tooltipTriggerEl);
     });
 }
 
@@ -794,7 +781,7 @@ class AuthManager {
         return isValid;
     }
 
-    validateRegisterForm(form) {
+    validateRegisterForm(_form) {
         const fields = [
             { id: 'registerFirstName', required: true },
             { id: 'registerLastName', required: true },

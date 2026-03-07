@@ -10,7 +10,7 @@ tags:
   - austria
   - dsgvo
   - multi-service
-version: 2.0.0
+version: 3.0.0
 language: de-AT
 audience:
   - Developers
@@ -58,7 +58,7 @@ Diese Plattform vereint mehrere spezialisierte Dienste für eine österreichisch
 - 🎨 Frontend – React/TypeScript mit Design Tokens (Rot-Weiß-Rot Corporate Identity)
 - 🤖 Automation – n8n Workflows für Build-Notifications, Datenintegration
 
-Architektur: Monorepo mit npm workspaces, Multi-Subdomain Plesk Hosting, Docker für lokale Entwicklung
+Architektur: Monorepo mit pnpm workspaces, Multi-Subdomain Plesk Hosting, Docker für lokale Entwicklung
 
 ---
 
@@ -80,10 +80,10 @@ git clone https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreic
 cd menschlichkeit-oesterreich-development
 
 # 2) Dev-Setup (Workspaces, Composer, Environments)
-npm run setup:dev
+pnpm install
 
 # 3) Alle Services starten (lokal)
-npm run dev:all
+pnpm dev
 ```
 
 Services erreichbar (Standard-Ports):
@@ -134,7 +134,7 @@ Weitere Details: DOCS-INDEX.md → Architecture
 
 ```bash
 # Development
-npm run dev:all              # Alle Services starten
+pnpm dev              # Alle Services starten
 npm run dev:frontend         # Nur Frontend
 npm run dev:api             # Nur API
 npm run dev:crm             # Nur CRM
@@ -203,13 +203,17 @@ Hinweise:
 
 ```
 menschlichkeit-oesterreich-development/
-├── api.menschlichkeit-oesterreich.at/  # FastAPI Backend
-├── crm.menschlichkeit-oesterreich.at/  # Drupal 10 + CiviCRM
-├── frontend/                           # React Frontend
-├── web/                                # Static Website + Games
-├── website/                            # WordPress Migration
+├── apps/
+│   ├── website/                        # React Frontend (Vite)
+│   ├── api/                            # FastAPI Backend
+│   ├── game/                           # 3D Webgame (Three.js)
+│   └── crm/                            # CiviCRM (separat gehostet)
+├── packages/
+│   ├── ui/                             # Geteilte React-Komponenten
+│   ├── design-system/                  # Geteilte Design-Tokens (Tailwind)
+│   ├── eslint-config/                  # Geteilte ESLint-Regeln
+│   └── tsconfig/                       # Geteilte TypeScript-Konfiguration
 ├── automation/                         # n8n Workflows
-├── mcp-servers/                        # Model Context Protocol Servers
 ├── docs/                               # Zentrale Dokumentation
 │   ├── getting-started/
 │   ├── architecture/

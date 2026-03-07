@@ -1,7 +1,7 @@
 # TODO-Cleanup Report – Menschlichkeit Österreich
 
 **Generated:** 2025-10-17  
-**Repository:** Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development  
+**Repository:** peschull/menschlichkeit-oesterreich-development  
 **Branch:** chore/repo-docs-issues-reorg  
 **Scope:** Source-Code-TODOs/FIXMEs/HACKs (TypeScript, JavaScript, Python, PHP)
 
@@ -11,37 +11,37 @@
 
 ### Gesamtstatistik
 
-| Kategorie | Anzahl | Anteil |
-|-----------|--------|--------|
-| **TODO** | 23 | 88.5% |
-| **FIXME** | 1 | 3.8% |
-| **HACK** | 0 | 0% |
-| **XXX** | 1 | 3.8% |
-| **OPTIMIZE** | 0 | 0% |
-| **NOTE** | 1 | 1.3% |
-| **BUG** | 0 | 0% |
-| **GESAMT** | 77 | 100% |
+| Kategorie    | Anzahl | Anteil |
+| ------------ | ------ | ------ |
+| **TODO**     | 23     | 88.5%  |
+| **FIXME**    | 1      | 3.8%   |
+| **HACK**     | 0      | 0%     |
+| **XXX**      | 1      | 3.8%   |
+| **OPTIMIZE** | 0      | 0%     |
+| **NOTE**     | 1      | 1.3%   |
+| **BUG**      | 0      | 0%     |
+| **GESAMT**   | 77     | 100%   |
 
 ### Breakdown nach Priorität
 
-| Priorität | Anzahl | Anteil | Beschreibung |
-|-----------|--------|--------|--------------|
-| **P0-Critical** | 1 | 3.8% | Sicherheit, Datenverlust-Risiko, Blocker |
-| **P1-High** | 7 | 26.9% | Wichtige Features, Performance, UX |
-| **P2-Medium** | 14 | 53.8% | Nice-to-have, Refactoring, UI-Polish |
-| **P3-Low** | 4 | 15.4% | Technical Debt, Cleanup |
+| Priorität       | Anzahl | Anteil | Beschreibung                             |
+| --------------- | ------ | ------ | ---------------------------------------- |
+| **P0-Critical** | 1      | 3.8%   | Sicherheit, Datenverlust-Risiko, Blocker |
+| **P1-High**     | 7      | 26.9%  | Wichtige Features, Performance, UX       |
+| **P2-Medium**   | 14     | 53.8%  | Nice-to-have, Refactoring, UI-Polish     |
+| **P3-Low**      | 4      | 15.4%  | Technical Debt, Cleanup                  |
 
 ### Breakdown nach Area
 
-| Area | Anzahl | Anteil |
-|------|--------|--------|
-| **frontend** | 9 | 34.6% |
-| **figma-design-system** | 6 | 23.1% |
-| **security** | 5 | 19.2% |
-| **website** | 1 | 3.8% |
-| **tests** | 1 | 3.8% |
-| **scripts** | 2 | 7.7% |
-| **crm** | 2 | 7.7% |
+| Area                    | Anzahl | Anteil |
+| ----------------------- | ------ | ------ |
+| **frontend**            | 9      | 34.6%  |
+| **figma-design-system** | 6      | 23.1%  |
+| **security**            | 5      | 19.2%  |
+| **website**             | 1      | 3.8%   |
+| **tests**               | 1      | 3.8%   |
+| **scripts**             | 2      | 7.7%   |
+| **crm**                 | 2      | 7.7%   |
 
 ---
 
@@ -49,21 +49,21 @@
 
 ### P0-Critical (1 item)
 
-| # | File | Line | Comment | Justification |
-|---|------|------|---------|---------------|
-| 1 | `website/assets/js/auth-handler.js` | 431 | `TODO: Implement password reset API call` | **Security Risk:** Password-Reset nicht implementiert → potenzielle Account-Takeover-Schwachstelle |
+| #   | File                                | Line | Comment                                   | Justification                                                                                      |
+| --- | ----------------------------------- | ---- | ----------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| 1   | `website/assets/js/auth-handler.js` | 431  | `TODO: Implement password reset API call` | **Security Risk:** Password-Reset nicht implementiert → potenzielle Account-Takeover-Schwachstelle |
 
 ### P1-High (7 items)
 
-| # | File | Line | Comment | Area | Justification |
-|---|------|------|---------|------|---------------|
-| 2 | `security/monitoring.py` | 264 | `TODO: Query from auth logs` (total_logins) | security | Security-Monitoring unvollständig → blinde Flecken bei Angriffen |
-| 3 | `security/monitoring.py` | 266 | `TODO: Query from session store` (active_sessions) | security | Session-Management nicht überwacht → Anomalie-Detection fehlt |
-| 4 | `security/monitoring.py` | 267 | `TODO: Query from auth system` (two_factor_usage) | security | 2FA-Adoption unbekannt → Compliance-Risiko (DSGVO Art. 32) |
-| 5 | `security/monitoring.py` | 269 | `TODO: Query from audit logs` (data_exports) | security | Datenexporte nicht protokolliert → DSGVO Art. 15 unvollständig |
-| 6 | `security/monitoring.py` | 270 | `TODO: Query from auth logs` (password_changes) | security | Passwort-Änderungen nicht getrackt → keine Anomalie-Detection |
-| 7 | `figma-design-system/App.tsx` | 18 | `TODO: Implementiere tatsächliche Login-Logik` | figma-design-system | Login fehlt → Design-System-App nicht nutzbar |
-| 8 | `figma-design-system/App.tsx` | 23 | `TODO: Implementiere tatsächliche Logout-Logik` | figma-design-system | Logout fehlt → Session-Management-Risiko |
+| #   | File                          | Line | Comment                                            | Area                | Justification                                                    |
+| --- | ----------------------------- | ---- | -------------------------------------------------- | ------------------- | ---------------------------------------------------------------- |
+| 2   | `security/monitoring.py`      | 264  | `TODO: Query from auth logs` (total_logins)        | security            | Security-Monitoring unvollständig → blinde Flecken bei Angriffen |
+| 3   | `security/monitoring.py`      | 266  | `TODO: Query from session store` (active_sessions) | security            | Session-Management nicht überwacht → Anomalie-Detection fehlt    |
+| 4   | `security/monitoring.py`      | 267  | `TODO: Query from auth system` (two_factor_usage)  | security            | 2FA-Adoption unbekannt → Compliance-Risiko (DSGVO Art. 32)       |
+| 5   | `security/monitoring.py`      | 269  | `TODO: Query from audit logs` (data_exports)       | security            | Datenexporte nicht protokolliert → DSGVO Art. 15 unvollständig   |
+| 6   | `security/monitoring.py`      | 270  | `TODO: Query from auth logs` (password_changes)    | security            | Passwort-Änderungen nicht getrackt → keine Anomalie-Detection    |
+| 7   | `figma-design-system/App.tsx` | 18   | `TODO: Implementiere tatsächliche Login-Logik`     | figma-design-system | Login fehlt → Design-System-App nicht nutzbar                    |
+| 8   | `figma-design-system/App.tsx` | 23   | `TODO: Implementiere tatsächliche Logout-Logik`    | figma-design-system | Logout fehlt → Session-Management-Risiko                         |
 
 ---
 
@@ -71,64 +71,64 @@
 
 ### Frontend (9 items)
 
-| File | Line | Comment | Priority | Reasoning |
-|------|------|---------|----------|-----------|
-| `frontend/src/components/figma/CtaSection.tsx` | 27 | `TODO: Implement CTA Section layout based on Figma design` | P2 | UI-Komponente fehlt → Design-System nicht komplett |
-| `frontend/src/components/figma/Footer.tsx` | 27 | `TODO: Implement Footer layout based on Figma design` | P2 | UI-Komponente fehlt → Design-System nicht komplett |
-| `frontend/src/components/figma/FeaturesGrid.tsx` | 27 | `TODO: Implement Features Grid layout based on Figma design` | P2 | UI-Komponente fehlt → Design-System nicht komplett |
-| `frontend/src/components/figma/HeaderNavigation.tsx` | 27 | `TODO: Implement Header/Navigation layout based on Figma design` | P2 | UI-Komponente fehlt → Design-System nicht komplett |
-| `frontend/src/components/figma/HeroSection.tsx` | 27 | `TODO: Implement Hero Section layout based on Figma design` | P2 | UI-Komponente fehlt → Design-System nicht komplett |
-| `frontend/src/components/figma/PricingSection.tsx` | 27 | `TODO: Implement Pricing Section layout based on Figma design` | P2 | UI-Komponente fehlt → Design-System nicht komplett |
-| `frontend/src/components/figma/StatisticsBar.tsx` | 27 | `TODO: Implement Statistics Bar layout based on Figma design` | P2 | UI-Komponente fehlt → Design-System nicht komplett |
-| `frontend/src/components/figma/Testimonials.tsx` | 27 | `TODO: Implement Testimonials layout based on Figma design` | P2 | UI-Komponente fehlt → Design-System nicht komplett |
-| `frontend/src/components/figma/TimelineEvents.tsx` | 27 | `TODO: Implement Timeline Events layout based on Figma design` | P2 | UI-Komponente fehlt → Design-System nicht komplett |
+| File                                                 | Line | Comment                                                          | Priority | Reasoning                                          |
+| ---------------------------------------------------- | ---- | ---------------------------------------------------------------- | -------- | -------------------------------------------------- |
+| `frontend/src/components/figma/CtaSection.tsx`       | 27   | `TODO: Implement CTA Section layout based on Figma design`       | P2       | UI-Komponente fehlt → Design-System nicht komplett |
+| `frontend/src/components/figma/Footer.tsx`           | 27   | `TODO: Implement Footer layout based on Figma design`            | P2       | UI-Komponente fehlt → Design-System nicht komplett |
+| `frontend/src/components/figma/FeaturesGrid.tsx`     | 27   | `TODO: Implement Features Grid layout based on Figma design`     | P2       | UI-Komponente fehlt → Design-System nicht komplett |
+| `frontend/src/components/figma/HeaderNavigation.tsx` | 27   | `TODO: Implement Header/Navigation layout based on Figma design` | P2       | UI-Komponente fehlt → Design-System nicht komplett |
+| `frontend/src/components/figma/HeroSection.tsx`      | 27   | `TODO: Implement Hero Section layout based on Figma design`      | P2       | UI-Komponente fehlt → Design-System nicht komplett |
+| `frontend/src/components/figma/PricingSection.tsx`   | 27   | `TODO: Implement Pricing Section layout based on Figma design`   | P2       | UI-Komponente fehlt → Design-System nicht komplett |
+| `frontend/src/components/figma/StatisticsBar.tsx`    | 27   | `TODO: Implement Statistics Bar layout based on Figma design`    | P2       | UI-Komponente fehlt → Design-System nicht komplett |
+| `frontend/src/components/figma/Testimonials.tsx`     | 27   | `TODO: Implement Testimonials layout based on Figma design`      | P2       | UI-Komponente fehlt → Design-System nicht komplett |
+| `frontend/src/components/figma/TimelineEvents.tsx`   | 27   | `TODO: Implement Timeline Events layout based on Figma design`   | P2       | UI-Komponente fehlt → Design-System nicht komplett |
 
 ### Figma-Design-System (6 items)
 
-| File | Line | Comment | Priority | Reasoning |
-|------|------|---------|----------|-----------|
-| `figma-design-system/App.tsx` | 18 | `TODO: Implementiere tatsächliche Login-Logik` | P1 | Login fehlt → Design-System-App nicht nutzbar |
-| `figma-design-system/App.tsx` | 23 | `TODO: Implementiere tatsächliche Logout-Logik` | P1 | Logout fehlt → Session-Management-Risiko |
-| `figma-design-system/App.tsx` | 28 | `TODO: Navigate to profile page` | P2 | Navigation unvollständig → UX suboptimal |
-| `figma-design-system/App.tsx` | 33 | `TODO: Navigate to security settings` | P2 | Navigation unvollständig → UX suboptimal |
-| `figma-design-system/App.tsx` | 38 | `TODO: Navigate to support page` | P2 | Navigation unvollständig → UX suboptimal |
-| `figma-design-system/App.tsx` | 43 | `TODO: Navigate to settings page` | P2 | Navigation unvollständig → UX suboptimal |
+| File                          | Line | Comment                                         | Priority | Reasoning                                     |
+| ----------------------------- | ---- | ----------------------------------------------- | -------- | --------------------------------------------- |
+| `figma-design-system/App.tsx` | 18   | `TODO: Implementiere tatsächliche Login-Logik`  | P1       | Login fehlt → Design-System-App nicht nutzbar |
+| `figma-design-system/App.tsx` | 23   | `TODO: Implementiere tatsächliche Logout-Logik` | P1       | Logout fehlt → Session-Management-Risiko      |
+| `figma-design-system/App.tsx` | 28   | `TODO: Navigate to profile page`                | P2       | Navigation unvollständig → UX suboptimal      |
+| `figma-design-system/App.tsx` | 33   | `TODO: Navigate to security settings`           | P2       | Navigation unvollständig → UX suboptimal      |
+| `figma-design-system/App.tsx` | 38   | `TODO: Navigate to support page`                | P2       | Navigation unvollständig → UX suboptimal      |
+| `figma-design-system/App.tsx` | 43   | `TODO: Navigate to settings page`               | P2       | Navigation unvollständig → UX suboptimal      |
 
 ### Security (5 items)
 
-| File | Line | Comment | Priority | Reasoning |
-|------|------|---------|----------|-----------|
-| `security/monitoring.py` | 264 | `TODO: Query from auth logs` (total_logins) | P1 | Security-Monitoring unvollständig → blinde Flecken bei Angriffen |
-| `security/monitoring.py` | 266 | `TODO: Query from session store` (active_sessions) | P1 | Session-Management nicht überwacht → Anomalie-Detection fehlt |
-| `security/monitoring.py` | 267 | `TODO: Query from auth system` (two_factor_usage) | P1 | 2FA-Adoption unbekannt → Compliance-Risiko (DSGVO Art. 32) |
-| `security/monitoring.py` | 269 | `TODO: Query from audit logs` (data_exports) | P1 | Datenexporte nicht protokolliert → DSGVO Art. 15 unvollständig |
-| `security/monitoring.py` | 270 | `TODO: Query from auth logs` (password_changes) | P1 | Passwort-Änderungen nicht getrackt → keine Anomalie-Detection |
+| File                     | Line | Comment                                            | Priority | Reasoning                                                        |
+| ------------------------ | ---- | -------------------------------------------------- | -------- | ---------------------------------------------------------------- |
+| `security/monitoring.py` | 264  | `TODO: Query from auth logs` (total_logins)        | P1       | Security-Monitoring unvollständig → blinde Flecken bei Angriffen |
+| `security/monitoring.py` | 266  | `TODO: Query from session store` (active_sessions) | P1       | Session-Management nicht überwacht → Anomalie-Detection fehlt    |
+| `security/monitoring.py` | 267  | `TODO: Query from auth system` (two_factor_usage)  | P1       | 2FA-Adoption unbekannt → Compliance-Risiko (DSGVO Art. 32)       |
+| `security/monitoring.py` | 269  | `TODO: Query from audit logs` (data_exports)       | P1       | Datenexporte nicht protokolliert → DSGVO Art. 15 unvollständig   |
+| `security/monitoring.py` | 270  | `TODO: Query from auth logs` (password_changes)    | P1       | Passwort-Änderungen nicht getrackt → keine Anomalie-Detection    |
 
 ### Website (1 item)
 
-| File | Line | Comment | Priority | Reasoning |
-|------|------|---------|----------|-----------|
-| `website/assets/js/auth-handler.js` | 431 | `TODO: Implement password reset API call` | P0 | **Security Risk:** Password-Reset nicht implementiert → potenzielle Account-Takeover-Schwachstelle |
+| File                                | Line | Comment                                   | Priority | Reasoning                                                                                          |
+| ----------------------------------- | ---- | ----------------------------------------- | -------- | -------------------------------------------------------------------------------------------------- |
+| `website/assets/js/auth-handler.js` | 431  | `TODO: Implement password reset API call` | P0       | **Security Risk:** Password-Reset nicht implementiert → potenzielle Account-Takeover-Schwachstelle |
 
 ### Tests (1 item)
 
-| File | Line | Comment | Priority | Reasoning |
-|------|------|---------|----------|-----------|
-| `tests/test_pii_sanitizer.py` | 96 | `TODO: Enhancement für Spaces` | P3 | Test-Coverage-Lücke → keine Blocker, aber Verbesserung empfohlen |
+| File                          | Line | Comment                        | Priority | Reasoning                                                        |
+| ----------------------------- | ---- | ------------------------------ | -------- | ---------------------------------------------------------------- |
+| `tests/test_pii_sanitizer.py` | 96   | `TODO: Enhancement für Spaces` | P3       | Test-Coverage-Lücke → keine Blocker, aber Verbesserung empfohlen |
 
 ### Scripts (2 items)
 
-| File | Line | Comment | Priority | Reasoning |
-|------|------|---------|----------|-----------|
-| `scripts/ai-code-generator-fixed.py` | 126 | `# TODO: Implement {name}` | P3 | Generierter Stub → nicht kritisch, aber Cleanup-Kandidat |
-| `scripts/ai-code-generator.py` | 164 | `# TODO: Implement {name}` | P3 | Generierter Stub → nicht kritisch, aber Cleanup-Kandidat |
+| File                                 | Line | Comment                    | Priority | Reasoning                                                |
+| ------------------------------------ | ---- | -------------------------- | -------- | -------------------------------------------------------- |
+| `scripts/ai-code-generator-fixed.py` | 126  | `# TODO: Implement {name}` | P3       | Generierter Stub → nicht kritisch, aber Cleanup-Kandidat |
+| `scripts/ai-code-generator.py`       | 164  | `# TODO: Implement {name}` | P3       | Generierter Stub → nicht kritisch, aber Cleanup-Kandidat |
 
 ### CRM (Drupal Core) (2 items)
 
-| File | Line | Comment | Priority | Reasoning |
-|------|------|---------|----------|-----------|
-| `crm.menschlichkeit-oesterreich.at/web/core/modules/config/tests/src/Functional/ConfigInstallWebTest.php` | 89 | `@todo FIXME: Setting config keys WITHOUT SAVING retains the changed config` | P3 | **Drupal Core Issue** – außerhalb unserer Kontrolle, kein Action-Item |
-| `crm.menschlichkeit-oesterreich.at/web/core/modules/views/src/Plugin/views/query/Sql.php` | 1541 | `XXX: this doesn't work, because PDO mandates that all bound arguments` | P3 | **Drupal Core Issue** – außerhalb unserer Kontrolle, kein Action-Item |
+| File                                                                                                      | Line | Comment                                                                      | Priority | Reasoning                                                             |
+| --------------------------------------------------------------------------------------------------------- | ---- | ---------------------------------------------------------------------------- | -------- | --------------------------------------------------------------------- |
+| `crm.menschlichkeit-oesterreich.at/web/core/modules/config/tests/src/Functional/ConfigInstallWebTest.php` | 89   | `@todo FIXME: Setting config keys WITHOUT SAVING retains the changed config` | P3       | **Drupal Core Issue** – außerhalb unserer Kontrolle, kein Action-Item |
+| `crm.menschlichkeit-oesterreich.at/web/core/modules/views/src/Plugin/views/query/Sql.php`                 | 1541 | `XXX: this doesn't work, because PDO mandates that all bound arguments`      | P3       | **Drupal Core Issue** – außerhalb unserer Kontrolle, kein Action-Item |
 
 ---
 
@@ -248,10 +248,10 @@
 **Report-Methodik:**
 
 - **Suchpattern:** TODO:, FIXME:, HACK:, XXX:, OPTIMIZE:, NOTE:, BUG:
-- **Scope:** Source-Code-Dateien (*.ts, *.tsx, *.js, *.jsx, *.py, *.php)
+- **Scope:** Source-Code-Dateien (_.ts, _.tsx, _.js, _.jsx, _.py, _.php)
 - **Ausschlüsse:** node_modules/, .venv/, dist/, generated/, logs/, Dokumentation
 - **Priorisierung:** Keyword-basiert (security/bug/critical → P0, performance/auth → P1, refactor/ui → P2, debt/cleanup → P3)
-- **Areal-Klassifikation:** File-Path-Pattern-Matching (frontend/, security/, crm.*, figma-design-system/, scripts/)
+- **Areal-Klassifikation:** File-Path-Pattern-Matching (frontend/, security/, crm.\*, figma-design-system/, scripts/)
 
 ---
 
