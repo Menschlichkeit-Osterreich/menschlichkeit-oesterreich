@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 import logging
 
 # Import shared utilities
-from app.shared import ApiResponse, verify_jwt_token
+from app.shared import ApiResponse, verify_jwt_token, require_role
 
 router = APIRouter(prefix="/metrics", tags=["metrics"])
 logger = logging.getLogger("moe-api.metrics")
@@ -120,7 +120,7 @@ async def _fetch_civicrm_activity_stats() -> Dict[str, Any]:
 
 @router.get("/members", response_model=ApiResponse)
 async def get_members_metrics(
-    _: Dict[str, Any] = Depends(verify_jwt_token)
+    payload: Dict[str, Any] = Depends(verify_jwt_token)
 ) -> ApiResponse:
     """
     Get member statistics for Vorstand/Kassier dashboard
@@ -135,7 +135,7 @@ async def get_members_metrics(
         - churn_30d: Churned members in last 30 days
     
     DSGVO: Only aggregated counts, no PII.
-    
+
     Example Response:
     {
         "success": true,
@@ -150,6 +150,7 @@ async def get_members_metrics(
         }
     }
     """
+    require_role(payload, ["board", "treasurer", "admin"])
     try:
         stats = await _fetch_civicrm_member_stats()
         logger.info(f"Members metrics: {stats}")
@@ -161,7 +162,7 @@ async def get_members_metrics(
 
 @router.get("/finance", response_model=ApiResponse)
 async def get_finance_metrics(
-    _: Dict[str, Any] = Depends(verify_jwt_token)
+    payload: Dict[str, Any] = Depends(verify_jwt_token)
 ) -> ApiResponse:
     """
     Get finance statistics for Kassier dashboard
@@ -174,7 +175,7 @@ async def get_finance_metrics(
         - open_invoices: Number of unpaid invoices
     
     DSGVO: Only aggregated amounts, no PII.
-    
+
     Example Response:
     {
         "success": true,
@@ -187,6 +188,7 @@ async def get_finance_metrics(
         }
     }
     """
+    require_role(payload, ["treasurer", "admin"])
     try:
         stats = await _fetch_civicrm_finance_stats()
         logger.info(f"Finance metrics: {stats}")
@@ -198,7 +200,7 @@ async def get_finance_metrics(
 
 @router.get("/activity", response_model=ApiResponse)
 async def get_activity_metrics(
-    _: Dict[str, Any] = Depends(verify_jwt_token),
+    payload: Dict[str, Any] = Depends(verify_jwt_token),
     limit: int = Query(10, ge=1, le=50)
 ) -> ApiResponse:
     """
@@ -212,7 +214,7 @@ async def get_activity_metrics(
         - recent_changes: Total count of changes in last 24h
     
     DSGVO: No PII, only activity types and timestamps.
-    
+
     Example Response:
     {
         "success": true,
@@ -225,6 +227,7 @@ async def get_activity_metrics(
         }
     }
     """
+    require_role(payload, ["board", "treasurer", "admin"])
     try:
         stats = await _fetch_civicrm_activity_stats()
         # Limit last_updates to requested size
