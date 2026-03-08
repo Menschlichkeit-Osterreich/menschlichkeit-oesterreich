@@ -352,10 +352,10 @@ import { Button } from '@/components/ui/button';
     }
 
     // Placeholder methods for Figma API parsing
-    extractColorTokens(figmaData) { return {}; }
-    extractTypographyTokens(figmaData) { return {}; }
-    extractSpacingTokens(figmaData) { return {}; }
-    extractEffectTokens(figmaData) { return {}; }
+    extractColorTokens(_figmaData) { return {}; }
+    extractTypographyTokens(_figmaData) { return {}; }
+    extractSpacingTokens(_figmaData) { return {}; }
+    extractEffectTokens(_figmaData) { return {}; }
 }
 
 // CLI Usage

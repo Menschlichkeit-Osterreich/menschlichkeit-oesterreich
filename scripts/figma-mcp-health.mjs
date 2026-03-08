@@ -11,7 +11,7 @@ async function main() {
     } else {
       process.exit(1);
     }
-  } catch (e) {
+  } catch (_e) {
     console.error(`Figma MCP not reachable at ${url}.`);
     console.error('Tipp: Starte den lokalen Server mit: npm run figma:mcp:server');
     process.exit(2);

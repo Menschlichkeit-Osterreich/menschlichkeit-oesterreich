@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, ArrowLeft, Search } from 'lucide-react';
+import { Home, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const QUICK_LINKS = [

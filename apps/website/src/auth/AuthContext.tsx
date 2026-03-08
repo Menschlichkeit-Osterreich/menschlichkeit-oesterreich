@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       sessionStorage.removeItem(STORAGE_KEY);
       setToken(null);
       setUserEmail(null);
-      try { window.location.assign('/Login'); } catch {}
+      try { window.location.assign('/Login'); } catch { /* navigation fallback – ignore */ }
     });
     return () => setUnauthorizedHandler(null);
   }, []);

@@ -5,7 +5,6 @@ import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { useAuth } from '../../auth/AuthContext';
-import { api } from '../../services/api';
 
 interface Member {
   id: number;

@@ -409,3 +409,12 @@ crm.menschlichkeit-oesterreich.at/web/core/modules/**/tests/**/README.md
 .openclaw/
 automation/openclaw/.env
 automation/openclaw/config/config.yaml
+
+# Incident-Evidence und interne Medien (DSGVO-sensitive Artefakte)
+docs/incidents/
+docs/media/internal/
+
+# Lokale Backup-Dateien
+backups/
+*.sql.gz
+*.tar.gz.bak

@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
 import { mkdirSync, readFileSync, existsSync, copyFileSync } from 'node:fs';
-import { resolve, join } from 'node:path';
+import { resolve } from 'node:path';
 import net from 'node:net';
-import os from 'node:os';
 import { chromium } from 'playwright-core';
 
 async function getFreePort(preferred) {
@@ -165,7 +164,7 @@ async function main() {
       throw lastErr; // alle Versuche gescheitert
     }
   } finally {
-    try { preview.kill('SIGTERM'); } catch {}
+    try { preview.kill('SIGTERM'); } catch { /* ignore kill errors */ }
   }
 
   // Basic score checks
