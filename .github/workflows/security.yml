@@ -49,7 +49,7 @@ jobs:
           fi
 
       - name: 🔒 Trivy Security Scan
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@0.34.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
@@ -151,39 +151,25 @@ jobs:
             echo "⚠️ DSGVO check script missing"
           fi
 
-      - name: 🔐 Secret Detection
+      - name: 🔐 Secret Detection Gate
         run: |
-          echo "🕵️ Scanning for accidentally committed secrets..."
+          echo "🕵️ Evaluating Gitleaks findings..."
 
-          # Enhanced secret detection
-          SECRET_PATTERNS=(
-            "password.*="
-            "api[_-]key.*="
-            "secret.*="
-            "token.*="
-            "auth.*="
-            "credential.*="
-            "-----BEGIN.*PRIVATE KEY-----"
-            "sk_live_"
-            "sk_test_"
-            "rk_live_"
-            "pk_live_"
-          )
-
-          FOUND_SECRETS=false
-          for pattern in "${SECRET_PATTERNS[@]}"; do
-            if grep -r -i "$pattern" . --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=vendor --exclude="*.md" --exclude="*.example" --exclude="*.template"; then
-              echo "❌ Potential secret found: $pattern"
-              FOUND_SECRETS=true
-            fi
-          done
-
-          if [ "$FOUND_SECRETS" = true ]; then
-            echo "❌ Secrets detected in repository!"
+          if [ ! -f gitleaks-results.sarif ]; then
+            echo "❌ Missing gitleaks-results.sarif"
             exit 1
-          else
-            echo "✅ No secrets detected"
           fi
+
+          LEAKS=$(jq '.runs[0].results | length' gitleaks-results.sarif 2>/dev/null || echo "0")
+          echo "📊 Gitleaks findings: $LEAKS"
+
+          if [ "$LEAKS" -gt 0 ]; then
+            echo "❌ Secret findings detected by Gitleaks"
+            jq -r '.runs[0].results[] | "  - \(.ruleId): \(.locations[0].physicalLocation.artifactLocation.uri)"' gitleaks-results.sarif
+            exit 1
+          fi
+
+          echo "✅ No secret findings detected by Gitleaks"
 
       - name: 📊 Generate Security Report
         if: always()

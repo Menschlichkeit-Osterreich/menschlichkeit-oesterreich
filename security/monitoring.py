@@ -385,7 +385,7 @@ if __name__ == "__main__":
     
     # Simulate unusual access
     monitor.detect_suspicious_access(
-        "user@example.com",
+        "user_redacted",
         "Unknown location",
         "45.123.67.89"
     )
