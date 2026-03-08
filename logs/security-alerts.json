@@ -8,11 +8,7 @@
     "timestamp": "2025-10-13T06:37:10.961894",
     "is_resolved": false,
     "affected_users": [],
-    "recommended_actions": [
-      "IP-Adresse blockieren",
-      "Rate-Limiting aktivieren",
-      "Betroffene Benutzer benachrichtigen"
-    ],
+    "recommended_actions": ["IP-Adresse blockieren", "Rate-Limiting aktivieren", "Betroffene Benutzer benachrichtigen"],
     "metadata": {
       "ip_address": "198.51.100.1",
       "failed_attempts": 10,
@@ -36,10 +32,7 @@
     ],
     "metadata": {
       "log_source": "api-server.log",
-      "pii_patterns": [
-        "email_addresses",
-        "iban_numbers"
-      ]
+      "pii_patterns": ["email_addresses", "iban_numbers"]
     }
   },
   {
@@ -47,12 +40,10 @@
     "alert_type": "unusual_access",
     "severity": "medium",
     "title": "Ungew\u00f6hnlicher Zugriff erkannt",
-    "description": "Zugriff von user@example.com aus ungew\u00f6hnlicher Location: Unknown location",
+    "description": "Zugriff von user_redacted aus ungew\u00f6hnlicher Location: Unknown location",
     "timestamp": "2025-10-13T06:37:10.962568",
     "is_resolved": false,
-    "affected_users": [
-      "user@example.com"
-    ],
+    "affected_users": ["user_redacted"],
     "recommended_actions": [
       "Benutzer \u00fcber verd\u00e4chtige Aktivit\u00e4t informieren",
       "2FA-Status \u00fcberpr\u00fcfen",
