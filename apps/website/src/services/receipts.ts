@@ -19,7 +19,7 @@ export async function downloadReceipt(payload: {
   trxn_id?: string;
   email?: string;
 }, token?: string): Promise<Blob> {
-  const url = `${location.origin.replace(/:\d+$/, '')}${''}`; // not used; build absolute via config
+  const _url = `${location.origin.replace(/:\d+$/, '')}${''}`; // not used; build absolute via config
   const { config } = await import('./config');
   const endpoint = `${config.apiBaseUrl}/receipts/generate`;
   const res = await fetch(endpoint, {

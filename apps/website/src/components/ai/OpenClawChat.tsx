@@ -34,7 +34,7 @@ const QUICK_ACTIONS = [
 export const OpenClawChat: React.FC<OpenClawChatProps> = ({
   bridgeUrl = BRIDGE_URL,
   position = 'bottom-right',
-  theme = 'auto',
+  theme: _theme = 'auto',
   welcomeMessage = 'Hallo! Ich bin der KI-Assistent von Menschlichkeit Österreich. Wie kann ich Ihnen helfen?',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -129,7 +129,7 @@ export const OpenClawChat: React.FC<OpenClawChatProps> = ({
           ? { ...m, content: result, status: 'done', taskId: data.task_id }
           : m
       ));
-    } catch (error) {
+    } catch (_error) {
       // Fallback: Lokale Antworten für häufige Fragen
       const fallback = getFallbackResponse(text);
       setMessages(prev => prev.map(m =>

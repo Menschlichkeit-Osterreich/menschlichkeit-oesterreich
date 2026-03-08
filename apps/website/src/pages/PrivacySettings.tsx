@@ -21,7 +21,7 @@ export default function PrivacySettings() {
       const res = await api.privacy.listDeletions(token);
       const list = res?.data?.requests || [];
       setRequests(list);
-    } catch (e) {
+    } catch (_e) {
       // ignore
     }
   }
@@ -49,7 +49,7 @@ export default function PrivacySettings() {
 
   React.useEffect(() => {
     fetchRequests();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [token]);
 
   if (!token) {

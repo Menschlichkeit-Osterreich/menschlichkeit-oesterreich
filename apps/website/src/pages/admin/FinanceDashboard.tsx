@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 
 // ── Typen ──────────────────────────────────────────────────────────────────────
 
@@ -180,7 +180,7 @@ const StatusBadge: React.FC<{ status: Transaction['status'] }> = ({ status }) =>
 const FinanceDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'transactions' | 'invoices' | 'donations' | 'accounting'>('overview');
   const [selectedYear, setSelectedYear] = useState(2026);
-  const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+  const [selectedMonth, _setSelectedMonth] = useState<number | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'open' | 'overdue'>('all');
 

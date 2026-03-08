@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Calendar, MapPin, Clock, Users, ChevronRight, Filter } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { Badge } from '../components/ui/Badge';
 
 interface Event {
   id: number;

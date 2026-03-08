@@ -74,7 +74,7 @@ console.log(`\n${BLUE}📋 Schritt 3: Token-Struktur validieren${RESET}`);
 // Check if tokens are nested under 'designTokens'
 const actualTokens = tokens.designTokens || tokens;
 const requiredCategories = ['colors', 'typography', 'spacing'];
-const foundCategories = Object.keys(actualTokens);
+const _foundCategories = Object.keys(actualTokens);
 
 requiredCategories.forEach(category => {
   if (!actualTokens[category]) {

@@ -58,7 +58,7 @@ Diese Plattform vereint mehrere spezialisierte Dienste für eine österreichisch
 - 🎨 Frontend – React/TypeScript mit Design Tokens (Rot-Weiß-Rot Corporate Identity)
 - 🤖 Automation – n8n Workflows für Build-Notifications, Datenintegration
 
-Architektur: Monorepo mit pnpm workspaces, Multi-Subdomain Plesk Hosting, Docker für lokale Entwicklung
+Architektur: Monorepo mit npm workspaces, Multi-Subdomain Plesk Hosting, Docker für lokale Entwicklung
 
 ---
 
@@ -66,8 +66,8 @@ Architektur: Monorepo mit pnpm workspaces, Multi-Subdomain Plesk Hosting, Docker
 
 ### Prerequisites
 
-- Node.js v18+ (empfohlen: v20 LTS)
-- npm v9+
+- Node.js v22+ (LTS)
+- npm v10+
 - Docker Desktop v24+ (für CRM/n8n)
 - Python v3.12+ (für API Service)
 - Git v2.40+
@@ -80,10 +80,10 @@ git clone https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreic
 cd menschlichkeit-oesterreich-development
 
 # 2) Dev-Setup (Workspaces, Composer, Environments)
-pnpm install
+npm run setup:dev
 
 # 3) Alle Services starten (lokal)
-pnpm dev
+npm run dev:all
 ```
 
 Services erreichbar (Standard-Ports):
@@ -134,7 +134,7 @@ Weitere Details: DOCS-INDEX.md → Architecture
 
 ```bash
 # Development
-pnpm dev              # Alle Services starten
+npm run dev:all              # Alle Services starten
 npm run dev:frontend         # Nur Frontend
 npm run dev:api             # Nur API
 npm run dev:crm             # Nur CRM

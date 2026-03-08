@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
  * generate-admin-tokens-css.js
- * 
+ *
  * Generiert CSS Custom Properties aus admin-portal-tokens.json
  * für Runtime Multi-Org Branding im Next.js Admin Portal
- * 
+ *
  * Usage: node scripts/generate-admin-tokens-css.js
  * Output: figma-design-system/styles/admin-portal.css
  */
@@ -25,7 +25,7 @@ const adminTokens = JSON.parse(fs.readFileSync(TOKENS_PATH, 'utf-8'));
 const baseTokens = JSON.parse(fs.readFileSync(BASE_TOKENS_PATH, 'utf-8'));
 
 // Helper: Sicherer Zugriff auf verschachtelte Properties
-const get = (obj, path, defaultValue = '') => {
+const _get = (obj, path, defaultValue = '') => {
   return path.split('.').reduce((acc, part) => acc?.[part], obj) ?? defaultValue;
 };
 

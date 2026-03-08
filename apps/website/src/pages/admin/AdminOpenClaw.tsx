@@ -120,7 +120,7 @@ export default function AdminOpenClaw() {
         setNewTask({ title: '', objective: '', role: 'research' });
         await fetchData();
       }
-    } catch (e) {
+    } catch (_e) {
       alert('Fehler beim Einreichen des Tasks. Ist der Stack gestartet?');
     } finally {
       setSubmitting(false);

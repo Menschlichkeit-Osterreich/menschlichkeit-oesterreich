@@ -10,7 +10,6 @@ const { StdioServerTransport } = require('@modelcontextprotocol/sdk/server/stdio
 const {
   CallToolRequestSchema,
   ListToolsRequestSchema,
-  Tool,
 } = require('@modelcontextprotocol/sdk/types.js');
 const fs = require('fs').promises;
 const fssync = require('fs');
@@ -367,7 +366,7 @@ class FileServerMCP {
     };
   }
 
-  async searchAcrossServices({ query, fileTypes = ['.js', '.php', '.py', '.ts', '.jsx', '.tsx'] }) {
+  async searchAcrossServices({ query, fileTypes: _fileTypes = ['.js', '.php', '.py', '.ts', '.jsx', '.tsx'] }) {
     // Implementation for cross-service search would go here
     return {
       content: [
