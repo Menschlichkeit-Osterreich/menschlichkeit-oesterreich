@@ -1,6 +1,6 @@
 import React from 'react';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
-import { getStripe, createStripeIntent } from '../../services/payments';
+import { getStripe } from '../../services/payments';
 import { Button } from '../../components/ui/Button';
 
 interface Props {
@@ -45,7 +45,7 @@ function InnerCheckout({ disabled, onDone, onError }: { disabled?: boolean; onDo
   );
 }
 
-export default function StripeCheckout({ clientSecret, disabled, payer, onDone, onError }: Props) {
+export default function StripeCheckout({ clientSecret, disabled, payer: _payer, onDone, onError }: Props) {
   return (
     <Elements stripe={getStripe()} options={{ clientSecret }}>
       <InnerCheckout disabled={disabled} onDone={onDone} onError={onError} />

@@ -15,7 +15,7 @@ const server = http.createServer((req, res) => {
       try {
         const parsedBody = JSON.parse(body);
         console.log(JSON.stringify(parsedBody, null, 2));
-      } catch (e) {
+      } catch (_e) {
         console.log(body);
       }
       

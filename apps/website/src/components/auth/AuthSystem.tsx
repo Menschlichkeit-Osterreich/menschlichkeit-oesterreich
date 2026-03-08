@@ -16,12 +16,6 @@ interface User {
   createdAt: Date;
 }
 
-interface AuthState {
-  user: User | null;
-  isLoading: boolean;
-  isAuthenticated: boolean;
-}
-
 interface LoginCredentials {
   email: string;
   password: string;

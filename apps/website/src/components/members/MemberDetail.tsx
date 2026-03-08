@@ -116,7 +116,7 @@ export function MemberDetail({ member, onClose, onUpdate }: MemberDetailProps) {
     }
   }
 
-  function getStatusColor(status?: string) {
+  function _getStatusColor(status?: string) {
     switch (status) {
       case 'active': return 'text-green-600 bg-green-50';
       case 'pending': return 'text-yellow-600 bg-yellow-50';

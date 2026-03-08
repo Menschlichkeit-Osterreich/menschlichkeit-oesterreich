@@ -143,9 +143,9 @@ Automatische Sicherheitschecks:
 - **Response Time**: < 72 Stunden Erstantwort garantiert
 
 ### Datenschutzbeauftragte:r (DPO)
-- **Name**: [DPO_NAME - wird in README konfiguriert]
-- **E-Mail**: [DPO_EMAIL - wird in README konfiguriert]
-- **Scope**: DSGVO-Compliance, Datenschutzvorfälle
+- **Name**: Datenschutzbeauftragte:r Menschlichkeit Österreich
+- **E-Mail**: datenschutz@menschlichkeit-oesterreich.at
+- **Scope**: DSGVO-Compliance, Datenschutzvorfälle, Art. 33/34 Meldepflichten
 
 ### On-Call Eskalation
 - **Pager**: [INCIDENT_PAGER - Matrix/Slack Channel]
@@ -170,6 +170,7 @@ Automatische Sicherheitschecks:
 
 ---
 
-**Letzte Aktualisierung**: 2025-10-12  
-**Version**: 2.0  
+**Letzte Aktualisierung**: 2026-03-08
+**Version**: 2.1
 **Review-Zyklus**: Quartalsweise
+**Nächste Überprüfung**: 2026-06-01

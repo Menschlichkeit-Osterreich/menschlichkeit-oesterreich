@@ -51,7 +51,7 @@ class FigmaMCPIntegration {
                 console.log('✅ MCP Server is running');
                 return true;
             }
-        } catch (error) {
+        } catch (_error) {
             console.warn('⚠️  MCP Server not available, using fallback mode');
         }
         return false;
@@ -71,7 +71,7 @@ class FigmaMCPIntegration {
         if (mcpAvailable) {
             try {
                 return await this.fetchFromMCPServer();
-            } catch (error) {
+            } catch (_error) {
                 console.warn('⚠️  MCP Server fetch failed, falling back to direct API');
             }
         }
@@ -131,7 +131,7 @@ class FigmaMCPIntegration {
 
             const data = await response.json();
             return await this.processFigmaAPIResponse(data);
-        } catch (error) {
+        } catch (_error) {
             console.warn('⚠️  Figma API fetch failed, using mock data');
             return await this.getMockData();
         }
@@ -270,7 +270,7 @@ class FigmaMCPIntegration {
     /**
      * Run ESLint and auto-fix
      */
-    async runESLintFix(filePath) {
+    async runESLintFix(_filePath) {
         console.log('  🔧 Running ESLint auto-fix...');
         // Implementation would run ESLint on the generated file
         return Promise.resolve();
@@ -279,7 +279,7 @@ class FigmaMCPIntegration {
     /**
      * Run accessibility check
      */
-    async runAccessibilityCheck(filePath) {
+    async runAccessibilityCheck(_filePath) {
         console.log('  ♿ Running accessibility check...');
         // Implementation would run a11y checks
         return Promise.resolve();
@@ -317,7 +317,7 @@ class FigmaMCPIntegration {
     /**
      * Generate React component from Figma node
      */
-    async generateComponent(node, tokens) {
+    async generateComponent(node, _tokens) {
         const componentName = this.toComponentName(node.name);
         const fileName = `${componentName}.tsx`;
         
@@ -515,7 +515,7 @@ node scripts/figma-mcp-integration.mjs
      */
     toComponentName(name) {
         return name
-            .split(/[\/\s-]/)
+            .split(/[/\s-]/)
             .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
             .join('')
             .replace(/[^a-zA-Z0-9]/g, '');
