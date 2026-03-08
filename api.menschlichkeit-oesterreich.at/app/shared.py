@@ -50,3 +50,26 @@ def require_admin(claims: Dict[str, Any]) -> None:
         roles = [roles]
     if not (is_admin or (isinstance(roles, list) and any(r.lower() == "admin" for r in roles))):
         raise HTTPException(status_code=403, detail="Admin privileges required")
+
+
+def require_role(claims: Dict[str, Any], allowed_roles: list) -> None:
+    """Enforce that the JWT claims contain at least one of the allowed roles.
+
+    Admins (via `is_admin` flag or 'admin' in roles) are always permitted.
+    Raises HTTP 403 if none of the allowed_roles (or admin) are present.
+    """
+    roles = claims.get("roles") or []
+    if isinstance(roles, str):
+        roles = [roles]
+    roles_lower = [r.lower() for r in roles] if isinstance(roles, list) else []
+
+    is_admin = claims.get("is_admin") is True or "admin" in roles_lower
+    if is_admin:
+        return
+
+    allowed_lower = [r.lower() for r in allowed_roles]
+    if not any(r in allowed_lower for r in roles_lower):
+        raise HTTPException(
+            status_code=403,
+            detail=f"Required role(s): {', '.join(allowed_roles)}"
+        )

@@ -1,0 +1,35 @@
+name: i18n Checks
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  i18n-validation:
+    name: Validate i18n resources
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Verify UTF-8 encoded locale files
+        run: |
+          set -euo pipefail
+          FILES=$(find . -type f \( -name '*.json' -o -name '*.yml' -o -name '*.yaml' \) \
+            | grep -E '(i18n|locale|locales|translations)' || true)
+
+          if [ -z "$FILES" ]; then
+            echo "No locale files found; skipping strict i18n checks."
+            exit 0
+          fi
+
+          while IFS= read -r file; do
+            iconv -f UTF-8 -t UTF-8 "$file" >/dev/null
+            echo "UTF-8 OK: $file"
+          done <<< "$FILES"

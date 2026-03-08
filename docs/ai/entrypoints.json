@@ -1,0 +1,193 @@
+{
+  "entrypoints": [
+    {
+      "command": "uvicorn app.main:app",
+      "entrypoint_type": "python-module",
+      "evidence": "api.menschlichkeit-oesterreich.at/app/gateway.py:FastAPI",
+      "path_or_module": "api.menschlichkeit-oesterreich.at/app/gateway.py",
+      "port": 8000,
+      "public_or_internal": "internal",
+      "service": "api.menschlichkeit-oesterreich.at"
+    },
+    {
+      "command": "uvicorn app.main:app",
+      "entrypoint_type": "python-module",
+      "evidence": "api.menschlichkeit-oesterreich.at/app/main.py:FastAPI",
+      "path_or_module": "api.menschlichkeit-oesterreich.at/app/main.py",
+      "port": 8000,
+      "public_or_internal": "internal",
+      "service": "api.menschlichkeit-oesterreich.at"
+    },
+    {
+      "command": "uvicorn app.main:app",
+      "entrypoint_type": "python-module",
+      "evidence": "api.menschlichkeit-oesterreich.at/app/main_example.py:FastAPI",
+      "path_or_module": "api.menschlichkeit-oesterreich.at/app/main_example.py",
+      "port": 8000,
+      "public_or_internal": "internal",
+      "service": "api.menschlichkeit-oesterreich.at"
+    },
+    {
+      "command": "uvicorn app.main:app",
+      "entrypoint_type": "python-module",
+      "evidence": "api.menschlichkeit-oesterreich.at/app/middleware/pii_middleware.py:FastAPI",
+      "path_or_module": "api.menschlichkeit-oesterreich.at/app/middleware/pii_middleware.py",
+      "port": 8000,
+      "public_or_internal": "internal",
+      "service": "api.menschlichkeit-oesterreich.at"
+    },
+    {
+      "command": "uvicorn app.main:app",
+      "entrypoint_type": "python-module",
+      "evidence": "apps/api/app/main.py:FastAPI",
+      "path_or_module": "apps/api/app/main.py",
+      "port": 8000,
+      "public_or_internal": "internal",
+      "service": "apps-api"
+    },
+    {
+      "command": "menschlichkeit/api:latest",
+      "entrypoint_type": "container-service",
+      "evidence": "docker-compose.prod.yml#services.api",
+      "path_or_module": "docker-compose.prod.yml",
+      "port": 8000,
+      "public_or_internal": "public",
+      "service": "compose:api"
+    },
+    {
+      "command": "caddy:2-alpine",
+      "entrypoint_type": "container-service",
+      "evidence": "automation/n8n/docker-compose.https.yml#services.caddy",
+      "path_or_module": "automation/n8n/docker-compose.https.yml",
+      "port": 80,
+      "public_or_internal": "public",
+      "service": "compose:caddy"
+    },
+    {
+      "command": "caddy:2-alpine",
+      "entrypoint_type": "container-service",
+      "evidence": "automation/n8n/docker-compose.https.yml#services.caddy",
+      "path_or_module": "automation/n8n/docker-compose.https.yml",
+      "port": 443,
+      "public_or_internal": "public",
+      "service": "compose:caddy"
+    },
+    {
+      "command": "menschlichkeit/frontend:latest",
+      "entrypoint_type": "container-service",
+      "evidence": "docker-compose.prod.yml#services.frontend",
+      "path_or_module": "docker-compose.prod.yml",
+      "port": 8080,
+      "public_or_internal": "public",
+      "service": "compose:frontend"
+    },
+    {
+      "command": "mailhog/mailhog",
+      "entrypoint_type": "container-service",
+      "evidence": "apps/crm/docker-compose.yml#services.mailhog",
+      "path_or_module": "apps/crm/docker-compose.yml",
+      "port": 1025,
+      "public_or_internal": "internal",
+      "service": "compose:mailhog"
+    },
+    {
+      "command": "mailhog/mailhog",
+      "entrypoint_type": "container-service",
+      "evidence": "apps/crm/docker-compose.yml#services.mailhog",
+      "path_or_module": "apps/crm/docker-compose.yml",
+      "port": 8025,
+      "public_or_internal": "internal",
+      "service": "compose:mailhog"
+    },
+    {
+      "command": "mariadb:10.11",
+      "entrypoint_type": "container-service",
+      "evidence": "apps/crm/docker-compose.yml#services.mariadb",
+      "path_or_module": "apps/crm/docker-compose.yml",
+      "port": 3306,
+      "public_or_internal": "internal",
+      "service": "compose:mariadb"
+    },
+    {
+      "command": "n8nio/n8n:1.72.1",
+      "entrypoint_type": "container-service",
+      "evidence": "automation/n8n/docker-compose.yml#services.n8n",
+      "path_or_module": "automation/n8n/docker-compose.yml",
+      "port": 5678,
+      "public_or_internal": "public",
+      "service": "compose:n8n"
+    },
+    {
+      "command": "n8nio/n8n:1.72.1",
+      "entrypoint_type": "container-service",
+      "evidence": "docker-compose.yml#services.n8n",
+      "path_or_module": "docker-compose.yml",
+      "port": 5678,
+      "public_or_internal": "public",
+      "service": "compose:n8n"
+    },
+    {
+      "command": "nginx:alpine",
+      "entrypoint_type": "container-service",
+      "evidence": "apps/crm/docker-compose.yml#services.nginx",
+      "path_or_module": "apps/crm/docker-compose.yml",
+      "port": 80,
+      "public_or_internal": "public",
+      "service": "compose:nginx"
+    },
+    {
+      "command": "nginx:alpine",
+      "entrypoint_type": "container-service",
+      "evidence": "apps/crm/docker-compose.yml#services.nginx",
+      "path_or_module": "apps/crm/docker-compose.yml",
+      "port": 443,
+      "public_or_internal": "public",
+      "service": "compose:nginx"
+    },
+    {
+      "command": "postgres:16-alpine",
+      "entrypoint_type": "container-service",
+      "evidence": "docker-compose.yml#services.postgres",
+      "path_or_module": "docker-compose.yml",
+      "port": 5432,
+      "public_or_internal": "internal",
+      "service": "compose:postgres"
+    },
+    {
+      "command": "redis:7-alpine",
+      "entrypoint_type": "container-service",
+      "evidence": "apps/crm/docker-compose.yml#services.redis",
+      "path_or_module": "apps/crm/docker-compose.yml",
+      "port": 6379,
+      "public_or_internal": "internal",
+      "service": "compose:redis"
+    },
+    {
+      "command": "redis:7-alpine",
+      "entrypoint_type": "container-service",
+      "evidence": "docker-compose.yml#services.redis",
+      "path_or_module": "docker-compose.yml",
+      "port": 6379,
+      "public_or_internal": "internal",
+      "service": "compose:redis"
+    },
+    {
+      "command": "uvicorn app.main:app",
+      "entrypoint_type": "python-module",
+      "evidence": "openclaw-system/api/fastapi_gateway/main.py:FastAPI",
+      "path_or_module": "openclaw-system/api/fastapi_gateway/main.py",
+      "port": 8000,
+      "public_or_internal": "internal",
+      "service": "openclaw-system-api"
+    },
+    {
+      "command": "uvicorn app.main:app",
+      "entrypoint_type": "python-module",
+      "evidence": "openclaw-system/core/agent_runtime/main.py:FastAPI",
+      "path_or_module": "openclaw-system/core/agent_runtime/main.py",
+      "port": 8000,
+      "public_or_internal": "internal",
+      "service": "openclaw-system-core"
+    }
+  ]
+}

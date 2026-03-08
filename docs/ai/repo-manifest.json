@@ -1,0 +1,135 @@
+{
+  "artifact_paths": {
+    "data_flows": "docs/ai/data-flows.json",
+    "dependency_graph": "docs/ai/dependency-graph.json",
+    "entrypoints": "docs/ai/entrypoints.json",
+    "repo_manifest": "docs/ai/repo-manifest.json",
+    "service_map": "docs/ai/service-map.json"
+  },
+  "ci_workflows": [
+    ".github/workflows/ai-artifacts.yml",
+    ".github/workflows/api-openapi-export.yml",
+    ".github/workflows/api-tests.yml",
+    ".github/workflows/branch-protection.yml",
+    ".github/workflows/ci-forum.yml",
+    ".github/workflows/ci.yml",
+    ".github/workflows/codacy-analysis.yml",
+    ".github/workflows/codacy-analyze.yml",
+    ".github/workflows/codacy.yml",
+    ".github/workflows/codeql.yml",
+    ".github/workflows/db-pull.yml",
+    ".github/workflows/db-restore.yml",
+    ".github/workflows/dependency-review.yml",
+    ".github/workflows/deploy-forum.yml",
+    ".github/workflows/deploy-plesk.yml",
+    ".github/workflows/deploy-staging.yml",
+    ".github/workflows/docs-lint-and-adr-index.yml",
+    ".github/workflows/enterprise-pipeline.yml",
+    ".github/workflows/env-guard.yml",
+    ".github/workflows/gitleaks.yml",
+    ".github/workflows/i18n-checks.yml",
+    ".github/workflows/insights.yml",
+    ".github/workflows/mcp-tests.yml",
+    ".github/workflows/moderation-ai.yml",
+    ".github/workflows/n8n-smoke.yml",
+    ".github/workflows/osv-scanner.yml",
+    ".github/workflows/otel-collector-test.yml",
+    ".github/workflows/owasp-zap-baseline.yml",
+    ".github/workflows/pat-expiry-reminder.yml",
+    ".github/workflows/phase-0-verify.yml",
+    ".github/workflows/plesk-deployment-alternative.yml",
+    ".github/workflows/plesk-deployment.yml",
+    ".github/workflows/prompt-ci.yml",
+    ".github/workflows/quality.yml",
+    ".github/workflows/release-sign.yml",
+    ".github/workflows/resolve-pr-conflicts.yml",
+    ".github/workflows/sbom-cyclonedx.yml",
+    ".github/workflows/sbom-generation.yml",
+    ".github/workflows/scorecard.yml",
+    ".github/workflows/secrets-validate.yml",
+    ".github/workflows/security-scan.yml",
+    ".github/workflows/security.yml",
+    ".github/workflows/semgrep.yml",
+    ".github/workflows/social-posts.yml",
+    ".github/workflows/sync-figma-tokens.yml",
+    ".github/workflows/sync-wiki.yml",
+    ".github/workflows/trivy-fs.yml",
+    ".github/workflows/trivy.yml",
+    ".github/workflows/validate-github-files.yml",
+    ".github/workflows/validate-secrets.yml"
+  ],
+  "commit_sha": "ab177a9301b15b4026e13321ab5b243891e4970d",
+  "databases": [
+    {
+      "engine": "mariadb",
+      "evidence": "apps/crm/docker-compose.yml#services.mariadb",
+      "name": "mariadb"
+    },
+    {
+      "engine": "postgresql",
+      "evidence": "docker-compose.yml#services.postgres",
+      "name": "postgres"
+    },
+    {
+      "engine": "postgresql",
+      "evidence": "automation/n8n/docker-compose.https.yml#services.postgres-n8n",
+      "name": "postgres-n8n"
+    },
+    {
+      "engine": "postgresql",
+      "evidence": "automation/n8n/docker-compose.yml#services.postgres-n8n",
+      "name": "postgres-n8n"
+    },
+    {
+      "engine": "redis",
+      "evidence": "apps/crm/docker-compose.yml#services.redis",
+      "name": "redis"
+    },
+    {
+      "engine": "redis",
+      "evidence": "docker-compose.prod.yml#services.redis",
+      "name": "redis"
+    },
+    {
+      "engine": "redis",
+      "evidence": "docker-compose.yml#services.redis",
+      "name": "redis"
+    },
+    {
+      "engine": "redis",
+      "evidence": "automation/n8n/docker-compose.https.yml#services.redis-n8n",
+      "name": "redis-n8n"
+    },
+    {
+      "engine": "redis",
+      "evidence": "automation/n8n/docker-compose.yml#services.redis-n8n",
+      "name": "redis-n8n"
+    },
+    {
+      "engine": "redis",
+      "evidence": "docker-compose.prod.yml#services.redis_backup",
+      "name": "redis_backup"
+    }
+  ],
+  "default_branch": "main",
+  "docs": [
+    "README.md",
+    "docs/QUICKSTART.md",
+    "docs/compliance/DSGVO-COMPLIANCE-BLUEPRINT.md"
+  ],
+  "generated_at": "2026-03-07T21:20:13+01:00",
+  "repo_name": "menschlichkeit-oesterreich-development",
+  "security_tooling": [
+    "CodeQL",
+    "Dependabot",
+    "Gitleaks",
+    "SBOM",
+    "Trivy"
+  ],
+  "services": [
+    "api.menschlichkeit-oesterreich.at",
+    "apps/api",
+    "openclaw-system/api",
+    "openclaw-system/core"
+  ]
+}
