@@ -132,7 +132,7 @@ jobs:
         run: vendor/bin/phpstan analyse --no-progress
 
       - name: 🔒 Security Check - Trivy
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@0.34.0
         with:
           scan-type: 'fs'
           scan-ref: '.'
@@ -161,7 +161,7 @@ jobs:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_PASSWORD: ${{ secrets.CI_POSTGRES_PASSWORD != '' && secrets.CI_POSTGRES_PASSWORD || format('ci-pg-{0}', github.run_id) }}
           POSTGRES_DB: test_db
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
         ports:
@@ -170,7 +170,7 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: root
+          MYSQL_ROOT_PASSWORD: ${{ secrets.CI_MYSQL_ROOT_PASSWORD != '' && secrets.CI_MYSQL_ROOT_PASSWORD || format('ci-mysql-{0}', github.run_id) }}
           MYSQL_DATABASE: test_db
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
         ports:
