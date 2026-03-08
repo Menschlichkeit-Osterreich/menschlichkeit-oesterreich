@@ -371,13 +371,13 @@ class CreateContactRequest(BaseModel):
     email: EmailStr
     first_name: str = Field(..., min_length=1, max_length=100)
     last_name: str = Field(..., min_length=1, max_length=100)
-    phone: Optional[str] = Field(None, regex=r'^\+?[0-9\s\-()]{10,}$')
+    phone: Optional[str] = Field(None, regex=r'^\[0-9\\s\\-\\(\\)\]{10,}$')
     
     @validator('first_name', 'last_name')
     def sanitize_names(cls, v):
         # Entferne potentiell gefährliche Zeichen
         v = v.strip()
-        if not re.match(r'^[a-zA-ZäöüßÄÖÜ\s\-\']+$', v):
+        if not re.match(r'^[a-zA-ZäöüßÄÖÜ\\s\\-\\\']+$', v):
             raise ValueError('Invalid characters in name')
         return v
     
@@ -392,8 +392,8 @@ class CreateContactRequest(BaseModel):
 class CreateMembershipRequest(BaseModel):
     contact_id: int = Field(..., gt=0)
     membership_type_id: int = Field(..., gt=0)
-    start_date: str = Field(..., regex=r'^\d{4}-\d{2}-\d{2}$')
-    end_date: Optional[str] = Field(None, regex=r'^\d{4}-\d{2}-\d{2}$')
+    start_date: str = Field(..., regex=r'^\\d{4}-\\d{2}-\\d{2}$')
+    end_date: Optional[str] = Field(None, regex=r'^\\d{4}-\\d{2}-\\d{2}$')
     
     @validator('end_date')
     def validate_dates(cls, v, values):

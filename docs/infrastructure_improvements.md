@@ -34,7 +34,7 @@ COPY --from=builder /app/package*.json ./
 
 # Health Check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
+  CMD node -e "require(\'http\').get(\'http://localhost:3000\', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
 
 # Port exponieren
 EXPOSE 3000
@@ -74,7 +74,7 @@ ENV PYTHONUNBUFFERED=1
 
 # Health Check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD python -c "import requests; requests.get('http://localhost:8000/health')"
+  CMD python -c "import requests; requests.get(\'http://localhost:8000/health\')"
 
 # Port exponieren
 EXPOSE 8000
@@ -86,7 +86,7 @@ CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
 ### 1.3 Docker Compose für lokale Entwicklung
 ```yaml
 # docker-compose.yml
-version: '3.8'
+version: \'3.8\'
 
 services:
   postgres:
@@ -197,12 +197,12 @@ on:
   push:
     branches: [ main, develop ]
     paths:
-      - 'apps/website/**'
-      - '.github/workflows/frontend.yml'
+      - \'apps/website/**\'
+      - \'.github/workflows/frontend.yml\'
   pull_request:
     branches: [ main, develop ]
     paths:
-      - 'apps/website/**'
+      - \'apps/website/**\'
 
 jobs:
   build-and-test:
@@ -217,9 +217,9 @@ jobs:
       
       - uses: actions/setup-node@v3
         with:
-          node-version: '22'
-          cache: 'pnpm'
-          cache-dependency-path: 'apps/website/pnpm-lock.yaml'
+          node-version: \'22\'
+          cache: \'pnpm\'
+          cache-dependency-path: \'apps/website/pnpm-lock.yaml\'
       
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -262,13 +262,13 @@ jobs:
   deploy-preview:
     needs: build-and-test
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: github.event_name == \'pull_request\'
     
     steps:
       - uses: actions/checkout@v3
       
       - name: Deploy to Preview
-        run: |
+        run: |-
           echo "Deploying preview to Vercel..."
           # Vercel deployment command
 ```
@@ -282,12 +282,12 @@ on:
   push:
     branches: [ main, develop ]
     paths:
-      - 'apps/api/**'
-      - '.github/workflows/backend.yml'
+      - \'apps/api/**\'
+      - \'.github/workflows/backend.yml\'
   pull_request:
     branches: [ main, develop ]
     paths:
-      - 'apps/api/**'
+      - \'apps/api/**\'
 
 jobs:
   build-and-test:
@@ -322,28 +322,28 @@ jobs:
       
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-          cache: 'pip'
+          python-version: \'3.11\'
+          cache: \'pip\'
       
       - name: Install dependencies
-        run: |
+        run: |-
           python -m pip install --upgrade pip
           pip install -r apps/api/requirements.txt
           pip install pytest pytest-cov pytest-asyncio
       
       - name: Lint with flake8
-        run: |
+        run: |-
           flake8 apps/api/src --count --select=E9,F63,F7,F82 --show-source --statistics
       
       - name: Type check with mypy
-        run: |
+        run: |-
           mypy apps/api/src --ignore-missing-imports
       
       - name: Run tests
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
           REDIS_URL: redis://localhost:6379/0
-        run: |
+        run: |-
           pytest apps/api/tests -v --cov=apps/api/src --cov-report=xml
       
       - name: Upload coverage
@@ -358,7 +358,7 @@ jobs:
       - uses: actions/checkout@v3
       
       - name: Run Bandit Security Scan
-        run: |
+        run: |-
           pip install bandit
           bandit -r apps/api/src -f json -o bandit-report.json || true
       
@@ -371,13 +371,13 @@ jobs:
   deploy-staging:
     needs: build-and-test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/develop'
+    if: github.ref == \'refs/heads/develop\'
     
     steps:
       - uses: actions/checkout@v3
       
       - name: Deploy to Staging
-        run: |
+        run: |-
           echo "Deploying to staging environment..."
           # Deployment command
 ```
@@ -513,18 +513,18 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: 'api'
+  - job_name: \'api\'
     static_configs:
-      - targets: ['localhost:8000']
-    metrics_path: '/metrics'
+      - targets: [\'localhost:8000\']
+    metrics_path: \'/metrics\'
 
-  - job_name: 'postgres'
+  - job_name: \'postgres\'
     static_configs:
-      - targets: ['localhost:9187']
+      - targets: [\'localhost:9187\']
 
-  - job_name: 'redis'
+  - job_name: \'redis\'
     static_configs:
-      - targets: ['localhost:9121']
+      - targets: [\'localhost:9121\']
 ```
 
 ### 4.2 Grafana Dashboard
@@ -561,7 +561,7 @@ scrape_configs:
         "title": "Error Rate",
         "targets": [
           {
-            "expr": "rate(http_requests_total{status=~'5..'}[5m])"
+            "expr": "rate(http_requests_total{status=~\'5..\'}[5m])"
           }
         ]
       }
