@@ -528,8 +528,6 @@ async def process_data_deletion_request(
 ) -> ApiResponse:
     """
     Admin-Endpoint: Löschantrag genehmigen oder ablehnen.
-    
-    TODO: Add admin role check via JWT payload
     """
     # Admin check
     require_admin(payload)
@@ -585,8 +583,6 @@ async def get_all_deletion_requests_admin(
 ) -> ApiResponse:
     """
     Admin-Endpoint: Holt alle Löschanträge (für Compliance-Reporting).
-    
-    TODO: Add admin role check via JWT payload
     """
     # Admin check
     require_admin(payload)
