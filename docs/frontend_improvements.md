@@ -154,6 +154,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('Error caught:', error, errorInfo);
+    // Hier könnte man auch Sentry oder ähnliche Services integrieren
   }
 
   render() {
