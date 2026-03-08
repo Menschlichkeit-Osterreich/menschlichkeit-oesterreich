@@ -2,12 +2,12 @@ name: deploy-forum
 on:
   workflow_dispatch: {}
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
       - 'web/forum/**'
 jobs:
   deploy:
-    if: ${{ false }}  # bis Go-Live deaktiviert
+    if: ${{ vars.ENABLE_FORUM_DEPLOY == 'true' }} # bis Go-Live via Repo Variable deaktiviert
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,7 +19,7 @@ jobs:
           remote_path: /var/www/vhosts/<VHOST>/forum/httpdocs/
           remote_host: ${{ secrets.PLESK_HOST }}
           remote_user: ${{ secrets.PLESK_USER }}
-          remote_key:  ${{ secrets.PLESK_SSH_KEY }}
+          remote_key: ${{ secrets.PLESK_SSH_KEY }}
       - name: Post-Deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
