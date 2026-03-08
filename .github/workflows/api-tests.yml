@@ -23,8 +23,8 @@ jobs:
       - name: Run tests
         env:
           APP_ENV: development
-          CIVI_SITE_KEY: dummy
-          CIVI_API_KEY: dummy
-          JWT_SECRET: unit_test_secret
+          CIVI_SITE_KEY: ${{ secrets.CIVICRM_SITE_KEY != '' && secrets.CIVICRM_SITE_KEY || format('ci-site-key-{0}', github.run_id) }}
+          CIVI_API_KEY: ${{ secrets.CIVICRM_API_KEY != '' && secrets.CIVICRM_API_KEY || format('ci-api-key-{0}', github.run_id) }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET != '' && secrets.JWT_SECRET || format('ci-jwt-{0}-{1}', github.run_id, github.run_attempt) }}
         run: |
           pytest -q tests
