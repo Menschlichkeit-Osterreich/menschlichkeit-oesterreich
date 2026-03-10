@@ -1,0 +1,47 @@
+global:
+  smtp_smarthost: 'mail.menschlichkeit-oesterreich.at:587'
+  smtp_from: 'monitoring@menschlichkeit-oesterreich.at'
+  smtp_auth_username: '${SMTP_USER}'
+  smtp_auth_password: '${ALERTMANAGER_SMTP_PASSWORD}'
+  smtp_require_tls: true
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname', 'service']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 1h
+  receiver: 'email-admin'
+
+  routes:
+    - match:
+        severity: critical
+      receiver: 'email-admin'
+      repeat_interval: 15m
+
+    - match:
+        severity: warning
+      receiver: 'email-admin'
+      repeat_interval: 4h
+
+inhibit_rules:
+  - source_match:
+      severity: critical
+    target_match:
+      severity: warning
+    equal: ['alertname', 'instance']
+
+receivers:
+  - name: 'email-admin'
+    email_configs:
+      - to: 'admin@menschlichkeit-oesterreich.at'
+        subject: '[MOE-Alert] {{ .GroupLabels.alertname }} – {{ .Status | toUpper }}'
+        body: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          {{ if .Annotations.description }}Beschreibung: {{ .Annotations.description }}{{ end }}
+          Labels: {{ range .Labels.SortedPairs }}{{ .Name }}={{ .Value }} {{ end }}
+          Status: {{ .Status }}
+          Seit: {{ .StartsAt.Format "2006-01-02 15:04:05 UTC" }}
+          {{ end }}
+        send_resolved: true

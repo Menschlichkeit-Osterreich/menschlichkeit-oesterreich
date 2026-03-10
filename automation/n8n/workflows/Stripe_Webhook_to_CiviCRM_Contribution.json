@@ -1,0 +1,303 @@
+{
+  "name": "Stripe Webhook → CiviCRM Contribution",
+  "meta": {
+    "instanceId": "moe-n8n-production",
+    "description": "Issue #143 – P0: Empfängt Stripe Webhooks, verifiziert Signatur, mappt Daten und erstellt CiviCRM-Contributions mit Retry-Logik.",
+    "version": "1.0.0",
+    "created": "2026-03-10"
+  },
+  "nodes": [
+    {
+      "id": "webhook-trigger",
+      "name": "Stripe Webhook Eingang",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "stripe-contribution-webhook",
+      "parameters": {
+        "path": "stripe/contribution",
+        "method": "POST",
+        "responseMode": "onReceived",
+        "responseCode": 200,
+        "options": {
+          "rawBody": true
+        }
+      }
+    },
+    {
+      "id": "verify-signature",
+      "name": "Stripe-Signatur verifizieren",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 300],
+      "parameters": {
+        "jsCode": "// Stripe Webhook-Signatur verifizieren (HMAC-SHA256)\nconst crypto = require('crypto');\n\nconst rawBody = $input.item.binary?.data\n  ? Buffer.from($input.item.binary.data, 'base64').toString('utf8')\n  : JSON.stringify($input.item.json.body || $input.item.json);\n\nconst stripeSignature = $input.item.json.headers?.['stripe-signature'] || '';\nconst webhookSecret = $env.STRIPE_WEBHOOK_SECRET;\n\nif (!webhookSecret) {\n  throw new Error('STRIPE_WEBHOOK_SECRET nicht konfiguriert');\n}\n\n// Timestamp + Payload extrahieren\nconst parts = stripeSignature.split(',');\nconst tPart = parts.find(p => p.startsWith('t='));\nconst v1Part = parts.find(p => p.startsWith('v1='));\n\nif (!tPart || !v1Part) {\n  throw new Error('Ungültige Stripe-Signatur-Header');\n}\n\nconst timestamp = tPart.split('=')[1];\nconst signature = v1Part.split('=')[1];\n\n// Replay-Angriff verhindern: max. 5 Minuten alt\nconst now = Math.floor(Date.now() / 1000);\nif (Math.abs(now - parseInt(timestamp)) > 300) {\n  throw new Error('Stripe Webhook zu alt (Replay-Schutz)');\n}\n\n// Signatur berechnen\nconst signedPayload = `${timestamp}.${rawBody}`;\nconst expectedSig = crypto\n  .createHmac('sha256', webhookSecret)\n  .update(signedPayload)\n  .digest('hex');\n\nif (expectedSig !== signature) {\n  throw new Error('Stripe-Signatur ungültig – Anfrage abgewiesen');\n}\n\n// Event-Daten zurückgeben\nconst event = JSON.parse(rawBody);\nreturn [{ json: { event, verified: true, timestamp: new Date().toISOString() } }];"
+      }
+    },
+    {
+      "id": "filter-event-type",
+      "name": "Event-Typ filtern",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [650, 300],
+      "parameters": {
+        "mode": "expression",
+        "output": "input",
+        "rules": {
+          "rules": [
+            {
+              "outputKey": "charge_succeeded",
+              "conditions": {
+                "options": { "caseSensitive": true },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event.type }}",
+                    "rightValue": "charge.succeeded",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ]
+              }
+            },
+            {
+              "outputKey": "payment_intent_succeeded",
+              "conditions": {
+                "options": { "caseSensitive": true },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event.type }}",
+                    "rightValue": "payment_intent.succeeded",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ]
+              }
+            },
+            {
+              "outputKey": "charge_failed",
+              "conditions": {
+                "options": { "caseSensitive": true },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event.type }}",
+                    "rightValue": "charge.failed",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "map-to-civicrm",
+      "name": "Stripe → CiviCRM Daten mappen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [850, 200],
+      "parameters": {
+        "jsCode": "const event = $json.event;\nconst charge = event.data?.object || {};\nconst metadata = charge.metadata || {};\n\n// Betrag: Stripe in Cent → Euro\nconst amountTotal = (charge.amount || 0) / 100;\nconst amountCurrency = (charge.currency || 'eur').toUpperCase();\n\n// Payment-Methode bestimmen\nlet paymentInstrumentId = 1; // Default: Stripe Card\nif (charge.payment_method_details?.type === 'sepa_debit') {\n  paymentInstrumentId = 2;\n} else if (charge.payment_method_details?.type === 'eps') {\n  paymentInstrumentId = 6;\n}\n\n// Contribution-Typ bestimmen\nconst contributionTypeMap = {\n  membership: 1,\n  donation: 2,\n  event: 3,\n  default: 2\n};\nconst financialTypeId = contributionTypeMap[metadata.purpose] || contributionTypeMap.default;\n\n// CiviCRM API4-Payload bauen\nconst civicrmPayload = {\n  contact_id: metadata.contact_id || metadata.civicrm_contact_id || null,\n  financial_type_id: financialTypeId,\n  payment_instrument_id: paymentInstrumentId,\n  receive_date: new Date(charge.created * 1000).toISOString().split('T')[0],\n  total_amount: amountTotal,\n  currency: amountCurrency,\n  source: `Stripe ${event.type} – ${charge.id}`,\n  trxn_id: charge.id,\n  payment_processor_id: 1,  // Stripe-Processor-ID in CiviCRM\n  contribution_status_id: 1, // 1 = Completed\n  note: `Stripe Event: ${event.id}\\nKunde: ${charge.billing_details?.email || 'Unbekannt'}`,\n  // Opt-in falls vorhanden\n  campaign_id: metadata.campaign_id || null,\n  is_test: charge.livemode === false ? 1 : 0\n};\n\nreturn [{\n  json: {\n    civicrmPayload,\n    originalCharge: charge,\n    stripeEventId: event.id,\n    eventType: event.type,\n    payer_email: charge.billing_details?.email || metadata.email || '',\n    payer_name: charge.billing_details?.name || '',\n    amount: amountTotal,\n    currency: amountCurrency\n  }\n}];"
+      }
+    },
+    {
+      "id": "create-contribution",
+      "name": "CiviCRM Contribution erstellen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1050, 200],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.MOE_CRM_URL }}/civicrm/ajax/api4/Contribution/create",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "X-Civi-Auth", "value": "Bearer {{ $env.CIVI_API_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={{ JSON.stringify({ values: $json.civicrmPayload }) }}",
+        "options": {
+          "timeout": 30000,
+          "retry": {
+            "enabled": true,
+            "maxAttempts": 3,
+            "waitBetweenAttempts": 5000
+          }
+        }
+      }
+    },
+    {
+      "id": "check-contact-exists",
+      "name": "Kontakt vorhanden?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [850, 400],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false },
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $('map-to-civicrm').item.json.civicrmPayload.contact_id }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "isEmpty" }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "find-or-create-contact",
+      "name": "Kontakt suchen / anlegen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1050, 450],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.MOE_CRM_URL }}/civicrm/ajax/api4/Contact/save",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "X-Civi-Auth", "value": "Bearer {{ $env.CIVI_API_KEY }}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={{ JSON.stringify({ records: [{ contact_type: 'Individual', email_primary.email: $('map-to-civicrm').item.json.payer_email, display_name: $('map-to-civicrm').item.json.payer_name }], match: ['email_primary.email'] }) }}"
+      }
+    },
+    {
+      "id": "log-to-api",
+      "name": "Zahlung in API-DB loggen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1250, 200],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.MOE_API_URL }}/payments/log",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Authorization", "value": "Bearer {{ $env.MOE_API_TOKEN }}" }
+          ]
+        },
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={{ JSON.stringify({ stripe_event_id: $('map-to-civicrm').item.json.stripeEventId, civicrm_contribution_id: $json.values?.[0]?.id, amount: $('map-to-civicrm').item.json.amount, currency: $('map-to-civicrm').item.json.currency, payer_email: $('map-to-civicrm').item.json.payer_email, status: 'completed', processed_at: new Date().toISOString() }) }}"
+      }
+    },
+    {
+      "id": "trigger-receipt",
+      "name": "Spendenquittung auslösen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1450, 200],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.MOE_API_URL }}/receipt/trigger",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Authorization", "value": "Bearer {{ $env.MOE_API_TOKEN }}" }
+          ]
+        },
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={{ JSON.stringify({ email: $('map-to-civicrm').item.json.payer_email, contact_id: $('map-to-civicrm').item.json.civicrmPayload.contact_id, amount: $('map-to-civicrm').item.json.amount, currency: $('map-to-civicrm').item.json.currency, purpose: 'Spende', provider: 'stripe', trxn_id: $('map-to-civicrm').item.json.originalCharge.id }) }}"
+      }
+    },
+    {
+      "id": "handle-failed-charge",
+      "name": "Fehlschlag verarbeiten",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [850, 550],
+      "parameters": {
+        "jsCode": "const event = $('verify-signature').item.json.event;\nconst charge = event.data?.object || {};\n\n// CiviCRM-Contribution mit Status 'Failed' anlegen\nconst civicrmFailedPayload = {\n  financial_type_id: 2,\n  receive_date: new Date().toISOString().split('T')[0],\n  total_amount: (charge.amount || 0) / 100,\n  currency: (charge.currency || 'eur').toUpperCase(),\n  source: `Stripe charge.failed – ${charge.id}`,\n  trxn_id: charge.id,\n  contribution_status_id: 4, // 4 = Failed\n  note: `Fehlgeschlagen: ${charge.failure_message || 'Unbekannt'}`\n};\n\nreturn [{ json: { civicrmFailedPayload, charge, alertEmail: 'admin@menschlichkeit-oesterreich.at' } }];"
+      }
+    },
+    {
+      "id": "send-failure-alert",
+      "name": "Fehlschlag-Alert senden",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [1050, 600],
+      "parameters": {
+        "fromEmail": "={{ $env.SMTP_USER }}",
+        "toEmail": "admin@menschlichkeit-oesterreich.at",
+        "subject": "[MOE] Stripe Zahlung fehlgeschlagen – {{ $json.charge.id }}",
+        "message": "Eine Stripe-Zahlung ist fehlgeschlagen:\n\nCharge-ID: {{ $json.charge.id }}\nBetrag: {{ ($json.charge.amount / 100).toFixed(2) }} {{ $json.charge.currency.toUpperCase() }}\nFehler: {{ $json.charge.failure_message }}\nKunde: {{ $json.charge.billing_details?.email }}\n\nBitte manuell in Stripe und CiviCRM prüfen.",
+        "options": {}
+      }
+    },
+    {
+      "id": "error-handler",
+      "name": "Fehler loggen",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1050, 750],
+      "parameters": {
+        "jsCode": "const error = $input.item.json.error || 'Unbekannter Fehler';\nconst nodeError = $input.item.json.node?.name || 'Unbekannter Node';\n\nconsole.error(`[Stripe Webhook] Fehler in ${nodeError}: ${error}`);\n\n// In Produktionssystem: DLQ-Webhook aufrufen\nreturn [{\n  json: {\n    logged: true,\n    errorMessage: error,\n    failedNode: nodeError,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      }
+    }
+  ],
+  "connections": {
+    "Stripe Webhook Eingang": {
+      "main": [[{ "node": "Stripe-Signatur verifizieren", "type": "main", "index": 0 }]]
+    },
+    "Stripe-Signatur verifizieren": {
+      "main": [[{ "node": "Event-Typ filtern", "type": "main", "index": 0 }]]
+    },
+    "Event-Typ filtern": {
+      "main": [
+        [{ "node": "Stripe → CiviCRM Daten mappen", "type": "main", "index": 0 }],
+        [{ "node": "Stripe → CiviCRM Daten mappen", "type": "main", "index": 0 }],
+        [{ "node": "Fehlschlag verarbeiten", "type": "main", "index": 0 }]
+      ]
+    },
+    "Stripe → CiviCRM Daten mappen": {
+      "main": [[{ "node": "Kontakt vorhanden?", "type": "main", "index": 0 }]]
+    },
+    "Kontakt vorhanden?": {
+      "main": [
+        [{ "node": "CiviCRM Contribution erstellen", "type": "main", "index": 0 }],
+        [{ "node": "Kontakt suchen / anlegen", "type": "main", "index": 0 }]
+      ]
+    },
+    "Kontakt suchen / anlegen": {
+      "main": [[{ "node": "CiviCRM Contribution erstellen", "type": "main", "index": 0 }]]
+    },
+    "CiviCRM Contribution erstellen": {
+      "main": [[{ "node": "Zahlung in API-DB loggen", "type": "main", "index": 0 }]]
+    },
+    "Zahlung in API-DB loggen": {
+      "main": [[{ "node": "Spendenquittung auslösen", "type": "main", "index": 0 }]]
+    },
+    "Fehlschlag verarbeiten": {
+      "main": [[{ "node": "Fehlschlag-Alert senden", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "error-handler"
+  },
+  "tags": [
+    { "name": "finance" },
+    { "name": "stripe" },
+    { "name": "civicrm" },
+    { "name": "P0" }
+  ]
+}
