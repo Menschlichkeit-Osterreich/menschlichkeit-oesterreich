@@ -249,7 +249,7 @@ def create_auth_dependencies():
         import os
 
         security = HTTPBearer()
-        SECRET_KEY = os.getenv("JWT_SECRET_KEY", "change-me-in-production")
+        SECRET_KEY = os.getenv("JWT_SECRET_KEY")
         ALGORITHM  = os.getenv("JWT_ALGORITHM", "HS256")
 
         def get_current_user(
@@ -257,6 +257,11 @@ def create_auth_dependencies():
         ) -> dict:
             token = credentials.credentials
             try:
+                if not SECRET_KEY:
+                    raise HTTPException(
+                        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        detail="JWT Secret not configured",
+                    )
                 payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
                 return {
                     "user_id":  payload.get("sub"),
