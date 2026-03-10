@@ -1,0 +1,100 @@
+name: TLS-Zertifikat-Überwachung
+
+on:
+  schedule:
+    # Täglich um 07:00 UTC (09:00 Wiener Zeit)
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  ssl-check:
+    name: TLS-Zertifikate prüfen
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: TLS-Prüfung – alle Domains
+        id: ssl_check
+        run: |
+          DOMAINS=(
+            "menschlichkeit-oesterreich.at"
+            "www.menschlichkeit-oesterreich.at"
+            "api.menschlichkeit-oesterreich.at"
+            "crm.menschlichkeit-oesterreich.at"
+            "cloud.menschlichkeit-oesterreich.at"
+            "n8n.menschlichkeit-oesterreich.at"
+            "forum.menschlichkeit-oesterreich.at"
+            "mail.menschlichkeit-oesterreich.at"
+          )
+
+          WARN_DAYS=14
+          CRITICAL_DAYS=7
+          FAILED=0
+          WARNINGS=""
+          CRITICALS=""
+
+          for DOMAIN in "${DOMAINS[@]}"; do
+            # Zertifikat-Ablaufdatum abrufen
+            EXPIRY=$(echo | timeout 10 openssl s_client -connect "${DOMAIN}:443" -servername "${DOMAIN}" 2>/dev/null \
+              | openssl x509 -noout -enddate 2>/dev/null \
+              | sed 's/notAfter=//')
+
+            if [ -z "$EXPIRY" ]; then
+              echo "⚠️  ${DOMAIN}: Zertifikat nicht abrufbar (Domain nicht erreichbar?)"
+              WARNINGS="${WARNINGS}${DOMAIN}: nicht erreichbar\n"
+              continue
+            fi
+
+            EXPIRY_EPOCH=$(date -d "$EXPIRY" +%s 2>/dev/null || date -j -f "%b %d %T %Y %Z" "$EXPIRY" +%s)
+            NOW_EPOCH=$(date +%s)
+            DAYS_LEFT=$(( (EXPIRY_EPOCH - NOW_EPOCH) / 86400 ))
+
+            if [ "$DAYS_LEFT" -le "$CRITICAL_DAYS" ]; then
+              echo "🔴 KRITISCH ${DOMAIN}: läuft in ${DAYS_LEFT} Tagen ab!"
+              CRITICALS="${CRITICALS}${DOMAIN}: ${DAYS_LEFT} Tage\n"
+              FAILED=1
+            elif [ "$DAYS_LEFT" -le "$WARN_DAYS" ]; then
+              echo "🟡 WARNUNG ${DOMAIN}: läuft in ${DAYS_LEFT} Tagen ab"
+              WARNINGS="${WARNINGS}${DOMAIN}: ${DAYS_LEFT} Tage\n"
+            else
+              echo "✅ ${DOMAIN}: ${DAYS_LEFT} Tage verbleibend"
+            fi
+          done
+
+          echo "warnings=${WARNINGS}" >> $GITHUB_OUTPUT
+          echo "criticals=${CRITICALS}" >> $GITHUB_OUTPUT
+          echo "failed=${FAILED}" >> $GITHUB_OUTPUT
+
+      - name: GitHub Issue erstellen bei kritischen Zertifikaten
+        if: steps.ssl_check.outputs.failed == '1'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const criticals = `${{ steps.ssl_check.outputs.criticals }}`;
+            const warnings = `${{ steps.ssl_check.outputs.warnings }}`;
+            const today = new Date().toISOString().split('T')[0];
+
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🔴 TLS-Zertifikat läuft ab – ${today}`,
+              body: `## TLS-Zertifikat-Alarm\n\n**Kritisch (≤7 Tage)**:\n${criticals || 'Keine'}\n\n**Warnung (≤14 Tage)**:\n${warnings || 'Keine'}\n\n**Aktion**: Zertifikat in Plesk erneuern:\n\`\`\`\nPlesk → Domains → [Domain] → SSL/TLS → Let's Encrypt → Erneuern\n\`\`\`\n\n_Automatisch erstellt von TLS-Überwachungs-Workflow_`,
+              labels: ['security', 'ops', 'P0'],
+            });
+
+      - name: Zusammenfassung
+        if: always()
+        run: |
+          echo "## TLS-Zertifikat-Überwachung – $(date +%Y-%m-%d)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.ssl_check.outputs.failed }}" == "1" ]; then
+            echo "🔴 **Kritische Zertifikate gefunden – sofortiger Handlungsbedarf!**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ **Alle Zertifikate gültig**" >> $GITHUB_STEP_SUMMARY
+          fi

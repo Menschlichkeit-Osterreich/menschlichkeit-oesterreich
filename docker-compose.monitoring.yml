@@ -1,0 +1,186 @@
+# Monitoring-Stack: Menschlichkeit Österreich
+# Stand: 2026-03-09
+#
+# Enthält: Uptime Kuma, Prometheus, Grafana, Alertmanager, node_exporter
+#
+# Verwendung:
+#   docker compose -f docker-compose.monitoring.yml up -d
+#
+# Minimales Deployment (sofort):
+#   docker compose -f docker-compose.monitoring.yml up -d uptime-kuma
+#
+# Vollständiger Stack:
+#   docker compose -f docker-compose.monitoring.yml up -d
+#
+# Credentials via Umgebungsvariablen oder .env.monitoring (gitignored):
+#   GRAFANA_ADMIN_PASSWORD=...
+#   ALERTMANAGER_SMTP_PASSWORD=...
+
+services:
+  # ============================================================
+  # UPTIME KUMA – Externes Monitoring + Status-Page
+  # URL: http://localhost:3001 (intern) / status.menschlichkeit-oesterreich.at
+  # ============================================================
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: moe-uptime-kuma
+    restart: unless-stopped
+    volumes:
+      - uptime_kuma_data:/app/data
+    ports:
+      - "127.0.0.1:3001:3001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+
+  # ============================================================
+  # PROMETHEUS – Metriken-Sammlung
+  # URL: http://localhost:9090 (nur intern)
+  # ============================================================
+  prometheus:
+    image: prom/prometheus:v2.50.1
+    container_name: moe-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=90d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "127.0.0.1:9090:9090"
+    depends_on:
+      - alertmanager
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 512M
+
+  # ============================================================
+  # GRAFANA – Dashboards + Visualisierung
+  # URL: http://localhost:3000 (nur intern)
+  # Standard-Login: admin / ${GRAFANA_ADMIN_PASSWORD}
+  # ============================================================
+  grafana:
+    image: grafana/grafana:10.4.1
+    container_name: moe-grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD must be set}
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+      - GF_ANALYTICS_CHECK_FOR_UPDATES=false
+      - GF_SERVER_ROOT_URL=https://monitor.menschlichkeit-oesterreich.at
+      - GF_SMTP_ENABLED=true
+      - GF_SMTP_HOST=mail.menschlichkeit-oesterreich.at:587
+      - GF_SMTP_USER=${SMTP_USER:-admin@menschlichkeit-oesterreich.at}
+      - GF_SMTP_PASSWORD=${SMTP_PASS}
+      - GF_SMTP_FROM_ADDRESS=monitoring@menschlichkeit-oesterreich.at
+      - GF_SMTP_FROM_NAME=Menschlichkeit Österreich Monitoring
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      - prometheus
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 256M
+
+  # ============================================================
+  # ALERTMANAGER – Alert-Routing und Benachrichtigungen
+  # URL: http://localhost:9093 (nur intern)
+  # ============================================================
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: moe-alertmanager
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+    volumes:
+      - ./monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    ports:
+      - "127.0.0.1:9093:9093"
+    environment:
+      - ALERTMANAGER_SMTP_PASSWORD=${ALERTMANAGER_SMTP_PASSWORD:-}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 64M
+
+  # ============================================================
+  # NODE EXPORTER – System-Metriken (CPU, RAM, Disk, Network)
+  # Port: 9100 (nur intern)
+  # ============================================================
+  node-exporter:
+    image: prom/node-exporter:v1.7.0
+    container_name: moe-node-exporter
+    restart: unless-stopped
+    command:
+      - '--path.rootfs=/host'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host:ro,rslave
+    ports:
+      - "127.0.0.1:9100:9100"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 64M
+
+  # ============================================================
+  # BLACKBOX EXPORTER – HTTP/TLS-Probe-Checks
+  # Port: 9115 (nur intern)
+  # ============================================================
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.24.0
+    container_name: moe-blackbox-exporter
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/blackbox_exporter/config.yml'
+    volumes:
+      - ./monitoring/blackbox.yml:/etc/blackbox_exporter/config.yml:ro
+    ports:
+      - "127.0.0.1:9115:9115"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.10'
+          memory: 64M
+
+networks:
+  default:
+    name: moe-monitoring
+
+volumes:
+  uptime_kuma_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  alertmanager_data:
+    driver: local
