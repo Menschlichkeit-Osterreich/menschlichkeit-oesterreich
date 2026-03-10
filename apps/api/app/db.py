@@ -42,3 +42,10 @@ async def fetch(query: str, *args):
     pool = await get_pool()
     async with pool.acquire() as conn:
         return await conn.fetch(query, *args)
+
+
+async def execute(query: str, *args):
+    """Execute statement without returning rows."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        return await conn.execute(query, *args)
