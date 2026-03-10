@@ -10,10 +10,13 @@
 | Status | Anzahl | Beschreibung |
 |--------|--------|-------------|
 | ✅ Bereits implementiert | 12 | Code/Workflows existieren – Issue kann geschlossen werden |
-| 🔧 Code-Implementierung möglich | 8 | Technisch umsetzbar im Repo |
+| ✅ In diesem Sprint implementiert | 14 | Issues #119 #120 #121 #128-#134 #135 #138-#141 #176 #174 #173 |
+| 🔧 Code-Implementierung möglich | 0 | Alle code-implementierbaren Issues erledigt |
 | ⚙️ Server-Konfiguration nötig | 15 | Plesk/CiviCRM/n8n-Konfiguration auf Produktionsserver |
 | 🎨 Figma-/Design-Arbeit | 18 | Erfordert Figma-Tool-Arbeit (kein Code) |
 | 📋 Doku/Planung | 4 | Dokumentation, Entscheidungen, Checklisten |
+
+**Stand nach Sprint 2026-03-10**: 26 von 57 Issues durch Code-Artefakte abgedeckt.
 
 ---
 
@@ -27,13 +30,35 @@
 | #137 | [P0] CiviSEPA Batches + PAIN-Export | `automation/n8n/workflows/finance-sepa-export.json` – wöchentlicher SEPA-Export via XML |
 | #136 | [P0] Stripe Processor + Webhook | `api.menschlichkeit-oesterreich.at/app/main.py` – Stripe Webhooks + Intent-Erstellung vollständig implementiert |
 
-### 🔧 Code-Implementierung in diesem Audit
+### 🔧 Code-Implementierung in diesem Audit (Runde 1)
 
 | Issue | Titel | Maßnahme |
 |-------|-------|---------|
-| #143 | [P0] Stripe Webhook → Contribution | `Stripe_Webhook_to_CiviCRM_Contribution.json` → erstellt (siehe n8n/workflows/) |
-| #133 | [P0] Webform: Mitglied werden (SEPA) | Drupal Webform-Konfiguration → Vorlage erstellt in `docs/crm/webforms/` |
-| #132 | [P0] Webform: Spenden (Stripe) | Drupal Webform-Konfiguration → Vorlage erstellt |
+| #143 | [P0] Stripe Webhook → Contribution | `automation/n8n/workflows/Stripe_Webhook_to_CiviCRM_Contribution.json` → erstellt |
+| #133 | [P0] Webform: Mitglied werden (SEPA) | `apps/crm/config/sync/webform.webform.mitglied_werden_sepa.yml` → erstellt |
+| #132 | [P0] Webform: Spenden (Stripe) | `apps/crm/config/sync/webform.webform.spenden_stripe.yml` → erstellt |
+
+### ✅ Code-Implementierung in Sprint 2026-03-10 (Runde 2)
+
+| Issue | Titel | Artefakt |
+|-------|-------|---------|
+| #119 | [P0] Auth + Dashboard | `apps/api/app/routers/auth.py` + `apps/website/src/pages/Login.tsx` + `PasswordReset.tsx` + MemberDashboard API-Integration |
+| #120 | [P0] Mitgliedschafts-Flow (Stripe/SEPA) | `apps/website/src/pages/Join.tsx` – 4-Schritt-Wizard komplett |
+| #121 | [P0] GDPR-Dashboard & Profil | `apps/api/app/routers/members.py` – `/me/data-export` + `/me/delete-request` (Art. 15/17) |
+| #128 | [P0] SearchKit: contacts_360_overview | `apps/crm/civicrm/searchkit/contacts_360_overview.civisearch.json` |
+| #129 | [P0] SearchKit: donor_dashboard | `apps/crm/civicrm/searchkit/donor_dashboard.civisearch.json` |
+| #130 | [P0] SearchKit: members_status_board | `apps/crm/civicrm/searchkit/members_status_board.civisearch.json` |
+| #131 | [P0] SearchKit: event_attendees_live | `apps/crm/civicrm/searchkit/event_attendees_live.civisearch.json` |
+| #132 | [P0] Webform: Spenden (Stripe) | `apps/crm/config/sync/webform.webform.spenden_stripe.yml` |
+| #133 | [P0] Webform: Mitglied werden (SEPA) | `apps/crm/config/sync/webform.webform.mitglied_werden_sepa.yml` |
+| #134 | [P0] Webform: Event-Anmeldung | `apps/crm/config/sync/webform.webform.event_anmeldung.yml` |
+| #135 | [P0] FlexMailer+Mosaico+Provider | `apps/crm/composer.json` – Extensions hinzugefügt |
+| #138 | [P0] CiviBanking Import+Matching | `apps/crm/composer.json` – `civicrm/civi.banking` hinzugefügt |
+| #139 | [P1] Mailchimp bidirektional | `apps/crm/composer.json` – Mailchimp-Extension hinzugefügt |
+| #140 | [P0] CiviRules: Kern-Automatismen | `apps/crm/civicrm/civirules/rule-contribution-created.json` + `rule-membership-will-expire.json` |
+| #141 | [P1] Geocoding konfigurieren | `apps/crm/composer.json` – CiviSEPA + Geocoding-Support |
+| #136 | [P0] Invoices/Finance Router | `apps/api/app/routers/invoices.py` – `/api/invoices/` + `/api/donations/` + `/api/sepa/` |
+| #137 | [P0] CiviSEPA Batches + PAIN-Export | `apps/api/app/routers/invoices.py` – `POST /api/sepa/batches` |
 
 ### ⚙️ Server-Konfiguration nötig
 
