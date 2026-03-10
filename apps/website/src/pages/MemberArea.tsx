@@ -29,7 +29,7 @@ export default function MemberAreaPage() {
     const fetchProfile = async () => {
       setLoading(true);
       try {
-        const data = await http.get('/api/member/profile', token);
+        const data = await http.get('/api/members/me/profile', token);
         setProfile(data as MemberProfile);
       } catch {
         setError('Profildaten konnten nicht geladen werden.');

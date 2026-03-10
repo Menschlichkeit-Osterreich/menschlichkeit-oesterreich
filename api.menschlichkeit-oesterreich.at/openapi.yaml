@@ -163,6 +163,352 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
 
+  # ── FastAPI v2 Endpoints (apps/api/) ─────────────────────────────────────
+
+  /api/auth/login:
+    post:
+      tags: [Authentifizierung]
+      summary: Anmelden und JWT-Token erhalten
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        "200":
+          description: Erfolgreich angemeldet
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token: { type: string }
+                  refresh_token: { type: string }
+                  token_type: { type: string, example: bearer }
+                  expires_in: { type: integer }
+        "401":
+          description: Ungültige Anmeldedaten
+
+  /api/auth/register:
+    post:
+      tags: [Authentifizierung]
+      summary: Neues Mitglied registrieren
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, first_name, last_name]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+                first_name: { type: string }
+                last_name: { type: string }
+      responses:
+        "201":
+          description: Registrierung erfolgreich
+        "409":
+          description: E-Mail bereits vergeben
+
+  /api/auth/me:
+    get:
+      tags: [Authentifizierung]
+      summary: Aktuell eingeloggten Benutzer abrufen
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Benutzerprofil
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: integer }
+                  email: { type: string }
+                  first_name: { type: string }
+                  last_name: { type: string }
+                  role: { type: string }
+
+  /api/auth/refresh:
+    post:
+      tags: [Authentifizierung]
+      summary: Access-Token erneuern
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Neuer Access-Token
+
+  /api/auth/password-reset/request:
+    post:
+      tags: [Authentifizierung]
+      summary: Passwort-Reset anfordern
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        "200":
+          description: Antwort immer 200 (Anti-Enumeration)
+
+  /api/auth/password-reset/confirm:
+    post:
+      tags: [Authentifizierung]
+      summary: Passwort zurücksetzen (mit Token)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, new_password]
+              properties:
+                token: { type: string }
+                new_password: { type: string, minLength: 8 }
+      responses:
+        "200":
+          description: Passwort erfolgreich geändert
+        "400":
+          description: Token ungültig oder abgelaufen
+
+  /api/members/me/profile:
+    get:
+      tags: [Mitglieder]
+      summary: Eigenes Profil abrufen
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Profildaten
+    put:
+      tags: [Mitglieder]
+      summary: Eigenes Profil aktualisieren
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name: { type: string }
+                last_name: { type: string }
+                phone: { type: string }
+      responses:
+        "200":
+          description: Profil aktualisiert
+
+  /api/members/me/invoices:
+    get:
+      tags: [Mitglieder]
+      summary: Eigene Rechnungen
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Liste der Rechnungen
+
+  /api/members/me/donations:
+    get:
+      tags: [Mitglieder]
+      summary: Eigene Spenden
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Liste der Spenden
+
+  /api/members/me/data-export:
+    post:
+      tags: [Mitglieder, DSGVO]
+      summary: DSGVO-Datenexport anfordern (Art. 15)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason: { type: string }
+      responses:
+        "202":
+          description: Datenexport angefordert
+
+  /api/members/me/delete-request:
+    post:
+      tags: [Mitglieder, DSGVO]
+      summary: Löschantrag stellen (Art. 17)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason, confirm]
+              properties:
+                reason: { type: string }
+                confirm: { type: boolean }
+      responses:
+        "202":
+          description: Löschantrag eingereicht
+
+  /api/invoices:
+    get:
+      tags: [Finanzen]
+      summary: Rechnungen auflisten
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: status
+          schema: { type: string, enum: [paid, open, overdue] }
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+      responses:
+        "200":
+          description: Liste der Rechnungen
+
+  /api/invoices/{id}:
+    get:
+      tags: [Finanzen]
+      summary: Einzelne Rechnung abrufen
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Rechnungsdetails
+        "404":
+          description: Nicht gefunden
+
+  /api/invoices/{id}/download:
+    get:
+      tags: [Finanzen]
+      summary: PDF-Download-URL abrufen
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Vorzeichnete URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url: { type: string }
+                  expires_in: { type: integer }
+
+  /api/invoices/{id}/send:
+    post:
+      tags: [Finanzen]
+      summary: Rechnung per E-Mail versenden
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string, format: email }
+      responses:
+        "200":
+          description: Rechnung wird gesendet
+
+  /api/donations:
+    get:
+      tags: [Finanzen]
+      summary: Spenden auflisten (Admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+      responses:
+        "200":
+          description: Liste der Spenden
+
+  /api/donations/{id}:
+    get:
+      tags: [Finanzen]
+      summary: Einzelne Spende
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Spendendetails
+
+  /api/sepa/mandates:
+    get:
+      tags: [SEPA]
+      summary: SEPA-Mandate auflisten (Admin)
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: active_only
+          schema: { type: boolean, default: true }
+      responses:
+        "200":
+          description: Liste der Mandate
+
+  /api/sepa/batches:
+    get:
+      tags: [SEPA]
+      summary: SEPA-Batches auflisten (Admin)
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Liste der Batches
+    post:
+      tags: [SEPA]
+      summary: Neuen SEPA-Batch anlegen
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [collection_date, mandate_ids]
+              properties:
+                collection_date: { type: string, format: date }
+                batch_type: { type: string, enum: [FRST, RCUR, OOFF], default: RCUR }
+                mandate_ids: { type: array, items: { type: integer } }
+      responses:
+        "201":
+          description: Batch erstellt
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: integer }
+                  batch_reference: { type: string }
+                  message: { type: string }
+
 x-rate-limit:
   global: 60
   per_key_per_minute: 10
