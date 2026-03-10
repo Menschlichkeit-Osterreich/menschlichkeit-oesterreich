@@ -27,7 +27,13 @@
     "drush/drush": "^12.0",
     "civicrm/civicrm-core": "~5.73",
     "civicrm/civicrm-packages": "~5.73",
-    "civicrm/civicrm-drupal-8": "~5.73"
+    "civicrm/civicrm-drupal-8": "~5.73",
+    "civicrm/org.civicrm.flexmailer": "^1.1",
+    "civicrm/uk.co.vedaconsulting.mosaico": "^2.0",
+    "civicrm/civi.banking": "^0.9",
+    "civicrm/civirules": "^3.12",
+    "nz.co.fuzion.civicrm-mailchimp": "^6.0",
+    "civicrm/civisepa": "^1.8"
   },
   "require-dev": {
     "drupal/core-dev": "^10.1"

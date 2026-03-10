@@ -25,7 +25,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 
 # ── Router Imports ────────────────────────────────────────────────────────────
-from .routers import metrics
+from .routers import metrics, auth
 
 # ── Logging Setup ─────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -256,5 +256,6 @@ async def version():
 
 # ── Router Registration ───────────────────────────────────────────────────────
 app.include_router(metrics.router, prefix="/api", tags=["Metriken"])
+app.include_router(auth.router)          # /api/auth/* – Issue #119
 
 logger.info(f"✅ API v2.0 configured | env={ENVIRONMENT} | origins={len(ALLOWED_ORIGINS)}")

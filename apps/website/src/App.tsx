@@ -22,6 +22,7 @@ const SuccessPage             = React.lazy(() => import('./pages/Success'));
 const KontaktPage             = React.lazy(() => import('./pages/Kontakt'));
 const ImpressumPage           = React.lazy(() => import('./pages/Impressum'));
 const DatenschutzPage         = React.lazy(() => import('./pages/Datenschutz'));
+const PasswordResetPage       = React.lazy(() => import('./pages/PasswordReset'));
 const NotFoundPage            = React.lazy(() => import('./pages/NotFound'));
 
 // ── Lazy Imports (Mitgliederbereich) ────────────────────────────────────────
@@ -87,6 +88,8 @@ export default function App() {
             <Route element={<AuthLayout />}>
               <Route path="/login" element={<Login />} />
               <Route path="/Login" element={<Login />} />
+              <Route path="/passwort-vergessen" element={<PasswordResetPage />} />
+              <Route path="/passwort-reset" element={<PasswordResetPage />} />
             </Route>
 
             {/* ── Mitgliederbereich ── */}

@@ -1,0 +1,98 @@
+{
+  "_comment": "Issue #128 – SearchKit: contacts_360_overview – Vollständige 360°-Kontaktansicht",
+  "version": 1,
+  "name": "contacts_360_overview",
+  "label": "Kontakte 360° Übersicht",
+  "description": "Vollständige Kontaktübersicht mit Mitgliedschaftsstatus, letzter Zahlung und Aktivitäten. Für Sachbearbeiter:innen im CRM.",
+  "type": "table",
+  "entity": "Contact",
+  "select": [
+    "id",
+    "display_name",
+    "email_primary.email AS email",
+    "phone_primary.phone AS telefon",
+    "address_primary.city AS ort",
+    "Membership_Contact_contact_id_01.status_id:label AS mitgliedschaft_status",
+    "Membership_Contact_contact_id_01.end_date AS mitgliedschaft_bis",
+    "Membership_Contact_contact_id_01.membership_type_id:label AS mitgliedschaft_typ",
+    "Contribution_Contact_contact_id_01.total_amount AS letzte_zahlung",
+    "Contribution_Contact_contact_id_01.receive_date AS zahlung_datum",
+    "Activity_ActivityContact_contact_id_01.activity_date_time AS letzte_aktivitaet"
+  ],
+  "joins": [
+    {
+      "entity": "Membership",
+      "alias": "Membership_Contact_contact_id_01",
+      "type": "LEFT",
+      "bridge": "MembershipContact",
+      "on": [["Membership_Contact_contact_id_01.is_current_member", "=", true]]
+    },
+    {
+      "entity": "Contribution",
+      "alias": "Contribution_Contact_contact_id_01",
+      "type": "LEFT",
+      "bridge": "ContributionContact",
+      "on": [["Contribution_Contact_contact_id_01.contribution_status_id:name", "=", "Completed"]]
+    },
+    {
+      "entity": "Activity",
+      "alias": "Activity_ActivityContact_contact_id_01",
+      "type": "LEFT",
+      "bridge": "ActivityContact",
+      "on": []
+    }
+  ],
+  "where": [
+    ["is_deleted", "=", false],
+    ["contact_type", "=", "Individual"]
+  ],
+  "orderBy": {
+    "display_name": "ASC"
+  },
+  "limit": 50,
+  "allowedActions": ["view", "update", "delete"],
+  "filters": [
+    {
+      "field": "display_name",
+      "label": "Name (Volltext)",
+      "type": "text",
+      "op": "CONTAINS"
+    },
+    {
+      "field": "email_primary.email",
+      "label": "E-Mail",
+      "type": "text",
+      "op": "CONTAINS"
+    },
+    {
+      "field": "Membership_Contact_contact_id_01.status_id:label",
+      "label": "Mitgliedschaftsstatus",
+      "type": "select",
+      "op": "="
+    },
+    {
+      "field": "address_primary.city",
+      "label": "Ort",
+      "type": "text",
+      "op": "CONTAINS"
+    }
+  ],
+  "display": {
+    "columns": [
+      {"field": "display_name", "label": "Name", "link": {"entity": "Contact", "action": "view"}},
+      {"field": "email", "label": "E-Mail"},
+      {"field": "telefon", "label": "Telefon"},
+      {"field": "mitgliedschaft_typ", "label": "Typ"},
+      {"field": "mitgliedschaft_status", "label": "Status", "badges": true},
+      {"field": "mitgliedschaft_bis", "label": "Mitglied bis", "type": "date"},
+      {"field": "letzte_zahlung", "label": "Letzte Zahlung (€)", "type": "currency"},
+      {"field": "zahlung_datum", "label": "Zahlung am", "type": "date"},
+      {"field": "letzte_aktivitaet", "label": "Letzte Aktivität", "type": "datetime"}
+    ],
+    "actions": [
+      {"label": "Kontakt öffnen", "action": "view"},
+      {"label": "Bearbeiten", "action": "update"},
+      {"label": "Aktivität hinzufügen", "action": "add_activity"}
+    ]
+  }
+}

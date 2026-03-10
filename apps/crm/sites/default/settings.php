@@ -48,6 +48,16 @@ $settings['file_public_path'] = 'sites/default/files';
 $settings['file_private_path'] = 'sites/default/files/private';
 $settings['file_temp_path'] = '/tmp';
 
+/**
+ * =============================================================================
+ * ⚙️ CONFIG SYNC – Issue #132-#134 Webforms, CiviCRM-Konfigurationsexporte
+ * =============================================================================
+ * Ermöglicht: drush config:import / drush config:export
+ * Konfigurationsexporte liegen in: apps/crm/config/sync/
+ * =============================================================================
+ */
+$settings['config_sync_directory'] = '../config/sync';
+
 // Plesk-spezifische Pfade
 $config['system.file']['path']['temporary'] = '/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/crm/httpdocs/sites/default/files/tmp';
 

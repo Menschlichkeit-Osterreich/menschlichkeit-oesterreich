@@ -64,6 +64,17 @@ export default function LoginPage() {
             {loading ? 'Bitte warten …' : 'Anmelden'}
           </Button>
         </form>
+        <div className="mt-4 flex flex-col gap-2 text-center text-sm">
+          <a href="/passwort-vergessen" className="text-primary-600 hover:underline">
+            Passwort vergessen?
+          </a>
+          <span className="text-secondary-500">
+            Noch kein Konto?{' '}
+            <a href="/mitglied-werden" className="text-primary-600 hover:underline font-medium">
+              Jetzt Mitglied werden
+            </a>
+          </span>
+        </div>
       </Card>
     </div>
   );

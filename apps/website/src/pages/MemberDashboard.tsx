@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
+const API_BASE = (import.meta as any).env?.VITE_API_URL ?? '/api';
 
 // ── Typen ──────────────────────────────────────────────────────────────────────
 interface Badge {
@@ -73,11 +75,35 @@ const UPCOMING_EVENTS = [
   { title: 'Sommerfest Menschlichkeit', date: '2026-06-21', location: 'Wien, Stadtpark', type: 'Social' },
 ];
 
+// ── API-KPI-Typen ───────────────────────────────────────────────────────────────
+interface KpiOverview {
+  active_members:       number;
+  net_new_members:      number;
+  ytd_donations_eur:    number;
+  monthly_income_eur:   number;
+  monthly_expense_eur:  number;
+}
+
 // ── Hauptkomponente ────────────────────────────────────────────────────────────
 export default function MemberDashboard() {
   const [activeTab, setActiveTab] = useState<'overview' | 'profile' | 'badges' | 'activities' | 'events'>('overview');
   const [editProfile, setEditProfile] = useState(false);
+  const [kpis, setKpis] = useState<KpiOverview | null>(null);
+  const [kpiError, setKpiError] = useState(false);
 
+  // Lädt echte KPI-Daten aus der API (Issue #119 – API-Integration)
+  useEffect(() => {
+    const token = sessionStorage.getItem('moe_auth_token');
+    fetch(`${API_BASE}/kpis/overview`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(setKpis)
+      .catch(() => setKpiError(true));
+  }, []);
+
+  // Fallback auf Mock-Daten wenn API nicht erreichbar
+  const activeMemberCount = kpis?.active_members ?? PROFILE.level * 120;
   const xpPercent = Math.round((PROFILE.xp / PROFILE.nextLevelXp) * 100);
   const earnedBadges = BADGES.filter(b => b.earned).length;
 
