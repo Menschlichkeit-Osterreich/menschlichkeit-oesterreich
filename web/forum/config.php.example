@@ -1,0 +1,30 @@
+<?php
+/**
+ * phpBB-Konfigurationsvorlage – Menschlichkeit Österreich Forum
+ *
+ * ANLEITUNG:
+ * 1. Diese Datei NICHT direkt bearbeiten – nur als Vorlage verwenden.
+ * 2. Die echte config.php wird vom phpBB Web-Installer generiert.
+ * 3. Die echte config.php ist per .gitignore ausgeschlossen (enthält Passwörter).
+ * 4. Produktionswerte kommen aus Dotenv-Vault / GitHub Secrets.
+ *
+ * Issue #176 – Phase 3: phpBB-Installation
+ */
+
+// Datenbankverbindung
+$dbms       = 'phpbb\db\driver\mysqli';
+$dbhost     = 'localhost';
+$dbport     = '';
+$dbname     = 'phpbb_forum';           // → Plesk: moe_forum
+$dbuser     = 'phpbb_user';            // → Plesk: forum_user
+$dbpasswd   = 'FORUM_DB_PASSWORD';     // → aus GitHub Secret / Dotenv-Vault
+$table_prefix = 'phpbb_';
+
+// phpBB-Kerneinstellungen
+$phpbb_adm_relative_path = 'adm/';
+$acm_type   = 'phpbb\cache\driver\file';
+
+// WICHTIG: Nach dem Installer auf 1 setzen
+@define('PHPBB_INSTALLED', true);
+// @define('DEBUG', true);
+// @define('DEBUG_EXTRA', true);
