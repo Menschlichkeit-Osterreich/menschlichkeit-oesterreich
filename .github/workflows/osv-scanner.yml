@@ -24,13 +24,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run OSV Scanner
-        uses: google/osv-scanner-action@v1
-        with:
-          scan-args: |-
-            --format=sarif
-            --output=osv-results.sarif
-            --recursive
+      - name: Install osv-scanner
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/google/osv-scanner/main/scripts/install-osv-scanner-ubuntu.sh | sh -s -- -b /usr/local/bin
+          osv-scanner --version
+
+      - name: Run OSV Scanner (recursive)
+        run: |
+          osv-scanner \
+            --format=sarif \
+            --output=osv-results.sarif \
+            --recursive \
             ./
         continue-on-error: true
 
@@ -58,26 +62,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install osv-scanner
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/google/osv-scanner/main/scripts/install-osv-scanner-ubuntu.sh | sh -s -- -b /usr/local/bin
+          osv-scanner --version
+
       - name: Scan package-lock.json
-        uses: google/osv-scanner-action@v1
         if: hashFiles('**/package-lock.json') != ''
-        with:
-          scan-args: |-
+        run: |
+          osv-scanner \
             --lockfile=package-lock.json:npm
         continue-on-error: true
 
       - name: Scan composer.lock
-        uses: google/osv-scanner-action@v1
         if: hashFiles('**/composer.lock') != ''
-        with:
-          scan-args: |-
+        run: |
+          osv-scanner \
             --lockfile=composer.lock:composer
         continue-on-error: true
 
       - name: Scan requirements.txt
-        uses: google/osv-scanner-action@v1
         if: hashFiles('**/requirements.txt') != ''
-        with:
-          scan-args: |-
+        run: |
+          osv-scanner \
             --lockfile=api.menschlichkeit-oesterreich.at/requirements.txt:requirements.txt
         continue-on-error: true
