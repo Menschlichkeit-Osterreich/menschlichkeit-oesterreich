@@ -46,7 +46,7 @@ jobs:
         run: |
           pip install cyclonedx-bom
           cyclonedx-py requirements \
-            api.menschlichkeit-oesterreich.at/requirements.txt \
+            apps/api/requirements.txt \
             -o sbom-python.json \
             --format json
         continue-on-error: true
