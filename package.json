@@ -78,7 +78,6 @@
     "figma:full-sync": "npm run figma:sync && npm run figma:integrate && npm run quality:gates",
     "design:tokens": "npm run figma:sync && npm run build:frontend",
     "tokens": "npm run design:tokens",
-    "tokens:forum": "node scripts/generate-forum-tokens.mjs",
     "design:docs": "storybook build && npm run figma:sync",
     "n8n:start": "cd automation/n8n && docker-compose up -d",
     "n8n:stop": "cd automation/n8n && docker-compose down",
