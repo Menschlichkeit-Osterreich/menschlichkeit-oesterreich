@@ -421,3 +421,5 @@ docs/media/internal/
 backups/
 *.sql.gz
 *.tar.gz.bak
+.claude/
+.claude_pr_body.md
