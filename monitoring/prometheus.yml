@@ -24,10 +24,13 @@ scrape_configs:
 
   - job_name: 'fastapi'
     metrics_path: '/metrics'
+    params:
+      # ENABLE_METRICS=true muss in der API-Umgebung gesetzt sein
+      {}
     static_configs:
       - targets: ['host.docker.internal:8001']
-    # Nach Hinzufügen von prometheus-fastapi-instrumentator:
-    # pip install prometheus-fastapi-instrumentator
+    scrape_interval: 30s
+    # prometheus-fastapi-instrumentator implementiert (P2-9 erledigt)
 
   - job_name: 'blackbox-http'
     metrics_path: /probe
