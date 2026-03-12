@@ -2,28 +2,40 @@
 
 ## Project Overview
 
-An Austrian NGO platform providing democratic participation, education, and community engagement tools.
+An Austrian NGO platform providing democratic participation, social justice advocacy, education, and community engagement tools.
+
+**Domain:** menschlichkeit-oesterreich.at  
+**Server:** 5.183.217.146 (Plesk, Single Server)  
+**ZVR:** 1182213083 | **Gegründet:** 28. Mai 2025
+
+---
 
 ## Architecture
 
 - **Frontend** (`apps/website/`): React + TypeScript + Vite + Tailwind CSS (SPA)
 - **API** (`apps/api/`): Python FastAPI backend
-- **CRM** (`apps/crm/`): Drupal 10 + CiviCRM
-- **Website** (`website/`): Static HTML public website
-- **Design System** (`figma-design-system/`): Design tokens (JSON) used by Tailwind
+- **CRM** (`apps/crm/`): Drupal 10 + CiviCRM (Mitgliederverwaltung)
+- **Game** (`apps/game/`): Webgame
+- **Design System** (`figma-design-system/`): Figma Design Tokens (JSON) → Tailwind
+- **Automation** (`automation/n8n/`): n8n Workflows (30+, DSGVO, E-Mail, etc.)
+- **Monitoring**: Uptime Kuma + Prometheus + Grafana (Docker Compose definiert)
+
+---
 
 ## Brand Identity
 
-- Logo: `apps/website/public/logo.jpg` — red-orange gradient with white tree (Baum) and "Verein Menschlichkeit Österreich"
-- Primary brand color: red (#dc2626) to orange (#ea580c) gradient
-- Design tokens updated to use red primary palette (was sky-blue)
-- Austrian red-white brand colors
+- **Logo:** `apps/website/public/logo.jpg` — red-orange gradient with white tree (Baum) and "Verein Menschlichkeit Österreich"
+- **Primary brand color:** red (#dc2626) to orange (#ea580c) gradient
+- **Design tokens:** Updated primary palette to red (was sky-blue)
+- **NavBar:** Logo-Bild (40×40 kreisförmig) + "VEREIN / Menschlichkeit Österreich" Text
+- **Hero:** Full-width Brand-Gradient + Logo prominent (176×176 px, rounded-3xl)
+- **Login:** Split-Layout — Brand-Panel links (rot-orange Gradient + Logo), Formular rechts
+
+---
 
 ## Running the App
 
-The main workflow runs the React frontend:
-
-```
+```bash
 cd apps/website && npm run dev
 ```
 
@@ -31,36 +43,91 @@ cd apps/website && npm run dev
 - Port: `5000`
 - Configured in `apps/website/vite.config.ts`
 
+---
+
 ## Key Config Files
 
-- `apps/website/vite.config.ts` — Vite server config (port 5000, all hosts allowed)
-- `apps/website/tailwind.config.cjs` — Tailwind with Figma design tokens from `../../figma-design-system/00_design-tokens.json`
-- `apps/website/src/routes/ProtectedRoute.tsx` — Auth guard (default export)
-- `apps/website/src/styles/tokens.css` — CSS custom properties auto-generated from design tokens
-- `figma-design-system/00_design-tokens.json` — Source design tokens (primary color = red)
+| Datei | Zweck |
+|---|---|
+| `apps/website/vite.config.ts` | Port 5000, all hosts, allowedHosts: true |
+| `apps/website/tailwind.config.cjs` | Tailwind mit Tokens aus `../../figma-design-system/` |
+| `apps/website/src/routes/ProtectedRoute.tsx` | Auth guard (default export) |
+| `apps/website/src/styles/tokens.css` | CSS Custom Properties (primary = rot) |
+| `figma-design-system/00_design-tokens.json` | Design Tokens Quelle (primary = #dc2626) |
+| `.env.example` | Env-Template |
+| `docker-compose.monitoring.yml` | Monitoring Stack |
 
-## Key Components
+---
 
-- `apps/website/src/components/NavBar.tsx` — Sticky header with logo image, responsive nav, user dropdown
-- `apps/website/src/layouts/PublicLayout.tsx` — Shell with NavBar + dark 3-column footer with logo
-- `apps/website/src/pages/Home.tsx` — Hero with red-orange gradient + logo, stats bar, topic cards, CTA, footer
+## Key Components / Pages
 
-## Fixes Applied During Setup
+| Datei | Beschreibung |
+|---|---|
+| `apps/website/src/components/NavBar.tsx` | Sticky NavBar mit Logo, responsive, Dropdown |
+| `apps/website/src/layouts/PublicLayout.tsx` | Shell NavBar + dunkler 3-Spalten Footer |
+| `apps/website/src/layouts/AuthLayout.tsx` | Split-Panel: Brand links, Formular rechts |
+| `apps/website/src/layouts/DashboardLayout.tsx` | Sidebar (Mitglied/Admin rollenabhängig) |
+| `apps/website/src/pages/Home.tsx` | Hero rot-orange + Logo + Stats + Themenkarten + CTA |
+| `apps/website/src/pages/Login.tsx` | Login mit Passwort-Toggle + ZVR/Gründungsinfos |
+| `apps/website/src/auth/AuthContext.tsx` | JWT-Auth (sessionStorage: `moe_auth_token`) |
 
-1. Added `server` config to `vite.config.ts` for port 5000, host `0.0.0.0`, and `allowedHosts: true`
-2. Fixed `ProtectedRoute.tsx` — changed named export to default export to match `App.tsx` import
-3. Fixed `tailwind.config.cjs` path from `../figma-design-system/` to `../../figma-design-system/`
+---
+
+## Auth & RBAC
+
+- **JWT:** Gespeichert in `sessionStorage` unter `moe_auth_token`
+- **isAdmin:** Aktuell clientseitig via `VITE_ADMIN_EMAILS` (⚠️ P0: muss in JWT-Claims verlagert werden)
+- **Rollen:** `guest`, `member`, `moderator`, `admin`, `sysadmin`
+- **RBAC-Dokumentation:** `docs/security/rbac.md`
+
+---
+
+## Documentation
+
+| Dokument | Pfad |
+|---|---|
+| Plattform-Audit 2026 | `docs/architecture/plattform-audit-2026.md` |
+| RBAC-Matrix | `docs/security/rbac.md` |
+| Subdomain-Architektur | `docs/architecture/subdomain-matrix.md` |
+| E-Mail-Architektur | `docs/operations/mail-architecture.md` |
+| Monitoring-Matrix | `docs/operations/monitoring-matrix.md` |
+| Server-Hardening | `docs/security/hardening.md` |
+| DSGVO-Compliance | `docs/compliance/DSGVO-COMPLIANCE-BLUEPRINT.md` |
+
+---
+
+## Fixes Applied
+
+1. `vite.config.ts`: port 5000, host `0.0.0.0`, `allowedHosts: true`
+2. `ProtectedRoute.tsx`: named → default export
+3. `tailwind.config.cjs`: Pfad korrigiert zu `../../figma-design-system/`
+
+---
 
 ## Design Improvements
 
-1. Logo image added to NavBar and Hero section
-2. Brand primary colors changed from sky-blue to red (#dc2626) to match official logo
-3. Redesigned Home page: full-width red-orange hero with logo, stats bar, 6-topic cards, CTA banner, info cards
-4. Redesigned NavBar: logo + text branding, cleaner dropdown, better spacing
-5. Redesigned Footer: dark 3-column layout with logo, navigation, contact info
+1. **Brand-Farben:** Primärfarbe → Rot (#dc2626), Design Tokens aktualisiert
+2. **NavBar:** Logo-Bild + "VEREIN"-Label, Dropdown, Mitgliederbereich-Link
+3. **Home:** Full-width Brand-Hero mit Gradient, Logo, Stats-Bar, 6 Themenkarten, CTA
+4. **Footer:** Dunkles 3-Spalten-Layout mit Logo und Kontaktinfo
+5. **AuthLayout:** Split-Panel-Layout (Brand links, Formular rechts)
+6. **Login:** Passwort anzeigen/verstecken, "Passwort vergessen", "Jetzt Mitglied werden"
+7. **DashboardLayout:** Sticky Sidebar mit Rollen-abhängiger Navigation
+
+---
 
 ## Deployment
 
-Configured as a static site:
-- Build: `cd apps/website && npm run build`
-- Public dir: `apps/website/dist`
+Konfiguriert als Static Site:
+- **Build:** `cd apps/website && npm run build`
+- **Public dir:** `apps/website/dist`
+
+---
+
+## Critical TODOs (P0)
+
+1. Admin-Rollenprüfung ins FastAPI-Backend verlagern (JWT-Claims statt `VITE_ADMIN_EMAILS`)
+2. Plesk-Panel (Port 8443) auf IP-Whitelist einschränken
+3. SPF/DKIM/DMARC verifizieren und setzen
+4. Fail2ban aktivieren (SSH, HTTP, SMTP)
+5. Uptime Kuma starten: `docker compose -f docker-compose.monitoring.yml up -d uptime-kuma`
