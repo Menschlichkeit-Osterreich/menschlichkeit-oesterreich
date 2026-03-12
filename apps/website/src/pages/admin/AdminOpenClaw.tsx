@@ -382,7 +382,7 @@ export default function AdminOpenClaw() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
                 <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Personal Account</div>
-                <div className="text-xs text-gray-500">Token: {import.meta.env.VITE_GITHUB_TOKEN ? '✓ Konfiguriert' : '✗ Nicht gesetzt'}</div>
+                <div className="text-xs text-gray-500">Token: Serverseitig verwaltet</div>
                 <div className="text-xs text-gray-500 mt-1">Berechtigungen: repo, read:org</div>
               </div>
               <div className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg">

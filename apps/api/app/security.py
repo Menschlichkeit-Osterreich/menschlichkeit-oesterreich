@@ -52,6 +52,13 @@ def require_jwt_secret_configured() -> None:
 
 def enforce_csrf(request: Request) -> None:
     if request.method in {"POST", "PUT", "PATCH", "DELETE"}:
+        auth_header = request.headers.get("Authorization", "")
+        if auth_header.startswith("Bearer "):
+            return
+        if request.url.path.startswith("/api/"):
+            content_type = request.headers.get("Content-Type", "")
+            if "application/json" in content_type:
+                return
         csrf = request.headers.get("X-CSRF-Token")
         if not csrf:
             raise HTTPException(

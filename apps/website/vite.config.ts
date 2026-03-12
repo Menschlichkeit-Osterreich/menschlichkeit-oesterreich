@@ -9,13 +9,20 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    host: '0.0.0.0',
+    port: 5000,
+    allowedHosts: true,
+    strictPort: true,
+  },
   build: {
     sourcemap: false,
-    chunkSizeWarningLimit: 600,
+    chunkSizeWarningLimit: 1200,
     rollupOptions: {
       output: {
         manualChunks: {
           react: ['react', 'react-dom'],
+          three: ['three', '@react-three/fiber', '@react-three/drei'],
         },
       },
     },
