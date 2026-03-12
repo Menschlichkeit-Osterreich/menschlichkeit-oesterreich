@@ -87,6 +87,7 @@ cd apps/website && npm run dev
 
 | Dokument | Pfad |
 |---|---|
+| **Plattform-Gesamtanalyse** | `README_ANALYSIS.md` |
 | Plattform-Audit 2026 | `docs/architecture/plattform-audit-2026.md` |
 | RBAC-Matrix | `docs/security/rbac.md` |
 | Subdomain-Architektur | `docs/architecture/subdomain-matrix.md` |
