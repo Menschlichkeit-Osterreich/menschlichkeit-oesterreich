@@ -15,7 +15,7 @@ An Austrian NGO platform providing democratic participation, social justice advo
 - **Frontend** (`apps/website/`): React + TypeScript + Vite + Tailwind CSS (SPA)
 - **API** (`apps/api/`): Python FastAPI backend
 - **CRM** (`apps/crm/`): Drupal 10 + CiviCRM (Mitgliederverwaltung)
-- **Game** (`apps/game/`): Webgame
+- **Game** (`apps/game/`): "Brücken Bauen" — Interaktives Demokratie-Lernspiel (HTML/JS PWA, via Symlink in `public/game/` eingebunden)
 - **Design System** (`figma-design-system/`): Figma Design Tokens (JSON) → Tailwind
 - **Automation** (`automation/n8n/`): n8n Workflows (30+, DSGVO, E-Mail, etc.)
 - **Monitoring**: Uptime Kuma + Prometheus + Grafana (Docker Compose definiert)
@@ -69,6 +69,7 @@ cd apps/website && npm run dev
 | `apps/website/src/layouts/DashboardLayout.tsx` | Sidebar (Mitglied/Admin rollenabhängig) |
 | `apps/website/src/pages/Home.tsx` | Hero rot-orange + Logo + Stats + Themenkarten + CTA |
 | `apps/website/src/pages/Login.tsx` | Login mit Passwort-Toggle + ZVR/Gründungsinfos |
+| `apps/website/src/pages/Spiel.tsx` | Game-Landingpage mit Embed-Modal (iframe → `/game/index.html`) |
 | `apps/website/src/auth/AuthContext.tsx` | JWT-Auth (sessionStorage: `moe_auth_token`) |
 
 ---
