@@ -4,6 +4,28 @@
 # Multi-Technology Development Environment
 # ========================================
 
+# ── Deploy-Laufzeitdateien (niemals einchecken) ───────────────────
+# SSH Laufzeit-Keys (werden zur Laufzeit in ~/.ssh/ angelegt)
+# Sicherheitshalber auch lokal ignorieren:
+*.pem
+*.p12
+id_rsa
+id_ed25519
+id_ecdsa
+!*.pub
+# Deploy Logs
+.moe_deploy_logs/
+deploy_*.log
+# Deploy Lock
+/tmp/moe_deploy.lock
+# Build-Artefakte
+apps/website/dist/
+apps/website/.vite/
+# SSH-Temporärdateien
+/tmp/moe_ssh_*
+# Release-Marker (werden nur auf dem Server erzeugt, nicht lokal)
+.deploy_release
+
 #Ignore vscode AI rules
 .github\instructions\codacy.instructions.md
 

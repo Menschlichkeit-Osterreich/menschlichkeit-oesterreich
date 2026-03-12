@@ -37,3 +37,6 @@ externalPort = 80
 deploymentTarget = "static"
 build = ["bash", "-c", "cd apps/website && npm run build"]
 publicDir = "apps/website/dist"
+
+[objectStorage]
+defaultBucketID = "replit-objstore-a97440be-9297-4f5c-860c-222b90659f44"
