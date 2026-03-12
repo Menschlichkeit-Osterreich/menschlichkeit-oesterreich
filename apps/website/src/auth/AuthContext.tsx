@@ -2,9 +2,12 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from '
 import { api } from '../services/api';
 import { setUnauthorizedHandler } from '../services/http';
 
+type UserRole = 'guest' | 'member' | 'moderator' | 'admin' | 'sysadmin';
+
 type AuthState = {
   token: string | null;
   userEmail: string | null;
+  userRole: UserRole;
   isAdmin: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -14,48 +17,58 @@ const AuthContext = createContext<AuthState | undefined>(undefined);
 
 const STORAGE_KEY = 'moe_auth_token';
 
+interface JwtPayload {
+  sub?: string;
+  role?: UserRole;
+  [key: string]: unknown;
+}
+
+function parseJwtPayload(t?: string | null): JwtPayload | null {
+  if (!t) return null;
+  try {
+    const parts = t.split('.');
+    if (parts.length < 2) return null;
+    return JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+  } catch {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<UserRole>('guest');
 
   useEffect(() => {
     const t = sessionStorage.getItem(STORAGE_KEY);
-    if (t) setToken(t);
-    // Install global 401 handler
+    if (t) {
+      setToken(t);
+      const payload = parseJwtPayload(t);
+      setUserEmail(typeof payload?.sub === 'string' ? payload.sub : null);
+      setUserRole((payload?.role as UserRole) || 'member');
+    }
     setUnauthorizedHandler(() => {
       sessionStorage.removeItem(STORAGE_KEY);
       setToken(null);
       setUserEmail(null);
-      try { window.location.assign('/Login'); } catch { /* navigation fallback – ignore */ }
+      setUserRole('guest');
+      try { window.location.assign('/Login'); } catch { /* navigation fallback */ }
     });
     return () => setUnauthorizedHandler(null);
   }, []);
 
-  function parseEmailFromJwt(t?: string | null): string | null {
-    if (!t) return null;
-    try {
-      const parts = t.split('.');
-      if (parts.length < 2) return null;
-      const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
-      return typeof payload?.sub === 'string' ? payload.sub : null;
-    } catch {
-      return null;
-    }
-  }
-
   useEffect(() => {
-    setUserEmail(parseEmailFromJwt(token));
+    const payload = parseJwtPayload(token);
+    setUserEmail(typeof payload?.sub === 'string' ? payload.sub : null);
+    setUserRole((payload?.role as UserRole) || (token ? 'member' : 'guest'));
   }, [token]);
 
-  const adminList = (import.meta.env.VITE_ADMIN_EMAILS || '')
-    .split(',')
-    .map((s: string) => s.trim().toLowerCase())
-    .filter(Boolean);
-  const isAdmin = !!(userEmail && adminList.includes(userEmail.toLowerCase()));
+  const isAdmin = userRole === 'admin' || userRole === 'sysadmin';
 
   const value = useMemo<AuthState>(() => ({
     token,
     userEmail,
+    userRole,
     isAdmin,
     async login(email: string, password: string) {
       const res = await api.login(email, password);
@@ -63,14 +76,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!t) throw new Error('Kein Token erhalten');
       sessionStorage.setItem(STORAGE_KEY, t);
       setToken(t);
-      setUserEmail(parseEmailFromJwt(t));
+      const payload = parseJwtPayload(t);
+      setUserEmail(typeof payload?.sub === 'string' ? payload.sub : null);
+      setUserRole((payload?.role as UserRole) || 'member');
     },
     logout() {
       sessionStorage.removeItem(STORAGE_KEY);
       setToken(null);
       setUserEmail(null);
+      setUserRole('guest');
     },
-  }), [token, userEmail, isAdmin]);
+  }), [token, userEmail, userRole, isAdmin]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

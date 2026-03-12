@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import ProtectedRoute from './routes/ProtectedRoute';
+import AdminRoute from './routes/AdminRoute';
 import PublicLayout from './layouts/PublicLayout';
 import AuthLayout from './layouts/AuthLayout';
 import DashboardLayout from './layouts/DashboardLayout';
@@ -99,8 +100,8 @@ export default function App() {
               <Route path="/member/onboarding" element={<MemberOnboarding />} />
             </Route>
 
-            {/* ── Admin-Bereich ── */}
-            <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+            {/* ── Admin-Bereich (rollengeschützt) ── */}
+            <Route element={<AdminRoute><DashboardLayout /></AdminRoute>}>
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
               <Route path="/admin/vorstand" element={<BoardTreasurerDashboard />} />

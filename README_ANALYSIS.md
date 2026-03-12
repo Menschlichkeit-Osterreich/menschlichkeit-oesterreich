@@ -99,10 +99,13 @@ Das Monorepo umfasst **5 Dienste** (React-SPA, FastAPI, Drupal+CiviCRM, Demokrat
 | Aspekt | Ist-Zustand | Bewertung |
 |--------|-------------|-----------|
 | JWT-Speicherung | `sessionStorage` unter `moe_auth_token` | OK |
-| Admin-Check | Clientseitig via `VITE_ADMIN_EMAILS` | **P0-Sicherheitsrisiko** |
-| GitHub-Token | `VITE_GITHUB_TOKEN` in `AdminOpenClaw.tsx` | **P0-Sicherheitsrisiko** |
-| Rollen | guest, member, moderator, admin, sysadmin | Definiert, nicht backend-enforced |
-| Auth-Flow | Login → JWT → sessionStorage → ProtectedRoute | Funktional |
+| Admin-Check | JWT-Claims (`role`-Feld) vom Backend | **Behoben** (war clientseitig via `VITE_ADMIN_EMAILS`) |
+| GitHub-Token-Anzeige | Statischer Text in `AdminOpenClaw.tsx` | **Behoben** (kein Token-Leak mehr) |
+| Rollen | guest, member, moderator, admin, sysadmin | JWT-basiert, Backend setzt `role` bei Login |
+| Auth-Flow | Login → JWT (mit `role`) → sessionStorage → ProtectedRoute/AdminRoute | Funktional |
+| Admin-Routing | `AdminRoute` prüft `isAdmin` aus JWT-Claims | **Neu implementiert** |
+| ErrorBoundary | Globaler Error-Handler in `main.tsx` | **Neu implementiert** |
+| Cookie-Consent | DSGVO-konformes Cookie-Banner | **Neu implementiert** |
 
 ---
 
@@ -318,11 +321,14 @@ Vollständigere FastAPI-Instanz mit CiviCRM-Integration:
 
 ## 11. Sicherheit
 
-### 11.1 P0-Risiken (Offen)
-| Risiko | Datei | Beschreibung |
-|--------|-------|-------------|
-| **Admin-Check clientseitig** | `AuthContext.tsx` | `VITE_ADMIN_EMAILS` ist im JS-Bundle sichtbar; Admin-Prüfung muss ins Backend (JWT-Claims) |
-| **GitHub-Token im Bundle** | `AdminOpenClaw.tsx` | `VITE_GITHUB_TOKEN` ist im JS-Bundle sichtbar; muss über Backend-Proxy geleitet werden |
+### 11.1 P0-Risiken (Behoben)
+| Risiko | Datei | Status |
+|--------|-------|--------|
+| ~~Admin-Check clientseitig~~ | `AuthContext.tsx` | **Behoben:** Admin-Rolle wird aus JWT-Claims (`role`-Feld) gelesen, nicht mehr aus `VITE_ADMIN_EMAILS` |
+| ~~GitHub-Token im Bundle~~ | `AdminOpenClaw.tsx` | **Behoben:** `VITE_GITHUB_TOKEN`-Check entfernt, zeigt nur statischen Text |
+| ~~Kein Admin-Routenschutz~~ | `App.tsx` | **Behoben:** `AdminRoute` prüft `isAdmin` aus JWT, leitet Nicht-Admins um |
+| ~~Kein ErrorBoundary~~ | `main.tsx` | **Behoben:** Globaler `ErrorBoundary` fängt unbehandelte Fehler ab |
+| ~~Kein Cookie-Consent~~ | `main.tsx` | **Behoben:** DSGVO-konformes Cookie-Banner implementiert |
 
 ### 11.2 Bestehende Sicherheitsmaßnahmen
 - Security-Headers-Middleware (FastAPI)
@@ -466,7 +472,7 @@ Detaillierte Gap-Analyse: `reports/gov-gap-analysis.md`
 | Aspekt | Status |
 |--------|--------|
 | Bundle-Analyse | Nicht konfiguriert |
-| Lazy-Loading | Nicht implementiert (alle Routen eager) |
+| Lazy-Loading | Implementiert (alle Routen via `React.lazy()`) |
 | Image-Optimierung | Nicht systematisch |
 | Caching | Keine Cache-Headers definiert |
 | CDN | Nicht konfiguriert |
@@ -530,20 +536,18 @@ Detaillierte Gap-Analyse: `reports/gov-gap-analysis.md`
 ## 24. Priorisierte nächste Schritte
 
 ### P0 — Sofort (Sicherheitskritisch)
-1. **Admin-Rollenprüfung ins Backend:** `VITE_ADMIN_EMAILS` → JWT-Claims mit `role` Property
-2. **GitHub-Token-Proxy:** `VITE_GITHUB_TOKEN` → Backend-Endpunkt für OpenClaw-API-Aufrufe
-3. **Incident Response Plan:** DSGVO Art. 33 erfordert 72h-Meldepflicht
+1. ~~**Admin-Rollenprüfung ins Backend:**~~ **Erledigt** — JWT-Claims mit `role` Property
+2. ~~**GitHub-Token-Proxy:**~~ **Erledigt** — Token-Leak aus AdminOpenClaw entfernt
+3. ~~**AdminRoute:**~~ **Erledigt** — Rollenbasierter Admin-Routenschutz
+4. **Incident Response Plan:** DSGVO Art. 33 erfordert 72h-Meldepflicht (Dokumentation)
 
 ### P1 — Kurzfristig (Funktionalität)
-4. **Backend-Anbindung:** Mock-Daten in Admin/Member-Dashboards durch API-Calls ersetzen
-5. **PostgreSQL aktivieren:** Datenbank-Schema und Migrations erstellen
-6. **CiviCRM deployen:** Docker-basiertes CRM zum Laufen bringen
-7. **Cookie-Consent-Banner:** `CookieConsent.tsx` aus Figma-DS integrieren
-8. **ErrorBoundary:** Aus Figma-DS integrieren
+5. **Backend-Anbindung:** Mock-Daten in Admin/Member-Dashboards durch API-Calls ersetzen
+6. **PostgreSQL aktivieren:** Datenbank-Schema und Migrations erstellen
+7. **CiviCRM deployen:** Docker-basiertes CRM zum Laufen bringen
 
 ### P2 — Mittelfristig (Qualität)
-9. **Route Lazy-Loading:** Code-Splitting für alle Routen
-10. **Test-Coverage:** Unit-Tests für kritische Komponenten (Auth, SEPA, JoinForm)
+8. **Test-Coverage:** Unit-Tests für kritische Komponenten (Auth, SEPA, JoinForm)
 11. **Root-Cleanup:** Veraltete Markdown-Dateien archivieren
 12. **API-Konsolidierung:** Zwei API-Codebasen zusammenführen
 13. **Figma-Komponenten-Migration:** Beste 20 Komponenten aus `figma-design-system/` übernehmen
