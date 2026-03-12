@@ -52,11 +52,12 @@ export default function NavBar() {
       <NavLink to="/">Home</NavLink>
       <NavLink to="/mitglied-werden">Mitglied werden</NavLink>
       <NavLink to="/spenden">Spenden</NavLink>
+      <NavLink to="/forum">Forum</NavLink>
+      <NavLink to="/blog">Neuigkeiten</NavLink>
+      <NavLink to="/veranstaltungen">Veranstaltungen</NavLink>
       <NavLink to="/spiel">Demokratiespiel</NavLink>
-      <NavLink to="/statuten">Statuten</NavLink>
-      <NavLink to="/beitragsordnung">Beitragsordnung</NavLink>
       {token && <NavLink to="/member">Mitgliederbereich</NavLink>}
-      {token && isAdmin && <NavLink to="/admin/queue">Admin</NavLink>}
+      {token && isAdmin && <NavLink to="/admin">Admin</NavLink>}
     </>
   );
 

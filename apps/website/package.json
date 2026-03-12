@@ -19,6 +19,8 @@
   "dependencies": {
     "@paypal/paypal-js": "^9.0.1",
     "@paypal/react-paypal-js": "^8.9.2",
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
     "@stripe/react-stripe-js": "^5.2.0",
     "@stripe/stripe-js": "^8.1.0",
     "clsx": "^2.1.1",
@@ -28,7 +30,8 @@
     "react-dom": "^19.2.0",
     "react-router-dom": "^7.9.4",
     "recharts": "^3.3.0",
-    "tailwind-merge": "^3.3.1"
+    "tailwind-merge": "^3.3.1",
+    "three": "^0.183.2"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.10",
@@ -38,6 +41,7 @@
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.1",
     "@types/recharts": "^1.8.29",
+    "@types/three": "^0.183.1",
     "@typescript-eslint/eslint-plugin": "^8.46.1",
     "@typescript-eslint/parser": "^8.46.1",
     "@vitejs/plugin-react": "^5.0.4",

@@ -17,11 +17,12 @@ export default defineConfig({
   },
   build: {
     sourcemap: false,
-    chunkSizeWarningLimit: 600,
+    chunkSizeWarningLimit: 1200,
     rollupOptions: {
       output: {
         manualChunks: {
           react: ['react', 'react-dom'],
+          three: ['three', '@react-three/fiber', '@react-three/drei'],
         },
       },
     },

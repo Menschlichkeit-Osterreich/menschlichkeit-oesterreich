@@ -44,10 +44,12 @@ export default function PublicLayout() {
                 {[
                   { to: '/mitglied-werden', label: 'Mitglied werden' },
                   { to: '/spenden', label: 'Spenden' },
+                  { to: '/forum', label: 'Forum' },
+                  { to: '/blog', label: 'Neuigkeiten' },
+                  { to: '/veranstaltungen', label: 'Veranstaltungen' },
                   { to: '/statuten', label: 'Statuten' },
                   { to: '/beitragsordnung', label: 'Beitragsordnung' },
                   { to: '/ueber-uns', label: 'Über uns' },
-                  { to: '/veranstaltungen', label: 'Veranstaltungen' },
                 ].map((l) => (
                   <Link
                     key={l.to}

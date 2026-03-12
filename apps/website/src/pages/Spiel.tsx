@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import Game3DScene from '../components/game/Game3DScene';
 
 const GAME_FEATURES = [
   {
@@ -117,16 +118,8 @@ export default function SpielPage() {
               </div>
             </div>
 
-            <div className="flex-shrink-0 w-64 h-64 md:w-80 md:h-80 relative">
-              <div className="absolute inset-0 bg-white/10 rounded-3xl backdrop-blur-sm border border-white/20 shadow-2xl flex flex-col items-center justify-center gap-4 p-6">
-                <div className="text-7xl md:text-8xl">🌉</div>
-                <div className="text-white font-bold text-lg text-center">Demokratiespiel</div>
-                <div className="flex gap-2">
-                  {['💙', '⚖️', '🤝', '🦁'].map((e, i) => (
-                    <span key={i} className="text-2xl bg-white/20 rounded-lg p-1.5">{e}</span>
-                  ))}
-                </div>
-              </div>
+            <div className="flex-shrink-0 w-full md:w-96 relative">
+              <Game3DScene progress={65} onInteract={() => setShowEmbed(true)} />
             </div>
           </div>
         </div>

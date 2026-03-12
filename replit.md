@@ -13,9 +13,9 @@ An Austrian NGO platform providing democratic participation, social justice advo
 ## Architecture
 
 - **Frontend** (`apps/website/`): React + TypeScript + Vite + Tailwind CSS (SPA)
-- **API** (`apps/api/`): Python FastAPI backend
+- **API** (`apps/api/`): Python FastAPI backend with JWT auth + server-side RBAC
 - **CRM** (`apps/crm/`): Drupal 10 + CiviCRM (Mitgliederverwaltung)
-- **Game** (`apps/game/`): "Brücken Bauen" — Interaktives Demokratie-Lernspiel (HTML/JS PWA, via Symlink in `public/game/` eingebunden)
+- **Game** (`apps/game/`): "Brücken Bauen" — Interaktives Demokratie-Lernspiel (HTML/JS PWA)
 - **Design System** (`figma-design-system/`): Figma Design Tokens (JSON) → Tailwind
 - **Automation** (`automation/n8n/`): n8n Workflows (30+, DSGVO, E-Mail, etc.)
 - **Monitoring**: Uptime Kuma + Prometheus + Grafana (Docker Compose definiert)
@@ -43,6 +43,11 @@ cd apps/website && npm run dev
 - Port: `5000`
 - Configured in `apps/website/vite.config.ts`
 
+API:
+```bash
+cd apps/api && uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
 ---
 
 ## Key Config Files
@@ -53,6 +58,8 @@ cd apps/website && npm run dev
 | `apps/website/tailwind.config.cjs` | Tailwind mit Tokens aus `../../figma-design-system/` |
 | `apps/website/src/routes/ProtectedRoute.tsx` | Auth guard (default export) |
 | `apps/website/src/styles/tokens.css` | CSS Custom Properties (primary = rot) |
+| `apps/website/src/config/email.ts` | Zentrale E-Mail + Governance Konstanten |
+| `apps/api/app/email_config.py` | Backend E-Mail + Org Konstanten |
 | `figma-design-system/00_design-tokens.json` | Design Tokens Quelle (primary = #dc2626) |
 | `.env.example` | Env-Template |
 | `docker-compose.monitoring.yml` | Monitoring Stack |
@@ -69,17 +76,41 @@ cd apps/website && npm run dev
 | `apps/website/src/layouts/DashboardLayout.tsx` | Sidebar (Mitglied/Admin rollenabhängig) |
 | `apps/website/src/pages/Home.tsx` | Hero rot-orange + Logo + Stats + Themenkarten + CTA |
 | `apps/website/src/pages/Login.tsx` | Login mit Passwort-Toggle + ZVR/Gründungsinfos |
-| `apps/website/src/pages/Spiel.tsx` | Game-Landingpage mit Embed-Modal (iframe → `/game/index.html`) |
+| `apps/website/src/pages/Register.tsx` | Registrierung mit Mitgliedschaftswahl |
+| `apps/website/src/pages/PasswordReset.tsx` | Passwort-Zurücksetzen Flow |
+| `apps/website/src/pages/ForumPage.tsx` | Forum: Threads, Kategorien, Erstellen |
+| `apps/website/src/pages/ForumThread.tsx` | Forum: Thread-Detail mit Antworten |
+| `apps/website/src/pages/BlogPage.tsx` | Blog/Neuigkeiten: Artikel-Grid |
+| `apps/website/src/pages/BlogArticle.tsx` | Blog: Artikel-Detail mit SEO |
+| `apps/website/src/pages/Spiel.tsx` | Game-Landingpage mit WebGL 3D-Szene |
+| `apps/website/src/components/game/Game3DScene.tsx` | WebGL 3D Brücken-Visualisierung |
 | `apps/website/src/auth/AuthContext.tsx` | JWT-Auth (sessionStorage: `moe_auth_token`) |
+| `apps/website/src/services/dashboard-api.ts` | Frontend API Service Layer |
+
+---
+
+## API Routers
+
+| Router | Prefix | Endpunkte |
+|---|---|---|
+| `auth.py` | `/auth` | login, register, password-reset |
+| `members.py` | `/members` | CRUD, profile |
+| `forum.py` | `/forum` | categories, threads, posts |
+| `blog.py` | `/blog` | articles CRUD |
+| `events.py` | `/events` | CRUD, RSVP |
+| `roles.py` | `/roles` | list, assign |
+| `finance.py` | `/finance` | overview, invoices |
+| `metrics.py` | (various) | KPIs, timeseries, donations |
 
 ---
 
 ## Auth & RBAC
 
 - **JWT:** Gespeichert in `sessionStorage` unter `moe_auth_token`, enthält `role`-Claim
+- **Server-side RBAC:** `apps/api/app/rbac.py` — `require_role()` FastAPI dependency
 - **isAdmin:** Aus JWT-Claims (`role === 'admin' || role === 'sysadmin'`), serverseitig gesetzt via `ADMIN_EMAILS` Env-Variable
 - **AdminRoute:** `routes/AdminRoute.tsx` — prüft `isAdmin` aus JWT, leitet Nicht-Admins um
-- **Rollen:** `guest`, `member`, `moderator`, `admin`, `sysadmin`
+- **Rollen (aufsteigend):** `guest < member < moderator < admin < sysadmin`
 - **ErrorBoundary:** Globaler Error-Handler in `main.tsx`
 - **Cookie-Consent:** DSGVO-konformes Banner in `main.tsx`
 - **RBAC-Dokumentation:** `docs/security/rbac.md`
@@ -90,6 +121,9 @@ cd apps/website && npm run dev
 
 | Dokument | Pfad |
 |---|---|
+| **Implementierungsprotokoll** | `README_IMPLEMENTATION_LOG.md` |
+| **Deployment-Anleitung** | `README_DEPLOY.md` |
+| **Governance-Kontext** | `README_GOVERNANCE_CONTEXT.md` |
 | **Plattform-Gesamtanalyse** | `README_ANALYSIS.md` |
 | Plattform-Audit 2026 | `docs/architecture/plattform-audit-2026.md` |
 | RBAC-Matrix | `docs/security/rbac.md` |
@@ -101,29 +135,14 @@ cd apps/website && npm run dev
 
 ---
 
-## Fixes Applied
-
-1. `vite.config.ts`: port 5000, host `0.0.0.0`, `allowedHosts: true`
-2. `ProtectedRoute.tsx`: named → default export
-3. `tailwind.config.cjs`: Pfad korrigiert zu `../../figma-design-system/`
-
----
-
-## Design Improvements
-
-1. **Brand-Farben:** Primärfarbe → Rot (#dc2626), Design Tokens aktualisiert
-2. **NavBar:** Logo-Bild + "VEREIN"-Label, Dropdown, Mitgliederbereich-Link
-3. **Home:** Full-width Brand-Hero mit Gradient, Logo, Stats-Bar, 6 Themenkarten, CTA
-4. **Footer:** Dunkles 3-Spalten-Layout mit Logo und Kontaktinfo
-5. **AuthLayout:** Split-Panel-Layout (Brand links, Formular rechts)
-6. **Login:** Passwort anzeigen/verstecken, "Passwort vergessen", "Jetzt Mitglied werden"
-7. **DashboardLayout:** Sticky Sidebar mit Rollen-abhängiger Navigation
-
----
-
 ## Deployment
 
-Konfiguriert als Static Site:
+Scripts in `scripts/`:
+- `deploy.sh` — Full deploy: Build + rsync to Plesk
+- `validate_env.sh` — Validate all env vars
+- `post_deploy_verify.sh` — Post-deploy health checks
+
+Static Site Build:
 - **Build:** `cd apps/website && npm run build`
 - **Public dir:** `apps/website/dist`
 
@@ -137,15 +156,17 @@ All UI texts, fees, roles, addresses, and official data normalized against:
 - **Beitragsordnung 2025** (gültig ab 01.07.2025)
 
 Key corrections applied:
-- Beiträge: €36 Standard, €18 Ermäßigt, €0 Härtefall (was: €60/€24)
-- Mitgliedschaftsarten: ordentlich, außerordentlich, Ehrenmitglieder (removed: Förderndes Mitglied)
-- Rollenbezeichnung: Obperson (was: Obmann/Obfrau)
-- Vereinsorgan: Mitgliederversammlung (was: Generalversammlung)
-- Vorstand: Obperson + Stellv. + Kassier*in; Funktionsperiode bis 5 Jahre (was: 2 Jahre)
-- E-Mail: kontakt@menschlichkeit-oesterreich.at (was: outlook.at / office@)
-- Adresse: Pottenbrunner Hauptstraße 108/Top 1, 3140 Pottenbrunn (was: St. Pölten / Wien)
-- Vereinsbehörde: LPD Niederösterreich (was: BH St. Pölten)
-- ZVR/Registerdaten in API invoice_service.py korrigiert
+- Beiträge: €36 Standard, €18 Ermäßigt, €0 Härtefall
+- Mitgliedschaftsarten: ordentlich, außerordentlich, Ehrenmitglieder
+- Rollenbezeichnung: Obperson (not Obmann/Obfrau)
+- Vereinsorgan: Mitgliederversammlung (not Generalversammlung)
+- E-Mail: kontakt@menschlichkeit-oesterreich.at
+- Adresse: Pottenbrunner Hauptstraße 108/Top 1, 3140 Pottenbrunn
+- Vereinsbehörde: LPD Niederösterreich
+
+Email config centralized in:
+- Backend: `apps/api/app/email_config.py`
+- Frontend: `apps/website/src/config/email.ts`
 
 ---
 

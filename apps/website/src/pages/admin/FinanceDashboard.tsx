@@ -1,4 +1,5 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
+import { dashboardApi } from '../../services/dashboard-api';
 
 // ── Typen ──────────────────────────────────────────────────────────────────────
 
@@ -180,60 +181,72 @@ const StatusBadge: React.FC<{ status: Transaction['status'] }> = ({ status }) =>
 const FinanceDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'overview' | 'transactions' | 'invoices' | 'donations' | 'accounting'>('overview');
   const [selectedYear, setSelectedYear] = useState(2026);
-  const [selectedMonth, _setSelectedMonth] = useState<number | null>(null);
-  const [isExporting, setIsExporting] = useState(false);
   const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'open' | 'overdue'>('all');
+  const [kpis, setKpis] = useState<KPI[]>(MOCK_KPIs);
+  const [monthly, setMonthly] = useState<MonthlyData[]>(MOCK_MONTHLY);
+  const [transactions, setTransactions] = useState<Transaction[]>(MOCK_TRANSACTIONS);
+  const [campaigns, setCampaigns] = useState<DonationCampaign[]>(MOCK_CAMPAIGNS);
+  const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
 
-  const filteredTransactions = MOCK_TRANSACTIONS.filter(
+  useEffect(() => {
+    loadFinanceData();
+  }, []);
+
+  async function loadFinanceData() {
+    setLoading(true);
+    setApiError(null);
+    try {
+      const [finRes, invRes] = await Promise.allSettled([
+        dashboardApi.getFinanceOverview(),
+        dashboardApi.getInvoices(),
+      ]);
+
+      if (finRes.status === 'fulfilled' && finRes.value?.data) {
+        const d = finRes.value.data;
+        setKpis([
+          { label: 'Jahreseinnahmen', value: formatCurrency((d.einnahmen_jahr_cents || 0) / 100), change: 0, changeLabel: selectedYear.toString(), icon: '\uD83D\uDCC8', color: 'green' },
+          { label: 'Jahresausgaben', value: formatCurrency((d.ausgaben_jahr_cents || 0) / 100), change: 0, changeLabel: selectedYear.toString(), icon: '\uD83D\uDCC9', color: 'red' },
+          { label: 'Jahresergebnis', value: formatCurrency((d.saldo_jahr_cents || 0) / 100), change: 0, changeLabel: 'Saldo', icon: '\uD83D\uDCB0', color: 'blue' },
+          { label: 'Offene Rechnungen', value: String(d.offene_rechnungen || 0), change: 0, changeLabel: 'Rechnungen', icon: '\uD83D\uDCCB', color: 'yellow' },
+          { label: '\u00DCberf\u00E4llige Rechnungen', value: String(d.ueberfaellige_rechnungen || 0), change: 0, changeLabel: 'Rechnungen', icon: '\u26A0\uFE0F', color: 'red' },
+          { label: 'Monatseinnahmen', value: formatCurrency((d.einnahmen_monat_cents || 0) / 100), change: 0, changeLabel: 'Aktueller Monat', icon: '\uD83D\uDCB5', color: 'green' },
+          { label: 'Monatsausgaben', value: formatCurrency((d.ausgaben_monat_cents || 0) / 100), change: 0, changeLabel: 'Aktueller Monat', icon: '\uD83D\uDCB8', color: 'red' },
+          { label: 'Monatssaldo', value: formatCurrency((d.saldo_monat_cents || 0) / 100), change: 0, changeLabel: 'Aktueller Monat', icon: '\uD83C\uDFE6', color: 'blue' },
+        ]);
+      }
+
+      if (invRes.status === 'fulfilled' && invRes.value?.data) {
+        setTransactions(invRes.value.data.map((inv: any) => ({
+          id: inv.id || '',
+          date: inv.date || inv.datum || '',
+          description: inv.description || inv.beschreibung || '',
+          amount: (inv.amount_cents || inv.amount || 0) / 100,
+          type: inv.type || (inv.amount_cents > 0 ? 'income' : 'expense'),
+          category: inv.category || inv.kategorie || 'sonstiges',
+          status: inv.status || 'open',
+          invoice_number: inv.invoice_number || inv.rechnungsnummer || undefined,
+        })));
+      }
+
+      const allFailed = finRes.status === 'rejected' && invRes.status === 'rejected';
+      const anyFailed = finRes.status === 'rejected' || invRes.status === 'rejected';
+      if (allFailed) {
+        setApiError('Verbindung zur API nicht m\u00F6glich \u2013 Beispieldaten werden angezeigt.');
+      } else if (anyFailed) {
+        setApiError('Einige Daten konnten nicht geladen werden \u2013 teilweise Beispieldaten.');
+      }
+    } catch {
+      setApiError('Verbindung zur API nicht m\u00F6glich \u2013 Beispieldaten werden angezeigt.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const filteredTransactions = transactions.filter(
     tx => filterStatus === 'all' || tx.status === filterStatus
   );
 
-  const handleExportDATEV = useCallback(async () => {
-    setIsExporting(true);
-    try {
-      const response = await fetch('/api/finance/accounting/datev-export', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ year: selectedYear, month: selectedMonth }),
-      });
-      if (!response.ok) throw new Error('Export fehlgeschlagen');
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `datev-export-${selectedYear}${selectedMonth ? `-${String(selectedMonth).padStart(2, '0')}` : ''}.csv`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('DATEV Export Fehler:', error);
-      alert('Export fehlgeschlagen. Bitte versuchen Sie es erneut.');
-    } finally {
-      setIsExporting(false);
-    }
-  }, [selectedYear, selectedMonth]);
-
-  const handleExportEAR = useCallback(async () => {
-    setIsExporting(true);
-    try {
-      const response = await fetch('/api/finance/accounting/ear-report-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ year: selectedYear }),
-      });
-      if (!response.ok) throw new Error('Export fehlgeschlagen');
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `ear-bericht-${selectedYear}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('E/A-Bericht Export Fehler:', error);
-    } finally {
-      setIsExporting(false);
-    }
-  }, [selectedYear]);
 
   const tabs = [
     { id: 'overview', label: '📊 Übersicht' },
@@ -259,20 +272,6 @@ const FinanceDashboard: React.FC = () => {
           >
             {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
           </select>
-          <button
-            onClick={handleExportDATEV}
-            disabled={isExporting}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
-          >
-            {isExporting ? '⏳ Exportiere...' : '⬇️ DATEV Export'}
-          </button>
-          <button
-            onClick={handleExportEAR}
-            disabled={isExporting}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50 transition-colors"
-          >
-            {isExporting ? '⏳ Exportiere...' : '📄 E/A-Bericht PDF'}
-          </button>
         </div>
       </div>
 
@@ -296,9 +295,14 @@ const FinanceDashboard: React.FC = () => {
       {/* Übersicht */}
       {activeTab === 'overview' && (
         <div className="space-y-6">
+          {apiError && (
+            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+              {apiError}
+            </div>
+          )}
           {/* KPI-Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {MOCK_KPIs.map((kpi, i) => <KPICard key={i} kpi={kpi} />)}
+            {kpis.map((kpi, i) => <KPICard key={i} kpi={kpi} />)}
           </div>
 
           {/* Charts */}
@@ -310,13 +314,13 @@ const FinanceDashboard: React.FC = () => {
                 <span className="flex items-center gap-1"><span className="w-3 h-3 bg-green-400 rounded inline-block" /> Einnahmen</span>
                 <span className="flex items-center gap-1"><span className="w-3 h-3 bg-red-400 rounded inline-block" /> Ausgaben</span>
               </div>
-              <BarChart data={MOCK_MONTHLY} />
+              <BarChart data={monthly} />
             </div>
 
             {/* Spendenkampagnen */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
               <h2 className="text-base font-semibold text-gray-900 mb-4">Aktive Spendenkampagnen</h2>
-              {MOCK_CAMPAIGNS.map((c, i) => <CampaignProgress key={i} campaign={c} />)}
+              {campaigns.map((c, i) => <CampaignProgress key={i} campaign={c} />)}
             </div>
           </div>
 
@@ -335,7 +339,7 @@ const FinanceDashboard: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {MOCK_TRANSACTIONS.slice(0, 5).map(tx => (
+                  {transactions.slice(0, 5).map(tx => (
                     <tr key={tx.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                       <td className="py-3 text-gray-500">{formatDate(tx.date)}</td>
                       <td className="py-3 text-gray-900">{tx.description}</td>
@@ -473,27 +477,11 @@ const FinanceDashboard: React.FC = () => {
             </table>
           </div>
 
-          {/* Export-Aktionen */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
             <h2 className="text-base font-semibold text-gray-900 mb-4">Exporte & Berichte</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {[
-                { label: 'DATEV CSV Export', icon: '📊', action: handleExportDATEV, color: 'blue' },
-                { label: 'E/A-Bericht PDF', icon: '📄', action: handleExportEAR, color: 'green' },
-                { label: 'Jahresbericht PDF', icon: '📋', action: () => {}, color: 'purple' },
-                { label: 'SEPA XML Export', icon: '🏦', action: () => {}, color: 'orange' },
-              ].map((btn, i) => (
-                <button
-                  key={i}
-                  onClick={btn.action}
-                  disabled={isExporting}
-                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-${btn.color}-200 bg-${btn.color}-50 hover:bg-${btn.color}-100 transition-colors disabled:opacity-50`}
-                >
-                  <span className="text-2xl">{btn.icon}</span>
-                  <span className="text-xs font-medium text-gray-700 text-center">{btn.label}</span>
-                </button>
-              ))}
-            </div>
+            <p className="text-sm text-gray-500">
+              Export-Funktionen (DATEV, E/A-Bericht, SEPA) werden in einer zukünftigen Version verfügbar sein.
+            </p>
           </div>
         </div>
       )}
