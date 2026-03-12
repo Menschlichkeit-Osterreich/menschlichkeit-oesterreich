@@ -52,6 +52,7 @@ export default function NavBar() {
       <NavLink to="/">Home</NavLink>
       <NavLink to="/mitglied-werden">Mitglied werden</NavLink>
       <NavLink to="/spenden">Spenden</NavLink>
+      <NavLink to="/spiel">Demokratiespiel</NavLink>
       <NavLink to="/statuten">Statuten</NavLink>
       <NavLink to="/beitragsordnung">Beitragsordnung</NavLink>
       {token && <NavLink to="/member">Mitgliederbereich</NavLink>}

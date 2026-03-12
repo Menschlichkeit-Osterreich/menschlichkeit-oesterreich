@@ -22,6 +22,7 @@ const SuccessPage             = React.lazy(() => import('./pages/Success'));
 const KontaktPage             = React.lazy(() => import('./pages/Kontakt'));
 const ImpressumPage           = React.lazy(() => import('./pages/Impressum'));
 const DatenschutzPage         = React.lazy(() => import('./pages/Datenschutz'));
+const SpielPage               = React.lazy(() => import('./pages/Spiel'));
 const NotFoundPage            = React.lazy(() => import('./pages/NotFound'));
 
 // ── Lazy Imports (Mitgliederbereich) ────────────────────────────────────────
@@ -78,6 +79,7 @@ export default function App() {
               <Route path="/mitglied-werden" element={<JoinPage />} />
               <Route path="/spenden" element={<DonatePage />} />
               <Route path="/erfolg" element={<SuccessPage />} />
+              <Route path="/spiel" element={<SpielPage />} />
               <Route path="/kontakt" element={<KontaktPage />} />
               <Route path="/impressum" element={<ImpressumPage />} />
               <Route path="/datenschutz" element={<DatenschutzPage />} />
