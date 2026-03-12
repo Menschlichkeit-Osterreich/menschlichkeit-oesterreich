@@ -125,6 +125,26 @@ Konfiguriert als Static Site:
 
 ---
 
+## Governance Normalization (Completed)
+
+All UI texts, fees, roles, addresses, and official data normalized against:
+- **Statuten** (Beschluss 21.05.2025)
+- **Vereinsregisterauszug** (ZVR: 1182213083)
+- **Beitragsordnung 2025** (gültig ab 01.07.2025)
+
+Key corrections applied:
+- Beiträge: €36 Standard, €18 Ermäßigt, €0 Härtefall (was: €60/€24)
+- Mitgliedschaftsarten: ordentlich, außerordentlich, Ehrenmitglieder (removed: Förderndes Mitglied)
+- Rollenbezeichnung: Obperson (was: Obmann/Obfrau)
+- Vereinsorgan: Mitgliederversammlung (was: Generalversammlung)
+- Vorstand: Obperson + Stellv. + Kassier*in; Funktionsperiode bis 5 Jahre (was: 2 Jahre)
+- E-Mail: kontakt@menschlichkeit-oesterreich.at (was: outlook.at / office@)
+- Adresse: Pottenbrunner Hauptstraße 108/Top 1, 3140 Pottenbrunn (was: St. Pölten / Wien)
+- Vereinsbehörde: LPD Niederösterreich (was: BH St. Pölten)
+- ZVR/Registerdaten in API invoice_service.py korrigiert
+
+---
+
 ## Critical TODOs (P0)
 
 1. Admin-Rollenprüfung ins FastAPI-Backend verlagern (JWT-Claims statt `VITE_ADMIN_EMAILS`)

@@ -68,7 +68,7 @@ const ACTIVITIES: Activity[] = [
 ];
 
 const UPCOMING_EVENTS = [
-  { title: 'Generalversammlung 2026', date: '2026-03-15', location: 'Wien, Rathaus', type: 'Pflichtveranstaltung' },
+  { title: 'Mitgliederversammlung 2026', date: '2026-03-15', location: 'Wien, Rathaus', type: 'Pflichtveranstaltung' },
   { title: 'Demokratie-Workshop', date: '2026-03-22', location: 'Graz, Online', type: 'Workshop' },
   { title: 'Sommerfest Menschlichkeit', date: '2026-06-21', location: 'Wien, Stadtpark', type: 'Social' },
 ];
@@ -160,7 +160,7 @@ export default function MemberDashboard() {
             <a href="/admin/events" className="bg-gradient-to-br from-green-500 to-green-700 text-white rounded-xl p-5 hover:shadow-lg transition-shadow">
               <div className="text-3xl mb-2">📅</div>
               <div className="font-semibold">Nächstes Event</div>
-              <div className="text-green-200 text-xs mt-1">Generalversammlung · 15. März</div>
+              <div className="text-green-200 text-xs mt-1">Mitgliederversammlung · 15. März</div>
             </a>
             <a href="/bildung" className="bg-gradient-to-br from-purple-500 to-purple-700 text-white rounded-xl p-5 hover:shadow-lg transition-shadow">
               <div className="text-3xl mb-2">📚</div>
@@ -231,7 +231,7 @@ export default function MemberDashboard() {
                 { label: 'Mitgliedstyp', value: PROFILE.memberType },
                 { label: 'Mitglied seit', value: new Date(PROFILE.memberSince).toLocaleDateString('de-AT') },
                 { label: 'Mitgliedsnummer', value: 'MÖ-2024-0042' },
-                { label: 'Beitrag', value: '€ 60,- / Jahr' },
+                { label: 'Beitrag', value: '€ 36,– / Jahr' },
               ].map(i => (
                 <div key={i.label} className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                   <div className="text-xs text-gray-500 dark:text-gray-400">{i.label}</div>

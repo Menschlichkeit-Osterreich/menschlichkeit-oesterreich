@@ -77,7 +77,7 @@ export default function LoginPage() {
             <button
               type="button"
               className="text-xs text-primary-600 hover:text-primary-800 font-medium transition-colors"
-              onClick={() => alert('Bitte kontaktiere office@menschlichkeit-oesterreich.at')}
+              onClick={() => alert('Bitte kontaktiere kontakt@menschlichkeit-oesterreich.at')}
             >
               Passwort vergessen?
             </button>

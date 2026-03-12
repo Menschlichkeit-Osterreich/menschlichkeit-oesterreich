@@ -12,16 +12,15 @@ interface JoinFormData {
   phone: string;
   postal_code: string;
   city: string;
-  membership_type: 'standard' | 'ermaessigt' | 'haertefall' | 'foerdernd';
+  membership_type: 'standard' | 'ermaessigt' | 'haertefall';
   consent_newsletter: boolean;
   consent_dsgvo: boolean;
 }
 
 const MEMBERSHIP_TYPES: { value: JoinFormData['membership_type']; label: string; price: string; type_id: number }[] = [
-  { value: 'standard', label: 'Ordentliches Mitglied (Standard)', price: '€ 60,– / Jahr', type_id: 1 },
-  { value: 'ermaessigt', label: 'Ordentliches Mitglied (Ermäßigt)', price: '€ 24,– / Jahr', type_id: 2 },
+  { value: 'standard', label: 'Ordentliches Mitglied (Standard)', price: '€ 36,– / Jahr (€ 3,– / Monat)', type_id: 1 },
+  { value: 'ermaessigt', label: 'Ordentliches Mitglied (Ermäßigt)', price: '€ 18,– / Jahr (€ 1,50 / Monat)', type_id: 2 },
   { value: 'haertefall', label: 'Ordentliches Mitglied (Härtefall)', price: '€ 0,– / Jahr', type_id: 3 },
-  { value: 'foerdernd', label: 'Förderndes Mitglied', price: 'ab € 120,– / Jahr', type_id: 4 },
 ];
 
 export function CiviJoinForm({ onSuccess }: { onSuccess?: () => void }) {

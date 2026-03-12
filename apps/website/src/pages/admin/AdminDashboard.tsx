@@ -29,7 +29,7 @@ const MOCK_KPIS: KPI[] = [
 
 const MOCK_ACTIVITIES: Activity[] = [
   { id: 1, type: 'member', text: 'Neues Mitglied: Maria Müller', time: 'vor 5 Min.', icon: '👤' },
-  { id: 2, type: 'payment', text: 'Zahlung erhalten: € 60 (Jahresbeitrag)', time: 'vor 12 Min.', icon: '💳' },
+  { id: 2, type: 'payment', text: 'Zahlung erhalten: € 36 (Jahresbeitrag)', time: 'vor 12 Min.', icon: '💳' },
   { id: 3, type: 'donation', text: 'Spende: € 100 von anonymem Spender', time: 'vor 1 Std.', icon: '🎁' },
   { id: 4, type: 'member', text: 'Mitglied gekündigt: Hans Huber', time: 'vor 2 Std.', icon: '👤' },
   { id: 5, type: 'event', text: 'Anmeldung: Demokratie-Workshop (15 Teiln.)', time: 'vor 3 Std.', icon: '📅' },
