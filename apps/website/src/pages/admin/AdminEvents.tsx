@@ -13,7 +13,7 @@ interface Event {
 
 const MOCK_EVENTS: Event[] = [
   { id: 1, title: 'Demokratie-Workshop: Bürgerrechte', date: '2026-03-15', location: 'Wien, Rathaus', capacity: 40, registered: 28, status: 'upcoming', type: 'workshop' },
-  { id: 2, title: 'Generalversammlung 2026', date: '2026-03-22', location: 'Online (Zoom)', capacity: 200, registered: 87, status: 'upcoming', type: 'meeting' },
+  { id: 2, title: 'Mitgliederversammlung 2026', date: '2026-03-22', location: 'Online (Zoom)', capacity: 200, registered: 87, status: 'upcoming', type: 'meeting' },
   { id: 3, title: 'Webinar: Digitale Demokratie', date: '2026-04-05', location: 'Online', capacity: 100, registered: 45, status: 'upcoming', type: 'webinar' },
   { id: 4, title: 'Frühjahrsfest der Menschlichkeit', date: '2026-04-20', location: 'Graz, Stadtpark', capacity: 150, registered: 62, status: 'upcoming', type: 'social' },
   { id: 5, title: 'Workshop: Klimagerechtigkeit', date: '2026-02-10', location: 'Salzburg', capacity: 30, registered: 30, status: 'past', type: 'workshop' },

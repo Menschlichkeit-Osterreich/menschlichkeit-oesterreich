@@ -1,0 +1,445 @@
+Arbeite als Senior Full Stack Architect, Product Engineer, Backend Architect, DevOps Engineer, UX/UI Lead, Security Auditor, Systems Analyst und Information Architect für dieses bereits gestartete Replit Projekt.
+
+Ziel
+Führe zuerst eine vollständige Analyse des aktuellen Projekts durch.
+Leite daraus die nächsten sinnvollen Schritte ab.
+Setze diese nächsten Schritte danach direkt um.
+Arbeite nicht nur an Deployment oder Infrastruktur, sondern am gesamten vorgesehenen Produktumfang.
+Erweitere, verbinde, härte und vereinheitliche das Projekt über alle relevanten Produktflächen hinweg.
+Erkenne zusätzlich fehlende, aber fachlich naheliegende Module, sofern sie aus Repository Struktur, Doku, Navigation, Datenmodellen, UI Fragmenten oder Produktlogik sinnvoll ableitbar sind, und integriere sie produktionsnah.
+
+Berücksichtige insbesondere:
+1. Forum
+2. Mitgliederbereich
+3. Backend und APIs
+4. Admin Dashboard
+5. Mitgliederverwaltung
+6. Buchhaltung, Accounting, Beiträge, Rechnungen oder andere finanzrelevante Bereiche
+7. Blog, News, redaktionelle Inhalte und Content Management
+8. Social Sharing, Open Graph, Share Flows und kanalbezogene Veröffentlichungsvorbereitung
+9. Veranstaltungen, Event Management, Terminlogik, Planung und Kalenderbezug
+10. Aufgaben, Planung, interne Organisation, Roadmap, Workflows oder operative Koordination, sofern im Projekt angelegt oder logisch vorgesehen
+11. Suche, Filter, Discovery und interne Navigierbarkeit
+12. Benachrichtigungen, Aktivitätsfeeds, E Mail bezogene Produktflächen oder Message Center, sofern angelegt oder sinnvoll ableitbar
+13. Spenden, Kampagnen, Aktionen, Beteiligung oder Community Aktivierung, sofern im Projekt angelegt oder logisch vorgesehen
+14. Medien, Dateien, Assets, Uploads oder Content Bibliotheken, sofern im Projekt angelegt oder sinnvoll ableitbar
+15. alle sonstigen im Projekt bereits angelegten, angedeuteten, dokumentierten oder implizit vorgesehenen Funktionen
+16. systematische UI und UX Verbesserung über alle Bereiche
+17. das bereits fest vorgegebene 3D Spiel oder Gamification Modul
+
+Kontext
+GitHub ist Source of Truth.
+Replit ist Entwicklungs und Orchestrierungsumgebung.
+Plesk ist Deploy Ziel per SSH.
+Secrets sind bereits im Projekt hinterlegt.
+Gib niemals Secret Werte aus.
+Arbeite auditierbar, reproduzierbar, CI/CD kompatibel und minimalinvasiv, aber liefere echte produktionsnahe Verbesserungen.
+Nutze vorhandene Repo Struktur, vorhandene Konventionen, vorhandene Designmuster, vorhandene Fachlogik und vorhandene Module weiter, statt unnötig neu zu bauen.
+
+Verbindliche Regeln
+1. Führe zuerst eine gründliche Analyse des Repositories durch.
+2. Ermittle, was bereits existiert, was teilweise existiert, was geplant ist und was fehlt.
+3. Lies Code, Routen, Komponenten, Datenmodelle, API Endpunkte, Doku, TODOs, Mocks, Seeds, Kommentare, Konfigurationsdateien, Inhalte, Navigationen und administrative Oberflächen aus, um die tatsächliche Produktintention zu erkennen.
+4. Erfinde keine Features ohne Bezug zum Projekt, aber leite fehlende Funktionen aus vorhandener Struktur, Namensgebung, Doku, Datenmodellen, UI Fragmenten, Rollenlogik und Architektur ab.
+5. Setze nach der Analyse die nächsten sinnvollsten Schritte direkt um.
+6. Führe keine destruktiven Änderungen ohne Absicherung durch.
+7. Gib keine Secrets aus und schreibe keine sensiblen Daten in Dateien oder Logs.
+8. Halte Änderungen konsistent, modular, wartbar und produktionsnah.
+9. Bevorzuge vollständige funktionale Artefakte statt bloßer Theorie.
+10. Passe UI und UX systematisch an, nicht nur punktuell.
+11. Vereinheitliche Navigation, Informationsarchitektur, Formulare, Tabellen, Statusanzeigen, Fehlermeldungen, Ladezustände, Responsive Verhalten und visuelle Hierarchie.
+12. Prüfe fachliche und technische Konsistenz zwischen Frontend, Backend, Rollenmodell, Mitgliederverwaltung, Buchhaltung, Community Bereichen, redaktionellen Bereichen und Event Bereichen.
+13. Behandle das Spiel oder Gamification Modul verbindlich als 3D Zielarchitektur. Stelle 3D nicht mehr grundsätzlich infrage. Optimiere nur noch die konkrete 3D Umsetzung.
+14. Nutze vorhandene Dateien und Module weiter, wenn möglich.
+15. Erzeuge keine unnötigen neuen Abhängigkeiten.
+16. Dokumentiere relevante Entscheidungen knapp und nachvollziehbar.
+17. Arbeite zuerst analytisch, dann umsetzend.
+18. Führe keine kosmetischen Änderungen ohne funktionalen Mehrwert durch.
+19. Vermeide tote Screens, Fake Buttons, unverbundene Routen und reine Attrappen.
+20. Schließe erkennbare Lücken zwischen UI, API, Rollen, Datenmodell, Persistenz, Suche, Inhalte, Events und Planung.
+21. Ergänze nur solche Funktionen, die fachlich zum Projekt passen und in das bestehende Rollenmodell, die bestehende Informationsarchitektur und das bestehende Designsystem integrierbar sind.
+22. Denke in vollständigen Nutzerflüssen von Erstellen über Bearbeiten bis Anzeigen, Verwalten, Freigeben, Archivieren, Exportieren und Auswerten.
+23. Berücksichtige DSGVO, Consent, Nachvollziehbarkeit, Auditierbarkeit und revisionsfreundliche Datenflüsse bei Mitgliedern, Finanzen, Kommunikation und Events.
+24. Achte auf SEO, Social Preview, Teilen, Auffindbarkeit und semantische Struktur bei öffentlichen Inhalten wie Blog, News, Kampagnen und Veranstaltungen.
+25. Achte auf konsistente Moderation, Rechteprüfung und Statusmodelle in Community, Blog, Kommentaren, Events und Admin Bereichen.
+26. Prüfe, ob zusätzlich sinnvolle Module wie Newsletter Vorbereitung, Medienverwaltung, Kommentar Moderation, Favoriten, Bookmarks, Terminübersichten, Aktivitätslog, Audit Log, Rollenmatrix, Content Freigaben, Suchindex, Exportfunktionen oder Reporting im Projekt logisch vorgesehen sind, und integriere sie nur dann, wenn sie real ableitbar sind.
+
+Arbeitsreihenfolge
+
+Phase 1: Vollanalyse des Produkts
+Analysiere das gesamte Repository und ermittle mindestens:
+
+1. Produktstruktur
+   1. Frontend Bereiche
+   2. Backend Bereiche
+   3. Admin Bereiche
+   4. Mitgliederbereich
+   5. Forum oder Community Bereiche
+   6. Blog, News oder CMS Bereiche
+   7. Veranstaltungs, Kalender oder Planungsbereiche
+   8. Buchhaltung oder Finance Bezug
+   9. Spiel, Gamification oder Metaverse Bezug
+   10. Suche, Discovery oder Wissensbezug
+   11. API Struktur
+   12. Datenmodelle
+   13. Auth, Rollen oder Rechte Modell
+
+2. Bereits vorhandene Funktionen
+   1. fertige Funktionen
+   2. halbfertige Funktionen
+   3. Platzhalter
+   4. tote Navigationspunkte
+   5. nicht verbundene Screens
+   6. Mock Komponenten
+   7. fehlende Backend Anbindung
+   8. fehlende Persistenz
+   9. fehlende Validierung
+   10. fehlende Rechteprüfung
+   11. unvollständige Such oder Filterlogik
+   12. unvollständige Listen oder Detailseiten
+   13. unvollständige redaktionelle Workflows
+   14. unvollständige Event oder Kalenderflows
+   15. unvollständige Sharing oder Preview Flows
+
+3. Produktintention
+   Ermittle aus Code und Doku, welche Features offensichtlich vorgesehen sind, zum Beispiel:
+   1. Registrierung und Login
+   2. Rollen und Rechte
+   3. Mitgliederprofile
+   4. Mitgliederlisten
+   5. Status, Beiträge, Mitgliedschaften, Zahlungen
+   6. Rechnungen, Buchungen, Exporte oder Abrechnungen
+   7. Forum Threads, Antworten, Moderation, Kategorien
+   8. Dashboard KPIs, Aktivität, Aufgaben, Trends
+   9. interne Verwaltungsfunktionen
+   10. Community oder Gamification Mechaniken
+   11. Spenden, Beiträge, Mandate oder Zahlungshistorien
+   12. 3D Interaktionsflächen, Szenen oder spielbezogene Progression
+   13. Blogposts, News, Kategorien, Tags, Autoren, Redaktionsstatus
+   14. Kommentare, Reaktionen, Shares oder Diskussionseinbindungen
+   15. Veranstaltungen, Termine, Orte, Teilnahme, Agenda, Slots, Kalenderansichten
+   16. Planung, Aufgaben, Roadmap, Kanban, Status oder Koordinationslogik
+   17. Social Sharing, Open Graph Bilder, Meta Daten, Share Buttons, Copy Link Flows
+   18. Suche, globale Suche, kontextuelle Suche, Filter, Sortierung
+   19. Medien, Uploads, Dateien, Cover, Vorschaubilder oder Asset Management
+   20. Benachrichtigungen, Erinnerungen, Aktivitätsfeed oder interne Hinweise
+
+4. UX und UI Zustand
+   Prüfe:
+   1. Konsistenz der Navigation
+   2. Designsystem oder Stilbrüche
+   3. Formulare
+   4. Tabellen
+   5. mobile Nutzbarkeit
+   6. leere Zustände
+   7. Fehlermeldungen
+   8. Ladezustände
+   9. visuelle Priorisierung
+   10. Barrierefreiheit
+   11. Textqualität
+   12. Informationsdichte
+   13. Bedienlogik im Admin und Mitgliederbereich
+   14. Konsistenz von Farb, Abstand, Typografie und Komponentenmustern
+   15. Konsistenz von Listen, Detailseiten und Editorflächen
+   16. Konsistenz bei Blog, Events, Forum und Admin Oberflächen
+   17. Share und Social Preview Tauglichkeit öffentlicher Seiten
+   18. Auffindbarkeit von Inhalten, Events und Community Bereichen
+   19. Aufgabenorientierung und Effizienz für Admin, Redaktion und Mitglieder
+   20. Qualität von Filtersystemen, Suchergebnissen und Empty States
+
+5. 3D Vorgabe für Spiel oder Gamification Modul
+   Das Spiel oder Gamification Modul ist bereits verbindlich als 3D vorgesehen.
+   Triff keine Entscheidung mehr zwischen 2D und 3D.
+   Behandle 3D als gesetzte Zielarchitektur.
+   Analysiere dazu:
+   1. welche 3D Spiel oder 3D Interaktionsflächen bereits im Repo angelegt, angedeutet oder vorbereitet sind
+   2. welche 3D Architektur am besten zum bestehenden Frontend, Backend und Deployment Modell passt
+   3. ob Three.js, React Three Fiber oder eine andere zum Stack passende 3D Lösung vorgesehen oder sinnvoll integrierbar ist
+   4. wie 3D Szenen, UI Overlay, State Management, Asset Loading, Performance Optimierung und mobile Responsiveness sauber umgesetzt werden sollen
+   5. wie 3D mit Mitgliederbereich, Community Funktionen, Progression, Interaktion, Profilen, Belohnungen oder Demokratie Metaverse Mechaniken verbunden werden kann
+   6. welche konkreten Dateien, Komponenten, Szenen, Datenmodelle und APIs dafür als Nächstes erstellt oder erweitert werden sollen
+   7. wie die 3D Umsetzung produktionsnah, wartbar, performant und schrittweise ausbaubar gestaltet wird
+
+6. Technische Grundlagen
+   1. Paketmanager
+   2. Build Prozess
+   3. Startskripte
+   4. Testskripte
+   5. Linting
+   6. vorhandene Deploy Skripte
+   7. vorhandene Replit Konfiguration
+   8. vorhandene Docker oder Container Konfiguration
+   9. vorhandene CI Hinweise
+   10. Projektstruktur und Monorepo Muster
+   11. CMS oder Content bezogene technische Struktur
+   12. Search oder Index bezogene technische Struktur
+   13. Event oder Kalender bezogene technische Struktur
+
+7. Produktionsrelevante Konfiguration
+   1. Base URLs
+   2. API URLs
+   3. CORS Origins
+   4. Callback oder Redirect URLs
+   5. Cookie oder Session relevante Konfiguration
+   6. Domain oder Host bezogene Stellen
+   7. Health oder Status Endpunkte
+   8. Build Ausgabepfade
+   9. Server Startmechanismen
+   10. SEO Meta Daten
+   11. Social Meta Daten
+   12. öffentliche und interne URL Muster
+   13. Event, Kalender oder Reminder bezogene Konfiguration
+   14. Upload oder Media bezogene Konfiguration
+
+8. Deploymentrelevante Struktur
+   1. welche Teile gebaut werden müssen
+   2. welche Artefakte deploybar sind
+   3. ob Plesk eher Repo Checkout Host oder Artefakt Ziel sein sollte
+   4. ob SSH Bootstrap oder Deploy Logik bereits vorhanden ist
+   5. welche Secrets vermutlich benötigt werden, nur als Namen
+
+9. Risiken und Lücken
+   1. Sicherheitsrisiken
+   2. fehlende Skripte
+   3. fehlende Doku
+   4. fehlende Validierung
+   5. fehlende Verifikation nach Deploy
+   6. fehlende Rollback Strategie
+   7. potenziell widersprüchliche Architekturannahmen
+   8. fehlende Integrationen zwischen Bereichen
+   9. fehlende Moderationslogik
+   10. fehlende Publishing oder Freigabeprozesse
+   11. fehlende Event oder Planungslogik
+   12. fehlende Social Preview oder Sharing Konsistenz
+   13. fehlende Suchbarkeit oder intransparente Navigation
+
+Phase 2: Analysebericht mit Umsetzungsprioritäten
+Erstelle danach einen strukturierten Bericht mit genau diesen Abschnitten:
+
+1. Erkannter Ist Zustand
+2. Erkannte Produktmodule
+3. Bereits vorhandene Funktionen
+4. Fehlende oder unvollständige Funktionen
+5. Kritische UX oder UI Probleme
+6. Kritische Backend oder Datenmodell Lücken
+7. Kritische Rollen oder Rechte Lücken
+8. Kritische Mitgliederverwaltungs Lücken
+9. Kritische Buchhaltungs oder Finance Lücken
+10. Forum Status
+11. Blog, News und CMS Status
+12. Social Sharing und öffentliche Sichtbarkeit Status
+13. Veranstaltungen, Kalender und Planungs Status
+14. Suche, Discovery und Informationsarchitektur Status
+15. 3D Status und empfohlene konkrete 3D Architektur
+16. Empfohlenes Deploy Modell
+   1. git pull auf Server
+   2. Artefakt Deploy
+   3. rsync oder scp Deploy
+   Begründe die Wahl kurz und technisch
+17. Priorisierte nächsten Schritte
+18. Welche Teile sofort umgesetzt werden sollen
+19. Was vorerst bewusst unverändert bleiben soll
+
+Phase 3: Nächste Schritte aktiv ausführen
+Setze nach der Analyse direkt die sinnvollsten nächsten Schritte um.
+Arbeite priorisiert und produktionsnah.
+Bevorzuge zusammenhängende Verbesserungen mit echtem Mehrwert.
+Führe keine bloß symbolischen Mini Änderungen aus.
+Arbeite mindestens an den wichtigsten Bereichen, die aus dem Repository real ableitbar sind.
+
+Pflichtbereiche für die Umsetzung, sofern sie im Projekt angelegt, vorbereitet oder logisch vorgesehen sind:
+
+1. Forum
+   1. prüfe Forenstruktur, Kategorien, Threads, Antworten, Moderation, Status
+   2. verbinde Frontend mit Backend, falls getrennt
+   3. ergänze fehlende CRUD Logik
+   4. ergänze Validierung und Rechteprüfung
+   5. verbessere Thread Listen, Detailseiten, Editor, Leere Zustände und Moderationslogik
+   6. integriere sinnvolle Rollen wie Mitglied, Moderator, Admin, sofern passend
+
+2. Mitgliederbereich
+   1. prüfe Auth Flows, Session Handling, Profilseiten, Einstellungen, Mitgliedsstatus
+   2. ergänze fehlende Profil, Konto, Mitgliedschafts und Aktivitätsfunktionen
+   3. schließe Lücken zwischen UI, API und Persistenz
+   4. verbessere UX von Navigation, Profilbearbeitung, Statusanzeige und Self Service Bereichen
+
+3. Backend und API
+   1. prüfe vorhandene Endpunkte, Services, Routen, Models, Schemas und Datenzugriff
+   2. ergänze fehlende Endpunkte für reale Frontend Anforderungen
+   3. ergänze Validierung, Fehlerbehandlung, Statuscodes und Rollenprüfung
+   4. beseitige offensichtliche Inkonsistenzen zwischen API Vertrag und Frontend Nutzung
+   5. verbessere Struktur, wo ohne riskanten Umbau möglich
+
+4. Admin Dashboard
+   1. prüfe vorhandene KPIs, Tabellen, Management Screens, Admin Navigation
+   2. ergänze fehlende Management Ansichten für Mitglieder, Beiträge, Inhalte, Moderation, Events und Finanzen, soweit aus dem Projekt ableitbar
+   3. verbessere Informationsarchitektur, Filter, Tabellenlogik, Statusanzeigen und schnelle Bedienbarkeit
+   4. sorge für konsistente Rollen und Sichtbarkeiten
+
+5. Mitgliederverwaltung
+   1. prüfe Mitgliederdaten, Statusmodelle, Rollen, Kontaktinformationen, Freigaben, Historien
+   2. ergänze fehlende Listen, Detailansichten, Bearbeitungsflows, Such und Filterlogik
+   3. verbessere Datenqualität, Plausibilitätsprüfungen und Verwaltungs UX
+   4. achte auf saubere Trennung zwischen Selbstverwaltung und Admin Verwaltung
+
+6. Buchhaltung oder Finance Bereiche
+   1. prüfe, ob Beiträge, Rechnungen, Buchungen, Zahlungsstatus, Spenden oder Exportfunktionen vorgesehen sind
+   2. ergänze fehlende UI, APIs oder Modelle nur dort, wo es aus der Repo Struktur sinnvoll ableitbar ist
+   3. schaffe konsistente Finance Oberflächen mit Status, Historie, Summen, Filtern und nachvollziehbaren Workflows
+   4. vermeide freie Erfindung von Buchhaltungskomplexität ohne Projektbasis
+   5. arbeite modular und revisionsfreundlich
+
+7. Blog, News und Content Management
+   1. prüfe, ob Blog, News, Artikel, Seiten, Kategorien, Tags, Autoren, Kommentare oder redaktionelle Statusmodelle vorhanden oder vorbereitet sind
+   2. ergänze fehlende CRUD Logik, Detailseiten, Listen, Editorflächen, Preview Flows und Veröffentlichungsstatus
+   3. integriere Rollen wie Autor, Redaktion, Moderator, Admin, sofern logisch passend
+   4. ergänze SEO Basis, Slugs, Meta Titel, Meta Description, Open Graph, Canonical Logik und Vorschaufelder, sofern projektseitig sinnvoll
+   5. verbessere Content Listen, Karten, Detailseiten, Suchbarkeit, Filter und Archivlogik
+   6. ergänze sinnvolle Kommentar oder Diskussionsanbindung nur dann, wenn sie real zum Projekt passt
+
+8. Social Sharing und öffentliche Sichtbarkeit
+   1. prüfe bestehende Share Buttons, Link Copy Flows, Open Graph Meta Daten, Social Cards, Preview Bilder, strukturierte Meta Informationen und öffentliche Landing Pages
+   2. ergänze fehlende Share Funktionen für Blog, Events, Kampagnen, Profilseiten oder öffentliche Inhalte, soweit sinnvoll
+   3. sorge für konsistente OG, Twitter oder kanalbezogene Preview Logik, sofern bereits im Projekt angelegt oder fachlich notwendig
+   4. prüfe CTA Logik für Teilen, Mitmachen, Spenden, Registrieren oder Event Teilnahme
+   5. verbessere öffentliche Auffindbarkeit, Vorschauen und semantische Struktur ohne unnötige externe Abhängigkeiten
+
+9. Veranstaltungen, Kalender und Planung
+   1. prüfe, ob Events, Termine, Kalender, Agenden, Orte, Anmeldungen, Teilnehmerlisten, Statusmodelle oder Planungsflächen vorhanden oder vorbereitet sind
+   2. ergänze fehlende Listen, Detailseiten, Erstell und Bearbeitungsflows, Statuslogik, Filter und Kalenderansichten
+   3. prüfe Teilnahme Logik, Rollen, Freigaben, Kapazitäten, Veranstaltungsstatus, Reminder oder Check In Logik, sofern passend
+   4. prüfe interne Planung, Aufgaben, Roadmap, Workflow, Boards oder operative Koordination, sofern im Projekt angelegt oder sinnvoll ableitbar
+   5. verbinde Veranstaltungen mit Blog, Community, Mitgliederbereich, Benachrichtigungen und Admin Dashboard, wo fachlich passend
+   6. verbessere UX für Terminfindung, Eventübersicht, Agenda, Ortsinformationen und Anmeldung
+   7. schaffe klare Trennung zwischen öffentlicher Event Ansicht, Mitglieder Event Ansicht und Admin Verwaltung
+
+10. Suche, Filter und Discovery
+   1. prüfe globale Suche, modulbezogene Suche, Filter, Sortierungen, Schnellzugriff und Navigationsfindbarkeit
+   2. ergänze fehlende Such und Filterlogik für Mitglieder, Beiträge, Blog, Forum, Events, Finanzen oder Assets, sofern sinnvoll
+   3. verbessere Suchergebnisdarstellung, Empty States, Facetten, Performance und Relevanz
+   4. vereinheitliche Such und Filtermuster über alle Bereiche
+
+11. Benachrichtigungen, Aktivität und Kommunikation
+   1. prüfe Aktivitätsfeeds, Hinweise, Statusmeldungen, Erinnerungen, In App Benachrichtigungen oder Message Center Strukturen
+   2. ergänze fehlende Oberflächen oder Datenmodelle nur dann, wenn sie aus dem Projekt ableitbar sind
+   3. verbinde Benachrichtigungen sinnvoll mit Forum, Events, Blog, Mitgliedschaft, Aufgaben oder Moderation
+   4. verbessere Sichtbarkeit, Lesestatus und Priorisierung
+
+12. Medien, Dateien und Assets
+   1. prüfe Upload Flows, Bildnutzung, Dateianhänge, Coverbilder, Event Assets, Blogbilder oder Profilmedien
+   2. ergänze fehlende Upload oder Referenzlogik nur dort, wo sie aus dem Projekt sinnvoll hervorgeht
+   3. verbessere Asset Auswahl, Vorschau, Metadaten, Verwendungsbezug und Wiederverwendbarkeit
+
+13. UI und UX Vereinheitlichung
+   1. konsolidiere Navigation
+   2. konsolidiere Seitenlayouts
+   3. vereinheitliche Formulare
+   4. vereinheitliche Tabellen
+   5. vereinheitliche Buttons, Badges, Statusfarben und Meldungen
+   6. ergänze Leere Zustände
+   7. ergänze Ladezustände
+   8. verbessere Fehlermeldungen
+   9. verbessere mobile und responsive Nutzbarkeit
+   10. richte klare visuelle Hierarchien ein
+   11. reduziere Stilbrüche und inkonsistente Patterns
+   12. vereinheitliche Listen, Detailseiten, Editoren, Dialoge und Aktionsleisten
+   13. verbessere öffentliche Landing Pages, Blogseiten, Eventseiten und Mitgliederoberflächen gleichermaßen
+
+14. 3D Spiel oder Gamification Modul
+   1. identifiziere die bestehenden 3D Ankerpunkte im Projekt
+   2. setze 3D konkret weiter um, statt die Grundsatzfrage neu zu stellen
+   3. integriere die zum Stack passende 3D Lösung
+   4. schaffe eine saubere Trennung zwischen 3D Szene, UI Overlay, State Management und API Integration
+   5. verbinde 3D sinnvoll mit Community, Mitgliedschaft, Progression, Missionen, Interaktionen oder Metaverse Mechaniken, soweit im Projekt angelegt
+   6. achte auf Performance, Wartbarkeit und schrittweisen Ausbau
+   7. ergänze nur realistische und anschlussfähige 3D Strukturen
+
+Phase 4: Infrastruktur, Deployment und Projekthärtung
+Falls passend und aus der Analyse sinnvoll ableitbar, verbessere zusätzlich:
+
+1. scripts/bootstrap_ssh.sh
+2. scripts/validate_env.sh
+3. scripts/deploy.sh
+4. scripts/post_deploy_verify.sh
+5. README_DEPLOY.md
+6. README_DOMAIN.md
+7. .gitignore Ergänzungen
+8. Health Checks
+9. Release Marker
+10. Dry Run Unterstützung
+11. Schutz vor Deploy auf falschen Branch
+12. Schutz vor falschem Zielpfad
+13. Logging ohne Secrets
+14. Basisprüfungen für SEO, öffentliche URLs, OG Meta Daten oder Event URLs, sofern sinnvoll
+
+Treffe eine saubere Entscheidung zwischen:
+1. git pull auf Server
+2. Artefakt Deploy
+3. rsync oder scp Deploy
+
+Bevorzuge die auditierbarste und stabilste Variante für dieses Repo.
+
+Phase 5: Dokumentation und Abschlussartefakte
+Erstelle oder aktualisiere, wenn sinnvoll und projektbezogen:
+
+1. README_ANALYSIS.md
+2. README_NEXT_STEPS.md
+3. README_IMPLEMENTATION_LOG.md
+4. README_DEPLOY.md
+5. README_DOMAIN.md
+6. README_CONTENT.md, falls Blog, News oder CMS Flächen umgesetzt oder erweitert werden
+7. README_EVENTS.md, falls Event oder Planungsflächen umgesetzt oder erweitert werden
+8. README_SEARCH.md, falls Such oder Filterlogik wesentlich ergänzt wird
+
+Dokumentiere nur Relevantes.
+Schreibe knapp, konkret und dateibezogen.
+Keine langen allgemeinen Abhandlungen.
+
+Implementierungsregeln
+1. Nutze vorhandene Secret Namen weiter, wenn sie schon etabliert sind.
+2. Erwarte insbesondere Namen wie:
+   PLSK_HOST
+   PLSK_PORT
+   PLSK_USER
+   PLSK_DEPLOY_PATH
+   PLSK_SSH_KEY
+   optional GITHUB_SSH_KEY
+3. Gib niemals Secret Inhalte aus.
+4. Lege SSH Schlüssel nur als Laufzeitdateien unter ~/.ssh an.
+5. Setze restriktive Dateirechte.
+6. Nutze nach Möglichkeit ein scripts Verzeichnis.
+7. Erstelle keine unnötigen neuen Libraries, wenn vorhandene Mittel ausreichen.
+8. Passe neue Dateien an den bestehenden Stil und die bestehende Struktur an.
+9. Vermeide harte Kodierung produktiver Werte.
+10. Nutze Platzhalter oder bestehende Config Mechanismen statt fest eingebrannter Umgebungsdaten.
+11. Nutze konsistente Statusmodelle, Slugs, IDs, Rollen und Sichtbarkeiten über Blog, Events, Community und Admin hinweg.
+12. Achte auf exportierbare, auditierbare und nachvollziehbare Datenflüsse bei Finanzen, Mitgliedern, Events und redaktionellen Inhalten.
+
+Erwartete Qualität
+1. Produziere produktionsnahe Ergebnisse.
+2. Arbeite nicht abstrakt.
+3. Arbeite dateibezogen.
+4. Erstelle konkrete Skripte, Komponenten, Backend Erweiterungen und Doku.
+5. Nutze bestehende Struktur und verbessere sie gezielt.
+6. Beende nicht nach Analyse allein, sondern setze die sinnvollsten Verbesserungen direkt um.
+7. Liefere keine bloßen Empfehlungen, sondern reale Repository Änderungen.
+8. Priorisiere zusammenhängende funktionale Verbesserungen mit echtem Produktwert.
+9. Wenn mehrere Bereiche betroffen sind, beginne mit den am stärksten vorbereiteten oder am klarsten ableitbaren Modulen und schließe deren Flows sauber von UI über API bis Persistenz.
+
+Abschlussformat
+Gib am Ende genau diese Struktur aus:
+
+1. Analyse Zusammenfassung
+2. Erkannte Produktmodule
+3. Gewählte Zielarchitektur für Deployment
+4. Gewählte konkrete 3D Architektur
+5. Umgesetzte nächste Schritte
+6. Erstellte oder geänderte Dateien
+7. Wichtige UI und UX Verbesserungen
+8. Wichtige Backend und Datenmodell Verbesserungen
+9. Wichtige Blog, Event, Sharing und Planungs Verbesserungen
+10. Offene Risiken
+11. Offene Annahmen
+12. Exakte nächsten Kommandos für mich in Replit
+
+Beginne jetzt mit der vollständigen Analyse des Repositories und arbeite dich danach direkt durch die priorisierten Umsetzungen.

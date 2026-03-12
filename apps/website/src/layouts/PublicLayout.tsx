@@ -79,13 +79,13 @@ export default function PublicLayout() {
                 ))}
               </nav>
               <div>
-                <p className="text-xs text-secondary-500 mb-0.5">Pottenbrunner Hauptstraße 108/1</p>
-                <p className="text-xs text-secondary-500 mb-3">3140 St. Pölten</p>
+                <p className="text-xs text-secondary-500 mb-0.5">Pottenbrunner Hauptstraße 108/Top 1</p>
+                <p className="text-xs text-secondary-500 mb-3">3140 Pottenbrunn</p>
                 <a
-                  href="mailto:menschlichkeit-oesterreich@outlook.at"
+                  href="mailto:kontakt@menschlichkeit-oesterreich.at"
                   className="text-sm text-primary-400 hover:text-primary-300 transition-colors break-all"
                 >
-                  menschlichkeit-oesterreich@outlook.at
+                  kontakt@menschlichkeit-oesterreich.at
                 </a>
               </div>
             </div>

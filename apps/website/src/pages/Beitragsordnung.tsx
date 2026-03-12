@@ -4,11 +4,9 @@ import { Breadcrumb } from '../components/ui/Breadcrumb';
 import { PageHeader } from '../components/ui/PageHeader';
 
 const BEITRAEGE = [
-  { kategorie: 'Ordentliches Mitglied (Standard)', betrag: '€ 60,– / Jahr', hinweis: 'Entspricht € 5,– pro Monat' },
-  { kategorie: 'Ordentliches Mitglied (Ermäßigt)', betrag: '€ 24,– / Jahr', hinweis: 'Für Studierende, Schüler/innen, Pensionisten/innen, Arbeitslose' },
+  { kategorie: 'Ordentliches Mitglied (Standard)', betrag: '€ 36,– / Jahr', hinweis: 'Entspricht € 3,– pro Monat' },
+  { kategorie: 'Ordentliches Mitglied (Ermäßigt)', betrag: '€ 18,– / Jahr', hinweis: 'Für Studierende, Arbeitssuchende, Pensionist*innen · Entspricht € 1,50 pro Monat' },
   { kategorie: 'Ordentliches Mitglied (Härtefall)', betrag: '€ 0,– / Jahr', hinweis: 'Auf begründeten Antrag beim Vorstand; volle Mitgliedsrechte bleiben erhalten' },
-  { kategorie: 'Förderndes Mitglied', betrag: 'ab € 120,– / Jahr', hinweis: 'Freiwilliger Beitrag zur besonderen Unterstützung des Vereins' },
-  { kategorie: 'Juristische Person / Organisation', betrag: '€ 240,– / Jahr', hinweis: 'Für Unternehmen, Vereine und andere Organisationen' },
 ];
 
 export default function BeitragsordnungPage() {
@@ -39,7 +37,7 @@ export default function BeitragsordnungPage() {
         </div>
 
         <p className="text-sm text-secondary-600 mb-6">
-          Beschlossen von der Generalversammlung 2024 · Gültig ab 1. Jänner 2025
+          Beschlossen am 21. Mai 2025 · Gültig ab 1. Juli 2025
         </p>
 
         <h2 className="text-lg font-semibold mb-4">§ 1 – Mitgliedsbeiträge</h2>
@@ -67,11 +65,11 @@ export default function BeitragsordnungPage() {
         <div className="space-y-4 text-sm text-secondary-700">
           <div>
             <h3 className="font-semibold text-base mb-1">§ 2 – Fälligkeit und Zahlungsmodalitäten</h3>
-            <p>Der Mitgliedsbeitrag ist jährlich im Voraus bis spätestens 31. Jänner des jeweiligen Jahres zu entrichten. Für neue Mitglieder, die nach dem 1. Juli beitreten, wird der Beitrag aliquotiert. Die Zahlung erfolgt per SEPA-Lastschrift oder Banküberweisung.</p>
+            <p>Jahresbeiträge sind bis spätestens 31. März des jeweiligen Jahres zu entrichten. Monatsbeiträge sind bis zum 5. des jeweiligen Monats fällig. Die Zahlung erfolgt per SEPA-Lastschrift oder Banküberweisung.</p>
           </div>
           <div>
             <h3 className="font-semibold text-base mb-1">§ 3 – Ermäßigter Beitrag</h3>
-            <p>Der ermäßigter Beitrag gilt für Studierende, Schüler/innen, Pensionisten/innen und Personen ohne Erwerbseinkommen. Ein entsprechender Nachweis ist beim Beitritt vorzulegen.</p>
+            <p>Der ermäßigte Beitrag gilt für Studierende, Arbeitssuchende und Pensionist*innen. Ein entsprechender Nachweis ist beim Beitritt vorzulegen.</p>
           </div>
           <div>
             <h3 className="font-semibold text-base mb-1">§ 4 – Härtefallregelung</h3>

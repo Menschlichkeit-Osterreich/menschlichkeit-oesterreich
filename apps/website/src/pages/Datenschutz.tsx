@@ -13,11 +13,11 @@ export default function Datenschutz() {
           <h2 className="text-xl font-semibold mb-3">1. Verantwortliche Stelle</h2>
           <address className="not-italic">
             <strong>Verein Menschlichkeit Österreich</strong><br />
-            Pottenbrunner Hauptstraße 108/1<br />
-            3140 St. Pölten<br />
+            Pottenbrunner Hauptstraße 108/Top 1<br />
+            3140 Pottenbrunn<br />
             E-Mail:{' '}
-            <a href="mailto:menschlichkeit-oesterreich@outlook.at" className="text-primary-600 hover:underline">
-              menschlichkeit-oesterreich@outlook.at
+            <a href="mailto:kontakt@menschlichkeit-oesterreich.at" className="text-primary-600 hover:underline">
+              kontakt@menschlichkeit-oesterreich.at
             </a>
           </address>
         </section>
@@ -83,8 +83,8 @@ export default function Datenschutz() {
           </ul>
           <p className="mt-3">
             Zur Ausübung Ihrer Rechte wenden Sie sich bitte an:{' '}
-            <a href="mailto:menschlichkeit-oesterreich@outlook.at" className="text-primary-600 hover:underline">
-              menschlichkeit-oesterreich@outlook.at
+            <a href="mailto:kontakt@menschlichkeit-oesterreich.at" className="text-primary-600 hover:underline">
+              kontakt@menschlichkeit-oesterreich.at
             </a>
           </p>
         </section>
