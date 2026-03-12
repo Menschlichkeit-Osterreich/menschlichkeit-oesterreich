@@ -76,9 +76,12 @@ cd apps/website && npm run dev
 
 ## Auth & RBAC
 
-- **JWT:** Gespeichert in `sessionStorage` unter `moe_auth_token`
-- **isAdmin:** Aktuell clientseitig via `VITE_ADMIN_EMAILS` (⚠️ P0: muss in JWT-Claims verlagert werden)
+- **JWT:** Gespeichert in `sessionStorage` unter `moe_auth_token`, enthält `role`-Claim
+- **isAdmin:** Aus JWT-Claims (`role === 'admin' || role === 'sysadmin'`), serverseitig gesetzt via `ADMIN_EMAILS` Env-Variable
+- **AdminRoute:** `routes/AdminRoute.tsx` — prüft `isAdmin` aus JWT, leitet Nicht-Admins um
 - **Rollen:** `guest`, `member`, `moderator`, `admin`, `sysadmin`
+- **ErrorBoundary:** Globaler Error-Handler in `main.tsx`
+- **Cookie-Consent:** DSGVO-konformes Banner in `main.tsx`
 - **RBAC-Dokumentation:** `docs/security/rbac.md`
 
 ---
@@ -148,7 +151,7 @@ Key corrections applied:
 
 ## Critical TODOs (P0)
 
-1. Admin-Rollenprüfung ins FastAPI-Backend verlagern (JWT-Claims statt `VITE_ADMIN_EMAILS`)
+1. ~~Admin-Rollenprüfung ins FastAPI-Backend verlagern~~ **Erledigt** — JWT `role`-Claim + `AdminRoute` + serverseitige `ADMIN_EMAILS`
 2. Plesk-Panel (Port 8443) auf IP-Whitelist einschränken
 3. SPF/DKIM/DMARC verifizieren und setzen
 4. Fail2ban aktivieren (SSH, HTTP, SMTP)
