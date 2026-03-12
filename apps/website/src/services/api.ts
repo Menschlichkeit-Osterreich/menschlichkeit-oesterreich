@@ -9,7 +9,7 @@ export interface HealthResponse {
 const baseApi = {
   health: () => http.get<HealthResponse>('/health'),
   login: (email: string, password: string) =>
-    http.post<LoginResponse>('/auth/login', { email, password }),
+    http.post<LoginResponse>('/api/auth/login', { email, password }),
 };
 
 // Generic API response shape from backend
@@ -76,7 +76,7 @@ export const apiPaths = {
     create: '/memberships/create',
   },
   auth: {
-    register: '/auth/register',
+    register: '/api/auth/register',
   },
   contributions: {
     create: '/contributions/create',

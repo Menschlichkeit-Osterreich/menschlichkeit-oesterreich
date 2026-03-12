@@ -181,7 +181,7 @@ export default function JoinPage() {
                 />
                 <span>Ich akzeptiere die Beitragsordnung 2025.</span>
               </label>
-              <p className="text-xs text-secondary-600">Austritt (Statuten §7), Ausschluss (§8), Schiedsgericht (§14), Widerrufsrecht DSGVO (Art. 7 Abs. 3).</p>
+              <p className="text-xs text-secondary-600">Austritt (Statuten §6), Ausschluss (§6), Schiedsgericht (§12), Widerrufsrecht DSGVO (Art. 7 Abs. 3).</p>
             </div>
 
             <div className="mt-4 flex gap-2">

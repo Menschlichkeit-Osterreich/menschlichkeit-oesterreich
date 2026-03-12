@@ -14,7 +14,7 @@ interface Campaign {
 
 const MOCK_CAMPAIGNS: Campaign[] = [
   { id: 1, subject: 'März-Newsletter: Demokratie im Frühling', segment: 'Alle Mitglieder', status: 'draft', recipients: 247 },
-  { id: 2, subject: 'Einladung: Generalversammlung 2026', segment: 'Aktive Mitglieder', status: 'scheduled', recipients: 198, scheduledAt: '2026-03-10T09:00' },
+  { id: 2, subject: 'Einladung: Mitgliederversammlung 2026', segment: 'Aktive Mitglieder', status: 'scheduled', recipients: 198, scheduledAt: '2026-03-10T09:00' },
   { id: 3, subject: 'Februar-Newsletter: Rückblick & Ausblick', segment: 'Alle Mitglieder', status: 'sent', recipients: 241, openRate: 42, clickRate: 18, sentAt: '2026-02-01' },
   { id: 4, subject: 'Willkommen, neue Mitglieder!', segment: 'Neue Mitglieder', status: 'sent', recipients: 12, openRate: 78, clickRate: 45, sentAt: '2026-02-15' },
 ];

@@ -60,6 +60,7 @@ def _parse_int(var_name: str, default: int) -> int:
 
 
 APP_ENV = os.getenv("APP_ENV", "development").strip().lower()
+ADMIN_EMAILS = _split_csv("ADMIN_EMAILS", "")
 
 CIVI_BASE_URL = os.getenv("CIVI_BASE_URL", "https://crm.menschlichkeit-oesterreich.at")
 CIVI_SITE_KEY = _require_env("CIVI_SITE_KEY")
@@ -327,12 +328,19 @@ def _extract_first_value(data: dict) -> Optional[dict]:
 # Removed duplicate verify_jwt_token - now imported from shared.py
 
 
-def _create_token(sub: str, ttl_seconds: int, token_type: str = "access") -> str:
+def _resolve_role(email: str) -> str:
+    if email.lower() in [e.lower() for e in ADMIN_EMAILS]:
+        return "admin"
+    return "member"
+
+
+def _create_token(sub: str, ttl_seconds: int, token_type: str = "access", role: str = "member") -> str:
     now = int(time.time())
     jti = str(uuid.uuid4()) if token_type == "refresh" else None
     payload = {
         "sub": sub,
         "type": token_type,
+        "role": role,
         "exp": now + ttl_seconds,
         "iat": now,
     }
@@ -457,7 +465,8 @@ async def login(request: LoginRequest) -> ApiResponse:
             raise HTTPException(status_code=401, detail="Invalid credentials") from exc
         raise
 
-    refresh_jwt = _create_token(email, 3600 * 24 * 7, token_type="refresh")
+    user_role = _resolve_role(email)
+    refresh_jwt = _create_token(email, 3600 * 24 * 7, token_type="refresh", role=user_role)
     try:
         refresh_payload = jwt.decode(refresh_jwt, JWT_SECRET, algorithms=["HS256"])
     except Exception:
@@ -467,7 +476,7 @@ async def login(request: LoginRequest) -> ApiResponse:
         raise HTTPException(status_code=500, detail="Missing refresh token id")
     _refresh_store.set_current(email, jti)
     tokens = AuthTokens(
-        token=_create_token(email, 3600, token_type="access"),
+        token=_create_token(email, 3600, token_type="access", role=user_role),
         refresh_token=refresh_jwt,
         expires_in=3600,
     )
@@ -497,7 +506,8 @@ async def register(request: RegisterRequest) -> ApiResponse:
 
     contact_record = await _civicrm_contact_create_or_update(payload)
 
-    refresh_jwt = _create_token(email, 3600 * 24 * 7, token_type="refresh")
+    reg_role = _resolve_role(email)
+    refresh_jwt = _create_token(email, 3600 * 24 * 7, token_type="refresh", role=reg_role)
     try:
         rp = jwt.decode(refresh_jwt, JWT_SECRET, algorithms=["HS256"])
     except Exception:
@@ -507,7 +517,7 @@ async def register(request: RegisterRequest) -> ApiResponse:
         raise HTTPException(status_code=500, detail="Missing refresh token id")
     _refresh_store.set_current(email, jti)
     tokens = AuthTokens(
-        token=_create_token(email, 3600, token_type="access"),
+        token=_create_token(email, 3600, token_type="access", role=reg_role),
         refresh_token=refresh_jwt,
         expires_in=3600,
     )
@@ -541,7 +551,8 @@ async def refresh_token(req: RefreshRequest) -> ApiResponse:
         raise HTTPException(status_code=401, detail="Refresh token reused or invalid")
 
     # Issue new pair and rotate stored JTI
-    new_refresh = _create_token(subject, 3600 * 24 * 7, token_type="refresh")
+    user_role = _resolve_role(subject)
+    new_refresh = _create_token(subject, 3600 * 24 * 7, token_type="refresh", role=user_role)
     try:
         new_payload = jwt.decode(new_refresh, JWT_SECRET, algorithms=["HS256"])
     except Exception:
@@ -551,7 +562,7 @@ async def refresh_token(req: RefreshRequest) -> ApiResponse:
         raise HTTPException(status_code=500, detail="Missing refresh token id")
     _refresh_store.set_current(subject, new_jti)
     tokens = AuthTokens(
-        token=_create_token(subject, 3600, token_type="access"),
+        token=_create_token(subject, 3600, token_type="access", role=user_role),
         refresh_token=new_refresh,
         expires_in=3600,
     )

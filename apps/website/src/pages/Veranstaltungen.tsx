@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, MapPin, Clock, Users, ChevronRight, Filter } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import { dashboardApi } from '../services/dashboard-api';
 
 interface Event {
   id: number;
@@ -17,80 +18,80 @@ interface Event {
   isFeatured?: boolean;
 }
 
-const EVENTS: Event[] = [
+const FALLBACK_EVENTS: Event[] = [
   {
     id: 1,
     title: 'Demokratie-Workshop: Bürgerbeteiligung stärken',
-    date: '2025-03-15',
-    time: '14:00–17:00 Uhr',
-    location: 'Wien, 1. Bezirk – Volkshaus',
+    date: '2026-03-15',
+    time: '14:00\u201317:00 Uhr',
+    location: 'Wien, 1. Bezirk \u2013 Volkshaus',
     category: 'workshop',
     description: 'Ein interaktiver Workshop über Möglichkeiten der direkten Demokratie in Österreich. Gemeinsam erkunden wir Bürgerbegehren, Volksbegehren und kommunale Beteiligungsformate.',
     maxParticipants: 30,
     currentParticipants: 18,
-    imageEmoji: '🗳️',
+    imageEmoji: '\uD83D\uDDF3\uFE0F',
     isFeatured: true,
   },
   {
     id: 2,
     title: 'Vortrag: Menschenrechte im digitalen Zeitalter',
-    date: '2025-03-22',
-    time: '18:30–20:00 Uhr',
+    date: '2026-03-22',
+    time: '18:30\u201320:00 Uhr',
     location: 'Online (Zoom)',
     category: 'online',
     description: 'Wie verändern Algorithmen, KI und Überwachungstechnologien unsere Grundrechte? Ein Vortrag mit anschließender Diskussion.',
     maxParticipants: 200,
     currentParticipants: 87,
-    imageEmoji: '💻',
+    imageEmoji: '\uD83D\uDCBB',
     isFeatured: true,
   },
   {
     id: 3,
     title: 'Jugend-Forum: Klimagerechtigkeit und Demokratie',
-    date: '2025-04-05',
-    time: '10:00–16:00 Uhr',
-    location: 'Graz – Stadtbibliothek',
+    date: '2026-04-05',
+    time: '10:00\u201316:00 Uhr',
+    location: 'Graz \u2013 Stadtbibliothek',
     category: 'jugend',
-    description: 'Ein ganztägiges Forum für junge Menschen zwischen 14 und 26 Jahren. Diskutiert, vernetzt euch und entwickelt gemeinsam Ideen für eine gerechte Klimapolitik.',
+    description: 'Ein ganztägiges Forum für junge Menschen zwischen 14 und 26 Jahren.',
     maxParticipants: 50,
     currentParticipants: 34,
-    imageEmoji: '🌱',
+    imageEmoji: '\uD83C\uDF31',
   },
   {
     id: 4,
     title: 'Netzwerktreffen: Zivilgesellschaft Österreich',
-    date: '2025-04-12',
-    time: '17:00–19:30 Uhr',
-    location: 'Linz – Kulturzentrum Ursulinenhof',
+    date: '2026-04-12',
+    time: '17:00\u201319:30 Uhr',
+    location: 'Linz \u2013 Kulturzentrum Ursulinenhof',
     category: 'netzwerk',
-    description: 'Treffen Sie andere Engagierte aus der österreichischen Zivilgesellschaft. Erfahrungsaustausch, Kooperationsmöglichkeiten und gemeinsame Projekte.',
+    description: 'Treffen Sie andere Engagierte aus der österreichischen Zivilgesellschaft.',
     maxParticipants: 60,
     currentParticipants: 22,
-    imageEmoji: '🤝',
+    imageEmoji: '\uD83E\uDD1D',
   },
   {
     id: 5,
     title: 'Workshop: Konflikte konstruktiv lösen',
-    date: '2025-04-26',
-    time: '09:00–17:00 Uhr',
-    location: 'Salzburg – Bildungshaus St. Virgil',
+    date: '2026-04-26',
+    time: '09:00\u201317:00 Uhr',
+    location: 'Salzburg \u2013 Bildungshaus St. Virgil',
     category: 'workshop',
-    description: 'Ein Tagesworkshop mit Methoden der gewaltfreien Kommunikation und Mediation. Für alle, die in Vereinen, Schulen oder Gemeinden aktiv sind.',
+    description: 'Ein Tagesworkshop mit Methoden der gewaltfreien Kommunikation und Mediation.',
     maxParticipants: 20,
     currentParticipants: 15,
-    imageEmoji: '🕊️',
+    imageEmoji: '\uD83D\uDD4A\uFE0F',
   },
   {
     id: 6,
     title: 'Online-Seminar: Vereinsrecht in Österreich',
-    date: '2025-05-08',
-    time: '18:00–19:30 Uhr',
+    date: '2026-05-08',
+    time: '18:00\u201319:30 Uhr',
     location: 'Online (Zoom)',
     category: 'online',
-    description: 'Alles Wichtige über Vereinsgründung, Statuten, Haftung und Buchhaltung für Vereinsvorstände und Gründungsinteressierte.',
+    description: 'Alles Wichtige über Vereinsgründung, Statuten, Haftung und Buchhaltung.',
     maxParticipants: 100,
     currentParticipants: 43,
-    imageEmoji: '📋',
+    imageEmoji: '\uD83D\uDCCB',
   },
 ];
 
@@ -119,7 +120,15 @@ function formatDate(dateStr: string): string {
   });
 }
 
-function EventCard({ event }: { event: Event }) {
+const EMOJI_MAP: Record<string, string> = {
+  workshop: '\uD83C\uDF93',
+  vortrag: '\uD83C\uDFE4',
+  netzwerk: '\uD83E\uDD1D',
+  online: '\uD83D\uDCBB',
+  jugend: '\uD83C\uDF31',
+};
+
+function EventCard({ event, onRsvp }: { event: Event; onRsvp: (id: number) => void }) {
   const spotsLeft = event.maxParticipants - event.currentParticipants;
   const fillPercent = Math.round((event.currentParticipants / event.maxParticipants) * 100);
 
@@ -127,15 +136,15 @@ function EventCard({ event }: { event: Event }) {
     <Card className={`p-6 flex flex-col gap-4 hover:shadow-lg transition-shadow ${event.isFeatured ? 'ring-2 ring-primary-500' : ''}`}>
       {event.isFeatured && (
         <span className="text-xs font-semibold text-primary-700 bg-primary-50 px-2 py-1 rounded-full w-fit">
-          ⭐ Empfohlen
+          Empfohlen
         </span>
       )}
       <div className="flex items-start gap-4">
         <div className="text-4xl flex-shrink-0">{event.imageEmoji}</div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${CATEGORY_COLORS[event.category]}`}>
-              {CATEGORY_LABELS[event.category]}
+            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${CATEGORY_COLORS[event.category] || 'bg-gray-100 text-gray-700'}`}>
+              {CATEGORY_LABELS[event.category] || event.category}
             </span>
           </div>
           <h3 className="font-semibold text-secondary-900 text-base leading-snug mb-1">{event.title}</h3>
@@ -158,11 +167,10 @@ function EventCard({ event }: { event: Event }) {
         </div>
         <div className="flex items-center gap-2">
           <Users className="w-4 h-4 text-primary-500 flex-shrink-0" />
-          <span>{event.currentParticipants} / {event.maxParticipants} Teilnehmer·innen</span>
+          <span>{event.currentParticipants} / {event.maxParticipants} Teilnehmer*innen</span>
         </div>
       </div>
 
-      {/* Auslastungsbalken */}
       <div>
         <div className="flex justify-between text-xs text-secondary-500 mb-1">
           <span>{fillPercent}% belegt</span>
@@ -183,7 +191,7 @@ function EventCard({ event }: { event: Event }) {
         size="sm"
         className="w-full mt-auto"
         disabled={spotsLeft <= 0}
-        onClick={() => window.open('mailto:events@menschlichkeit-oesterreich.at?subject=Anmeldung: ' + encodeURIComponent(event.title), '_blank')}
+        onClick={() => onRsvp(event.id)}
       >
         {spotsLeft <= 0 ? 'Warteliste' : 'Jetzt anmelden'}
         {spotsLeft > 0 && <ChevronRight className="w-4 h-4" />}
@@ -193,17 +201,56 @@ function EventCard({ event }: { event: Event }) {
 }
 
 export default function Veranstaltungen() {
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState<Event['category'] | 'alle'>('alle');
 
+  useEffect(() => {
+    loadEvents();
+  }, []);
+
+  async function loadEvents() {
+    setLoading(true);
+    try {
+      const res = await dashboardApi.getEvents();
+      const mapped: Event[] = (res.data || []).map((e: any) => ({
+        id: e.id,
+        title: e.title || e.titel || '',
+        date: e.date || e.datum || '',
+        time: e.time || e.zeit || '',
+        location: e.location || e.ort || '',
+        category: e.category || e.kategorie || 'workshop',
+        description: e.description || e.beschreibung || '',
+        maxParticipants: e.capacity || e.maxParticipants || e.kapazitaet || 50,
+        currentParticipants: e.registered || e.currentParticipants || e.anmeldungen || 0,
+        imageEmoji: e.imageEmoji || EMOJI_MAP[e.category || 'workshop'] || '\uD83D\uDCC5',
+        isFeatured: e.isFeatured || e.featured || false,
+      }));
+      setEvents(mapped.length > 0 ? mapped : FALLBACK_EVENTS);
+    } catch {
+      setEvents(FALLBACK_EVENTS);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleRsvp(eventId: number) {
+    try {
+      await dashboardApi.rsvpEvent(String(eventId));
+      loadEvents();
+    } catch {
+      window.open('mailto:kontakt@menschlichkeit-oesterreich.at?subject=Anmeldung: Event ' + eventId, '_blank');
+    }
+  }
+
   const filtered = activeFilter === 'alle'
-    ? EVENTS
-    : EVENTS.filter(e => e.category === activeFilter);
+    ? events
+    : events.filter(e => e.category === activeFilter);
 
   const categories: Array<Event['category'] | 'alle'> = ['alle', 'workshop', 'vortrag', 'netzwerk', 'online', 'jugend'];
 
   return (
     <div className="min-h-screen bg-semantic-background">
-      {/* Hero */}
       <section className="bg-gradient-to-br from-primary-900 to-primary-700 text-white py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl font-bold mb-4">Veranstaltungen</h1>
@@ -213,7 +260,6 @@ export default function Veranstaltungen() {
         </div>
       </section>
 
-      {/* Filter */}
       <section className="bg-white border-b border-secondary-200 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-2 overflow-x-auto">
           <Filter className="w-4 h-4 text-secondary-500 flex-shrink-0" />
@@ -233,9 +279,12 @@ export default function Veranstaltungen() {
         </div>
       </section>
 
-      {/* Events Grid */}
       <section className="max-w-6xl mx-auto px-4 py-12">
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="flex justify-center py-16">
+            <div className="animate-spin h-8 w-8 border-4 border-primary-600 border-t-transparent rounded-full" />
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="text-center py-16 text-secondary-500">
             <Calendar className="w-12 h-12 mx-auto mb-4 opacity-30" />
             <p>Keine Veranstaltungen in dieser Kategorie gefunden.</p>
@@ -243,13 +292,12 @@ export default function Veranstaltungen() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map(event => (
-              <EventCard key={event.id} event={event} />
+              <EventCard key={event.id} event={event} onRsvp={handleRsvp} />
             ))}
           </div>
         )}
       </section>
 
-      {/* Eigene Veranstaltung vorschlagen */}
       <section className="bg-primary-50 border-t border-primary-100 py-12 px-4">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-2xl font-bold text-primary-900 mb-3">Eigene Veranstaltung einreichen</h2>
@@ -259,7 +307,7 @@ export default function Veranstaltungen() {
           </p>
           <Button
             variant="primary"
-            onClick={() => window.open('mailto:events@menschlichkeit-oesterreich.at?subject=Veranstaltungsvorschlag', '_blank')}
+            onClick={() => window.open('mailto:kontakt@menschlichkeit-oesterreich.at?subject=Veranstaltungsvorschlag', '_blank')}
           >
             Veranstaltung vorschlagen
           </Button>

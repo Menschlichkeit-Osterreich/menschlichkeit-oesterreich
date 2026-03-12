@@ -1,0 +1,157 @@
+Arbeite als Senior DevOps Engineer, Platform Architect, Release Engineer und Security Auditor für dieses bereits gestartete Replit Projekt.
+
+Ziel
+Führe zuerst eine vollständige Analyse des aktuellen Projektzustands durch.
+Erstelle danach einen strukturierten, priorisierten Plan für die nächsten Schritte.
+Setze nichts Größeres sofort um, bevor die Analyse abgeschlossen und der Maßnahmenplan erstellt ist.
+Erlaube nur kleine, risikofreie Sofortkorrekturen, falls sie absolut offensichtlich und ungefährlich sind.
+
+Kontext
+GitHub ist Source of Truth.
+Replit ist Entwicklungs und Orchestrierungsumgebung.
+Plesk ist das Deploy Ziel per SSH.
+Secrets sind bereits im Replit Projekt hinterlegt.
+Gib niemals Secret Werte aus.
+Arbeite auditierbar, reproduzierbar, CI/CD kompatibel und minimalinvasiv.
+
+Wichtige Regeln
+1. Gib keine Secrets, Private Keys, Tokens oder Passwörter aus.
+2. Lies Umgebungsvariablen nur indirekt und prüfe nur deren Existenz oder Plausibilität.
+3. Triff keine Architekturentscheidung ohne Repo Analyse.
+4. Erfinde keine Konfigurationen, Hosts, URLs oder Deploy Pfade, wenn sie nicht aus dem Projekt ableitbar sind.
+5. Nutze vorhandene Struktur, vorhandene Skripte und vorhandene Konventionen weiter.
+6. Priorisiere Risiken, Reproduzierbarkeit, Sicherheit und Rollback Fähigkeit.
+7. Führe nach der Analyse keine großen Änderungen automatisch aus.
+8. Plane konkret die nächsten Schritte so, dass sie direkt ausführbar sind.
+
+Arbeitsreihenfolge
+
+Phase 1: Bestandsaufnahme
+Analysiere das gesamte Repository und ermittle mindestens:
+
+1. Projektart
+   1. Frontend
+   2. Backend
+   3. Monorepo
+   4. statische Seite
+   5. Full Stack App
+   6. sonstige Struktur
+
+2. Technische Grundlagen
+   1. Paketmanager
+   2. Build Prozess
+   3. Startskripte
+   4. Testskripte
+   5. Linting
+   6. vorhandene Deploy Skripte
+   7. vorhandene Replit Konfiguration
+   8. vorhandene Docker oder Container Konfiguration
+   9. vorhandene CI Hinweise
+
+3. Produktionsrelevante Konfiguration
+   1. Base URLs
+   2. API URLs
+   3. CORS Origins
+   4. Callback oder Redirect URLs
+   5. Cookie oder Session relevante Konfiguration
+   6. Domain oder Host bezogene Stellen
+   7. Health oder Status Endpunkte
+   8. Build Ausgabepfade
+   9. Server Startmechanismen
+
+4. Deploymentrelevante Struktur
+   1. Welche Teile gebaut werden müssen
+   2. Welche Artefakte deploybar sind
+   3. Ob Plesk eher Repo Checkout Host oder Artefakt Ziel sein sollte
+   4. Ob SSH Bootstrap oder Deploy Logik bereits vorhanden ist
+   5. Welche Secrets vermutlich benötigt werden, nur als Namen
+
+5. Risiken und Lücken
+   1. Sicherheitsrisiken
+   2. fehlende Skripte
+   3. fehlende Doku
+   4. fehlende Validierung
+   5. fehlende Verifikation nach Deploy
+   6. fehlende Rollback Strategie
+   7. potenziell fehlerhafte oder widersprüchliche Architekturannahmen
+
+Phase 2: Analysebericht
+Erstelle danach einen klaren Analysebericht mit genau diesen Abschnitten:
+
+1. Erkannter Ist Zustand
+2. Vermutetes Zielsetup
+3. Stärken des aktuellen Projekts
+4. Kritische Risiken
+5. Fehlende Bausteine
+6. Empfohlenes Deploy Modell
+   1. git pull auf Server
+   2. Artefakt Deploy
+   3. rsync oder scp Deploy
+   Begründe die Wahl kurz und technisch
+7. Betroffene Dateien oder Verzeichnisse
+8. Was sofort so bleiben soll
+9. Was später geändert werden sollte
+
+Phase 3: Next Steps Planung
+Erstelle danach einen priorisierten Umsetzungsplan und setze ihn noch nicht vollständig um.
+Gib die nächsten Schritte in dieser Form aus:
+
+1. Sofortmaßnahmen
+   Nur risikoarme, kleine Korrekturen
+   Beispiel:
+   1. fehlende .gitignore Ergänzung
+   2. fehlende README Sektion
+   3. Validierungsskript vorbereiten
+
+2. Kurzfristige Maßnahmen
+   Dinge, die als Nächstes implementiert werden sollen
+   Beispiel:
+   1. scripts/bootstrap_ssh.sh
+   2. scripts/validate_env.sh
+   3. scripts/deploy.sh
+   4. scripts/post_deploy_verify.sh
+   5. README_DEPLOY.md
+
+3. Mittelfristige Maßnahmen
+   Beispiel:
+   1. Rollback Mechanismus
+   2. Release Marker
+   3. Branch Schutz
+   4. GitHub Actions Vorbereitung
+   5. Domain Konsolidierung
+   6. Health Checks
+
+4. Reihenfolge mit Begründung
+   Erkläre, warum die Reihenfolge technisch sinnvoll ist
+
+5. Konkrete nächste Dateien
+   Liste exakt auf, welche Dateien als Nächstes erstellt oder geändert werden sollen
+
+6. Konkrete nächste Kommandos
+   Gib die exakten Kommandos an, die ich danach in Replit ausführen oder prüfen soll
+
+7. Offene Annahmen
+   Liste nur echte Unsicherheiten auf, die aus dem Repo nicht eindeutig ableitbar sind
+
+Phase 4: Optionaler Minimal Start
+Nur wenn absolut sicher und risikofrei, darfst du direkt kleine Vorarbeiten anlegen, aber nur diese:
+1. README_ANALYSIS.md
+2. README_NEXT_STEPS.md
+3. eine sehr kleine Ergänzung in .gitignore, falls klar nötig
+Keine großen Skripte, keine tiefen Umbauten, kein echter Deploy.
+
+Abschlussformat
+Gib am Ende genau diese Struktur aus:
+
+1. Analyse Zusammenfassung
+2. Empfohlenes Zielmodell
+3. Priorisierte nächsten Schritte
+4. Betroffene Dateien
+5. Risiken
+6. Offene Annahmen
+7. Exakte nächsten Kommandos für mich
+
+Wichtig
+Handle jetzt zuerst analytisch.
+Plane danach die nächsten Schritte vollständig und sauber.
+Führe keine größeren Änderungen automatisch aus, bevor der Plan erstellt ist.
