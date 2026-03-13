@@ -298,8 +298,43 @@ async def tool_n8n_get_status(args: dict) -> Any:
 async def tool_n8n_trigger_webhook(args: dict) -> Any:
     webhook_id = args["webhook_id"]
     payload = args.get("payload", {})
-    # Nur vordefinierte Webhooks erlauben
-    allowed_webhooks = ["mo-events", "new-member", "new-donation", "daily-report"]
+    # Nur vordefinierte Webhooks erlauben (entspricht automation/n8n/workflows/)
+    allowed_webhooks = [
+        # Mitglieder & CRM
+        "new-member",
+        "crm-member-management",
+        "crm-sync-members",
+        "onboarding-welcome-series",
+        # Finanzen
+        "new-donation",
+        "finance-donation-processing",
+        "finance-dunning",
+        "finance-invoicing",
+        "finance-membership-invoicing",
+        "finance-payment-confirmation",
+        "finance-sepa-export",
+        "Stripe_Webhook_to_CiviCRM_Contribution",
+        # Events & Forum
+        "mo-events",
+        "events-reminder",
+        "forum-moderation",
+        "forum-viral",
+        # System & Betrieb
+        "daily-report",
+        "dashboard-etl-stripe-civicrm",
+        "build-pipeline-automation",
+        "plesk-deployment-notifications",
+        "queue-monitor",
+        "dlq-admin",
+        "WebhookQueue_Processor",
+        "mail-archiver-logging",
+        # DSGVO
+        "right-to-erasure",
+        "right-to-erasure-fixed",
+        # Social & Kommunikation
+        "social-media-crosspost",
+        "openclaw-bridge",
+    ]
     if webhook_id not in allowed_webhooks:
         raise ValueError(f"Webhook '{webhook_id}' nicht in der Whitelist")
     async with httpx.AsyncClient(timeout=15) as client:
