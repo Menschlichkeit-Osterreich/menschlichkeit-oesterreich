@@ -91,9 +91,9 @@ class TestPhoneRedaction:
     def test_phone_with_spaces(self):
         """Telefonnummer mit Leerzeichen (Edge-Case)"""
         sanitizer = PiiSanitizer()
-        # Aktuell nicht erkannt - dokumentiert als Limitation
         result = sanitizer.scrub_text("+43 664 123 456")
-        # TODO: Enhancement für Spaces
+        assert "+43 664 123 456" not in result
+        assert "+43" in result  # Ländervorwahl bleibt erhalten
 
 
 class TestIpRedaction:
