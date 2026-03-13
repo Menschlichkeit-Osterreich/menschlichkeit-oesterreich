@@ -48,7 +48,7 @@ class TokenBlacklist:
         """
         with self._lock:
             self._store[token] = expires_at
-            logger.info(
+            logger.debug(
                 "JWT-Token widerrufen (läuft ab: %s). "
                 "Blacklist enthält %d Einträge.",
                 expires_at.isoformat(),

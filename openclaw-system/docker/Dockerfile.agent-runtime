@@ -14,6 +14,10 @@ COPY openclaw-system/configs/ /app/configs/
 COPY openclaw-system/core/agent_runtime/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Non-root user (CIS Docker Benchmark 4.1)
+RUN adduser --disabled-password --gecos "" --uid 1001 appuser
+USER appuser
+
 EXPOSE 9100
 
 CMD ["python", "-m", "core.agent_runtime.main"]
