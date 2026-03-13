@@ -3,7 +3,7 @@ GDPR Privacy Routes - Right to Erasure (DSGVO Art. 17)
 Austrian NGO Compliance: BAO § 132 (7-year retention), SEPA Rulebook §4.5 (14-month retention)
 """
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Header
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List, Dict, Any, Literal
 from datetime import datetime, timedelta
@@ -46,6 +46,7 @@ class ProcessDeletionRequest(BaseModel):
 # ============================================================================
 
 from ..shared import verify_jwt_token, ApiResponse, require_admin
+from ..lib.token_blacklist import revoke_token
 
 # CiviCRM API call - wird lazy importiert um circular import zu vermeiden
 async def civicrm_api_call(entity: str, action: str, params: dict):
@@ -220,7 +221,7 @@ async def _civicrm_get_active_sepa_mandates(email: str) -> List[Dict[str, Any]]:
 # Business Logic: Deletion Execution
 # ============================================================================
 
-async def _execute_deletion(user_id: int, email: str) -> Dict[str, Any]:
+async def _execute_deletion(user_id: int, email: str, raw_token: str | None = None) -> Dict[str, Any]:
     """
     Führt vollständige Datenlöschung über alle Systeme durch.
     
@@ -301,13 +302,41 @@ async def _execute_deletion(user_id: int, email: str) -> Dict[str, Any]:
             "timestamp": datetime.utcnow().isoformat()
         })
     
-    # 4. JWT Token Revocation (TODO: in-memory blacklist)
-    deletion_log["systems_affected"].append({
-        "system": "JWT Tokens",
-        "status": "revoked",
-        "note": "Token blacklist to be implemented",
-        "timestamp": datetime.utcnow().isoformat()
-    })
+    # 4. JWT Token Revocation
+    if raw_token:
+        import jwt as _jwt
+        import os as _os
+        try:
+            _secret = _os.getenv("JWT_SECRET", "")
+            _payload = _jwt.decode(raw_token, _secret, algorithms=["HS256"])
+            _exp_ts = _payload.get("exp")
+            if _exp_ts:
+                from datetime import timezone
+                _exp_dt = datetime.fromtimestamp(_exp_ts, tz=timezone.utc).replace(tzinfo=None)
+            else:
+                _exp_dt = datetime.utcnow() + timedelta(hours=24)
+            revoke_token(raw_token, _exp_dt)
+            deletion_log["systems_affected"].append({
+                "system": "JWT Tokens",
+                "status": "revoked",
+                "expires_at": _exp_dt.isoformat(),
+                "timestamp": datetime.utcnow().isoformat()
+            })
+        except Exception as e:
+            logger.warning(f"Token revocation failed: {e}")
+            deletion_log["systems_affected"].append({
+                "system": "JWT Tokens",
+                "status": "error",
+                "error": str(e),
+                "timestamp": datetime.utcnow().isoformat()
+            })
+    else:
+        deletion_log["systems_affected"].append({
+            "system": "JWT Tokens",
+            "status": "skipped",
+            "note": "Kein Token übergeben (Admin-seitige Löschung oder Token bereits abgelaufen)",
+            "timestamp": datetime.utcnow().isoformat()
+        })
     
     # 5. n8n Workflow Logs (via Webhook)
     try:
@@ -433,7 +462,8 @@ async def _trigger_n8n_user_deletion_workflow(user_id: int, email: str) -> Dict[
 @router.post("/data-deletion", response_model=ApiResponse)
 async def request_data_deletion(
     request: DataDeletionRequest,
-    payload: Dict[str, Any] = Depends(verify_jwt_token)
+    payload: Dict[str, Any] = Depends(verify_jwt_token),
+    authorization: str = Header(...)
 ) -> ApiResponse:
     """
     Erstellt Löschantrag für betroffene Person (DSGVO Art. 17).
@@ -442,7 +472,13 @@ async def request_data_deletion(
     - Manual Review bei BAO § 132 / SEPA Rulebook Exceptions
     """
     global _request_id_counter
-    
+
+    # Extrahiere rohen Token-String für spätere Revokierung
+    try:
+        _raw_token = authorization.split()[1]
+    except (IndexError, AttributeError):
+        _raw_token = None
+
     email = payload.get("sub")
     user_id = payload.get("user_id", 0)  # Fallback falls nicht im Token
     
@@ -475,7 +511,7 @@ async def request_data_deletion(
     deletion_log = None
     if auto_approved:
         try:
-            deletion_log = await _execute_deletion(user_id, email)
+            deletion_log = await _execute_deletion(user_id, email, raw_token=_raw_token)
             deletion_request.status = "completed"
             deletion_request.completed_at = datetime.utcnow()
             _deletion_requests[request_id] = deletion_request
