@@ -28,6 +28,7 @@ from fastapi.responses import JSONResponse
 from .routers import metrics, auth, members, forum, blog, events, roles, finance
 from .audit import ensure_audit_table, write_audit_event
 from .security import enforce_csrf, rate_limiter, require_jwt_secret_configured
+from .middleware.pii_middleware import PiiSanitizationMiddleware
 
 # ── Logging Setup ─────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -114,6 +115,9 @@ app.add_middleware(
     expose_headers=["X-Request-ID", "X-RateLimit-Remaining"],
     max_age=600,
 )
+
+# ── Middleware: PII-Sanitizer ─────────────────────────────────────────────────
+app.add_middleware(PiiSanitizationMiddleware)
 
 # ── Middleware: GZip ──────────────────────────────────────────────────────────
 app.add_middleware(GZipMiddleware, minimum_size=1000)
