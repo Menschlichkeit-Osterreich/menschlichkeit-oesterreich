@@ -142,6 +142,22 @@ Sechs spezialisierte KI-Agenten kommunizieren via NATS JetStream (Port 4222). Al
 - n8n-Webhook-Whitelist: `openclaw-system/configs/capabilities.yaml` → `webhooks.allowed`
 - System-Config: `openclaw-system/configs/system_config.yaml`
 
+**Agent-Budgets und Rate-Limits** (aus `capabilities.yaml`):
+
+| Rolle | Rate-Limit | max_tool_calls | max_minutes | max_cost_EUR |
+|-------|-----------|----------------|-------------|-------------|
+| orchestrator | 120 rpm | 20 | 15 | 0,20 |
+| research | 30 rpm | 20 | 15 | 0,20 |
+| builder | 60 rpm | 20 | 15 | 0,20 |
+| qa | 30 rpm | 20 | 15 | 0,20 |
+| automation | 20 rpm | 20 | 15 | 0,20 |
+| monetization | 20 rpm | 20 | 15 | 0,20 |
+
+**Vordefinierte Pipelines** (`openclaw-system/configs/agent_roles.yaml`):
+- `content_factory`: Research → Builder → QA → Automation → Monetization
+- `devops_assistant`: Research → Builder → QA → Builder (PR-Draft)
+- `crm_community_ops`: Research → Automation → Monetization
+
 ### Windows-Bridge
 
 Enables communication between Windows apps and OpenClaw running in WSL2/Docker:
