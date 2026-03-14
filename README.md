@@ -1,201 +1,308 @@
+<div align="center">
+
+<img src="apps/website/public/logo.JPG" alt="Menschlichkeit Österreich" width="180" />
+
+# Menschlichkeit Österreich
+
+### Digitale Plattform für Demokratie, Menschenrechte und Zivilgesellschaft
+
+[![CI](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/actions/workflows/ci.yml/badge.svg)](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/actions/workflows/ci.yml)
+[![Quality Gate](https://img.shields.io/badge/Quality%20Gate-Passing-brightgreen?logo=codacy)](https://app.codacy.com/gh/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development)
+[![DSGVO-konform](https://img.shields.io/badge/DSGVO-konform-blue?logo=europeanunion)](SECURITY.md)
+[![WCAG AA](https://img.shields.io/badge/Barrierefreiheit-WCAG%20AA-success)](docs/legal/WCAG-AA-COMPLIANCE-BLUEPRINT.md)
+[![Lizenz: MIT](https://img.shields.io/badge/Lizenz-MIT-yellow)](LICENSE)
+
+**[Website](https://menschlichkeit-oesterreich.at) · [Mitglied werden](https://menschlichkeit-oesterreich.at/mitglied-werden) · [Spenden](https://menschlichkeit-oesterreich.at/spenden) · [Dokumentation](DOCS-INDEX.md)**
+
+</div>
+
 ---
-title: Menschlichkeit Österreich – Multi-Service NGO Platform
-description: Eine umfassende digitale Plattform für demokratische Teilhabe, Bildung und Community-Engagement in Österreich
-lastUpdated: 2025-10-13
-status: ACTIVE
-category: project
-tags:
-  - ngo
-  - platform
-  - austria
-  - dsgvo
-  - multi-service
-version: 3.0.0
-language: de-AT
-audience:
-  - Developers
-  - End Users
-  - Contributors
-priority: critical
----
 
-# Menschlichkeit Österreich – Multi-Service NGO Platform
+## Über uns – Vereinsmission
 
-> Eine umfassende digitale Plattform für demokratische Teilhabe, Bildung und Community-Engagement in Österreich
+**Menschlichkeit Österreich** ist ein gemeinnütziger Verein mit dem Ziel, Demokratie, Menschenrechte und eine offene Zivilgesellschaft in Österreich zu stärken. Wir glauben: Eine lebendige Demokratie braucht informierte, engagierte Menschen – und digitale Werkzeuge, die Teilhabe niedrigschwellig ermöglichen.
 
-[![Quality Gate](https://img.shields.io/badge/Quality%20Gate-Passing-brightgreen)](https://app.codacy.com/gh/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development)
-[![Security Scan](https://img.shields.io/badge/Security-DSGVO%20Compliant-blue)](docs/PRIVACY.md)
-[![WCAG AA](https://img.shields.io/badge/Accessibility-WCAG%20AA-success)](docs/legal/WCAG-AA-COMPLIANCE-BLUEPRINT.md)
+Unsere drei Säulen:
+
+- **Demokratische Teilhabe** — Interaktive Bildungsspiele, Foren und Veranstaltungen, die politische Kompetenz fördern
+- **Gemeinschaft** — Ein offenes Vereinssystem, das Mitglieder vernetzt und zu gemeinsamem Handeln einlädt
+- **Transparenz** — Open-Source-Plattform, DSGVO-konforme Datenhaltung, öffentliche Dokumentation
+
+> *„Menschlichkeit ist kein Luxus – sie ist die Grundlage jeder funktionierenden Gesellschaft."*
 
 ---
 
 ## Inhaltsverzeichnis
 
-- [Projektübersicht](#-projektübersicht)
-- [Quick Start](#-quick-start)
-- [Architektur & Tech Stack](#️-architektur--tech-stack)
-- [Entwicklung](#️-entwicklung)
-- [Konfiguration](#-konfiguration)
+- [Schnellstart](#-schnellstart)
+- [Architektur](#️-architektur)
+- [Services im Detail](#-services-im-detail)
+- [OpenClaw KI-Agentensystem](#-openclaw-ki-agentensystem)
 - [Projektstruktur](#-projektstruktur)
-- [Dokumentation](#-dokumentation)
+- [Entwicklung](#-entwicklung)
 - [Testing](#-testing)
+- [DSGVO & Sicherheit](#-dsgvo--sicherheit)
+- [Design System](#-design-system)
 - [Deployment](#-deployment)
 - [Contributing](#-contributing)
-- [Lizenz](#-lizenz)
-- [Support](#-support)
-- [Über Menschlichkeit Österreich](#-über-menschlichkeit-österreich)
+- [Lizenz & Support](#-lizenz--support)
 
 ---
 
-## 🎯 Projektübersicht
+## 🚀 Schnellstart
 
-Diese Plattform vereint mehrere spezialisierte Dienste für eine österreichische NGO:
+### Voraussetzungen
 
-- 🌐 Website – Öffentliche Präsenz mit WordPress/HTML
-- 🔌 API Service – FastAPI-Backend für Datenintegration
-- 👥 CRM System – Drupal 10 + CiviCRM für Mitgliederverwaltung
-- 🎮 Gaming Platform – Educational Web Games (Demokratie-Simulator, Verfassungs-Quest)
-- 🎨 Frontend – React/TypeScript mit Design Tokens (Rot-Weiß-Rot Corporate Identity)
-- 🤖 Automation – n8n Workflows für Build-Notifications, Datenintegration
+| Tool | Mindestversion | Zweck |
+|------|---------------|-------|
+| Node.js | 22 LTS | Frontend, Tooling |
+| npm | 10 | Paketmanager |
+| Python | 3.12 | FastAPI Backend |
+| Docker Desktop | 24 | Datenbanken, n8n |
+| PHP | 8.1 | Drupal CRM (optional) |
+| Git | 2.40 | Versionskontrolle |
 
-Architektur: Monorepo mit npm workspaces, Multi-Subdomain Plesk Hosting, Docker für lokale Entwicklung
-
----
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Node.js v22+ (LTS)
-- npm v10+
-- Docker Desktop v24+ (für CRM/n8n)
-- Python v3.12+ (für API Service)
-- Git v2.40+
-
-### Installation (< 5 Minuten)
+### Installation
 
 ```bash
-# 1) Repository klonen
+# 1. Repository klonen
 git clone https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development.git
 cd menschlichkeit-oesterreich-development
 
-# 2) Dev-Setup (Workspaces, Composer, Environments)
+# 2. Umgebungsvariablen anlegen
+cp .env.example .env
+cp apps/website/.env.example apps/website/.env.local
+# → .env mit echten Werten befüllen (Datenbank, API-Keys)
+
+# 3. Abhängigkeiten & Environments einrichten
 npm run setup:dev
 
-# 3) Alle Services starten (lokal)
+# 4. Infrastruktur starten (PostgreSQL, Redis, n8n)
+npm run docker:up
+
+# 5. Alle Services starten
 npm run dev:all
 ```
 
-Services erreichbar (Standard-Ports):
+### Services nach dem Start
 
-- Frontend: http://localhost:5173
-- API: http://localhost:8001
-- CRM: http://localhost:8000
-- Games: http://localhost:3000 (statisch)
-- n8n: http://localhost:5678
-
-📚 Detaillierte Anleitung: docs/QUICKSTART.md
-
----
-
-## 🏗️ Architektur & Tech Stack
-
-### Service-Übersicht
-
-| Service    | Technologie               | Port | Dokumentation                               |
-| ---------- | ------------------------- | ---- | ------------------------------------------- |
-| Website    | WordPress/HTML            | -    | website/README.md                           |
-| API        | FastAPI + Python 3.12     | 8001 | api.menschlichkeit-oesterreich.at/README.md |
-| CRM        | Drupal 10 + CiviCRM       | 8000 | crm.menschlichkeit-oesterreich.at/README.md |
-| Frontend   | React + TypeScript + Vite | 5173 | frontend/README.md                          |
-| Gaming     | Prisma + PostgreSQL       | 3000 | web/README.md                               |
-| Automation | n8n (Docker)              | 5678 | automation/README.md                        |
-
-### Datenbank-Strategie
-
-- PostgreSQL: Gaming Platform (Prisma ORM), CiviCRM
-- MariaDB: Drupal CRM (separate Instanz)
-- Migrations: Alembic (API), Prisma (Games), Drupal (CRM)
-
-### Security & Compliance
-
-- DSGVO: PII Sanitization, Consent Management, Right to Erasure
-- WCAG AA: Barrierefreiheit für alle Frontends
-- Security: Codacy, Trivy, Gitleaks, GitGuardian, Secret-Scan
-- Supply Chain: SBOM, SLSA attestation, signed commits
-
-Weitere Details: DOCS-INDEX.md → Architecture
+| Service | URL | Beschreibung |
+|---------|-----|-------------|
+| Frontend | http://localhost:5173 | React-Vereinswebsite |
+| API | http://localhost:8001 | FastAPI REST-Backend |
+| CRM | http://localhost:8000 | Drupal + CiviCRM |
+| Games | http://localhost:3000 | Bildungsspiele |
+| n8n | http://localhost:5678 | Automatisierungsplattform |
+| API-Docs | http://localhost:8001/api/docs | Swagger UI |
+| Tool-Gateway | http://localhost:9101 | OpenClaw Gateway |
 
 ---
 
-## 🛠️ Entwicklung
+## 🏗️ Architektur
 
-### Wichtige Kommandos
+Menschlichkeit Österreich ist ein **npm-Monorepo** mit sieben spezialisierten Diensten, die über eine gemeinsame PostgreSQL-Datenbank verbunden sind.
 
-```bash
-# Development
-npm run dev:all              # Alle Services starten
-npm run dev:frontend         # Nur Frontend
-npm run dev:api             # Nur API
-npm run dev:crm             # Nur CRM
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Öffentliches Internet                        │
+└──────────────┬───────────────────────┬──────────────────────────┘
+               │                       │
+       ┌───────▼───────┐       ┌───────▼───────┐
+       │   Frontend    │       │  CRM/CiviCRM  │
+       │  React + Vite │       │   Drupal 10   │
+       │  Port: 5173   │       │   Port: 8000  │
+       └───────┬───────┘       └───────┬───────┘
+               │                       │
+               └──────────┬────────────┘
+                          │
+                  ┌───────▼───────┐
+                  │   FastAPI     │
+                  │   REST-API    │
+                  │  Port: 8001   │
+                  └───────┬───────┘
+                          │
+          ┌───────────────┼───────────────┐
+          │               │               │
+  ┌───────▼──────┐ ┌──────▼──────┐ ┌─────▼──────┐
+  │  PostgreSQL  │ │    Redis    │ │    n8n     │
+  │  Port: 5432  │ │  (Cache)   │ │ Port: 5678 │
+  └──────────────┘ └─────────────┘ └────────────┘
 
-# Status & Diagnose (NEU!)
-npm run status:check        # Schneller Status-Check aller Services & PRs
-npm run status:verbose      # Detaillierte System-Informationen
-npm run status:json         # Export als JSON für Analyse
-
-# Quality & Testing
-npm run lint:all            # Alle Linter
-npm run test:unit           # Unit Tests
-npm run test:e2e            # E2E Tests (Playwright)
-npm run quality:gates       # Vollständige Quality Gates
-
-# Security
-npm run security:scan       # Vollständiger Security-Scan
-npm run security:trivy      # Container/Dependencies-Scan
-npm run security:gitleaks   # Secret-Scanning
-
-# Build & Deploy
-./build-pipeline.sh staging
-./build-pipeline.sh production
-./scripts/safe-deploy.sh --dry-run
+  ┌─────────────────────────────────────────────┐
+  │          OpenClaw KI-Agentensystem          │
+  │  Tool-Gateway :9101 ↔ Agent-Runtime :9100   │
+  │  NATS JetStream :4222 ↔ Qdrant :6333        │
+  └─────────────────────────────────────────────┘
 ```
 
-### Codespace Troubleshooting
+### Technologie-Stack
 
-Wenn Services nicht starten oder Sie den Codespace-Status prüfen möchten:
-
-```bash
-npm run status:check        # Zeigt: Services, PRs, Workflow-Status
-```
-
-📚 Ausführliche Diagnose: [Codespace Status Checker](..dokum/CODESPACE-STATUS-CHECKER.md)  
-🔧 Troubleshooting Guide: [CODESPACE-TROUBLESHOOTING.md](..dokum/CODESPACE-TROUBLESHOOTING.md)
-
-### Quality Gates (PR-Blocking)
-
-- Security: 0 offene Issues (Codacy, Trivy, Secret-Scan)
-- Maintainability: ≥85%, Duplication: ≤2%
-- Performance: Lighthouse P≥90, A11y≥90, SEO≥90
-- GDPR: 0 PII in Logs, dokumentierte Consent/Retention
-- License: Vollständiges SPDX, keine Inkompatibilitäten
+| Schicht | Technologie |
+|---------|------------|
+| Frontend | React 18, TypeScript, Vite, TailwindCSS, Radix UI |
+| Backend | FastAPI (Python 3.12), Pydantic v2, asyncpg |
+| CRM | Drupal 10, CiviCRM, PHP 8.1 |
+| Datenbank | PostgreSQL ≥15, Redis 7, Qdrant (Vektor-DB) |
+| Automatisierung | n8n (29 Workflows), NATS JetStream |
+| KI | OpenClaw (6 Agenten), OpenAI GPT-4.1 |
+| Testing | pytest, Vitest, Playwright |
+| CI/CD | GitHub Actions, Trivy, Bandit, Gitleaks, Codacy |
+| Hosting | Plesk, Docker |
 
 ---
 
-## ⚙️ Konfiguration
+## 📦 Services im Detail
 
-Environment Variablen (Auszug – ohne Secrets):
+### 🌐 Frontend (`apps/website/`)
 
-- DATABASE_URL: PostgreSQL-Verbindungsstring (15+)
-- SAFE_DEPLOY_AUTO_CONFIRM: Automatische Bestätigung für Safe-Deploy-Skripte (true/false)
-- STAGING*REMOTE*_ / PRODUCTION*REMOTE*_: Plesk/SFTP Deploy-Ziele (siehe deployment-scripts/)
-- FIGMA_TOKEN: Optional für Design-Token-Sync (figma-design-system)
-- NODE_ENV: development | production
+Die öffentliche Vereinswebsite als Single-Page-Application.
 
-Hinweise:
+**Kernfunktionen:**
+- Öffentliche Seiten: Startseite, Über uns, Blog, Veranstaltungen, Forum
+- Mitgliederbereich: Profil, Spenden, SEPA-Verwaltung
+- Admin-Portal: Mitgliederverwaltung, KPI-Dashboard, Rollenverwaltung
+- Zahlungsintegration: Stripe, PayPal, SEPA-Lastschrift
 
-- Beispiel-Templates liegen unter `config-templates/` (z. B. `laravel-env-production.env`).
-- n8n benötigt eine `.env` in `automation/n8n/` (via `npm run n8n:setup`).
+```bash
+npm run dev:frontend        # Vite Dev-Server (Port 5173)
+npm run build:frontend      # Produktions-Build
+```
+
+**Umgebungsvariablen:** [`apps/website/.env.example`](apps/website/.env.example)
+
+---
+
+### ⚙️ API (`apps/api/`)
+
+FastAPI-Backend mit JWT-Authentifizierung, RBAC und vollständiger OpenAPI-Dokumentation.
+
+**Endpunkte:**
+
+| Bereich | Pfad | Beschreibung |
+|---------|------|-------------|
+| Auth | `/api/auth/*` | Login, Registrierung, Passwort-Reset |
+| Mitglieder | `/api/members/*` | CRUD mit Rollen-Kontrolle |
+| Blog | `/api/blog/articles/*` | Vereinsblog |
+| Veranstaltungen | `/api/events/*` + `/rsvp` | Event-Management |
+| Forum | `/api/forum/*` | Kategorien, Threads, Posts |
+| Finanzen | `/api/finance/*` | Übersicht, Rechnungen |
+| KPIs | `/api/kpis/*` | Metriken, Zeitreihen |
+| Rollen | `/api/roles/*` | RBAC-Verwaltung |
+| Health | `/healthz`, `/readyz` | Liveness/Readiness |
+
+**OpenAPI-Spezifikation:** [`apps/api/openapi.yaml`](apps/api/openapi.yaml)
+
+**Rollenmodell:**
+
+| Rolle | Zugriff |
+|-------|---------|
+| `guest` | Öffentliche Seiten |
+| `member` | Eigenes Profil, Forum, Events |
+| `moderator` | + Inhaltsverwaltung |
+| `admin` | + Mitgliederverwaltung, Finanzen |
+| `sysadmin` | Vollzugriff |
+
+```bash
+npm run dev:api             # FastAPI + Uvicorn (Port 8001)
+cd apps/api && pytest tests/ # 33 Tests ausführen
+```
+
+---
+
+### 👥 CRM (`apps/crm/`)
+
+Drupal 10 mit CiviCRM für Mitglieder- und Spendenverwaltung.
+
+**Kernmodule:**
+- `pii_sanitizer` — DSGVO-konformes PII-Scrubbing in Logs
+- CiviCRM — Mitglieder, Spenden, Veranstaltungen, Mailing
+- CiviSEPA — SEPA-Lastschriftmandat-Verwaltung
+
+```bash
+npm run dev:crm             # php -S localhost:8000 -t apps/crm/web
+```
+
+---
+
+### 🎮 Games (`apps/game/`)
+
+Interaktive Bildungsspiele zur Demokratieförderung.
+
+- **Demokratie-Simulator** — Planspiel politischer Entscheidungsprozesse
+- **Verfassungs-Quest** — Grundrechte spielerisch erkunden
+- **Bürger-Quiz** — Wissenstest zu politischen Institutionen
+
+```bash
+npm run dev:games           # Python HTTP-Server (Port 3000)
+npx prisma migrate dev      # Datenbank-Migrationen
+npx prisma studio           # Datenbank-UI
+```
+
+---
+
+### 🔄 Automatisierung (`automation/n8n/`)
+
+29 n8n-Workflows für automatisierte Vereinsprozesse.
+
+| Kategorie | Workflows |
+|-----------|-----------|
+| Mitglieder & CRM | Aufnahme, Onboarding, CRM-Sync |
+| Finanzen | Spendenverarbeitung, Rechnungen, SEPA-Export, Mahnwesen |
+| Events & Forum | Erinnerungen, Moderation |
+| DSGVO | Löschanfragen (Art. 17 DSGVO) |
+| System | Queue-Monitor, DLQ-Admin, Build-Pipelines |
+| Social | Crosspost, Stripe → CiviCRM |
+
+```bash
+npm run docker:up           # n8n + PostgreSQL + Redis starten
+# Interface: http://localhost:5678
+```
+
+---
+
+## 🤖 OpenClaw KI-Agentensystem
+
+OpenClaw ist das interne Multi-Agent-System, das Entwicklungsaufgaben automatisiert. Alle sechs Agenten kommunizieren über NATS JetStream und nutzen eine Policy-Engine (Tool-Gateway) für sicheren Werkzeugzugriff.
+
+### Agenten
+
+| Agent | Rolle | Hauptwerkzeuge |
+|-------|-------|---------------|
+| `orchestrator` | Koordiniert alle Agenten, verteilt Tasks | `nats.publish`, `redis.*`, `db.query_readonly` |
+| `research` | Web-Recherche, Quellen-Analyse | `http.fetch`, `fs.read`, `qdrant.upsert` |
+| `builder` | Code schreiben, Git-Commits, PRs vorbereiten | `fs.*`, `git.status/diff/commit/pr_prepare` |
+| `qa` | Tests, Code-Qualität, Validierung | `ci.run_local`, `fs.read`, `git.diff` |
+| `automation` | n8n-Workflows triggern | `n8n.trigger_webhook`, `n8n.get_status` |
+| `monetization` | Kosten-Analyse, KPI-Berichte | `db.query_readonly`, `http.fetch` |
+
+### Pipelines
+
+```
+content_factory:     research → builder → qa → automation → monetization
+devops_assistant:    research → builder → qa → builder (PR-Draft)
+crm_community_ops:   research → automation → monetization
+```
+
+### Infrastruktur
+
+| Komponente | Port | Beschreibung |
+|-----------|------|-------------|
+| Tool-Gateway | 9101 | Policy-Engine, Audit-Log, Werkzeug-Router |
+| Agent-Runtime | 9100 | Orchestrierung, Task-Queue |
+| NATS JetStream | 4222 | Nachrichten-Bus |
+| Qdrant | 6333 | Vektordatenbank (Agenten-Gedächtnis) |
+| PostgreSQL (OC) | 55432 | Separate Agent-Datenbank |
+| Redis (OC) | 6380 | Agent-Cache |
+
+```bash
+bash openclaw-system/scripts/boot.sh    # Stack starten
+bash openclaw-system/scripts/smoke.sh   # Smoke-Tests
+```
+
+**Konfiguration:**
+- [`openclaw-system/configs/agent_roles.yaml`](openclaw-system/configs/agent_roles.yaml) — Rollen & System-Prompts
+- [`openclaw-system/configs/capabilities.yaml`](openclaw-system/configs/capabilities.yaml) — Tool-Whitelist & Budgets
+- [`openclaw-system/ARCHITECTURE.md`](openclaw-system/ARCHITECTURE.md) — Technische Dokumentation
 
 ---
 
@@ -203,227 +310,327 @@ Hinweise:
 
 ```
 menschlichkeit-oesterreich-development/
-├── apps/
-│   ├── website/                        # React Frontend (Vite)
-│   ├── api/                            # FastAPI Backend
-│   ├── game/                           # 3D Webgame (Three.js)
-│   └── crm/                            # CiviCRM (separat gehostet)
-├── packages/
-│   ├── ui/                             # Geteilte React-Komponenten
-│   ├── design-system/                  # Geteilte Design-Tokens (Tailwind)
-│   ├── eslint-config/                  # Geteilte ESLint-Regeln
-│   └── tsconfig/                       # Geteilte TypeScript-Konfiguration
-├── automation/                         # n8n Workflows
-├── docs/                               # Zentrale Dokumentation
-│   ├── getting-started/
-│   ├── architecture/
-│   ├── security/
-│   ├── compliance/
-│   ├── development/
-│   └── operations/
-├── config-templates/
-├── deployment-scripts/
+│
+├── apps/                               # Primäre Services
+│   ├── website/                        # React 18 + Vite (Port 5173)
+│   │   ├── src/
+│   │   │   ├── components/             # UI-Komponenten
+│   │   │   ├── pages/                  # Seitenrouten
+│   │   │   └── services/               # API-Clients
+│   │   └── .env.example
+│   │
+│   ├── api/                            # FastAPI (Port 8001)
+│   │   ├── app/
+│   │   │   ├── routers/                # auth, blog, events, finance, forum…
+│   │   │   ├── middleware/             # PII-Sanitization, Security-Header
+│   │   │   ├── lib/                    # pii_sanitizer, token_blacklist
+│   │   │   ├── rbac.py                 # JWT + Rollenmodell
+│   │   │   └── audit.py                # Audit-Trail
+│   │   ├── tests/                      # pytest Suite (33 Tests)
+│   │   └── openapi.yaml                # OpenAPI 3.1
+│   │
+│   ├── crm/                            # Drupal 10 + CiviCRM (Port 8000)
+│   │   └── web/modules/custom/
+│   │       └── pii_sanitizer/          # DSGVO-Drupal-Modul
+│   │
+│   └── game/                           # Bildungsspiele (Port 3000)
+│
+├── packages/                           # Gemeinsame Pakete (Monorepo)
+│   ├── design-system/                  # Design-Tokens
+│   └── ui/                             # Gemeinsame React-Komponenten
+│
+├── openclaw-system/                    # KI-Agentensystem
+│   ├── api/fastapi_gateway/            # Tool-Gateway (Port 9101)
+│   ├── core/agent_runtime/             # Agentensteuerung (Port 9100)
+│   ├── configs/                        # agent_roles, capabilities, system_config
+│   ├── services/postgres/init.sql      # Agent-DB-Initialisierung
+│   ├── windows-bridge/                 # WSL2 ↔ Windows-Brücke (Port 18790)
+│   └── ARCHITECTURE.md
+│
+├── automation/
+│   └── n8n/
+│       ├── workflows/                  # 29 JSON-Workflows
+│       └── custom-nodes/pii-sanitizer/ # DSGVO-n8n-Node
+│
+├── figma-design-system/                # Design-Tokens (Figma-Export)
+│   └── 00_design-tokens.json
+│
 ├── scripts/
-├── quality-reports/
-├── tests/
-└── figma-design-system/
+│   ├── init-db.sql                     # PostgreSQL-Initialisierung
+│   └── db-user-setup.sql
+│
+├── .github/workflows/                  # CI/CD (Node 22, Python 3.12)
+├── .env.example                        # Alle Umgebungsvariablen
+├── CLAUDE.md                           # KI-Entwicklungsanweisungen
+├── CONTRIBUTING.md
+├── SECURITY.md
+└── package.json                        # npm Workspaces Root
 ```
 
 ---
 
-## 📖 Dokumentation
+## 🛠️ Entwicklung
 
-Zentrale Navigation: DOCS-INDEX.md
+### Kommando-Referenz
 
-- Getting Started: docs/QUICKSTART.md
-- Architektur: DOCS-INDEX.md#architecture
-- Security: docs/security/
-- DSGVO: docs/compliance/
-- Design System: figma-design-system/FIGMA-README.md
-- Copilot: .github/copilot-instructions.md
-- Deployment: docs/operations/
+#### Setup & Dev
 
----
+```bash
+npm run setup:dev           # Vollständiges Setup
+npm run dev:all             # Alle Services starten
+npm run dev:frontend        # Frontend (Vite, :5173)
+npm run dev:api             # API (Uvicorn, :8001)
+npm run dev:crm             # CRM (PHP, :8000)
+npm run dev:games           # Games (Python, :3000)
+npm run docker:up           # PostgreSQL + Redis + n8n
+```
 
-## 👥 Member Management (Admin)
+#### Linting & Formatierung
 
-**Zentrale Mitgliederverwaltung mit CiviCRM-Integration**
+```bash
+npm run lint                # ESLint
+npm run lint:all            # JS + PHP + Markdown
+npm run lint:php            # PHPStan
+npm run format              # Prettier
+npm run format:php          # php-cs-fixer
+```
 
-- **Route:** `/admin/members` (Protected - nur Vorstand/Kassier)
-- **Features:**
-  - 🔍 Echtzeit-Suche (Name, E-Mail)
-  - 🏷️ Status-Filter (aktiv, pending, expired, cancelled)
-  - 📊 Mitgliedstyp-Filter (Standard, Ermäßigt, Härtefall)
-  - ✏️ Vollständiger Edit-Modus (Modal) mit DSGVO-konformen Feldern
-  - 📋 Membership-Historie mit Status-Badges
-  - 🔄 Responsive Card-Layout mit Loading/Error-States
-- **Backend:**
-  - `GET /contacts/search` – Mitgliedersuche mit Membership-Enrichment (Pagination)
-  - `PUT /contacts/{id}` – Update mit erweiterten Feldern (phone, birth_date, address)
-- **DSGVO-Compliance:** Art. 15-21 DSGVO-konform, PII-Sanitization, Audit-Logging
-- **Dokumentation:** [`docs/features/MEMBER-MANAGEMENT.md`](docs/features/MEMBER-MANAGEMENT.md)
+#### Testing
+
+```bash
+npm run test:unit                         # Vitest
+npm run test:e2e                          # Playwright
+cd apps/api && pytest tests/ -v           # Python API-Tests
+cd apps/api && pytest tests/test_pii_sanitizer.py  # PII isoliert
+```
+
+#### Quality Gates (PR-blockierend)
+
+```bash
+npm run quality:gates       # Codacy + Security + Lighthouse + DSGVO
+npm run security:scan       # Trivy + Bandit + Gitleaks
+npm run performance:lighthouse
+npm run compliance:dsgvo
+```
+
+#### Datenbank
+
+```bash
+npm run docker:up           # Datenbanken starten
+npx prisma migrate dev      # Prisma-Migrationen (Games)
+npx prisma generate         # Client regenerieren
+npx prisma studio           # Datenbank-UI
+```
+
+#### Build & Deploy
+
+```bash
+npm run build:frontend
+./build-pipeline.sh staging
+./build-pipeline.sh production
+```
+
+### Git-Workflow
+
+```
+main (geschützt)
+└── develop
+    ├── feature/<issue>-<beschreibung>
+    ├── fix/<issue>-<beschreibung>
+    └── docs/<issue>-<beschreibung>
+```
+
+**Conventional Commits** (via commitlint):
+
+```
+feat(scope): neue Funktion       → Minor-Version-Bump
+fix(scope): Fehlerkorrektur      → Patch-Version-Bump
+docs/test/chore/refactor         → kein Version-Bump
+```
 
 ---
 
 ## 🧪 Testing
 
-Struktur (Beispiel):
+### Übersicht
+
+| Ebene | Framework | Befehl |
+|-------|-----------|--------|
+| Python Unit | pytest | `cd apps/api && pytest tests/` |
+| JavaScript Unit | Vitest | `npm run test:unit` |
+| End-to-End | Playwright | `npm run test:e2e` |
+
+### Python Test-Suite (`apps/api/tests/`)
 
 ```
 tests/
-├── unit/          # Vitest Unit-Tests
-├── integration/   # Integrations-Tests
-├── e2e/           # Playwright E2E
-└── fixtures/      # Testdaten & Mocks
+├── conftest.py           # DB-Mocking, JWT-Fixtures (ohne PostgreSQL)
+├── test_health.py        # Liveness / Readiness / Version-Endpunkte
+├── test_pii_sanitizer.py # E-Mail, IBAN, Telefon, Kreditkarte, Freitext
+├── test_rbac.py          # JWT-Lifecycle, Rollenprüfung, Auth-Endpunkte
+└── test_security.py      # Rate-Limiter, Security-Middleware
 ```
-
-Wichtige Kommandos:
 
 ```bash
-npm run test:unit
-npm run test:e2e
-# Coverage (falls konfiguriert)
-npm run test:unit -- --coverage
+cd apps/api && pytest tests/ -v
+# 33 passed ✓
 ```
 
-Zielwerte: ≥80% Coverage in produktivem Code. Artefakte: `playwright-results/`, `coverage/`.
+---
+
+## 🔐 DSGVO & Sicherheit
+
+### PII-Sanitization
+
+Alle personenbezogenen Daten werden automatisch aus Logs entfernt:
+
+| PII-Typ | Maskierung | Beispiel |
+|---------|-----------|---------|
+| E-Mail | `t**@domain.com` | `test@example.com` → `t**@example.com` |
+| IBAN | `AT61***` | Nur Prüfziffer-validierte IBANs |
+| Telefon | `+43*********` | Alle Formate (+43, 0664, mit Leerzeichen) |
+| Kreditkarte | `[CARD]` | Nur Luhn-validierte Nummern |
+| JWT / Bearer | `[JWT_REDACTED]` | Tokens in Headern und Logs |
+| IPv4 | `1.2.*.*` | Letzte zwei Oktette |
+
+**Implementierung:**
+- FastAPI: [`apps/api/app/lib/pii_sanitizer.py`](apps/api/app/lib/pii_sanitizer.py) + [`app/middleware/pii_middleware.py`](apps/api/app/middleware/pii_middleware.py)
+- Drupal: [`apps/crm/web/modules/custom/pii_sanitizer/`](apps/crm/web/modules/custom/pii_sanitizer/)
+- n8n: [`automation/n8n/custom-nodes/pii-sanitizer/`](automation/n8n/custom-nodes/pii-sanitizer/)
+
+### DSGVO-Rechte (Art. 15–21 DSGVO)
+
+| Recht | Umsetzung |
+|-------|----------|
+| Auskunft (Art. 15) | `GET /api/members/me/profile` |
+| Berichtigung (Art. 16) | `PUT /api/members/{id}` |
+| Löschung (Art. 17) | n8n-Workflow `right-to-erasure` |
+| Einschränkung (Art. 18) | Status-Verwaltung im CRM |
+| Datenportabilität (Art. 20) | Export via CiviCRM |
+
+### Security-Checkliste
+
+- ✅ JWT mit HMAC-SHA256, Ablauftoken, Blacklist
+- ✅ Rate-Limiting (120 req/min Standard, konfigurierbar)
+- ✅ CSP, HSTS, X-Frame-Options Security-Header
+- ✅ PII-Sanitization in allen Log-Ebenen
+- ✅ Audit-Trail für alle sensiblen Aktionen
+- ✅ Dependency-Scanning (Trivy), Secret-Scanning (Gitleaks)
+- ✅ SQL-Injection-Schutz (parametrisierte Queries via asyncpg)
+
+**Sicherheitslücke melden:** [SECURITY.md](SECURITY.md) · `security@menschlichkeit-oesterreich.at`
+
+---
+
+## 🎨 Design System
+
+Alle Frontends nutzen **Figma Design Tokens** für konsistente Corporate Identity (Rot-Weiß-Rot).
+
+```bash
+npm run figma:sync          # Tokens aus Figma synchronisieren
+```
+
+- Tokens: [`figma-design-system/00_design-tokens.json`](figma-design-system/00_design-tokens.json)
+- Tailwind-Config: [`apps/website/tailwind.config.cjs`](apps/website/tailwind.config.cjs)
+
+**Regel:** Niemals Farben oder Abstände hardcoden – immer Design-Tokens verwenden.
 
 ---
 
 ## 🚢 Deployment
 
-Standard-Pipeline (Staging/Production):
+### Umgebungen
+
+| Umgebung | URL | Branch | Auslöser |
+|----------|-----|--------|---------|
+| Lokal | `localhost:*` | beliebig | manuell |
+| Staging | `staging.menschlichkeit-oesterreich.at` | `develop` | automatisch |
+| Produktion | `menschlichkeit-oesterreich.at` | `main` | mit Genehmigung |
+
+### Pipeline
 
 ```bash
-./build-pipeline.sh staging
-./build-pipeline.sh production
+./build-pipeline.sh staging              # Staging
+./build-pipeline.sh production           # Produktion
+./build-pipeline.sh production --dry-run # Vorschau
 ```
 
-Weitere Werkzeuge:
+**Quality Gates (PR-blockierend):**
 
-- Dry-Run: `./scripts/safe-deploy.sh --dry-run`
-- Multi-Service Deploy: `deployment-scripts/` (Plesk)
-- Health-Check: `npm run deploy:health-check`
-
-Environments (Beispiel):
-
-| Environment | URL                       | Branch     | CI/CD          |
-| ----------- | ------------------------- | ---------- | -------------- |
-| Development | lokal (siehe Ports unten) | feature/\* | Manuell        |
-| Staging     | staging.menschlichkeit-…  | main       | Auto + Gates   |
-| Production  | menschlichkeit-…          | release/\* | Approval nötig |
+| Gate | Schwellwert |
+|------|------------|
+| Security | 0 kritische Issues |
+| Code-Qualität | ≥85% Wartbarkeit, ≤2% Duplikation |
+| Performance | Lighthouse ≥90 (Performance, A11y, SEO) |
+| DSGVO | 0 PII in Logs |
 
 ---
 
 ## 🤝 Contributing
 
-## 🧩 MCP Server & Automatisierung
+Wir freuen uns über jeden Beitrag! Bitte lies zuerst:
+- [CONTRIBUTING.md](CONTRIBUTING.md) — Beitragsrichtlinien
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — Verhaltenskodex
 
-Die Datei `mcp.json` konfiguriert automatisierte Entwicklungs- und Compliance-Flüsse. Aktueller Stand (2025-10-14):
-
-| Server | Zweck | Status | Anmerkung |
-|--------|-------|--------|-----------|
-| filesystem (Wrapper) | Dateizugriff Basis | OK (Wrapper) | `scripts/mcp/wrapper-filesystem.sh` |
-| docker | Container Mgmt | OK | Docker CLI verfügbar |
-| codacy-cli | Code Analyse | TEILWEISE (Analyse fehlerhaft) | Docker Wrapper vorhanden, Parsing `.codacyrc` schlägt fehl |
-| prisma | DB Schema/Client | OK | Installiert (prisma & @prisma/client) |
-| lighthouse | Performance Audit | TEILWEISE | CLI installiert, Chrome fehlt (Headless Browser nachinstallieren) |
-| trivy-security | Security Scan | OK | Trivy Binary installiert |
-| n8n-webhook | Webhook Client | OK | `automation/n8n/webhook-client.js` |
-| build-pipeline | Build Dry-Run | OK | `./build-pipeline.sh` |
-| plesk-deploy | Deploy Dry-Run | OK | `./scripts/safe-deploy.sh` |
-| quality-reporter | Reports Aggregation | OK | `scripts/generate-quality-report.js` |
-| figma | Design Tokens Sync | OK | `scripts/figma-token-sync.cjs` |
-| github-cli | Repo Validierung | OK | `scripts/validate-github-files.py` |
-| memory (Wrapper) | Session Speicher | OK | Platzhalter `scripts/mcp/wrapper-memory.sh` |
-| sequential-thinking (Wrapper) | Schrittplanung | OK | Platzhalter `scripts/mcp/wrapper-sequential-thinking.sh` |
-| context7 (Wrapper) | Code-Suche | OK | Platzhalter `scripts/mcp/wrapper-context7.sh` |
-| gitleaks | Secret Scan | OK | Binary installiert (v8.x) |
-| pii-sanitizer-test | DSGVO Test | OK | `pytest tests/test_pii_sanitizer.py` |
-| design-tokens-validate | Token Qualität | OK | `scripts/validate-design-tokens.js` |
-
-### Installation fehlender Komponenten
 ```bash
-# Node Tooling
-npm install -D prisma @prisma/client @lhci/cli
+# 1. Repository forken & klonen
+git clone https://github.com/DEIN-USERNAME/menschlichkeit-oesterreich-development.git
 
-# Trivy (Security Scan)
-curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin
+# 2. Feature-Branch erstellen
+git checkout -b feature/42-meine-verbesserung
 
-# Gitleaks (Secret Scan)
-curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks_linux_x64.tar.gz | tar -xz -C /usr/local/bin gitleaks
+# 3. Änderungen machen & testen
+npm run test:unit && npm run lint
 
-# Optional: Chrome für Lighthouse (Performance)
-apt-get update && apt-get install -y chromium-browser || echo "Chromium Installation optional fehlgeschlagen"
+# 4. Commit (Conventional Commits!)
+git commit -m "feat(forum): Reaktionen auf Beiträge hinzugefügt"
 
-# Codacy: kein funktionierendes npm Paket, Wrapper verwendet Docker Image automatisch beim ersten Lauf
-docker pull codacy/codacy-analysis-cli:latest
+# 5. Quality Gates prüfen
+npm run quality:gates
+
+# 6. Push & Pull Request
+git push origin feature/42-meine-verbesserung
 ```
 
-### Validierung
-```bash
-npx prisma --version || echo 'Prisma fehlt'
-npx lhci healthcheck || echo 'Lighthouse CI benötigt ggf. Chrome'
-trivy --version || echo 'Trivy fehlt'
-gitleaks version || echo 'Gitleaks fehlt'
-./scripts/codacy/codacy-cli.sh version || echo 'Codacy Wrapper Problem'
-```
-
-### Pflege & Sicherheit
-- Tabelle bei Änderungen aktualisieren
-- Nach Installation: Security- und Secret-Scan ausführen
-- Wrapper durch echte MCP Server ersetzen, falls verfügbar
-- Codacy Analyse aktuell via Docker Wrapper (keine npm Distribution verfügbar)
-- Lighthouse: für vollständige Audits Headless Chrome installieren
-
-
-Wir verwenden Conventional Commits und Branch Protection:
-
-1. Fork das Repository
-2. Branch: git checkout -b feature/amazing-feature
-3. Commit: git commit -m "feat: add amazing feature"
-4. Quality Gates prüfen: npm run quality:gates
-5. Push & Pull Request erstellen
-
-Guidelines: .github/CONTRIBUTING.md
+**Kontakt:** `dev@menschlichkeit-oesterreich.at`
 
 ---
 
-## 📜 Lizenz
+## 📄 Lizenz & Support
 
-MIT License – siehe LICENSE
+**Lizenz:** [MIT](LICENSE) — freie Nutzung mit Namensnennung.
 
-Third-Party Notices: docs/legal/THIRD-PARTY-NOTICES.md
+### Kontakt & Support
 
----
+| Anliegen | Kanal |
+|---------|-------|
+| 🐛 Bugs | [GitHub Issues](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues/new?template=bug_report.md) |
+| 💡 Feature-Wünsche | [Feature Request](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues/new?template=feature_request.md) |
+| 🔒 Sicherheitslücken | security@menschlichkeit-oesterreich.at |
+| 👩‍💻 Entwickler | dev@menschlichkeit-oesterreich.at |
+| 🌐 Allgemein | [menschlichkeit-oesterreich.at](https://menschlichkeit-oesterreich.at) |
 
-## 🆘 Support
+### Weitere Dokumentation
 
-- **Bugs**: [GitHub Issues](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues/new?template=bug_report.md)
-- **Features**: [Feature Request](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues/new?template=feature_request.md)
-- **Security**: [Security Vulnerability Report](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues/new?template=security_vulnerability.md)
-- **Dokumentation**: [DOCS-INDEX.md](DOCS-INDEX.md)
-
----
-
-## 🔐 Security & DSGVO
-
-- Keine PII in Logs: E-Mail-Masking, IBAN-Redaction. Validiert via Tests/Quality Gates.
-- Responsible Disclosure: Siehe SECURITY.md (Vorgehen und Kontaktwege).
-- Datenschutz: Siehe [docs/PRIVACY.md](docs/PRIVACY.md).
-
----
-
-## 🏢 Über Menschlichkeit Österreich
-
-Menschlichkeit Österreich ist eine NGO, die sich für demokratische Teilhabe, Bildung und Community-Engagement in Österreich einsetzt. Diese Plattform unterstützt unsere Mission durch digitale Tools für Mitgliederverwaltung, Bildungsspiele und Community-Interaktion.
-
-**Website**: [menschlichkeit-oesterreich.at](https://menschlichkeit-oesterreich.at)
+| Dokument | Inhalt |
+|---------|--------|
+| [CLAUDE.md](CLAUDE.md) | KI-Entwicklungsanweisungen, Befehle, Architekturdetails |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Ausführliche Beitragsrichtlinien |
+| [SECURITY.md](SECURITY.md) | Sicherheitsrichtlinien, Responsible Disclosure |
+| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Verhaltenskodex |
+| [CHANGELOG.md](CHANGELOG.md) | Versionshistorie |
+| [DOCS-INDEX.md](DOCS-INDEX.md) | Vollständiger Dokumentationsindex |
+| [openclaw-system/ARCHITECTURE.md](openclaw-system/ARCHITECTURE.md) | OpenClaw-Architektur |
+| [apps/api/openapi.yaml](apps/api/openapi.yaml) | REST-API Spezifikation |
 
 ---
 
 <div align="center">
-  <strong>Made with ❤️ in Austria 🇦🇹</strong>
-  <br />
-  <sub>Powered by FastAPI · React · Drupal · n8n · PostgreSQL</sub>
+
+**[menschlichkeit-oesterreich.at](https://menschlichkeit-oesterreich.at)**
+
+*Für eine offene, demokratische Gesellschaft in Österreich* 🇦🇹
+
+Made with ❤️ in Austria · FastAPI · React · Drupal · n8n · OpenClaw
+
 </div>
