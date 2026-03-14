@@ -32,10 +32,10 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  SSH_HOST:   ${{ secrets.PLSK_HOST }}
-  SSH_PORT:   ${{ secrets.PLSK_PORT || '22' }}
-  SSH_USER:   ${{ secrets.PLSK_USER }}
-  BASE_PATH:  ${{ vars.PLSK_DEPLOY_PATH || '/var/www/vhosts/menschlichkeit-oesterreich.at/httpdocs' }}
+  SSH_HOST:   ${{ secrets.PLESK_HOST }}
+  SSH_PORT:   ${{ secrets.PLESK_PORT || '22' }}
+  SSH_USER:   ${{ secrets.PLESK_USER }}
+  BASE_PATH:  ${{ vars.PLESK_BASE_PATH || '/var/www/vhosts/menschlichkeit-oesterreich.at/httpdocs' }}
   MAIN_DOMAIN: ${{ vars.MAIN_DOMAIN || 'menschlichkeit-oesterreich.at' }}
   NODE_VERSION: "22"
 
@@ -66,16 +66,16 @@ jobs:
 
       - name: Pflicht-Secrets prüfen
         env:
-          HAS_HOST:       ${{ secrets.PLSK_HOST != '' }}
-          HAS_USER:       ${{ secrets.PLSK_USER != '' }}
-          HAS_KEY:        ${{ secrets.PLSK_SSH_PRIVATE_KEY != '' }}
-          HAS_KNOWN_HOSTS: ${{ secrets.PLSK_KNOWN_HOSTS != '' }}
+          HAS_HOST:       ${{ secrets.PLESK_HOST != '' }}
+          HAS_USER:       ${{ secrets.PLESK_USER != '' }}
+          HAS_KEY:        ${{ secrets.PLESK_SSH_PRIVATE_KEY != '' }}
+          HAS_KNOWN_HOSTS: ${{ secrets.PLESK_KNOWN_HOSTS != '' }}
         run: |
           ERRORS=0
-          [[ "${HAS_HOST}"       == "true" ]] && echo "✓ PLSK_HOST"       || { echo "✗ PLSK_HOST fehlt";             ERRORS=$((ERRORS+1)); }
-          [[ "${HAS_USER}"       == "true" ]] && echo "✓ PLSK_USER"       || { echo "✗ PLSK_USER fehlt";             ERRORS=$((ERRORS+1)); }
-          [[ "${HAS_KEY}"        == "true" ]] && echo "✓ PLSK_SSH_PRIVATE_KEY" || { echo "✗ PLSK_SSH_PRIVATE_KEY fehlt"; ERRORS=$((ERRORS+1)); }
-          [[ "${HAS_KNOWN_HOSTS}" == "true" ]] && echo "✓ PLSK_KNOWN_HOSTS" || { echo "✗ PLSK_KNOWN_HOSTS fehlt";   ERRORS=$((ERRORS+1)); }
+          [[ "${HAS_HOST}"       == "true" ]] && echo "✓ PLESK_HOST"       || { echo "✗ PLESK_HOST fehlt";             ERRORS=$((ERRORS+1)); }
+          [[ "${HAS_USER}"       == "true" ]] && echo "✓ PLESK_USER"       || { echo "✗ PLESK_USER fehlt";             ERRORS=$((ERRORS+1)); }
+          [[ "${HAS_KEY}"        == "true" ]] && echo "✓ PLESK_SSH_PRIVATE_KEY" || { echo "✗ PLESK_SSH_PRIVATE_KEY fehlt"; ERRORS=$((ERRORS+1)); }
+          [[ "${HAS_KNOWN_HOSTS}" == "true" ]] && echo "✓ PLESK_KNOWN_HOSTS" || { echo "✗ PLESK_KNOWN_HOSTS fehlt";   ERRORS=$((ERRORS+1)); }
           if (( ERRORS > 0 )); then
             echo "✗ ${ERRORS} Pflicht-Secret(s) fehlen. Deployment abgebrochen."
             exit 1
@@ -176,13 +176,13 @@ jobs:
       - name: SSH-Agent starten
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ secrets.PLSK_SSH_PRIVATE_KEY }}
+          ssh-private-key: ${{ secrets.PLESK_SSH_PRIVATE_KEY }}
 
       - name: known_hosts aus Secret eintragen
         run: |
           mkdir -p ~/.ssh
           # Niemals ssh-keyscan in Produktion ohne Verifikation!
-          printf '%s\n' "${{ secrets.PLSK_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          printf '%s\n' "${{ secrets.PLESK_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
           echo "✓ known_hosts gesetzt."
 
