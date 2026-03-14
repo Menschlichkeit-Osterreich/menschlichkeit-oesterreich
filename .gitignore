@@ -293,6 +293,9 @@ logs/*.txt
 logs/*.log
 logs/**/*.txt
 logs/**/*.log
+# Operative Security-Alerts — nicht im Repository versionieren
+# Schema-Dokumentation: logs/security-alerts.example.json (getrackt)
+logs/security-alerts.json
 # But keep README files
 !logs/**/README.md
 !logs/**/.gitkeep

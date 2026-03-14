@@ -1,0 +1,19 @@
+[
+  {
+    "id": "alert_<unix-timestamp>.<sequence>",
+    "alert_type": "brute_force | pii_leak | unusual_access | ...",
+    "severity": "critical | high | medium | low",
+    "title": "Kurzbeschreibung des Alerts",
+    "description": "Detaillierte Beschreibung",
+    "timestamp": "2025-10-13T06:37:10.000000",
+    "is_resolved": false,
+    "resolved_at": null,
+    "resolution_note": null,
+    "affected_users": [],
+    "recommended_actions": [
+      "Maßnahme 1",
+      "Maßnahme 2"
+    ],
+    "metadata": {}
+  }
+]

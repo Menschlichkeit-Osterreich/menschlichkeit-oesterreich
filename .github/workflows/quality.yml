@@ -72,7 +72,10 @@ jobs:
       - name: ESLint
         if: github.event_name == 'workflow_dispatch' || steps.changes.outputs.js != '[]'
         shell: bash
-        # fail-closed: ESLint-Fehler blockieren den Build
+        # ESLint-Gate: Fehler blockieren den Build, Warnungen nicht.
+        # no-unused-vars ist in eslint.config.js absichtlich als 'warn' gesetzt
+        # (Ignore-Pattern ^_ für catch-Variablen). --max-warnings=-1 entspricht
+        # dieser Policy. Echte Fehler (Syntax, Security-Rules) blockieren weiterhin.
         run: |
           set -euo pipefail
           if npx --yes eslint -v >/dev/null 2>&1; then
