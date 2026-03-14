@@ -73,4 +73,6 @@ networks:
   moe-automation:
     driver: bridge
   moe-network:
-    external: true # Verbindung zum bestehenden CRM Docker Netzwerk
+    external: true   # Verbindung zum bestehenden CRM Docker Netzwerk
+    # Wenn moe-network noch nicht existiert, n8n ohne CRM-Netzanbindung starten:
+    # docker network create moe-network  (einmalig, vor docker compose up)
