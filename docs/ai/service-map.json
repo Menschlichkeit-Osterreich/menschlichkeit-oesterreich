@@ -15,7 +15,9 @@
       "exposes_endpoints": [],
       "name": "@moe/frontend",
       "path": "apps/website",
-      "ports": [],
+      "ports": [
+        "5173"
+      ],
       "runtime": "node",
       "status": "active",
       "trust_boundary": "public-edge",
@@ -36,7 +38,9 @@
       "exposes_endpoints": [],
       "name": "@moe/website",
       "path": "website",
-      "ports": [],
+      "ports": [
+        "5173"
+      ],
       "runtime": "node",
       "status": "active",
       "trust_boundary": "public-edge",
@@ -208,6 +212,7 @@
       "name": "apps-crm-drupal",
       "path": "apps/crm",
       "ports": [
+        "8000",
         "8080:80"
       ],
       "runtime": "php",

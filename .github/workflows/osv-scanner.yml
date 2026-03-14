@@ -26,7 +26,10 @@ jobs:
 
       - name: Install osv-scanner
         run: |
-          curl -sSfL https://raw.githubusercontent.com/google/osv-scanner/main/scripts/install-osv-scanner-ubuntu.sh | sh -s -- -b /usr/local/bin
+          OSV_VERSION="v1.9.2"
+          curl -sSfL "https://github.com/google/osv-scanner/releases/download/${OSV_VERSION}/osv-scanner_linux_amd64" \
+            -o /usr/local/bin/osv-scanner
+          chmod +x /usr/local/bin/osv-scanner
           osv-scanner --version
 
       - name: Run OSV Scanner (recursive)
@@ -67,7 +70,10 @@ jobs:
 
       - name: Install osv-scanner
         run: |
-          curl -sSfL https://raw.githubusercontent.com/google/osv-scanner/main/scripts/install-osv-scanner-ubuntu.sh | sh -s -- -b /usr/local/bin
+          OSV_VERSION="v1.9.2"
+          curl -sSfL "https://github.com/google/osv-scanner/releases/download/${OSV_VERSION}/osv-scanner_linux_amd64" \
+            -o /usr/local/bin/osv-scanner
+          chmod +x /usr/local/bin/osv-scanner
           osv-scanner --version
 
       - name: Scan package-lock.json
