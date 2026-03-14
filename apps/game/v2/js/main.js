@@ -84,8 +84,13 @@ function _registerEventListeners() {
   });
 
   _on('btn-settings', 'click', () => {
-    // TODO: Settings-Screen
-    console.log('Settings');
+    GAME_STATE.previousScreen = GAME_STATE.phase || 'menu';
+    _showScreen('settings-screen');
+  });
+
+  _on('btn-back-from-settings', 'click', () => {
+    const prev = GAME_STATE.previousScreen || 'main-menu';
+    _showScreen(prev === 'menu' ? 'main-menu' : prev);
   });
 
   _on('btn-achievements', 'click', () => {

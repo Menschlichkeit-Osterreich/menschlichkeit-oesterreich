@@ -61,11 +61,15 @@ temp/*.decrypted
 *.cer
 *.der
 
-# Database dumps & backups
+# Database dumps & backups (aber nicht Schema-Initialisierungsskripte!)
 *.sql
 *.dump
 *.backup
 *.bak
+# Ausnahmen: eingecheckte Schema-Initialisierungsskripte
+!scripts/init-db.sql
+!scripts/db-user-setup.sql
+!openclaw-system/services/postgres/init.sql
 
 # Configuration with secrets
 config/local.json
@@ -153,6 +157,9 @@ eggs/
 .eggs/
 lib/
 lib64/
+# Do not ignore app/lib source directories (but keep __pycache__ ignored)
+!**/app/lib/
+!**/app/lib/*.py
 parts/
 sdist/
 var/
@@ -339,6 +346,10 @@ config/.env.production
 # Backup-Dateien mit potentiell sensiblen Daten
 *.backup
 *.sql
+# Ausnahmen: eingecheckte Schema-Initialisierungsskripte (see also line 65)
+!scripts/init-db.sql
+!scripts/db-user-setup.sql
+!openclaw-system/services/postgres/init.sql
 backup/
 backups/
 dumps/

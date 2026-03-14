@@ -31,7 +31,7 @@
     "clean:dist": "node scripts/clean-workspace.mjs --only=dist,build",
     "clean:node-modules": "node scripts/clean-workspace.mjs --only=node_modules",
     "dev:all": "concurrently \"npm run dev:crm\" \"npm run dev:api\" \"npm run dev:frontend\" \"npm run dev:games\"",
-    "dev:crm": "cd crm.menschlichkeit-oesterreich.at && php -S localhost:8000 -t httpdocs",
+    "dev:crm": "php -S localhost:8000 -t apps/crm/web",
     "dev:api": "bash scripts/start-api-dev.sh",
     "dev:frontend": "npm run dev --workspace=frontend",
     "dev:games": "cd web && python -m http.server 3000",

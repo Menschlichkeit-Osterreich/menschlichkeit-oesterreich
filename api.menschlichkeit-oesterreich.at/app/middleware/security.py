@@ -116,7 +116,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         # Allow same-origin scripts, styles, and images; connect to API and CRM
         csp_directives = [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'",  # TODO: Remove unsafe-* in production
+            "script-src 'self' 'unsafe-inline'",  # TODO: Remove unsafe-inline via nonce rollout
             "style-src 'self' 'unsafe-inline'",  # TODO: Use nonces for inline styles
             "img-src 'self' data: https:",
             "font-src 'self' data:",

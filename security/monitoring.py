@@ -249,48 +249,58 @@ class SecurityMonitor:
     
     def _query_total_logins(self) -> int:
         """
-        Placeholder for querying total logins from authentication logs.
-        TODO: DevOps to integrate with auth log system (e.g., Auth0, Keycloak).
-              Should return total successful logins in the last 24 hours.
+        Anzahl erfolgreicher Logins der letzten 24 Stunden.
+        TODO: DevOps-Integration mit Auth-Log-System (Auth0/Keycloak).
         """
-        logger.info("Using placeholder for total_logins metric.")
-        return 1337
+        logger.warning(
+            "total_logins: Keine Auth-System-Integration vorhanden. "
+            "DevOps muss Auth0/Keycloak-Anbindung konfigurieren. Rückgabe: 0."
+        )
+        return 0
 
     def _query_active_sessions(self) -> int:
         """
-        Placeholder for querying active user sessions.
-        TODO: DevOps to integrate with session store (e.g., Redis, DB table).
-              Should return current count of valid, active user sessions.
+        Anzahl aktuell aktiver Benutzersitzungen.
+        TODO: DevOps-Integration mit Session-Store (Redis/DB).
         """
-        logger.info("Using placeholder for active_sessions metric.")
-        return 42
+        logger.warning(
+            "active_sessions: Keine Session-Store-Integration vorhanden. "
+            "DevOps muss Redis-Anbindung konfigurieren. Rückgabe: 0."
+        )
+        return 0
 
     def _query_two_factor_usage(self) -> int:
         """
-        Placeholder for querying 2FA usage percentage.
-        TODO: DevOps to integrate with auth system. Should return the
-              percentage of users with 2FA enabled as an integer.
+        Prozentsatz der Benutzer mit aktivierter 2FA (als Integer, z. B. 85 = 85 %).
+        TODO: DevOps-Integration mit Auth-System.
         """
-        logger.info("Using placeholder for two_factor_usage metric.")
-        return 75
+        logger.warning(
+            "two_factor_usage: Keine Auth-System-Integration vorhanden. "
+            "DevOps muss 2FA-Abfrage konfigurieren. Rückgabe: 0."
+        )
+        return 0
 
     def _query_data_exports(self) -> int:
         """
-        Placeholder for querying data export events.
-        TODO: DevOps to integrate with audit log system. Should count data
-              export events in last 24h (DSGVO/GDPR Art. 15).
+        Anzahl Datenabruf-Events der letzten 24 Stunden (DSGVO Art. 15).
+        TODO: DevOps-Integration mit Audit-Log-System.
         """
-        logger.info("Using placeholder for data_exports metric.")
-        return 5
+        logger.warning(
+            "data_exports: Keine Audit-Log-Integration vorhanden. "
+            "DevOps muss DSGVO-Auditlog-Anbindung konfigurieren. Rückgabe: 0."
+        )
+        return 0
 
     def _query_password_changes(self) -> int:
         """
-        Placeholder for querying password change events.
-        TODO: DevOps to integrate with auth or audit log system. Should
-              count password changes in the last 24 hours.
+        Anzahl Passwortänderungen der letzten 24 Stunden.
+        TODO: DevOps-Integration mit Auth/Audit-Log-System.
         """
-        logger.info("Using placeholder for password_changes metric.")
-        return 12
+        logger.warning(
+            "password_changes: Keine Auth/Audit-Log-Integration vorhanden. "
+            "DevOps muss Anbindung konfigurieren. Rückgabe: 0."
+        )
+        return 0
 
     def get_security_metrics(self) -> SecurityMetrics:
         """Get current security metrics"""

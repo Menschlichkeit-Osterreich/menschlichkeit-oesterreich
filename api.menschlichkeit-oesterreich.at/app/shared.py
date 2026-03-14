@@ -7,6 +7,8 @@ import os
 import time
 import jwt
 
+from .lib.token_blacklist import is_token_revoked
+
 
 class ApiResponse(BaseModel):
     success: bool
@@ -32,6 +34,11 @@ def verify_jwt_token(authorization: str = Header(...)) -> Dict[str, Any]:
 
         secret = JWT_SECRET or _require_env("JWT_SECRET")
         payload = jwt.decode(token, secret, algorithms=["HS256"])
+
+        # Prüfe ob Token explizit widerrufen wurde (z. B. bei Konto-Löschung)
+        if is_token_revoked(token):
+            raise HTTPException(status_code=401, detail="Token wurde widerrufen")
+
         return payload  # e.g., {"sub": email, "type": "access", ...}
     except HTTPException:
         raise
