@@ -333,9 +333,9 @@ jobs:
           )
         run: |
           HTTP=$(curl --silent --max-time 15 --output /dev/null --write-out "%{http_code}" \
-            "https://api.${{ env.MAIN_DOMAIN }}/health")
+            "https://api.${{ env.MAIN_DOMAIN }}/health" || echo "000")
           echo "API HTTP: ${HTTP}"
-          [[ "${HTTP}" =~ ^[23] ]] || echo "⚠️ API Healthcheck: ${HTTP} (möglicherweise noch nicht deployt)"
+          [[ "${HTTP}" =~ ^[23] ]] || echo "⚠️ API Healthcheck: ${HTTP} (API benötigt ggf. Neustart via Plesk)"
 
       # ── Deployment-Zusammenfassung ──────────────────────────
       - name: Deployment-Zusammenfassung
