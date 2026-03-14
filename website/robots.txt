@@ -1,19 +1,11 @@
-# robots.txt – Menschlichkeit Österreich
-# https://menschlichkeit-oesterreich.at
-
 User-agent: *
 Allow: /
-Disallow: /admin/
-Disallow: /member/
-Disallow: /account/
-Disallow: /api/
-Disallow: /login
-Disallow: /Login
-Disallow: /*.json$
-Disallow: /sw.js
+Disallow: /member-area.html
+Disallow: /login.html
+Disallow: /offline.html
+Disallow: /*?*utm_
+Disallow: /*?*fbclid=
+Disallow: /*?*gclid=
 
-# Crawl-delay für höfliches Crawling
-Crawl-delay: 10
-
-# Sitemap
-Sitemap: https://menschlichkeit-oesterreich.at/sitemap.xml
+Sitemap: https://www.menschlichkeit-oesterreich.at/sitemap.xml
+Host: www.menschlichkeit-oesterreich.at
