@@ -203,6 +203,11 @@ jobs:
 
       - name: SSH-Verbindung testen
         run: |
+          echo "Verbinde zu: ${{ env.SSH_HOST }}:${{ env.SSH_PORT }} als ${{ env.SSH_USER }}"
+          echo "known_hosts Inhalt:"
+          cat ~/.ssh/known_hosts | sed 's/\(.\{40\}\).*/\1.../'
+          ssh -v -o ConnectTimeout=15 plesk-prod "echo 'SSH OK: $(hostname)'" 2>&1 | \
+            grep -E "^debug1: (Connecting|connect|Authentications|Trying|Server host key|Next auth|Offering|Authenticated|Entering|Permission)" || true
           ssh plesk-prod "echo 'SSH OK: $(hostname)'"
 
       # ── Release-Metadaten ───────────────────────────────────
