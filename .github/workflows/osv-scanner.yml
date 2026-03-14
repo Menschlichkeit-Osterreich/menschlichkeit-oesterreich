@@ -40,14 +40,17 @@ jobs:
 
       - name: Upload OSV Scanner results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v4
-        if: always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        if: >-
+          always() &&
+          hashFiles('osv-results.sarif') != '' &&
+          (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         with:
           sarif_file: osv-results.sarif
           category: osv-scanner
 
       - name: Upload results as artifact
         uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && hashFiles('osv-results.sarif') != ''
         with:
           name: osv-scanner-results
           path: osv-results.sarif
