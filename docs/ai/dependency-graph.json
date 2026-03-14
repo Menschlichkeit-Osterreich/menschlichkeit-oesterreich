@@ -472,6 +472,24 @@
         "database dependency inferred from monorepo service conventions"
       ],
       "edge_type": "reads_from",
+      "evidence": "apps/crm/docker-compose.yml#services.mariadb",
+      "source": "apps-api",
+      "target": "compose:mariadb"
+    },
+    {
+      "assumptions": [
+        "database dependency inferred from monorepo service conventions"
+      ],
+      "edge_type": "reads_from",
+      "evidence": "docker-compose.yml#services.postgres",
+      "source": "apps-api",
+      "target": "compose:postgres"
+    },
+    {
+      "assumptions": [
+        "database dependency inferred from monorepo service conventions"
+      ],
+      "edge_type": "reads_from",
       "evidence": "docker-compose.yml#services.postgres",
       "source": "apps-api",
       "target": "compose:postgres"
@@ -482,6 +500,24 @@
       ],
       "edge_type": "reads_from",
       "evidence": "automation/n8n/docker-compose.https.yml#services.postgres-n8n",
+      "source": "apps-api",
+      "target": "compose:postgres-n8n"
+    },
+    {
+      "assumptions": [
+        "database dependency inferred from monorepo service conventions"
+      ],
+      "edge_type": "reads_from",
+      "evidence": "automation/n8n/docker-compose.https.yml#services.postgres-n8n",
+      "source": "apps-api",
+      "target": "compose:postgres-n8n"
+    },
+    {
+      "assumptions": [
+        "database dependency inferred from monorepo service conventions"
+      ],
+      "edge_type": "reads_from",
+      "evidence": "automation/n8n/docker-compose.yml#services.postgres-n8n",
       "source": "apps-api",
       "target": "compose:postgres-n8n"
     },
@@ -508,7 +544,34 @@
         "database dependency inferred from monorepo service conventions"
       ],
       "edge_type": "reads_from",
+      "evidence": "apps/crm/docker-compose.yml#services.redis",
+      "source": "apps-api",
+      "target": "compose:redis"
+    },
+    {
+      "assumptions": [
+        "database dependency inferred from monorepo service conventions"
+      ],
+      "edge_type": "reads_from",
       "evidence": "docker-compose.prod.yml#services.redis",
+      "source": "apps-api",
+      "target": "compose:redis"
+    },
+    {
+      "assumptions": [
+        "database dependency inferred from monorepo service conventions"
+      ],
+      "edge_type": "reads_from",
+      "evidence": "docker-compose.prod.yml#services.redis",
+      "source": "apps-api",
+      "target": "compose:redis"
+    },
+    {
+      "assumptions": [
+        "database dependency inferred from monorepo service conventions"
+      ],
+      "edge_type": "reads_from",
+      "evidence": "docker-compose.yml#services.redis",
       "source": "apps-api",
       "target": "compose:redis"
     },
@@ -535,9 +598,36 @@
         "database dependency inferred from monorepo service conventions"
       ],
       "edge_type": "reads_from",
+      "evidence": "automation/n8n/docker-compose.https.yml#services.redis-n8n",
+      "source": "apps-api",
+      "target": "compose:redis-n8n"
+    },
+    {
+      "assumptions": [
+        "database dependency inferred from monorepo service conventions"
+      ],
+      "edge_type": "reads_from",
       "evidence": "automation/n8n/docker-compose.yml#services.redis-n8n",
       "source": "apps-api",
       "target": "compose:redis-n8n"
+    },
+    {
+      "assumptions": [
+        "database dependency inferred from monorepo service conventions"
+      ],
+      "edge_type": "reads_from",
+      "evidence": "automation/n8n/docker-compose.yml#services.redis-n8n",
+      "source": "apps-api",
+      "target": "compose:redis-n8n"
+    },
+    {
+      "assumptions": [
+        "database dependency inferred from monorepo service conventions"
+      ],
+      "edge_type": "reads_from",
+      "evidence": "docker-compose.prod.yml#services.redis_backup",
+      "source": "apps-api",
+      "target": "compose:redis_backup"
     },
     {
       "assumptions": [

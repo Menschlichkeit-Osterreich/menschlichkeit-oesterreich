@@ -28,7 +28,8 @@ jobs:
       
       - name: Ensure no real .env committed
         run: |
-          found=$(git ls-files | grep -E '(^|/)\.env($|[^a-z])' | grep -v '\.example' || true)
+          # Exclude explicitly allowed .env variants (see .gitignore negation rules)
+          found=$(git ls-files | grep -E '(^|/)\.env($|[^a-z])' | grep -Ev '\.(example|production\.template|vault|project)$' || true)
           if [ -n "$found" ]; then
             echo "❌ ECHTE .ENV IM REPO GEFUNDEN (SECRETS-LEAK!):"
             echo "$found"

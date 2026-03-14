@@ -1,0 +1,29 @@
+# Gitleaks configuration for Menschlichkeit Österreich
+# https://github.com/gitleaks/gitleaks#configuration
+
+title = "Menschlichkeit Österreich Gitleaks Config"
+
+[extend]
+# Extend the default gitleaks ruleset
+useDefault = true
+
+[allowlist]
+description = "Globally allowed patterns"
+paths = [
+  # Example/template env files are intentionally committed
+  '''.env\.example''',
+  '''.env\.production\.template''',
+  # Encrypted vault file (not plaintext secrets)
+  '''.env\.vault''',
+  # Schema/example docs
+  '''logs/security-alerts\.example\.json''',
+  # Test fixtures
+  '''tests/''',
+  '''\.test\.(ts|js|py)$''',
+  # Lock files (may contain hashes that look like secrets)
+  '''package-lock\.json''',
+  '''yarn\.lock''',
+  '''pnpm-lock\.yaml''',
+  # Generated Prisma client
+  '''generated/''',
+]
