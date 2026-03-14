@@ -7,7 +7,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY openclaw-system/core/ /app/core/
-COPY openclaw-system/agents/ /app/agents/
 COPY openclaw-system/configs/ /app/configs/
 
 # Requirements aus core/agent_runtime

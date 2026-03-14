@@ -10,14 +10,19 @@ Menschlichkeit Österreich is a multi-service NGO platform for democratic partic
 
 | Service | Location | Tech | Port |
 |---------|----------|------|------|
-| Frontend | `apps/website/` or `frontend/` | React 18 + TS + Vite | 5173 |
-| API | `apps/api/` or `api.menschlichkeit-oesterreich.at/` | FastAPI (Python 3.12+) | 8001 |
-| CRM | `apps/crm/` or `crm.menschlichkeit-oesterreich.at/` | Drupal 10 + CiviCRM (PHP 8.1) | 8000 |
-| Games | `apps/game/` or `web/` | Static + Prisma schema | 3000 |
+| Frontend | `apps/website/` | React 18 + TS + Vite | 5173 |
+| API | `apps/api/` (neu) · `api.menschlichkeit-oesterreich.at/` (legacy) | FastAPI (Python 3.12+) | 8001 |
+| CRM | `apps/crm/` | Drupal 10 + CiviCRM (PHP 8.1) | 8000 |
+| Games | `apps/game/` · `web/` | Static + Prisma schema | 3000 |
 | n8n Automation | `automation/n8n/` | Docker | 5678 |
 | OpenClaw Tool-Gateway | `openclaw-system/api/fastapi_gateway/` | FastAPI | 9101 |
-| OpenClaw Agent-Runtime | `openclaw-system/api/agent_runtime/` | Python asyncio | 9100 |
+| OpenClaw Agent-Runtime | `openclaw-system/core/agent_runtime/` | Python asyncio | 9100 |
 | Windows-Bridge | `openclaw-system/windows-bridge/` | PowerShell/Node | 18790 |
+| PostgreSQL (Haupt-DB) | Docker | PostgreSQL ≥15 | 5432 |
+| PostgreSQL (OpenClaw) | Docker | PostgreSQL ≥15 | 55432 |
+| Redis (OpenClaw) | Docker | Redis | 6380 |
+| Qdrant (OpenClaw) | Docker | Qdrant Vektordatenbank | 6333 |
+| NATS JetStream | Docker | NATS | 4222 |
 
 ## Key Commands
 
@@ -36,10 +41,11 @@ npm run docker:up          # Start PostgreSQL + Redis + n8n
 ### Testing
 
 ```bash
-npm run test:unit          # Vitest (unit tests)
-npm run test:e2e           # Playwright (e2e tests)
-# Python tests (in api directory):
-pytest tests/test_pii_sanitizer.py
+npm run test:unit                            # Vitest (unit tests)
+npm run test:e2e                             # Playwright (e2e tests)
+# Python tests (apps/api):
+cd apps/api && pytest tests/                 # Alle API-Tests (33 Tests)
+pytest tests/test_pii_sanitizer.py          # PII-Sanitizer separat
 ```
 
 ### Linting & Formatting
@@ -68,8 +74,8 @@ npm run docker:up          # Start PostgreSQL/Redis
 npx prisma migrate dev     # Prisma migrations (Games)
 npx prisma generate        # Regenerate Prisma client
 npx prisma studio          # Prisma Studio UI
-# API migrations (Alembic, in api directory):
-alembic upgrade head
+# Schema-Änderungen: keine Alembic-Migrations, stattdessen CREATE TABLE IF NOT EXISTS
+# in den jeweiligen Router-Dateien (apps/api/app/routers/)
 ```
 
 ### OpenClaw Multi-Agent System
@@ -77,7 +83,7 @@ alembic upgrade head
 ```bash
 bash openclaw-system/scripts/boot.sh    # Start OpenClaw stack
 bash openclaw-system/scripts/smoke.sh   # Smoke tests
-# Windows Bridge (PowerShell as Admin):
+# Windows Bridge (PowerShell als Admin):
 # C:\openclawd-win-bridge\installer\Install-OpenClawBridge.ps1
 ```
 
@@ -92,26 +98,49 @@ npm run build:frontend
 
 ### Monorepo Structure
 
-npm workspaces root. Services exist in both `apps/<name>/` and legacy `<name>.menschlichkeit-oesterreich.at/` directories. The `packages/` directory contains shared `design-system` and `ui` packages.
+npm workspaces root. Die neue Primärstruktur ist `apps/<name>/`. Das Verzeichnis `api.menschlichkeit-oesterreich.at/` ist die Legacy-Kopie der API (wird synchron gehalten, aber nicht aktiv weiterentwickelt). The `packages/` directory contains shared `design-system` and `ui` packages.
 
 ### Shared PostgreSQL Database
 
-All services share one PostgreSQL ≥15 instance via `DATABASE_URL`. Two migration systems coexist — **Alembic** (API/FastAPI) and **Prisma** (Games) — coordinate schema changes across both.
+Alle Dienste teilen eine PostgreSQL ≥15-Instanz (Port 5432) via `DATABASE_URL`. Das OpenClaw-System nutzt eine separate Instanz (Port 55432, `OC_PG_DSN`). Schema-Änderungen erfolgen via `CREATE TABLE IF NOT EXISTS` direkt in den Router-Startup-Hooks. Prisma (Games) läuft parallel.
 
 ### Design Tokens
 
-Design tokens live in `figma-design-system/00_design-tokens.json`. **Never hardcode colors or spacing** — always use tokens. They are consumed via `frontend/tailwind.config.cjs` and regenerated with `frontend/scripts/generate-design-tokens.mjs`. Sync with Figma: `npm run figma:sync`.
+Design tokens live in `figma-design-system/00_design-tokens.json`. **Never hardcode colors or spacing** — always use tokens. They are consumed via `apps/website/tailwind.config.cjs` and regenerated with `apps/website/scripts/generate-design-tokens.mjs`. Sync with Figma: `npm run figma:sync`.
 
-### DSGVO/PII Compliance (Critical)
+### DSGVO/PII Compliance (Kritisch)
 
-- **FastAPI**: `app/middleware/pii_middleware.py` + `app/lib/pii_sanitizer.py`
-- **Drupal**: custom module `web/modules/custom/pii_sanitizer/`
-- Rules: No PII in logs. E-mail masking (`t**@example.com`), IBAN redaction (`AT61***`).
-- Test: `pytest tests/test_pii_sanitizer.py`
+- **FastAPI** (`apps/api/` + `api.menschlichkeit-oesterreich.at/`):
+  - Middleware: `app/middleware/pii_middleware.py` (PiiSanitizationMiddleware, PiiLoggingMiddleware)
+  - Library: `app/lib/pii_sanitizer.py` (PiiSanitizer, scrub, scrub_dict)
+  - Beide Kopien müssen synchron gehalten werden bis zur Zusammenführung in `packages/`
+- **Drupal**: custom module `apps/crm/web/modules/custom/pii_sanitizer/`
+- Regeln: Kein PII in Logs. E-Mail-Maskierung (`t**@example.com`), IBAN-Redaktion (`AT61***`), Luhn-validierte Kreditkartennummern.
+- Tests: `cd apps/api && pytest tests/test_pii_sanitizer.py`
 
 ### OpenClaw Multi-Agent System (`openclaw-system/`)
 
-Six specialized AI agents (Orchestrator, Research, Code, Write, QA, Memory) communicate via NATS JetStream (port 4222). All agent tool calls route through the Tool-Gateway (policy engine + audit log). Agents connect to PostgreSQL, Redis, and Qdrant (port 6333) for persistence. See `openclaw-system/ARCHITECTURE.md` for full details.
+Sechs spezialisierte KI-Agenten kommunizieren via NATS JetStream (Port 4222). Alle Tool-Aufrufe laufen ausschließlich über das Tool-Gateway (Policy-Engine + Audit-Log).
+
+**Agenten (korrekte Namen laut `agent_runtime/main.py` und `agent_roles.yaml`):**
+
+| Rolle | Beschreibung | Erlaubte Tools |
+|-------|-------------|----------------|
+| `orchestrator` | Koordiniert alle Agenten, verwaltet Tasks | nats.publish, redis.*, db.query_readonly |
+| `research` | Recherchiert Web und Repository | http.fetch, fs.read, fs.list, qdrant.upsert, db.query_readonly |
+| `builder` | Schreibt/modifiziert Code, Git-Commits | fs.*, git.status/diff/show/branch_create/commit/pr_prepare |
+| `qa` | Prüft Code-Qualität, führt Tests aus | ci.run_local, fs.read, fs.list, git.diff/status, db.query_readonly |
+| `automation` | Triggert n8n-Workflows | n8n.trigger_webhook, n8n.get_status, fs.read/write |
+| `monetization` | Analysiert Kosten und Business-KPIs | db.query_readonly, http.fetch (Stripe/PayPal) |
+
+**Implementierte Tools (Tool-Gateway):**
+`fs.read`, `fs.list`, `fs.write`, `git.status`, `git.diff`, `git.show`, `git.branch_create`, `git.commit`, `git.pr_prepare`, `http.fetch`, `db.query_readonly`, `db.execute`, `redis.get`, `redis.set`, `nats.publish`, `qdrant.search`, `qdrant.upsert`, `n8n.get_status`, `n8n.trigger_webhook`, `ci.run_local`, `github.create_pr`
+
+**Konfiguration:**
+- Rollen-Definitionen: `openclaw-system/configs/agent_roles.yaml`
+- Tool-Whitelist pro Rolle: `openclaw-system/configs/capabilities.yaml`
+- n8n-Webhook-Whitelist: `openclaw-system/configs/capabilities.yaml` → `webhooks.allowed`
+- System-Config: `openclaw-system/configs/system_config.yaml`
 
 ### Windows-Bridge
 
@@ -134,8 +163,15 @@ docs/test/chore/refactor    → no version bump
 
 ## OpenAPI & API Contract
 
-Keep `api.menschlichkeit-oesterreich.at/openapi.yaml` in sync with endpoints at all times.
+Die vollständige OpenAPI-Spezifikation liegt in `apps/api/openapi.yaml` (40+ Endpunkte). Die Legacy-Datei `api.menschlichkeit-oesterreich.at/openapi.yaml` ist veraltet und nicht mehr maßgeblich. Bei neuen Endpunkten immer `apps/api/openapi.yaml` aktualisieren.
 
 ## MCP Servers
 
 Project ships its own MCP servers in `mcp-servers/` (figma-mcp-server, file-server). Configuration in `mcp.json`.
+
+## Umgebungsvariablen
+
+Vorlagen für alle Umgebungsvariablen:
+- **Root**: `.env.example` (PostgreSQL, Redis, n8n, OpenClaw `OC_*`, JWT, Mail, Stripe)
+- **Frontend**: `apps/website/.env.example` (alle `VITE_*` Variablen)
+- **Lokal**: `.env` (nie committen – in `.gitignore`)
