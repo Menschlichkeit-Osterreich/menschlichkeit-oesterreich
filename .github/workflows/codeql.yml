@@ -4,6 +4,10 @@ on:
   push:
     branches: [main, master, chore/**, feature/**]
     paths:
+      - 'apps/website/**'
+      - 'apps/api/**'
+      - 'apps/crm/**'
+      # TODO: Legacy-Pfade nach vollständiger Migration auf apps/* entfernen
       - 'frontend/**'
       - 'website/**'
       - 'api.menschlichkeit-oesterreich.at/**'
@@ -14,6 +18,10 @@ on:
   pull_request:
     branches: [main, master, chore/**, feature/**]
     paths:
+      - 'apps/website/**'
+      - 'apps/api/**'
+      - 'apps/crm/**'
+      # TODO: Legacy-Pfade nach vollständiger Migration auf apps/* entfernen
       - 'frontend/**'
       - 'website/**'
       - 'api.menschlichkeit-oesterreich.at/**'

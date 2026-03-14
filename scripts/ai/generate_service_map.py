@@ -36,6 +36,13 @@ def main() -> None:
             }
         )
 
+    # Dev ports per service path (source of truth: CLAUDE.md)
+    _DEV_PORTS: dict[str, list[str]] = {
+        "apps/website": ["5173"],
+        "website": ["5173"],
+        "automation/n8n": ["5678"],
+    }
+
     for service in node_services:
         if service["path"] in {".", "website", "apps/website", "automation/n8n"}:
             kind = "n8n" if service["path"].endswith("automation/n8n") else "frontend"
@@ -46,7 +53,7 @@ def main() -> None:
                     "path": service["path"],
                     "entrypoint": f"{service['path']}/package.json",
                     "runtime": service["runtime"],
-                    "ports": [],
+                    "ports": _DEV_PORTS.get(service["path"], []),
                     "depends_on": ["apps-api"],
                     "exposes_endpoints": [],
                     "consumes_endpoints": ["/api"],
@@ -65,7 +72,7 @@ def main() -> None:
                 "path": "apps/crm",
                 "entrypoint": "apps/crm/docker-compose.yml",
                 "runtime": "php",
-                "ports": ["8080:80"],
+                "ports": ["8000", "8080:80"],
                 "depends_on": ["db"],
                 "exposes_endpoints": ["/"],
                 "consumes_endpoints": [],
