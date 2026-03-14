@@ -261,14 +261,14 @@ jobs:
           tar --exclude=".git" --exclude="__pycache__" --exclude="*.pyc" \
               --exclude=".venv" --exclude="venv" --exclude=".env" --exclude="*.log" \
               -czf /tmp/api.tar.gz -C apps/api .
-          ssh plesk-prod "mkdir -p subdomains/api/httpdocs"
+          ssh plesk-prod "mkdir -p subdomains/api.stg/httpdocs"
           scp -F ~/.ssh/config /tmp/api.tar.gz "plesk-prod:api.tar.gz"
-          ssh plesk-prod "tar -xzf api.tar.gz -C subdomains/api/httpdocs && rm api.tar.gz"
+          ssh plesk-prod "tar -xzf api.tar.gz -C subdomains/api.stg/httpdocs && rm api.tar.gz"
           ssh plesk-prod \
-            "command -v pip3 && pip3 install -r subdomains/api/httpdocs/requirements.txt --quiet 2>&1 | tail -5" || \
+            "command -v pip3 && pip3 install -r subdomains/api.stg/httpdocs/requirements.txt --quiet 2>&1 | tail -5" || \
             echo "⚠️ pip3 nicht im Chroot verfügbar."
           ssh plesk-prod \
-            "printf '%s\n' '${{ steps.release.outputs.marker }}' > 'subdomains/api/httpdocs/.deploy_release'"
+            "printf '%s\n' '${{ steps.release.outputs.marker }}' > 'subdomains/api.stg/httpdocs/.deploy_release'"
           echo "✓ API deployt."
 
       # ── CRM deployen ────────────────────────────────────────
@@ -333,7 +333,7 @@ jobs:
           )
         run: |
           HTTP=$(curl --silent --max-time 15 --output /dev/null --write-out "%{http_code}" \
-            "https://api.${{ env.MAIN_DOMAIN }}/health" || echo "000")
+            "https://api.stg.${{ env.MAIN_DOMAIN }}/health" || echo "000")
           echo "API HTTP: ${HTTP}"
           [[ "${HTTP}" =~ ^[23] ]] || echo "⚠️ API Healthcheck: ${HTTP} (API benötigt ggf. Neustart via Plesk)"
 
