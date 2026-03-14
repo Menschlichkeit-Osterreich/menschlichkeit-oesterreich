@@ -48,6 +48,22 @@ jobs:
             npx snyk container test . --json > snyk-container-results.json || true
           fi
 
+      - name: 🚨 Snyk Vulnerability Gate
+        run: |
+          echo "🔍 Evaluating Snyk SCA findings..."
+          if [ ! -f snyk-sca-results.json ]; then
+            echo "⚠️ snyk-sca-results.json missing — skipping gate"
+          else
+            HIGH=$(jq -r '[.vulnerabilities[]? | select(.severity == "high" or .severity == "critical")] | length' snyk-sca-results.json 2>/dev/null || echo "0")
+            echo "📊 High/Critical dependency vulnerabilities: $HIGH"
+            if [ "$HIGH" -gt 0 ]; then
+              echo "❌ Snyk found $HIGH high/critical vulnerabilities in dependencies"
+              jq -r '.vulnerabilities[]? | select(.severity == "high" or .severity == "critical") | "  - [\(.severity)] \(.packageName) \(.version): \(.title)"' snyk-sca-results.json | head -20
+              exit 1
+            fi
+            echo "✅ No high/critical dependency vulnerabilities"
+          fi
+
       - name: 🔒 Trivy Security Scan
         uses: aquasecurity/trivy-action@0.34.0
         with:

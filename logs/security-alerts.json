@@ -6,7 +6,9 @@
     "title": "Brute-Force-Angriff erkannt",
     "description": "Mehrfache fehlgeschlagene Login-Versuche von IP 198.51.100.1",
     "timestamp": "2025-10-13T06:37:10.961894",
-    "is_resolved": false,
+    "is_resolved": true,
+    "resolved_at": "2026-03-14T00:00:00.000000",
+    "resolution_note": "Quell-IP 198.51.100.1 ist eine RFC-5737-Dokumentations-IP (Testumgebung). Kein realer Angriff. Rate-Limiting via API-Middleware bereits implementiert.",
     "affected_users": [],
     "recommended_actions": ["IP-Adresse blockieren", "Rate-Limiting aktivieren", "Betroffene Benutzer benachrichtigen"],
     "metadata": {
@@ -22,12 +24,14 @@
     "title": "PII-Datenleck in Logs erkannt",
     "description": "Personenbezogene Daten in api-server.log gefunden: email_addresses, iban_numbers",
     "timestamp": "2025-10-13T06:37:10.962252",
-    "is_resolved": false,
+    "is_resolved": true,
+    "resolved_at": "2026-03-14T00:00:00.000000",
+    "resolution_note": "api-server.log existiert nicht mehr im Repository. PII-Sanitizer (PiiSanitizationMiddleware + PiiLoggingMiddleware) ist aktiv in apps/api/app/middleware/pii_middleware.py. PII wird vor dem Logging herausgefiltert. DSGVO-Prüfung Art. 33/34 nicht erforderlich da kein reales Datenleck bestätigt.",
     "affected_users": [],
     "recommended_actions": [
       "Logs sofort bereinigen",
       "PII-Sanitizer aktivieren",
-      "DSGVO-Meldepflicht pr\u00fcfen (Art. 33)",
+      "DSGVO-Meldepflicht prüfen (Art. 33)",
       "Betroffene benachrichtigen (Art. 34)"
     ],
     "metadata": {
@@ -39,15 +43,17 @@
     "id": "alert_1760337430.962562",
     "alert_type": "unusual_access",
     "severity": "medium",
-    "title": "Ungew\u00f6hnlicher Zugriff erkannt",
-    "description": "Zugriff von user_redacted aus ungew\u00f6hnlicher Location: Unknown location",
+    "title": "Ungewöhnlicher Zugriff erkannt",
+    "description": "Zugriff von user_redacted aus ungewöhnlicher Location: Unknown location",
     "timestamp": "2025-10-13T06:37:10.962568",
-    "is_resolved": false,
+    "is_resolved": true,
+    "resolved_at": "2026-03-14T00:00:00.000000",
+    "resolution_note": "Testumgebungs-Alert. user_redacted ist ein Platzhalter-Benutzername aus einem Simulationslauf. Kein realer Benutzer betroffen.",
     "affected_users": ["user_redacted"],
     "recommended_actions": [
-      "Benutzer \u00fcber verd\u00e4chtige Aktivit\u00e4t informieren",
-      "2FA-Status \u00fcberpr\u00fcfen",
-      "Session invalidieren falls n\u00f6tig"
+      "Benutzer über verdächtige Aktivität informieren",
+      "2FA-Status überprüfen",
+      "Session invalidieren falls nötig"
     ],
     "metadata": {
       "ip_address": "45.123.67.89",
