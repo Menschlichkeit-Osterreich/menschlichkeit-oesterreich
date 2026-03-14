@@ -1,11 +1,16 @@
 """Tests für PII-Sanitizer in apps/api/app/lib/."""
 from __future__ import annotations
 
-import sys, os
-sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-
 import pytest
-from app.lib.pii_sanitizer import PiiSanitizer, scrub, scrub_dict
+from app.lib.pii_sanitizer import PiiSanitizer, scrub, scrub_dict, _default_sanitizer
+
+
+@pytest.fixture(autouse=True)
+def reset_sanitizer_metrics():
+    """Singleton-Metriken vor jedem Test zurücksetzen – verhindert Test-Interferenz."""
+    _default_sanitizer.reset_metrics()
+    yield
+    _default_sanitizer.reset_metrics()
 
 
 class TestEmailRedaction:

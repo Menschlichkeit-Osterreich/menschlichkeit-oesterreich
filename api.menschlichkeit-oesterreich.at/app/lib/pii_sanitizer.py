@@ -186,6 +186,9 @@ class PiiSanitizer:
             "ibans_redacted": 0,
             "cards_redacted": 0,
         }
+        # Einmalig kompiliertes Regex für sensitive-key-Erkennung (O(1) statt O(n))
+        escaped = "|".join(re.escape(k) for k in sorted(self._cfg.sensitive_keys))
+        self._sensitive_key_re = re.compile(escaped, re.IGNORECASE)
 
     # ------------------------------------------------------------------
     # Public API
@@ -310,6 +313,9 @@ class PiiSanitizer:
 
     def _redact_credit_cards(self, text: str) -> str:
         def _mask(m: re.Match) -> str:
+            number = re.sub(r"[\s\-]", "", m.group(0))
+            if not _luhn_check(number):
+                return m.group(0)
             self._metrics["cards_redacted"] += 1
             return "[CARD]"
 
@@ -351,11 +357,7 @@ class PiiSanitizer:
         return result
 
     def _is_sensitive_key(self, key: str) -> bool:
-        key_norm = key.lower().replace("-", "_")
-        for sensitive in self._cfg.sensitive_keys:
-            if sensitive in key_norm:
-                return True
-        return False
+        return bool(self._sensitive_key_re.search(key.replace("-", "_")))
 
 
 # ---------------------------------------------------------------------------

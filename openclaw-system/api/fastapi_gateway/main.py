@@ -11,6 +11,7 @@ import asyncio
 import hashlib
 import json
 import os
+import re
 import subprocess
 import time
 from datetime import datetime, timezone
@@ -52,6 +53,14 @@ if not CAPS_PATH.exists():
 
 with open(CAPS_PATH) as f:
     CAPABILITIES = yaml.safe_load(f)
+
+# O(1)-Whitelist aus capabilities.yaml – Neustart erforderlich bei Änderungen
+ALLOWED_WEBHOOKS: frozenset[str] = frozenset(
+    CAPABILITIES.get("webhooks", {}).get("allowed", [])
+)
+
+# Kompiliertes Regex für Audit-Log-Redaktion sensitiver Args-Keys
+_SENSITIVE_KEY_RE = re.compile(r"token|key|secret|password", re.IGNORECASE)
 
 # ─── FastAPI App ──────────────────────────────────────────
 app = FastAPI(
@@ -155,9 +164,8 @@ async def audit_log(req: ToolRequest, status: str, duration_ms: int,
     if not db_pool:
         return ""
     args_hash = hashlib.sha256(json.dumps(req.args, sort_keys=True).encode()).hexdigest()
-    # Args redaktieren (Secrets entfernen)
-    redacted = {k: "***" if any(s in k.lower() for s in ["token","key","secret","password"]) else v
-                for k, v in req.args.items()}
+    # Args redaktieren (Secrets entfernen) – _SENSITIVE_KEY_RE ist module-level kompiliert
+    redacted = {k: "***" if _SENSITIVE_KEY_RE.search(k) else v for k, v in req.args.items()}
     try:
         row = await db_pool.fetchrow(
             """INSERT INTO oc_tool_calls
@@ -298,44 +306,8 @@ async def tool_n8n_get_status(args: dict) -> Any:
 async def tool_n8n_trigger_webhook(args: dict) -> Any:
     webhook_id = args["webhook_id"]
     payload = args.get("payload", {})
-    # Nur vordefinierte Webhooks erlauben (entspricht automation/n8n/workflows/)
-    allowed_webhooks = [
-        # Mitglieder & CRM
-        "new-member",
-        "crm-member-management",
-        "crm-sync-members",
-        "onboarding-welcome-series",
-        # Finanzen
-        "new-donation",
-        "finance-donation-processing",
-        "finance-dunning",
-        "finance-invoicing",
-        "finance-membership-invoicing",
-        "finance-payment-confirmation",
-        "finance-sepa-export",
-        "Stripe_Webhook_to_CiviCRM_Contribution",
-        # Events & Forum
-        "mo-events",
-        "events-reminder",
-        "forum-moderation",
-        "forum-viral",
-        # System & Betrieb
-        "daily-report",
-        "dashboard-etl-stripe-civicrm",
-        "build-pipeline-automation",
-        "plesk-deployment-notifications",
-        "queue-monitor",
-        "dlq-admin",
-        "WebhookQueue_Processor",
-        "mail-archiver-logging",
-        # DSGVO
-        "right-to-erasure",
-        "right-to-erasure-fixed",
-        # Social & Kommunikation
-        "social-media-crosspost",
-        "openclaw-bridge",
-    ]
-    if webhook_id not in allowed_webhooks:
+    # Whitelist aus capabilities.yaml (ALLOWED_WEBHOOKS frozenset, O(1)-Lookup)
+    if webhook_id not in ALLOWED_WEBHOOKS:
         raise ValueError(f"Webhook '{webhook_id}' nicht in der Whitelist")
     async with httpx.AsyncClient(timeout=15) as client:
         resp = await client.post(f"{N8N_URL}/webhook/{webhook_id}", json=payload)
