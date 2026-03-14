@@ -61,11 +61,15 @@ temp/*.decrypted
 *.cer
 *.der
 
-# Database dumps & backups
+# Database dumps & backups (aber nicht Schema-Initialisierungsskripte!)
 *.sql
 *.dump
 *.backup
 *.bak
+# Ausnahmen: eingecheckte Schema-Initialisierungsskripte
+!scripts/init-db.sql
+!scripts/db-user-setup.sql
+!openclaw-system/services/postgres/init.sql
 
 # Configuration with secrets
 config/local.json
@@ -342,6 +346,10 @@ config/.env.production
 # Backup-Dateien mit potentiell sensiblen Daten
 *.backup
 *.sql
+# Ausnahmen: eingecheckte Schema-Initialisierungsskripte (see also line 65)
+!scripts/init-db.sql
+!scripts/db-user-setup.sql
+!openclaw-system/services/postgres/init.sql
 backup/
 backups/
 dumps/
