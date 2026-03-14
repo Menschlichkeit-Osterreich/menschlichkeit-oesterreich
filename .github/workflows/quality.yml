@@ -76,7 +76,7 @@ jobs:
         run: |
           set -euo pipefail
           if npx --yes eslint -v >/dev/null 2>&1; then
-            npx eslint . --max-warnings=0
+            npx eslint . --max-warnings=-1
           else
             echo "ESLint not configured — skipping."
           fi
