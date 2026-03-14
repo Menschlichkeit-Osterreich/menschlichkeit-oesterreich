@@ -77,10 +77,12 @@ class PiiSanitizationMiddleware(BaseHTTPMiddleware):
         sanitized_query = self._sanitize_query_params(request.query_params)
         
         # Request-Body (für Logging, nicht für Verarbeitung!)
+        # Nur bei JSON-Requests unter 1 MB lesen – kein Buffering großer Uploads
+        _MAX_LOG_BODY = 1_048_576  # 1 MB
         if self.sanitize_request_body and request.method in ("POST", "PUT", "PATCH"):
-            # Body nur lesen wenn Content-Type JSON ist
             content_type = request.headers.get("content-type", "")
-            if "application/json" in content_type:
+            content_length = int(request.headers.get("content-length", 0) or 0)
+            if "application/json" in content_type and content_length <= _MAX_LOG_BODY:
                 try:
                     body = await request.body()
                     if body:
@@ -100,7 +102,9 @@ class PiiSanitizationMiddleware(BaseHTTPMiddleware):
                             }
                         )
                 except Exception as e:
-                    logger.warning(f"Failed to parse request body: {e}")
+                    # Exception-Meldung scrubben – kann PII aus Nutzerdaten enthalten
+                    logger.warning("Failed to parse request body: %s",
+                                   self.sanitizer.scrub_text(str(e)))
         
         # Forward Request
         response = await call_next(request)
