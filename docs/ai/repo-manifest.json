@@ -57,7 +57,7 @@
     ".github/workflows/validate-github-files.yml",
     ".github/workflows/validate-secrets.yml"
   ],
-  "commit_sha": "f1509aab73d51b898b1f39f4a41ddfcb012c6f9c",
+  "commit_sha": "fb3b31b2cd73633cce60b9275647cade1543b896",
   "databases": [
     {
       "engine": "mariadb",
@@ -116,7 +116,7 @@
     "docs/QUICKSTART.md",
     "docs/compliance/DSGVO-COMPLIANCE-BLUEPRINT.md"
   ],
-  "generated_at": "2026-03-14T18:32:14+00:00",
+  "generated_at": "2026-03-14T19:14:10+00:00",
   "repo_name": "menschlichkeit-oesterreich-development",
   "security_tooling": [
     "CodeQL",
