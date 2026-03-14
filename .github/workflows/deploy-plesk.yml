@@ -215,11 +215,15 @@ jobs:
       # ── Release-Metadaten ───────────────────────────────────
       - name: Release-Metadaten vorbereiten
         id: release
+        env:
+          # Expressions in Env-Vars auslagern verhindert Shell-Injection
+          SERVICE_INPUT: ${{ github.event.inputs.service || 'all' }}
+          ACTOR_NAME: ${{ github.actor }}
         run: |
           TS=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
           echo "timestamp=${TS}" >> "$GITHUB_OUTPUT"
           echo "sha_short=${GITHUB_SHA::8}" >> "$GITHUB_OUTPUT"
-          echo "marker=service=${{ github.event.inputs.service || 'all' }} commit=${GITHUB_SHA::8} timestamp=${TS} actor=${GITHUB_ACTOR}" >> "$GITHUB_OUTPUT"
+          echo "marker=service=${SERVICE_INPUT} commit=${GITHUB_SHA::8} timestamp=${TS} actor=${ACTOR_NAME}" >> "$GITHUB_OUTPUT"
 
       # ── Frontend deployen ───────────────────────────────────
       - name: Frontend-Artefakt herunterladen
@@ -340,19 +344,26 @@ jobs:
       # ── Deployment-Zusammenfassung ──────────────────────────
       - name: Deployment-Zusammenfassung
         if: always()
+        env:
+          # Expressions in Env-Vars — kein Shell-Injection-Risiko in echo
+          SUMMARY_SHA: ${{ github.sha }}
+          SUMMARY_SERVICE: ${{ github.event.inputs.service || 'all (push)' }}
+          SUMMARY_TS: ${{ steps.release.outputs.timestamp }}
+          SUMMARY_ACTOR: ${{ github.actor }}
+          SUMMARY_DOMAIN: ${{ env.MAIN_DOMAIN }}
         run: |
           echo "## 🚀 Deployment abgeschlossen" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Parameter | Wert |" >> "$GITHUB_STEP_SUMMARY"
           echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Service | ${{ github.event.inputs.service || 'all (push)' }} |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Zeitstempel | ${{ steps.release.outputs.timestamp }} |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Akteur | ${{ github.actor }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${SUMMARY_SHA}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Service | ${SUMMARY_SERVICE} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Zeitstempel | ${SUMMARY_TS} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Akteur | ${SUMMARY_ACTOR} |" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
           echo "| Service | URL |" >> "$GITHUB_STEP_SUMMARY"
           echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
-          echo "| 🌐 Frontend | https://${{ env.MAIN_DOMAIN }}/ |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| ⚙️ API | https://api.${{ env.MAIN_DOMAIN }}/ |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| 📋 CRM | https://crm.${{ env.MAIN_DOMAIN }}/ |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| 🎮 Games | https://games.${{ env.MAIN_DOMAIN }}/ |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| 🌐 Frontend | https://${SUMMARY_DOMAIN}/ |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| ⚙️ API | https://api.stg.${SUMMARY_DOMAIN}/ |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| 📋 CRM | https://crm.${SUMMARY_DOMAIN}/ |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| 🎮 Games | https://games.${SUMMARY_DOMAIN}/ |" >> "$GITHUB_STEP_SUMMARY"

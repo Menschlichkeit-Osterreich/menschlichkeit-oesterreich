@@ -27,6 +27,9 @@ jobs:
         run: |
           pip install bandit[toml]
 
+      - name: Ausgabe-Verzeichnis vorbereiten
+        run: mkdir -p quality-reports
+
       - name: Run Bandit Security Scan
         run: |
           bandit -r scripts/ enterprise-upgrade/scripts/ \
@@ -58,6 +61,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Ausgabe-Verzeichnis vorbereiten
+        run: mkdir -p quality-reports
 
       - name: Run npm audit
         run: |

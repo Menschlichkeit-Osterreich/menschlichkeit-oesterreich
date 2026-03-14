@@ -1,19 +1,8 @@
 version: 2
 
-# Dependabot Configuration mit Private Registry Support
-# Siehe: https://docs.github.com/en/code-security/dependabot/working-with-dependabot/configuring-access-to-private-registries
-
-registries:
-  npm-private:
-    type: npm-registry
-    url: https://npm.pkg.github.com
-    token: ${{ secrets.NPM_TOKEN }}
-  
-  composer-private:
-    type: composer-repository
-    url: https://repo.packagist.org
-    username: ${{ secrets.PACKAGIST_USERNAME }}
-    password: ${{ secrets.PACKAGIST_TOKEN }}
+# Dependabot — Menschlichkeit Österreich
+# Nur öffentliche Registries → kein NPM_TOKEN / PACKAGIST_TOKEN nötig.
+# Alle npm-Pakete kommen vom public npm-Registry (registry.npmjs.org).
 
 updates:
   # Root npm dependencies
@@ -35,9 +24,7 @@ updates:
     commit-message:
       prefix: "chore(deps)"
       include: "scope"
-    registries:
-      - npm-private
-  
+
   # MCP File Server
   - package-ecosystem: "npm"
     directory: "/mcp-servers/file-server"
@@ -51,12 +38,10 @@ updates:
       - "mcp"
     commit-message:
       prefix: "chore(mcp-deps)"
-    registries:
-      - npm-private
-  
-  # Frontend dependencies
+
+  # Frontend (apps/website)
   - package-ecosystem: "npm"
-    directory: "/frontend"
+    directory: "/apps/website"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -67,9 +52,7 @@ updates:
       - "frontend"
     commit-message:
       prefix: "chore(frontend-deps)"
-    registries:
-      - npm-private
-  
+
   # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
@@ -83,10 +66,10 @@ updates:
       - "github-actions"
     commit-message:
       prefix: "chore(actions)"
-  
-  # Python API dependencies
+
+  # Python API (apps/api)
   - package-ecosystem: "pip"
-    directory: "/api.menschlichkeit-oesterreich.at"
+    directory: "/apps/api"
     schedule:
       interval: "weekly"
       day: "wednesday"
@@ -98,15 +81,31 @@ updates:
       - "python"
     commit-message:
       prefix: "chore(api-deps)"
-    # Allow both direct and indirect dependency updates
     allow:
       - dependency-type: "all"
-    # Security updates immediately
     open-pull-requests-limit: 15
-  
+
+  # Python Legacy-API (api.menschlichkeit-oesterreich.at)
+  - package-ecosystem: "pip"
+    directory: "/api.menschlichkeit-oesterreich.at"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "03:30"
+      timezone: "Europe/Vienna"
+    labels:
+      - "dependencies"
+      - "api"
+      - "python"
+    commit-message:
+      prefix: "chore(legacy-api-deps)"
+    allow:
+      - dependency-type: "all"
+    open-pull-requests-limit: 10
+
   # PHP Composer (CRM/Drupal/CiviCRM)
   - package-ecosystem: "composer"
-    directory: "/crm.menschlichkeit-oesterreich.at"
+    directory: "/apps/crm"
     schedule:
       interval: "weekly"
       day: "thursday"
@@ -118,14 +117,11 @@ updates:
       - "php"
     commit-message:
       prefix: "chore(crm-deps)"
-    registries:
-      - composer-private
-    # Vendor updates cautiously (Drupal/CiviCRM)
     allow:
       - dependency-type: "direct"
     open-pull-requests-limit: 5
-  
-  # Docker dependencies (n8n, services)
+
+  # Docker (n8n)
   - package-ecosystem: "docker"
     directory: "/automation/n8n"
     schedule:

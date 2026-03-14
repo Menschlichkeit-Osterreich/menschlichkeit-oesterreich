@@ -17,6 +17,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Optional
+from urllib.parse import urlparse as _urlparse
 
 import httpx
 import redis.asyncio as aioredis
@@ -279,7 +280,9 @@ async def tool_http_fetch(args: dict) -> Any:
     url = args["url"]
     method = args.get("method", "GET").upper()
     headers = args.get("headers", {})
-    if GITHUB_TOKEN and "github.com" in url:
+    _parsed_url = _urlparse(url)
+    _GITHUB_HOSTS = {"github.com", "api.github.com", "raw.githubusercontent.com"}
+    if GITHUB_TOKEN and _parsed_url.hostname in _GITHUB_HOSTS:
         headers.setdefault("Authorization", f"token {GITHUB_TOKEN}")
         headers.setdefault("User-Agent", "OpenClaw-MO/1.0")
     async with httpx.AsyncClient(timeout=30) as client:
