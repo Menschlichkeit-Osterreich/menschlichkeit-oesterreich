@@ -193,7 +193,6 @@ jobs:
             HostName ${{ env.SSH_HOST }}
             Port ${{ env.SSH_PORT }}
             User ${{ env.SSH_USER }}
-            IdentitiesOnly yes
             StrictHostKeyChecking yes
             BatchMode yes
             ConnectTimeout 15
