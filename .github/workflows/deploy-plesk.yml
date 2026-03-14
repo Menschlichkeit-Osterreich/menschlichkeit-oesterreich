@@ -230,90 +230,81 @@ jobs:
           name: frontend-dist-${{ github.sha }}
           path: _dist_frontend/
 
-      - name: Frontend → rsync
+      - name: Frontend → scp (Chroot-SSH)
         if: >
           github.event.inputs.service == 'all' ||
           github.event.inputs.service == 'frontend' ||
           github.event.inputs.service == '' ||
           github.event_name == 'push'
         run: |
-          rsync -az --delete --partial --stats \
-            --exclude=".git" \
-            --exclude="*.map" \
-            -e "ssh -F ~/.ssh/config" \
-            _dist_frontend/ \
+          # Chroot-SSH: kein rsync auf Serverseite → scp verwenden
+          find _dist_frontend -name "*.map" -delete
+          scp -r -F ~/.ssh/config \
+            _dist_frontend/. \
             "plesk-prod:${{ env.BASE_PATH }}/"
           ssh plesk-prod \
             "printf '%s\n' '${{ steps.release.outputs.marker }}' > '${{ env.BASE_PATH }}/.deploy_release'"
           echo "✓ Frontend deployt."
 
       # ── API deployen ────────────────────────────────────────
-      - name: API → rsync + pip install
+      - name: API → scp (Chroot-SSH)
         if: >
           github.event.inputs.service == 'all' ||
           github.event.inputs.service == 'api' ||
           github.event_name == 'push'
         run: |
-          API_PATH="${{ env.BASE_PATH }}/../subdomains/api/httpdocs"
-          rsync -az --delete --partial --stats \
-            --exclude=".git" \
-            --exclude="__pycache__" \
-            --exclude="*.pyc" \
-            --exclude=".venv" \
-            --exclude="venv" \
-            --exclude=".env" \
-            --exclude="*.log" \
-            -e "ssh -F ~/.ssh/config" \
-            apps/api/ \
-            "plesk-prod:${API_PATH}/"
+          API_PATH="/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/api/httpdocs"
+          tar --exclude=".git" --exclude="__pycache__" --exclude="*.pyc" \
+              --exclude=".venv" --exclude="venv" --exclude=".env" --exclude="*.log" \
+              -czf /tmp/api.tar.gz -C apps/api .
+          scp -F ~/.ssh/config /tmp/api.tar.gz "plesk-prod:/tmp/api.tar.gz"
           ssh plesk-prod \
-            "cd '${API_PATH}' && pip3 install -r requirements.txt --quiet --no-warn-script-location 2>&1 | tail -5"
+            "mkdir -p '${API_PATH}' && tar -xzf /tmp/api.tar.gz -C '${API_PATH}' && rm /tmp/api.tar.gz"
+          # Post-Deploy: pip install falls vorhanden (optional in Chroot)
+          ssh plesk-prod \
+            "cd '${API_PATH}' && command -v pip3 && pip3 install -r requirements.txt --quiet 2>&1 | tail -5" || \
+            echo "⚠️ pip3 nicht im Chroot verfügbar — manuell ausführen."
           ssh plesk-prod \
             "printf '%s\n' '${{ steps.release.outputs.marker }}' > '${API_PATH}/.deploy_release'"
           echo "✓ API deployt."
 
       # ── CRM deployen ────────────────────────────────────────
-      - name: CRM → rsync + composer + drush
+      - name: CRM → scp (Chroot-SSH)
         if: >
           github.event.inputs.service == 'all' ||
           github.event.inputs.service == 'crm' ||
           github.event_name == 'push'
         run: |
-          CRM_PATH="${{ env.BASE_PATH }}/../subdomains/crm/httpdocs"
-          rsync -az --delete --partial --stats \
-            --exclude=".git" \
-            --exclude="node_modules" \
-            --exclude="vendor" \
-            --exclude="web/sites/*/files" \
-            --exclude=".env" \
-            --exclude="*.log" \
-            -e "ssh -F ~/.ssh/config" \
-            apps/crm/ \
-            "plesk-prod:${CRM_PATH}/"
+          CRM_PATH="/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/crm/httpdocs"
+          tar --exclude=".git" --exclude="node_modules" --exclude="vendor" \
+              --exclude="web/sites/*/files" --exclude=".env" --exclude="*.log" \
+              -czf /tmp/crm.tar.gz -C apps/crm .
+          scp -F ~/.ssh/config /tmp/crm.tar.gz "plesk-prod:/tmp/crm.tar.gz"
           ssh plesk-prod \
-            "cd '${CRM_PATH}' && \
-             composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction 2>&1 | tail -10 && \
-             vendor/bin/drush updb -y && \
-             vendor/bin/drush cr"
+            "mkdir -p '${CRM_PATH}' && tar -xzf /tmp/crm.tar.gz -C '${CRM_PATH}' && rm /tmp/crm.tar.gz"
+          # Post-Deploy: composer + drush falls vorhanden (optional in Chroot)
+          ssh plesk-prod \
+            "cd '${CRM_PATH}' && command -v composer && \
+             composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction 2>&1 | tail -5 && \
+             vendor/bin/drush updb -y && vendor/bin/drush cr" || \
+            echo "⚠️ composer/drush nicht im Chroot — manuell ausführen."
           ssh plesk-prod \
             "printf '%s\n' '${{ steps.release.outputs.marker }}' > '${CRM_PATH}/.deploy_release'"
           echo "✓ CRM deployt."
 
       # ── Games deployen ──────────────────────────────────────
-      - name: Games → rsync
+      - name: Games → scp (Chroot-SSH)
         if: >
           github.event.inputs.service == 'all' ||
           github.event.inputs.service == 'games' ||
           github.event_name == 'push'
         run: |
-          GAMES_PATH="${{ env.BASE_PATH }}/../subdomains/games/httpdocs"
-          rsync -az --delete --partial --stats \
-            --exclude=".git" \
-            --exclude="node_modules" \
-            --exclude=".env" \
-            -e "ssh -F ~/.ssh/config" \
-            apps/game/ \
-            "plesk-prod:${GAMES_PATH}/"
+          GAMES_PATH="/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/games/httpdocs"
+          tar --exclude=".git" --exclude="node_modules" --exclude=".env" \
+              -czf /tmp/games.tar.gz -C apps/game .
+          scp -F ~/.ssh/config /tmp/games.tar.gz "plesk-prod:/tmp/games.tar.gz"
+          ssh plesk-prod \
+            "mkdir -p '${GAMES_PATH}' && tar -xzf /tmp/games.tar.gz -C '${GAMES_PATH}' && rm /tmp/games.tar.gz"
           ssh plesk-prod \
             "printf '%s\n' '${{ steps.release.outputs.marker }}' > '${GAMES_PATH}/.deploy_release'"
           echo "✓ Games deployt."
