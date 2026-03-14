@@ -51,9 +51,13 @@ jobs:
 
       - name: Check for unstaged diffs
         run: |
-          if ! git diff --quiet -- docs/ai; then
+          # Exclude repo-manifest.json: it embeds commit_sha via HEAD^ which is inherently
+          # dynamic and cannot match the committed value in the same run.
+          # Semantic artifacts (service-map, dependency-graph, entrypoints, data-flows) are checked.
+          SEMANTIC_FILES="docs/ai/service-map.json docs/ai/dependency-graph.json docs/ai/entrypoints.json docs/ai/data-flows.json"
+          if ! git diff --quiet -- $SEMANTIC_FILES; then
             echo "AI artifacts changed. Commit regenerated docs/ai outputs."
-            git --no-pager diff -- docs/ai
+            git --no-pager diff -- $SEMANTIC_FILES
             exit 1
           fi
 

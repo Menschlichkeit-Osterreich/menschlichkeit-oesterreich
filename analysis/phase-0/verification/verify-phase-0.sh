@@ -13,9 +13,9 @@ mkdir -p "$REPORT_DIR"
 declare -a ITEMS=(
   "docs/infrastructure/SUBDOMAIN-REGISTRY.md|Asset Mapping (Subdomains Registry)"
   "docs/security/LICENSE-AUDIT-2025-10-04.md|License Audit (SPDX Matrix)"
-  "docs/security/THIRD-PARTY-NOTICES.md|Third-Party Notices"
+  "docs/legal/THIRD-PARTY-NOTICES.md|Third-Party Notices"
   "analysis/phase-0/inventory/provenance-report.md|Provenance Report"
-  "analysis/phase-0/threat-model/STRIDE-LINDDUN-ANALYSIS.md|Threat Model (STRIDE/LINDDUN)"
+  "docs/security/STRIDE-LINDDUN-ANALYSIS.md|Threat Model (STRIDE/LINDDUN)"
   "docs/security/FRONTEND-THREAT-MODEL.md|Frontend Threat Model"
   "docs/security/MCP-SERVER-THREAT-MODEL.md|MCP Server Threat Model"
   "api.menschlichkeit-oesterreich.at/PII-SANITIZATION-README.md|API PII Sanitization"
@@ -204,7 +204,7 @@ RUNNER="scripts/run-mcp-file-server-seccomp.sh"
 # Threat model deltas present
 append ""
 append "## Threat Model – Deltas"
-TM1="analysis/phase-0/threat-model/STRIDE-LINDDUN-ANALYSIS.md"
+TM1="docs/security/STRIDE-LINDDUN-ANALYSIS.md"
 if grep -q "Threat T-04: Path Traversal" "$ROOT_DIR/$TM1"; then
   append "- ✅ T-04 Path Traversal dokumentiert"
 else
