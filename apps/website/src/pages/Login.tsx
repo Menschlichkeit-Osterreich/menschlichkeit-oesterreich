@@ -21,7 +21,9 @@ export default function LoginPage() {
     setError(null);
     try {
       await login(email, password);
-      const redirectTo = location.state?.from?.pathname || '/member';
+      // Defense-in-depth: nur relative, sichere Pfade akzeptieren (kein Open Redirect)
+      const raw: string = location.state?.from?.pathname ?? '';
+      const redirectTo = /^\/[^/]/.test(raw) || raw === '/' ? raw : '/member';
       nav(redirectTo, { replace: true });
     } catch (err: any) {
       setError(err?.message || 'Login fehlgeschlagen. Bitte prüfe deine Zugangsdaten.');

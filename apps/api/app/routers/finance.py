@@ -24,8 +24,17 @@ async def _ensure_finance_tables() -> None:
             amount_cents INTEGER NOT NULL,
             booked_at TIMESTAMPTZ DEFAULT NOW(),
             description TEXT,
+            payer_type TEXT NOT NULL DEFAULT 'member',
+            is_recurring BOOLEAN NOT NULL DEFAULT FALSE,
             created_at TIMESTAMPTZ DEFAULT NOW()
         );
+    """)
+    # Fehlende Spalten nachrüsten falls Tabelle bereits existiert
+    await fetch("""
+        ALTER TABLE payments ADD COLUMN IF NOT EXISTS payer_type TEXT NOT NULL DEFAULT 'member';
+    """)
+    await fetch("""
+        ALTER TABLE payments ADD COLUMN IF NOT EXISTS is_recurring BOOLEAN NOT NULL DEFAULT FALSE;
     """)
     await fetch("""
         CREATE TABLE IF NOT EXISTS expenses (
@@ -33,8 +42,12 @@ async def _ensure_finance_tables() -> None:
             amount_cents INTEGER NOT NULL,
             booked_at TIMESTAMPTZ DEFAULT NOW(),
             description TEXT,
+            project TEXT,
             created_at TIMESTAMPTZ DEFAULT NOW()
         );
+    """)
+    await fetch("""
+        ALTER TABLE expenses ADD COLUMN IF NOT EXISTS project TEXT;
     """)
     await fetch("""
         CREATE TABLE IF NOT EXISTS invoices (
@@ -45,6 +58,16 @@ async def _ensure_finance_tables() -> None:
             faellig_am TIMESTAMPTZ,
             erstellt_am TIMESTAMPTZ DEFAULT NOW(),
             beschreibung TEXT
+        );
+    """)
+    await fetch("""
+        CREATE TABLE IF NOT EXISTS projects (
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            code TEXT UNIQUE NOT NULL,
+            name TEXT NOT NULL,
+            budget_cents INTEGER NOT NULL DEFAULT 0,
+            status TEXT NOT NULL DEFAULT 'active',
+            created_at TIMESTAMPTZ DEFAULT NOW()
         );
     """)
 

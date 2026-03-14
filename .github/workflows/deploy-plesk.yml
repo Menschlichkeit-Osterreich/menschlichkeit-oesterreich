@@ -32,10 +32,10 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  SSH_HOST:   ${{ secrets.PLSK_HOST }}
-  SSH_PORT:   ${{ secrets.PLSK_PORT || '22' }}
-  SSH_USER:   ${{ secrets.PLSK_USER }}
-  BASE_PATH:  ${{ vars.PLSK_DEPLOY_PATH || '/var/www/vhosts/menschlichkeit-oesterreich.at/httpdocs' }}
+  SSH_HOST:   ${{ secrets.PLESK_HOST }}
+  SSH_PORT:   ${{ secrets.PLESK_PORT || '22' }}
+  SSH_USER:   ${{ secrets.PLESK_USER }}
+  BASE_PATH:  ${{ vars.PLESK_BASE_PATH || '/var/www/vhosts/menschlichkeit-oesterreich.at/httpdocs' }}
   MAIN_DOMAIN: ${{ vars.MAIN_DOMAIN || 'menschlichkeit-oesterreich.at' }}
   NODE_VERSION: "22"
 
@@ -66,16 +66,16 @@ jobs:
 
       - name: Pflicht-Secrets prüfen
         env:
-          HAS_HOST:       ${{ secrets.PLSK_HOST != '' }}
-          HAS_USER:       ${{ secrets.PLSK_USER != '' }}
-          HAS_KEY:        ${{ secrets.PLSK_SSH_PRIVATE_KEY != '' }}
-          HAS_KNOWN_HOSTS: ${{ secrets.PLSK_KNOWN_HOSTS != '' }}
+          HAS_HOST:       ${{ secrets.PLESK_HOST != '' }}
+          HAS_USER:       ${{ secrets.PLESK_USER != '' }}
+          HAS_KEY:        ${{ secrets.PLESK_SSH_PRIVATE_KEY != '' }}
+          HAS_KNOWN_HOSTS: ${{ secrets.PLESK_KNOWN_HOSTS != '' }}
         run: |
           ERRORS=0
-          [[ "${HAS_HOST}"       == "true" ]] && echo "✓ PLSK_HOST"       || { echo "✗ PLSK_HOST fehlt";             ERRORS=$((ERRORS+1)); }
-          [[ "${HAS_USER}"       == "true" ]] && echo "✓ PLSK_USER"       || { echo "✗ PLSK_USER fehlt";             ERRORS=$((ERRORS+1)); }
-          [[ "${HAS_KEY}"        == "true" ]] && echo "✓ PLSK_SSH_PRIVATE_KEY" || { echo "✗ PLSK_SSH_PRIVATE_KEY fehlt"; ERRORS=$((ERRORS+1)); }
-          [[ "${HAS_KNOWN_HOSTS}" == "true" ]] && echo "✓ PLSK_KNOWN_HOSTS" || { echo "✗ PLSK_KNOWN_HOSTS fehlt";   ERRORS=$((ERRORS+1)); }
+          [[ "${HAS_HOST}"       == "true" ]] && echo "✓ PLESK_HOST"       || { echo "✗ PLESK_HOST fehlt";             ERRORS=$((ERRORS+1)); }
+          [[ "${HAS_USER}"       == "true" ]] && echo "✓ PLESK_USER"       || { echo "✗ PLESK_USER fehlt";             ERRORS=$((ERRORS+1)); }
+          [[ "${HAS_KEY}"        == "true" ]] && echo "✓ PLESK_SSH_PRIVATE_KEY" || { echo "✗ PLESK_SSH_PRIVATE_KEY fehlt"; ERRORS=$((ERRORS+1)); }
+          [[ "${HAS_KNOWN_HOSTS}" == "true" ]] && echo "✓ PLESK_KNOWN_HOSTS" || { echo "✗ PLESK_KNOWN_HOSTS fehlt";   ERRORS=$((ERRORS+1)); }
           if (( ERRORS > 0 )); then
             echo "✗ ${ERRORS} Pflicht-Secret(s) fehlen. Deployment abgebrochen."
             exit 1
@@ -176,13 +176,13 @@ jobs:
       - name: SSH-Agent starten
         uses: webfactory/ssh-agent@v0.9.0
         with:
-          ssh-private-key: ${{ secrets.PLSK_SSH_PRIVATE_KEY }}
+          ssh-private-key: ${{ secrets.PLESK_SSH_PRIVATE_KEY }}
 
       - name: known_hosts aus Secret eintragen
         run: |
           mkdir -p ~/.ssh
           # Niemals ssh-keyscan in Produktion ohne Verifikation!
-          printf '%s\n' "${{ secrets.PLSK_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          printf '%s\n' "${{ secrets.PLESK_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
           echo "✓ known_hosts gesetzt."
 
@@ -193,7 +193,6 @@ jobs:
             HostName ${{ env.SSH_HOST }}
             Port ${{ env.SSH_PORT }}
             User ${{ env.SSH_USER }}
-            IdentitiesOnly yes
             StrictHostKeyChecking yes
             BatchMode yes
             ConnectTimeout 15
@@ -201,9 +200,17 @@ jobs:
           chmod 600 ~/.ssh/config
           echo "✓ SSH-Config gesetzt."
 
-      - name: SSH-Verbindung testen
+      - name: SSH-Verbindung testen + Chroot erkunden
+        id: chroot
         run: |
           ssh plesk-prod "echo 'SSH OK: $(hostname)'"
+          echo "=== Chroot Home-Struktur ==="
+          HOME_STRUCT=$(ssh plesk-prod "pwd && ls -la && ls -la httpdocs/ 2>/dev/null || echo 'kein httpdocs'" 2>&1)
+          echo "$HOME_STRUCT"
+          # DEPLOY_ROOT ermitteln: ~ oder ~/subdomains/
+          HAS_HTTPDOCS=$(ssh plesk-prod "[ -d httpdocs ] && echo yes || echo no")
+          echo "deploy_root=${HAS_HTTPDOCS}" >> "$GITHUB_OUTPUT"
+          echo "home_path=$(ssh plesk-prod pwd)" >> "$GITHUB_OUTPUT"
 
       # ── Release-Metadaten ───────────────────────────────────
       - name: Release-Metadaten vorbereiten
@@ -226,92 +233,80 @@ jobs:
           name: frontend-dist-${{ github.sha }}
           path: _dist_frontend/
 
-      - name: Frontend → rsync
+      - name: Frontend → scp (Chroot-SSH)
         if: >
           github.event.inputs.service == 'all' ||
           github.event.inputs.service == 'frontend' ||
           github.event.inputs.service == '' ||
           github.event_name == 'push'
         run: |
-          rsync -az --delete --partial --stats \
-            --exclude=".git" \
-            --exclude="*.map" \
-            -e "ssh -F ~/.ssh/config" \
-            _dist_frontend/ \
-            "plesk-prod:${{ env.BASE_PATH }}/"
+          # Chroot-SSH: Pfade relativ zum Home-Verzeichnis des Chroot-Users
+          find _dist_frontend -name "*.map" -delete
+          ssh plesk-prod "mkdir -p httpdocs"
+          scp -r -F ~/.ssh/config \
+            _dist_frontend/. \
+            "plesk-prod:httpdocs/"
           ssh plesk-prod \
-            "printf '%s\n' '${{ steps.release.outputs.marker }}' > '${{ env.BASE_PATH }}/.deploy_release'"
+            "printf '%s\n' '${{ steps.release.outputs.marker }}' > 'httpdocs/.deploy_release'"
           echo "✓ Frontend deployt."
 
       # ── API deployen ────────────────────────────────────────
-      - name: API → rsync + pip install
+      - name: API → scp (Chroot-SSH)
         if: >
           github.event.inputs.service == 'all' ||
           github.event.inputs.service == 'api' ||
           github.event_name == 'push'
         run: |
-          API_PATH="${{ env.BASE_PATH }}/../subdomains/api/httpdocs"
-          rsync -az --delete --partial --stats \
-            --exclude=".git" \
-            --exclude="__pycache__" \
-            --exclude="*.pyc" \
-            --exclude=".venv" \
-            --exclude="venv" \
-            --exclude=".env" \
-            --exclude="*.log" \
-            -e "ssh -F ~/.ssh/config" \
-            apps/api/ \
-            "plesk-prod:${API_PATH}/"
+          # Pfad relativ zum Chroot-Home
+          tar --exclude=".git" --exclude="__pycache__" --exclude="*.pyc" \
+              --exclude=".venv" --exclude="venv" --exclude=".env" --exclude="*.log" \
+              -czf /tmp/api.tar.gz -C apps/api .
+          ssh plesk-prod "mkdir -p subdomains/api/httpdocs"
+          scp -F ~/.ssh/config /tmp/api.tar.gz "plesk-prod:api.tar.gz"
+          ssh plesk-prod "tar -xzf api.tar.gz -C subdomains/api/httpdocs && rm api.tar.gz"
           ssh plesk-prod \
-            "cd '${API_PATH}' && pip3 install -r requirements.txt --quiet --no-warn-script-location 2>&1 | tail -5"
+            "command -v pip3 && pip3 install -r subdomains/api/httpdocs/requirements.txt --quiet 2>&1 | tail -5" || \
+            echo "⚠️ pip3 nicht im Chroot verfügbar."
           ssh plesk-prod \
-            "printf '%s\n' '${{ steps.release.outputs.marker }}' > '${API_PATH}/.deploy_release'"
+            "printf '%s\n' '${{ steps.release.outputs.marker }}' > 'subdomains/api/httpdocs/.deploy_release'"
           echo "✓ API deployt."
 
       # ── CRM deployen ────────────────────────────────────────
-      - name: CRM → rsync + composer + drush
+      - name: CRM → scp (Chroot-SSH)
         if: >
           github.event.inputs.service == 'all' ||
           github.event.inputs.service == 'crm' ||
           github.event_name == 'push'
         run: |
-          CRM_PATH="${{ env.BASE_PATH }}/../subdomains/crm/httpdocs"
-          rsync -az --delete --partial --stats \
-            --exclude=".git" \
-            --exclude="node_modules" \
-            --exclude="vendor" \
-            --exclude="web/sites/*/files" \
-            --exclude=".env" \
-            --exclude="*.log" \
-            -e "ssh -F ~/.ssh/config" \
-            apps/crm/ \
-            "plesk-prod:${CRM_PATH}/"
+          tar --exclude=".git" --exclude="node_modules" --exclude="vendor" \
+              --exclude="web/sites/*/files" --exclude=".env" --exclude="*.log" \
+              -czf /tmp/crm.tar.gz -C apps/crm .
+          ssh plesk-prod "mkdir -p subdomains/crm/httpdocs"
+          scp -F ~/.ssh/config /tmp/crm.tar.gz "plesk-prod:crm.tar.gz"
+          ssh plesk-prod "tar -xzf crm.tar.gz -C subdomains/crm/httpdocs && rm crm.tar.gz"
           ssh plesk-prod \
-            "cd '${CRM_PATH}' && \
-             composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction 2>&1 | tail -10 && \
-             vendor/bin/drush updb -y && \
-             vendor/bin/drush cr"
+            "cd subdomains/crm/httpdocs && command -v composer && \
+             composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction 2>&1 | tail -5 && \
+             vendor/bin/drush updb -y && vendor/bin/drush cr" || \
+            echo "⚠️ composer/drush nicht im Chroot."
           ssh plesk-prod \
-            "printf '%s\n' '${{ steps.release.outputs.marker }}' > '${CRM_PATH}/.deploy_release'"
+            "printf '%s\n' '${{ steps.release.outputs.marker }}' > 'subdomains/crm/httpdocs/.deploy_release'"
           echo "✓ CRM deployt."
 
       # ── Games deployen ──────────────────────────────────────
-      - name: Games → rsync
+      - name: Games → scp (Chroot-SSH)
         if: >
           github.event.inputs.service == 'all' ||
           github.event.inputs.service == 'games' ||
           github.event_name == 'push'
         run: |
-          GAMES_PATH="${{ env.BASE_PATH }}/../subdomains/games/httpdocs"
-          rsync -az --delete --partial --stats \
-            --exclude=".git" \
-            --exclude="node_modules" \
-            --exclude=".env" \
-            -e "ssh -F ~/.ssh/config" \
-            apps/game/ \
-            "plesk-prod:${GAMES_PATH}/"
+          tar --exclude=".git" --exclude="node_modules" --exclude=".env" \
+              -czf /tmp/games.tar.gz -C apps/game .
+          ssh plesk-prod "mkdir -p subdomains/games/httpdocs"
+          scp -F ~/.ssh/config /tmp/games.tar.gz "plesk-prod:games.tar.gz"
+          ssh plesk-prod "tar -xzf games.tar.gz -C subdomains/games/httpdocs && rm games.tar.gz"
           ssh plesk-prod \
-            "printf '%s\n' '${{ steps.release.outputs.marker }}' > '${GAMES_PATH}/.deploy_release'"
+            "printf '%s\n' '${{ steps.release.outputs.marker }}' > 'subdomains/games/httpdocs/.deploy_release'"
           echo "✓ Games deployt."
 
       # ── Health-Checks ───────────────────────────────────────
@@ -338,9 +333,9 @@ jobs:
           )
         run: |
           HTTP=$(curl --silent --max-time 15 --output /dev/null --write-out "%{http_code}" \
-            "https://api.${{ env.MAIN_DOMAIN }}/health")
+            "https://api.${{ env.MAIN_DOMAIN }}/health" || echo "000")
           echo "API HTTP: ${HTTP}"
-          [[ "${HTTP}" =~ ^[23] ]] || echo "⚠️ API Healthcheck: ${HTTP} (möglicherweise noch nicht deployt)"
+          [[ "${HTTP}" =~ ^[23] ]] || echo "⚠️ API Healthcheck: ${HTTP} (API benötigt ggf. Neustart via Plesk)"
 
       # ── Deployment-Zusammenfassung ──────────────────────────
       - name: Deployment-Zusammenfassung

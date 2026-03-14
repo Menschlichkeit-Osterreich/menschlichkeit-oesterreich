@@ -7,6 +7,7 @@ from typing import Literal, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from ..db import fetch, fetchval
+from .finance import _ensure_finance_tables
 from ..schemas.metrics import (
     DonationsSummaryResponse,
     IncomeExpensePoint,
@@ -15,22 +16,13 @@ from ..schemas.metrics import (
     ProjectBurnResponse,
 )
 
-try:
-    from src.auth.rbac import Scope, create_auth_dependencies
-except Exception:  # pragma: no cover
-    Scope = None
-    create_auth_dependencies = None
+from ..rbac import Role, require_role
 
 router = APIRouter()
 
-auth_deps = create_auth_dependencies() if create_auth_dependencies else {}
-require_scope = auth_deps.get("require_scope") if auth_deps else None
-
 
 def analytics_access_dependency():
-    if require_scope and Scope:
-        return Depends(require_scope(Scope.ANALYTICS_BOARD))
-    return Depends(lambda: {"roles": ["service"]})
+    return require_role(Role.ADMIN)
 
 
 ANALYTICS_GUARD = analytics_access_dependency()
@@ -45,6 +37,7 @@ async def kpis_overview(
     since: Optional[date] = None,
     _: dict = ANALYTICS_GUARD,
 ) -> KpisOverviewResponse:
+    await _ensure_finance_tables()
     today = date.today()
     ytd_start = since or first_day_of_year(today)
 
