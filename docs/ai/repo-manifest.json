@@ -13,8 +13,6 @@
     ".github/workflows/branch-protection.yml",
     ".github/workflows/ci-forum.yml",
     ".github/workflows/ci.yml",
-    ".github/workflows/codacy-analysis.yml",
-    ".github/workflows/codacy-analyze.yml",
     ".github/workflows/codacy.yml",
     ".github/workflows/codeql.yml",
     ".github/workflows/db-pull.yml",
@@ -51,6 +49,7 @@
     ".github/workflows/security.yml",
     ".github/workflows/semgrep.yml",
     ".github/workflows/social-posts.yml",
+    ".github/workflows/ssl-cert-check.yml",
     ".github/workflows/sync-figma-tokens.yml",
     ".github/workflows/sync-wiki.yml",
     ".github/workflows/trivy-fs.yml",
@@ -58,7 +57,7 @@
     ".github/workflows/validate-github-files.yml",
     ".github/workflows/validate-secrets.yml"
   ],
-  "commit_sha": "ab177a9301b15b4026e13321ab5b243891e4970d",
+  "commit_sha": "fb3b31b2cd73633cce60b9275647cade1543b896",
   "databases": [
     {
       "engine": "mariadb",
@@ -117,7 +116,7 @@
     "docs/QUICKSTART.md",
     "docs/compliance/DSGVO-COMPLIANCE-BLUEPRINT.md"
   ],
-  "generated_at": "2026-03-07T21:20:13+01:00",
+  "generated_at": "2026-03-14T19:14:10+00:00",
   "repo_name": "menschlichkeit-oesterreich-development",
   "security_tooling": [
     "CodeQL",
