@@ -55,7 +55,7 @@ class SepaBatchCreate(BaseModel):
 
 # ── Rechnungen ───────────────────────────────────────────────────────────────
 
-@router.get("/api/invoices", summary="Rechnungen auflisten")
+@router.get("/invoices", summary="Rechnungen auflisten")
 async def list_invoices(
     current_user: Annotated[dict, Depends(get_current_user)],
     db=Depends(get_db),
@@ -105,7 +105,7 @@ async def list_invoices(
     return {"invoices": [dict(r) for r in rows], "page": page}
 
 
-@router.get("/api/invoices/{invoice_id}", summary="Einzelne Rechnung")
+@router.get("/invoices/{invoice_id}", summary="Einzelne Rechnung")
 async def get_invoice(
     invoice_id: int,
     current_user: Annotated[dict, Depends(get_current_user)],
@@ -133,7 +133,7 @@ async def get_invoice(
     return result
 
 
-@router.get("/api/invoices/{invoice_id}/download", summary="PDF-Download-URL")
+@router.get("/invoices/{invoice_id}/download", summary="PDF-Download-URL")
 async def download_invoice(
     invoice_id: int,
     current_user: Annotated[dict, Depends(get_current_user)],
@@ -159,7 +159,7 @@ async def download_invoice(
     return {"url": f"{base_url}/{row['pdf_path']}", "expires_in": 3600}
 
 
-@router.post("/api/invoices/{invoice_id}/send", summary="Rechnung per E-Mail versenden")
+@router.post("/invoices/{invoice_id}/send", summary="Rechnung per E-Mail versenden")
 async def send_invoice(
     invoice_id: int,
     body: InvoiceSendRequest,
@@ -184,7 +184,7 @@ async def send_invoice(
 
 # ── Spenden ──────────────────────────────────────────────────────────────────
 
-@router.get("/api/donations", summary="Spenden auflisten (Admin)")
+@router.get("/donations", summary="Spenden auflisten (Admin)")
 async def list_donations(
     current_user: Annotated[dict, Depends(get_current_user)],
     db=Depends(get_db),
@@ -207,7 +207,7 @@ async def list_donations(
     return {"donations": [dict(r) for r in rows], "page": page}
 
 
-@router.get("/api/donations/{donation_id}", summary="Einzelne Spende")
+@router.get("/donations/{donation_id}", summary="Einzelne Spende")
 async def get_donation(
     donation_id: int,
     current_user: Annotated[dict, Depends(get_current_user)],
@@ -222,7 +222,7 @@ async def get_donation(
 
 # ── SEPA ─────────────────────────────────────────────────────────────────────
 
-@router.get("/api/sepa/mandates", summary="SEPA-Mandate (Admin)")
+@router.get("/sepa/mandates", summary="SEPA-Mandate (Admin)")
 async def list_sepa_mandates(
     current_user: Annotated[dict, Depends(get_current_user)],
     db=Depends(get_db),
@@ -243,7 +243,7 @@ async def list_sepa_mandates(
     return {"mandates": [dict(r) for r in rows]}
 
 
-@router.get("/api/sepa/batches", summary="SEPA-Batches (Admin)")
+@router.get("/sepa/batches", summary="SEPA-Batches (Admin)")
 async def list_sepa_batches(
     current_user: Annotated[dict, Depends(get_current_user)],
     db=Depends(get_db),
@@ -262,7 +262,7 @@ async def list_sepa_batches(
     return {"batches": [dict(r) for r in rows]}
 
 
-@router.post("/api/sepa/batches", status_code=status.HTTP_201_CREATED,
+@router.post("/sepa/batches", status_code=status.HTTP_201_CREATED,
              summary="Neuen SEPA-Batch anlegen")
 async def create_sepa_batch(
     body: SepaBatchCreate,
