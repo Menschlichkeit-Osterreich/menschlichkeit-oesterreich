@@ -1,0 +1,102 @@
+{
+  "_comment": "Issue #129 – SearchKit: donor_dashboard – Spender:innen-Dashboard mit YTD-Aggregation",
+  "version": 1,
+  "name": "donor_dashboard",
+  "label": "Spender:innen-Dashboard",
+  "description": "Übersicht aller Spenden mit Aggregationen nach Jahr, Monat und Kampagne. Für Kassier:in und Fundraising.",
+  "type": "table",
+  "entity": "Contribution",
+  "select": [
+    "id",
+    "contact_id.display_name AS spender_name",
+    "contact_id.email_primary.email AS spender_email",
+    "total_amount",
+    "currency",
+    "receive_date",
+    "contribution_status_id:label AS status",
+    "payment_instrument_id:label AS zahlungsart",
+    "source",
+    "financial_type_id:label AS spendenart",
+    "campaign_id.title AS kampagne",
+    "is_recurring AS wiederkehrend",
+    "trxn_id AS transaktions_id"
+  ],
+  "where": [
+    ["contribution_status_id:name", "=", "Completed"],
+    ["is_test", "=", false]
+  ],
+  "orderBy": {
+    "receive_date": "DESC"
+  },
+  "limit": 100,
+  "groupBy": [],
+  "filters": [
+    {
+      "field": "receive_date",
+      "label": "Zeitraum",
+      "type": "date_range",
+      "op": "BETWEEN"
+    },
+    {
+      "field": "contact_id.display_name",
+      "label": "Spender:in",
+      "type": "text",
+      "op": "CONTAINS"
+    },
+    {
+      "field": "financial_type_id:label",
+      "label": "Spendenart",
+      "type": "select",
+      "op": "="
+    },
+    {
+      "field": "campaign_id.title",
+      "label": "Kampagne",
+      "type": "select",
+      "op": "="
+    },
+    {
+      "field": "payment_instrument_id:label",
+      "label": "Zahlungsart",
+      "type": "select",
+      "op": "="
+    }
+  ],
+  "aggregations": [
+    {
+      "label": "Gesamtbetrag (gefiltert)",
+      "field": "total_amount",
+      "fn": "SUM",
+      "display": "currency"
+    },
+    {
+      "label": "Anzahl Spenden",
+      "field": "id",
+      "fn": "COUNT"
+    },
+    {
+      "label": "Durchschnitt",
+      "field": "total_amount",
+      "fn": "AVG",
+      "display": "currency"
+    }
+  ],
+  "display": {
+    "columns": [
+      {"field": "receive_date", "label": "Datum", "type": "date"},
+      {"field": "spender_name", "label": "Spender:in", "link": {"entity": "Contact", "action": "view"}},
+      {"field": "spender_email", "label": "E-Mail"},
+      {"field": "total_amount", "label": "Betrag (€)", "type": "currency"},
+      {"field": "zahlungsart", "label": "Zahlungsart"},
+      {"field": "spendenart", "label": "Art"},
+      {"field": "kampagne", "label": "Kampagne"},
+      {"field": "wiederkehrend", "label": "Wiederk.", "type": "boolean"},
+      {"field": "status", "label": "Status", "badges": true},
+      {"field": "transaktions_id", "label": "Transaktions-ID"}
+    ],
+    "actions": [
+      {"label": "Quittung erstellen", "action": "create_receipt"},
+      {"label": "Kontakt öffnen", "action": "view_contact"}
+    ]
+  }
+}

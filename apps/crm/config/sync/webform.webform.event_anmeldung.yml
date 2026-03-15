@@ -1,0 +1,140 @@
+langcode: de
+status: open
+dependencies:
+  module:
+    - civicrm
+    - civicrm_webform
+    - webform
+    - webform_civicrm
+
+# Issue #134 – [P0] Webform: Event-Anmeldung
+# Drupal Webform-Export – importierbar via: drush config:import --partial
+uuid: d5c3f2e4-9a6e-6c7d-1e0f-3a4b5c6d7e8f
+id: event_anmeldung
+title: 'Veranstaltungsanmeldung'
+description: 'Anmeldeformular für Veranstaltungen von Menschlichkeit Österreich.'
+status: open
+
+elements:
+  event_referenz:
+    '#type': webform_civicrm_event
+    '#title': Veranstaltung
+    '#required': true
+    '#civicrm_data': 'participant_1:event_id'
+    '#no_display': true
+
+  kontakt:
+    '#type': webform_civicrm_contact
+    '#title': Kontakt
+    '#civicrm_field': contact_1
+    '#no_display': true
+
+  vorname:
+    '#type': textfield
+    '#title': Vorname
+    '#required': true
+    '#civicrm_data': 'contact_1:first_name'
+
+  nachname:
+    '#type': textfield
+    '#title': Nachname
+    '#required': true
+    '#civicrm_data': 'contact_1:last_name'
+
+  email:
+    '#type': email
+    '#title': 'E-Mail-Adresse'
+    '#required': true
+    '#civicrm_data': 'contact_1:email'
+
+  telefon:
+    '#type': tel
+    '#title': 'Telefon (für Rückfragen)'
+    '#civicrm_data': 'contact_1:phone'
+
+  teilnehmeranzahl:
+    '#type': number
+    '#title': 'Anzahl Teilnehmer:innen (inkl. Sie selbst)'
+    '#min': 1
+    '#max': 10
+    '#default_value': 1
+    '#required': true
+
+  begleitperson:
+    '#type': textfield
+    '#title': 'Name der Begleitperson(en)'
+    '#states':
+      visible:
+        ':input[name="teilnehmeranzahl"]':
+          value:
+            greater: '1'
+
+  ernaehrung:
+    '#type': checkboxes
+    '#title': 'Ernährungshinweise / Unverträglichkeiten'
+    '#options':
+      vegetarisch: Vegetarisch
+      vegan: Vegan
+      glutenfrei: Glutenfrei
+      laktosefrei: Laktosefrei
+      keine: 'Keine Einschränkungen'
+    '#default_value':
+      - keine
+
+  barrierefreiheit:
+    '#type': checkbox
+    '#title': 'Ich benötige barrierefreien Zugang (Rollstuhl, Gebärdensprache, etc.)'
+    '#default_value': false
+
+  barrierefreiheit_details:
+    '#type': textarea
+    '#title': 'Bitte beschreiben Sie Ihren Bedarf'
+    '#states':
+      visible:
+        ':input[name="barrierefreiheit"]':
+          checked: true
+    '#rows': 3
+
+  anmerkungen:
+    '#type': textarea
+    '#title': 'Sonstige Anmerkungen'
+    '#rows': 3
+
+  dsgvo_einwilligung:
+    '#type': checkbox
+    '#title': 'Ich stimme der Verarbeitung meiner Daten gemäß <a href="/datenschutz" target="_blank">Datenschutzerklärung</a> zum Zweck der Veranstaltungsorganisation zu.'
+    '#required': true
+    '#required_error': 'Bitte stimmen Sie der Datenschutzerklärung zu.'
+
+  foto_einwilligung:
+    '#type': checkbox
+    '#title': 'Ich erkläre mich einverstanden, dass Fotos/Videos der Veranstaltung, auf denen ich erkennbar bin, für die Vereinskommunikation verwendet werden dürfen.'
+    '#default_value': false
+
+actions:
+  submit: 'Jetzt anmelden'
+  reset: 'Formular zurücksetzen'
+
+settings:
+  ajax: true
+  confirmation_type: page
+  confirmation_message: '<h2>Anmeldung erfolgreich!</h2><p>Wir freuen uns auf Ihre Teilnahme. Sie erhalten in Kürze eine Bestätigungs-E-Mail.</p>'
+  limit_user: 1
+  limit_user_message: 'Sie sind bereits für diese Veranstaltung angemeldet.'
+
+handlers:
+  civicrm:
+    id: civicrm
+    label: CiviCRM Veranstaltungsanmeldung
+    handler_id: civicrm
+    plugin_id: civicrm_webform_handler
+    status: true
+    settings:
+      contact_1:
+        contact_type: Individual
+        matching_rule: Unsupervised
+      participant_1:
+        enable_participant: true
+        status: Registered
+        role: 'Attendee'
+        send_confirmation: true
