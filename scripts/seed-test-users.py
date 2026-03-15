@@ -22,7 +22,6 @@ from __future__ import annotations
 import argparse
 import asyncio
 import hashlib
-import hmac
 import os
 import sys
 import uuid

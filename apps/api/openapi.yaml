@@ -698,3 +698,185 @@ paths:
           description: Projektauslastung
         '404':
           description: Projekt nicht gefunden
+
+  # ── SEO ─────────────────────────────────────────────────────────────────────
+  /sitemap.xml:
+    get:
+      tags: [SEO]
+      summary: Dynamische Sitemap (XML)
+      description: |
+        Generiert eine vollständige sitemap.xml mit statischen Seiten sowie
+        dynamischen Blog-Artikeln und Veranstaltungen aus der Datenbank.
+        Wird von Nginx gecacht (1h). Gibt bei DB-Fehler eine Teil-Sitemap zurück.
+      security: []
+      responses:
+        '200':
+          description: Sitemap XML
+          content:
+            application/xml:
+              schema: { type: string }
+          headers:
+            Cache-Control: { schema: { type: string }, description: 'public, max-age=3600' }
+            X-Content-Type-Options: { schema: { type: string }, description: nosniff }
+
+  # ── Rechnungen & Finanzen (apps/api/app/routers/invoices.py) ─────────────
+  /api/invoices:
+    get:
+      tags: [Rechnungen]
+      summary: Rechnungen auflisten
+      description: Admins sehen alle Rechnungen. Mitglieder nur ihre eigenen (via civicrm_contact_id).
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string, enum: [offen, bezahlt, storniert, ueberfaellig] }
+        - name: page
+          in: query
+          schema: { type: integer, default: 1, minimum: 1 }
+        - name: per_page
+          in: query
+          schema: { type: integer, default: 25, minimum: 1, maximum: 100 }
+      responses:
+        '200':
+          description: Rechnungsliste
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  invoices: { type: array, items: { type: object } }
+                  page: { type: integer }
+        '401': { description: Nicht authentifiziert }
+
+  /api/invoices/{id}:
+    get:
+      tags: [Rechnungen]
+      summary: Einzelne Rechnung
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Rechnungsdetails inkl. Positionen
+        '403': { description: Zugriff verweigert }
+        '404': { description: Rechnung nicht gefunden }
+
+  /api/invoices/{id}/download:
+    get:
+      tags: [Rechnungen]
+      summary: PDF-Download-URL
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Vorgezeichnete PDF-URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  download_url: { type: string, format: uri }
+                  expires_in: { type: integer, description: Sekunden bis zum Ablauf }
+        '403': { description: Zugriff verweigert }
+        '404': { description: Rechnung oder PDF nicht gefunden }
+
+  /api/invoices/{id}/send:
+    post:
+      tags: [Rechnungen]
+      summary: Rechnung per E-Mail senden (Admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string, format: email, description: 'Wenn leer: recipient_email der Rechnung' }
+      responses:
+        '200':
+          description: E-Mail in Warteschlange
+        '403': { description: Nur für Administratoren }
+        '404': { description: Rechnung nicht gefunden }
+
+  /api/donations:
+    get:
+      tags: [Rechnungen]
+      summary: Spendenübersicht (Admin)
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: per_page
+          in: query
+          schema: { type: integer, default: 25, maximum: 100 }
+      responses:
+        '200':
+          description: Spendenliste
+        '403': { description: Nur für Administratoren }
+
+  /api/donations/{id}:
+    get:
+      tags: [Rechnungen]
+      summary: Einzelne Spende (Admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Spendendetails
+        '403': { description: Nur für Administratoren }
+        '404': { description: Spende nicht gefunden }
+
+  /api/sepa/mandates:
+    get:
+      tags: [Rechnungen]
+      summary: SEPA-Mandate auflisten (Admin)
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: per_page
+          in: query
+          schema: { type: integer, default: 25, maximum: 100 }
+      responses:
+        '200':
+          description: SEPA-Mandatsliste
+        '403': { description: Nur für Administratoren }
+
+  /api/sepa/batches:
+    get:
+      tags: [Rechnungen]
+      summary: SEPA-Batches auflisten (Admin)
+      responses:
+        '200':
+          description: SEPA-Batch-Liste
+        '403': { description: Nur für Administratoren }
+    post:
+      tags: [Rechnungen]
+      summary: Neuen SEPA-Batch anlegen (Admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [collection_date, mandate_ids]
+              properties:
+                collection_date: { type: string, format: date, description: 'ISO-Date: YYYY-MM-DD' }
+                batch_type: { type: string, default: RCUR, enum: [FRST, RCUR, FNAL, OOFF] }
+                mandate_ids: { type: array, items: { type: integer } }
+      responses:
+        '201':
+          description: SEPA-Batch angelegt
+        '400': { description: Ungültige Mandats-IDs oder Datum }
+        '403': { description: Nur für Administratoren }
