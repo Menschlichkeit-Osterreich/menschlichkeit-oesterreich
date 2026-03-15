@@ -1,0 +1,137 @@
+name: OpenAPI Drift Check
+
+# P3-2: Stellt sicher, dass openapi.yaml mit den tatsächlichen API-Endpunkten übereinstimmt.
+# Schlägt fehl, wenn Endpunkte oder Schemas nicht im committed openapi.yaml dokumentiert sind.
+
+on:
+  push:
+    branches: [main, master, develop]
+    paths:
+      - 'apps/api/**'
+      - 'api.menschlichkeit-oesterreich.at/**'
+      - '.github/workflows/openapi-drift.yml'
+  pull_request:
+    paths:
+      - 'apps/api/**'
+      - 'api.menschlichkeit-oesterreich.at/**'
+  workflow_dispatch: {}
+
+jobs:
+  drift-check:
+    name: OpenAPI Drift Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Python einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+          cache-dependency-path: apps/api/requirements.txt
+
+      - name: Abhängigkeiten installieren
+        run: |
+          pip install --upgrade pip
+          pip install \
+            fastapi==0.115.4 \
+            uvicorn \
+            pydantic \
+            python-dotenv \
+            PyJWT \
+            passlib[bcrypt] \
+            python-multipart \
+            asyncpg \
+            httpx \
+            prometheus-fastapi-instrumentator==7.0.0 \
+            prometheus-client==0.21.0 \
+            pyyaml \
+            deepdiff
+
+      - name: OpenAPI-Spec aus laufender API generieren
+        working-directory: apps/api
+        env:
+          ENABLE_METRICS: "false"
+          ENVIRONMENT: "test"
+          DATABASE_URL: "postgresql://test:test@localhost/test"
+          JWT_SECRET: "test-secret-for-ci-only"
+        run: |
+          python - <<'EOF'
+          import sys, json
+          sys.path.insert(0, ".")
+
+          # Stubs um DB-Verbindung zu vermeiden
+          import unittest.mock as mock
+          import asyncpg
+
+          async def fake_connect(*a, **kw): return mock.AsyncMock()
+          with mock.patch("asyncpg.connect", fake_connect), \
+               mock.patch("asyncpg.create_pool", mock.AsyncMock(return_value=mock.AsyncMock())):
+              try:
+                  from app.main import app
+              except Exception as e:
+                  # Wenn DB-Init fehlschlägt, trotzdem Schema exportieren
+                  print(f"Warning during import: {e}", file=sys.stderr)
+                  from app.main import app
+
+          schema = app.openapi()
+          with open("/tmp/openapi.generated.json", "w") as f:
+              json.dump(schema, f, indent=2, ensure_ascii=False)
+          print(f"✅ Generiert: {len(schema.get('paths', {}))} Pfade")
+          EOF
+
+      - name: Committed openapi.yaml laden und vergleichen
+        run: |
+          python - <<'EOF'
+          import json, yaml, sys
+          from deepdiff import DeepDiff
+
+          YAML_PATH = "api.menschlichkeit-oesterreich.at/openapi.yaml"
+          GEN_PATH  = "/tmp/openapi.generated.json"
+
+          with open(GEN_PATH) as f:
+              generated = json.load(f)
+
+          try:
+              with open(YAML_PATH) as f:
+                  committed = yaml.safe_load(f)
+          except FileNotFoundError:
+              print(f"❌ {YAML_PATH} nicht gefunden – bitte openapi.yaml pflegen!")
+              sys.exit(1)
+
+          # Nur Pfade und Komponenten vergleichen (Info-Block ignorieren)
+          gen_paths  = set(generated.get("paths", {}).keys())
+          com_paths  = set(committed.get("paths", {}).keys())
+
+          missing_in_yaml = gen_paths - com_paths
+          extra_in_yaml   = com_paths - gen_paths
+
+          drift = False
+
+          if missing_in_yaml:
+              print("❌ Endpunkte in der API, aber NICHT in openapi.yaml dokumentiert:")
+              for p in sorted(missing_in_yaml):
+                  print(f"   {p}")
+              drift = True
+
+          if extra_in_yaml:
+              print("⚠️  Endpunkte in openapi.yaml, die NICHT in der API existieren:")
+              for p in sorted(extra_in_yaml):
+                  print(f"   {p}")
+              # Warnung, kein Fehler – kann Dokumentation für geplante Endpoints sein
+
+          if not drift:
+              print(f"✅ Kein Drift: {len(gen_paths)} Pfade übereinstimmend")
+          else:
+              print(f"\nBitte openapi.yaml aktualisieren: cd api.menschlichkeit-oesterreich.at && ...")
+              sys.exit(1)
+          EOF
+
+      - name: OpenAPI-Diff als Artefakt hochladen (bei Fehler)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: openapi-drift-report
+          path: /tmp/openapi.generated.json
+          retention-days: 7

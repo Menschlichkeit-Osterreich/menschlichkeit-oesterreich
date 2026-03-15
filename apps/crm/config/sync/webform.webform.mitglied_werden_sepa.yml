@@ -1,0 +1,201 @@
+langcode: de
+status: open
+dependencies:
+  module:
+    - civicrm
+    - civicrm_webform
+    - webform
+    - webform_civicrm
+    - civisepa
+
+# Issue #133 – [P0] Webform: Mitglied werden (SEPA-Lastschrift)
+# Drupal Webform-Export – importierbar via: drush config:import --partial
+uuid: c4b2e1f3-8f5d-5b6c-0d9e-2f3a4b5c6d7e
+id: mitglied_werden_sepa
+title: 'Mitglied werden'
+description: 'Mitgliedschaftsantrag mit SEPA-Lastschrift-Mandat. Vereinsstatuten und Beitragsordnung werden automatisch zugesandt.'
+status: open
+
+elements:
+  # Schritt 1: Persönliche Daten
+  schritt_1:
+    '#type': webform_section
+    '#title': 'Schritt 1: Persönliche Daten'
+    '#open': true
+
+    vorname:
+      '#type': textfield
+      '#title': Vorname
+      '#required': true
+      '#civicrm_data': 'contact_1:first_name'
+
+    nachname:
+      '#type': textfield
+      '#title': Nachname
+      '#required': true
+      '#civicrm_data': 'contact_1:last_name'
+
+    email:
+      '#type': email
+      '#title': 'E-Mail-Adresse'
+      '#required': true
+      '#civicrm_data': 'contact_1:email'
+
+    telefon:
+      '#type': tel
+      '#title': Telefon
+      '#civicrm_data': 'contact_1:phone'
+
+    geburtsdatum:
+      '#type': date
+      '#title': Geburtsdatum
+      '#required': true
+      '#date_date_max': now
+      '#civicrm_data': 'contact_1:birth_date'
+
+    adresse_strasse:
+      '#type': textfield
+      '#title': 'Straße + Hausnummer'
+      '#required': true
+      '#civicrm_data': 'contact_1:street_address'
+
+    adresse_plz:
+      '#type': textfield
+      '#title': PLZ
+      '#required': true
+      '#maxlength': 10
+      '#civicrm_data': 'contact_1:postal_code'
+
+    adresse_ort:
+      '#type': textfield
+      '#title': Ort
+      '#required': true
+      '#civicrm_data': 'contact_1:city'
+
+  # Schritt 2: Mitgliedschaftskategorie
+  schritt_2:
+    '#type': webform_section
+    '#title': 'Schritt 2: Mitgliedschaftskategorie'
+
+    mitgliedschaft_typ:
+      '#type': select
+      '#title': Mitgliedschaftsart
+      '#required': true
+      '#options':
+        ordentlich: 'Ordentliches Mitglied (Stimmrecht)'
+        ausserordentlich: 'Außerordentliches Mitglied (kein Stimmrecht)'
+        foerdernd: 'Fördermitglied'
+      '#default_value': ordentlich
+      '#civicrm_data': 'membership_1:membership_type_id'
+
+    beitragskategorie:
+      '#type': select
+      '#title': Beitragskategorie
+      '#required': true
+      '#options':
+        standard: 'Standard (60 €/Jahr)'
+        ermaessigt: 'Ermäßigt – Schüler:in/Student:in/Pensionist:in (30 €/Jahr)'
+        haertefall: 'Härtefall (Betrag nach Vereinbarung)'
+      '#default_value': standard
+
+    nachweis_ermaessigung:
+      '#type': managed_file
+      '#title': 'Nachweis Ermäßigung (Studentenausweis, Pensionsbescheid, ...)'
+      '#states':
+        visible:
+          ':input[name="beitragskategorie"]':
+            value: ermaessigt
+      '#file_extensions': 'pdf jpg png'
+      '#max_filesize': 5
+
+  # Schritt 3: SEPA-Lastschrift-Mandat
+  schritt_3:
+    '#type': webform_section
+    '#title': 'Schritt 3: SEPA-Lastschrift-Mandat'
+
+    kontoinhaber:
+      '#type': textfield
+      '#title': Kontoinhaber:in (Name wie auf dem Konto)
+      '#required': true
+
+    iban:
+      '#type': textfield
+      '#title': IBAN
+      '#required': true
+      '#placeholder': 'AT61 1904 3002 3457 3201'
+      '#pattern': '[A-Z]{2}[0-9]{2}[A-Z0-9]{4}[0-9]{7}([A-Z0-9]?){0,16}'
+      '#pattern_error': 'Bitte geben Sie eine gültige IBAN ein.'
+      '#civicrm_data': 'civicrm_sepa_mandate:iban'
+
+    bic:
+      '#type': textfield
+      '#title': 'BIC (optional bei SEPA-Raum)'
+      '#placeholder': 'OPSKATWW'
+      '#civicrm_data': 'civicrm_sepa_mandate:bic'
+
+    mandat_einwilligung:
+      '#type': checkbox
+      '#title': >
+        Ich ermächtige Menschlichkeit Österreich (Gläubiger-ID: AT12ZZZ00000012345),
+        Zahlungen von meinem Konto mittels SEPA-Lastschrift einzuziehen.
+        Zugleich weise ich mein Kreditinstitut an, die von Menschlichkeit Österreich
+        auf mein Konto gezogenen Lastschriften einzulösen.
+        Hinweis: Ich kann innerhalb von acht Wochen, beginnend mit dem Belastungsdatum,
+        die Erstattung des belasteten Betrages verlangen.
+      '#required': true
+      '#required_error': 'Bitte erteilen Sie das SEPA-Lastschrift-Mandat.'
+
+  # Schritt 4: Bestätigungen + DSGVO
+  schritt_4:
+    '#type': webform_section
+    '#title': 'Schritt 4: Bestätigung und Datenschutz'
+
+    statuten_akzeptiert:
+      '#type': checkbox
+      '#title': 'Ich habe die <a href="/statuten" target="_blank">Vereinsstatuten</a> gelesen und akzeptiere diese.'
+      '#required': true
+
+    beitragsordnung_akzeptiert:
+      '#type': checkbox
+      '#title': 'Ich habe die <a href="/beitragsordnung" target="_blank">Beitragsordnung 2025</a> gelesen und akzeptiere diese.'
+      '#required': true
+
+    dsgvo_einwilligung:
+      '#type': checkbox
+      '#title': 'Ich stimme der Verarbeitung meiner Daten gemäß <a href="/datenschutz" target="_blank">Datenschutzerklärung</a> zum Zweck der Mitgliederverwaltung zu.'
+      '#required': true
+
+    newsletter_opt_in:
+      '#type': checkbox
+      '#title': 'Ich möchte den Newsletter von Menschlichkeit Österreich erhalten.'
+      '#default_value': false
+
+actions:
+  submit: 'Mitgliedschaft beantragen'
+
+settings:
+  ajax: true
+  page_submit_path: /mitglied-werden/bestaetigung
+  confirmation_type: page
+  confirmation_url: /mitglied-werden/danke
+  confirmation_message: '<h2>Willkommen bei Menschlichkeit Österreich!</h2><p>Ihr Antrag ist eingegangen. Sie erhalten in Kürze eine Bestätigungs-E-Mail mit allen Details.</p>'
+
+handlers:
+  civicrm:
+    id: civicrm
+    label: CiviCRM Mitgliedschaft
+    handler_id: civicrm
+    plugin_id: civicrm_webform_handler
+    status: true
+    settings:
+      contact_1:
+        contact_type: Individual
+        matching_rule: Unsupervised
+      membership_1:
+        enable_membership: true
+        membership_type_id: ordentlich
+        status: Pending
+        num_terms: 1
+      activity_1:
+        enable_activity: true
+        activity_type_id: 'Membership Signup'

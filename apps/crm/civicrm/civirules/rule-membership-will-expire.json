@@ -1,0 +1,52 @@
+{
+  "_comment": "Issue #140 – CiviRules: Kern-Automatismus #2 – Mitgliedschaft läuft bald ab (30 Tage vorher)",
+  "rule": {
+    "name": "MOE: Mitgliedschaft läuft in 30 Tagen ab",
+    "label": "MOE: Mitgliedschaft – Ablauferinnerung",
+    "description": "Sendet 30 Tage vor Ablauf der Mitgliedschaft eine Verlängerungsanfrage per E-Mail und legt eine Erinnerungsaktivität an.",
+    "trigger": "CRM_Civirules_Trigger_CronTrigger",
+    "trigger_params": {
+      "cron_frequency": "daily"
+    },
+    "is_active": true
+  },
+  "conditions": [
+    {
+      "condition": "CRM_Civirules_Condition_Membership_MembershipStatus",
+      "params": {
+        "membership_status_id": ["Current"],
+        "operator": "in"
+      }
+    },
+    {
+      "condition": "CRM_Civirules_Condition_Membership_EndDate",
+      "params": {
+        "operator": "is_in_x_days",
+        "days": 30
+      }
+    }
+  ],
+  "actions": [
+    {
+      "action": "CRM_CivirulesActions_Activity_Add",
+      "label": "Aktivität 'Mitgliedschaft erneuern' anlegen",
+      "params": {
+        "activity_type_id": "Membership Renewal",
+        "subject": "Mitgliedschaft erneuern – läuft in 30 Tagen ab",
+        "details": "Bitte Mitgliedschaft erneuern. Ablaufdatum: {membership.end_date}",
+        "status_id": "Scheduled",
+        "source_contact_id": "{membership.contact_id}",
+        "due_date_days": 7
+      }
+    },
+    {
+      "action": "CRM_CivirulesActions_Contact_SendEmail",
+      "label": "Verlängerungs-E-Mail senden",
+      "params": {
+        "template_id": "MOE Mitgliedschaft Ablauferinnerung",
+        "from_email": "noreply@menschlichkeit-oesterreich.at",
+        "from_name": "Menschlichkeit Österreich"
+      }
+    }
+  ]
+}

@@ -23,6 +23,7 @@ from fastapi import FastAPI, Request, Response, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
+from prometheus_fastapi_instrumentator import Instrumentator
 
 # ── Router Imports ────────────────────────────────────────────────────────────
 from .routers import metrics, auth, members, forum, blog, events, roles, finance, sitemap
@@ -300,5 +301,22 @@ app.include_router(events.router, prefix="/api", tags=["Veranstaltungen"])
 app.include_router(roles.router, prefix="/api", tags=["Rollen"])
 app.include_router(finance.router, prefix="/api", tags=["Finanzen"])
 app.include_router(metrics.router, prefix="/api", tags=["Metriken"])
+app.include_router(auth.router)          # /api/auth/*    – Issue #119
+app.include_router(members.router)       # /api/members/* – Issue #119 #121
+app.include_router(invoices.router)      # /api/invoices/ /api/donations/ /api/sepa/ – Issue #136 #137
+
+# ── Prometheus Instrumentation (P2-9) ─────────────────────────────────────────
+# Exposes /metrics for Prometheus scraping.
+# In production, restrict /metrics to internal networks (Nginx allow/deny).
+Instrumentator(
+    should_group_status_codes=True,
+    should_ignore_untemplated=True,
+    should_respect_env_var=True,        # ENABLE_METRICS=true required in prod
+    should_instrument_requests_inprogress=True,
+    excluded_handlers=["/healthz", "/readyz", "/metrics"],
+    env_var_name="ENABLE_METRICS",
+    inprogress_name="moe_api_requests_inprogress",
+    inprogress_labels=True,
+).instrument(app).expose(app, endpoint="/metrics", include_in_schema=False)
 
 logger.info(f"✅ API v2.0 configured | env={ENVIRONMENT} | origins={len(ALLOWED_ORIGINS)}")

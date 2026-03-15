@@ -1,0 +1,91 @@
+{
+  "_comment": "Issue #131 – SearchKit: event_attendees_live – Live-Teilnehmerliste pro Veranstaltung",
+  "version": 1,
+  "name": "event_attendees_live",
+  "label": "Veranstaltungs-Teilnehmerliste (Live)",
+  "description": "Echtzeit-Teilnehmerliste für eine Veranstaltung mit Check-in-Funktion. Für Einlasskontrolle und Veranstaltungsmanagement.",
+  "type": "table",
+  "entity": "Participant",
+  "select": [
+    "id",
+    "contact_id.display_name AS teilnehmer_name",
+    "contact_id.email_primary.email AS teilnehmer_email",
+    "contact_id.phone_primary.phone AS telefon",
+    "event_id.title AS veranstaltung",
+    "event_id.start_date AS veranstaltung_beginn",
+    "status_id:label AS anmeldestatus",
+    "role_id:label AS rolle",
+    "register_date AS anmeldedatum",
+    "source AS anmeldungsquelle",
+    "must_wait AS warteliste",
+    "fee_amount AS teilnahmebeitrag",
+    "is_pay_later AS nachzahlung_offen"
+  ],
+  "joins": [],
+  "where": [
+    ["contact_id.is_deleted", "=", false]
+  ],
+  "orderBy": {
+    "contact_id.display_name": "ASC"
+  },
+  "limit": 500,
+  "filters": [
+    {
+      "field": "event_id",
+      "label": "Veranstaltung",
+      "type": "select",
+      "op": "=",
+      "required": true
+    },
+    {
+      "field": "status_id:label",
+      "label": "Anmeldestatus",
+      "type": "select",
+      "op": "IN",
+      "options": ["Registered", "Attended", "Pending from waitlist", "Cancelled", "No-show"]
+    },
+    {
+      "field": "contact_id.display_name",
+      "label": "Name",
+      "type": "text",
+      "op": "CONTAINS"
+    }
+  ],
+  "aggregations": [
+    {"label": "Angemeldet", "field": "id", "fn": "COUNT", "where": [["status_id:name", "=", "Registered"]]},
+    {"label": "Erschienen", "field": "id", "fn": "COUNT", "where": [["status_id:name", "=", "Attended"]]},
+    {"label": "Warteliste", "field": "id", "fn": "COUNT", "where": [["must_wait", "=", true]]},
+    {"label": "Einnahmen (€)", "field": "fee_amount", "fn": "SUM", "display": "currency"}
+  ],
+  "display": {
+    "columns": [
+      {"field": "teilnehmer_name", "label": "Teilnehmer:in", "link": {"entity": "Contact", "action": "view"}},
+      {"field": "teilnehmer_email", "label": "E-Mail"},
+      {"field": "telefon", "label": "Telefon"},
+      {"field": "rolle", "label": "Rolle"},
+      {"field": "anmeldestatus", "label": "Status", "badges": true, "badgeColors": {
+        "Registered": "blue", "Attended": "green", "Cancelled": "red",
+        "No-show": "grey", "Pending from waitlist": "yellow"
+      }},
+      {"field": "anmeldedatum", "label": "Angemeldet", "type": "date"},
+      {"field": "warteliste", "label": "Warteliste", "type": "boolean"},
+      {"field": "teilnahmebeitrag", "label": "Beitrag (€)", "type": "currency"},
+      {"field": "nachzahlung_offen", "label": "Nachz. offen", "type": "boolean"}
+    ],
+    "actions": [
+      {
+        "label": "Check-in",
+        "action": "update",
+        "fields": {"status_id:name": "Attended"},
+        "confirm": false
+      },
+      {
+        "label": "Abmelden",
+        "action": "update",
+        "fields": {"status_id:name": "Cancelled"},
+        "confirm": true,
+        "confirmText": "Teilnahme wirklich stornieren?"
+      }
+    ]
+  }
+}

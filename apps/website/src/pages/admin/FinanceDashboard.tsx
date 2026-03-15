@@ -179,6 +179,7 @@ const StatusBadge: React.FC<{ status: Transaction['status'] }> = ({ status }) =>
 // ── Hauptkomponente ────────────────────────────────────────────────────────────
 
 const FinanceDashboard: React.FC = () => {
+  const { token } = useAuth();
   const [activeTab, setActiveTab] = useState<'overview' | 'transactions' | 'invoices' | 'donations' | 'accounting'>('overview');
   const [selectedYear, setSelectedYear] = useState(2026);
   const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'open' | 'overdue'>('all');
@@ -414,6 +415,59 @@ const FinanceDashboard: React.FC = () => {
         </div>
       )}
 
+      {/* Rechnungen */}
+      {activeTab === 'invoices' && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold text-gray-900">Rechnungen</h2>
+            <span className="text-xs text-gray-400">{apiInvoices.length > 0 ? `${apiInvoices.length} Einträge` : 'Echtzeitdaten werden geladen…'}</span>
+          </div>
+          {invoicesLoading && <p className="text-sm text-gray-500 py-8 text-center">Lade Rechnungen…</p>}
+          {!invoicesLoading && apiInvoices.length === 0 && (
+            <p className="text-sm text-gray-400 text-center py-8">Keine Rechnungen gefunden.</p>
+          )}
+          {!invoicesLoading && apiInvoices.length > 0 && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-gray-500 border-b border-gray-100">
+                    <th className="pb-3 font-medium">Rechnungs-Nr.</th>
+                    <th className="pb-3 font-medium">Empfänger</th>
+                    <th className="pb-3 font-medium">Ausgestellt</th>
+                    <th className="pb-3 font-medium">Fällig</th>
+                    <th className="pb-3 font-medium text-right">Betrag</th>
+                    <th className="pb-3 font-medium">Status</th>
+                    <th className="pb-3 font-medium">Aktionen</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {apiInvoices.map((inv: any) => (
+                    <tr key={inv.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                      <td className="py-3 font-mono text-xs text-gray-700">{inv.invoice_number}</td>
+                      <td className="py-3 text-gray-900">{inv.recipient_name || '—'}</td>
+                      <td className="py-3 text-gray-500">{inv.issue_date ? formatDate(inv.issue_date) : '—'}</td>
+                      <td className="py-3 text-gray-500">{inv.due_date ? formatDate(inv.due_date) : '—'}</td>
+                      <td className="py-3 text-right font-medium text-gray-900">{formatCurrency(Number(inv.total_amount))}</td>
+                      <td className="py-3"><StatusBadge status={inv.status === 'paid' ? 'paid' : inv.status === 'overdue' ? 'overdue' : 'open'} /></td>
+                      <td className="py-3">
+                        {inv.pdf_path && (
+                          <button
+                            className="text-blue-600 hover:text-blue-800 text-xs"
+                            onClick={() => api.invoices.downloadUrl(inv.id, token!).then((r: any) => window.open(r.url, '_blank'))}
+                          >
+                            PDF
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Buchhaltung */}
       {activeTab === 'accounting' && (
         <div className="space-y-6">
@@ -489,20 +543,79 @@ const FinanceDashboard: React.FC = () => {
       {/* Spenden */}
       {activeTab === 'donations' && (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
-              <div className="text-2xl font-bold text-purple-700">€ 12.300</div>
-              <div className="text-sm text-purple-600">Gesamtspenden {selectedYear}</div>
+          {/* Live-Aggregate */}
+          {apiDonations.length > 0 && (() => {
+            const total = apiDonations.reduce((s: number, d: any) => s + Number(d.amount), 0);
+            const avg = total / apiDonations.length;
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
+                  <div className="text-2xl font-bold text-purple-700">{formatCurrency(total)}</div>
+                  <div className="text-sm text-purple-600">Spenden (live)</div>
+                </div>
+                <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
+                  <div className="text-2xl font-bold text-purple-700">{apiDonations.length}</div>
+                  <div className="text-sm text-purple-600">Einzelspenden</div>
+                </div>
+                <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
+                  <div className="text-2xl font-bold text-purple-700">{formatCurrency(avg)}</div>
+                  <div className="text-sm text-purple-600">Ø Spendenbetrag</div>
+                </div>
+              </div>
+            );
+          })()}
+          {!apiDonations.length && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
+                <div className="text-2xl font-bold text-purple-700">€ 12.300</div>
+                <div className="text-sm text-purple-600">Gesamtspenden {selectedYear}</div>
+              </div>
+              <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
+                <div className="text-2xl font-bold text-purple-700">89</div>
+                <div className="text-sm text-purple-600">Einzelspender</div>
+              </div>
+              <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
+                <div className="text-2xl font-bold text-purple-700">€ 138</div>
+                <div className="text-sm text-purple-600">Ø Spendenbetrag</div>
+              </div>
             </div>
-            <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
-              <div className="text-2xl font-bold text-purple-700">89</div>
-              <div className="text-sm text-purple-600">Einzelspender</div>
+          )}
+
+          {/* Spendenliste (API) */}
+          {apiDonations.length > 0 && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+              <h2 className="text-base font-semibold text-gray-900 mb-4">Spenden (live)</h2>
+              {donationsLoading && <p className="text-sm text-gray-500">Lade…</p>}
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-gray-500 border-b border-gray-100">
+                      <th className="pb-3 font-medium">Datum</th>
+                      <th className="pb-3 font-medium">Spender</th>
+                      <th className="pb-3 font-medium">Art</th>
+                      <th className="pb-3 font-medium text-right">Betrag</th>
+                      <th className="pb-3 font-medium">Quittung</th>
+                      <th className="pb-3 font-medium">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {apiDonations.map((d: any) => (
+                      <tr key={d.id} className="border-b border-gray-50 hover:bg-gray-50">
+                        <td className="py-3 text-gray-500">{d.donation_date ? formatDate(d.donation_date) : '—'}</td>
+                        <td className="py-3 text-gray-900">{d.donor_name || '—'}</td>
+                        <td className="py-3 text-gray-500 capitalize">{d.donation_type}</td>
+                        <td className="py-3 text-right font-medium text-green-600">{formatCurrency(Number(d.amount))}</td>
+                        <td className="py-3">{d.receipt_eligible ? <span className="text-green-600 text-xs font-medium">✓</span> : '—'}</td>
+                        <td className="py-3"><StatusBadge status={d.status === 'paid' ? 'paid' : 'open'} /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-            <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
-              <div className="text-2xl font-bold text-purple-700">€ 138</div>
-              <div className="text-sm text-purple-600">Ø Spendenbetrag</div>
-            </div>
-          </div>
+          )}
+
+          {/* Kampagnen (immer sichtbar) */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
             <h2 className="text-base font-semibold text-gray-900 mb-4">Spendenkampagnen</h2>
             {MOCK_CAMPAIGNS.map((c, i) => <CampaignProgress key={i} campaign={c} />)}

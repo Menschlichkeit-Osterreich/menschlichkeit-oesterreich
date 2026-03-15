@@ -12,6 +12,8 @@ export default function PrivacySettings() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [requests, setRequests] = useState<DeletionRequestItem[] | null>(null);
+  const [exportLoading, setExportLoading] = useState(false);
+  const [exportMessage, setExportMessage] = useState<string | null>(null);
 
   const canSubmit = useMemo(() => Boolean(token && reason.trim().length > 5), [token, reason]);
 
@@ -23,6 +25,20 @@ export default function PrivacySettings() {
       setRequests(list);
     } catch (_e) {
       // ignore
+    }
+  }
+
+  async function onRequestDataExport() {
+    if (!token) return;
+    setExportLoading(true);
+    setExportMessage(null);
+    try {
+      await api.members.requestDataExport('Datenauskunft gemäß Art. 15 DSGVO', token);
+      setExportMessage('Ihr Datenexport wurde angefordert. Sie erhalten in Kürze eine E-Mail.');
+    } catch (_e) {
+      setExportMessage('Fehler beim Anfordern des Datenexports. Bitte versuchen Sie es erneut.');
+    } finally {
+      setExportLoading(false);
     }
   }
 
@@ -73,6 +89,28 @@ export default function PrivacySettings() {
         <h1 className="text-2xl font-semibold">Mein Konto löschen (DSGVO Art. 17)</h1>
         <p className="text-sm text-gray-600">Anfragen können rechtliche Ausnahmen (z. B. Aufbewahrungspflichten) berücksichtigen und ggf. zur Anonymisierung führen.</p>
       </header>
+
+      {/* DSGVO Art. 15: Auskunftsrecht */}
+      <section className="border rounded-md p-4 space-y-3">
+        <h2 className="text-xl font-semibold">Meine Daten exportieren (DSGVO Art. 15)</h2>
+        <p className="text-sm text-gray-600">
+          Sie haben das Recht, eine Kopie aller über Sie gespeicherten Daten zu erhalten.
+          Der Export wird innerhalb von 30 Tagen per E-Mail zugesendet.
+        </p>
+        <button
+          type="button"
+          className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+          onClick={onRequestDataExport}
+          disabled={exportLoading}
+        >
+          {exportLoading ? 'Sende Anfrage…' : 'Datenexport anfordern'}
+        </button>
+        {exportMessage && (
+          <p className={`text-sm ${exportMessage.includes('Fehler') ? 'text-red-700' : 'text-green-700'}`}>
+            {exportMessage}
+          </p>
+        )}
+      </section>
 
       <form onSubmit={onRequestDeletion} className="space-y-4 border rounded-md p-4">
         <div>

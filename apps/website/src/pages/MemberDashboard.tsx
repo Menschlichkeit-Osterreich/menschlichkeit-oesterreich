@@ -68,6 +68,19 @@ export default function MemberDashboard() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'profile' | 'badges' | 'activities' | 'events'>('overview');
   const [editProfile, setEditProfile] = useState(false);
+  const [kpis, setKpis] = useState<KpiOverview | null>(null);
+  const [kpiError, setKpiError] = useState(false);
+
+  // Lädt echte KPI-Daten aus der API (Issue #119 – API-Integration)
+  useEffect(() => {
+    const token = sessionStorage.getItem('moe_auth_token');
+    fetch(`${API_BASE}/kpis/overview`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(setKpis)
+      .catch(() => setKpiError(true));
+  }, []);
 
   useEffect(() => {
     loadData();
