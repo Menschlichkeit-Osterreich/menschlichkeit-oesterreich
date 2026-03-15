@@ -31,6 +31,14 @@ const ForumThread             = React.lazy(() => import('./pages/ForumThread'));
 const BlogPage                = React.lazy(() => import('./pages/BlogPage'));
 const BlogArticle             = React.lazy(() => import('./pages/BlogArticle'));
 
+const TeamPage                = React.lazy(() => import('./pages/Team'));
+const TransparenzPage         = React.lazy(() => import('./pages/Transparenz'));
+const PressePage              = React.lazy(() => import('./pages/Presse'));
+const ThemenIndex             = React.lazy(() => import('./pages/themen/ThemenIndex'));
+const DemokratiePage          = React.lazy(() => import('./pages/themen/Demokratie'));
+const MenschenrechtePage      = React.lazy(() => import('./pages/themen/Menschenrechte'));
+const SozialeGerechtigkeitPage = React.lazy(() => import('./pages/themen/SozialeGerechtigkeit'));
+
 const MemberArea              = React.lazy(() => import('./pages/MemberArea'));
 const MemberDashboard         = React.lazy(() => import('./pages/MemberDashboard'));
 const MemberOnboarding        = React.lazy(() => import('./pages/MemberOnboarding'));
@@ -74,6 +82,13 @@ export default function App() {
               <Route index element={<Home />} />
               <Route path="/home" element={<Home />} />
               <Route path="/ueber-uns" element={<UeberUns />} />
+              <Route path="/team" element={<TeamPage />} />
+              <Route path="/transparenz" element={<TransparenzPage />} />
+              <Route path="/presse" element={<PressePage />} />
+              <Route path="/themen" element={<ThemenIndex />} />
+              <Route path="/themen/demokratie" element={<DemokratiePage />} />
+              <Route path="/themen/menschenrechte" element={<MenschenrechtePage />} />
+              <Route path="/themen/soziale-gerechtigkeit" element={<SozialeGerechtigkeitPage />} />
               <Route path="/statuten" element={<Statuten />} />
               <Route path="/beitragsordnung" element={<Beitragsordnung />} />
               <Route path="/veranstaltungen" element={<Veranstaltungen />} />

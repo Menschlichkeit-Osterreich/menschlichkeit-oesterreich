@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import SeoHead from '../components/seo/SeoHead';
 
 export default function Kontakt() {
   const [submitted, setSubmitted] = useState(false);
@@ -22,6 +23,10 @@ export default function Kontakt() {
 
   return (
     <div>
+      <SeoHead
+        title="Kontakt – Menschlichkeit Österreich"
+        description="Kontaktieren Sie Menschlichkeit Österreich. Wir freuen uns auf Ihre Nachricht. Adresse: Pottenbrunner Hauptstraße 108/Top 1, 3140 Pottenbrunn."
+      />
       {/* Hero */}
       <section className="bg-gradient-to-br from-primary-700 to-primary-900 text-white py-16">
         <div className="container mx-auto px-4 text-center max-w-3xl">

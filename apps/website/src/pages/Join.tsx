@@ -1,9 +1,9 @@
- 
 import React from 'react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Alert } from '../components/ui/Alert';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
+import SeoHead from '../components/seo/SeoHead';
 import { api, CreateMembershipRequest } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
 
@@ -67,6 +67,10 @@ export default function JoinPage() {
 
   return (
     <div className="mx-auto max-w-3xl p-4 space-y-4">
+      <SeoHead
+        title="Mitglied werden – Menschlichkeit Österreich"
+        description="Werden Sie Mitglied bei Menschlichkeit Österreich und setzen Sie sich gemeinsam mit uns für Demokratie, Menschenrechte und soziale Gerechtigkeit ein. Jetzt beitreten."
+      />
       <Breadcrumb items={[{ label: 'Mitglied werden' }]} />
       <h1 className="text-2xl font-semibold">Mitglied werden</h1>
       <p className="text-secondary-700">Digitaler Beitrittsantrag gemäß Statuten und DSGVO.</p>

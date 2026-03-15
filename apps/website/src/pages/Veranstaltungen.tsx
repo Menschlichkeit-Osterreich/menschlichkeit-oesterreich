@@ -3,6 +3,8 @@ import { Calendar, MapPin, Clock, Users, ChevronRight, Filter } from 'lucide-rea
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { dashboardApi } from '../services/dashboard-api';
+import SeoHead from '../components/seo/SeoHead';
+import SpendenCTA from '../components/SpendenCTA';
 
 interface Event {
   id: number;
@@ -251,6 +253,10 @@ export default function Veranstaltungen() {
 
   return (
     <div className="min-h-screen bg-semantic-background">
+      <SeoHead
+        title="Veranstaltungen – Menschlichkeit Österreich"
+        description="Workshops, Diskussionen, Netzwerktreffen und Online-Events des Vereins Menschlichkeit Österreich. Aktuelle Termine und Anmeldung."
+      />
       <section className="bg-gradient-to-br from-primary-900 to-primary-700 text-white py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl font-bold mb-4">Veranstaltungen</h1>
@@ -311,6 +317,16 @@ export default function Veranstaltungen() {
           >
             Veranstaltung vorschlagen
           </Button>
+        </div>
+      </section>
+
+      <section className="py-12 px-4">
+        <div className="container mx-auto max-w-2xl">
+          <SpendenCTA
+            heading="Veranstaltungen ermöglichen"
+            body="Mit Ihrer Unterstützung können wir mehr Veranstaltungen, Workshops und Bildungsformate für alle Menschen in Österreich anbieten."
+            variant="subtle"
+          />
         </div>
       </section>
     </div>
