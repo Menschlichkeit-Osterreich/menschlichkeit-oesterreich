@@ -25,7 +25,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 
 # ── Router Imports ────────────────────────────────────────────────────────────
-from .routers import metrics, auth, members, forum, blog, events, roles, finance
+from .routers import metrics, auth, members, forum, blog, events, roles, finance, sitemap
 from .audit import ensure_audit_table, write_audit_event
 from .security import enforce_csrf, rate_limiter, require_jwt_secret_configured
 from .middleware.pii_middleware import PiiSanitizationMiddleware
@@ -290,6 +290,8 @@ async def version():
 
 
 # ── Router Registration ───────────────────────────────────────────────────────
+# SEO: sitemap.xml at root level (no /api prefix)
+app.include_router(sitemap.router, tags=["SEO"])
 app.include_router(auth.router, prefix="/api", tags=["Authentifizierung"])
 app.include_router(members.router, prefix="/api", tags=["Mitglieder"])
 app.include_router(forum.router, prefix="/api", tags=["Forum"])

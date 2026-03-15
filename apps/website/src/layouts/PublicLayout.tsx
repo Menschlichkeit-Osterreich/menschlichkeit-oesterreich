@@ -33,7 +33,7 @@ export default function PublicLayout() {
                 Initiative für soziale Gerechtigkeit, demokratische Teilhabe und ökologische Verantwortung in Österreich.
               </p>
               <p className="text-xs text-secondary-500">
-                ZVR: 1182213083 · Gegründet: 28. Mai 2025
+                <Link to="/transparenz" className="hover:text-secondary-300 transition-colors">ZVR: 1182213083</Link> · Gegründet: 28. Mai 2025
               </p>
             </div>
 
@@ -44,12 +44,15 @@ export default function PublicLayout() {
                 {[
                   { to: '/mitglied-werden', label: 'Mitglied werden' },
                   { to: '/spenden', label: 'Spenden' },
-                  { to: '/forum', label: 'Forum' },
-                  { to: '/blog', label: 'Neuigkeiten' },
+                  { to: '/themen', label: 'Themen' },
                   { to: '/veranstaltungen', label: 'Veranstaltungen' },
-                  { to: '/statuten', label: 'Statuten' },
-                  { to: '/beitragsordnung', label: 'Beitragsordnung' },
+                  { to: '/bildung', label: 'Bildung' },
+                  { to: '/blog', label: 'Neuigkeiten' },
+                  { to: '/forum', label: 'Forum' },
                   { to: '/ueber-uns', label: 'Über uns' },
+                  { to: '/team', label: 'Team' },
+                  { to: '/transparenz', label: 'Transparenz' },
+                  { to: '/presse', label: 'Presse' },
                 ].map((l) => (
                   <Link
                     key={l.to}
@@ -67,9 +70,11 @@ export default function PublicLayout() {
               <h3 className="text-xs font-semibold text-secondary-400 uppercase tracking-widest mb-4">Rechtliches &amp; Kontakt</h3>
               <nav className="flex flex-col gap-2.5 mb-5" aria-label="Rechtliche Links">
                 {[
-                  { to: '/account/privacy', label: 'Datenschutz (DSGVO)' },
+                  { to: '/datenschutz', label: 'Datenschutz' },
                   { to: '/impressum', label: 'Impressum' },
                   { to: '/kontakt', label: 'Kontakt' },
+                  { to: '/statuten', label: 'Statuten' },
+                  { to: '/beitragsordnung', label: 'Beitragsordnung' },
                 ].map((l) => (
                   <Link
                     key={l.to}

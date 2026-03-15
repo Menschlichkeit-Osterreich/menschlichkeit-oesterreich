@@ -1,6 +1,6 @@
- 
 import React from 'react';
 import { Card } from '../components/ui/Card';
+import SeoHead from '../components/seo/SeoHead';
 import { Button } from '../components/ui/Button';
 import { Alert } from '../components/ui/Alert';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
@@ -158,6 +158,10 @@ export default function DonatePage() {
 
   return (
     <div className="mx-auto max-w-3xl p-4 space-y-4">
+      <SeoHead
+        title="Spenden – Demokratie und Menschenrechte unterstützen"
+        description="Unterstützen Sie Menschlichkeit Österreich mit einer Spende und helfen Sie uns, Demokratie, Menschenrechte und soziale Gerechtigkeit in Österreich zu stärken."
+      />
       <Breadcrumb items={[{ label: 'Spenden' }]} />
       <h1 className="text-2xl font-semibold">Spenden</h1>
       <p className="text-secondary-700">Einmalig oder regelmäßig – sicher und DSGVO‑konform.</p>

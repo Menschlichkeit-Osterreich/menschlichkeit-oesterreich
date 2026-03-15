@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import Game3DScene from '../components/game/Game3DScene';
+import SeoHead from '../components/seo/SeoHead';
 
 const GAME_FEATURES = [
   {
@@ -79,6 +80,10 @@ export default function SpielPage() {
 
   return (
     <div data-component="Spiel">
+      <SeoHead
+        title="Demokratiespiel – Spielerisch Demokratie lernen"
+        description="Das interaktive Demokratiespiel von Menschlichkeit Österreich. Lernen Sie spielerisch, wie Demokratie funktioniert, und stärken Sie Ihr Verständnis für politische Teilhabe."
+      />
       <section
         className="relative overflow-hidden"
         style={{ background: 'linear-gradient(135deg, #b91c1c 0%, #dc2626 45%, #ea580c 100%)' }}

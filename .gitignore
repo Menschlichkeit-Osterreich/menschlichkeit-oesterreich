@@ -20,6 +20,7 @@ deploy_*.log
 /tmp/moe_deploy.lock
 # Build-Artefakte
 apps/website/dist/
+apps/website/dist-ssr/
 apps/website/.vite/
 # SSH-Temporärdateien
 /tmp/moe_ssh_*
@@ -43,7 +44,8 @@ apps/website/.vite/
 .env.*.decrypted
 *.env.*
 
-# Exception: Allow .env.example template
+# Exception: Allow .env.example template and test credentials
+!.env.test
 !.env.example
 !.env.production.template
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card } from '../components/ui/Card';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
+import SeoHead from '../components/seo/SeoHead';
 import { PageHeader } from '../components/ui/PageHeader';
 
 const BEITRAEGE = [
@@ -12,6 +13,10 @@ const BEITRAEGE = [
 export default function BeitragsordnungPage() {
   return (
     <div className="mx-auto max-w-4xl p-4 space-y-6">
+      <SeoHead
+        title="Beitragsordnung – Menschlichkeit Österreich"
+        description="Mitgliedsbeiträge 2025: Standardbeitrag €36/Jahr, ermäßigt €18/Jahr. Informieren Sie sich über die Beitragsordnung des Vereins."
+      />
       <PageHeader
         title="Beitragsordnung 2025"
         description="Mitgliedsbeiträge des Vereins Menschlichkeit Österreich"

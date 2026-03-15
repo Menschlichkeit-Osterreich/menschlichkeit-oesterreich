@@ -1,8 +1,13 @@
 import React from 'react';
+import SeoHead from '../components/seo/SeoHead';
 
 export default function Impressum() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-3xl">
+      <SeoHead
+        title="Impressum – Menschlichkeit Österreich"
+        description="Impressum des Vereins Menschlichkeit Österreich gemäß § 25 MedienG. ZVR: 1182213083."
+      />
       <h1 className="text-3xl font-bold mb-2">Impressum</h1>
       <p className="text-gray-500 mb-8">Angaben gemäß § 25 MedienG und § 14 UGB</p>
 

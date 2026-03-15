@@ -1,5 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import SeoHead from '../components/seo/SeoHead';
+import SpendenCTA from '../components/SpendenCTA';
+import JsonLdBreadcrumb from '../components/seo/JsonLdBreadcrumb';
 
 export default function UeberUns() {
   const values = [
@@ -31,6 +34,14 @@ export default function UeberUns() {
 
   return (
     <div>
+      <SeoHead
+        title="Über uns – Menschlichkeit Österreich"
+        description="Erfahren Sie, wer wir sind, wofür wir stehen und warum wir uns für Demokratie, Menschenrechte und soziale Gerechtigkeit in Österreich einsetzen."
+      />
+      <JsonLdBreadcrumb items={[
+        { name: 'Start', url: 'https://www.menschlichkeit-oesterreich.at/' },
+        { name: 'Über uns', url: 'https://www.menschlichkeit-oesterreich.at/ueber-uns' },
+      ]} />
       {/* Hero */}
       <section className="bg-gradient-to-br from-primary-700 to-primary-900 text-white py-16">
         <div className="container mx-auto px-4 text-center max-w-3xl">
@@ -127,6 +138,37 @@ export default function UeberUns() {
               className="px-8 py-3 border-2 border-white/40 text-white font-semibold rounded-lg hover:bg-white/10 transition-colors"
             >
               Spenden
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Spenden CTA */}
+      <section className="py-12 px-4">
+        <div className="container mx-auto max-w-2xl">
+          <SpendenCTA
+            heading="Gemeinsam für ein menschlicheres Österreich"
+            body="Unterstützen Sie unsere Arbeit für Demokratie, Menschenrechte und soziale Gerechtigkeit mit einer Mitgliedschaft oder Spende."
+          />
+        </div>
+      </section>
+
+      {/* Quick links to related content */}
+      <section className="bg-gray-50 py-10 px-4">
+        <div className="container mx-auto max-w-3xl">
+          <h2 className="text-lg font-bold text-gray-700 mb-4 text-center">Mehr über uns</h2>
+          <div className="flex flex-wrap gap-3 justify-center">
+            <Link to="/team" className="bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-700 hover:border-primary-300 hover:text-primary-700 transition-colors">
+              👥 Unser Team
+            </Link>
+            <Link to="/transparenz" className="bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-700 hover:border-primary-300 hover:text-primary-700 transition-colors">
+              📊 Transparenz & ZVR
+            </Link>
+            <Link to="/themen" className="bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-700 hover:border-primary-300 hover:text-primary-700 transition-colors">
+              🗳️ Unsere Themen
+            </Link>
+            <Link to="/presse" className="bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-sm text-gray-700 hover:border-primary-300 hover:text-primary-700 transition-colors">
+              📰 Presse
             </Link>
           </div>
         </div>

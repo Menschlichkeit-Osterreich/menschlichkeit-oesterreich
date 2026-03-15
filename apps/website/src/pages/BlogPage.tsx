@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import SeoHead from '../components/seo/SeoHead';
 
 interface BlogArticle {
   id: string;
@@ -47,6 +48,10 @@ export default function BlogPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
+      <SeoHead
+        title="Neuigkeiten & Blog – Menschlichkeit Österreich"
+        description="Aktuelle Beiträge, Berichte und Analysen zu Demokratie, Menschenrechten, sozialer Gerechtigkeit und Zivilgesellschaft in Österreich."
+      />
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Neuigkeiten & Blog</h1>
         <p className="text-gray-500 dark:text-gray-400 mt-1">Aktuelle Nachrichten und Beiträge von Menschlichkeit Österreich</p>

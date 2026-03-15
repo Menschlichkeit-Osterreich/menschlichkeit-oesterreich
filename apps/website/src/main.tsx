@@ -1,5 +1,6 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
+import { createRoot, hydrateRoot } from 'react-dom/client';
+import { HelmetProvider } from 'react-helmet-async';
 import './index.css';
 import App from './App';
 import { AuthProvider } from './auth/AuthContext';
@@ -9,14 +10,23 @@ import CookieConsent from './components/CookieConsent';
 const root = document.getElementById('root');
 if (!root) throw new Error('Root element not found');
 
-createRoot(root).render(
+const app = (
   <React.StrictMode>
-    <ErrorBoundary>
-      <AuthProvider>
-        <App />
-        <CookieConsent />
-      </AuthProvider>
-    </ErrorBoundary>
+    <HelmetProvider>
+      <ErrorBoundary>
+        <AuthProvider>
+          <App />
+          <CookieConsent />
+        </AuthProvider>
+      </ErrorBoundary>
+    </HelmetProvider>
   </React.StrictMode>
 );
 
+// Use hydrateRoot when the root element already has SSG/SSR content,
+// otherwise fall back to createRoot for a clean CSR mount.
+if (root.innerHTML.trim() !== '') {
+  hydrateRoot(root, app);
+} else {
+  createRoot(root).render(app);
+}

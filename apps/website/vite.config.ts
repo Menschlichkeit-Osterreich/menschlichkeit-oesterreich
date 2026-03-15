@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
-export default defineConfig({
+export default defineConfig(({ isSsrBuild }) => ({
   plugins: [react()],
   resolve: {
     alias: {
@@ -20,11 +20,19 @@ export default defineConfig({
     chunkSizeWarningLimit: 1200,
     rollupOptions: {
       output: {
-        manualChunks: {
-          react: ['react', 'react-dom'],
-          three: ['three', '@react-three/fiber', '@react-three/drei'],
-        },
+        // manualChunks must be disabled for SSR: React/Three are externalized in SSR mode
+        // and Rollup rejects manual chunks for externalized modules.
+        manualChunks: isSsrBuild
+          ? undefined
+          : {
+              react: ['react', 'react-dom'],
+              three: ['three', '@react-three/fiber', '@react-three/drei'],
+            },
       },
     },
   },
-});
+  ssr: {
+    // Ensure these packages are bundled into the SSR build rather than externalized
+    noExternal: ['react-helmet-async'],
+  },
+}));

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card } from '../components/ui/Card';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
+import SeoHead from '../components/seo/SeoHead';
 import { PageHeader } from '../components/ui/PageHeader';
 
 const STATUTEN_SECTIONS = [
@@ -53,6 +54,10 @@ const STATUTEN_SECTIONS = [
 export default function StatutenPage() {
   return (
     <div className="mx-auto max-w-4xl p-4 space-y-6">
+      <SeoHead
+        title="Statuten – Menschlichkeit Österreich"
+        description="Die Statuten des Vereins Menschlichkeit Österreich. Vereinszweck, Mitgliedschaft, Organe und Rechte und Pflichten der Mitglieder."
+      />
       <PageHeader
         title="Statuten"
         description="Statuten des Vereins Menschlichkeit Österreich"
