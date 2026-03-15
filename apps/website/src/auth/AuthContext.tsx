@@ -52,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setToken(null);
       setUserEmail(null);
       setUserRole('guest');
-      try { window.location.assign('/Login'); } catch { /* navigation fallback */ }
+      try { window.location.assign('/login'); } catch { /* navigation fallback */ }
     });
     return () => setUnauthorizedHandler(null);
   }, []);

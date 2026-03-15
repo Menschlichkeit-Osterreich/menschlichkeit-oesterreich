@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { dashboardApi } from '../../services/dashboard-api';
+import { useAuth } from '../../auth/AuthContext';
 
 // ── Typen ──────────────────────────────────────────────────────────────────────
 
