@@ -5,8 +5,8 @@ import { useAuth } from '../auth/AuthContext';
 function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
   const location = useLocation();
   const active = location.pathname === to || (to === '/' && location.pathname === '/home');
-  const base = 'px-3 py-2 rounded-md text-sm font-medium transition-colors';
-  const activeCls = 'bg-primary-50 text-primary-700 ring-1 ring-primary-200';
+  const base = 'px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150';
+  const activeCls = 'bg-primary-50 text-primary-700 font-semibold';
   const idleCls = 'text-secondary-700 hover:bg-secondary-50 hover:text-secondary-900';
   return (
     <Link
@@ -52,26 +52,36 @@ export default function NavBar() {
       <NavLink to="/">Home</NavLink>
       <NavLink to="/mitglied-werden">Mitglied werden</NavLink>
       <NavLink to="/spenden">Spenden</NavLink>
-      <NavLink to="/statuten">Statuten</NavLink>
-      <NavLink to="/beitragsordnung">Beitragsordnung</NavLink>
+      <NavLink to="/forum">Forum</NavLink>
+      <NavLink to="/blog">Neuigkeiten</NavLink>
+      <NavLink to="/veranstaltungen">Veranstaltungen</NavLink>
+      <NavLink to="/spiel">Demokratiespiel</NavLink>
       {token && <NavLink to="/member">Mitgliederbereich</NavLink>}
-      {token && isAdmin && <NavLink to="/admin/queue">Admin</NavLink>}
+      {token && isAdmin && <NavLink to="/admin">Admin</NavLink>}
     </>
   );
 
   return (
-    <header className="border-b bg-white sticky top-0 z-20 shadow-sm">
-      <div className="mx-auto max-w-6xl px-4 h-14 flex items-center justify-between">
+    <header className="bg-white sticky top-0 z-20 shadow-sm border-b border-secondary-100">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
 
-        {/* Brand */}
+        {/* Brand with Logo */}
         <Link
           to="/"
-          className="flex items-center gap-2 font-bold text-primary-700 hover:text-primary-800 shrink-0 mr-4"
+          className="flex items-center gap-3 shrink-0 group"
           aria-label="Menschlichkeit Österreich – Startseite"
         >
-          <span className="text-xl" aria-hidden="true">🤝</span>
-          <span className="hidden lg:inline">Menschlichkeit Österreich</span>
-          <span className="lg:hidden font-semibold text-sm">MÖ</span>
+          <img
+            src="/logo.jpg"
+            alt="Verein Menschlichkeit Österreich"
+            className="h-10 w-10 rounded-full object-cover shadow-sm ring-2 ring-primary-100 group-hover:ring-primary-300 transition-all"
+          />
+          <div className="hidden sm:block">
+            <span className="block text-xs font-medium text-secondary-400 leading-none uppercase tracking-wider">Verein</span>
+            <span className="block text-base font-bold text-secondary-900 group-hover:text-primary-700 transition-colors leading-tight">
+              Menschlichkeit Österreich
+            </span>
+          </div>
         </Link>
 
         {/* Desktop Navigation */}
@@ -84,8 +94,11 @@ export default function NavBar() {
           {!token && (
             <Link
               to="/Login"
-              className="px-3 py-1.5 rounded-md bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500 transition-colors hidden md:inline-flex"
+              className="px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-semibold hover:bg-primary-700 active:bg-primary-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500 transition-all shadow-sm hover:shadow hidden md:inline-flex items-center gap-1.5"
             >
+              <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+              </svg>
               Login
             </Link>
           )}
@@ -93,42 +106,47 @@ export default function NavBar() {
           {token && (
             <div className="relative hidden md:block" ref={menuRef}>
               <button
-                className="flex items-center gap-1 px-3 py-1.5 rounded-md border border-secondary-200 text-sm text-secondary-800 hover:bg-secondary-50 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-secondary-200 text-sm text-secondary-800 hover:bg-secondary-50 hover:border-secondary-300 transition-colors"
                 onClick={() => setMenuOpen((v) => !v)}
                 aria-haspopup="menu"
                 aria-expanded={menuOpen}
               >
+                <svg className="w-4 h-4 text-secondary-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                </svg>
                 Konto
-                <span aria-hidden="true" className={`ml-1 transition-transform inline-block ${menuOpen ? 'rotate-180' : ''}`}>▾</span>
+                <svg className={`w-3.5 h-3.5 text-secondary-400 transition-transform ${menuOpen ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
               </button>
               {menuOpen && (
                 <div
                   role="menu"
-                  className="absolute right-0 top-10 w-52 rounded-lg border border-secondary-200 bg-white shadow-lg divide-y divide-secondary-100 z-30"
+                  className="absolute right-0 top-11 w-56 rounded-xl border border-secondary-200 bg-white shadow-xl divide-y divide-secondary-100 z-30 overflow-hidden"
                 >
-                  <div className="py-1" role="none">
-                    <Link role="menuitem" className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-secondary-50 transition-colors" to="/member" onClick={() => setMenuOpen(false)}>
-                      <span aria-hidden="true">👤</span> Mitgliederbereich
+                  <div className="py-1.5" role="none">
+                    <Link role="menuitem" className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-secondary-700 hover:bg-secondary-50 transition-colors" to="/member" onClick={() => setMenuOpen(false)}>
+                      <span aria-hidden="true" className="text-base">👤</span> Mitgliederbereich
                     </Link>
-                    <Link role="menuitem" className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-secondary-50 transition-colors" to="/member/dashboard" onClick={() => setMenuOpen(false)}>
-                      <span aria-hidden="true">📊</span> Dashboard
+                    <Link role="menuitem" className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-secondary-700 hover:bg-secondary-50 transition-colors" to="/member/dashboard" onClick={() => setMenuOpen(false)}>
+                      <span aria-hidden="true" className="text-base">📊</span> Dashboard
                     </Link>
-                    <Link role="menuitem" className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-secondary-50 transition-colors" to="/account/privacy" onClick={() => setMenuOpen(false)}>
-                      <span aria-hidden="true">🔒</span> Datenschutz
+                    <Link role="menuitem" className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-secondary-700 hover:bg-secondary-50 transition-colors" to="/account/privacy" onClick={() => setMenuOpen(false)}>
+                      <span aria-hidden="true" className="text-base">🔒</span> Datenschutz
                     </Link>
                     {isAdmin && (
-                      <Link role="menuitem" className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-secondary-50 transition-colors" to="/admin/queue" onClick={() => setMenuOpen(false)}>
-                        <span aria-hidden="true">⚙️</span> Admin
+                      <Link role="menuitem" className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-secondary-700 hover:bg-secondary-50 transition-colors" to="/admin/queue" onClick={() => setMenuOpen(false)}>
+                        <span aria-hidden="true" className="text-base">⚙️</span> Admin
                       </Link>
                     )}
                   </div>
-                  <div className="py-1" role="none">
+                  <div className="py-1.5" role="none">
                     <button
                       role="menuitem"
-                      className="w-full text-left flex items-center gap-2 px-4 py-2 text-sm text-error-700 hover:bg-secondary-50 transition-colors"
+                      className="w-full text-left flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
                       onClick={() => { setMenuOpen(false); logout(); }}
                     >
-                      <span aria-hidden="true">↩</span> Logout
+                      <span aria-hidden="true" className="text-base">↩</span> Logout
                     </button>
                   </div>
                 </div>
@@ -138,7 +156,7 @@ export default function NavBar() {
 
           {/* Mobile hamburger */}
           <button
-            className="md:hidden p-2 rounded-md text-secondary-700 hover:bg-secondary-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500"
+            className="md:hidden p-2 rounded-lg text-secondary-700 hover:bg-secondary-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 transition-colors"
             onClick={() => setMobileOpen((v) => !v)}
             aria-expanded={mobileOpen}
             aria-label={mobileOpen ? 'Navigation schließen' : 'Navigation öffnen'}
@@ -160,12 +178,10 @@ export default function NavBar() {
           aria-label="Mobile Navigation"
         >
           {coreNavLinks}
-          {token && (
-            <NavLink to="/account/privacy">Datenschutz</NavLink>
-          )}
+          {token && <NavLink to="/account/privacy">Datenschutz</NavLink>}
           {token && (
             <button
-              className="text-left px-3 py-2 rounded-md text-sm font-medium text-error-700 hover:bg-secondary-50 transition-colors"
+              className="text-left px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
               onClick={() => { setMobileOpen(false); logout(); }}
             >
               Logout
@@ -174,7 +190,7 @@ export default function NavBar() {
           {!token && (
             <Link
               to="/Login"
-              className="px-3 py-2 rounded-md text-sm bg-primary-600 text-white font-medium hover:bg-primary-700 text-center transition-colors"
+              className="mt-1 px-3 py-2.5 rounded-lg text-sm bg-primary-600 text-white font-semibold hover:bg-primary-700 text-center transition-colors shadow-sm"
               onClick={() => setMobileOpen(false)}
             >
               Login

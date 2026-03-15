@@ -16,8 +16,21 @@ const NAV_ITEMS: NavItem[] = [
     href: '/ueber-uns',
     children: [
       { label: 'Über den Verein', href: '/ueber-uns', description: 'Geschichte, Mission und Vision' },
-      { label: 'Statuten', href: '/statuten', description: 'Vereinsstatuten 2024' },
+      { label: 'Unser Team', href: '/team', description: 'Vorstand und Mitarbeiter' },
+      { label: 'Transparenz', href: '/transparenz', description: 'Vereinsdaten, ZVR, Finanzen' },
+      { label: 'Presse', href: '/presse', description: 'Medieninformationen' },
+      { label: 'Statuten', href: '/statuten', description: 'Vereinsstatuten' },
       { label: 'Beitragsordnung', href: '/beitragsordnung', description: 'Mitgliedsbeiträge 2025' },
+    ],
+  },
+  {
+    label: 'Themen',
+    href: '/themen',
+    children: [
+      { label: 'Alle Themen', href: '/themen', description: 'Übersicht unserer Schwerpunkte' },
+      { label: 'Demokratie', href: '/themen/demokratie', description: 'Politische Bildung & Teilhabe' },
+      { label: 'Menschenrechte', href: '/themen/menschenrechte', description: 'Würde & Gleichheit' },
+      { label: 'Soziale Gerechtigkeit', href: '/themen/soziale-gerechtigkeit', description: 'Chancengleichheit' },
     ],
   },
   {
@@ -33,7 +46,8 @@ const NAV_ITEMS: NavItem[] = [
     label: 'Bildung',
     href: '/bildung',
     children: [
-      { label: 'Demokratiespiel', href: 'https://spiel.menschlichkeit-oesterreich.at', description: 'Interaktives Lernspiel' },
+      { label: 'Bildungsangebote', href: '/bildung', description: 'Module und Kurse' },
+      { label: 'Demokratiespiel', href: '/spiel', description: 'Interaktives Lernspiel' },
       { label: 'Materialien', href: '/materialien', description: 'Unterrichtsmaterialien' },
     ],
   },

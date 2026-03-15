@@ -1,4 +1,5 @@
 import React from 'react';
+import JsonLdScript from './JsonLdScript';
 
 const JsonLdHome = () => {
   const structuredData = {
@@ -17,16 +18,16 @@ const JsonLdHome = () => {
     ],
     "contactPoint": {
       "@type": "ContactPoint",
-      "telephone": "+43-1-1234567",
+      "email": "kontakt@menschlichkeit-oesterreich.at",
       "contactType": "customer service",
       "areaServed": "AT",
       "availableLanguage": ["German"]
     },
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": "Musterstraße 1",
-      "addressLocality": "Wien",
-      "postalCode": "1010",
+      "streetAddress": "Pottenbrunner Hauptstraße 108/Top 1",
+      "addressLocality": "Pottenbrunn",
+      "postalCode": "3140",
       "addressCountry": "AT"
     },
     "potentialAction": [
@@ -51,12 +52,7 @@ const JsonLdHome = () => {
     ]
   };
 
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-    />
-  );
+  return <JsonLdScript schema={structuredData} />;
 };
 
 export default JsonLdHome;

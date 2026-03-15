@@ -4,6 +4,29 @@
 # Multi-Technology Development Environment
 # ========================================
 
+# ── Deploy-Laufzeitdateien (niemals einchecken) ───────────────────
+# SSH Laufzeit-Keys (werden zur Laufzeit in ~/.ssh/ angelegt)
+# Sicherheitshalber auch lokal ignorieren:
+*.pem
+*.p12
+id_rsa
+id_ed25519
+id_ecdsa
+!*.pub
+# Deploy Logs
+.moe_deploy_logs/
+deploy_*.log
+# Deploy Lock
+/tmp/moe_deploy.lock
+# Build-Artefakte
+apps/website/dist/
+apps/website/dist-ssr/
+apps/website/.vite/
+# SSH-Temporärdateien
+/tmp/moe_ssh_*
+# Release-Marker (werden nur auf dem Server erzeugt, nicht lokal)
+.deploy_release
+
 #Ignore vscode AI rules
 .github\instructions\codacy.instructions.md
 
@@ -21,7 +44,8 @@
 .env.*.decrypted
 *.env.*
 
-# Exception: Allow .env.example template
+# Exception: Allow .env.example template and test credentials
+!.env.test
 !.env.example
 !.env.production.template
 
@@ -39,11 +63,15 @@ temp/*.decrypted
 *.cer
 *.der
 
-# Database dumps & backups
+# Database dumps & backups (aber nicht Schema-Initialisierungsskripte!)
 *.sql
 *.dump
 *.backup
 *.bak
+# Ausnahmen: eingecheckte Schema-Initialisierungsskripte
+!scripts/init-db.sql
+!scripts/db-user-setup.sql
+!openclaw-system/services/postgres/init.sql
 
 # Configuration with secrets
 config/local.json
@@ -131,6 +159,9 @@ eggs/
 .eggs/
 lib/
 lib64/
+# Do not ignore app/lib source directories (but keep __pycache__ ignored)
+!**/app/lib/
+!**/app/lib/*.py
 parts/
 sdist/
 var/
@@ -264,6 +295,9 @@ logs/*.txt
 logs/*.log
 logs/**/*.txt
 logs/**/*.log
+# Operative Security-Alerts — nicht im Repository versionieren
+# Schema-Dokumentation: logs/security-alerts.example.json (getrackt)
+logs/security-alerts.json
 # But keep README files
 !logs/**/README.md
 !logs/**/.gitkeep
@@ -317,6 +351,10 @@ config/.env.production
 # Backup-Dateien mit potentiell sensiblen Daten
 *.backup
 *.sql
+# Ausnahmen: eingecheckte Schema-Initialisierungsskripte (see also line 65)
+!scripts/init-db.sql
+!scripts/db-user-setup.sql
+!openclaw-system/services/postgres/init.sql
 backup/
 backups/
 dumps/
@@ -421,3 +459,5 @@ docs/media/internal/
 backups/
 *.sql.gz
 *.tar.gz.bak
+.claude/
+.claude_pr_body.md

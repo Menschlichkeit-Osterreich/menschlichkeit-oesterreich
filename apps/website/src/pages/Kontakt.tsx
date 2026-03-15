@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import SeoHead from '../components/seo/SeoHead';
 
 export default function Kontakt() {
   const [submitted, setSubmitted] = useState(false);
@@ -16,12 +17,16 @@ export default function Kontakt() {
     const body = encodeURIComponent(
       `Name: ${form.name}\nE-Mail: ${form.email}\n\nNachricht:\n${form.message}`
     );
-    window.location.href = `mailto:menschlichkeit-oesterreich@outlook.at?subject=${encodeURIComponent(form.subject || 'Anfrage über Website')}&body=${body}`;
+    window.location.href = `mailto:kontakt@menschlichkeit-oesterreich.at?subject=${encodeURIComponent(form.subject || 'Anfrage über Website')}&body=${body}`;
     setSubmitted(true);
   };
 
   return (
     <div>
+      <SeoHead
+        title="Kontakt – Menschlichkeit Österreich"
+        description="Kontaktieren Sie Menschlichkeit Österreich. Wir freuen uns auf Ihre Nachricht. Adresse: Pottenbrunner Hauptstraße 108/Top 1, 3140 Pottenbrunn."
+      />
       {/* Hero */}
       <section className="bg-gradient-to-br from-primary-700 to-primary-900 text-white py-16">
         <div className="container mx-auto px-4 text-center max-w-3xl">
@@ -47,8 +52,8 @@ export default function Kontakt() {
                     <p className="font-semibold mb-1">Adresse</p>
                     <address className="not-italic text-gray-600 text-sm">
                       Verein Menschlichkeit Österreich<br />
-                      Pottenbrunner Hauptstraße 108/1<br />
-                      3140 St. Pölten, Österreich
+                      Pottenbrunner Hauptstraße 108/Top 1<br />
+                      3140 Pottenbrunn, Österreich
                     </address>
                   </div>
                 </div>
@@ -60,10 +65,10 @@ export default function Kontakt() {
                   <div>
                     <p className="font-semibold mb-1">E-Mail</p>
                     <a
-                      href="mailto:menschlichkeit-oesterreich@outlook.at"
+                      href="mailto:kontakt@menschlichkeit-oesterreich.at"
                       className="text-primary-600 hover:underline text-sm"
                     >
-                      menschlichkeit-oesterreich@outlook.at
+                      kontakt@menschlichkeit-oesterreich.at
                     </a>
                   </div>
                 </div>

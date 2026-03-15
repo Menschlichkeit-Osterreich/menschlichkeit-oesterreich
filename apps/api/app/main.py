@@ -26,7 +26,10 @@ from fastapi.responses import JSONResponse
 from prometheus_fastapi_instrumentator import Instrumentator
 
 # ── Router Imports ────────────────────────────────────────────────────────────
-from .routers import metrics, auth, members, invoices
+from .routers import metrics, auth, members, forum, blog, events, roles, finance, sitemap
+from .audit import ensure_audit_table, write_audit_event
+from .security import enforce_csrf, rate_limiter, require_jwt_secret_configured
+from .middleware.pii_middleware import PiiSanitizationMiddleware
 
 # ── Logging Setup ─────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -63,6 +66,8 @@ ALLOWED_ORIGINS = ALLOWED_ORIGINS_PROD if IS_PRODUCTION else (
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup & Shutdown Events."""
+    require_jwt_secret_configured()
+    await ensure_audit_table()
     logger.info(f"🚀 Menschlichkeit API starting | env={ENVIRONMENT}")
     yield
     logger.info("🛑 Menschlichkeit API shutting down")
@@ -111,6 +116,9 @@ app.add_middleware(
     expose_headers=["X-Request-ID", "X-RateLimit-Remaining"],
     max_age=600,
 )
+
+# ── Middleware: PII-Sanitizer ─────────────────────────────────────────────────
+app.add_middleware(PiiSanitizationMiddleware)
 
 # ── Middleware: GZip ──────────────────────────────────────────────────────────
 app.add_middleware(GZipMiddleware, minimum_size=1000)
@@ -173,6 +181,17 @@ async def request_logging_middleware(request: Request, call_next: Callable) -> R
     )
 
     try:
+        enforce_csrf(request)
+        client = request.client.host if request.client else "unknown"
+        rate_limit_key = f"{client}:{request.url.path}"
+        allowed, retry_after = rate_limiter.check(rate_limit_key)
+        if not allowed:
+            return JSONResponse(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                headers={"Retry-After": str(retry_after), "X-Request-ID": request_id},
+                content={"error": {"code": 429, "message": "Rate limit exceeded", "path": request.url.path}},
+            )
+
         response = await call_next(request)
     except Exception as exc:
         logger.error(f"✗ Unhandled exception: {exc}", exc_info=True)
@@ -186,6 +205,22 @@ async def request_logging_middleware(request: Request, call_next: Callable) -> R
         f"← {response.status_code} {request.url.path} | "
         f"{duration_ms:.0f}ms | id={request_id}"
     )
+
+    try:
+        await write_audit_event(
+            actor_id=request.headers.get("X-Actor-ID"),
+            path=request.url.path,
+            method=request.method,
+            status_code=response.status_code,
+            request_id=request_id,
+            consent_flag=request.headers.get("X-Consent-Flag", "false").lower() == "true",
+            metadata={
+                "client": request.client.host if request.client else "unknown",
+                "response_time_ms": round(duration_ms, 2),
+            },
+        )
+    except Exception as audit_error:
+        logger.warning("audit_write_failed | error=%s", audit_error)
 
     return response
 
@@ -256,6 +291,15 @@ async def version():
 
 
 # ── Router Registration ───────────────────────────────────────────────────────
+# SEO: sitemap.xml at root level (no /api prefix)
+app.include_router(sitemap.router, tags=["SEO"])
+app.include_router(auth.router, prefix="/api", tags=["Authentifizierung"])
+app.include_router(members.router, prefix="/api", tags=["Mitglieder"])
+app.include_router(forum.router, prefix="/api", tags=["Forum"])
+app.include_router(blog.router, prefix="/api", tags=["Blog"])
+app.include_router(events.router, prefix="/api", tags=["Veranstaltungen"])
+app.include_router(roles.router, prefix="/api", tags=["Rollen"])
+app.include_router(finance.router, prefix="/api", tags=["Finanzen"])
 app.include_router(metrics.router, prefix="/api", tags=["Metriken"])
 app.include_router(auth.router)          # /api/auth/*    – Issue #119
 app.include_router(members.router)       # /api/members/* – Issue #119 #121

@@ -1,9 +1,8 @@
-fastapi==0.129.0
-uvicorn==0.37.0
+fastapi==0.115.4
+uvicorn[standard]==0.30.6
 httpx==0.28.1
 pydantic[email]==2.12.5
 PyJWT==2.10.1
-dependabot/pip/api.menschlichkeit-oesterreich.at/redis-7.2.0
-python-multipart==0.0.20
+python-multipart==0.0.22
 redis==7.2.0
 reportlab==4.2.5

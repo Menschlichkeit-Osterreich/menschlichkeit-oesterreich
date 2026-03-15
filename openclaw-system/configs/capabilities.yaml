@@ -108,6 +108,46 @@ roles:
     max_bytes_read: 0
     max_bytes_write: 0
 
+# ─── n8n Webhook-Whitelist ────────────────────────────────
+# Muss mit automation/n8n/workflows/ synchron gehalten werden.
+# Tool-Gateway liest diese Liste beim Start – Neustart bei Änderungen.
+webhooks:
+  allowed:
+    # Mitglieder & CRM
+    - new-member
+    - crm-member-management
+    - crm-sync-members
+    - onboarding-welcome-series
+    # Finanzen
+    - new-donation
+    - finance-donation-processing
+    - finance-dunning
+    - finance-invoicing
+    - finance-membership-invoicing
+    - finance-payment-confirmation
+    - finance-sepa-export
+    - Stripe_Webhook_to_CiviCRM_Contribution
+    # Events & Forum
+    - mo-events
+    - events-reminder
+    - forum-moderation
+    - forum-viral
+    # System & Betrieb
+    - daily-report
+    - dashboard-etl-stripe-civicrm
+    - build-pipeline-automation
+    - plesk-deployment-notifications
+    - queue-monitor
+    - dlq-admin
+    - WebhookQueue_Processor
+    - mail-archiver-logging
+    # DSGVO
+    - right-to-erasure
+    - right-to-erasure-fixed
+    # Social & Kommunikation
+    - social-media-crosspost
+    - openclaw-bridge
+
 # ─── Globale Einstellungen ────────────────────────────────
 global:
   # Absolut verbotene Aktionen (überschreiben alle Rollen)

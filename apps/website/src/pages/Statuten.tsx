@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card } from '../components/ui/Card';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
+import SeoHead from '../components/seo/SeoHead';
 import { PageHeader } from '../components/ui/PageHeader';
 
 const STATUTEN_SECTIONS = [
@@ -18,7 +19,7 @@ const STATUTEN_SECTIONS = [
   },
   {
     title: '§ 4 – Arten der Mitgliedschaft',
-    content: 'Die Mitglieder gliedern sich in: (a) Ordentliche Mitglieder, (b) Fördernde Mitglieder und (c) Ehrenmitglieder.',
+    content: 'Die Mitglieder gliedern sich in: (a) ordentliche Mitglieder, (b) außerordentliche Mitglieder und (c) Ehrenmitglieder.',
   },
   {
     title: '§ 5 – Erwerb der Mitgliedschaft',
@@ -34,25 +35,29 @@ const STATUTEN_SECTIONS = [
   },
   {
     title: '§ 8 – Vereinsorgane',
-    content: 'Die Organe des Vereins sind: (a) die Generalversammlung, (b) der Vorstand, (c) die Rechnungsprüfer und (d) das Schiedsgericht.',
+    content: 'Die Organe des Vereins sind: (a) die Mitgliederversammlung, (b) der Vorstand, (c) die Rechnungsprüfer*innen, (d) das Schiedsgericht und (e) die Arbeitsgruppen.',
   },
   {
-    title: '§ 9 – Generalversammlung',
-    content: 'Die ordentliche Generalversammlung findet jährlich statt. Eine außerordentliche Generalversammlung findet auf Beschluss des Vorstands oder auf schriftlichen Antrag von mindestens einem Zehntel der Mitglieder statt.',
+    title: '§ 9 – Mitgliederversammlung',
+    content: 'Die ordentliche Mitgliederversammlung findet jährlich statt. Eine außerordentliche Mitgliederversammlung findet auf Beschluss des Vorstands oder auf schriftlichen Antrag von mindestens einem Zehntel der Mitglieder statt.',
   },
   {
     title: '§ 10 – Vorstand',
-    content: 'Der Vorstand besteht aus mindestens drei Mitgliedern: Obmann/Obfrau, Kassier/Kassierin und Schriftführer/Schriftführerin. Die Funktionsperiode beträgt zwei Jahre.',
+    content: 'Der Vorstand besteht aus mindestens drei Mitgliedern: der Obperson, der stellvertretenden Obperson und der Kassier*in. Optional kann ein*e Schriftführer*in bestellt werden. Die Funktionsperiode beträgt bis zu fünf Jahre; Wiederwahl ist möglich.',
   },
   {
     title: '§ 11 – Auflösung des Vereins',
-    content: 'Die freiwillige Auflösung kann nur in einer außerordentlichen Generalversammlung mit Zweidrittelmehrheit beschlossen werden. Das verbleibende Vereinsvermögen ist einer gemeinnützigen Organisation zu übertragen.',
+    content: 'Die freiwillige Auflösung kann nur in einer außerordentlichen Mitgliederversammlung mit Zweidrittelmehrheit beschlossen werden. Das verbleibende Vereinsvermögen ist einer gemeinnützigen Organisation zu übertragen.',
   },
 ];
 
 export default function StatutenPage() {
   return (
     <div className="mx-auto max-w-4xl p-4 space-y-6">
+      <SeoHead
+        title="Statuten – Menschlichkeit Österreich"
+        description="Die Statuten des Vereins Menschlichkeit Österreich. Vereinszweck, Mitgliedschaft, Organe und Rechte und Pflichten der Mitglieder."
+      />
       <PageHeader
         title="Statuten"
         description="Statuten des Vereins Menschlichkeit Österreich"
@@ -78,7 +83,7 @@ export default function StatutenPage() {
         </div>
 
         <p className="text-sm text-secondary-600 mb-6">
-          Zuletzt geändert: Generalversammlung 2024 · Registriert beim Vereinsregister Niederösterreich
+          Beschlossen: 21. Mai 2025 · Registriert beim Vereinsregister (ZVR: 1182213083)
         </p>
 
         <div className="space-y-6">

@@ -24,26 +24,36 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run OSV Scanner
-        uses: google/osv-scanner-action@v1
-        with:
-          scan-args: |-
-            --format=sarif
-            --output=osv-results.sarif
-            --recursive
+      - name: Install osv-scanner
+        run: |
+          OSV_VERSION="v1.9.2"
+          curl -sSfL "https://github.com/google/osv-scanner/releases/download/${OSV_VERSION}/osv-scanner_linux_amd64" \
+            -o /usr/local/bin/osv-scanner
+          chmod +x /usr/local/bin/osv-scanner
+          osv-scanner --version
+
+      - name: Run OSV Scanner (recursive)
+        run: |
+          osv-scanner \
+            --format=sarif \
+            --output=osv-results.sarif \
+            --recursive \
             ./
         continue-on-error: true
 
       - name: Upload OSV Scanner results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v4
-        if: always()
+        if: >-
+          always() &&
+          hashFiles('osv-results.sarif') != '' &&
+          (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         with:
           sarif_file: osv-results.sarif
           category: osv-scanner
 
       - name: Upload results as artifact
         uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && hashFiles('osv-results.sarif') != ''
         with:
           name: osv-scanner-results
           path: osv-results.sarif
@@ -58,26 +68,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install osv-scanner
+        run: |
+          OSV_VERSION="v1.9.2"
+          curl -sSfL "https://github.com/google/osv-scanner/releases/download/${OSV_VERSION}/osv-scanner_linux_amd64" \
+            -o /usr/local/bin/osv-scanner
+          chmod +x /usr/local/bin/osv-scanner
+          osv-scanner --version
+
       - name: Scan package-lock.json
-        uses: google/osv-scanner-action@v1
         if: hashFiles('**/package-lock.json') != ''
-        with:
-          scan-args: |-
+        run: |
+          osv-scanner \
             --lockfile=package-lock.json:npm
         continue-on-error: true
 
       - name: Scan composer.lock
-        uses: google/osv-scanner-action@v1
         if: hashFiles('**/composer.lock') != ''
-        with:
-          scan-args: |-
+        run: |
+          osv-scanner \
             --lockfile=composer.lock:composer
         continue-on-error: true
 
       - name: Scan requirements.txt
-        uses: google/osv-scanner-action@v1
         if: hashFiles('**/requirements.txt') != ''
-        with:
-          scan-args: |-
-            --lockfile=api.menschlichkeit-oesterreich.at/requirements.txt:requirements.txt
+        run: |
+          osv-scanner \
+            --lockfile=apps/api/requirements.txt:requirements.txt
         continue-on-error: true

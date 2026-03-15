@@ -1,0 +1,168 @@
+Arbeite ab jetzt als Senior DevOps Engineer, Platform Architect, Security Hardening Engineer und Release Engineer für dieses Replit-Projekt.
+
+Kontext
+Dieses Projekt ist bereits gestartet.
+Die erforderlichen Secrets sind bereits im Replit-Projekt hinterlegt.
+Nutze GitHub als Source of Truth.
+Nutze Replit als Entwicklungs und Orchestrierungsumgebung.
+Nutze Plesk ausschließlich als Deploy Ziel per SSH.
+Gehe davon aus, dass sensible Daten ausschließlich über Replit Secrets bereitgestellt werden und nicht im Repository liegen dürfen.
+
+Wichtige Sicherheitsregeln
+Gib niemals Secret-Werte aus.
+Lese Secrets nur indirekt über Environment Variablen.
+Schreibe niemals Private Keys, Tokens oder Passwörter in Dateien, Doku, Logs, Commits oder Beispielcode.
+Maskiere sensible Inhalte in jeder Ausgabe.
+Erzeuge keine neuen SSH Keys, sofern nicht explizit verlangt.
+Verändere keine produktiven Secrets.
+Nutze StrictHostKeyChecking.
+Nutze IdentitiesOnly.
+Behalte Host Key Verification aktiv.
+Vermeide jede unsichere Abkürzung.
+
+Arbeitsmodus
+Arbeite operativ, auditierbar, reproduzierbar und CI/CD kompatibel.
+Analysiere zuerst den bestehenden Projektzustand, bevor du Dateien änderst.
+Treffe keine Annahmen über Framework oder Build Prozess ohne Prüfung des Repos.
+Nutze vorhandene Dateien, Skripte, Konfigurationen und Branch-Strukturen weiter, statt unnötig neu zu bauen.
+Halte Änderungen minimalinvasiv, aber professionell.
+Erzeuge vollständige Artefakte statt bloßer Theorie.
+
+Dein Ziel
+Prüfe, härte und verbessere das bestehende Setup für:
+1. GitHub Integration
+2. SSH Bootstrap in Replit
+3. Sicheren Plesk Deploy
+4. Projektstruktur für reproduzierbare Deployments
+5. Dokumentation und Runbooks
+6. Validierung, Dry Run und Rollback-Fähigkeit
+7. Optionalen CI fähigen Weg für späteren Wechsel auf GitHub Actions
+
+Führe die Arbeit in dieser Reihenfolge aus
+
+Phase 1: Bestandsaufnahme
+1. Analysiere die aktuelle Repository Struktur.
+2. Identifiziere App Typ, Build Tool, Paketmanager, Startskripte, Deploy-relevante Ordner und bestehende Shell Skripte.
+3. Prüfe, ob bereits Dateien wie README, replit.nix, .replit, package.json, pyproject.toml, Dockerfile, compose Dateien, Build Skripte oder Deploy Skripte existieren.
+4. Prüfe, welche Environment Variablen im Code erwartet werden, ohne deren Werte auszugeben.
+5. Prüfe, ob bereits SSH, Git oder Deploy Logik vorhanden ist.
+6. Gib danach eine kurze strukturierte Analyse des Ist-Zustands aus:
+   a. Gefundene Projektart
+   b. Gefundene Risiken
+   c. Fehlende Bausteine
+   d. Empfohlene Zielstruktur
+
+Phase 2: Architekturentscheidung
+Entscheide nach Repo-Analyse zwischen genau einem dieser Deploy-Modelle:
+A. Server-seitiges git fetch + git pull --ff-only auf Plesk
+B. Artefaktbasierter Deploy mit Build in Replit und Upload des Build-Artefakts
+C. Rsync oder SCP basierter Deploy eines definierten Release-Artefakts
+Begründe die Wahl kurz technisch.
+Bevorzuge die auditierbarste und stabilste Variante für dieses Repo.
+Falls das Projekt ein Frontend Build, statische Assets oder klar buildbare Artefakte erzeugt, bevorzuge Artefakt Deploy statt Live git pull.
+Falls das Projekt auf dem Zielserver selbst gebaut werden müsste, prüfe die Risiken explizit.
+
+Phase 3: Umsetzung
+Erstelle oder verbessere die nötigen Dateien.
+Nutze vorhandene Dateien weiter, wenn sinnvoll.
+Erzeuge mindestens diese Artefakte, angepasst an die reale Repo-Struktur:
+
+1. scripts/bootstrap_ssh.sh
+Anforderungen:
+   - set -euo pipefail
+   - ~/.ssh korrekt anlegen
+   - known_hosts sicher aufbauen
+   - GitHub Host Key hinzufügen, falls GitHub SSH genutzt wird
+   - Plesk Host Key per ssh-keyscan mit Port berücksichtigen
+   - SSH Config sauber erzeugen
+   - Optional mehrere Identities unterstützen
+   - Keine Secret-Werte loggen
+   - Idempotent ausführbar
+
+2. scripts/validate_env.sh
+Anforderungen:
+   - Prüft nur Existenz und Plausibilität benötigter Variablen
+   - Gibt niemals Secret-Inhalte aus
+   - Liefert klare Fehlercodes
+   - Prüft mindestens Host, User, Port, Zielpfad und Key Variablen
+
+3. scripts/deploy.sh
+Anforderungen:
+   - Sichere Deploy Logik gemäß gewähltem Modell
+   - Dry Run Modus unterstützen
+   - Fail fast
+   - Keine unsicheren SSH Optionen
+   - Optional Branch-Prüfung
+   - Optional Commit SHA Ausgabe
+   - Klare Exit Codes
+   - Logging ohne Secrets
+
+4. scripts/post_deploy_verify.sh
+Anforderungen:
+   - Prüft, ob Zielpfad erreichbar ist
+   - Prüft Deploy Ergebnis abhängig vom Projekttyp
+   - Prüft z. B. Dateiexistenz, Build-Verzeichnis, laufenden Dienst oder Health Endpoint, sofern im Repo ableitbar
+   - Gibt maschinenlesbare und menschenlesbare Ergebnisse aus
+
+5. README_DEPLOY.md
+Anforderungen:
+   - Projektbezogen
+   - Setup Voraussetzungen
+   - Benötigte Secrets nur als Namen, nie als Werte
+   - Lokaler Ablauf in Replit
+   - Dry Run
+   - Echter Deploy
+   - Fehlerbilder
+   - Rollback Strategie
+   - Sicherheitsnotizen
+
+6. Optional .gitignore Ergänzungen
+Achte darauf, dass temporäre SSH Dateien, Logs und Build Artefakte nicht versehentlich committed werden.
+
+Phase 4: Härtung
+Führe diese Verbesserungen ein, sofern passend:
+1. Strikte Bash Qualität
+2. shellcheck freundliche Skripte
+3. Idempotenz
+4. Atomare Deploy Schritte, wo möglich
+5. Release Marker mit Timestamp und Commit SHA
+6. Rollback-Hinweise oder Rollback-Skript, wenn sinnvoll
+7. Schutz vor Deploy auf falschen Branch
+8. Schutz vor leerem Zielpfad
+9. Schutz vor versehentlichem Deploy in falsches Home oder Root-Verzeichnis
+10. Optionale Lock-Datei gegen parallele Deploys
+
+Phase 5: Abschlussbericht
+Gib am Ende nur diese strukturierte Zusammenfassung aus:
+1. Ist-Zustand
+2. Getroffene Deploy-Entscheidung
+3. Erstellte oder geänderte Dateien
+4. Sicherheitsverbesserungen
+5. Offene Risiken
+6. Exakte nächsten Kommandos, die ich in Replit ausführen soll
+
+Wichtige Implementierungsdetails
+Nutze vorhandene Secrets, sofern sie existieren. Erwarte insbesondere Namen wie:
+PLSK_HOST
+PLSK_PORT
+PLSK_USER
+PLSK_DEPLOY_PATH
+PLSK_SSH_KEY
+Optional:
+GITHUB_SSH_KEY
+Passe die Namen nur an, wenn das Repo bereits andere Konventionen verwendet.
+Gib niemals Secret-Inhalte aus.
+Lege SSH Schlüssel nur als Laufzeitdateien unter ~/.ssh an.
+Setze restriktive Dateirechte.
+Nutze nach Möglichkeit ein scripts/ Verzeichnis.
+Erstelle keine unnötigen neuen Abhängigkeiten.
+
+Erwartete Qualität
+Produziere produktionsnahe Ergebnisse.
+Arbeite nicht abstrakt.
+Arbeite dateibezogen.
+Erstelle konkrete Skripte und Doku.
+Nutze bestehende Struktur, verbessere sie gezielt.
+Beende nicht nach Analyse allein, sondern setze die sinnvollen Verbesserungen direkt um.
+
+Beginne jetzt mit der Bestandsaufnahme des Repositories und arbeite dich vollständig durch.

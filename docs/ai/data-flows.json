@@ -115,6 +115,22 @@
         "personal_data flag inferred from member/CRM platform domain"
       ],
       "auth_context": "jwt-or-session",
+      "evidence": "apps/api/app/middleware/pii_middleware.py:FastAPI",
+      "flow_id": "public-to-apps-api",
+      "interface": "https-rest",
+      "payload_class": "application-json",
+      "personal_data": true,
+      "retention_notes": "Application logs and records follow project retention policies.",
+      "source": "public-clients",
+      "special_category_data": false,
+      "target": "apps-api",
+      "trust_boundary_crossing": true
+    },
+    {
+      "assumptions": [
+        "personal_data flag inferred from member/CRM platform domain"
+      ],
+      "auth_context": "jwt-or-session",
       "evidence": "openclaw-system/api/fastapi_gateway/main.py:FastAPI",
       "flow_id": "public-to-openclaw-system-api",
       "interface": "https-rest",

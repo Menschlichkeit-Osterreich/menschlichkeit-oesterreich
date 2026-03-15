@@ -1,40 +1,48 @@
 """Dashboard KPI Endpoints (Metrics Router)."""
-from fastapi import APIRouter, Query
-from typing import Optional, Literal
+from __future__ import annotations
+
 from datetime import date
+from typing import Literal, Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+
 from ..db import fetch, fetchval
+from .finance import _ensure_finance_tables
+from ..schemas.metrics import (
+    DonationsSummaryResponse,
+    IncomeExpensePoint,
+    KpisOverviewResponse,
+    MembersTimeSeriesPoint,
+    ProjectBurnResponse,
+)
+
+from ..rbac import Role, require_role
 
 router = APIRouter()
 
 
-# --- Helper Functions ---------------------------------------------------
+def analytics_access_dependency():
+    return require_role(Role.ADMIN)
+
+
+ANALYTICS_GUARD = analytics_access_dependency()
 
 
 def first_day_of_year(today: date) -> date:
-    """Return first day of current year."""
     return date(today.year, 1, 1)
 
 
-# --- Overview KPIs ------------------------------------------------------
-
-
-@router.get("/kpis/overview")
-async def kpis_overview(since: Optional[date] = None):
-    """
-    Aggregated overview KPIs:
-    - members_total (active members)
-    - net_new_members_month (joins - cancels in current month)
-    - donations_ytd_cents (year-to-date donations)
-    - income_vs_expense_current_month_cents (signed balance)
-    """
+@router.get("/kpis/overview", response_model=KpisOverviewResponse)
+async def kpis_overview(
+    since: Optional[date] = None,
+    _: dict = ANALYTICS_GUARD,
+) -> KpisOverviewResponse:
+    await _ensure_finance_tables()
     today = date.today()
     ytd_start = since or first_day_of_year(today)
 
-    # Total active members
-    members_total_q = "SELECT COUNT(*) FROM members WHERE status = 'Active';"
-    members_total = await fetchval(members_total_q) or 0
+    members_total = await fetchval("SELECT COUNT(*) FROM members WHERE status = 'Active';") or 0
 
-    # Net new members in current month (joins - cancels)
     net_new_q = """
       WITH joined AS (
         SELECT COUNT(*)::int AS c FROM members
@@ -49,55 +57,44 @@ async def kpis_overview(since: Optional[date] = None):
     """
     net_new_members_month = await fetchval(net_new_q) or 0
 
-    # Year-to-date donations (payer_type: donor or member)
-    donations_ytd_q = """
+    donations_ytd_cents = await fetchval(
+        """
       SELECT COALESCE(SUM(amount_cents),0) FROM payments
       WHERE booked_at >= $1
         AND payer_type IN ('donor','member');
-    """
-    donations_ytd_cents = await fetchval(donations_ytd_q, ytd_start) or 0
+    """,
+        ytd_start,
+    ) or 0
 
-    # Income vs Expense (current month)
-    income_q = """
+    income = await fetchval(
+        """
       SELECT COALESCE(SUM(amount_cents),0) FROM payments
       WHERE booked_at >= date_trunc('month', CURRENT_DATE);
     """
-    expense_q = """
+    ) or 0
+    expense = await fetchval(
+        """
       SELECT COALESCE(SUM(amount_cents),0) FROM expenses
       WHERE booked_at >= date_trunc('month', CURRENT_DATE);
     """
-    income = await fetchval(income_q) or 0
-    expense = await fetchval(expense_q) or 0
-    income_vs_expense_current_month = int(income) - int(expense)
+    ) or 0
 
-    return {
-        "members_total": int(members_total),
-        "net_new_members_month": int(net_new_members_month),
-        "donations_ytd_cents": int(donations_ytd_cents),
-        "income_vs_expense_current_month_cents": income_vs_expense_current_month,
-        "as_of": today.isoformat(),
-        "since": ytd_start.isoformat()
-    }
+    return KpisOverviewResponse(
+        members_total=int(members_total),
+        net_new_members_month=int(net_new_members_month),
+        donations_ytd_cents=int(donations_ytd_cents),
+        income_vs_expense_current_month_cents=int(income) - int(expense),
+        as_of=today,
+        since=ytd_start,
+    )
 
 
-# --- Members: Time Series -----------------------------------------------
-
-
-@router.get("/members/timeseries")
+@router.get("/members/timeseries", response_model=list[MembersTimeSeriesPoint])
 async def members_timeseries(
     granularity: Literal["day", "month", "quarter", "year"] = "month",
-    months: int = Query(12, ge=1, le=60)
-):
-    """
-    Members time series with:
-    - active_members (count at end of bucket)
-    - joins (new members in bucket)
-    - cancels (cancelled members in bucket)
-    
-    Args:
-        granularity: Time bucket size (day/month/quarter/year)
-        months: Number of periods to look back (default 12)
-    """
+    months: int = Query(12, ge=1, le=60),
+    _: dict = ANALYTICS_GUARD,
+) -> list[MembersTimeSeriesPoint]:
     q = f"""
       WITH series AS (
         SELECT generate_series(
@@ -136,66 +133,51 @@ async def members_timeseries(
       ORDER BY s.bucket;
     """
     rows = await fetch(q)
-    return [dict(r) for r in rows]
+    return [MembersTimeSeriesPoint(**dict(r)) for r in rows]
 
 
-# --- Donations/Payments: Summary ----------------------------------------
-
-
-@router.get("/donations/summary")
+@router.get("/donations/summary", response_model=DonationsSummaryResponse)
 async def donations_summary(
-    period: Literal["last_12_months", "ytd", "last_30d"] = "ytd"
-):
-    """
-    Donations summary statistics for given period:
-    - total_cents (total amount)
-    - count (number of donations)
-    - avg_cents (average donation)
-    - recurring_share (percentage of recurring vs one-time)
-    """
+    period: Literal["last_12_months", "ytd", "last_30d"] = "ytd",
+    _: dict = ANALYTICS_GUARD,
+) -> DonationsSummaryResponse:
     if period == "last_12_months":
         constraint = "booked_at >= (CURRENT_DATE - INTERVAL '12 months')"
     elif period == "last_30d":
         constraint = "booked_at >= (CURRENT_DATE - INTERVAL '30 days')"
-    else:  # ytd
+    else:
         constraint = "booked_at >= date_trunc('year', CURRENT_DATE)"
 
-    q_total = f"SELECT COALESCE(SUM(amount_cents),0) FROM payments WHERE {constraint};"
-    q_rec = f"SELECT COALESCE(SUM(amount_cents),0) FROM payments WHERE {constraint} AND is_recurring = true;"
-    q_cnt = f"SELECT COUNT(*) FROM payments WHERE {constraint};"
+    total = await fetchval(f"SELECT COALESCE(SUM(amount_cents),0) FROM payments WHERE {constraint};")
+    recurring = await fetchval(
+        f"SELECT COALESCE(SUM(amount_cents),0) FROM payments WHERE {constraint} AND is_recurring = true;"
+    )
+    count = await fetchval(f"SELECT COUNT(*) FROM payments WHERE {constraint};")
 
-    total = await fetchval(q_total)
-    recurring = await fetchval(q_rec)
-    count = await fetchval(q_cnt)
+    total_int = int(total or 0)
+    count_int = int(count or 0)
+    recurring_int = int(recurring or 0)
 
-    avg = int(total) // int(count) if count else 0
-    recurring_share = (int(recurring) / int(total)) if total else 0.0
-
-    return {
-        "period": period,
-        "total_cents": int(total or 0),
-        "count": int(count or 0),
-        "avg_cents": int(avg),
-        "recurring_share": round(recurring_share, 4)
-    }
-
-
-# --- Finance: Income vs Expense -----------------------------------------
+    return DonationsSummaryResponse(
+        period=period,
+        total_cents=total_int,
+        count=count_int,
+        avg_cents=(total_int // count_int) if count_int else 0,
+        recurring_share=round((recurring_int / total_int) if total_int else 0.0, 4),
+    )
 
 
-@router.get("/finance/income-vs-expense")
+@router.get("/finance/income-vs-expense", response_model=list[IncomeExpensePoint])
 async def income_vs_expense(
     from_date: date = Query(default=date(date.today().year, 1, 1)),
-    to_date: date = Query(default=date.today())
-):
-    """
-    Monthly income vs expense breakdown:
-    - month (YYYY-MM)
-    - income_cents (total payments in month)
-    - expense_cents (total expenses in month)
-    - balance_cents (income - expense)
-    """
-    q = """
+    to_date: date = Query(default=date.today()),
+    _: dict = ANALYTICS_GUARD,
+) -> list[IncomeExpensePoint]:
+    if from_date > to_date:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="from_date must be <= to_date")
+
+    rows = await fetch(
+        """
       WITH months AS (
         SELECT date_trunc('month', dd)::date AS month
         FROM generate_series($1::date, $2::date, interval '1 month') dd
@@ -218,40 +200,39 @@ async def income_vs_expense(
       LEFT JOIN inc i ON i.m = m.month
       LEFT JOIN exp e ON e.m = m.month
       ORDER BY m.month;
-    """
-    rows = await fetch(q, from_date, to_date)
-    return [dict(r) for r in rows]
+    """,
+        from_date,
+        to_date,
+    )
+    return [IncomeExpensePoint(**dict(r)) for r in rows]
 
 
-# --- Projects: Burn Rate ------------------------------------------------
-
-
-@router.get("/projects/burn")
-async def project_burn(code: str):
-    """
-    Project budget burn rate:
-    - code (project code)
-    - name (project name)
-    - budget_cents (planned budget)
-    - spend_cents (actual expenses)
-    - burn_rate (spend / budget ratio)
-    
-    Args:
-        code: Project code (e.g. "DEMO", "PROJ-001")
-    """
-    q = """
+@router.get("/projects/burn", response_model=ProjectBurnResponse)
+async def project_burn(code: str = Query(min_length=2, max_length=64), _: dict = ANALYTICS_GUARD) -> ProjectBurnResponse:
+    rows = await fetch(
+        """
       SELECT p.code, p.name, p.budget_cents,
              COALESCE(SUM(e.amount_cents),0)::bigint AS spend_cents
       FROM projects p
       LEFT JOIN expenses e ON e.project = p.code
       WHERE p.code = $1
       GROUP BY p.code, p.name, p.budget_cents;
-    """
-    row = await fetch(q, code)
-    if not row:
-        return {"code": code, "found": False}
-    
-    r = dict(row[0])
-    r["found"] = True
-    r["burn_rate"] = (r["spend_cents"] / r["budget_cents"]) if r["budget_cents"] else None
-    return r
+    """,
+        code,
+    )
+    if not rows:
+        return ProjectBurnResponse(code=code, found=False)
+
+    row = dict(rows[0])
+    budget_cents = int(row["budget_cents"]) if row["budget_cents"] is not None else 0
+    spend_cents = int(row["spend_cents"])
+    burn_rate = (spend_cents / budget_cents) if budget_cents else None
+
+    return ProjectBurnResponse(
+        code=row["code"],
+        found=True,
+        name=row["name"],
+        budget_cents=budget_cents,
+        spend_cents=spend_cents,
+        burn_rate=burn_rate,
+    )

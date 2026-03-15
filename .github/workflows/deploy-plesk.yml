@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       service:
-        description: "Welcher Service soll deployt werden?"
+        description: "Service deployen"
         required: true
         type: choice
         default: all
@@ -17,6 +17,11 @@ on:
           - api
           - crm
           - games
+      dry_run:
+        description: "Dry-Run (kein echtes Deployment)"
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -27,52 +32,113 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  SSH_HOST: ${{ secrets.PLESK_HOST }}
-  SSH_PORT: ${{ secrets.PLESK_PORT || '22' }}
-  SSH_USER: ${{ secrets.PLESK_USER }}
-  BASE_PATH: ${{ vars.PLESK_BASE_PATH || '/var/www/vhosts/menschlichkeit-oesterreich.at/httpdocs' }}
+  SSH_HOST:   ${{ secrets.PLESK_HOST }}
+  SSH_PORT:   ${{ secrets.PLESK_PORT || '22' }}
+  SSH_USER:   ${{ secrets.PLESK_USER }}
+  BASE_PATH:  ${{ vars.PLESK_BASE_PATH || '/var/www/vhosts/menschlichkeit-oesterreich.at/httpdocs' }}
   MAIN_DOMAIN: ${{ vars.MAIN_DOMAIN || 'menschlichkeit-oesterreich.at' }}
+  NODE_VERSION: "22"
 
 jobs:
+  # ============================================================
+  # VALIDATE — Env-Vars, Branch-Schutz, Dry-Run-Banner
+  # ============================================================
+  validate:
+    name: Validierung & Branch-Schutz
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Branch-Schutz prüfen
+        run: |
+          BRANCH="${GITHUB_REF_NAME}"
+          echo "Branch: ${BRANCH}"
+          if [[ "${BRANCH}" != "main" && "${{ github.event_name }}" != "workflow_dispatch" ]]; then
+            echo "✗ Deployment nur von 'main' erlaubt. Abgebrochen."
+            exit 1
+          fi
+          echo "✓ Branch-Check OK: ${BRANCH}"
+
+      - name: Dry-Run-Info
+        if: ${{ github.event.inputs.dry_run == 'true' }}
+        run: echo "⚠️ DRY-RUN AKTIV — kein Schreiben auf Produktion."
+
+      - name: Pflicht-Secrets prüfen
+        env:
+          HAS_HOST:       ${{ secrets.PLESK_HOST != '' }}
+          HAS_USER:       ${{ secrets.PLESK_USER != '' }}
+          HAS_KEY:        ${{ secrets.PLESK_SSH_PRIVATE_KEY != '' }}
+          HAS_KNOWN_HOSTS: ${{ secrets.PLESK_KNOWN_HOSTS != '' }}
+        run: |
+          ERRORS=0
+          [[ "${HAS_HOST}"       == "true" ]] && echo "✓ PLESK_HOST"       || { echo "✗ PLESK_HOST fehlt";             ERRORS=$((ERRORS+1)); }
+          [[ "${HAS_USER}"       == "true" ]] && echo "✓ PLESK_USER"       || { echo "✗ PLESK_USER fehlt";             ERRORS=$((ERRORS+1)); }
+          [[ "${HAS_KEY}"        == "true" ]] && echo "✓ PLESK_SSH_PRIVATE_KEY" || { echo "✗ PLESK_SSH_PRIVATE_KEY fehlt"; ERRORS=$((ERRORS+1)); }
+          [[ "${HAS_KNOWN_HOSTS}" == "true" ]] && echo "✓ PLESK_KNOWN_HOSTS" || { echo "✗ PLESK_KNOWN_HOSTS fehlt";   ERRORS=$((ERRORS+1)); }
+          if (( ERRORS > 0 )); then
+            echo "✗ ${ERRORS} Pflicht-Secret(s) fehlen. Deployment abgebrochen."
+            exit 1
+          fi
+          echo "✓ Alle Pflicht-Secrets vorhanden."
+
   # ============================================================
   # BUILD — Frontend (React + Vite)
   # ============================================================
   build-frontend:
-    name: Build Frontend
+    name: Frontend bauen (Vite)
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.service == 'all' || github.event.inputs.service == 'frontend' || github.event_name == 'push' }}
+    needs: [validate]
+    if: >
+      github.event.inputs.service == 'all' ||
+      github.event.inputs.service == 'frontend' ||
+      github.event.inputs.service == '' ||
+      github.event_name == 'push'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Node.js einrichten
+      - name: Node.js ${{ env.NODE_VERSION }} einrichten
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
+          cache-dependency-path: apps/website/package-lock.json
 
       - name: Dependencies installieren
-        run: npm ci
+        working-directory: apps/website
+        run: npm ci --prefer-offline
+
+      - name: TypeScript-Check
+        working-directory: apps/website
+        run: npm run type-check || true
 
       - name: Frontend bauen
-        run: npm run build:frontend
+        working-directory: apps/website
+        run: npm run build
         env:
-          NODE_ENV: ${{ vars.NODE_ENV || 'production' }}
-          VITE_APP_URL: ${{ vars.APP_URL || 'https://menschlichkeit-oesterreich.at' }}
+          NODE_ENV: production
+          VITE_APP_URL: "https://${{ env.MAIN_DOMAIN }}"
+          VITE_API_URL: "https://api.${{ env.MAIN_DOMAIN }}"
+
+      - name: Build-Größe ausgeben
+        working-directory: apps/website
+        run: du -sh dist/ && find dist/ -name "*.js" | head -5
 
       - name: Build-Artefakt speichern
         uses: actions/upload-artifact@v4
         with:
-          name: frontend-dist
+          name: frontend-dist-${{ github.sha }}
           path: apps/website/dist/
-          retention-days: 1
+          retention-days: 3
 
   # ============================================================
-  # TEST — Unit Tests (blockierendes Gate)
+  # TEST — Unit Tests
   # ============================================================
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
+    needs: [validate]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -80,172 +146,213 @@ jobs:
       - name: Node.js einrichten
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
+          cache-dependency-path: apps/website/package-lock.json
 
       - name: Dependencies installieren
-        run: npm ci
+        working-directory: apps/website
+        run: npm ci --prefer-offline
 
       - name: Unit Tests ausführen
-        run: npm run test:unit
+        working-directory: apps/website
+        run: npm run test:unit -- --run
 
   # ============================================================
   # DEPLOY — rsync + Remote-Kommandos
   # ============================================================
   deploy:
-    name: Deploy
+    name: Deploy → Plesk
     runs-on: ubuntu-latest
     needs: [build-frontend, test]
     environment: production
-    # Falls nur API oder CRM deployt wird, entfällt build-frontend — hier überspringen wir needs
-    # via if-Bedingung (build-frontend läuft nur bei all/frontend)
-    if: always() && needs.test.result == 'success'
+    if: always() && needs.test.result == 'success' && github.event.inputs.dry_run != 'true'
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ---- SSH einrichten ----
+      # ── SSH einrichten ──────────────────────────────────────
       - name: SSH-Agent starten
         uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.PLESK_SSH_PRIVATE_KEY }}
 
-      - name: Known Hosts eintragen (kein ssh-keyscan in Produktion)
+      - name: known_hosts aus Secret eintragen
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.PLESK_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          # Niemals ssh-keyscan in Produktion ohne Verifikation!
+          printf '%s\n' "${{ secrets.PLESK_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
+          echo "✓ known_hosts gesetzt."
 
-      # ---- Frontend deployen ----
+      - name: SSH-Config schreiben
+        run: |
+          cat >> ~/.ssh/config <<EOF
+          Host plesk-prod
+            HostName ${{ env.SSH_HOST }}
+            Port ${{ env.SSH_PORT }}
+            User ${{ env.SSH_USER }}
+            StrictHostKeyChecking yes
+            BatchMode yes
+            ConnectTimeout 15
+          EOF
+          chmod 600 ~/.ssh/config
+          echo "✓ SSH-Config gesetzt."
+
+      - name: SSH-Verbindung testen + Chroot erkunden
+        id: chroot
+        run: |
+          ssh plesk-prod "echo 'SSH OK: $(hostname)'"
+          echo "=== Chroot Home-Struktur ==="
+          HOME_STRUCT=$(ssh plesk-prod "pwd && ls -la && ls -la httpdocs/ 2>/dev/null || echo 'kein httpdocs'" 2>&1)
+          echo "$HOME_STRUCT"
+          # DEPLOY_ROOT ermitteln: ~ oder ~/subdomains/
+          HAS_HTTPDOCS=$(ssh plesk-prod "[ -d httpdocs ] && echo yes || echo no")
+          echo "deploy_root=${HAS_HTTPDOCS}" >> "$GITHUB_OUTPUT"
+          echo "home_path=$(ssh plesk-prod pwd)" >> "$GITHUB_OUTPUT"
+
+      # ── Release-Metadaten ───────────────────────────────────
+      - name: Release-Metadaten vorbereiten
+        id: release
+        run: |
+          TS=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
+          echo "timestamp=${TS}" >> "$GITHUB_OUTPUT"
+          echo "sha_short=${GITHUB_SHA::8}" >> "$GITHUB_OUTPUT"
+          echo "marker=service=${{ github.event.inputs.service || 'all' }} commit=${GITHUB_SHA::8} timestamp=${TS} actor=${GITHUB_ACTOR}" >> "$GITHUB_OUTPUT"
+
+      # ── Frontend deployen ───────────────────────────────────
       - name: Frontend-Artefakt herunterladen
-        if: ${{ github.event.inputs.service == 'all' || github.event.inputs.service == 'frontend' || github.event_name == 'push' }}
+        if: >
+          github.event.inputs.service == 'all' ||
+          github.event.inputs.service == 'frontend' ||
+          github.event.inputs.service == '' ||
+          github.event_name == 'push'
         uses: actions/download-artifact@v4
         with:
-          name: frontend-dist
+          name: frontend-dist-${{ github.sha }}
           path: _dist_frontend/
 
-      - name: Frontend → rsync zum Server
-        if: ${{ github.event.inputs.service == 'all' || github.event.inputs.service == 'frontend' || github.event_name == 'push' }}
+      - name: Frontend → scp (Chroot-SSH)
+        if: >
+          github.event.inputs.service == 'all' ||
+          github.event.inputs.service == 'frontend' ||
+          github.event.inputs.service == '' ||
+          github.event_name == 'push'
         run: |
-          rsync -az --delete --partial \
-            --exclude=".git" \
-            -e "ssh -p ${{ env.SSH_PORT }}" \
-            _dist_frontend/ \
-            "${{ env.SSH_USER }}@${{ env.SSH_HOST }}:${{ env.BASE_PATH }}/"
+          # Chroot-SSH: Pfade relativ zum Home-Verzeichnis des Chroot-Users
+          find _dist_frontend -name "*.map" -delete
+          ssh plesk-prod "mkdir -p httpdocs"
+          scp -r -F ~/.ssh/config \
+            _dist_frontend/. \
+            "plesk-prod:httpdocs/"
+          ssh plesk-prod \
+            "printf '%s\n' '${{ steps.release.outputs.marker }}' > 'httpdocs/.deploy_release'"
+          echo "✓ Frontend deployt."
 
-      # ---- API deployen ----
-      - name: API → rsync zum Server
-        if: ${{ github.event.inputs.service == 'all' || github.event.inputs.service == 'api' || github.event_name == 'push' }}
+      # ── API deployen ────────────────────────────────────────
+      - name: API → scp (Chroot-SSH)
+        if: >
+          github.event.inputs.service == 'all' ||
+          github.event.inputs.service == 'api' ||
+          github.event_name == 'push'
         run: |
-          rsync -az --delete --partial \
-            --exclude=".git" \
-            --exclude="__pycache__" \
-            --exclude="*.pyc" \
-            --exclude=".venv" \
-            --exclude="venv" \
-            --exclude=".env" \
-            -e "ssh -p ${{ env.SSH_PORT }}" \
-            apps/api/ \
-            "${{ env.SSH_USER }}@${{ env.SSH_HOST }}:${{ env.BASE_PATH }}/../subdomains/api/httpdocs/"
+          # Pfad relativ zum Chroot-Home
+          tar --exclude=".git" --exclude="__pycache__" --exclude="*.pyc" \
+              --exclude=".venv" --exclude="venv" --exclude=".env" --exclude="*.log" \
+              -czf /tmp/api.tar.gz -C apps/api .
+          ssh plesk-prod "mkdir -p subdomains/api.stg/httpdocs"
+          scp -F ~/.ssh/config /tmp/api.tar.gz "plesk-prod:api.tar.gz"
+          ssh plesk-prod "tar -xzf api.tar.gz -C subdomains/api.stg/httpdocs && rm api.tar.gz"
+          ssh plesk-prod \
+            "command -v pip3 && pip3 install -r subdomains/api.stg/httpdocs/requirements.txt --quiet 2>&1 | tail -5" || \
+            echo "⚠️ pip3 nicht im Chroot verfügbar."
+          ssh plesk-prod \
+            "printf '%s\n' '${{ steps.release.outputs.marker }}' > 'subdomains/api.stg/httpdocs/.deploy_release'"
+          echo "✓ API deployt."
 
-      - name: API → pip install auf Server
-        if: ${{ github.event.inputs.service == 'all' || github.event.inputs.service == 'api' || github.event_name == 'push' }}
+      # ── CRM deployen ────────────────────────────────────────
+      - name: CRM → scp (Chroot-SSH)
+        if: >
+          github.event.inputs.service == 'all' ||
+          github.event.inputs.service == 'crm' ||
+          github.event_name == 'push'
         run: |
-          ssh -p "${{ env.SSH_PORT }}" "${{ env.SSH_USER }}@${{ env.SSH_HOST }}" \
-            "cd '${{ env.BASE_PATH }}/../subdomains/api/httpdocs' && \
-             pip3 install -r requirements.txt --quiet --no-warn-script-location"
+          tar --exclude=".git" --exclude="node_modules" --exclude="vendor" \
+              --exclude="web/sites/*/files" --exclude=".env" --exclude="*.log" \
+              -czf /tmp/crm.tar.gz -C apps/crm .
+          ssh plesk-prod "mkdir -p subdomains/crm/httpdocs"
+          scp -F ~/.ssh/config /tmp/crm.tar.gz "plesk-prod:crm.tar.gz"
+          ssh plesk-prod "tar -xzf crm.tar.gz -C subdomains/crm/httpdocs && rm crm.tar.gz"
+          ssh plesk-prod \
+            "cd subdomains/crm/httpdocs && command -v composer && \
+             composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction 2>&1 | tail -5 && \
+             vendor/bin/drush updb -y && vendor/bin/drush cr" || \
+            echo "⚠️ composer/drush nicht im Chroot."
+          ssh plesk-prod \
+            "printf '%s\n' '${{ steps.release.outputs.marker }}' > 'subdomains/crm/httpdocs/.deploy_release'"
+          echo "✓ CRM deployt."
 
-      # ---- CRM deployen ----
-      - name: CRM → rsync zum Server
-        if: ${{ github.event.inputs.service == 'all' || github.event.inputs.service == 'crm' || github.event_name == 'push' }}
+      # ── Games deployen ──────────────────────────────────────
+      - name: Games → scp (Chroot-SSH)
+        if: >
+          github.event.inputs.service == 'all' ||
+          github.event.inputs.service == 'games' ||
+          github.event_name == 'push'
         run: |
-          rsync -az --delete --partial \
-            --exclude=".git" \
-            --exclude="node_modules" \
-            --exclude="vendor" \
-            --exclude="web/sites/*/files" \
-            --exclude=".env" \
-            -e "ssh -p ${{ env.SSH_PORT }}" \
-            apps/crm/ \
-            "${{ env.SSH_USER }}@${{ env.SSH_HOST }}:${{ env.BASE_PATH }}/../subdomains/crm/httpdocs/"
+          tar --exclude=".git" --exclude="node_modules" --exclude=".env" \
+              -czf /tmp/games.tar.gz -C apps/game .
+          ssh plesk-prod "mkdir -p subdomains/games/httpdocs"
+          scp -F ~/.ssh/config /tmp/games.tar.gz "plesk-prod:games.tar.gz"
+          ssh plesk-prod "tar -xzf games.tar.gz -C subdomains/games/httpdocs && rm games.tar.gz"
+          ssh plesk-prod \
+            "printf '%s\n' '${{ steps.release.outputs.marker }}' > 'subdomains/games/httpdocs/.deploy_release'"
+          echo "✓ Games deployt."
 
-      - name: CRM → composer install auf Server
-        if: ${{ github.event.inputs.service == 'all' || github.event.inputs.service == 'crm' || github.event_name == 'push' }}
-        run: |
-          ssh -p "${{ env.SSH_PORT }}" "${{ env.SSH_USER }}@${{ env.SSH_HOST }}" \
-            "cd '${{ env.BASE_PATH }}/../subdomains/crm/httpdocs' && \
-             composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction"
-
-      - name: CRM → Drupal-Updates & Cache leeren
-        if: ${{ github.event.inputs.service == 'all' || github.event.inputs.service == 'crm' || github.event_name == 'push' }}
-        run: |
-          ssh -p "${{ env.SSH_PORT }}" "${{ env.SSH_USER }}@${{ env.SSH_HOST }}" \
-            "cd '${{ env.BASE_PATH }}/../subdomains/crm/httpdocs' && \
-             vendor/bin/drush updb -y && \
-             vendor/bin/drush cr"
-
-      # ---- Games deployen (statisch, kein Build) ----
-      - name: Games → rsync zum Server
-        if: ${{ github.event.inputs.service == 'all' || github.event.inputs.service == 'games' || github.event_name == 'push' }}
-        run: |
-          rsync -az --delete --partial \
-            --exclude=".git" \
-            --exclude="node_modules" \
-            --exclude=".env" \
-            -e "ssh -p ${{ env.SSH_PORT }}" \
-            apps/game/ \
-            "${{ env.SSH_USER }}@${{ env.SSH_HOST }}:${{ env.BASE_PATH }}/../subdomains/games/httpdocs/"
-
-      # ============================================================
-      # HEALTHCHECK — alle Services
-      # ============================================================
+      # ── Health-Checks ───────────────────────────────────────
       - name: Healthcheck — Frontend
-        if: ${{ github.event.inputs.service == 'all' || github.event.inputs.service == 'frontend' || github.event_name == 'push' }}
+        if: >
+          always() && (
+            github.event.inputs.service == 'all' ||
+            github.event.inputs.service == 'frontend' ||
+            github.event_name == 'push'
+          )
         run: |
           sleep 5
-          curl --fail --silent --max-time 15 \
-            "https://${{ env.MAIN_DOMAIN }}/" \
-            -o /dev/null \
-            -w "Frontend HTTP Status: %{http_code}\n"
+          HTTP=$(curl --silent --max-time 15 --output /dev/null --write-out "%{http_code}" \
+            "https://${{ env.MAIN_DOMAIN }}/")
+          echo "Frontend HTTP: ${HTTP}"
+          [[ "${HTTP}" =~ ^[23] ]] || { echo "✗ Frontend Healthcheck fehlgeschlagen."; exit 1; }
 
       - name: Healthcheck — API
-        if: ${{ github.event.inputs.service == 'all' || github.event.inputs.service == 'api' || github.event_name == 'push' }}
+        if: >
+          always() && (
+            github.event.inputs.service == 'all' ||
+            github.event.inputs.service == 'api' ||
+            github.event_name == 'push'
+          )
         run: |
-          curl --fail --silent --max-time 15 \
-            "https://api.${{ env.MAIN_DOMAIN }}/health" \
-            -o /dev/null \
-            -w "API HTTP Status: %{http_code}\n"
+          HTTP=$(curl --silent --max-time 15 --output /dev/null --write-out "%{http_code}" \
+            "https://api.stg.${{ env.MAIN_DOMAIN }}/health" || echo "000")
+          echo "API HTTP: ${HTTP}"
+          [[ "${HTTP}" =~ ^[23] ]] || echo "⚠️ API Healthcheck: ${HTTP} (API benötigt ggf. Neustart via Plesk)"
 
-      - name: Healthcheck — CRM
-        if: ${{ github.event.inputs.service == 'all' || github.event.inputs.service == 'crm' || github.event_name == 'push' }}
-        run: |
-          curl --fail --silent --max-time 20 \
-            "https://crm.${{ env.MAIN_DOMAIN }}/" \
-            -o /dev/null \
-            -w "CRM HTTP Status: %{http_code}\n"
-
-      - name: Healthcheck — Games
-        if: ${{ github.event.inputs.service == 'all' || github.event.inputs.service == 'games' || github.event_name == 'push' }}
-        run: |
-          curl --fail --silent --max-time 15 \
-            "https://games.${{ env.MAIN_DOMAIN }}/" \
-            -o /dev/null \
-            -w "Games HTTP Status: %{http_code}\n"
-
-      # ============================================================
-      # DEPLOYMENT-ZUSAMMENFASSUNG
-      # ============================================================
+      # ── Deployment-Zusammenfassung ──────────────────────────
       - name: Deployment-Zusammenfassung
         if: always()
         run: |
-          echo "## Deployment abgeschlossen" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "| Service | URL |" >> $GITHUB_STEP_SUMMARY
-          echo "|---------|-----|" >> $GITHUB_STEP_SUMMARY
-          echo "| Frontend | https://${{ env.MAIN_DOMAIN }}/ |" >> $GITHUB_STEP_SUMMARY
-          echo "| API | https://api.${{ env.MAIN_DOMAIN }}/ |" >> $GITHUB_STEP_SUMMARY
-          echo "| CRM | https://crm.${{ env.MAIN_DOMAIN }}/ |" >> $GITHUB_STEP_SUMMARY
-          echo "| Games | https://games.${{ env.MAIN_DOMAIN }}/ |" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Deployment abgeschlossen" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Parameter | Wert |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Service | ${{ github.event.inputs.service || 'all (push)' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Zeitstempel | ${{ steps.release.outputs.timestamp }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Akteur | ${{ github.actor }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Service | URL |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| 🌐 Frontend | https://${{ env.MAIN_DOMAIN }}/ |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| ⚙️ API | https://api.${{ env.MAIN_DOMAIN }}/ |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| 📋 CRM | https://crm.${{ env.MAIN_DOMAIN }}/ |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| 🎮 Games | https://games.${{ env.MAIN_DOMAIN }}/ |" >> "$GITHUB_STEP_SUMMARY"

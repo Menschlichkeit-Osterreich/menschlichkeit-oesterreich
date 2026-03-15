@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
+import SeoHead from '../components/seo/SeoHead';
 import { Alert } from '../components/ui/Alert';
 import { triggerReceipt, downloadReceipt } from '../services/receipts';
 import { useAuth } from '../auth/AuthContext';
@@ -47,6 +48,11 @@ export default function SuccessPage() {
 
   return (
     <div className="mx-auto max-w-3xl p-4 space-y-3">
+      <SeoHead
+        title="Vielen Dank – Menschlichkeit Österreich"
+        description="Ihre Aktion war erfolgreich. Vielen Dank für Ihre Unterstützung von Menschlichkeit Österreich."
+        noIndex={true}
+      />
       <Breadcrumb items={[{ label: 'Erfolg' }]} />
       <h1 className="text-2xl font-semibold">Vielen Dank!</h1>
       {message && <Alert variant="success">{message}</Alert>}

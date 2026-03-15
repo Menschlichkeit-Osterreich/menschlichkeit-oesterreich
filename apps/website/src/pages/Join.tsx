@@ -1,12 +1,3 @@
-/**
- * Mitglied werden – 4-Schritt-Wizard
- * Issue #120: [P0] Mitgliedschafts-Flow (Stripe/SEPA)
- *
- * Schritt 1: Persönliche Daten
- * Schritt 2: Mitgliedschaftskategorie
- * Schritt 3: Zahlung (Stripe-Karte ODER SEPA-Lastschrift)
- * Schritt 4: Zusammenfassung + DSGVO-Bestätigungen + Absenden
- */
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '../components/ui/Card';
@@ -14,6 +5,7 @@ import { Button } from '../components/ui/Button';
 import { Alert } from '../components/ui/Alert';
 import { Input } from '../components/ui/Input';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
+import SeoHead from '../components/seo/SeoHead';
 import { api, CreateMembershipRequest } from '../services/api';
 
 // ── Typen ──────────────────────────────────────────────────────────────────
@@ -376,7 +368,11 @@ export default function JoinPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl p-4 space-y-4">
+    <div className="mx-auto max-w-3xl p-4 space-y-4">
+      <SeoHead
+        title="Mitglied werden – Menschlichkeit Österreich"
+        description="Werden Sie Mitglied bei Menschlichkeit Österreich und setzen Sie sich gemeinsam mit uns für Demokratie, Menschenrechte und soziale Gerechtigkeit ein. Jetzt beitreten."
+      />
       <Breadcrumb items={[{ label: 'Mitglied werden' }]} />
       <h1 className="text-2xl font-bold">Mitglied werden</h1>
       <p className="text-secondary-600 text-sm">
@@ -385,8 +381,115 @@ export default function JoinPage() {
 
       {error && <Alert variant="error">{error}</Alert>}
 
-      <Card className="p-6">
-        <ProgressBar current={step} />
+      <Card className="p-4">
+        <form onSubmit={onSubmit} noValidate aria-describedby="legal-hinweise">
+          <fieldset className="grid gap-3" disabled={submitting}>
+            <legend className="sr-only">Persönliche Angaben</legend>
+            <label className="block">
+              <span className="block text-sm font-medium">Vorname *</span>
+              <input
+                className="mt-1 w-full rounded border p-2"
+                name="firstName"
+                autoComplete="given-name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+              />
+            </label>
+            <label className="block">
+              <span className="block text-sm font-medium">Nachname *</span>
+              <input
+                className="mt-1 w-full rounded border p-2"
+                name="lastName"
+                autoComplete="family-name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+              />
+            </label>
+            <label className="block">
+              <span className="block text-sm font-medium">E‑Mail *</span>
+              <input
+                className="mt-1 w-full rounded border p-2"
+                name="email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </label>
+            <label className="block">
+              <span className="block text-sm font-medium">Telefon (optional)</span>
+              <input
+                className="mt-1 w-full rounded border p-2"
+                name="phone"
+                type="tel"
+                autoComplete="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            </label>
+
+            <fieldset className="mt-2">
+              <legend className="text-sm font-medium">Mitgliedsart *</legend>
+              <div className="mt-1 flex flex-wrap gap-4">
+                {(
+                  [
+                    { key: 'ordentlich', label: 'Ordentlich' },
+                    { key: 'ausserordentlich', label: 'Außerordentlich' },
+                    { key: 'ehrenmitglied', label: 'Ehrenmitglied' },
+                  ] as const
+                ).map((opt) => (
+                  <label key={opt.key} className="inline-flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="membershipType"
+                      value={opt.key}
+                      checked={type === opt.key}
+                      onChange={() => setType(opt.key)}
+                      required
+                    />
+                    <span>{opt.label}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+
+            <label className="block mt-2">
+              <span className="text-sm font-medium">Beitragskategorie *</span>
+              <select
+                className="mt-1 w-full rounded border p-2"
+                value={category}
+                onChange={(e) => setCategory(e.target.value as FeeCategory)}
+                required
+              >
+                <option value="standard">Standard</option>
+                <option value="ermaessigt">Ermäßigt</option>
+                <option value="haertefall">Härtefall</option>
+              </select>
+            </label>
+
+            <div id="legal-hinweise" className="mt-3 space-y-2">
+              <label className="flex items-start gap-2">
+                <input type="checkbox" checked={agreeStatuten} onChange={(e) => setAgreeStatuten(e.target.checked)} required />
+                <span>Ich erkenne die Statuten an.</span>
+              </label>
+              <label className="flex items-start gap-2">
+                <input type="checkbox" checked={agreeDSGVO} onChange={(e) => setAgreeDSGVO(e.target.checked)} required />
+                <span>Ich willige in die Verarbeitung meiner Daten gemäß DSGVO ein.</span>
+              </label>
+              <label className="flex items-start gap-2">
+                <input
+                  type="checkbox"
+                  checked={agreeBeitragsordnung}
+                  onChange={(e) => setAgreeBeitragsordnung(e.target.checked)}
+                  required
+                />
+                <span>Ich akzeptiere die Beitragsordnung 2025.</span>
+              </label>
+              <p className="text-xs text-secondary-600">Austritt (Statuten §6), Ausschluss (§6), Schiedsgericht (§12), Widerrufsrecht DSGVO (Art. 7 Abs. 3).</p>
+            </div>
 
         {/* Schritt-Inhalte mit Wrapper für Weiter/Zurück über onClick */}
         <div onClick={(e) => {

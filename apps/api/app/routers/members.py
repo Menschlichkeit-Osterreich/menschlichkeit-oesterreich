@@ -1,262 +1,140 @@
-"""
-Menschlichkeit Österreich – Members Router
-Issues #119 (Auth/Dashboard), #121 (GDPR-Dashboard & Profil)
-
-Endpunkte:
-  GET  /api/members/me/profile          → Eigenes Profil
-  PUT  /api/members/me/profile          → Profil aktualisieren
-  GET  /api/members/me/invoices         → Eigene Rechnungen
-  GET  /api/members/me/donations        → Eigene Spenden
-  POST /api/members/me/data-export      → DSGVO-Datenexport anfordern
-  POST /api/members/me/delete-request   → Löschantrag (DSGVO Art. 17)
-"""
-
 from __future__ import annotations
 
 import logging
-import os
-from typing import Annotated
+from uuid import uuid4
 
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
-from pydantic import BaseModel, EmailStr, Field
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from ..db import get_db
-from .auth import get_current_user
+from ..db import fetch, fetchrow, fetchval, execute
+from ..rbac import Role, require_auth, require_role
+from ..schemas.members import (
+    MemberListResponse,
+    MemberResponse,
+    MemberUpdate,
+)
 
-logger = logging.getLogger("menschlichkeit.api.members")
-
-router = APIRouter(prefix="/api/members", tags=["Mitglieder"])
-
-
-# ── Pydantic-Modelle ────────────────────────────────────────────────────────
-
-class ProfileUpdate(BaseModel):
-    first_name: str | None = Field(default=None, min_length=1, max_length=100)
-    last_name:  str | None = Field(default=None, min_length=1, max_length=100)
-    phone:      str | None = Field(default=None, max_length=30)
-
-class InvoiceItem(BaseModel):
-    id:             int
-    invoice_number: str
-    total_amount:   float
-    currency:       str
-    issue_date:     str
-    due_date:       str
-    status:         str
-    invoice_type:   str
-    pdf_path:       str | None
-
-class DonationItem(BaseModel):
-    id:            int
-    amount:        float
-    currency:      str
-    donation_type: str
-    status:        str
-    donation_date: str
-    receipt_eligible: bool
-
-class DataExportRequest(BaseModel):
-    reason: str | None = None
-
-class DeleteRequest(BaseModel):
-    reason:   str
-    confirm:  bool = Field(description="Muss true sein um zu bestätigen")
+logger = logging.getLogger("menschlichkeit.members")
+router = APIRouter()
 
 
-# ── Endpunkte ───────────────────────────────────────────────────────────────
-
-@router.get("/me/profile", summary="Eigenes Profil abrufen")
-async def get_profile(
-    current_user: Annotated[dict, Depends(get_current_user)],
-    db=Depends(get_db),
-):
-    """Gibt Profildaten des aktuell eingeloggten Mitglieds zurück."""
-    return {
-        "id":         current_user["id"],
-        "email":      current_user["email"],
-        "first_name": current_user["first_name"],
-        "last_name":  current_user["last_name"],
-        "role":       current_user["role"],
-        "civicrm_id": current_user.get("civicrm_contact_id"),
-    }
-
-
-@router.put("/me/profile", summary="Eigenes Profil aktualisieren")
-async def update_profile(
-    body: ProfileUpdate,
-    current_user: Annotated[dict, Depends(get_current_user)],
-    db=Depends(get_db),
-):
-    """Aktualisiert Vorname, Nachname und/oder Telefonnummer."""
-    updates = {k: v for k, v in body.model_dump().items() if v is not None}
-    if not updates:
-        raise HTTPException(status_code=400, detail="Keine Felder zum Aktualisieren angegeben.")
-
-    set_clauses = ", ".join(
-        f"{col} = ${i + 2}" for i, col in enumerate(updates.keys())
+def _row_to_response(row: dict) -> MemberResponse:
+    return MemberResponse(
+        id=str(row["id"]),
+        email=row["email"],
+        vorname=row.get("vorname", ""),
+        nachname=row.get("nachname", ""),
+        mitgliedschaft_typ=row.get("mitgliedschaft_typ", "ordentlich"),
+        status=row.get("status", "Active"),
+        rolle=row.get("rolle", "member"),
+        joined_at=str(row["joined_at"]) if row.get("joined_at") else None,
+        created_at=str(row["created_at"]) if row.get("created_at") else None,
     )
-    values = [current_user["id"]] + list(updates.values())
-
-    await db.execute(
-        f"UPDATE users SET {set_clauses}, updated_at = NOW() WHERE id = $1",
-        *values,
-    )
-    logger.info(f"Profil aktualisiert: user_id={current_user['id']} felder={list(updates.keys())}")
-    return {"message": "Profil erfolgreich aktualisiert."}
 
 
-@router.get("/me/invoices", response_model=list[InvoiceItem], summary="Eigene Rechnungen")
-async def get_my_invoices(
-    current_user: Annotated[dict, Depends(get_current_user)],
-    db=Depends(get_db),
+@router.get("/members", response_model=MemberListResponse)
+async def list_members(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    search: str = Query("", max_length=200),
+    status_filter: str = Query("", max_length=50),
+    user: dict = require_role(Role.MODERATOR),
 ):
-    """Gibt alle Rechnungen des aktuellen Mitglieds zurück."""
-    contact_id = current_user.get("civicrm_contact_id")
-    if not contact_id:
-        return []
+    offset = (page - 1) * page_size
+    conditions = ["1=1"]
+    params: list = []
+    idx = 1
 
-    rows = await db.fetch(
-        """
-        SELECT id, invoice_number, total_amount, currency,
-               issue_date::text, due_date::text, status, invoice_type, pdf_path
-        FROM invoices
-        WHERE civicrm_contact_id = $1
-        ORDER BY issue_date DESC
-        LIMIT 50
-        """,
-        contact_id,
+    if search:
+        conditions.append(f"(LOWER(vorname) LIKE LOWER(${idx}) OR LOWER(nachname) LIKE LOWER(${idx}) OR LOWER(email) LIKE LOWER(${idx}))")
+        params.append(f"%{search}%")
+        idx += 1
+
+    if status_filter:
+        conditions.append(f"status = ${idx}")
+        params.append(status_filter)
+        idx += 1
+
+    where_clause = " AND ".join(conditions)
+
+    total = await fetchval(f"SELECT COUNT(*) FROM members WHERE {where_clause}", *params) or 0
+
+    params.append(page_size)
+    params.append(offset)
+    rows = await fetch(
+        f"SELECT * FROM members WHERE {where_clause} ORDER BY created_at DESC LIMIT ${idx} OFFSET ${idx+1}",
+        *params,
     )
-    return [dict(r) for r in rows]
+
+    members = [_row_to_response(dict(r)) for r in rows]
+    return MemberListResponse(data=members, total=int(total), page=page, page_size=page_size)
 
 
-@router.get("/me/donations", response_model=list[DonationItem], summary="Eigene Spenden")
-async def get_my_donations(
-    current_user: Annotated[dict, Depends(get_current_user)],
-    db=Depends(get_db),
-):
-    """Gibt alle Spenden des aktuellen Mitglieds zurück."""
-    contact_id = current_user.get("civicrm_contact_id")
-    if not contact_id:
-        return []
-
-    rows = await db.fetch(
-        """
-        SELECT id, amount, currency, donation_type, status,
-               donation_date::text, receipt_eligible
-        FROM donations
-        WHERE civicrm_contact_id = $1
-        ORDER BY donation_date DESC
-        LIMIT 50
-        """,
-        contact_id,
-    )
-    return [dict(r) for r in rows]
+@router.get("/members/me/profile", response_model=MemberResponse)
+async def get_my_profile(user: dict = Depends(require_auth)):
+    uid = user.get("uid")
+    if not uid:
+        raise HTTPException(status_code=400, detail="Benutzer-ID fehlt im Token")
+    row = await fetchrow("SELECT * FROM members WHERE id = $1", uid)
+    if not row:
+        raise HTTPException(status_code=404, detail="Profil nicht gefunden")
+    return _row_to_response(dict(row))
 
 
-@router.post("/me/data-export", status_code=status.HTTP_202_ACCEPTED,
-             summary="DSGVO-Datenexport anfordern (Art. 15)")
-async def request_data_export(
-    body: DataExportRequest,
-    background_tasks: BackgroundTasks,
-    current_user: Annotated[dict, Depends(get_current_user)],
-    db=Depends(get_db),
-):
-    """
-    Löst einen DSGVO-Datenexport (Art. 15) aus.
-    Der Export wird per E-Mail innerhalb von 30 Tagen zugesendet.
-    Wird via n8n-Webhook ausgeführt.
-    """
-    background_tasks.add_task(
-        _trigger_data_export,
-        current_user["id"],
-        current_user["email"],
-        current_user["first_name"],
-    )
-    logger.info(f"Datenexport angefordert: user_id={current_user['id']}")
-
-    await db.execute(
-        """
-        INSERT INTO audit_log (actor, action, entity_type, entity_id, notes)
-        VALUES ($1, 'data_export_requested', 'user', $2, $3)
-        """,
-        current_user["email"],
-        str(current_user["id"]),
-        body.reason,
-    )
-    return {"message": "Ihr Datenexport wurde angefordert. Sie erhalten in Kürze eine E-Mail."}
-
-
-@router.post("/me/delete-request", status_code=status.HTTP_202_ACCEPTED,
-             summary="Löschantrag stellen (DSGVO Art. 17)")
-async def request_account_deletion(
-    body: DeleteRequest,
-    background_tasks: BackgroundTasks,
-    current_user: Annotated[dict, Depends(get_current_user)],
-    db=Depends(get_db),
-):
-    """
-    Stellt einen DSGVO-Löschantrag (Art. 17).
-    Wird manuell vom Admin-Team geprüft und ausgeführt.
-    """
-    if not body.confirm:
+@router.get("/members/{member_id}", response_model=MemberResponse)
+async def get_member(member_id: str, user: dict = Depends(require_auth)):
+    uid = user.get("uid")
+    role = user.get("role", "member")
+    if uid != member_id and role not in ("moderator", "admin", "sysadmin"):
         raise HTTPException(
-            status_code=400,
-            detail="Bitte bestätigen Sie den Löschantrag indem Sie 'confirm' auf true setzen.",
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Zugriff nur auf eigenes Profil oder mit Moderator-/Admin-Rechten",
+        )
+    row = await fetchrow("SELECT * FROM members WHERE id = $1", member_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Mitglied nicht gefunden")
+    return _row_to_response(dict(row))
+
+
+@router.put("/members/{member_id}", response_model=MemberResponse)
+async def update_member(member_id: str, body: MemberUpdate, user: dict = require_role(Role.ADMIN)):
+    row = await fetchrow("SELECT * FROM members WHERE id = $1", member_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Mitglied nicht gefunden")
+
+    updates = {}
+    if body.vorname is not None:
+        updates["vorname"] = body.vorname
+    if body.nachname is not None:
+        updates["nachname"] = body.nachname
+    if body.email is not None:
+        updates["email"] = body.email
+    if body.mitgliedschaft_typ is not None:
+        updates["mitgliedschaft_typ"] = body.mitgliedschaft_typ
+    if body.status is not None:
+        updates["status"] = body.status
+    if body.rolle is not None:
+        updates["rolle"] = body.rolle
+
+    if updates:
+        set_clauses = []
+        params = []
+        for i, (key, val) in enumerate(updates.items(), 1):
+            set_clauses.append(f"{key} = ${i}")
+            params.append(val)
+        params.append(member_id)
+        await execute(
+            f"UPDATE members SET {', '.join(set_clauses)}, updated_at = NOW() WHERE id = ${len(params)}",
+            *params,
         )
 
-    await db.execute(
-        """
-        INSERT INTO audit_log (actor, action, entity_type, entity_id, notes)
-        VALUES ($1, 'deletion_requested', 'user', $2, $3)
-        """,
-        current_user["email"],
-        str(current_user["id"]),
-        body.reason,
-    )
-
-    background_tasks.add_task(
-        _notify_admin_deletion_request,
-        current_user["id"],
-        current_user["email"],
-        body.reason,
-    )
-
-    logger.info(f"Löschantrag gestellt: user_id={current_user['id']}")
-    return {
-        "message": (
-            "Ihr Löschantrag wurde eingereicht. Das Admin-Team wird sich innerhalb von 30 Tagen "
-            "bei Ihnen melden."
-        )
-    }
+    updated = await fetchrow("SELECT * FROM members WHERE id = $1", member_id)
+    return _row_to_response(dict(updated))
 
 
-# ── Hintergrund-Tasks ───────────────────────────────────────────────────────
-
-async def _trigger_data_export(user_id: int, email: str, first_name: str) -> None:
-    """Sendet Datenexport-Anfrage an n8n-Webhook."""
-    import httpx
-    n8n_url = os.getenv("N8N_WEBHOOK_URL", "http://localhost:5678")
-    try:
-        async with httpx.AsyncClient(timeout=10) as client:
-            await client.post(f"{n8n_url}/webhook/dsgvo-data-export", json={
-                "user_id":    user_id,
-                "email":      email,
-                "first_name": first_name,
-            })
-    except Exception as exc:
-        logger.error(f"Fehler beim Auslösen des Datenexports für user_id={user_id}: {exc}")
-
-
-async def _notify_admin_deletion_request(user_id: int, email: str, reason: str) -> None:
-    """Benachrichtigt Admin-Team über Löschantrag via n8n-Webhook."""
-    import httpx
-    n8n_url = os.getenv("N8N_WEBHOOK_URL", "http://localhost:5678")
-    try:
-        async with httpx.AsyncClient(timeout=10) as client:
-            await client.post(f"{n8n_url}/webhook/dsgvo-deletion-request", json={
-                "user_id": user_id,
-                "email":   email,
-                "reason":  reason,
-            })
-    except Exception as exc:
-        logger.error(f"Fehler beim Senden des Löschantrags für user_id={user_id}: {exc}")
+@router.delete("/members/{member_id}")
+async def delete_member(member_id: str, user: dict = require_role(Role.ADMIN)):
+    row = await fetchrow("SELECT * FROM members WHERE id = $1", member_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Mitglied nicht gefunden")
+    await execute("DELETE FROM members WHERE id = $1", member_id)
+    return {"success": True, "message": "Mitglied gelöscht"}

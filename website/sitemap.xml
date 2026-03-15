@@ -1,94 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
-
-  <!-- Startseite -->
-  <url>
-    <loc>https://menschlichkeit-oesterreich.at/</loc>
-    <lastmod>2026-02-28</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="de-AT" href="https://menschlichkeit-oesterreich.at/"/>
-  </url>
-
-  <!-- Über uns -->
-  <url>
-    <loc>https://menschlichkeit-oesterreich.at/ueber-uns</loc>
-    <lastmod>2026-02-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <!-- Mitmachen -->
-  <url>
-    <loc>https://menschlichkeit-oesterreich.at/mitmachen</loc>
-    <lastmod>2026-02-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-
-  <!-- Mitglied werden -->
-  <url>
-    <loc>https://menschlichkeit-oesterreich.at/mitglied-werden</loc>
-    <lastmod>2026-02-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Spenden -->
-  <url>
-    <loc>https://menschlichkeit-oesterreich.at/spenden</loc>
-    <lastmod>2026-02-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <!-- Kontakt -->
-  <url>
-    <loc>https://menschlichkeit-oesterreich.at/kontakt</loc>
-    <lastmod>2026-02-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <!-- Verein -->
-  <url>
-    <loc>https://menschlichkeit-oesterreich.at/verein</loc>
-    <lastmod>2026-02-28</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-
-  <!-- Statuten -->
-  <url>
-    <loc>https://menschlichkeit-oesterreich.at/statuten</loc>
-    <lastmod>2026-02-28</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
-  </url>
-
-  <!-- Beitragsordnung -->
-  <url>
-    <loc>https://menschlichkeit-oesterreich.at/beitragsordnung</loc>
-    <lastmod>2026-02-28</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.5</priority>
-  </url>
-
-  <!-- Datenschutz -->
-  <url>
-    <loc>https://menschlichkeit-oesterreich.at/datenschutz</loc>
-    <lastmod>2026-02-28</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.4</priority>
-  </url>
-
-  <!-- Impressum -->
-  <url>
-    <loc>https://menschlichkeit-oesterreich.at/impressum</loc>
-    <lastmod>2026-02-28</lastmod>
-    <changefreq>yearly</changefreq>
-    <priority>0.3</priority>
-  </url>
-
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://www.menschlichkeit-oesterreich.at/index.html</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://www.menschlichkeit-oesterreich.at/ueber-uns.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.menschlichkeit-oesterreich.at/team.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.menschlichkeit-oesterreich.at/mitmachen.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.menschlichkeit-oesterreich.at/mitgliedschaft.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.menschlichkeit-oesterreich.at/spenden.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.menschlichkeit-oesterreich.at/veranstaltungen.html</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.menschlichkeit-oesterreich.at/beitraege.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.menschlichkeit-oesterreich.at/kampagnen.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.menschlichkeit-oesterreich.at/transparenz.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.menschlichkeit-oesterreich.at/wirkung.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.menschlichkeit-oesterreich.at/faq.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.menschlichkeit-oesterreich.at/kontakt.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.menschlichkeit-oesterreich.at/presse.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.menschlichkeit-oesterreich.at/impressum.html</loc><changefreq>yearly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://www.menschlichkeit-oesterreich.at/datenschutz.html</loc><changefreq>yearly</changefreq><priority>0.4</priority></url>
 </urlset>

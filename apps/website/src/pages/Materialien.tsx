@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Download, Search, FileText, Presentation, Image, Film, Filter } from 'lucide-react';
+import SeoHead from '../components/seo/SeoHead';
 
 interface Material {
   id: string;
@@ -200,6 +201,10 @@ export default function Materialien() {
 
   return (
     <div className="min-h-screen bg-semantic-background">
+      <SeoHead
+        title="Materialien – Unterrichtsmaterial zu Demokratie &amp; Menschenrechten"
+        description="Kostenlose Arbeitsblätter, Präsentationen, Broschüren und Videos zu Demokratie, Menschenrechten und Zivilgesellschaft – für Schule, Jugendarbeit und Erwachsenenbildung."
+      />
       {/* Hero */}
       <section className="bg-gradient-to-br from-secondary-800 to-secondary-900 text-white py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">

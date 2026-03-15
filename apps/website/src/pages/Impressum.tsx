@@ -1,8 +1,13 @@
 import React from 'react';
+import SeoHead from '../components/seo/SeoHead';
 
 export default function Impressum() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-3xl">
+      <SeoHead
+        title="Impressum – Menschlichkeit Österreich"
+        description="Impressum des Vereins Menschlichkeit Österreich gemäß § 25 MedienG. ZVR: 1182213083."
+      />
       <h1 className="text-3xl font-bold mb-2">Impressum</h1>
       <p className="text-gray-500 mb-8">Angaben gemäß § 25 MedienG und § 14 UGB</p>
 
@@ -11,8 +16,8 @@ export default function Impressum() {
           <h2 className="text-xl font-semibold mb-3">Herausgeber &amp; Medieninhaber</h2>
           <address className="not-italic text-gray-700 leading-relaxed">
             <strong>Verein Menschlichkeit Österreich</strong><br />
-            Pottenbrunner Hauptstraße 108/1<br />
-            3140 St. Pölten<br />
+            Pottenbrunner Hauptstraße 108/Top 1<br />
+            3140 Pottenbrunn<br />
             Österreich
           </address>
         </section>
@@ -22,10 +27,10 @@ export default function Impressum() {
           <p className="text-gray-700">
             E-Mail:{' '}
             <a
-              href="mailto:menschlichkeit-oesterreich@outlook.at"
+              href="mailto:kontakt@menschlichkeit-oesterreich.at"
               className="text-primary-600 hover:underline"
             >
-              menschlichkeit-oesterreich@outlook.at
+              kontakt@menschlichkeit-oesterreich.at
             </a>
           </p>
         </section>
@@ -36,7 +41,7 @@ export default function Impressum() {
             <dt className="font-medium">ZVR-Zahl</dt>
             <dd>1182213083</dd>
             <dt className="font-medium">Vereinsbehörde</dt>
-            <dd>Bezirkshauptmannschaft St. Pölten</dd>
+            <dd>Landespolizeidirektion Niederösterreich (LPD NÖ)</dd>
             <dt className="font-medium">Gründungsdatum</dt>
             <dd>28. Mai 2025</dd>
             <dt className="font-medium">Gemeinnützigkeit</dt>

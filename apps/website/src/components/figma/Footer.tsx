@@ -71,14 +71,14 @@ export function Footer({ className }: FooterProps) {
               Kontakt &amp; Rechtliches
             </h3>
             <address className="not-italic text-gray-400 text-sm space-y-2 mb-4">
-              <p>Pottenbrunner Hauptstraße 108/1</p>
-              <p>3140 St. Pölten</p>
+              <p>Pottenbrunner Hauptstraße 108/Top 1</p>
+              <p>3140 Pottenbrunn</p>
               <p>
                 <a
-                  href="mailto:menschlichkeit-oesterreich@outlook.at"
+                  href="mailto:kontakt@menschlichkeit-oesterreich.at"
                   className="hover:text-white transition-colors"
                 >
-                  menschlichkeit-oesterreich@outlook.at
+                  kontakt@menschlichkeit-oesterreich.at
                 </a>
               </p>
             </address>
