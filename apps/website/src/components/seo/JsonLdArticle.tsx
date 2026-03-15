@@ -1,4 +1,5 @@
 import React from 'react';
+import JsonLdScript from './JsonLdScript';
 
 interface JsonLdArticleProps {
   title: string;
@@ -56,10 +57,5 @@ export default function JsonLdArticle({
     };
   }
 
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-    />
-  );
+  return <JsonLdScript schema={schema} />;
 }

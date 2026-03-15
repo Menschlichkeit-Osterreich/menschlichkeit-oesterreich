@@ -1,6 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router-dom';
+import { serializeJsonLd } from '../../utils/jsonLd';
 
 const SITE_NAME = 'Menschlichkeit Österreich';
 const SITE_URL = 'https://www.menschlichkeit-oesterreich.at';
@@ -65,11 +66,9 @@ export default function SeoHead({
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={ogImage} />
 
-      {/* Per-page structured data */}
+      {/* Per-page structured data — safe serialization via serializeJsonLd */}
       {schemas.map((schema, i) => (
-        <script key={i} type="application/ld+json">
-          {JSON.stringify(schema)}
-        </script>
+        <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(schema) }} />
       ))}
     </Helmet>
   );

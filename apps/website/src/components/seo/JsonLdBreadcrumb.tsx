@@ -1,4 +1,5 @@
 import React from 'react';
+import JsonLdScript from './JsonLdScript';
 
 interface BreadcrumbItem {
   name: string;
@@ -31,10 +32,5 @@ export default function JsonLdBreadcrumb({ items }: JsonLdBreadcrumbProps) {
     })),
   };
 
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-    />
-  );
+  return <JsonLdScript schema={schema} />;
 }

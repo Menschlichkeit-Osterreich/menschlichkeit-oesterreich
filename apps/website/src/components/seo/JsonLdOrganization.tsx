@@ -1,4 +1,5 @@
 import React from 'react';
+import JsonLdScript from './JsonLdScript';
 
 /**
  * Shared NGO/Organization JSON-LD schema.
@@ -61,10 +62,5 @@ const ORGANIZATION_SCHEMA = {
 };
 
 export default function JsonLdOrganization() {
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(ORGANIZATION_SCHEMA) }}
-    />
-  );
+  return <JsonLdScript schema={ORGANIZATION_SCHEMA} />;
 }

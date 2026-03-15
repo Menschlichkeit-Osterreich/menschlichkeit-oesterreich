@@ -1,4 +1,5 @@
 import React from 'react';
+import JsonLdScript from './JsonLdScript';
 
 const JsonLdHome = () => {
   const structuredData = {
@@ -51,12 +52,7 @@ const JsonLdHome = () => {
     ]
   };
 
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-    />
-  );
+  return <JsonLdScript schema={structuredData} />;
 };
 
 export default JsonLdHome;

@@ -96,7 +96,7 @@ async function prerender() {
       const outputDir =
         route === '/'
           ? DIST
-          : join(DIST, route.slice(1).replace(/\//g, '/'));
+          : join(DIST, route.slice(1));
       mkdirSync(outputDir, { recursive: true });
       const outputPath = join(outputDir, 'index.html');
 
