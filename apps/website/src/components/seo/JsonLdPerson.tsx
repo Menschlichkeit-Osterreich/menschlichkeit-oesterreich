@@ -1,4 +1,5 @@
 import React from 'react';
+import JsonLdScript from './JsonLdScript';
 
 interface JsonLdPersonProps {
   name: string;
@@ -26,10 +27,5 @@ export default function JsonLdPerson({ name, jobTitle, description, url }: JsonL
   if (description) schema.description = description;
   if (url) schema.url = url;
 
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
-    />
-  );
+  return <JsonLdScript schema={schema} />;
 }
