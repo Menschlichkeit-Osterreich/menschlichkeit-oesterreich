@@ -110,12 +110,11 @@ export default function App() {
             <Route element={<AuthLayout />}>
               <Route path="/login" element={<Login />} />
               <Route path="/Login" element={<Login />} />
-              <Route path="/passwort-vergessen" element={<PasswordResetPage />} />
-              <Route path="/passwort-reset" element={<PasswordResetPage />} />
+              <Route path="/passwort-vergessen" element={<PasswordReset />} />
+              <Route path="/passwort-reset" element={<PasswordReset />} />
             </Route>
 
             <Route path="/registrieren" element={<Register />} />
-            <Route path="/passwort-vergessen" element={<PasswordReset />} />
 
             <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
               <Route path="/member" element={<MemberArea />} />
