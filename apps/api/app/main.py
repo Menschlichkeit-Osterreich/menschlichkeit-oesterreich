@@ -265,7 +265,13 @@ async def healthz():
 @app.get("/readyz", tags=["Health"], summary="Readiness Check")
 async def readyz():
     """Readiness-Check – prüft DB-Verbindung und externe Services."""
-    checks: dict[str, str] = {"database": "ok"}  # Wird durch echte DB-Prüfung ersetzt
+    from .db import fetchval
+    checks: dict[str, str] = {}
+    try:
+        await fetchval("SELECT 1")
+        checks["database"] = "ok"
+    except Exception as exc:
+        checks["database"] = f"error: {exc}"
     all_ok = all(v == "ok" for v in checks.values())
     return JSONResponse(
         status_code=200 if all_ok else 503,

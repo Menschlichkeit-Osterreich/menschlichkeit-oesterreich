@@ -17,8 +17,9 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 logger = logging.getLogger("menschlichkeit.rbac")
 
 _jwt_secret_raw = os.getenv("JWT_SECRET_KEY", "")
+_is_production = os.getenv("APP_ENV", "production") == "production"
 if not _jwt_secret_raw:
-    if os.getenv("REPLIT_DEV_DOMAIN"):
+    if os.getenv("REPLIT_DEV_DOMAIN") and not _is_production:
         _jwt_secret_raw = "replit-dev-only-not-for-production"
         logger.warning("JWT_SECRET_KEY nicht gesetzt – verwende Entwicklungs-Fallback. NICHT für Produktion geeignet!")
     else:

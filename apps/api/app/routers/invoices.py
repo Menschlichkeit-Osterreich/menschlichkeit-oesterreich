@@ -23,8 +23,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Query, status, BackgroundTasks
 from pydantic import BaseModel
 
-from ..db import get_db
-from .auth import get_current_user
+from ..db import fetch, fetchrow, fetchval, execute
+from ..rbac import get_current_user
 
 logger = logging.getLogger("menschlichkeit.api.invoices")
 
@@ -58,7 +58,6 @@ class SepaBatchCreate(BaseModel):
 @router.get("/invoices", summary="Rechnungen auflisten")
 async def list_invoices(
     current_user: Annotated[dict, Depends(get_current_user)],
-    db=Depends(get_db),
     status_filter: str | None = Query(default=None, alias="status"),
     page: int = Query(default=1, ge=1),
     per_page: int = Query(default=25, ge=1, le=100),
@@ -90,7 +89,7 @@ async def list_invoices(
         params += [per_page, offset]
         limit_clause = f"LIMIT ${len(params) - 1} OFFSET ${len(params)}"
 
-    rows = await db.fetch(
+    rows = await fetch(
         f"""
         SELECT id, invoice_number, recipient_name, recipient_email,
                total_amount, currency, issue_date::text, due_date::text,
@@ -109,9 +108,8 @@ async def list_invoices(
 async def get_invoice(
     invoice_id: int,
     current_user: Annotated[dict, Depends(get_current_user)],
-    db=Depends(get_db),
 ):
-    row = await db.fetchrow(
+    row = await fetchrow(
         "SELECT * FROM invoices WHERE id = $1",
         invoice_id,
     )
@@ -124,7 +122,7 @@ async def get_invoice(
         if row["civicrm_contact_id"] != contact_id:
             raise HTTPException(status_code=403, detail="Zugriff verweigert.")
 
-    items = await db.fetch(
+    items = await fetch(
         "SELECT * FROM invoice_items WHERE invoice_id = $1 ORDER BY position",
         invoice_id,
     )
@@ -137,10 +135,9 @@ async def get_invoice(
 async def download_invoice(
     invoice_id: int,
     current_user: Annotated[dict, Depends(get_current_user)],
-    db=Depends(get_db),
 ):
     """Gibt eine vorzeichnete URL für das Rechnungs-PDF zurück."""
-    row = await db.fetchrow(
+    row = await fetchrow(
         "SELECT civicrm_contact_id, pdf_path FROM invoices WHERE id = $1",
         invoice_id,
     )
@@ -165,11 +162,10 @@ async def send_invoice(
     body: InvoiceSendRequest,
     background_tasks: BackgroundTasks,
     current_user: Annotated[dict, Depends(get_current_user)],
-    db=Depends(get_db),
 ):
     _require_admin(current_user)
 
-    row = await db.fetchrow(
+    row = await fetchrow(
         "SELECT id, invoice_number, recipient_email, recipient_name FROM invoices WHERE id = $1",
         invoice_id,
     )
@@ -187,14 +183,13 @@ async def send_invoice(
 @router.get("/donations", summary="Spenden auflisten (Admin)")
 async def list_donations(
     current_user: Annotated[dict, Depends(get_current_user)],
-    db=Depends(get_db),
     page: int = Query(default=1, ge=1),
     per_page: int = Query(default=25, ge=1, le=100),
 ):
     _require_admin(current_user)
     offset = (page - 1) * per_page
 
-    rows = await db.fetch(
+    rows = await fetch(
         """
         SELECT id, donor_name, donor_email, amount, currency,
                donation_type, status, donation_date::text, receipt_eligible, source
@@ -211,10 +206,9 @@ async def list_donations(
 async def get_donation(
     donation_id: int,
     current_user: Annotated[dict, Depends(get_current_user)],
-    db=Depends(get_db),
 ):
     _require_admin(current_user)
-    row = await db.fetchrow("SELECT * FROM donations WHERE id = $1", donation_id)
+    row = await fetchrow("SELECT * FROM donations WHERE id = $1", donation_id)
     if not row:
         raise HTTPException(status_code=404, detail="Spende nicht gefunden.")
     return dict(row)
@@ -225,13 +219,12 @@ async def get_donation(
 @router.get("/sepa/mandates", summary="SEPA-Mandate (Admin)")
 async def list_sepa_mandates(
     current_user: Annotated[dict, Depends(get_current_user)],
-    db=Depends(get_db),
     active_only: bool = Query(default=True),
 ):
     _require_admin(current_user)
 
     where = "WHERE is_active = true" if active_only else ""
-    rows = await db.fetch(
+    rows = await fetch(
         f"""
         SELECT id, civicrm_contact_id, mandate_reference, mandate_type,
                iban, bic, account_holder, signed_date::text, is_active
@@ -246,11 +239,10 @@ async def list_sepa_mandates(
 @router.get("/sepa/batches", summary="SEPA-Batches (Admin)")
 async def list_sepa_batches(
     current_user: Annotated[dict, Depends(get_current_user)],
-    db=Depends(get_db),
 ):
     _require_admin(current_user)
 
-    rows = await db.fetch(
+    rows = await fetch(
         """
         SELECT id, batch_reference, batch_type, collection_date::text,
                total_amount, mandate_count, status, submitted_at, created_at
@@ -267,7 +259,6 @@ async def list_sepa_batches(
 async def create_sepa_batch(
     body: SepaBatchCreate,
     current_user: Annotated[dict, Depends(get_current_user)],
-    db=Depends(get_db),
 ):
     """
     Legt einen neuen SEPA-Sammellastschrift-Batch an.
@@ -279,7 +270,7 @@ async def create_sepa_batch(
         raise HTTPException(status_code=400, detail="Mindestens ein Mandat erforderlich.")
 
     # Mandate validieren
-    mandates = await db.fetch(
+    mandates = await fetch(
         "SELECT id FROM sepa_mandates WHERE id = ANY($1::int[]) AND is_active = true",
         body.mandate_ids,
     )
@@ -292,7 +283,7 @@ async def create_sepa_batch(
     import secrets
     batch_ref = f"MOE-{body.collection_date.replace('-', '')}-{secrets.token_hex(4).upper()}"
 
-    batch_id = await db.fetchval(
+    batch_id = await fetchval(
         """
         INSERT INTO sepa_batches (batch_reference, batch_type, collection_date, total_amount, mandate_count, status)
         VALUES ($1, $2, $3, 0, $4, 'pending')

@@ -41,5 +41,6 @@ module.exports = {
     }],
     '@typescript-eslint/no-explicit-any': 'warn',
     'react/prop-types': 'off', // TypeScript handles prop validation
+    'no-console': ['warn', { allow: ['warn', 'error'] }],
   },
 }

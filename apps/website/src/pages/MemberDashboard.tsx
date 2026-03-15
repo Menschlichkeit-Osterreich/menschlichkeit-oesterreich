@@ -78,8 +78,8 @@ export default function MemberDashboard() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'overview' | 'profile' | 'badges' | 'activities' | 'events'>('overview');
   const [editProfile, setEditProfile] = useState(false);
-  const [kpis, setKpis] = useState<KpiOverview | null>(null);
-  const [kpiError, setKpiError] = useState(false);
+  const [_kpis, setKpis] = useState<KpiOverview | null>(null);
+  const [_kpiError, setKpiError] = useState(false);
 
   // Lädt echte KPI-Daten aus der API (Issue #119 – API-Integration)
   useEffect(() => {

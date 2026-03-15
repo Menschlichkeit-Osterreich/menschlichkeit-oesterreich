@@ -69,15 +69,15 @@ export const TrendChart: React.FC<TrendChartProps> = ({
               borderRadius: '0.5rem',
               color: '#fff',
             }}
-            labelFormatter={(value: string) => {
-              const date = new Date(value);
+            labelFormatter={(value: unknown) => {
+              const date = new Date(value as string);
               return date.toLocaleDateString('de-AT', {
                 day: '2-digit',
                 month: 'long',
                 year: 'numeric',
               });
             }}
-            formatter={formatYAxis ? (value: number) => [formatYAxis(value)] : undefined}
+            formatter={formatYAxis ? (value: unknown) => [formatYAxis(value as number)] as [string] : undefined}
           />
           <Line type="monotone" dataKey={yKey} stroke={color} strokeWidth={2} dot={false} />
         </LineChart>
