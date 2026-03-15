@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /member/
+Disallow: /login
+Disallow: /Login
+Disallow: /registrieren
+Disallow: /passwort-vergessen
+Disallow: /account/
+Disallow: /erfolg
+Disallow: /*?*utm_
+Disallow: /*?*fbclid=
+Disallow: /*?*gclid=
+
+Sitemap: https://www.menschlichkeit-oesterreich.at/sitemap.xml
+Host: www.menschlichkeit-oesterreich.at

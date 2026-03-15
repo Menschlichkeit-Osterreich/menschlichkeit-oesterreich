@@ -27,4 +27,8 @@ export default defineConfig({
       },
     },
   },
+  ssr: {
+    // Ensure these packages are bundled into the SSR build rather than externalized
+    noExternal: ['react-helmet-async'],
+  },
 });

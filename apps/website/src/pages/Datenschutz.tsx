@@ -1,8 +1,13 @@
 import React from 'react';
+import SeoHead from '../components/seo/SeoHead';
 
 export default function Datenschutz() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-3xl">
+      <SeoHead
+        title="Datenschutzerklärung – Menschlichkeit Österreich"
+        description="Datenschutzerklärung gemäß DSGVO und österreichischem Datenschutzgesetz. Ihre Rechte als betroffene Person, Datenspeicherung und Kontakt zum Datenschutzbeauftragten."
+      />
       <h1 className="text-3xl font-bold mb-2">Datenschutzerklärung</h1>
       <p className="text-gray-500 mb-8">
         Gemäß DSGVO (EU) 2016/679 und dem österreichischen Datenschutzgesetz (DSG)

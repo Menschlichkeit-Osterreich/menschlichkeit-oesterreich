@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { BookOpen, Play, Download, ExternalLink, ChevronRight, Star, Users, Clock } from 'lucide-react';
+import SeoHead from '../components/seo/SeoHead';
+import SpendenCTA from '../components/SpendenCTA';
 
 interface Module {
   id: string;
@@ -169,6 +171,10 @@ export default function Bildung() {
 
   return (
     <div className="min-h-screen bg-semantic-background">
+      <SeoHead
+        title="Bildung – Demokratie und Gesellschaft verstehen"
+        description="Bildungsmodule zu Demokratie, Menschenrechten, Zivilgesellschaft und Europa. Kostenlose Lernmaterialien und das interaktive Demokratiespiel von Menschlichkeit Österreich."
+      />
       {/* Hero */}
       <section className="bg-gradient-to-br from-secondary-900 via-primary-900 to-primary-700 text-white py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
@@ -294,6 +300,17 @@ export default function Bildung() {
               </ul>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Conversion CTA */}
+      <section className="py-12 px-4">
+        <div className="container mx-auto max-w-2xl">
+          <SpendenCTA
+            heading="Bildungsarbeit ermöglichen"
+            body="Unsere Bildungsangebote sind kostenlos zugänglich. Mit Ihrer Unterstützung können wir noch mehr Materialien entwickeln und Workshops anbieten."
+            variant="subtle"
+          />
         </div>
       </section>
     </div>
