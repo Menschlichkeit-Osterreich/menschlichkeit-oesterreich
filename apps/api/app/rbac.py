@@ -18,14 +18,10 @@ logger = logging.getLogger("menschlichkeit.rbac")
 
 _jwt_secret_raw = os.getenv("JWT_SECRET_KEY", "")
 if not _jwt_secret_raw:
-    if os.getenv("REPLIT_DEV_DOMAIN"):
-        _jwt_secret_raw = "replit-dev-only-not-for-production"
-        logger.warning("JWT_SECRET_KEY nicht gesetzt – verwende Entwicklungs-Fallback. NICHT für Produktion geeignet!")
-    else:
-        raise RuntimeError(
-            "JWT_SECRET_KEY Umgebungsvariable ist nicht gesetzt. "
-            "Bitte setzen Sie einen sicheren Schlüssel (mind. 32 Zeichen) bevor Sie die API starten."
-        )
+    raise RuntimeError(
+        "JWT_SECRET_KEY Umgebungsvariable ist nicht gesetzt. "
+        "Bitte setzen Sie einen sicheren Schlüssel (mind. 32 Zeichen) in .env oder .env.test."
+    )
 JWT_SECRET: str = _jwt_secret_raw
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRY_SECONDS = 3600

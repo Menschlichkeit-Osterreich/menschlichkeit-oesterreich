@@ -38,15 +38,15 @@ class ApiClient {
   }
 
   private getStoredToken(): string | null {
-    return localStorage.getItem('auth_token');
+    return sessionStorage.getItem('moe_auth_token');
   }
 
   setToken(token: string | null): void {
     this.token = token;
     if (token) {
-      localStorage.setItem('auth_token', token);
+      sessionStorage.setItem('moe_auth_token', token);
     } else {
-      localStorage.removeItem('auth_token');
+      sessionStorage.removeItem('moe_auth_token');
     }
   }
 
