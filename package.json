@@ -6,11 +6,8 @@
   "private": true,
   "workspaces": [
     "apps/website",
-    "mcp-servers/*",
-    "servers",
-    "mcp-bridge",
-    "mcp-search",
-    "automation/n8n"
+    "website",
+    "mcp-servers/*"
   ],
   "scripts": {
     "install:all": "npm install --workspaces",
