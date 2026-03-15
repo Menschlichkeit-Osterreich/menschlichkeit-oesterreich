@@ -20,6 +20,7 @@ deploy_*.log
 /tmp/moe_deploy.lock
 # Build-Artefakte
 apps/website/dist/
+apps/website/dist-ssr/
 apps/website/.vite/
 # SSH-Temporärdateien
 /tmp/moe_ssh_*
