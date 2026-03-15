@@ -17,11 +17,14 @@ Tabellen:
 """
 
 from __future__ import annotations
+import logging
 from datetime import datetime, date
 from decimal import Decimal
 from enum import Enum as PyEnum
 from typing import Optional, List
 import uuid
+
+logger = logging.getLogger(__name__)
 
 try:
     from sqlalchemy import (
@@ -401,4 +404,4 @@ try:
 except ImportError:
     # SQLAlchemy nicht installiert – Stub für Entwicklung
     Base = object
-    print("⚠️  SQLAlchemy nicht installiert. Modelle sind Stubs.")
+    logger.warning("SQLAlchemy nicht installiert. Modelle sind Stubs.")

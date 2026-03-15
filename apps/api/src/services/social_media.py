@@ -527,12 +527,11 @@ if __name__ == "__main__":
     platforms = [Platform(p) for p in args.platforms]
     results = svc.crosspost(post, platforms=platforms)
 
-    print("\n── Ergebnisse ──────────────────────────────")
+    logger.info("Crosspost-Ergebnisse:")
     for platform, result in results.items():
-        icon = "✅" if result.status == PostStatus.PUBLISHED else (
-               "⏭️" if result.status == PostStatus.SKIPPED else "❌")
-        print(f"{icon} {platform.value:12s} → {result.status.value}")
+        status_label = result.status.value
+        logger.info("  %s → %s", platform.value, status_label)
         if result.platform_url:
-            print(f"   URL: {result.platform_url}")
+            logger.info("    URL: %s", result.platform_url)
         if result.error:
-            print(f"   Fehler: {result.error}")
+            logger.warning("    Fehler: %s", result.error)

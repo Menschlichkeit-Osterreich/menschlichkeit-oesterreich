@@ -432,9 +432,9 @@ if __name__ == "__main__":
     export_typescript_types(
         "/home/ubuntu/menschlichkeit-oesterreich-development/apps/website/src/lib/rbac.ts"
     )
-    print("✅ TypeScript RBAC types exported.")
-    print("\nRollen-Übersicht:")
+    logger.info("TypeScript RBAC types exported successfully.")
+    logger.info("Rollen-Übersicht:")
     for role in Role:
         scopes = ROLE_SCOPES.get(role, set())
         count = "ALL" if role in (Role.ADMIN, Role.SERVICE) else str(len(scopes))
-        print(f"  {role.value:20s} → {count} Scopes")
+        logger.info("  %s → %s Scopes", role.value, count)

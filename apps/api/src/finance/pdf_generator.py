@@ -141,4 +141,4 @@ if __name__ == "__main__":
     # Service instanziieren und PDF generieren
     pdf_service = PdfGeneratorService()
     pdf_path = pdf_service.generate_invoice_pdf(dummy_invoice)
-    print(f"PDF generiert unter: {pdf_path}")
+    logger.info("PDF generiert unter: %s", pdf_path)

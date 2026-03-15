@@ -133,15 +133,12 @@ if __name__ == "__main__":
         date(2026, 2, 1),
         date(2026, 2, 28)
     )
-    print("--- Einnahmen-Ausgaben-Rechnung ---")
-    print(f"Zeitraum: {report["start_date"]} - {report["end_date"]}")
-    print(f"Einnahmen: {report["total_income"]:.2f} EUR")
-    print(f"Ausgaben:  {report["total_expenses"]:.2f} EUR")
-    print(f"Ergebnis:  {report["result"]:.2f} EUR")
-    print("-------------------------------------\n")
+    logger.info("Einnahmen-Ausgaben-Rechnung:")
+    logger.info("  Zeitraum: %s - %s", report["start_date"], report["end_date"])
+    logger.info("  Einnahmen: %.2f EUR", report["total_income"])
+    logger.info("  Ausgaben:  %.2f EUR", report["total_expenses"])
+    logger.info("  Ergebnis:  %.2f EUR", report["result"])
 
     # DATEV-Export generieren
     datev_csv = accounting_service.generate_datev_export(dummy_transactions)
-    print("--- DATEV CSV Export ---")
-    print(datev_csv)
-    print("------------------------")
+    logger.info("DATEV CSV Export:\n%s", datev_csv)
