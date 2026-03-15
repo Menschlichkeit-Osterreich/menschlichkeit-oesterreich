@@ -74,8 +74,13 @@ npm run docker:up          # Start PostgreSQL/Redis
 npx prisma migrate dev     # Prisma migrations (Games)
 npx prisma generate        # Regenerate Prisma client
 npx prisma studio          # Prisma Studio UI
-# Schema-Änderungen: keine Alembic-Migrations, stattdessen CREATE TABLE IF NOT EXISTS
-# in den jeweiligen Router-Dateien (apps/api/app/routers/)
+# Schema-Strategie (zwei Ansätze, je nach Komplexität):
+#   Standardfall: CREATE TABLE IF NOT EXISTS direkt in den Router-Startup-Hooks
+#   (apps/api/app/routers/) — für einfache, dienst-eigene Tabellen.
+#   Finance-Ausnahme: apps/api/alembic/ verwendet Alembic-Migrations für das
+#   komplexe Finance-Schema (invoices, invoice_items, payment_intents, donations,
+#   sepa_mandates, sepa_batches, dunning_runs) mit FK-Constraints und Indizes.
+#   Alembic ausführen: cd apps/api && alembic upgrade head
 ```
 
 ### OpenClaw Multi-Agent System
@@ -102,7 +107,7 @@ npm workspaces root. Die neue Primärstruktur ist `apps/<name>/`. Das Verzeichni
 
 ### Shared PostgreSQL Database
 
-Alle Dienste teilen eine PostgreSQL ≥15-Instanz (Port 5432) via `DATABASE_URL`. Das OpenClaw-System nutzt eine separate Instanz (Port 55432, `OC_PG_DSN`). Schema-Änderungen erfolgen via `CREATE TABLE IF NOT EXISTS` direkt in den Router-Startup-Hooks. Prisma (Games) läuft parallel.
+Alle Dienste teilen eine PostgreSQL ≥15-Instanz (Port 5432) via `DATABASE_URL`. Das OpenClaw-System nutzt eine separate Instanz (Port 55432, `OC_PG_DSN`). Schema-Änderungen erfolgen standardmäßig via `CREATE TABLE IF NOT EXISTS` direkt in den Router-Startup-Hooks. **Ausnahme:** Das Finance-Schema (`apps/api/alembic/`) nutzt Alembic-Migrations wegen komplexer FK-Constraints — `alembic upgrade head` nach DB-Neuanlage ausführen. Prisma (Games) läuft parallel.
 
 ### Design Tokens
 

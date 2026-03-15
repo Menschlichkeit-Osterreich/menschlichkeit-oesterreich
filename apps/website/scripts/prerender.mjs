@@ -95,11 +95,13 @@ async function prerender() {
         )
         .replace('</head>', `  ${headTags}\n  </head>`);
 
-      // Determine output path
-      const outputDir =
-        route === '/'
-          ? DIST
-          : join(DIST, route.slice(1));
+      // Determine output path.
+      // Strips the leading '/' from non-root routes before joining with DIST
+      // to produce: dist/ueber-uns/index.html, dist/themen/demokratie/index.html, etc.
+      // route.slice(1) is safe here because ROUTES_TO_PRERENDER guarantees all entries
+      // start with '/'. The root route is handled explicitly to avoid dist//index.html.
+      const normalizedPath = route.replace(/^\//, '');
+      const outputDir = normalizedPath === '' ? DIST : join(DIST, normalizedPath);
       mkdirSync(outputDir, { recursive: true });
       const outputPath = join(outputDir, 'index.html');
 

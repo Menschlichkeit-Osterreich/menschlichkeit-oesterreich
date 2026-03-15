@@ -16,6 +16,7 @@ Usage:
 
 import json
 import logging
+import os
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
@@ -247,60 +248,131 @@ class SecurityMonitor:
             }
         )
     
+    # ── DB-Query-Helfer ────────────────────────────────────────────────────────
+
+    def _db_query_scalar(self, sql: str, *params) -> int:
+        """
+        Führt eine skalare READ-ONLY-Abfrage gegen die audit_trail-Tabelle aus.
+        Nutzt psycopg2 (sync) mit DATABASE_URL aus der Umgebung.
+        Gibt bei fehlender Verbindung oder DB-Fehler 0 zurück — kein PII in Logs.
+        """
+        database_url = os.getenv("DATABASE_URL", "")
+        if not database_url:
+            logger.debug("security.monitoring: DATABASE_URL nicht gesetzt, Query übersprungen.")
+            return 0
+        try:
+            import psycopg2  # type: ignore[import]
+            # asyncpg-URLs auf psycopg2-Format normalisieren
+            sync_url = (
+                database_url
+                .replace("postgresql+asyncpg://", "postgresql://")
+                .replace("asyncpg://", "postgresql://")
+            )
+            with psycopg2.connect(sync_url, connect_timeout=3) as conn:
+                conn.set_session(readonly=True, autocommit=True)
+                with conn.cursor() as cur:
+                    cur.execute(sql, params)
+                    row = cur.fetchone()
+                    return int(row[0]) if row and row[0] is not None else 0
+        except ImportError:
+            logger.debug("security.monitoring: psycopg2 nicht installiert, Query übersprungen.")
+            return 0
+        except Exception as exc:  # noqa: BLE001
+            # Kein PII-Logging: nur Fehlertyp und Modulname
+            logger.warning("security.monitoring: DB-Query fehlgeschlagen (%s).", type(exc).__name__)
+            return 0
+
+    # ── Metriken-Queries (basierend auf audit_trail-Tabelle) ──────────────────
+
     def _query_total_logins(self) -> int:
         """
-        Anzahl erfolgreicher Logins der letzten 24 Stunden.
-        TODO: DevOps-Integration mit Auth-Log-System (Auth0/Keycloak).
+        Anzahl erfolgreicher Logins (HTTP 200 auf /api/auth/login) der letzten 24 h.
+        Datenquelle: audit_trail (apps/api/app/audit.py).
         """
-        logger.warning(
-            "total_logins: Keine Auth-System-Integration vorhanden. "
-            "DevOps muss Auth0/Keycloak-Anbindung konfigurieren. Rückgabe: 0."
+        return self._db_query_scalar(
+            """
+            SELECT COUNT(*)
+            FROM audit_trail
+            WHERE path = '/api/auth/login'
+              AND method = 'POST'
+              AND status_code = 200
+              AND created_at >= NOW() - INTERVAL '24 hours'
+              AND deleted_at IS NULL
+            """
         )
-        return 0
 
     def _query_active_sessions(self) -> int:
         """
-        Anzahl aktuell aktiver Benutzersitzungen.
-        TODO: DevOps-Integration mit Session-Store (Redis/DB).
+        Näherungswert für aktive Sitzungen: einmalige actor_ids mit API-Zugriffen
+        der letzten 60 Minuten (auth-gesicherte Endpunkte, 2xx/3xx).
+        Kein exakter Session-Store, aber ein valider Aktivitäts-Proxy.
         """
-        logger.warning(
-            "active_sessions: Keine Session-Store-Integration vorhanden. "
-            "DevOps muss Redis-Anbindung konfigurieren. Rückgabe: 0."
+        return self._db_query_scalar(
+            """
+            SELECT COUNT(DISTINCT actor_id)
+            FROM audit_trail
+            WHERE actor_id IS NOT NULL
+              AND status_code BETWEEN 200 AND 399
+              AND created_at >= NOW() - INTERVAL '60 minutes'
+              AND deleted_at IS NULL
+            """
         )
-        return 0
 
     def _query_two_factor_usage(self) -> int:
         """
-        Prozentsatz der Benutzer mit aktivierter 2FA (als Integer, z. B. 85 = 85 %).
-        TODO: DevOps-Integration mit Auth-System.
+        Anzahl erfolgreicher MFA-Verifikationen der letzten 24 h
+        (Endpunkte mit 'mfa' oder 'two-factor' im Pfad, HTTP 200).
+        Gibt absolute Anzahl zurück (kein Prozentwert — User-Gesamtzahl nicht verfügbar).
         """
-        logger.warning(
-            "two_factor_usage: Keine Auth-System-Integration vorhanden. "
-            "DevOps muss 2FA-Abfrage konfigurieren. Rückgabe: 0."
+        return self._db_query_scalar(
+            """
+            SELECT COUNT(*)
+            FROM audit_trail
+            WHERE (path ILIKE '%/mfa%' OR path ILIKE '%/two-factor%')
+              AND status_code = 200
+              AND created_at >= NOW() - INTERVAL '24 hours'
+              AND deleted_at IS NULL
+            """
         )
-        return 0
 
     def _query_data_exports(self) -> int:
         """
-        Anzahl Datenabruf-Events der letzten 24 Stunden (DSGVO Art. 15).
-        TODO: DevOps-Integration mit Audit-Log-System.
+        Anzahl DSGVO-Datenabruf-Events (Art. 15) der letzten 24 h.
+        Erkennt: /api/members/*/export, /api/privacy/data-request, /api/gdpr/*.
         """
-        logger.warning(
-            "data_exports: Keine Audit-Log-Integration vorhanden. "
-            "DevOps muss DSGVO-Auditlog-Anbindung konfigurieren. Rückgabe: 0."
+        return self._db_query_scalar(
+            """
+            SELECT COUNT(*)
+            FROM audit_trail
+            WHERE (
+                    path ILIKE '%/export%'
+                    OR path ILIKE '%/privacy/%'
+                    OR path ILIKE '%/gdpr/%'
+                    OR path ILIKE '%/data-request%'
+                  )
+              AND method = 'GET'
+              AND status_code = 200
+              AND created_at >= NOW() - INTERVAL '24 hours'
+              AND deleted_at IS NULL
+            """
         )
-        return 0
 
     def _query_password_changes(self) -> int:
         """
-        Anzahl Passwortänderungen der letzten 24 Stunden.
-        TODO: DevOps-Integration mit Auth/Audit-Log-System.
+        Anzahl erfolgreicher Passwortänderungen der letzten 24 h
+        (PUT/PATCH auf /api/auth/password* oder /api/members/*/password, HTTP 200).
         """
-        logger.warning(
-            "password_changes: Keine Auth/Audit-Log-Integration vorhanden. "
-            "DevOps muss Anbindung konfigurieren. Rückgabe: 0."
+        return self._db_query_scalar(
+            """
+            SELECT COUNT(*)
+            FROM audit_trail
+            WHERE path ILIKE '%/password%'
+              AND method IN ('PUT', 'PATCH', 'POST')
+              AND status_code = 200
+              AND created_at >= NOW() - INTERVAL '24 hours'
+              AND deleted_at IS NULL
+            """
         )
-        return 0
 
     def get_security_metrics(self) -> SecurityMetrics:
         """Get current security metrics"""
