@@ -85,9 +85,12 @@ async function prerender() {
       // Inject rendered HTML into the template
       // 1. Replace <div id="root"> content with server-rendered HTML
       // 2. Inject Helmet head tags before </head>
+      //
+      // Anchor: (?=\s*<\/body>) — Vite moves <script> to <head>, so the root
+      // </div> is followed by whitespace + </body>, not by <script>.
       let html = template
         .replace(
-          /<div id="root">[\s\S]*?<\/div>\s*(?=<script)/,
+          /<div id="root">[\s\S]*?<\/div>\s*(?=\s*<\/body>)/,
           `<div id="root">${appHtml}</div>\n    `
         )
         .replace('</head>', `  ${headTags}\n  </head>`);
