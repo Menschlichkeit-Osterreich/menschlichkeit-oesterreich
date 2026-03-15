@@ -10,6 +10,7 @@ import logging
 from enum import Enum
 from functools import wraps
 from typing import Optional
+from uuid import uuid4
 
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -64,7 +65,7 @@ def _b64_decode(s: str) -> bytes:
 def create_jwt(payload: dict, expires_in: int = JWT_EXPIRY_SECONDS) -> str:
     header = {"alg": JWT_ALGORITHM, "typ": "JWT"}
     now = int(time.time())
-    payload = {**payload, "iat": now, "exp": now + expires_in}
+    payload = {**payload, "jti": str(uuid4()), "iat": now, "exp": now + expires_in}
     header_b64 = _b64_encode(json.dumps(header).encode())
     payload_b64 = _b64_encode(json.dumps(payload).encode())
     message = f"{header_b64}.{payload_b64}"
@@ -109,6 +110,22 @@ def verify_password(password: str, stored_hash: str) -> bool:
         return False
 
 
+async def _is_jwt_revoked(jti: str) -> bool:
+    """Check if a JWT has been revoked (exists in the DB blacklist)."""
+    if not jti:
+        return False
+    try:
+        from .db import fetchval  # local import avoids circular deps at module load
+        result = await fetchval(
+            "SELECT 1 FROM jwt_blacklist WHERE jti = $1 AND expires_at > NOW()",
+            jti,
+        )
+        return result is not None
+    except Exception:
+        # If blacklist check fails (e.g. table not yet created), allow the token.
+        return False
+
+
 async def get_current_user(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_scheme),
 ) -> Optional[dict]:
@@ -119,6 +136,11 @@ async def get_current_user(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Ungültiger oder abgelaufener Token",
+        )
+    if await _is_jwt_revoked(payload.get("jti", "")):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token wurde widerrufen",
         )
     return payload
 
@@ -137,6 +159,11 @@ async def require_auth(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Ungültiger oder abgelaufener Token",
         )
+    if await _is_jwt_revoked(payload.get("jti", "")):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token wurde widerrufen",
+        )
     return payload
 
 
@@ -154,6 +181,11 @@ def require_role(minimum_role: Role):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Ungültiger oder abgelaufener Token",
+            )
+        if await _is_jwt_revoked(payload.get("jti", "")):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token wurde widerrufen",
             )
         user_role_str = payload.get("role", "guest")
         try:

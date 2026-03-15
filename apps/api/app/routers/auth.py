@@ -3,18 +3,23 @@ from __future__ import annotations
 import logging
 import secrets
 from datetime import datetime, timedelta, timezone
+from typing import Optional
 from uuid import uuid4
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from ..db import fetch, fetchrow, fetchval, execute
 from ..rbac import (
     ADMIN_EMAILS,
     Role,
     create_jwt,
+    decode_jwt,
     hash_password,
     verify_password,
 )
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+_bearer = HTTPBearer(auto_error=False)
 from ..schemas.auth import (
     LoginRequest,
     MessageResponse,
@@ -45,6 +50,17 @@ async def _ensure_members_table() -> None:
             created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
             updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
         );
+    """)
+
+
+async def _ensure_jwt_blacklist_table() -> None:
+    await execute("""
+        CREATE TABLE IF NOT EXISTS jwt_blacklist (
+            jti UUID PRIMARY KEY,
+            expires_at TIMESTAMPTZ NOT NULL
+        );
+        CREATE INDEX IF NOT EXISTS idx_jwt_blacklist_expires
+            ON jwt_blacklist (expires_at);
     """)
 
 
@@ -192,3 +208,30 @@ async def password_reset_confirm(body: PasswordResetConfirm):
 
     logger.info(f"Passwort erfolgreich zurückgesetzt für: {email}")
     return MessageResponse(message="Passwort wurde erfolgreich zurückgesetzt.")
+
+
+@router.post("/auth/logout", response_model=MessageResponse)
+async def logout(credentials: Optional[HTTPAuthorizationCredentials] = Depends(_bearer)):
+    """Revoke the current JWT by inserting its jti into the blacklist table."""
+    if not credentials:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Kein Token übermittelt")
+
+    payload = decode_jwt(credentials.credentials)
+    if not payload:
+        # Token is already invalid/expired — treat as successful logout
+        return MessageResponse(message="Abgemeldet.")
+
+    jti = payload.get("jti")
+    if jti:
+        await _ensure_jwt_blacklist_table()
+        exp = payload.get("exp", 0)
+        expires_at = datetime.fromtimestamp(exp, tz=timezone.utc)
+        await execute(
+            "INSERT INTO jwt_blacklist (jti, expires_at) VALUES ($1::uuid, $2) ON CONFLICT DO NOTHING",
+            jti, expires_at,
+        )
+        # Purge expired entries opportunistically (keeps table small)
+        await execute("DELETE FROM jwt_blacklist WHERE expires_at < NOW()")
+        logger.info(f"Token widerrufen: jti={jti[:8]}...")
+
+    return MessageResponse(message="Abgemeldet.")
