@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 
-function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
+function NavLink({ to, onClick, children }: { to: string; onClick?: () => void; children: React.ReactNode }) {
   const location = useLocation();
   const active = location.pathname === to || (to === '/' && location.pathname === '/home');
   const base = 'px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150';
@@ -11,11 +11,108 @@ function NavLink({ to, children }: { to: string; children: React.ReactNode }) {
   return (
     <Link
       to={to}
+      onClick={onClick}
       className={[base, active ? activeCls : idleCls].join(' ')}
       aria-current={active ? 'page' : undefined}
     >
       {children}
     </Link>
+  );
+}
+
+function DropdownMenu({
+  label,
+  items,
+}: {
+  label: string;
+  items: { to: string; label: string }[];
+}) {
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement | null>(null);
+  const location = useLocation();
+  const anyActive = items.some(i => location.pathname.startsWith(i.to) && i.to !== '/');
+
+  React.useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (ref.current && e.target instanceof Node && !ref.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener('click', handler);
+    return () => document.removeEventListener('click', handler);
+  }, []);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        onClick={() => setOpen(v => !v)}
+        className={[
+          'px-3 py-2 rounded-md text-sm font-medium transition-colors duration-150 flex items-center gap-1',
+          anyActive
+            ? 'bg-primary-50 text-primary-700 font-semibold'
+            : 'text-secondary-700 hover:bg-secondary-50 hover:text-secondary-900',
+        ].join(' ')}
+        aria-haspopup="menu"
+        aria-expanded={open}
+      >
+        {label}
+        <svg className={`w-3.5 h-3.5 transition-transform ${open ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+        </svg>
+      </button>
+      {open && (
+        <div
+          role="menu"
+          className="absolute left-0 top-11 w-52 rounded-xl border border-secondary-200 bg-white shadow-xl z-30 py-1.5 overflow-hidden"
+        >
+          {items.map(item => (
+            <Link
+              key={item.to}
+              to={item.to}
+              role="menuitem"
+              onClick={() => setOpen(false)}
+              className={[
+                'block px-4 py-2.5 text-sm transition-colors',
+                location.pathname === item.to
+                  ? 'bg-primary-50 text-primary-700 font-semibold'
+                  : 'text-secondary-700 hover:bg-secondary-50',
+              ].join(' ')}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const UEBER_UNS_ITEMS = [
+  { to: '/ueber-uns', label: 'Über den Verein' },
+  { to: '/team', label: 'Team' },
+  { to: '/transparenz', label: 'Transparenz' },
+  { to: '/presse', label: 'Presse' },
+  { to: '/themen', label: 'Unsere Themen' },
+  { to: '/kontakt', label: 'Kontakt' },
+];
+
+const MITMACHEN_ITEMS = [
+  { to: '/mitglied-werden', label: 'Mitglied werden' },
+  { to: '/spenden', label: 'Spenden' },
+];
+
+function CoreNavLinks({ onSelect }: { onSelect?: () => void }) {
+  const { token, isAdmin } = useAuth();
+  return (
+    <>
+      <NavLink to="/" onClick={onSelect}>Home</NavLink>
+      <NavLink to="/forum" onClick={onSelect}>Forum</NavLink>
+      <NavLink to="/blog" onClick={onSelect}>Neuigkeiten</NavLink>
+      <NavLink to="/veranstaltungen" onClick={onSelect}>Veranstaltungen</NavLink>
+      <NavLink to="/spiel" onClick={onSelect}>Demokratiespiel</NavLink>
+      {token && <NavLink to="/member" onClick={onSelect}>Mitgliederbereich</NavLink>}
+      {token && isAdmin && <NavLink to="/admin" onClick={onSelect}>Admin</NavLink>}
+    </>
   );
 }
 
@@ -47,19 +144,7 @@ export default function NavBar() {
     };
   }, [menuOpen]);
 
-  const coreNavLinks = (
-    <>
-      <NavLink to="/">Home</NavLink>
-      <NavLink to="/mitglied-werden">Mitglied werden</NavLink>
-      <NavLink to="/spenden">Spenden</NavLink>
-      <NavLink to="/forum">Forum</NavLink>
-      <NavLink to="/blog">Neuigkeiten</NavLink>
-      <NavLink to="/veranstaltungen">Veranstaltungen</NavLink>
-      <NavLink to="/spiel">Demokratiespiel</NavLink>
-      {token && <NavLink to="/member">Mitgliederbereich</NavLink>}
-      {token && isAdmin && <NavLink to="/admin">Admin</NavLink>}
-    </>
-  );
+  const closeMobile = () => setMobileOpen(false);
 
   return (
     <header className="bg-white sticky top-0 z-20 shadow-sm border-b border-secondary-100">
@@ -70,6 +155,7 @@ export default function NavBar() {
           to="/"
           className="flex items-center gap-3 shrink-0 group"
           aria-label="Menschlichkeit Österreich – Startseite"
+          onClick={closeMobile}
         >
           <img
             src="/logo.jpg"
@@ -86,14 +172,16 @@ export default function NavBar() {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-1 flex-1" aria-label="Hauptnavigation">
-          {coreNavLinks}
+          <CoreNavLinks />
+          <DropdownMenu label="Über uns" items={UEBER_UNS_ITEMS} />
+          <DropdownMenu label="Mitmachen" items={MITMACHEN_ITEMS} />
         </nav>
 
         {/* Right side actions */}
         <div className="flex items-center gap-2">
           {!token && (
             <Link
-              to="/Login"
+              to="/login"
               className="px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-semibold hover:bg-primary-700 active:bg-primary-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500 transition-all shadow-sm hover:shadow hidden md:inline-flex items-center gap-1.5"
             >
               <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -177,21 +265,41 @@ export default function NavBar() {
           className="md:hidden border-t border-secondary-100 bg-white px-4 py-3 flex flex-col gap-1"
           aria-label="Mobile Navigation"
         >
-          {coreNavLinks}
-          {token && <NavLink to="/account/privacy">Datenschutz</NavLink>}
+          <CoreNavLinks onSelect={closeMobile} />
+
+          {/* Über uns – flach auf Mobile */}
+          <div className="pt-1 border-t border-secondary-100 mt-1">
+            <span className="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-secondary-400">Über uns</span>
+            {UEBER_UNS_ITEMS.map(item => (
+              <NavLink key={item.to} to={item.to} onClick={closeMobile}>{item.label}</NavLink>
+            ))}
+          </div>
+
+          {/* Mitmachen – flach auf Mobile */}
+          <div className="pt-1 border-t border-secondary-100 mt-1">
+            <span className="px-3 py-1 text-xs font-semibold uppercase tracking-wider text-secondary-400">Mitmachen</span>
+            {MITMACHEN_ITEMS.map(item => (
+              <NavLink key={item.to} to={item.to} onClick={closeMobile}>{item.label}</NavLink>
+            ))}
+          </div>
+
           {token && (
-            <button
-              className="text-left px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
-              onClick={() => { setMobileOpen(false); logout(); }}
-            >
-              Logout
-            </button>
+            <div className="pt-1 border-t border-secondary-100 mt-1">
+              <NavLink to="/account/privacy" onClick={closeMobile}>Datenschutz</NavLink>
+              <button
+                className="text-left w-full px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                onClick={() => { closeMobile(); logout(); }}
+              >
+                Logout
+              </button>
+            </div>
           )}
+
           {!token && (
             <Link
-              to="/Login"
-              className="mt-1 px-3 py-2.5 rounded-lg text-sm bg-primary-600 text-white font-semibold hover:bg-primary-700 text-center transition-colors shadow-sm"
-              onClick={() => setMobileOpen(false)}
+              to="/login"
+              className="mt-2 px-3 py-2.5 rounded-lg text-sm bg-primary-600 text-white font-semibold hover:bg-primary-700 text-center transition-colors shadow-sm"
+              onClick={closeMobile}
             >
               Login
             </Link>

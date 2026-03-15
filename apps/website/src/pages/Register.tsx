@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../auth/AuthContext';
-
 export default function Register() {
   const navigate = useNavigate();
-  const { login } = useAuth();
   const [form, setForm] = useState({
     vorname: '',
     nachname: '',

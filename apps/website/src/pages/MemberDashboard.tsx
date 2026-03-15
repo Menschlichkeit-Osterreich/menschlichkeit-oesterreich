@@ -61,6 +61,16 @@ const FALLBACK_ACTIVITIES: Activity[] = [
   { id: 1, type: 'event', title: 'Willkommen bei Menschlichkeit \u00D6sterreich', date: new Date().toISOString().split('T')[0], xp: 100, icon: '\uD83C\uDF1F' },
 ];
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
+interface KpiOverview {
+  mitglieder_gesamt: number;
+  neue_mitglieder_monat: number;
+  einnahmen_jahr_cents: number;
+  offene_rechnungen: number;
+  [key: string]: unknown;
+}
+
 export default function MemberDashboard() {
   const [profile, setProfile] = useState<MemberProfile>(FALLBACK_PROFILE);
   const [activities, setActivities] = useState<Activity[]>(FALLBACK_ACTIVITIES);

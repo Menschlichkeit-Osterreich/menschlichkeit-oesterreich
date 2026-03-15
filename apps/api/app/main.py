@@ -26,7 +26,7 @@ from fastapi.responses import JSONResponse
 from prometheus_fastapi_instrumentator import Instrumentator
 
 # ── Router Imports ────────────────────────────────────────────────────────────
-from .routers import metrics, auth, members, forum, blog, events, roles, finance, sitemap
+from .routers import metrics, auth, members, forum, blog, events, roles, finance, sitemap, invoices
 from .audit import ensure_audit_table, write_audit_event
 from .security import enforce_csrf, rate_limiter, require_jwt_secret_configured
 from .middleware.pii_middleware import PiiSanitizationMiddleware
@@ -301,9 +301,7 @@ app.include_router(events.router, prefix="/api", tags=["Veranstaltungen"])
 app.include_router(roles.router, prefix="/api", tags=["Rollen"])
 app.include_router(finance.router, prefix="/api", tags=["Finanzen"])
 app.include_router(metrics.router, prefix="/api", tags=["Metriken"])
-app.include_router(auth.router)          # /api/auth/*    – Issue #119
-app.include_router(members.router)       # /api/members/* – Issue #119 #121
-app.include_router(invoices.router)      # /api/invoices/ /api/donations/ /api/sepa/ – Issue #136 #137
+app.include_router(invoices.router, prefix="/api", tags=["Rechnungen"])  # /api/invoices/ /api/donations/ /api/sepa/ – Issue #136 #137
 
 # ── Prometheus Instrumentation (P2-9) ─────────────────────────────────────────
 # Exposes /metrics for Prometheus scraping.
