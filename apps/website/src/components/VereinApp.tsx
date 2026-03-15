@@ -248,7 +248,6 @@ export const VereinApp: React.FC = () => {
                 initialFrequency="monthly"
                 initialPurpose="Mitgliedsbeitrag"
                 onComplete={mandate => {
-                  console.log('SEPA Mandate created:', mandate);
                   alert(`SEPA-Mandat erfolgreich erstellt!\nReferenz: ${mandate.mandateReference}`);
                 }}
                 onCancel={() => setCurrentView('dashboard')}

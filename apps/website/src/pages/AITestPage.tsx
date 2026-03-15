@@ -157,7 +157,7 @@ export const AITestPage: React.FC = () => {
                   KI-optimierte SEPA-Lastschrift mit österreichischen Banken und DSGVO-Compliance.
                 </p>
                 <SepaManagement
-                  onComplete={mandate => console.log('SEPA Mandat erstellt:', mandate)}
+                  onComplete={_mandate => { /* SEPA-Mandat erstellt */ }}
                 />
               </section>
             )}
