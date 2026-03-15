@@ -580,8 +580,6 @@ export const AuthSystem: React.FC<{
     }
 
     // In production, update global auth state here
-    console.log('User authenticated:', user.email);
-
     onClose();
   };
 

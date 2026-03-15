@@ -1,7 +1,5 @@
 import React from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Input } from '../components/ui/Input';
-import { Button } from '../components/ui/Button';
 import { Alert } from '../components/ui/Alert';
 import { useAuth } from '../auth/AuthContext';
 

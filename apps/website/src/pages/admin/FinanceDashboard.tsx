@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { dashboardApi } from '../../services/dashboard-api';
+import { http } from '../../services/http';
 import { useAuth } from '../../auth/AuthContext';
 
 // ── Typen ──────────────────────────────────────────────────────────────────────
@@ -185,11 +186,15 @@ const FinanceDashboard: React.FC = () => {
   const [selectedYear, setSelectedYear] = useState(2026);
   const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'open' | 'overdue'>('all');
   const [kpis, setKpis] = useState<KPI[]>(MOCK_KPIs);
-  const [monthly, setMonthly] = useState<MonthlyData[]>(MOCK_MONTHLY);
+  const [monthly, _setMonthly] = useState<MonthlyData[]>(MOCK_MONTHLY);
   const [transactions, setTransactions] = useState<Transaction[]>(MOCK_TRANSACTIONS);
-  const [campaigns, setCampaigns] = useState<DonationCampaign[]>(MOCK_CAMPAIGNS);
-  const [loading, setLoading] = useState(true);
+  const [campaigns, _setCampaigns] = useState<DonationCampaign[]>(MOCK_CAMPAIGNS);
+  const [_loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [apiInvoices, setApiInvoices] = useState<any[]>([]);
+  const [invoicesLoading, setInvoicesLoading] = useState(false);
+  const [apiDonations, setApiDonations] = useState<any[]>([]);
+  const [donationsLoading, setDonationsLoading] = useState(false);
 
   useEffect(() => {
     loadFinanceData();
@@ -198,10 +203,13 @@ const FinanceDashboard: React.FC = () => {
   async function loadFinanceData() {
     setLoading(true);
     setApiError(null);
+    setInvoicesLoading(true);
+    setDonationsLoading(true);
     try {
-      const [finRes, invRes] = await Promise.allSettled([
+      const [finRes, invRes, donRes] = await Promise.allSettled([
         dashboardApi.getFinanceOverview(),
         dashboardApi.getInvoices(),
+        http.get<{ donations: any[] }>('/api/donations', { token: token ?? undefined }),
       ]);
 
       if (finRes.status === 'fulfilled' && finRes.value?.data) {
@@ -219,6 +227,7 @@ const FinanceDashboard: React.FC = () => {
       }
 
       if (invRes.status === 'fulfilled' && invRes.value?.data) {
+        setApiInvoices(invRes.value.data);
         setTransactions(invRes.value.data.map((inv: any) => ({
           id: inv.id || '',
           date: inv.date || inv.datum || '',
@@ -230,6 +239,12 @@ const FinanceDashboard: React.FC = () => {
           invoice_number: inv.invoice_number || inv.rechnungsnummer || undefined,
         })));
       }
+      setInvoicesLoading(false);
+
+      if (donRes.status === 'fulfilled' && donRes.value?.donations) {
+        setApiDonations(donRes.value.donations);
+      }
+      setDonationsLoading(false);
 
       const allFailed = finRes.status === 'rejected' && invRes.status === 'rejected';
       const anyFailed = finRes.status === 'rejected' || invRes.status === 'rejected';
@@ -454,7 +469,7 @@ const FinanceDashboard: React.FC = () => {
                         {inv.pdf_path && (
                           <button
                             className="text-blue-600 hover:text-blue-800 text-xs"
-                            onClick={() => api.invoices.downloadUrl(inv.id, token!).then((r: any) => window.open(r.url, '_blank'))}
+                            onClick={() => http.get<{ url: string }>(`/api/invoices/${inv.id}/download`, { token: token ?? undefined }).then((r) => window.open(r.url, '_blank'))}
                           >
                             PDF
                           </button>

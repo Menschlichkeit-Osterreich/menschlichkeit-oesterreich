@@ -141,7 +141,7 @@ export const civiContacts = {
     ),
 
   /** Neuen Kontakt erstellen */
-  create: (data: CiviCreateContactPayload, token: string) =>
+  create: (data: CiviCreateContactPayload, token?: string) =>
     civiFetch<{ values: CiviContact[] }>(
       '/Contact',
       {
@@ -185,7 +185,7 @@ export const civiMemberships = {
     ),
 
   /** Neue Mitgliedschaft erstellen */
-  create: (data: CiviCreateMembershipPayload, token: string) =>
+  create: (data: CiviCreateMembershipPayload, token?: string) =>
     civiFetch<{ values: CiviMembership[] }>(
       '/Membership',
       {

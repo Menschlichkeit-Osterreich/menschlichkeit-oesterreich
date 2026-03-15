@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
   push:
     paths:
+      - 'apps/api/**'
       - 'api.menschlichkeit-oesterreich.at/**'
-      - 'tests/**'
       - '.github/workflows/api-tests.yml'
 
 jobs:
@@ -15,11 +15,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r api.menschlichkeit-oesterreich.at/app/requirements.txt
+          pip install -r apps/api/requirements.txt
       - name: Run tests
         env:
           APP_ENV: development
@@ -27,4 +27,4 @@ jobs:
           CIVI_API_KEY: ${{ secrets.CIVICRM_API_KEY != '' && secrets.CIVICRM_API_KEY || format('ci-api-key-{0}', github.run_id) }}
           JWT_SECRET: ${{ secrets.JWT_SECRET != '' && secrets.JWT_SECRET || format('ci-jwt-{0}-{1}', github.run_id, github.run_attempt) }}
         run: |
-          pytest -q tests
+          cd apps/api && pytest -q tests/

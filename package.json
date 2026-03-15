@@ -37,7 +37,7 @@
     "build:frontend": "npm run build:prerender --workspace=@moe/frontend",
     "build:frontend:csr": "npm run build --workspace=@moe/frontend",
     "build:games": "pwsh scripts/build-games.ps1",
-    "build:api": "cd api.menschlichkeit-oesterreich.at && python -m build",
+    "build:api": "cd apps/api && python -m build",
     "test:integration": "playwright test",
     "test:unit": "vitest",
     "test:e2e": "npm run test:integration",
