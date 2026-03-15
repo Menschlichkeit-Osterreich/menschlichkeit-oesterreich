@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import SeoHead from '../components/seo/SeoHead';
+import JsonLdArticle from '../components/seo/JsonLdArticle';
+import JsonLdBreadcrumb from '../components/seo/JsonLdBreadcrumb';
 
 interface Article {
   id: string;
@@ -68,6 +71,26 @@ export default function BlogArticle() {
 
   return (
     <article className="max-w-3xl mx-auto px-4 py-8">
+      <SeoHead
+        title={article.seo_title || `${article.titel} – Menschlichkeit Österreich`}
+        description={article.seo_description || article.zusammenfassung || `Beitrag von ${article.autor_name} auf dem Blog von Menschlichkeit Österreich.`}
+        ogImage={article.og_image || undefined}
+        ogType="article"
+      />
+      <JsonLdBreadcrumb items={[
+        { name: 'Start', url: 'https://www.menschlichkeit-oesterreich.at/' },
+        { name: 'Blog', url: 'https://www.menschlichkeit-oesterreich.at/blog' },
+        { name: article.titel, url: `https://www.menschlichkeit-oesterreich.at/blog/${article.id}` },
+      ]} />
+      <JsonLdArticle
+        title={article.seo_title || article.titel}
+        description={article.seo_description || article.zusammenfassung || ''}
+        url={`https://www.menschlichkeit-oesterreich.at/blog/${article.id}`}
+        publishedAt={article.created_at}
+        modifiedAt={article.updated_at}
+        authorName={article.autor_name}
+        imageUrl={article.og_image || undefined}
+      />
       <Link to="/blog" className="text-red-600 hover:underline text-sm mb-4 inline-block">← Zurück zum Blog</Link>
 
       <header className="mb-8">

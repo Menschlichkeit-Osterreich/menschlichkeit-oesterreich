@@ -1,6 +1,7 @@
 import React from 'react';
 import { Home, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import SeoHead from '../components/seo/SeoHead';
 
 const QUICK_LINKS = [
   { label: 'Über uns', href: '/ueber-uns', emoji: '🤝' },
@@ -16,6 +17,11 @@ export default function NotFound() {
 
   return (
     <div className="min-h-screen bg-semantic-background flex flex-col items-center justify-center px-4 py-16">
+      <SeoHead
+        title="Seite nicht gefunden – Menschlichkeit Österreich"
+        description="Diese Seite existiert nicht. Besuchen Sie unsere Startseite oder navigieren Sie zu einem unserer Angebote."
+        noIndex={true}
+      />
       <div className="max-w-lg w-full text-center">
         {/* Illustration */}
         <div className="text-8xl mb-6 select-none" aria-hidden="true">🗺️</div>

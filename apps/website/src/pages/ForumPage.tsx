@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import SeoHead from '../components/seo/SeoHead';
 
 interface ForumCategory {
   id: string;
@@ -98,6 +99,10 @@ export default function ForumPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
+      <SeoHead
+        title="Forum – Diskussion und Austausch"
+        description="Nehmen Sie an Diskussionen zu Demokratie, Menschenrechten und gesellschaftlichen Themen teil. Das Community-Forum von Menschlichkeit Österreich."
+      />
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Forum</h1>

@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '../components/ui/Card';
+import SeoHead from '../components/seo/SeoHead';
+import JsonLdOrganization from '../components/seo/JsonLdOrganization';
 
 const topics = [
   {
@@ -57,6 +59,12 @@ const stats = [
 export default function HomePage() {
   return (
     <div data-component="Home">
+      <SeoHead
+        title="Menschlichkeit Österreich – Verein für Demokratie &amp; Menschenrechte"
+        description="Gemeinnütziger Verein zur Förderung von Demokratie, Menschenrechten und Zivilgesellschaft in Österreich. Jetzt Mitglied werden oder spenden."
+        canonical="https://www.menschlichkeit-oesterreich.at/"
+      />
+      <JsonLdOrganization />
 
       {/* Hero Section */}
       <section
