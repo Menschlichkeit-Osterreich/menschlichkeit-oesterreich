@@ -6,7 +6,6 @@
   "private": true,
   "workspaces": [
     "apps/website",
-    "website",
     "mcp-servers/*"
   ],
   "scripts": {
@@ -45,7 +44,6 @@
     "deploy:crm": "pwsh scripts/deploy-crm.ps1",
     "deploy:api": "pwsh scripts/deploy-api.ps1",
     "deploy:frontend": "pwsh scripts/deploy-frontend.ps1",
-    "lh:website": "npm run lh:ci --workspace=website",
     "lint": "eslint .",
     "lint:sarif": "eslint . -f sarif -o eslint.sarif || true",
     "lint:all": "npm run lint:js && npm run lint:php && npm run lint:md",
