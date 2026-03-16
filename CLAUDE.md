@@ -188,7 +188,7 @@ Die vollständige OpenAPI-Spezifikation liegt in `apps/api/openapi.yaml` (40+ En
 
 ## MCP Servers
 
-Project ships its own MCP servers in `mcp-servers/` (figma-mcp-server, file-server). Configuration in `mcp.json`.
+Project ships its own MCP servers in `mcp-servers/` (file-server). Configuration in `mcp.json`.
 
 ## Umgebungsvariablen
 
