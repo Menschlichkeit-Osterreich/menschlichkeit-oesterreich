@@ -1,10 +1,14 @@
-# 🚀 GitHub Actions Deployment (SSH/SFTP Alternative)
+# DEAKTIVIERT: Dieser Workflow ist redundant zu deploy-plesk.yml.
+# Push-Trigger entfernt um Race Conditions mit deploy-plesk.yml zu vermeiden.
+# Bitte deploy-plesk.yml verwenden.
 
-name: Deploy to Plesk
+name: Deploy to Plesk (LEGACY — deaktiviert)
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+    inputs:
+      note:
+        description: "ACHTUNG: Dieser Workflow ist deaktiviert. Bitte deploy-plesk.yml verwenden."
+        required: false
 
 jobs:
   deploy:
