@@ -1,6 +1,0 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Import custom design tokens from globals.css */
-@import './globals.css';
