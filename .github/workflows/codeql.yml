@@ -2,33 +2,24 @@ name: CodeQL
 
 on:
   push:
-    branches: [main, master, chore/**, feature/**]
+    branches: [main, develop, chore/**, feature/**]
     paths:
       - 'apps/website/**'
       - 'apps/api/**'
       - 'apps/crm/**'
-      # TODO: Legacy-Pfade nach vollständiger Migration auf apps/* entfernen
-      - 'frontend/**'
-      - 'website/**'
-      - 'api.menschlichkeit-oesterreich.at/**'
-      - 'crm.menschlichkeit-oesterreich.at/**'
-      - 'web/**'
-      - 'servers/**'
+      - 'openclaw-system/**'
       - '.github/workflows/codeql.yml'
   pull_request:
-    branches: [main, master, chore/**, feature/**]
+    branches: [main, develop]
     paths:
       - 'apps/website/**'
       - 'apps/api/**'
       - 'apps/crm/**'
-      # TODO: Legacy-Pfade nach vollständiger Migration auf apps/* entfernen
-      - 'frontend/**'
-      - 'website/**'
-      - 'api.menschlichkeit-oesterreich.at/**'
-      - 'crm.menschlichkeit-oesterreich.at/**'
-      - 'web/**'
-      - 'servers/**'
+      - 'openclaw-system/**'
       - '.github/workflows/codeql.yml'
+  schedule:
+    # Nightly CodeQL-Scan (01:00 UTC) – unabhängig von Push-Pfad-Filtern
+    - cron: '0 1 * * *'
 
 permissions:
   contents: read
@@ -36,22 +27,28 @@ permissions:
 
 jobs:
   analyze:
-    name: CodeQL Analyse
+    name: CodeQL Analyse (${{ matrix.language }})
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [javascript, python]
+        # javascript deckt auch TypeScript ab (selber Analyzer).
+        # python deckt apps/api/ und openclaw-system/ ab.
+        # php würde autobuild benötigen und erhöht Laufzeit; CodeQL-php ist optional.
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
+        uses: github/codeql-action/init@45775bd8235c68ba998cffa5171334d58593da47  # v3.28.1
         with:
-          # Nur interpretierte Sprachen dieses Monorepos analysieren, um
-          # unnötige Autobuilds zu vermeiden (cpp/csharp/go/java/ruby nicht genutzt)
-          languages: javascript, python
+          languages: ${{ matrix.language }}
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
+        uses: github/codeql-action/analyze@45775bd8235c68ba998cffa5171334d58593da47  # v3.28.1
         with:
-          category: '/language:multi'
+          category: '/language:${{ matrix.language }}'

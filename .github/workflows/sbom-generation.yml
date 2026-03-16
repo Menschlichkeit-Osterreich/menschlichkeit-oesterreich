@@ -19,10 +19,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: Generate SBOM
-        uses: anchore/sbom-action@v0
+        uses: anchore/sbom-action@fc46e51fd3ca173a6fcf9b99e00b3c2440dd5edd  # v0.18.0
         with:
           path: .
           format: cyclonedx-json
@@ -44,15 +44,15 @@ jobs:
             echo "⚠️ CycloneDX CLI binary unavailable; skipping schema validation"
           fi
 
+      - name: Install cosign via sigstore/cosign-installer
+        if: github.event_name != 'pull_request'
+        # Offizielle Action statt curl-to-binary (kein SHA-Verifikationsrisiko)
+        uses: sigstore/cosign-installer@dc72c7d5c4d10cd6bcb8cf6e3fd625a9e5e537da  # v3.7.0
+
       - name: Sign SBOM with cosign (OIDC)
         if: github.event_name != 'pull_request'
         run: |
-          # cosign v2.x: keyless signing is default, COSIGN_EXPERIMENTAL no longer needed
-          COSIGN_VERSION="v2.4.1"
-          curl -sSfL "https://github.com/sigstore/cosign/releases/download/${COSIGN_VERSION}/cosign-linux-amd64" \
-            -o /usr/local/bin/cosign
-          chmod +x /usr/local/bin/cosign
-          # Sign the SBOM using keyless OIDC (Sigstore)
+          # cosign v2.x: keyless signing via OIDC (Sigstore), kein statisches Key-Material
           cosign sign-blob sbom.cyclonedx.json \
             --output-certificate sbom.cyclonedx.json.pem \
             --output-signature sbom.cyclonedx.json.sig \
@@ -60,7 +60,7 @@ jobs:
           echo "✅ SBOM signed via OIDC (Sigstore keyless)"
 
       - name: Upload SBOM artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
         with:
           name: sbom-cyclonedx
           path: |

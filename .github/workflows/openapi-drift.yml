@@ -5,27 +5,29 @@ name: OpenAPI Drift Check
 
 on:
   push:
-    branches: [main, master, develop]
+    branches: [main, develop]
     paths:
       - 'apps/api/**'
-      - 'api.menschlichkeit-oesterreich.at/**'
       - '.github/workflows/openapi-drift.yml'
   pull_request:
     paths:
       - 'apps/api/**'
-      - 'api.menschlichkeit-oesterreich.at/**'
   workflow_dispatch: {}
+
+permissions:
+  contents: read
 
 jobs:
   drift-check:
     name: OpenAPI Drift Check
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
 
       - name: Python einrichten
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b  # v5.3.0
         with:
           python-version: '3.12'
           cache: 'pip'
@@ -87,7 +89,7 @@ jobs:
           import json, yaml, sys
           from deepdiff import DeepDiff
 
-          YAML_PATH = "api.menschlichkeit-oesterreich.at/openapi.yaml"
+          YAML_PATH = "apps/api/openapi.yaml"
           GEN_PATH  = "/tmp/openapi.generated.json"
 
           with open(GEN_PATH) as f:
@@ -124,13 +126,13 @@ jobs:
           if not drift:
               print(f"✅ Kein Drift: {len(gen_paths)} Pfade übereinstimmend")
           else:
-              print(f"\nBitte openapi.yaml aktualisieren: cd api.menschlichkeit-oesterreich.at && ...")
+              print(f"\nBitte apps/api/openapi.yaml aktualisieren.")
               sys.exit(1)
           EOF
 
       - name: OpenAPI-Diff als Artefakt hochladen (bei Fehler)
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
         with:
           name: openapi-drift-report
           path: /tmp/openapi.generated.json

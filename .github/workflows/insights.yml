@@ -5,6 +5,9 @@ on:
     - cron: '0 6 * * 0'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   insights:
     name: 📈 Generate Repository Insights
@@ -12,12 +15,12 @@ jobs:
 
     steps:
       - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           fetch-depth: 0
 
       - name: 🔧 Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af  # v4.2.0
         with:
           node-version: '22'
 
@@ -168,7 +171,7 @@ jobs:
           echo "- **Issues Closed Last Week:** $RECENT_ISSUES" >> insights-report.md
 
       - name: 📤 Upload Insights Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
         with:
           name: repository-insights
           path: insights-report.md
@@ -186,14 +189,11 @@ jobs:
             echo "Adding topic: $topic"
           done
 
-      - name: 🤖 Notify via n8n
-        if: always()
+      - name: Notify via n8n
+        if: always() && secrets.N8N_WEBHOOK_URL != ''
         run: |
-          curl -X POST "${{ secrets.N8N_WEBHOOK_URL }}" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "type": "repository-insights",
-              "repository": "${{ github.repository }}",
-              "date": "'$(date)'",
-              "workflow_status": "${{ job.status }}"
-            }'
+          if [ -n "${{ secrets.N8N_WEBHOOK_URL }}" ]; then
+            curl -fsSL -X POST "${{ secrets.N8N_WEBHOOK_URL }}" \
+              -H "Content-Type: application/json" \
+              -d '{"type":"repository-insights","repository":"${{ github.repository }}","date":"'"$(date)"'","workflow_status":"${{ job.status }}"}'
+          fi
