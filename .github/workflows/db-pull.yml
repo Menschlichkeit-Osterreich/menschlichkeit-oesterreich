@@ -25,14 +25,18 @@ jobs:
       DB_PASS: ${{ secrets.DB_PASS }}
     steps:
       - name: Start ssh-agent
-        uses: webfactory/ssh-agent@v0.9.0
+        uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd  # v0.9.1
         with:
           ssh-private-key: ${{ secrets.PLESK_SSH_KEY }}
 
-      - name: Trust host key
+      - name: Trust host key (aus Secret – kein live ssh-keyscan)
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -p "${{ env.SSH_PORT }}" -H "${{ env.SSH_HOST }}" >> ~/.ssh/known_hosts
+          # PLESK_KNOWN_HOSTS muss im GitHub-Environment abgelegt sein.
+          # Erzeugen via: ssh-keyscan -p <port> <host> auf vertrauenswürdigem System,
+          # dann als Secret PLESK_KNOWN_HOSTS im entsprechenden Environment speichern.
+          printf '%s\n' "${{ secrets.PLESK_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
 
       - name: Stream mysqldump → gzip
         run: |
@@ -44,7 +48,7 @@ jobs:
           echo "OUT=$OUT" >> $GITHUB_ENV
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
         with:
           name: ${{ env.OUT }}
           path: ${{ env.OUT }}
