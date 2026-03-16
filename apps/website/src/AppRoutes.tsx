@@ -45,7 +45,6 @@ export default function AppRoutes() {
     <Routes>
       <Route element={<PublicLayout />}>
         <Route index element={<Home />} />
-        <Route path="/home" element={<Home />} />
         <Route path="/ueber-uns" element={<UeberUns />} />
         <Route path="/team" element={<TeamPage />} />
         <Route path="/transparenz" element={<TransparenzPage />} />

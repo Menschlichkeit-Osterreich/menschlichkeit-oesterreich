@@ -29,7 +29,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from .routers import metrics, auth, members, forum, blog, events, roles, finance, sitemap, invoices
 from .audit import ensure_audit_table, write_audit_event
 from .security import enforce_csrf, rate_limiter, require_jwt_secret_configured
-from .middleware.pii_middleware import PiiSanitizationMiddleware
+from .middleware.pii_middleware import PiiSanitizationMiddleware, PiiLoggingMiddleware
 
 # ── Logging Setup ─────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -119,6 +119,7 @@ app.add_middleware(
 
 # ── Middleware: PII-Sanitizer ─────────────────────────────────────────────────
 app.add_middleware(PiiSanitizationMiddleware)
+app.add_middleware(PiiLoggingMiddleware)
 
 # ── Middleware: GZip ──────────────────────────────────────────────────────────
 app.add_middleware(GZipMiddleware, minimum_size=1000)
