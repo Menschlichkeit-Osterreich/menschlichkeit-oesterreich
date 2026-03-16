@@ -2,11 +2,11 @@ name: Semgrep Security Scan
 
 on:
   push:
-    branches: [main, master, chore/**, feature/**]
+    branches: [main, develop, chore/**, feature/**]
   pull_request:
-    branches: [main, master]
+    branches: [main, develop]
   schedule:
-    # Weekly scan on Monday at 3:00 UTC
+    # Wöchentlich Montag 03:00 UTC (Versatz zu CodeQL/Trivy)
     - cron: '0 3 * * 1'
 
 permissions:
@@ -21,11 +21,13 @@ jobs:
     timeout-minutes: 20
 
     container:
-      image: semgrep/semgrep
+      # Semgrep official image – Update durch Renovate/Dependabot gesteuert.
+      # SHA-Pin: semgrep/semgrep:1.112.0 (ggf. mit Renovate auto-updaten)
+      image: semgrep/semgrep:1.112.0
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           fetch-depth: 0
 
@@ -48,33 +50,29 @@ jobs:
           SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
         continue-on-error: true
 
-      - name: Check Semgrep Results
+      - name: Semgrep Befunde prüfen
         if: always()
         run: |
           if [ -f semgrep-results.sarif ]; then
-            echo "Semgrep scan completed. Results uploaded to Security tab."
-            # Count findings (if jq is available)
-            if command -v jq &> /dev/null; then
-              FINDINGS=$(jq '[.runs[].results[]] | length' semgrep-results.sarif 2>/dev/null || echo "0")
-              echo "Total findings: $FINDINGS"
-              if [ "${{ steps.semgrep.outcome }}" == "failure" ]; then
-                echo "⚠️ Warning: Semgrep found blocking security findings. Please review in the Security tab."
-              fi
+            FINDINGS=$(jq '[.runs[].results[]] | length' semgrep-results.sarif 2>/dev/null || echo "0")
+            echo "Semgrep Befunde gesamt: $FINDINGS"
+            if [ "${{ steps.semgrep.outcome }}" == "failure" ]; then
+              echo "⚠️ Semgrep hat blockierende Security-Befunde gefunden. Bitte im Security-Tab prüfen."
             fi
           else
-            echo "No Semgrep results file generated"
+            echo "Keine Semgrep-Ergebnisdatei generiert."
           fi
 
       - name: Upload SARIF file
-        uses: github/codeql-action/upload-sarif@v4
-        if: always()
+        uses: github/codeql-action/upload-sarif@45775bd8235c68ba998cffa5171334d58593da47  # v3.28.1
+        if: always() && hashFiles('semgrep-results.sarif') != ''
         with:
           sarif_file: semgrep-results.sarif
           category: semgrep
 
       - name: Upload results as artifact
-        uses: actions/upload-artifact@v4
-        if: always()
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
+        if: always() && hashFiles('semgrep-results.sarif') != ''
         with:
           name: semgrep-results
           path: semgrep-results.sarif

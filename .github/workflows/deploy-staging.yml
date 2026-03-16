@@ -16,12 +16,12 @@ jobs:
     environment: staging
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
         with:
           fetch-depth: 0
 
       - name: Use Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af  # v4.2.0
         with:
           node-version: '22'
           cache: 'npm'
@@ -57,20 +57,24 @@ jobs:
       - name: Configure SSH agent
         # webfactory/ssh-agent hält den Key im SSH-Agent (kein Schreiben auf Disk).
         # Das ist sicherer als echo "$KEY" > ~/.ssh/id_ed25519.
-        uses: webfactory/ssh-agent@v0.8.0
+        uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd  # v0.9.1
         with:
           ssh-private-key: ${{ secrets.STAGING_DEPLOY_KEY }}
 
       - name: Add host to known_hosts
-        env:
-          STAGING_REMOTE_HOST: ${{ secrets.STAGING_REMOTE_HOST }}
-          STAGING_REMOTE_PORT: ${{ secrets.STAGING_REMOTE_PORT }}
         run: |
           set -euo pipefail
-          touch ~/.ssh/known_hosts
-          if [ -n "${STAGING_REMOTE_HOST:-}" ]; then
-            ssh-keyscan -p "${STAGING_REMOTE_PORT:-22}" "$STAGING_REMOTE_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+          mkdir -p ~/.ssh
+          # STAGING_KNOWN_HOSTS muss im GitHub-Environment 'staging' abgelegt sein.
+          # Erzeugen via: ssh-keyscan -p <port> <host> auf einem vertrauenswürdigen System,
+          # dann als Secret STAGING_KNOWN_HOSTS speichern. Nie ssh-keyscan live im CI nutzen
+          # (MITM-Angriff möglich während des TOFU-Vorgangs).
+          if [ -z "${{ secrets.STAGING_KNOWN_HOSTS }}" ]; then
+            echo "::error::Secret STAGING_KNOWN_HOSTS ist nicht gesetzt. Bitte im GitHub-Environment 'staging' hinterlegen."
+            exit 1
           fi
+          printf '%s\n' "${{ secrets.STAGING_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
 
       - name: Deploy to staging
         env:
