@@ -116,13 +116,9 @@ module.exports = {
       spacing: ${JSON.stringify(tokens.spacing || {}, null, 8)},
       borderRadius: ${JSON.stringify(tokens.borderRadius || {}, null, 8)},
       boxShadow: ${JSON.stringify(tokens.shadows || {}, null, 8)},
-      animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
-      },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [],
 }`;
 
         try {
