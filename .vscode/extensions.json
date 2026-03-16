@@ -10,7 +10,16 @@
         "ms-eslint.vscode-eslint",
         "bmewburn.vscode-intelephense-client",
         "ms-playwright.playwright",
-        "bradlc.vscode-tailwindcss"
+        "bradlc.vscode-tailwindcss",
+        "ms-vscode.vscode-json",
+        "ms-vscode-remote.remote-containers",
+        "eamodio.gitlens",
+        "ms-azuretools.vscode-docker",
+        "redhat.vscode-yaml",
+        "ms-vscode.vscode-markdownlint",
+        "ms-vscode.powershell",
+        "ms-vscode.vscode-jupyter",
+        "ms-vscode-remote.remote-wsl"
     ],
     "unwantedRecommendations": []
 }
