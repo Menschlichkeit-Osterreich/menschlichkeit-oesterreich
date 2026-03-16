@@ -20,6 +20,23 @@ audience:
 
 Alle relevanten Änderungen an diesem Repository werden in diesem Dokument festgehalten.
 
+## [Unreleased] — 2026-03-16
+
+### Security
+
+- fix(nginx): Host-Header-Injection in HTTP→HTTPS-Redirect behoben — `api.menschlichkeit-oesterreich.at.conf` und `crm.menschlichkeit-oesterreich.at.conf` verwenden nun hardcodierte Hostnamen statt `$host`; `nosemgrep`-Kommentare ergänzt
+- fix(nginx): `/metrics`-Endpunkt in `api.menschlichkeit-oesterreich.at.conf` auf `allow 127.0.0.1; deny all;` beschränkt — verhindert öffentlichen Zugriff auf Prometheus-Metriken
+- fix(xss): `OpenClawChat.tsx` — `dangerouslySetInnerHTML`-Markdown-Link-Renderer validiert jetzt URLs; `javascript:`, `data:`, `vbscript:`-Protokolle werden auf `#` umgeleitet; Link-Text wird HTML-escaped
+- fix(dsgvo): `auth.py` — fünf `logger.info()`-Aufrufe mit ungemaskten E-Mail-Adressen verwenden nun `scrub()` aus `pii_sanitizer`
+- fix(dsgvo): `invoices.py` — `target_email` in Log-Ausgabe wird nun via `scrub()` maskiert
+- fix(dsgvo): `PiiLoggingMiddleware` in `app/main.py` registriert — war implementiert aber nie aktiviert
+- fix(infra): `secrets/development/*.yaml` und `secrets/production/*.yaml` aus Git-Tracking entfernt und in `.gitignore` eingetragen
+
+### Architecture
+
+- fix(routing): Doppelte Route `/Login` (case-variant) aus `App.tsx` entfernt
+- fix(routing): Redundante Route `/home` aus `App.tsx` und `AppRoutes.tsx` entfernt — Index-Route (`/`) ist kanonisch
+
 ## [Unreleased] — 2026-03-15
 
 ### Security

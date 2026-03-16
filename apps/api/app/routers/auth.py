@@ -8,6 +8,7 @@ from uuid import uuid4
 from fastapi import APIRouter, HTTPException, status
 
 from ..db import fetch, fetchrow, fetchval, execute
+from ..lib.pii_sanitizer import scrub
 from ..rbac import (
     ADMIN_EMAILS,
     Role,
@@ -83,7 +84,7 @@ async def login(body: LoginRequest):
         role = "admin"
 
     token = create_jwt({"sub": row["email"], "uid": str(row["id"]), "role": role})
-    logger.info(f"Login erfolgreich: {row['email']}")
+    logger.info(f"Login erfolgreich: {scrub(row['email'])}")
     return TokenResponse(data=TokenData(token=token, expires_in=3600))
 
 
@@ -106,7 +107,7 @@ async def register(body: RegisterRequest):
     )
 
     token = create_jwt({"sub": body.email.lower(), "uid": member_id, "role": role})
-    logger.info(f"Registrierung erfolgreich: {body.email}")
+    logger.info(f"Registrierung erfolgreich: {scrub(body.email)}")
     return TokenResponse(data=TokenData(token=token, expires_in=3600))
 
 
@@ -123,7 +124,7 @@ async def password_reset_request(body: PasswordResetRequest):
     safe_message = "Falls ein Konto mit dieser E-Mail existiert, wurde ein Wiederherstellungs-Link gesendet."
 
     if not row:
-        logger.info(f"Passwort-Reset angefordert für unbekannte E-Mail: {body.email}")
+        logger.info(f"Passwort-Reset angefordert für unbekannte E-Mail: {scrub(body.email)}")
         return MessageResponse(message=safe_message)
 
     reset_token = secrets.token_urlsafe(48)
@@ -139,7 +140,7 @@ async def password_reset_request(body: PasswordResetRequest):
         body.email.lower(), reset_token, expires_at.isoformat(),
     )
 
-    logger.info(f"Passwort-Reset Token erstellt für: {body.email} (Token: {reset_token[:8]}...)")
+    logger.info(f"Passwort-Reset Token erstellt für: {scrub(body.email)}")
     return MessageResponse(message=safe_message)
 
 
@@ -190,5 +191,5 @@ async def password_reset_confirm(body: PasswordResetConfirm):
 
     await execute("UPDATE password_reset_tokens SET used = TRUE WHERE token = $1", body.token)
 
-    logger.info(f"Passwort erfolgreich zurückgesetzt für: {email}")
+    logger.info(f"Passwort erfolgreich zurückgesetzt für: {scrub(email)}")
     return MessageResponse(message="Passwort wurde erfolgreich zurückgesetzt.")

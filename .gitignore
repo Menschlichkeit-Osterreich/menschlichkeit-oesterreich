@@ -54,6 +54,11 @@ apps/website/.vite/
 secrets/**/*.decrypted
 temp/*.decrypted
 
+# Secrets YAML files — must be SOPS-encrypted before committing.
+# Only documentation/schema files (README.md, *.schema.*) may be tracked.
+secrets/development/*.yaml
+secrets/production/*.yaml
+
 # Private keys & certificates
 *.pem
 *.key

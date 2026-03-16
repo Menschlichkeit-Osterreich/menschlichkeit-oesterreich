@@ -241,7 +241,15 @@ export const OpenClawChat: React.FC<OpenClawChatProps> = ({
                     <span dangerouslySetInnerHTML={{
                       __html: msg.content.replace(
                         /\[([^\]]+)\]\(([^)]+)\)/g,
-                        '<a href="$2" class="underline hover:no-underline" target="_self">$1</a>'
+                        (_match, text, url) => {
+                          // Security: only allow safe URL protocols; block javascript:, data:, vbscript:
+                          const safeUrl = /^(https?:\/\/|\/|#)/.test(url) ? url : '#';
+                          // Escape HTML in the link text to prevent injection
+                          const safeText = text.replace(/[<>"&]/g, (c: string) =>
+                            ({ '<': '&lt;', '>': '&gt;', '"': '&quot;', '&': '&amp;' }[c] ?? c)
+                          );
+                          return `<a href="${safeUrl}" class="underline hover:no-underline" target="_self" rel="noopener noreferrer">${safeText}</a>`;
+                        }
                       )
                     }} />
                   )}
