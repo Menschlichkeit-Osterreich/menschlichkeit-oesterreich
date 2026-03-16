@@ -24,6 +24,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status, Background
 from pydantic import BaseModel
 
 from ..db import fetch, fetchrow, fetchval, execute
+from ..lib.pii_sanitizer import scrub
 from ..rbac import get_current_user
 
 logger = logging.getLogger("menschlichkeit.api.invoices")
@@ -174,7 +175,7 @@ async def send_invoice(
 
     target_email = body.email or row["recipient_email"]
     background_tasks.add_task(_send_invoice_email, dict(row), target_email)
-    logger.info(f"Rechnung {row['invoice_number']} an {target_email} versenden")
+    logger.info(f"Rechnung {row['invoice_number']} an {scrub(target_email)} versenden")
     return {"message": f"Rechnung wird an {target_email} gesendet."}
 
 
