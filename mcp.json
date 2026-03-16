@@ -145,6 +145,18 @@
         "script": "scripts/validate-design-tokens.js",
         "tokens": "figma-design-system/00_design-tokens.json"
       }
+    },
+    "docs": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-docs"]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "playwright-mcp-server"]
+    },
+    "eslint": {
+      "command": "npx",
+      "args": ["-y", "eslint-mcp-server"]
     }
   }
 }
