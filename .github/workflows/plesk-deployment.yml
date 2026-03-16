@@ -1,14 +1,13 @@
-# GitHub Actions CI/CD Pipeline für menschlichkeit-oesterreich.at
-name: 🚀 Deploy to Plesk Production
+# DEAKTIVIERT: Dieser Workflow ist redundant zu deploy-plesk.yml.
+# Bitte deploy-plesk.yml verwenden. Push-Trigger entfernt, nur noch manuell auslösbar.
+name: 🚀 Deploy to Plesk Production (LEGACY — deaktiviert)
 
 on:
-  push:
-    branches:
-      - main
-      - production
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      note:
+        description: "ACHTUNG: Dieser Workflow ist deaktiviert. Bitte deploy-plesk.yml verwenden."
+        required: false
 
 env:
   NODE_VERSION: '22.20.0'

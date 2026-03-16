@@ -54,16 +54,19 @@ jobs:
             exit 1
           fi
 
-      - name: Configure SSH key
+      - name: Configure SSH agent
+        # webfactory/ssh-agent hält den Key im SSH-Agent (kein Schreiben auf Disk).
+        # Das ist sicherer als echo "$KEY" > ~/.ssh/id_ed25519.
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.STAGING_DEPLOY_KEY }}
+
+      - name: Add host to known_hosts
         env:
-          STAGING_DEPLOY_KEY: ${{ secrets.STAGING_DEPLOY_KEY }}
           STAGING_REMOTE_HOST: ${{ secrets.STAGING_REMOTE_HOST }}
           STAGING_REMOTE_PORT: ${{ secrets.STAGING_REMOTE_PORT }}
         run: |
           set -euo pipefail
-          mkdir -p ~/.ssh
-          echo "$STAGING_DEPLOY_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
           touch ~/.ssh/known_hosts
           if [ -n "${STAGING_REMOTE_HOST:-}" ]; then
             ssh-keyscan -p "${STAGING_REMOTE_PORT:-22}" "$STAGING_REMOTE_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
@@ -76,5 +79,4 @@ jobs:
           SAFE_DEPLOY_REMOTE_HOST: ${{ secrets.STAGING_REMOTE_HOST }}
           SAFE_DEPLOY_REMOTE_USER: ${{ secrets.STAGING_REMOTE_USER }}
           SAFE_DEPLOY_REMOTE_PORT: ${{ secrets.STAGING_REMOTE_PORT }}
-          SAFE_DEPLOY_SSH_KEY_PATH: /home/runner/.ssh/id_ed25519
         run: ./scripts/safe-deploy.sh

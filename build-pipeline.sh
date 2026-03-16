@@ -114,11 +114,9 @@ if command -v composer &> /dev/null && [[ -f "composer.json" ]]; then
 fi
 
 # Python Dependencies
-if [[ -f "api.menschlichkeit-oesterreich.at/requirements.txt" ]]; then
+if [[ -f "apps/api/requirements.txt" ]]; then
     echo "Installing Python packages..."
-    cd api.menschlichkeit-oesterreich.at
-    python3 -m pip install -r requirements.txt || python -m pip install -r requirements.txt || print_error "Failed to install Python dependencies"
-    cd ..
+    python3 -m pip install -r apps/api/requirements.txt || python -m pip install -r apps/api/requirements.txt || print_error "Failed to install Python dependencies"
 fi
 
 print_success "Dependencies installation completed"
@@ -149,22 +147,22 @@ print_success "Code quality checks completed"
 # 4. Build Projects
 print_info "🏗️  Building projects..."
 
-# Build Frontend (Next.js)
-if [[ -f "frontend/package.json" ]]; then
-    echo "Building Frontend (Next.js)..."
-    cd frontend
+# Build Frontend (React SPA)
+if [[ -f "apps/website/package.json" ]]; then
+    echo "Building Frontend (React SPA)..."
+    cd apps/website
     npm run build || print_error "Frontend build failed"
-    cd ..
+    cd ../..
 fi
 
 # Build Games platform
-if [[ -f "web/package.json" ]]; then
+if [[ -f "apps/game/package.json" ]]; then
     echo "Building Games platform..."
-    cd web
+    cd apps/game
     if grep -q '"build":' package.json; then
         npm run build || print_error "Games platform build failed"
     fi
-    cd ..
+    cd ../..
 fi
 
 print_success "Build completed successfully"
