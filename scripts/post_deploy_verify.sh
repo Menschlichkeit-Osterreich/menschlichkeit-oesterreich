@@ -18,6 +18,9 @@ MAIN_DOMAIN="${MAIN_DOMAIN:-menschlichkeit-oesterreich.at}"
 VERIFY_JSON="${VERIFY_JSON:-false}"
 PLSK_PORT="${PLSK_PORT:-22}"
 TIMEOUT="${VERIFY_TIMEOUT:-15}"
+PLSK_DEPLOY_PATH="${PLSK_DEPLOY_PATH:-httpdocs}"
+SSH_CONFIG_FILE="${SSH_CONFIG_FILE:-${HOME}/.ssh/config}"
+PLSK_SSH_ALIAS="${PLSK_SSH_ALIAS:-}"
 
 PASS=0
 FAIL=0
@@ -31,6 +34,14 @@ log()  { echo "[verify $(ts)] $*"; }
 ok()   { echo "  ✓ $*"; RESULTS+=("{\"check\":\"$1\",\"status\":\"pass\"}"); ((PASS++)) || true; }
 fail() { echo "  ✗ $*"; RESULTS+=("{\"check\":\"$1\",\"status\":\"fail\",\"detail\":\"$2\"}"); ((FAIL++)) || true; }
 warn() { echo "  ⚠ $*"; RESULTS+=("{\"check\":\"$1\",\"status\":\"warn\",\"detail\":\"$2\"}"); ((WARN++)) || true; }
+
+remote_ssh() {
+  if [[ -n "${PLSK_SSH_ALIAS}" && -f "${SSH_CONFIG_FILE}" ]]; then
+    ssh -F "${SSH_CONFIG_FILE}" "${PLSK_SSH_ALIAS}" "$@"
+  else
+    ssh -p "${PLSK_PORT}" "${PLSK_USER}@${PLSK_HOST}" "$@"
+  fi
+}
 
 # ── SSH-Erreichbarkeit ────────────────────────────────────────────────────────
 check_ssh_reachable() {
@@ -48,7 +59,7 @@ check_release_marker() {
   local service_name="$2"
   log "Prüfe Release-Marker: ${path}/.deploy_release"
   local result
-  result=$(ssh -F "${HOME}/.ssh/config" plesk-deploy \
+  result=$(remote_ssh \
     "cat '${path}/.deploy_release' 2>/dev/null || echo 'NOT_FOUND'" 2>/dev/null)
   if [[ "${result}" == "NOT_FOUND" ]]; then
     fail "${service_name} Release-Marker" "Datei .deploy_release nicht gefunden in ${path}."
@@ -65,8 +76,8 @@ check_remote_file() {
   local service_name="$3"
   log "Prüfe ${service_name}: ${path}/${file}"
   local result
-  result=$(ssh -F "${HOME}/.ssh/config" plesk-deploy \
-    "test -f '${path}/${file}' && echo 'OK' || echo 'MISSING'" 2>/dev/null)
+  result=$(remote_ssh \
+    "test -e '${path}/${file}' && echo 'OK' || echo 'MISSING'" 2>/dev/null)
   if [[ "${result}" == "OK" ]]; then
     ok "${service_name} Datei vorhanden" "${file}"
   else
@@ -121,7 +132,7 @@ fi
 if [[ "${SERVICE}" == "all" || "${SERVICE}" == "api" ]]; then
   echo ""
   echo "── API ───────────────────────────────────────────────────"
-  API_PATH="${PLSK_API_PATH:-$(dirname "${PLSK_DEPLOY_PATH}")/subdomains/api/httpdocs}"
+  API_PATH="${PLSK_API_PATH:-subdomains/api/httpdocs}"
   check_release_marker "${API_PATH}" "API"
   check_remote_file    "${API_PATH}" "requirements.txt" "API"
   check_http           "https://api.${MAIN_DOMAIN}/health" "API"
@@ -131,7 +142,7 @@ fi
 if [[ "${SERVICE}" == "all" || "${SERVICE}" == "crm" ]]; then
   echo ""
   echo "── CRM ───────────────────────────────────────────────────"
-  CRM_PATH="${PLSK_CRM_PATH:-$(dirname "${PLSK_DEPLOY_PATH}")/subdomains/crm/httpdocs}"
+  CRM_PATH="${PLSK_CRM_PATH:-subdomains/crm/httpdocs}"
   check_release_marker "${CRM_PATH}" "CRM"
   check_remote_file    "${CRM_PATH}" "vendor/autoload.php" "CRM (composer)"
   check_http           "https://crm.${MAIN_DOMAIN}/" "CRM"
@@ -141,7 +152,7 @@ fi
 if [[ "${SERVICE}" == "all" || "${SERVICE}" == "games" ]]; then
   echo ""
   echo "── Games ─────────────────────────────────────────────────"
-  GAMES_PATH="$(dirname "${PLSK_DEPLOY_PATH}")/subdomains/games/httpdocs"
+  GAMES_PATH="${PLSK_GAMES_PATH:-subdomains/games/httpdocs}"
   check_release_marker "${GAMES_PATH}" "Games"
   check_http           "https://games.${MAIN_DOMAIN}/" "Games"
 fi

@@ -9,6 +9,7 @@ export default [
     ignores: [
       'node_modules/**',
       '**/dist/**',
+      '**/dist-ssr/**',
       '**/build/**',
       '**/*.min.js',
       '**/*.d.ts',

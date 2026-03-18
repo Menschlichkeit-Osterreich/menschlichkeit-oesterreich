@@ -130,10 +130,7 @@ npm run n8n:logs         # Logs anzeigen
 ### Figma MCP Integration
 
 ```powershell
-npm run figma:ws:start   # WebSocket Server
-npm run figma:sync       # Design Tokens sync
-npm run figma:generate   # Code-Generierung
-npm run figma:full-sync  # Kompletter Workflow
+npm run build:frontend   # Frontend mit committed Design Tokens bauen
 ```
 
 ### Reports & Status
@@ -277,9 +274,9 @@ docker-compose logs postgres
    npm run quality:gates
    ```
 
-4. **Figma Integration testen**:
+4. **Design-Tokens-Build testen**:
    ```powershell
-   npm run figma:full-sync
+   npm run build:frontend
    ```
 
 5. **Erste Änderung committen**:

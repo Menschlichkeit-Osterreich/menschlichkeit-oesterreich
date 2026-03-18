@@ -43,9 +43,12 @@ DSGVO-Vorfall: datenschutz@menschlichkeit-oesterreich.at (sofort, Art. 33 72h-Fr
 # 1. Secret SOFORT rotieren (beim Anbieter)
 # 2. Gitleaks-Report prüfen:
 npm run security:gitleaks
+# 3. Reproduzierbares Audit-Artefakt erzeugen:
+npm run security:incident:audit
 # 3. Git-History bereinigen:
-git filter-repo --path-glob DATEINAME --invert
+npm run security:rewrite-public-secrets -- -ReplaceText ../replace-text.txt -MirrorDir ../repo-ir-clean.git
 # 4. Checkliste: docs/security/secrets-policy.md → Leak Response
+# 5. Runbook: docs/security/incidents/2026-03-secret-exposure-response.md
 ```
 
 **Datenleck / PII-Exposure:**
@@ -72,7 +75,7 @@ docker-compose restart api
 Für jeden P0/P1-Vorfall eine Datei anlegen:
 
 ```
-docs/incidents/YYYY-MM-DD-kurzbeschreibung.md
+docs/security/incidents/YYYY-MM-DD-kurzbeschreibung.md
 ```
 
 Template:
@@ -123,4 +126,4 @@ Nach jedem P0/P1-Vorfall innerhalb von 5 Werktagen:
 
 ---
 
-*Verwandt: [Runbooks](../../runbooks/) | [Secrets Policy](../security/secrets-policy.md) | [DSGVO-Betrieb](../compliance/gdpr-operations.md)*
+*Verwandt: [Runbooks](../../runbooks/) | [Secrets Policy](../security/secrets-policy.md) | [DSGVO-Betrieb](../compliance/gdpr-operations.md) | [Secret-Exposure Runbook](../security/incidents/2026-03-secret-exposure-response.md)*

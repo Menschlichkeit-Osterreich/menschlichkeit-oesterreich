@@ -5,9 +5,13 @@ on:
     branches: [main, develop, chore/**, feature/**]
   pull_request:
     branches: [main, develop, chore/**, feature/**]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *'
 
 permissions:
   contents: read
+  security-events: write
 
 jobs:
   gitleaks:
@@ -22,9 +26,23 @@ jobs:
 
       - name: Run Gitleaks
         # gitleaks-action@v2 nutzt die gepinnte Gitleaks-Binary intern (kein curl-to-binary).
-        # Erlaubt benutzerdefinierte .gitleaks.toml mit Allowlist für Templates, Test-Fixtures etc.
+        # Scannt die komplette Git-History via --log-opts=--all und erstellt SARIF fuer das Security-Tab.
         uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7  # v2.3.9
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          args: --no-git --source . --config .gitleaks.toml --redact
+          args: --config .gitleaks.toml --redact --log-opts=--all --report-format sarif --report-path gitleaks.sarif
+
+      - name: Upload Gitleaks SARIF
+        if: always() && hashFiles('gitleaks.sarif') != ''
+        uses: github/codeql-action/upload-sarif@45775bd8235c68ba998cffa5171334d58593da47  # v3.28.1
+        with:
+          sarif_file: gitleaks.sarif
+          category: gitleaks
+
+      - name: Upload Gitleaks artifact
+        if: always() && hashFiles('gitleaks.sarif') != ''
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
+        with:
+          name: gitleaks-sarif
+          path: gitleaks.sarif

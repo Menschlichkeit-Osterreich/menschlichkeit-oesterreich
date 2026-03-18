@@ -25,7 +25,54 @@ jobs:
         with:
           node-version: 22
 
+      - name: Preflight
+        id: preflight
+        env:
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
+          FB_PAGE_TOKEN: ${{ secrets.FB_PAGE_TOKEN }}
+          MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          BSKY_APP_PASSWORD: ${{ secrets.BSKY_APP_PASSWORD }}
+          REDDIT_ACCESS_TOKEN: ${{ secrets.REDDIT_ACCESS_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          PINTEREST_ACCESS_TOKEN: ${{ secrets.PINTEREST_ACCESS_TOKEN }}
+        run: |
+          set -euo pipefail
+          READY=true
+          REASON="Konfiguration vorhanden"
+
+          if [ ! -f "scripts/social/publish.mjs" ]; then
+            READY=false
+            REASON="scripts/social/publish.mjs fehlt"
+          elif [ ! -d "content/social" ]; then
+            READY=false
+            REASON="content/social fehlt"
+          else
+            HAS_SECRET=false
+            for value in \
+              "$LINKEDIN_ACCESS_TOKEN" "$X_BEARER_TOKEN" "$FB_PAGE_TOKEN" \
+              "$MASTODON_ACCESS_TOKEN" "$TELEGRAM_BOT_TOKEN" "$BSKY_APP_PASSWORD" \
+              "$REDDIT_ACCESS_TOKEN" "$SLACK_WEBHOOK_URL" "$DISCORD_WEBHOOK_URL" \
+              "$PINTEREST_ACCESS_TOKEN"; do
+              if [ -n "$value" ]; then
+                HAS_SECRET=true
+                break
+              fi
+            done
+
+            if [ "$HAS_SECRET" != "true" ]; then
+              READY=false
+              REASON="keine Publishing-Secrets gesetzt"
+            fi
+          fi
+
+          echo "ready=$READY" >> "$GITHUB_OUTPUT"
+          echo "reason=$REASON" >> "$GITHUB_OUTPUT"
+
       - name: Run publisher
+        if: steps.preflight.outputs.ready == 'true'
         env:
           DRY_RUN: ${{ inputs.dry_run == true && 'true' || 'false' }}
           LINKEDIN_ORG_URN: ${{ secrets.LINKEDIN_ORG_URN }}
@@ -52,7 +99,11 @@ jobs:
 
       - name: Summary
         if: always()
+        env:
+          DRY_RUN: ${{ inputs.dry_run == true && 'true' || 'false' }}
         run: |
           echo "## Social Posts" >> $GITHUB_STEP_SUMMARY
           echo "- Dry run: $DRY_RUN" >> $GITHUB_STEP_SUMMARY
           echo "- Source dir: content/social" >> $GITHUB_STEP_SUMMARY
+          echo "- Ready: ${{ steps.preflight.outputs.ready }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Hinweis: ${{ steps.preflight.outputs.reason }}" >> $GITHUB_STEP_SUMMARY

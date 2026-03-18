@@ -13,8 +13,6 @@ paths = [
   # Example/template env files are intentionally committed
   '''.env\.example''',
   '''.env\.production\.template''',
-  # Encrypted vault file (not plaintext secrets)
-  '''.env\.vault''',
   # Test credentials for local/staging only — no production access
   '''.env\.test''',
   # Schema/example docs

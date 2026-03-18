@@ -527,8 +527,11 @@ Alle personenbezogenen Daten werden automatisch aus Logs entfernt:
 Alle Frontends nutzen **Figma Design Tokens** für konsistente Corporate Identity (Rot-Weiß-Rot).
 
 ```bash
-npm run figma:sync          # Tokens aus Figma synchronisieren
+npm run build:frontend      # Frontend inkl. committed Design Tokens bauen
 ```
+
+Die Design Tokens liegen committed in `figma-design-system/00_design-tokens.json`.
+Ein Live-Figma-Zugang ist für Entwicklung, CI und Deploy nicht erforderlich.
 
 - Tokens: [`figma-design-system/00_design-tokens.json`](figma-design-system/00_design-tokens.json)
 - Tailwind-Config: [`apps/website/tailwind.config.cjs`](apps/website/tailwind.config.cjs)

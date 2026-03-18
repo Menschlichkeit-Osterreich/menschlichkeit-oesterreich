@@ -18,11 +18,11 @@ Dieser Leitfaden beschreibt die Einrichtung der MCP-Server in diesem Repository.
 3. Lokale HTTP-Erreichbarkeit prüfen:
    ```powershell
    npm run mcp:check
-   npm run mcp:figma:health
    ```
 
 ## Healthchecks & Fehlertoleranz
-- Figma MCP Health: `npm run mcp:figma:health` (2xx–4xx belegt Erreichbarkeit)
+- Design-Tokens: `figma-design-system/00_design-tokens.json` ist committed und build-relevant.
+- Ein separater Figma-MCP-Healthcheck ist nicht mehr Teil des Pflichtpfads.
 - Allgemeiner Report: `quality-reports/mcp-access.json`
 - Verhalten:
   - Server nicht erreichbar → Hinweis im Chat und erneuter Versuch möglich

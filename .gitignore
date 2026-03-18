@@ -36,6 +36,7 @@ apps/website/.vite/
 
 # Environment Variables & Secrets (P0 SECURITY)
 .env
+.env.vault
 .env.local
 .env.development
 .env.staging  
@@ -448,7 +449,6 @@ crm.menschlichkeit-oesterreich.at/web/core/modules/**/tests/**/README.md
 .env*
 .flaskenv*
 !.env.project
-!.env.vault
 !.env.example
 !.env.production.template
 # OpenClaw – lokale Konfiguration (niemals einchecken)

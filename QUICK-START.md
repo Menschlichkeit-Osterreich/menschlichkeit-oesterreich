@@ -99,15 +99,12 @@ npm run test:unit             # Vitest Unit Tests
 ## 🎨 Figma Integration
 
 ```bash
-# Design Tokens synchronisieren
-npm run figma:sync
-
-# Komponenten aus Figma generieren
-npm run figma:generate
-
-# Vollständiger Sync mit Quality Gates
-npm run figma:full-sync
+# Frontend mit committed Design Tokens bauen
+npm run build:frontend
 ```
+
+Hinweis: `figma-design-system/00_design-tokens.json` ist committed.
+Ein Live-Figma-Sync ist kein Pflichtbestandteil von Build, CI oder Deploy.
 
 ## 🔍 Troubleshooting
 

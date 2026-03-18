@@ -5,6 +5,9 @@ import { resolve } from 'node:path';
 
 const REPORTS_DIR = resolve(process.cwd(), 'quality-reports');
 const OUTPUT_JSON = resolve(REPORTS_DIR, 'secrets-scan.json');
+const GITLEAKS_CONFIG = resolve(process.cwd(), '.gitleaks.toml');
+const args = process.argv.slice(2);
+const historyMode = !args.includes('--mode=dir');
 
 function run(cmd, args = []) {
   return new Promise((resolveOk, reject) => {
@@ -21,7 +24,47 @@ function writeEmpty() {
 
 async function main() {
   try {
-    await run('gitleaks', ['detect', '--report-path', OUTPUT_JSON, '--report-format', 'json']);
+    if (historyMode) {
+      try {
+        await run('gitleaks', [
+          'git',
+          '--repo-path',
+          '.',
+          '--config',
+          GITLEAKS_CONFIG,
+          '--redact',
+          '--report-path',
+          OUTPUT_JSON,
+          '--report-format',
+          'json',
+        ]);
+      } catch {
+        await run('gitleaks', [
+          'detect',
+          '--config',
+          GITLEAKS_CONFIG,
+          '--redact',
+          '--log-opts=--all',
+          '--report-path',
+          OUTPUT_JSON,
+          '--report-format',
+          'json',
+        ]);
+      }
+    } else {
+      await run('gitleaks', [
+        'detect',
+        '--source',
+        '.',
+        '--config',
+        GITLEAKS_CONFIG,
+        '--redact',
+        '--report-path',
+        OUTPUT_JSON,
+        '--report-format',
+        'json',
+      ]);
+    }
   } catch (e) {
     console.warn('Gitleaks nicht verfügbar, schreibe leeren Report:', e.message);
     writeEmpty();

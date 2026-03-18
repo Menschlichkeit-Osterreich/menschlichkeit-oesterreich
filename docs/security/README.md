@@ -28,7 +28,7 @@ The project uses multiple security scanning tools in CI/CD:
    - Workflow: `.github/workflows/trivy.yml`
 
 4. **Gitleaks** - Secret detection
-   - Workflow: `.github/workflows/security.yml`
+   - Workflow: `.github/workflows/gitleaks.yml`
 
 5. **OSV Scanner** - Open Source Vulnerability scanning
    - Workflow: `.github/workflows/osv-scanner.yml`
@@ -53,6 +53,7 @@ The project uses multiple security scanning tools in CI/CD:
 - ✅ Use environment variables or secret managers
 - ✅ Rotate secrets regularly (90 days)
 - ✅ Use `.gitignore` for sensitive files
+- ✅ Track incident runbooks in `docs/security/incidents/`
 
 ### DSGVO/Privacy
 - ✅ Encrypt PII (Personally Identifiable Information)
@@ -82,6 +83,7 @@ If you discover a security vulnerability, please report it to:
 - [DSGVO/GDPR Resources](https://gdpr.eu/)
 - [Semgrep Rules](https://semgrep.dev/r)
 - [GitHub Security](https://docs.github.com/en/code-security)
+- [Secret Exposure Incident Runbook](./incidents/2026-03-secret-exposure-response.md)
 
 ---
 
