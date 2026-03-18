@@ -2,16 +2,21 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router-dom';
 import { serializeJsonLd } from '../../utils/jsonLd';
-
-const SITE_NAME = 'Menschlichkeit Österreich';
-const SITE_URL = 'https://www.menschlichkeit-oesterreich.at';
-const DEFAULT_OG_IMAGE = `${SITE_URL}/og-default.jpg`;
+import {
+  DEFAULT_OG_IMAGE_ALT,
+  DEFAULT_OG_IMAGE_HEIGHT,
+  DEFAULT_OG_IMAGE_URL,
+  DEFAULT_OG_IMAGE_WIDTH,
+  SITE_NAME,
+  toAbsoluteUrl,
+} from '../../config/siteConfig';
 
 interface SeoHeadProps {
   title: string;
   description: string;
   canonical?: string;
   ogImage?: string;
+  ogImageAlt?: string;
   ogType?: 'website' | 'article';
   noIndex?: boolean;
   /** Additional JSON-LD schemas rendered inline via Helmet */
@@ -22,14 +27,16 @@ export default function SeoHead({
   title,
   description,
   canonical,
-  ogImage = DEFAULT_OG_IMAGE,
+  ogImage = DEFAULT_OG_IMAGE_URL,
+  ogImageAlt = DEFAULT_OG_IMAGE_ALT,
   ogType = 'website',
   noIndex = false,
   structuredData,
 }: SeoHeadProps) {
   const location = useLocation();
-  const resolvedCanonical = canonical ?? `${SITE_URL}${location.pathname}`;
+  const resolvedCanonical = toAbsoluteUrl(canonical ?? location.pathname);
   const fullTitle = title.includes(SITE_NAME) ? title : `${title} – ${SITE_NAME}`;
+  const resolvedOgImage = toAbsoluteUrl(ogImage);
 
   const schemas = structuredData
     ? Array.isArray(structuredData)
@@ -53,9 +60,10 @@ export default function SeoHead({
       <meta property="og:url" content={resolvedCanonical} />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
-      <meta property="og:image" content={ogImage} />
-      <meta property="og:image:width" content="1200" />
-      <meta property="og:image:height" content="630" />
+      <meta property="og:image" content={resolvedOgImage} />
+      <meta property="og:image:width" content={String(DEFAULT_OG_IMAGE_WIDTH)} />
+      <meta property="og:image:height" content={String(DEFAULT_OG_IMAGE_HEIGHT)} />
+      <meta property="og:image:alt" content={ogImageAlt} />
       <meta property="og:locale" content="de_AT" />
       <meta property="og:site_name" content={SITE_NAME} />
 
@@ -64,7 +72,8 @@ export default function SeoHead({
       <meta name="twitter:url" content={resolvedCanonical} />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={ogImage} />
+      <meta name="twitter:image" content={resolvedOgImage} />
+      <meta name="twitter:image:alt" content={ogImageAlt} />
 
       {/* Per-page structured data — safe serialization via serializeJsonLd */}
       {schemas.map((schema, i) => (

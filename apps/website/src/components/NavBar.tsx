@@ -160,6 +160,10 @@ export default function NavBar() {
           <img
             src="/logo.jpg"
             alt="Verein Menschlichkeit Österreich"
+            width={960}
+            height={960}
+            decoding="async"
+            fetchPriority="high"
             className="h-10 w-10 rounded-full object-cover shadow-sm ring-2 ring-primary-100 group-hover:ring-primary-300 transition-all"
           />
           <div className="hidden sm:block">

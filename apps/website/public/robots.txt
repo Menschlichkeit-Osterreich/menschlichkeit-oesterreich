@@ -8,6 +8,7 @@ Disallow: /registrieren
 Disallow: /passwort-vergessen
 Disallow: /account/
 Disallow: /erfolg
+Disallow: /mitglied-werden/danke
 Disallow: /*?*utm_
 Disallow: /*?*fbclid=
 Disallow: /*?*gclid=

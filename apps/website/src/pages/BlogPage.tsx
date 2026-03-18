@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SeoHead from '../components/seo/SeoHead';
+import JsonLdBreadcrumb from '../components/seo/JsonLdBreadcrumb';
 
 interface BlogArticle {
   id: string;
@@ -14,10 +15,17 @@ interface BlogArticle {
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const QUICK_LINKS = [
+  { to: '/themen', label: 'Themenübersicht' },
+  { to: '/veranstaltungen', label: 'Veranstaltungen' },
+  { to: '/presse', label: 'Presse' },
+  { to: '/kontakt', label: 'Kontakt' },
+];
 
 export default function BlogPage() {
   const [articles, setArticles] = useState<BlogArticle[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('');
 
   useEffect(() => {
@@ -35,6 +43,7 @@ export default function BlogPage() {
         setArticles(data.data || []);
       }
     } catch { /* ignore */ }
+    setHasLoaded(true);
     setLoading(false);
   }
 
@@ -52,10 +61,31 @@ export default function BlogPage() {
         title="Neuigkeiten & Blog – Menschlichkeit Österreich"
         description="Aktuelle Beiträge, Berichte und Analysen zu Demokratie, Menschenrechten, sozialer Gerechtigkeit und Zivilgesellschaft in Österreich."
       />
+      <JsonLdBreadcrumb items={[
+        { name: 'Start', url: 'https://www.menschlichkeit-oesterreich.at/' },
+        { name: 'Blog', url: 'https://www.menschlichkeit-oesterreich.at/blog' },
+      ]} />
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Neuigkeiten & Blog</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-1">Aktuelle Nachrichten und Beiträge von Menschlichkeit Österreich</p>
+        <p className="text-gray-500 dark:text-gray-400 mt-1">
+          Einordnung, Berichte und Hintergrundbeiträge zu Demokratie, Menschenrechten und sozialer Gerechtigkeit in Österreich.
+        </p>
       </div>
+
+      <section className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <h2 className="text-xl font-semibold text-gray-900">Worum es hier geht</h2>
+        <p className="mt-3 text-sm leading-relaxed text-gray-600">
+          Dieser Bereich bündelt aktuelle Einblicke in unsere Arbeit, Stellungnahmen, Berichte von Veranstaltungen und
+          thematische Analysen. So entstehen stärker verlinkte Inhalte rund um Demokratie, Menschenrechte und Teilhabe.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-3 text-sm">
+          {QUICK_LINKS.map((link) => (
+            <Link key={link.to} to={link.to} className="font-medium text-primary-700 hover:underline">
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      </section>
 
       {allCategories.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-6">
@@ -72,7 +102,7 @@ export default function BlogPage() {
         </div>
       )}
 
-      {loading ? (
+      {loading && !hasLoaded ? (
         <div className="text-center py-12">
           <div className="w-8 h-8 border-4 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
           <p className="text-gray-500">Wird geladen…</p>
@@ -81,7 +111,17 @@ export default function BlogPage() {
         <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
           <span className="text-5xl block mb-4">📰</span>
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Noch keine Beiträge</h2>
-          <p className="text-gray-500 dark:text-gray-400">Bald finden Sie hier aktuelle Nachrichten und Beiträge.</p>
+          <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
+            Sobald neue Beiträge veröffentlicht sind, erscheinen sie hier. Bis dahin helfen Ihnen unsere Themenübersicht,
+            die Presse-Seite und aktuelle Veranstaltungsinformationen weiter.
+          </p>
+          <div className="mt-5 flex flex-wrap justify-center gap-3 text-sm">
+            {QUICK_LINKS.map((link) => (
+              <Link key={link.to} to={link.to} className="font-medium text-primary-600 hover:underline">
+                {link.label}
+              </Link>
+            ))}
+          </div>
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

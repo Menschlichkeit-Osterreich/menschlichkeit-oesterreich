@@ -64,7 +64,7 @@ export default function AdminSettings() {
                 { label: 'Vereinssitz', value: 'St. Pölten', type: 'text' },
                 { label: 'Straße & Hausnummer', value: 'Pottenbrunner Hauptstraße 108/Top 1', type: 'text' },
                 { label: 'PLZ', value: '3140', type: 'text' },
-                { label: 'Kontakt-E-Mail', value: 'kontakt@menschlichkeit-oesterreich.at', type: 'email' },
+                { label: 'Kontakt-E-Mail', value: 'office@menschlichkeit-oesterreich.at', type: 'email' },
                 { label: 'Telefon', value: '+43 1 234 5678', type: 'tel' },
                 { label: 'Website', value: 'https://menschlichkeit-oesterreich.at', type: 'url' },
               ].map(f => (
@@ -127,9 +127,9 @@ export default function AdminSettings() {
               {[
                 { label: 'SMTP-Host', value: 'smtp.menschlichkeit-oesterreich.at', type: 'text' },
                 { label: 'SMTP-Port', value: '587', type: 'number' },
-                { label: 'SMTP-Benutzer', value: 'kontakt@menschlichkeit-oesterreich.at', type: 'email' },
+                { label: 'SMTP-Benutzer', value: 'office@menschlichkeit-oesterreich.at', type: 'email' },
                 { label: 'Absender-Name', value: 'Menschlichkeit Österreich', type: 'text' },
-                { label: 'Antwort-Adresse', value: 'kontakt@menschlichkeit-oesterreich.at', type: 'email' },
+                { label: 'Antwort-Adresse', value: 'office@menschlichkeit-oesterreich.at', type: 'email' },
               ].map(f => (
                 <div key={f.label}>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{f.label}</label>

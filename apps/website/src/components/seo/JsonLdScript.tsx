@@ -17,7 +17,6 @@ export default function JsonLdScript({ schema }: { schema: unknown }) {
   return (
     <script
       type="application/ld+json"
-      // eslint-disable-next-line react/no-danger -- serializeJsonLd() escapes all XSS vectors; no user input reaches this
       dangerouslySetInnerHTML={{ __html: serializeJsonLd(schema) }}
     />
   );

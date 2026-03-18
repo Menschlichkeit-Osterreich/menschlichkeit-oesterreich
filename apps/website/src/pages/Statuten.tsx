@@ -1,53 +1,36 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Card } from '../components/ui/Card';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
 import SeoHead from '../components/seo/SeoHead';
 import { PageHeader } from '../components/ui/PageHeader';
+import { LEGAL_DOCS, LEGAL_FACTS } from '../config/siteConfig';
 
-const STATUTEN_SECTIONS = [
+const STATUTEN_HIGHLIGHTS = [
   {
-    title: '§ 1 – Name, Sitz und Tätigkeitsbereich',
-    content: 'Der Verein führt den Namen „Menschlichkeit Österreich". Er hat seinen Sitz in St. Pölten und erstreckt seine Tätigkeit auf das gesamte Bundesgebiet der Republik Österreich. Die Errichtung von Zweigvereinen ist zulässig.',
+    title: 'Name, Sitz und Tätigkeitsbereich',
+    content:
+      'Die Statuten nennen den Vereinsnamen „Menschlichkeit Österreich“, den Vereinssitz in St. Pölten-Pottenbrunn und einen Tätigkeitsbereich, der sich auf ganz Österreich und bei Bedarf auch grenzüberschreitende Aktivitäten erstreckt.',
   },
   {
-    title: '§ 2 – Zweck',
-    content: 'Der Verein, dessen Tätigkeit nicht auf Gewinn gerichtet ist, bezweckt die Förderung einer solidarischen, gerechten und ökologisch verantwortungsvollen Gesellschaft in Österreich. Er setzt sich ein für den Schutz der Menschenwürde und der Menschenrechte, die Stärkung sozialer Gerechtigkeit und Chancengleichheit, den Schutz der natürlichen Lebensgrundlagen sowie die Förderung demokratischer Teilhabe.',
+    title: 'Vereinszweck',
+    content:
+      'Als Ziele werden insbesondere Demokratie, Menschenrechte, soziale Gerechtigkeit, ökologische Verantwortung, Bildungsarbeit, soziale Unterstützung und zivilgesellschaftliche Teilhabe beschrieben.',
   },
   {
-    title: '§ 3 – Mittel zur Erreichung des Vereinszwecks',
-    content: 'Der Vereinszweck soll durch Veranstaltungen, Vorträge, Bildungsarbeit, Öffentlichkeitsarbeit und Vernetzung (ideelle Mittel) sowie durch Mitgliedsbeiträge, Spenden und Subventionen (materielle Mittel) erreicht werden.',
+    title: 'Mitgliedschaft und Beiträge',
+    content:
+      'Die Statuten unterscheiden ordentliche, außerordentliche und Ehrenmitglieder. Rechte, Pflichten, Austritt, Ausschluss und die Rolle einer gesonderten Beitragsordnung sind dort ausdrücklich geregelt.',
   },
   {
-    title: '§ 4 – Arten der Mitgliedschaft',
-    content: 'Die Mitglieder gliedern sich in: (a) ordentliche Mitglieder, (b) außerordentliche Mitglieder und (c) Ehrenmitglieder.',
+    title: 'Organe und Kontrolle',
+    content:
+      'Mitgliederversammlung, Vorstand, Rechnungsprüfer*innen und Schiedsgericht bilden die zentralen Organe. Die Statuten enthalten außerdem Regeln zu Aufgaben, Vertretung, Kontrolle und Auflösung des Vereins.',
   },
   {
-    title: '§ 5 – Erwerb der Mitgliedschaft',
-    content: 'Mitglieder können alle natürlichen Personen sowie juristische Personen werden. Über die Aufnahme entscheidet der Vorstand. Die Aufnahme kann ohne Angabe von Gründen verweigert werden.',
-  },
-  {
-    title: '§ 6 – Beendigung der Mitgliedschaft',
-    content: 'Die Mitgliedschaft erlischt durch Tod, freiwilligen Austritt, Streichung wegen Nichtzahlung des Mitgliedsbeitrags oder Ausschluss durch den Vorstand bei vereinsschädigendem Verhalten.',
-  },
-  {
-    title: '§ 7 – Rechte und Pflichten der Mitglieder',
-    content: 'Mitglieder sind berechtigt, an Veranstaltungen teilzunehmen. Das Stimmrecht steht nur ordentlichen Mitgliedern zu. Mitglieder sind verpflichtet, die Interessen des Vereins zu fördern und den Mitgliedsbeitrag pünktlich zu entrichten.',
-  },
-  {
-    title: '§ 8 – Vereinsorgane',
-    content: 'Die Organe des Vereins sind: (a) die Mitgliederversammlung, (b) der Vorstand, (c) die Rechnungsprüfer*innen, (d) das Schiedsgericht und (e) die Arbeitsgruppen.',
-  },
-  {
-    title: '§ 9 – Mitgliederversammlung',
-    content: 'Die ordentliche Mitgliederversammlung findet jährlich statt. Eine außerordentliche Mitgliederversammlung findet auf Beschluss des Vorstands oder auf schriftlichen Antrag von mindestens einem Zehntel der Mitglieder statt.',
-  },
-  {
-    title: '§ 10 – Vorstand',
-    content: 'Der Vorstand besteht aus mindestens drei Mitgliedern: der Obperson, der stellvertretenden Obperson und der Kassier*in. Optional kann ein*e Schriftführer*in bestellt werden. Die Funktionsperiode beträgt bis zu fünf Jahre; Wiederwahl ist möglich.',
-  },
-  {
-    title: '§ 11 – Auflösung des Vereins',
-    content: 'Die freiwillige Auflösung kann nur in einer außerordentlichen Mitgliederversammlung mit Zweidrittelmehrheit beschlossen werden. Das verbleibende Vereinsvermögen ist einer gemeinnützigen Organisation zu übertragen.',
+    title: 'Datenschutz und Schlussbestimmungen',
+    content:
+      'Die aktuelle Fassung umfasst auch eigene Bestimmungen zu Datenschutz und Datenverarbeitung. Für die rechtlich verbindliche Wortlaut-Fassung ist ausschließlich das PDF maßgeblich.',
   },
 ];
 
@@ -56,43 +39,73 @@ export default function StatutenPage() {
     <div className="mx-auto max-w-4xl p-4 space-y-6">
       <SeoHead
         title="Statuten – Menschlichkeit Österreich"
-        description="Die Statuten des Vereins Menschlichkeit Österreich. Vereinszweck, Mitgliedschaft, Organe und Rechte und Pflichten der Mitglieder."
+        description="Überblick über die Statuten von Menschlichkeit Österreich mit direktem Download der verbindlichen PDF-Fassung."
       />
       <PageHeader
         title="Statuten"
-        description="Statuten des Vereins Menschlichkeit Österreich"
+        description="Die verbindliche Fassung der Vereinsstatuten stellen wir als PDF bereit. Auf dieser Seite finden Sie eine kurze Orientierung zu Aufbau und Inhalt."
         breadcrumb={<Breadcrumb items={[{ label: 'Statuten' }]} />}
       />
 
       <Card className="p-6">
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap mb-6">
           <a
-            className="inline-flex items-center gap-2 px-4 py-2 rounded bg-primary-600 text-white hover:bg-primary-700 transition-colors"
-            href="/docs/statuten.pdf"
+            className="inline-flex items-center gap-2 rounded bg-primary-600 px-4 py-2 text-white transition-colors hover:bg-primary-700"
+            href={LEGAL_DOCS.statutes.href}
             target="_blank"
             rel="noopener noreferrer"
           >
-            📄 Statuten als PDF herunterladen
+            📄 {LEGAL_DOCS.statutes.label}
           </a>
           <a
-            className="inline-flex items-center gap-2 px-4 py-2 rounded border border-primary-600 text-primary-600 hover:bg-primary-50 transition-colors"
-            href="/mitglied-werden"
+            className="inline-flex items-center gap-2 rounded border border-primary-600 px-4 py-2 text-primary-600 transition-colors hover:bg-primary-50"
+            href={LEGAL_DOCS.registerExcerpt.href}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            🏛️ Vereinsregisterauszug
+          </a>
+          <Link
+            className="inline-flex items-center gap-2 rounded border border-primary-600 px-4 py-2 text-primary-600 transition-colors hover:bg-primary-50"
+            to="/mitglied-werden"
           >
             🤝 Mitglied werden
-          </a>
+          </Link>
         </div>
 
-        <p className="text-sm text-secondary-600 mb-6">
-          Beschlossen: 21. Mai 2025 · Registriert beim Vereinsregister (ZVR: 1182213083)
-        </p>
+        <div className="rounded-2xl border border-secondary-200 bg-secondary-50 p-5 text-sm text-secondary-700">
+          <p>
+            <strong>Wichtige Eckdaten:</strong> ZVR {LEGAL_FACTS.zvr}, Vereinssitz {LEGAL_FACTS.seat},
+            Zustellanschrift {LEGAL_FACTS.mailingAddressLabel}, Entstehungsdatum {LEGAL_FACTS.foundingDateLabel}.
+          </p>
+          <p className="mt-3">
+            Die verbindliche juristische Formulierung entnehmen Sie bitte immer der PDF-Fassung. Die Zusammenfassung
+            auf dieser Seite dient nur der Orientierung.
+          </p>
+        </div>
 
-        <div className="space-y-6">
-          {STATUTEN_SECTIONS.map((section, idx) => (
-            <div key={idx} className="border-b border-secondary-200 pb-5 last:border-0 last:pb-0">
-              <h2 className="text-lg font-semibold text-primary-700 mb-2">{section.title}</h2>
-              <p className="text-secondary-700 leading-relaxed text-sm">{section.content}</p>
-            </div>
+        <div className="mt-8 space-y-6">
+          {STATUTEN_HIGHLIGHTS.map((section) => (
+            <section key={section.title} className="border-b border-secondary-200 pb-5 last:border-0 last:pb-0">
+              <h2 className="mb-2 text-lg font-semibold text-primary-700">{section.title}</h2>
+              <p className="text-sm leading-relaxed text-secondary-700">{section.content}</p>
+            </section>
           ))}
+        </div>
+
+        <div className="mt-8 rounded-2xl border border-secondary-200 bg-white p-5">
+          <h2 className="text-lg font-semibold text-secondary-900">Passende Seiten dazu</h2>
+          <div className="mt-4 flex flex-wrap gap-3 text-sm">
+            <Link to="/beitragsordnung" className="font-medium text-primary-700 hover:underline">
+              Beitragsordnung
+            </Link>
+            <Link to="/transparenz" className="font-medium text-primary-700 hover:underline">
+              Transparenz
+            </Link>
+            <Link to="/kontakt" className="font-medium text-primary-700 hover:underline">
+              Kontakt
+            </Link>
+          </div>
         </div>
       </Card>
     </div>

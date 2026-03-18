@@ -16,7 +16,14 @@ export default function AuthLayout() {
         </div>
         <div className="relative flex flex-col items-center text-center">
           <div className="w-32 h-32 rounded-3xl overflow-hidden shadow-2xl ring-4 ring-white/30 mb-6">
-            <img src="/logo.jpg" alt="Verein Menschlichkeit Österreich" className="w-full h-full object-cover" />
+            <img
+              src="/logo.jpg"
+              alt="Verein Menschlichkeit Österreich"
+              width={960}
+              height={960}
+              decoding="async"
+              className="w-full h-full object-cover"
+            />
           </div>
           <span className="text-white/70 text-xs font-semibold uppercase tracking-widest mb-2">Verein</span>
           <h1 className="text-3xl font-bold text-white mb-4 leading-tight">
@@ -37,7 +44,14 @@ export default function AuthLayout() {
         {/* Mobile header */}
         <div className="lg:hidden flex items-center gap-3 px-6 py-4 border-b border-secondary-100">
           <Link to="/" className="flex items-center gap-2">
-            <img src="/logo.jpg" alt="Menschlichkeit Österreich" className="h-9 w-9 rounded-full object-cover ring-2 ring-primary-100" />
+            <img
+              src="/logo.jpg"
+              alt="Menschlichkeit Österreich"
+              width={960}
+              height={960}
+              decoding="async"
+              className="h-9 w-9 rounded-full object-cover ring-2 ring-primary-100"
+            />
             <span className="font-bold text-secondary-900 text-sm">Menschlichkeit Österreich</span>
           </Link>
         </div>

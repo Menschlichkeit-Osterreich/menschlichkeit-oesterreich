@@ -6,12 +6,11 @@ export default function SettingsLayout() {
   return (
     <div className="min-h-screen flex flex-col">
       <NavBar />
-      <div className="flex-1" role="main" id="main">
+      <main className="flex-1" id="main">
         <div className="mx-auto max-w-4xl p-4">
           <Outlet />
         </div>
-      </div>
+      </main>
     </div>
   );
 }
-

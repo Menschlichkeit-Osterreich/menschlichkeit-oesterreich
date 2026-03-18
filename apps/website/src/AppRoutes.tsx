@@ -19,6 +19,7 @@ import Veranstaltungen from './pages/Veranstaltungen';
 import Bildung from './pages/Bildung';
 import Materialien from './pages/Materialien';
 import JoinPage from './pages/Join';
+import MembershipSuccessPage from './pages/MembershipSuccess';
 import DonatePage from './pages/Donate';
 import SuccessPage from './pages/Success';
 import KontaktPage from './pages/Kontakt';
@@ -59,6 +60,7 @@ export default function AppRoutes() {
         <Route path="/bildung" element={<Bildung />} />
         <Route path="/materialien" element={<Materialien />} />
         <Route path="/mitglied-werden" element={<JoinPage />} />
+        <Route path="/mitglied-werden/danke" element={<MembershipSuccessPage />} />
         <Route path="/spenden" element={<DonatePage />} />
         <Route path="/erfolg" element={<SuccessPage />} />
         <Route path="/spiel" element={<SpielPage />} />

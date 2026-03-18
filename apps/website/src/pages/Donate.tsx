@@ -4,10 +4,13 @@ import SeoHead from '../components/seo/SeoHead';
 import { Button } from '../components/ui/Button';
 import { Alert } from '../components/ui/Alert';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
+import JsonLdBreadcrumb from '../components/seo/JsonLdBreadcrumb';
+import JsonLdFaq from '../components/seo/JsonLdFaq';
 import { api } from '../services/api';
 import { useAuth } from '../auth/AuthContext';
 import { getStripe, createStripeIntent, createPayPalOrder, capturePayPalOrder } from '../services/payments';
 import { PayPalScriptProvider, PayPalButtons as PayPalButtonsReact } from '@paypal/react-paypal-js';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 // Lazy Stripe checkout module – wird nur bei Karten/Wallets geladen
 const StripeCheckout = React.lazy(() => import('./donate/StripeCheckout'));
 
@@ -32,11 +35,28 @@ type Instrument =
 
 // (Removed duplicate PaymentElementCheckout and legacy PayPalButtons helper)
 
-import { useNavigate } from 'react-router-dom';
+const FAQ_ITEMS = [
+  {
+    question: 'Welche Zahlungsarten stehen zur Verfügung?',
+    answer:
+      'Je nach Auswahl stehen SEPA-Lastschrift, Online-Zahlung, PayPal, Banküberweisung und weitere unterstützte Zahlungswege zur Verfügung.',
+  },
+  {
+    question: 'Kann ich regelmäßig spenden?',
+    answer:
+      'Ja. Sie können zwischen einmaliger, monatlicher, vierteljährlicher und jährlicher Unterstützung wählen.',
+  },
+  {
+    question: 'Wo finde ich mehr Informationen zur Mittelverwendung?',
+    answer:
+      'Details zu Vereinsdaten, Transparenz und organisatorischen Grundlagen finden Sie auf unseren Seiten zu Transparenz, Statuten und Datenschutz.',
+  },
+];
 
 export default function DonatePage() {
   const { token } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [firstName, setFirstName] = React.useState('');
   const [lastName, setLastName] = React.useState('');
   const [email, setEmail] = React.useState('');
@@ -52,6 +72,25 @@ export default function DonatePage() {
   const [message, setMessage] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
   const [clientSecret, setClientSecret] = React.useState<string | null>(null);
+  const membershipContext = searchParams.get('context') === 'membership';
+  const financialType = membershipContext ? 'membership_fee' : 'donation';
+
+  React.useEffect(() => {
+    const amountParam = Number(searchParams.get('amount') || '');
+    if (Number.isFinite(amountParam) && amountParam > 0) {
+      setAmount(amountParam);
+    }
+
+    const intervalParam = searchParams.get('interval');
+    if (intervalParam === 'once' || intervalParam === 'monthly' || intervalParam === 'quarterly' || intervalParam === 'yearly') {
+      setInterval(intervalParam);
+    }
+
+    const purposeParam = searchParams.get('purpose');
+    if (purposeParam) {
+      setPurpose(purposeParam);
+    }
+  }, [searchParams]);
 
   const valid = /.+@.+\..+/.test(email) && amount > 0 && (!!iban || instrument !== 'sepa');
 
@@ -69,7 +108,7 @@ export default function DonatePage() {
     let cancelled = false;
     const t = setTimeout(async () => {
       try {
-        const res = await createStripeIntent({ amount, currency: 'EUR', email, purpose }, token || undefined);
+        const res = await createStripeIntent({ amount, currency: 'EUR', email, purpose, financial_type: financialType }, token || undefined);
         const cs = (res.data as any)?.client_secret || null;
         if (!cancelled) {
           piCacheRef.current = { key, cs };
@@ -80,7 +119,7 @@ export default function DonatePage() {
       }
     }, 600);
     return () => { cancelled = true; clearTimeout(t); };
-  }, [instrument, amount, email, purpose, token]);
+  }, [instrument, amount, email, purpose, token, financialType]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -99,7 +138,7 @@ export default function DonatePage() {
       if (['eps', 'sofort'].includes(instrument)) {
         const stripe = await getStripe();
         if (!stripe) throw new Error('Stripe nicht verfügbar');
-        const init = await createStripeIntent({ amount, currency: 'EUR', email, purpose, method: instrument as any, financial_type: 'donation' }, tokens.token);
+        const init = await createStripeIntent({ amount, currency: 'EUR', email, purpose, method: instrument as any, financial_type: financialType }, tokens.token);
         const clientSecret = (init.data as any)?.client_secret;
         if (!clientSecret) throw new Error('Payment Intent fehlgeschlagen');
         const return_url = window.location.href;
@@ -112,7 +151,7 @@ export default function DonatePage() {
       if (instrument === 'sepa') {
         const stripe = await getStripe();
         if (!stripe) throw new Error('Stripe nicht verfügbar');
-        const init = await createStripeIntent({ amount, currency: 'EUR', email, purpose, method: 'sepa', financial_type: 'donation' }, tokens.token);
+        const init = await createStripeIntent({ amount, currency: 'EUR', email, purpose, method: 'sepa', financial_type: financialType }, tokens.token);
         const clientSecret = (init.data as any)?.client_secret;
         const result = await stripe.confirmSepaDebitPayment(clientSecret, {
           payment_method: {
@@ -137,7 +176,7 @@ export default function DonatePage() {
           email,
           amount,
           currency: 'EUR',
-          financial_type: 'donation',
+          financial_type: financialType,
           purpose,
           anonymous,
           tribute_name: tribute || undefined,
@@ -162,12 +201,26 @@ export default function DonatePage() {
         title="Spenden – Demokratie und Menschenrechte unterstützen"
         description="Unterstützen Sie Menschlichkeit Österreich mit einer Spende und helfen Sie uns, Demokratie, Menschenrechte und soziale Gerechtigkeit in Österreich zu stärken."
       />
+      <JsonLdBreadcrumb items={[
+        { name: 'Start', url: 'https://www.menschlichkeit-oesterreich.at/' },
+        { name: 'Spenden', url: 'https://www.menschlichkeit-oesterreich.at/spenden' },
+      ]} />
+      <JsonLdFaq items={FAQ_ITEMS} />
       <Breadcrumb items={[{ label: 'Spenden' }]} />
       <h1 className="text-2xl font-semibold">Spenden</h1>
-      <p className="text-secondary-700">Einmalig oder regelmäßig – sicher und DSGVO‑konform.</p>
+      <p className="text-secondary-700">
+        {membershipContext
+          ? 'Sie befinden sich im sicheren Zahlungsabschnitt für Ihren Mitgliedsbeitrag.'
+          : 'Einmalig oder regelmäßig – sicher und DSGVO‑konform.'}
+      </p>
 
       {message && <Alert variant="success">{message}</Alert>}
       {error && <Alert variant="error">{error}</Alert>}
+      {membershipContext && (
+        <Alert variant="info">
+          Ihr Mitgliedsantrag wurde bereits erfasst. Bitte schließen Sie hier nur noch die Zahlungsseite für den Mitgliedsbeitrag ab.
+        </Alert>
+      )}
 
       <Card className="p-4">
         <form onSubmit={onSubmit} noValidate>
@@ -326,6 +379,44 @@ export default function DonatePage() {
           </fieldset>
         </form>
       </Card>
+
+      <section className="grid gap-4 md:grid-cols-2">
+        <article className="rounded-2xl border border-secondary-200 bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-secondary-900">Transparenz vor der Spende</h2>
+          <p className="mt-4 text-sm leading-relaxed text-secondary-700">
+            Bevor Sie unterstützen, können Sie Vereinsdaten, Mittelverwendung, Statuten und Datenschutz prüfen. So
+            bleibt der Prozess nachvollziehbar und vertrauenswürdig.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3 text-sm">
+            <Link to="/transparenz" className="font-medium text-primary-700 hover:underline">Transparenz</Link>
+            <Link to="/statuten" className="font-medium text-primary-700 hover:underline">Statuten</Link>
+            <Link to="/datenschutz" className="font-medium text-primary-700 hover:underline">Datenschutz</Link>
+          </div>
+        </article>
+        <article className="rounded-2xl border border-secondary-200 bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-secondary-900">Weitere Wege zu unterstützen</h2>
+          <p className="mt-4 text-sm leading-relaxed text-secondary-700">
+            Neben Spenden können Sie Mitglied werden, Veranstaltungen besuchen oder Bildungsangebote weiterempfehlen.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3 text-sm">
+            <Link to="/mitglied-werden" className="font-medium text-primary-700 hover:underline">Mitglied werden</Link>
+            <Link to="/veranstaltungen" className="font-medium text-primary-700 hover:underline">Veranstaltungen</Link>
+            <Link to="/bildung" className="font-medium text-primary-700 hover:underline">Bildung</Link>
+          </div>
+        </article>
+      </section>
+
+      <section className="rounded-2xl border border-secondary-200 bg-white p-6 shadow-sm">
+        <h2 className="text-xl font-semibold text-secondary-900">Häufige Fragen zum Unterstützen</h2>
+        <div className="mt-5 grid gap-4 md:grid-cols-3">
+          {FAQ_ITEMS.map((item) => (
+            <article key={item.question} className="rounded-2xl border border-secondary-100 bg-secondary-50 p-5">
+              <h3 className="font-semibold text-secondary-900">{item.question}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-secondary-700">{item.answer}</p>
+            </article>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

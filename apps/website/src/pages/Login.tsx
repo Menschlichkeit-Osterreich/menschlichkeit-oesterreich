@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Alert } from '../components/ui/Alert';
 import { useAuth } from '../auth/AuthContext';
+import { CONTACT_EMAIL } from '../config/siteConfig';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -77,7 +78,7 @@ export default function LoginPage() {
             <button
               type="button"
               className="text-xs text-primary-600 hover:text-primary-800 font-medium transition-colors"
-              onClick={() => alert('Bitte kontaktiere kontakt@menschlichkeit-oesterreich.at')}
+              onClick={() => alert(`Bitte kontaktiere ${CONTACT_EMAIL}`)}
             >
               Passwort vergessen?
             </button>

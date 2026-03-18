@@ -1,12 +1,13 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import SeoHead from '../components/seo/SeoHead';
+import { CONTACT_EMAIL, LEGAL_FACTS } from '../config/siteConfig';
 
 const FAKTEN = [
   { label: 'Gründungsjahr', value: '2025' },
-  { label: 'Rechtsform', value: 'Gemeinnütziger Verein (Österreich)' },
-  { label: 'ZVR-Zahl', value: '1182213083' },
-  { label: 'Vereinssitz', value: 'Pottenbrunn, Niederösterreich' },
+  { label: 'Rechtsform', value: 'Verein laut Vereinsregister' },
+  { label: 'ZVR-Zahl', value: LEGAL_FACTS.zvr },
+  { label: 'Vereinssitz', value: LEGAL_FACTS.seat },
   { label: 'Tätigkeitsschwerpunkte', value: 'Demokratiebildung, Menschenrechte, soziale Gerechtigkeit' },
   { label: 'Zielgruppe', value: 'Alle Menschen in Österreich' },
 ];
@@ -44,8 +45,8 @@ export default function PressePage() {
               <p>3140 Pottenbrunn, Österreich</p>
               <p>
                 E-Mail:{' '}
-                <a href="mailto:kontakt@menschlichkeit-oesterreich.at" className="text-primary-600 hover:underline">
-                  kontakt@menschlichkeit-oesterreich.at
+                <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary-600 hover:underline">
+                  {CONTACT_EMAIL}
                 </a>
               </p>
             </div>
@@ -57,7 +58,7 @@ export default function PressePage() {
           <h2 className="text-2xl font-bold mb-4">Über den Verein</h2>
           <div className="prose prose-lg text-gray-700">
             <p>
-              Menschlichkeit Österreich ist ein 2025 gegründeter gemeinnütziger Verein mit dem Ziel,
+              Menschlichkeit Österreich ist ein 2025 gegründeter Verein mit dem Ziel,
               demokratische Werte, Menschenrechte und soziale Gerechtigkeit in Österreich zu stärken.
               Der Verein bietet Bildungsangebote für alle Altersgruppen und schafft Räume für
               gesellschaftliche Teilhabe und zivilgesellschaftliches Engagement.
