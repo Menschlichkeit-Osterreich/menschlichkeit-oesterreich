@@ -7,6 +7,8 @@ on:
 
 permissions:
   contents: read
+  issues: read
+  pull-requests: read
 
 jobs:
   insights:
@@ -26,6 +28,7 @@ jobs:
 
       - name: 📊 Repository Statistics
         run: |
+          set -euo pipefail
           echo "# 📊 Repository Insights Report" > insights-report.md
           echo "**Generated:** $(date)" >> insights-report.md
           echo "" >> insights-report.md
@@ -47,10 +50,10 @@ jobs:
           # Language Breakdown
           echo "## 🗣️ Languages" >> insights-report.md
           echo "\`\`\`" >> insights-report.md
-          find . -name '*.js' -o -name '*.ts' | wc -l | xargs echo "JavaScript/TypeScript files:"
-          find . -name '*.php' | wc -l | xargs echo "PHP files:"
-          find . -name '*.py' | wc -l | xargs echo "Python files:"
-          find . -name '*.md' | wc -l | xargs echo "Documentation files:"
+          find . \( -name '*.js' -o -name '*.ts' \) | wc -l | xargs echo "JavaScript/TypeScript files:" >> insights-report.md
+          find . -name '*.php' | wc -l | xargs echo "PHP files:" >> insights-report.md
+          find . -name '*.py' | wc -l | xargs echo "Python files:" >> insights-report.md
+          find . -name '*.md' | wc -l | xargs echo "Documentation files:" >> insights-report.md
           echo "\`\`\`" >> insights-report.md
           echo "" >> insights-report.md
 
@@ -154,8 +157,9 @@ jobs:
 
       - name: 📈 Issue & PR Stats
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -euo pipefail
           echo "## 📋 Issues & Pull Requests" >> insights-report.md
           echo "" >> insights-report.md
 
@@ -179,7 +183,7 @@ jobs:
 
       - name: 📊 Update Repository Description
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Update repository topics/tags based on analysis
           TOPICS=("austrian-ngo" "multi-service" "educational-platform" "dsgvo-compliant" "accessibility" "democracy-education")
@@ -190,10 +194,15 @@ jobs:
           done
 
       - name: Notify via n8n
-        if: always() && secrets.N8N_WEBHOOK_URL != ''
+        if: always()
+        env:
+          N8N_WEBHOOK_URL: ${{ secrets.N8N_WEBHOOK_URL }}
         run: |
-          if [ -n "${{ secrets.N8N_WEBHOOK_URL }}" ]; then
-            curl -fsSL -X POST "${{ secrets.N8N_WEBHOOK_URL }}" \
-              -H "Content-Type: application/json" \
-              -d '{"type":"repository-insights","repository":"${{ github.repository }}","date":"'"$(date)"'","workflow_status":"${{ job.status }}"}'
+          if [ -z "${N8N_WEBHOOK_URL}" ]; then
+            echo "N8N_WEBHOOK_URL nicht gesetzt, Benachrichtigung wird übersprungen."
+            exit 0
           fi
+
+          curl -fsSL -X POST "${N8N_WEBHOOK_URL}" \
+            -H "Content-Type: application/json" \
+            -d '{"type":"repository-insights","repository":"${{ github.repository }}","date":"'"$(date)"'","workflow_status":"${{ job.status }}"}'

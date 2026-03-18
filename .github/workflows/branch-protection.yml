@@ -54,6 +54,7 @@ jobs:
         env:
           OWNER_REPO: ${{ steps.vars.outputs.owner_repo }}
           BRANCHES: ${{ steps.vars.outputs.branches }}
+          EVENT_NAME: ${{ github.event_name }}
           # Secret token with repo admin scope; set one of these in repository secrets
           TOKEN_1: ${{ secrets.GH_ADMIN_TOKEN }}
           TOKEN_2: ${{ secrets.ADMIN_GITHUB_TOKEN }}
@@ -63,6 +64,12 @@ jobs:
           set -euo pipefail
           TOKEN="${TOKEN_1:-${TOKEN_2:-${TOKEN_3:-}}}"
           if [ -z "$TOKEN" ]; then
+            if [ "$EVENT_NAME" = "schedule" ]; then
+              echo "### Branch Protection" >> "$GITHUB_STEP_SUMMARY"
+              echo "- ℹ️ Kein Admin-Token konfiguriert." >> "$GITHUB_STEP_SUMMARY"
+              echo "- ✅ Scheduled Run wurde bewusst ohne Änderung beendet." >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
             echo "::error::Kein Admin-Token in Secrets gefunden"
             echo "(GH_ADMIN_TOKEN/ADMIN_GITHUB_TOKEN/REPO_ADMIN_TOKEN)"
             exit 1
@@ -74,18 +81,18 @@ jobs:
             "required_status_checks": {
               "strict": true,
               "contexts": [
-                "Phase 0 Verification",
-                "verify-phase-0",
-                "Generate SBOMs",
-                "sbom",
-                "Docs Lint & ADR Index",
-                "docs",
-                "API OpenAPI Export",
-                "export-openapi"
+                "Gitleaks Secret Scan",
+                "Validate Secrets Gate",
+                "Lint & Checks",
+                "Build & Test"
               ]
             },
             "enforce_admins": true,
-            "required_pull_request_reviews": null,
+            "required_pull_request_reviews": {
+              "dismiss_stale_reviews": true,
+              "require_code_owner_reviews": false,
+              "required_approving_review_count": 1
+            },
             "restrictions": null
           }
           JSON

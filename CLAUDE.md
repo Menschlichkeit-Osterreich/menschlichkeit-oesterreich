@@ -111,7 +111,7 @@ Alle Dienste teilen eine PostgreSQL ≥15-Instanz (Port 5432) via `DATABASE_URL`
 
 ### Design Tokens
 
-Design tokens live in `figma-design-system/00_design-tokens.json`. **Never hardcode colors or spacing** — always use tokens. They are consumed via `apps/website/tailwind.config.cjs` and regenerated with `apps/website/scripts/generate-design-tokens.mjs`. Sync with Figma: `npm run figma:sync`.
+Design tokens live in `figma-design-system/00_design-tokens.json`. **Never hardcode colors or spacing** — always use tokens. They are consumed via `apps/website/tailwind.config.cjs` and regenerated with `apps/website/scripts/generate-design-tokens.mjs`. Do not assume a live Figma integration is available for build, CI or deploy.
 
 ### DSGVO/PII Compliance (Kritisch)
 

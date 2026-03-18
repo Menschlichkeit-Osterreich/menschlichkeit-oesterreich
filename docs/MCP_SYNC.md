@@ -7,10 +7,9 @@ Dieser Leitfaden beschreibt den täglichen Umgang mit MCP-Servern.
   ```powershell
   npm run mcp:check
   ```
-- Figma-MCP-Health:
-  ```powershell
-  npm run mcp:figma:health
-  ```
+- Design-Tokens-Stand prüfen:
+  Die Tokens liegen committed in `figma-design-system/00_design-tokens.json`.
+  Ein separater Figma-MCP-Healthcheck ist nicht mehr Teil des Pflichtpfads.
 - Tools-Liste in VS Code aktualisieren: Befehl „MCP: Reset Cached Tools“ verwenden.
 
 ## Fehlerdiagnose

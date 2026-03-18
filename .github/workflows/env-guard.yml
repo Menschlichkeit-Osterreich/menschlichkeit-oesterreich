@@ -2,9 +2,9 @@ name: ENV Guard (Secrets Protection)
 
 on:
   push:
-    branches: [main, develop, staging]
+    branches: [main, develop, staging, chore/**, feature/**]
   pull_request:
-    branches: [main, develop, staging]
+    branches: [main, develop, staging, chore/**, feature/**]
 
 permissions:
   contents: read
@@ -33,7 +33,7 @@ jobs:
       - name: Ensure no real .env committed
         run: |
           # Exclude explicitly allowed .env variants (see .gitignore negation rules)
-          found=$(git ls-files | grep -E '(^|/)\.env($|[^a-z])' | grep -Ev '\.(example|production\.template|vault|project)$' || true)
+          found=$(git ls-files | grep -E '(^|/)\.env($|[^a-z])' | grep -Ev '\.(example|production\.template|project)$' || true)
           if [ -n "$found" ]; then
             echo "❌ ECHTE .ENV IM REPO GEFUNDEN (SECRETS-LEAK!):"
             echo "$found"
@@ -45,6 +45,15 @@ jobs:
             exit 1
           fi
           echo "✅ Keine echten .env-Dateien im Repo (Secrets-Check passed)"
+
+      - name: Block tracked .env.vault
+        run: |
+          if git ls-files --error-unmatch .env.vault >/dev/null 2>&1; then
+            echo "❌ .env.vault darf nicht im öffentlichen Repository versioniert sein."
+            echo "Lösung: lokal verwalten oder via Secret-Store injizieren."
+            exit 1
+          fi
+          echo "✅ .env.vault ist nicht im Repo getrackt"
       
       - name: Check .env in .gitignore
         run: |

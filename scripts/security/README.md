@@ -34,6 +34,58 @@ Wrapper script for Trivy filesystem security scanning.
 **Used in Workflows:**
 - `.github/workflows/trivy-fs.yml`
 
+### incident-secret-audit.sh
+
+Reproducible incident-response collector for suspected public secret exposure.
+
+**Usage:**
+```bash
+./incident-secret-audit.sh
+./incident-secret-audit.sh /custom/output/dir
+```
+
+**Features:**
+- Captures current-tree and git-history evidence
+- Writes artifacts into `quality-reports/incident-secret-audit/<timestamp>/`
+- Queries GitHub, Docker and log sources when tooling/auth is available
+- Degrades gracefully when optional tools are missing
+
+Windows wrapper:
+```powershell
+pwsh -File scripts/security/incident-secret-audit.ps1
+```
+
+NPM entrypoint:
+```bash
+npm run security:incident:audit
+```
+
+### rewrite-public-secrets.sh
+
+Safe wrapper around `git-filter-repo` for mirror-based history cleanup.
+
+**Usage:**
+```bash
+./rewrite-public-secrets.sh --replace-text ../replace-text.txt --mirror-dir ../repo-ir-clean.git
+./rewrite-public-secrets.sh --replace-text ../replace-text.txt --mirror-dir ../repo-ir-clean.git --push
+```
+
+**Safety rails:**
+- Requires an explicit mirror repository
+- Creates a backup bundle before rewriting
+- Refuses to run without `git-filter-repo`, `gitleaks`, and a replace-text file
+- Does not push unless `--push` is provided
+
+Windows wrapper:
+```powershell
+pwsh -File scripts/security/rewrite-public-secrets.ps1 -ReplaceText ..\replace-text.txt -MirrorDir ..\repo-ir-clean.git
+```
+
+NPM entrypoint:
+```bash
+npm run security:rewrite-public-secrets -- -ReplaceText ..\replace-text.txt -MirrorDir ..\repo-ir-clean.git
+```
+
 ## Security Scanning Tools
 
 The project uses multiple security scanning tools:

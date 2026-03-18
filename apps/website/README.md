@@ -11,7 +11,7 @@
 
 Das Frontend ist eine moderne **React + TypeScript**-Anwendung mit:
 
-- **Design System Integration** (Figma Tokens → CSS Variables)
+- **Design System Integration** (committed Design Tokens → CSS Variables)
 - **Rot-Weiß-Rot Corporate Identity** (Österreich NGO Branding)
 - **WCAG AA Accessibility** (Barrierefreiheit)
 - **API Integration** (FastAPI Backend)
@@ -98,18 +98,16 @@ frontend/
 
 ## 🎨 Design System Integration
 
-Das Frontend verwendet **Design Tokens aus Figma**, die automatisch synchronisiert werden:
+Das Frontend verwendet **committed Design Tokens** aus `figma-design-system/00_design-tokens.json`.
+Ein Live-Figma-Zugang ist für Build, CI und Deploy nicht erforderlich.
 
 ### Design Token Workflow
 
 ```bash
-# 1. Figma Tokens aktualisieren
-npm run figma:sync  # Von Root-Verzeichnis
-
-# 2. CSS Variables werden automatisch generiert:
+# 1. CSS Variables werden aus committed Tokens generiert:
 # figma-design-system/00_design-tokens.json → src/styles/tokens.css
 
-# 3. Tailwind Config konsumiert Design Tokens
+# 2. Tailwind Config konsumiert Design Tokens
 # tailwind.config.js verwendet tokens.css für Farben/Schriften
 ```
 
@@ -128,6 +126,7 @@ npm run figma:sync  # Von Root-Verzeichnis
 ```
 
 **Design Tokens Dokumentation**: [../figma-design-system/FIGMA-SYNC-GUIDE.md](../figma-design-system/FIGMA-SYNC-GUIDE.md)
+Die Pflege des Token-JSON ist ein optionaler Redaktion-/Design-Prozess außerhalb des Pflichtpfads.
 
 ---
 

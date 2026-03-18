@@ -1,5 +1,13 @@
 #!/bin/bash
 # SFTP Sync Script für Menschlichkeit Österreich Development
+set -euo pipefail
+
+if [ "${ALLOW_LEGACY_SFTP_SYNC:-false}" != "true" ]; then
+    echo "❌ Dieses Legacy-Skript ist für Production standardmäßig deaktiviert."
+    echo "   Verwende den GitHub-Workflow deploy-plesk.yml oder setze"
+    echo "   ALLOW_LEGACY_SFTP_SYNC=true für einen bewussten Legacy-Test."
+    exit 1
+fi
 
 # Sichere Konfiguration laden (falls nicht bereits geladen)
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -8,11 +16,12 @@ if [ -z "$DB_WP_NAME" ]; then
     initialize_secure_config || exit 1
 fi
 
-# SFTP Konfiguration mit korrekter IP-Adresse
-REMOTE_HOST="5.183.217.146"
-REMOTE_USER="dmpl20230054"
-REMOTE_PORT=22
-LOCAL_BASE="/mnt/d/Arbeitsverzeichniss"
+# Legacy-SFTP-Konfiguration nur via explizite Umgebungsvariablen
+REMOTE_HOST="${REMOTE_HOST:-}"
+REMOTE_USER="${REMOTE_USER:-}"
+REMOTE_PORT="${REMOTE_PORT:-22}"
+LOCAL_BASE="${LOCAL_BASE:-}"
+SSH_IDENTITY_FILE="${SSH_IDENTITY_FILE:-$HOME/.ssh/id_ed25519}"
 
 # Farben für Output
 RED='\033[0;31m'
@@ -50,7 +59,7 @@ EOF
     
     # Execute SFTP mit SSH-Key
     echo -e "${BLUE}⬆️  Uploading...${NC}"
-    sftp -P $REMOTE_PORT -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no -b /tmp/sftp_batch.txt $REMOTE_USER@$REMOTE_HOST
+    sftp -P "$REMOTE_PORT" -i "$SSH_IDENTITY_FILE" -o StrictHostKeyChecking=yes -b /tmp/sftp_batch.txt "$REMOTE_USER@$REMOTE_HOST"
     
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✅ Successfully synced: $DESCRIPTION${NC}"
@@ -70,10 +79,12 @@ fi
 
 # Validierung der Konfiguration
 if [ -z "$REMOTE_HOST" ] || [ -z "$REMOTE_USER" ]; then
-    echo -e "${RED}❌ Please configure REMOTE_HOST and REMOTE_USER in this script${NC}"
-    echo "   Edit the variables at the top of this file:"
-    echo "   REMOTE_HOST=\"your-server.com\""
-    echo "   REMOTE_USER=\"your-username\""
+    echo -e "${RED}❌ REMOTE_HOST und REMOTE_USER müssen als Umgebungsvariablen gesetzt sein${NC}"
+    exit 1
+fi
+
+if [ -z "$LOCAL_BASE" ]; then
+    echo -e "${RED}❌ LOCAL_BASE muss als Umgebungsvariable gesetzt sein${NC}"
     exit 1
 fi
 

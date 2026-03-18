@@ -36,6 +36,10 @@ env:
   SSH_PORT:   ${{ secrets.PLESK_PORT || '22' }}
   SSH_USER:   ${{ secrets.PLESK_USER }}
   BASE_PATH:  ${{ vars.PLESK_BASE_PATH || '/var/www/vhosts/menschlichkeit-oesterreich.at/httpdocs' }}
+  FRONTEND_REMOTE_PATH: ${{ vars.PLESK_FRONTEND_PATH || 'httpdocs' }}
+  API_REMOTE_PATH: ${{ vars.PLESK_API_PATH || 'subdomains/api/httpdocs' }}
+  CRM_REMOTE_PATH: ${{ vars.PLESK_CRM_PATH || 'subdomains/crm/httpdocs' }}
+  GAMES_REMOTE_PATH: ${{ vars.PLESK_GAMES_PATH || 'subdomains/games/httpdocs' }}
   MAIN_DOMAIN: ${{ vars.MAIN_DOMAIN || 'menschlichkeit-oesterreich.at' }}
   NODE_VERSION: "22"
 
@@ -61,10 +65,11 @@ jobs:
           echo "✓ Branch-Check OK: ${BRANCH}"
 
       - name: Dry-Run-Info
-        if: ${{ github.event.inputs.dry_run == 'true' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run == 'true' }}
         run: echo "⚠️ DRY-RUN AKTIV — kein Schreiben auf Produktion."
 
       - name: Pflicht-Secrets prüfen
+        if: ${{ github.event_name == 'workflow_dispatch' }}
         env:
           HAS_HOST:       ${{ secrets.PLESK_HOST != '' }}
           HAS_USER:       ${{ secrets.PLESK_USER != '' }}
@@ -89,11 +94,6 @@ jobs:
     name: Frontend bauen (Vite)
     runs-on: ubuntu-latest
     needs: [validate]
-    if: >
-      github.event.inputs.service == 'all' ||
-      github.event.inputs.service == 'frontend' ||
-      github.event.inputs.service == '' ||
-      github.event_name == 'push'
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
@@ -166,7 +166,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-frontend, test]
     environment: production
-    if: always() && needs.test.result == 'success' && github.event.inputs.dry_run != 'true'
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      needs.build-frontend.result == 'success' &&
+      needs.test.result == 'success' &&
+      github.event.inputs.dry_run != 'true'
 
     steps:
       - name: Checkout
@@ -219,15 +223,13 @@ jobs:
           TS=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
           echo "timestamp=${TS}" >> "$GITHUB_OUTPUT"
           echo "sha_short=${GITHUB_SHA::8}" >> "$GITHUB_OUTPUT"
-          echo "marker=service=${{ github.event.inputs.service || 'all' }} commit=${GITHUB_SHA::8} timestamp=${TS} actor=${GITHUB_ACTOR}" >> "$GITHUB_OUTPUT"
+          echo "marker=service=${{ github.event.inputs.service || 'manual' }} commit=${GITHUB_SHA::8} timestamp=${TS} actor=${GITHUB_ACTOR}" >> "$GITHUB_OUTPUT"
 
       # ── Frontend deployen ───────────────────────────────────
       - name: Frontend-Artefakt herunterladen
         if: >
           github.event.inputs.service == 'all' ||
-          github.event.inputs.service == 'frontend' ||
-          github.event.inputs.service == '' ||
-          github.event_name == 'push'
+          github.event.inputs.service == 'frontend'
         uses: actions/download-artifact@fa0a91b85d4f404e444306234f5d70e8f8d04eea  # v4.1.8
         with:
           name: frontend-dist-${{ github.sha }}
@@ -236,77 +238,72 @@ jobs:
       - name: Frontend → scp (Chroot-SSH)
         if: >
           github.event.inputs.service == 'all' ||
-          github.event.inputs.service == 'frontend' ||
-          github.event.inputs.service == '' ||
-          github.event_name == 'push'
+          github.event.inputs.service == 'frontend'
         run: |
           # Chroot-SSH: Pfade relativ zum Home-Verzeichnis des Chroot-Users
           find _dist_frontend -name "*.map" -delete
-          ssh plesk-prod "mkdir -p httpdocs"
+          ssh plesk-prod "mkdir -p '${{ env.FRONTEND_REMOTE_PATH }}'"
           scp -r -F ~/.ssh/config \
             _dist_frontend/. \
-            "plesk-prod:httpdocs/"
+            "plesk-prod:${{ env.FRONTEND_REMOTE_PATH }}/"
           ssh plesk-prod \
-            "printf '%s\n' '${{ steps.release.outputs.marker }}' > 'httpdocs/.deploy_release'"
+            "printf '%s\n' '${{ steps.release.outputs.marker }}' > '${{ env.FRONTEND_REMOTE_PATH }}/.deploy_release'"
           echo "✓ Frontend deployt."
 
       # ── API deployen ────────────────────────────────────────
       - name: API → scp (Chroot-SSH)
         if: >
           github.event.inputs.service == 'all' ||
-          github.event.inputs.service == 'api' ||
-          github.event_name == 'push'
+          github.event.inputs.service == 'api'
         run: |
           # Pfad relativ zum Chroot-Home
           tar --exclude=".git" --exclude="__pycache__" --exclude="*.pyc" \
               --exclude=".venv" --exclude="venv" --exclude=".env" --exclude="*.log" \
               -czf /tmp/api.tar.gz -C apps/api .
-          ssh plesk-prod "mkdir -p subdomains/api.stg/httpdocs"
+          ssh plesk-prod "mkdir -p '${{ env.API_REMOTE_PATH }}'"
           scp -F ~/.ssh/config /tmp/api.tar.gz "plesk-prod:api.tar.gz"
-          ssh plesk-prod "tar -xzf api.tar.gz -C subdomains/api.stg/httpdocs && rm api.tar.gz"
+          ssh plesk-prod "tar -xzf api.tar.gz -C '${{ env.API_REMOTE_PATH }}' && rm api.tar.gz"
           ssh plesk-prod \
-            "command -v pip3 && pip3 install -r subdomains/api.stg/httpdocs/requirements.txt --quiet 2>&1 | tail -5" || \
+            "command -v pip3 && pip3 install -r '${{ env.API_REMOTE_PATH }}/requirements.txt' --quiet 2>&1 | tail -5" || \
             echo "⚠️ pip3 nicht im Chroot verfügbar."
           ssh plesk-prod \
-            "printf '%s\n' '${{ steps.release.outputs.marker }}' > 'subdomains/api.stg/httpdocs/.deploy_release'"
+            "printf '%s\n' '${{ steps.release.outputs.marker }}' > '${{ env.API_REMOTE_PATH }}/.deploy_release'"
           echo "✓ API deployt."
 
       # ── CRM deployen ────────────────────────────────────────
       - name: CRM → scp (Chroot-SSH)
         if: >
           github.event.inputs.service == 'all' ||
-          github.event.inputs.service == 'crm' ||
-          github.event_name == 'push'
+          github.event.inputs.service == 'crm'
         run: |
           tar --exclude=".git" --exclude="node_modules" --exclude="vendor" \
               --exclude="web/sites/*/files" --exclude=".env" --exclude="*.log" \
               -czf /tmp/crm.tar.gz -C apps/crm .
-          ssh plesk-prod "mkdir -p subdomains/crm/httpdocs"
+          ssh plesk-prod "mkdir -p '${{ env.CRM_REMOTE_PATH }}'"
           scp -F ~/.ssh/config /tmp/crm.tar.gz "plesk-prod:crm.tar.gz"
-          ssh plesk-prod "tar -xzf crm.tar.gz -C subdomains/crm/httpdocs && rm crm.tar.gz"
+          ssh plesk-prod "tar -xzf crm.tar.gz -C '${{ env.CRM_REMOTE_PATH }}' && rm crm.tar.gz"
           ssh plesk-prod \
-            "cd subdomains/crm/httpdocs && command -v composer && \
+            "cd '${{ env.CRM_REMOTE_PATH }}' && command -v composer && \
              composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction 2>&1 | tail -5 && \
              vendor/bin/drush updb -y && vendor/bin/drush cr" || \
             echo "⚠️ composer/drush nicht im Chroot."
           ssh plesk-prod \
-            "printf '%s\n' '${{ steps.release.outputs.marker }}' > 'subdomains/crm/httpdocs/.deploy_release'"
+            "printf '%s\n' '${{ steps.release.outputs.marker }}' > '${{ env.CRM_REMOTE_PATH }}/.deploy_release'"
           echo "✓ CRM deployt."
 
       # ── Games deployen ──────────────────────────────────────
       - name: Games → scp (Chroot-SSH)
         if: >
           github.event.inputs.service == 'all' ||
-          github.event.inputs.service == 'games' ||
-          github.event_name == 'push'
+          github.event.inputs.service == 'games'
         run: |
           tar --exclude=".git" --exclude="node_modules" --exclude=".env" \
               -czf /tmp/games.tar.gz -C apps/game .
-          ssh plesk-prod "mkdir -p subdomains/games/httpdocs"
+          ssh plesk-prod "mkdir -p '${{ env.GAMES_REMOTE_PATH }}'"
           scp -F ~/.ssh/config /tmp/games.tar.gz "plesk-prod:games.tar.gz"
-          ssh plesk-prod "tar -xzf games.tar.gz -C subdomains/games/httpdocs && rm games.tar.gz"
+          ssh plesk-prod "tar -xzf games.tar.gz -C '${{ env.GAMES_REMOTE_PATH }}' && rm games.tar.gz"
           ssh plesk-prod \
-            "printf '%s\n' '${{ steps.release.outputs.marker }}' > 'subdomains/games/httpdocs/.deploy_release'"
+            "printf '%s\n' '${{ steps.release.outputs.marker }}' > '${{ env.GAMES_REMOTE_PATH }}/.deploy_release'"
           echo "✓ Games deployt."
 
       # ── Health-Checks ───────────────────────────────────────
@@ -314,8 +311,7 @@ jobs:
         if: >
           always() && (
             github.event.inputs.service == 'all' ||
-            github.event.inputs.service == 'frontend' ||
-            github.event_name == 'push'
+            github.event.inputs.service == 'frontend'
           )
         run: |
           sleep 5
@@ -328,12 +324,11 @@ jobs:
         if: >
           always() && (
             github.event.inputs.service == 'all' ||
-            github.event.inputs.service == 'api' ||
-            github.event_name == 'push'
+            github.event.inputs.service == 'api'
           )
         run: |
           HTTP=$(curl --silent --max-time 15 --output /dev/null --write-out "%{http_code}" \
-            "https://api.stg.${{ env.MAIN_DOMAIN }}/health" || echo "000")
+            "https://api.${{ env.MAIN_DOMAIN }}/health" || echo "000")
           echo "API HTTP: ${HTTP}"
           [[ "${HTTP}" =~ ^[23] ]] || echo "⚠️ API Healthcheck: ${HTTP} (API benötigt ggf. Neustart via Plesk)"
 
@@ -346,7 +341,7 @@ jobs:
           echo "| Parameter | Wert |" >> "$GITHUB_STEP_SUMMARY"
           echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
           echo "| Commit | \`${{ github.sha }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| Service | ${{ github.event.inputs.service || 'all (push)' }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Service | ${{ github.event.inputs.service || 'manual' }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Zeitstempel | ${{ steps.release.outputs.timestamp }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Akteur | ${{ github.actor }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"

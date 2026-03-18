@@ -75,13 +75,6 @@
         "output-dir": "quality-reports"
       }
     },
-    "figma": {
-      "command": "node",
-      "args": {
-        "script": "scripts/figma-token-sync.cjs",
-        "mode": "sync"
-      }
-    },
     "github-cli": {
       "command": "python",
       "args": {
