@@ -5,6 +5,7 @@
  */
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { CONTACT_EMAIL } from '../../config/siteConfig';
 
 interface Message {
   id: string;
@@ -165,7 +166,7 @@ export const OpenClawChat: React.FC<OpenClawChatProps> = ({
       return 'Um Mitglied bei Menschlichkeit Österreich zu werden, besuchen Sie bitte unsere [Mitgliedschaft-Seite](/mitglied-werden). Der Jahresbeitrag beträgt ab € 36 (Standard) bzw. € 18 (Ermäßigt).';
     }
     if (q.includes('event') || q.includes('veranstaltung')) {
-      return 'Unsere aktuellen Veranstaltungen finden Sie auf der [Events-Seite](/veranstaltungen). Für Fragen schreiben Sie uns an kontakt@menschlichkeit-oesterreich.at';
+      return `Unsere aktuellen Veranstaltungen finden Sie auf der [Events-Seite](/veranstaltungen). Für Fragen schreiben Sie uns an ${CONTACT_EMAIL}`;
     }
     if (q.includes('spiel') || q.includes('demokratie')) {
       return 'Das Demokratiespiel "Brücken Bauen" können Sie direkt [hier spielen](/spiel). Es hat 100 Level mit verschiedenen demokratischen Szenarien!';
@@ -173,7 +174,7 @@ export const OpenClawChat: React.FC<OpenClawChatProps> = ({
     if (q.includes('spende') || q.includes('unterstützen')) {
       return 'Vielen Dank für Ihr Interesse! Sie können uns via Banküberweisung, PayPal oder Kreditkarte unterstützen. Details auf unserer [Spenden-Seite](/spenden).';
     }
-    return 'Vielen Dank für Ihre Anfrage. Unser KI-Assistent ist gerade nicht verfügbar. Bitte kontaktieren Sie uns direkt unter kontakt@menschlichkeit-oesterreich.at.';
+    return `Vielen Dank für Ihre Anfrage. Unser KI-Assistent ist gerade nicht verfügbar. Bitte kontaktieren Sie uns direkt unter ${CONTACT_EMAIL}.`;
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

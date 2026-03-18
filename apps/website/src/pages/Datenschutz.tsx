@@ -1,5 +1,7 @@
 import React from 'react';
 import SeoHead from '../components/seo/SeoHead';
+import JsonLdBreadcrumb from '../components/seo/JsonLdBreadcrumb';
+import { CONTACT_EMAIL } from '../config/siteConfig';
 
 export default function Datenschutz() {
   return (
@@ -8,26 +10,41 @@ export default function Datenschutz() {
         title="Datenschutzerklärung – Menschlichkeit Österreich"
         description="Datenschutzerklärung gemäß DSGVO und österreichischem Datenschutzgesetz. Ihre Rechte als betroffene Person, Datenspeicherung und Kontakt zum Datenschutzbeauftragten."
       />
+      <JsonLdBreadcrumb items={[
+        { name: 'Start', url: 'https://www.menschlichkeit-oesterreich.at/' },
+        { name: 'Datenschutz', url: 'https://www.menschlichkeit-oesterreich.at/datenschutz' },
+      ]} />
       <h1 className="text-3xl font-bold mb-2">Datenschutzerklärung</h1>
       <p className="text-gray-500 mb-8">
         Gemäß DSGVO (EU) 2016/679 und dem österreichischen Datenschutzgesetz (DSG)
       </p>
 
+      <nav aria-label="Inhaltsverzeichnis Datenschutz" className="mb-10 rounded-2xl border border-gray-200 bg-gray-50 p-5">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Schnellnavigation</h2>
+        <div className="mt-3 flex flex-wrap gap-3 text-sm">
+          <a href="#verantwortliche-stelle" className="font-medium text-primary-700 hover:underline">Verantwortliche Stelle</a>
+          <a href="#verarbeitung" className="font-medium text-primary-700 hover:underline">Verarbeitung</a>
+          <a href="#rechte" className="font-medium text-primary-700 hover:underline">Betroffenenrechte</a>
+          <a href="#cookies" className="font-medium text-primary-700 hover:underline">Cookies</a>
+          <a href="#kontakt-datenschutz" className="font-medium text-primary-700 hover:underline">Kontakt</a>
+        </div>
+      </nav>
+
       <div className="space-y-8 text-gray-700 leading-relaxed">
-        <section>
+        <section id="verantwortliche-stelle">
           <h2 className="text-xl font-semibold mb-3">1. Verantwortliche Stelle</h2>
           <address className="not-italic">
             <strong>Verein Menschlichkeit Österreich</strong><br />
             Pottenbrunner Hauptstraße 108/Top 1<br />
             3140 Pottenbrunn<br />
             E-Mail:{' '}
-            <a href="mailto:kontakt@menschlichkeit-oesterreich.at" className="text-primary-600 hover:underline">
-              kontakt@menschlichkeit-oesterreich.at
+            <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary-600 hover:underline">
+              {CONTACT_EMAIL}
             </a>
           </address>
         </section>
 
-        <section>
+        <section id="verarbeitung">
           <h2 className="text-xl font-semibold mb-3">2. Erhebung und Verarbeitung personenbezogener Daten</h2>
           <p>
             Wir erheben und verarbeiten personenbezogene Daten nur, soweit dies für die
@@ -74,7 +91,7 @@ export default function Datenschutz() {
           </p>
         </section>
 
-        <section>
+        <section id="rechte">
           <h2 className="text-xl font-semibold mb-3">6. Ihre Rechte</h2>
           <p>Sie haben folgende Rechte bezüglich Ihrer personenbezogenen Daten:</p>
           <ul className="list-disc list-inside mt-3 space-y-2">
@@ -86,11 +103,15 @@ export default function Datenschutz() {
             <li><strong>Widerspruchsrecht</strong> (Art. 21 DSGVO)</li>
             <li><strong>Widerruf der Einwilligung</strong> (Art. 7 Abs. 3 DSGVO)</li>
           </ul>
-          <p className="mt-3">
+          <p className="mt-3" id="kontakt-datenschutz">
             Zur Ausübung Ihrer Rechte wenden Sie sich bitte an:{' '}
-            <a href="mailto:kontakt@menschlichkeit-oesterreich.at" className="text-primary-600 hover:underline">
-              kontakt@menschlichkeit-oesterreich.at
+            <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary-600 hover:underline">
+              {CONTACT_EMAIL}
             </a>
+          </p>
+          <p className="mt-3 rounded-xl border border-primary-100 bg-primary-50 p-4 text-sm text-secondary-700">
+            Für Auskunfts-, Berichtigungs-, Löschungs- oder Widerspruchsanfragen können Sie uns direkt per E-Mail
+            kontaktieren. Bitte beschreiben Sie Ihr Anliegen möglichst konkret, damit wir Ihre Anfrage schneller zuordnen können.
           </p>
         </section>
 
@@ -109,16 +130,16 @@ export default function Datenschutz() {
           </address>
         </section>
 
-        <section>
+        <section id="cookies">
           <h2 className="text-xl font-semibold mb-3">8. Cookies</h2>
           <p>
             Diese Website verwendet technisch notwendige Cookies für den Betrieb und
-            optionale Cookies für die Verbesserung der Nutzererfahrung. Sie können Ihre
-            Cookie-Einstellungen jederzeit in den{' '}
-            <a href="/account/privacy" className="text-primary-600 hover:underline">
-              Datenschutz-Einstellungen
-            </a>{' '}
-            anpassen.
+            optionale Cookies für die Verbesserung der Nutzererfahrung. Wenn Sie Fragen zu
+            Einwilligungen, Cookies oder gespeicherten Daten haben, schreiben Sie uns bitte an{' '}
+            <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary-600 hover:underline">
+              {CONTACT_EMAIL}
+            </a>
+            .
           </p>
         </section>
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Home, ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import SeoHead from '../components/seo/SeoHead';
 
 const QUICK_LINKS = [
@@ -16,7 +16,7 @@ export default function NotFound() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-semantic-background flex flex-col items-center justify-center px-4 py-16">
+    <main id="main" className="min-h-screen bg-semantic-background flex flex-col items-center justify-center px-4 py-16">
       <SeoHead
         title="Seite nicht gefunden – Menschlichkeit Österreich"
         description="Diese Seite existiert nicht. Besuchen Sie unsere Startseite oder navigieren Sie zu einem unserer Angebote."
@@ -47,13 +47,13 @@ export default function NotFound() {
             <ArrowLeft className="w-4 h-4" />
             Zurück
           </button>
-          <a
-            href="/"
+          <Link
+            to="/"
             className="flex items-center justify-center gap-2 bg-primary-600 text-white font-medium py-2.5 px-6 rounded-xl hover:bg-primary-700 transition-colors"
           >
             <Home className="w-4 h-4" />
             Zur Startseite
-          </a>
+          </Link>
         </div>
 
         {/* Quick Links */}
@@ -63,14 +63,14 @@ export default function NotFound() {
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {QUICK_LINKS.map(link => (
-              <a
+              <Link
                 key={link.href}
-                href={link.href}
+                to={link.href}
                 className="flex items-center gap-2 p-2.5 rounded-xl hover:bg-primary-50 text-secondary-700 hover:text-primary-700 transition-colors text-sm"
               >
                 <span>{link.emoji}</span>
                 {link.label}
-              </a>
+              </Link>
             ))}
           </div>
         </div>
@@ -78,11 +78,11 @@ export default function NotFound() {
         {/* Contact */}
         <p className="mt-8 text-sm text-secondary-400">
           Problem gemeldet werden?{' '}
-          <a href="/kontakt" className="text-primary-600 hover:underline">
+          <Link to="/kontakt" className="text-primary-600 hover:underline">
             Kontaktieren Sie uns
-          </a>
+          </Link>
         </p>
       </div>
-    </div>
+    </main>
   );
 }

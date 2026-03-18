@@ -1,11 +1,14 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Alert } from '../components/ui/Alert';
 import { Input } from '../components/ui/Input';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
 import SeoHead from '../components/seo/SeoHead';
+import JsonLdBreadcrumb from '../components/seo/JsonLdBreadcrumb';
+import JsonLdFaq from '../components/seo/JsonLdFaq';
+import { CONTACT_EMAIL, LEGAL_DOCS } from '../config/siteConfig';
 import { api, CreateMembershipRequest } from '../services/api';
 
 // ── Typen ──────────────────────────────────────────────────────────────────
@@ -37,9 +40,15 @@ interface FormData {
 }
 
 const FEE_MAP: Record<MembershipType, Record<FeeCategory, string>> = {
-  ordentlich:      { standard: '60 €/Jahr', ermaessigt: '30 €/Jahr', haertefall: 'nach Vereinbarung' },
-  ausserordentlich:{ standard: '30 €/Jahr', ermaessigt: '15 €/Jahr', haertefall: 'nach Vereinbarung' },
-  foerdernd:       { standard: '120 €/Jahr', ermaessigt: '60 €/Jahr', haertefall: 'nach Vereinbarung' },
+  ordentlich: { standard: '36 €/Jahr oder 3 €/Monat', ermaessigt: '18 €/Jahr oder 1,50 €/Monat', haertefall: '0 € auf begründeten Antrag' },
+  ausserordentlich: { standard: '36 €/Jahr oder 3 €/Monat', ermaessigt: '18 €/Jahr oder 1,50 €/Monat', haertefall: '0 € auf begründeten Antrag' },
+  foerdernd: { standard: '36 €/Jahr oder 3 €/Monat', ermaessigt: '18 €/Jahr oder 1,50 €/Monat', haertefall: '0 € auf begründeten Antrag' },
+};
+
+const FEE_VALUES: Record<MembershipType, Record<'standard' | 'ermaessigt', number>> = {
+  ordentlich: { standard: 36, ermaessigt: 18 },
+  ausserordentlich: { standard: 36, ermaessigt: 18 },
+  foerdernd: { standard: 36, ermaessigt: 18 },
 };
 
 const MEMBERSHIP_LABELS: Record<MembershipType, string> = {
@@ -47,6 +56,32 @@ const MEMBERSHIP_LABELS: Record<MembershipType, string> = {
   ausserordentlich: 'Außerordentliches Mitglied',
   foerdernd:        'Fördermitglied',
 };
+
+const FAQ_ITEMS = [
+  {
+    question: 'Wie läuft der Mitgliedsantrag ab?',
+    answer:
+      'Sie erfassen Ihre Daten digital, wählen Mitgliedschaft und Zahlungsweg und bestätigen Statuten, Datenschutz und Beitragsordnung. Danach wird Ihr Antrag gespeichert und die nächsten Schritte werden angezeigt.',
+  },
+  {
+    question: 'Welche Unterlagen sollte ich vorher prüfen?',
+    answer:
+      'Für eine informierte Entscheidung empfehlen wir die Statuten, die Beitragsordnung, die Datenschutzerklärung und die Transparenz-Seite des Vereins.',
+  },
+  {
+    question: 'Was passiert bei einem Härtefall-Beitrag?',
+    answer:
+      'Bei Härtefällen erfolgt die Beitragsfestlegung nach Vereinbarung. In diesem Fall wird keine starre Online-Zahlung vorausgesetzt, sondern der weitere Ablauf individuell abgestimmt.',
+  },
+];
+
+function getFeeValue(type: MembershipType, category: FeeCategory): number | null {
+  if (category === 'haertefall') {
+    return null;
+  }
+
+  return FEE_VALUES[type][category];
+}
 
 const STEPS = ['Persönliche Daten', 'Mitgliedschaft', 'Zahlung', 'Bestätigung'];
 
@@ -161,8 +196,7 @@ function Step2({ data, set, onBack }: { data: FormData; set: (d: Partial<FormDat
 // ── Schritt 3: Zahlung ─────────────────────────────────────────────────────
 
 function Step3({ data, set, onBack }: { data: FormData; set: (d: Partial<FormData>) => void; onBack: () => void }) {
-  const sepaValid = data.paymentMethod === 'stripe_card' ||
-    (data.iban.trim().length >= 15 && data.kontoinhaber.trim().length > 0);
+  const paymentReady = data.paymentMethod === 'stripe_card' || data.paymentMethod === 'sepa';
 
   return (
     <div className="space-y-4">
@@ -176,8 +210,8 @@ function Step3({ data, set, onBack }: { data: FormData; set: (d: Partial<FormDat
           <input type="radio" name="paymentMethod" value="stripe_card"
             checked={data.paymentMethod === 'stripe_card'} onChange={() => set({ paymentMethod: 'stripe_card' })} />
           <div>
-            <span className="font-medium text-sm">Kreditkarte / EPS / Sofortüberweisung</span>
-            <p className="text-xs text-secondary-500">Sicher via Stripe. Visa, Mastercard, EPS.</p>
+            <span className="font-medium text-sm">Digitale Zahlung</span>
+            <p className="text-xs text-secondary-500">Online-Zahlung über unterstützte Zahlungsdienstleister.</p>
           </div>
         </label>
 
@@ -186,33 +220,28 @@ function Step3({ data, set, onBack }: { data: FormData; set: (d: Partial<FormDat
           <input type="radio" name="paymentMethod" value="sepa"
             checked={data.paymentMethod === 'sepa'} onChange={() => set({ paymentMethod: 'sepa' })} />
           <div>
-            <span className="font-medium text-sm">SEPA-Lastschrift</span>
-            <p className="text-xs text-secondary-500">Jährliche Abbuchung. Gläubiger-ID: AT12ZZZ00000012345</p>
+            <span className="font-medium text-sm">Überweisung / Dauerauftrag</span>
+            <p className="text-xs text-secondary-500">Die konkreten Zahlungsdaten werden nach dem Antrag individuell übermittelt.</p>
           </div>
         </label>
       </fieldset>
 
       {data.paymentMethod === 'stripe_card' && (
         <div className="rounded-lg border border-secondary-200 bg-secondary-50 p-4 text-sm text-secondary-600">
-          Nach Absenden des Antrags werden Sie zur sicheren Stripe-Zahlungsseite weitergeleitet.
+          Nach Absenden des Antrags leiten wir Sie bei beitragspflichtigen Kategorien in den sicheren Online-Zahlungsablauf weiter.
         </div>
       )}
 
       {data.paymentMethod === 'sepa' && (
-        <div className="space-y-3 rounded-lg border border-secondary-200 p-4">
-          <h3 className="text-sm font-semibold">SEPA-Lastschrift-Mandat</h3>
-          <Input label="Kontoinhaber:in *" value={data.kontoinhaber}
-            onChange={e => set({ kontoinhaber: e.target.value })} autoComplete="name" />
-          <Input label="IBAN *" value={data.iban} placeholder="AT61 1904 3002 3457 3201"
-            onChange={e => set({ iban: e.target.value.replace(/\s/g, '').toUpperCase() })} />
-          <Input label="BIC (optional im SEPA-Raum)" value={data.bic} placeholder="OPSKATWW"
-            onChange={e => set({ bic: e.target.value.toUpperCase() })} />
+        <div className="rounded-lg border border-secondary-200 p-4 text-sm text-secondary-600">
+          Bei Überweisung oder Dauerauftrag erhalten Sie die Zahlungsinformationen nach Eingang Ihres Antrags direkt von
+          uns. Falls Sie vorab Rückfragen haben, erreichen Sie uns unter {CONTACT_EMAIL}.
         </div>
       )}
 
       <div className="flex justify-between pt-2">
         <Button variant="secondary" onClick={onBack}>← Zurück</Button>
-        <Button disabled={!sepaValid}>Weiter →</Button>
+        <Button disabled={!paymentReady}>Weiter →</Button>
       </div>
     </div>
   );
@@ -229,9 +258,7 @@ function Step4({
   onSubmit: () => void;
   submitting: boolean;
 }) {
-  const canSubmit =
-    data.agreeStatuten && data.agreeDSGVO && data.agreeBeitragsordnung &&
-    (data.paymentMethod === 'stripe_card' || data.agreeMandat);
+  const canSubmit = data.agreeStatuten && data.agreeDSGVO && data.agreeBeitragsordnung;
 
   const fee = FEE_MAP[data.type][data.category];
 
@@ -248,7 +275,7 @@ function Step4({
           ['Mitgliedsart', MEMBERSHIP_LABELS[data.type]],
           ['Beitragskategorie', data.category === 'standard' ? 'Standard' : data.category === 'ermaessigt' ? 'Ermäßigt' : 'Härtefall'],
           ['Jahresbeitrag', fee],
-          ['Zahlung', data.paymentMethod === 'stripe_card' ? 'Kreditkarte / EPS' : `SEPA-Lastschrift (${data.iban})`],
+          ['Zahlung', data.paymentMethod === 'stripe_card' ? 'Digitale Zahlung' : 'Überweisung / Dauerauftrag'],
         ].map(([k, v]) => (
           <div key={k} className="flex gap-2 px-3 py-2">
             <span className="w-36 shrink-0 text-secondary-500">{k}</span>
@@ -272,18 +299,6 @@ function Step4({
           </label>
         ))}
 
-        {data.paymentMethod === 'sepa' && (
-          <label className="flex items-start gap-2 text-sm cursor-pointer rounded-lg border border-secondary-200 p-3 bg-secondary-50">
-            <input type="checkbox" className="mt-0.5 shrink-0"
-              checked={data.agreeMandat} onChange={e => set({ agreeMandat: e.target.checked })} />
-            <span>
-              Ich ermächtige Menschlichkeit Österreich (Gläubiger-ID: AT12ZZZ00000012345),
-              den jährlichen Mitgliedsbeitrag von meinem Konto per SEPA-Lastschrift einzuziehen.
-              Ich kann innerhalb von 8 Wochen Erstattung verlangen.
-            </span>
-          </label>
-        )}
-
         <label className="flex items-start gap-2 text-sm cursor-pointer text-secondary-600">
           <input type="checkbox" className="mt-0.5"
             checked={data.newsletterOptIn} onChange={e => set({ newsletterOptIn: e.target.checked })} />
@@ -291,7 +306,7 @@ function Step4({
         </label>
 
         <p className="text-xs text-secondary-400 pt-1">
-          Austritt gemäß §7, Ausschluss §8, Schiedsgericht §14 der Statuten. Widerrufsrecht DSGVO Art. 7 Abs. 3.
+          Für den verbindlichen Wortlaut gelten die Statuten, die Beitragsordnung und die Datenschutzerklärung in der jeweils bereitgestellten Fassung.
         </p>
       </div>
 
@@ -353,14 +368,32 @@ export default function JoinPage() {
       };
       await api.memberships.create(payload, token);
 
-      // 3) Bei Stripe-Zahlung: Redirect zu Stripe Checkout
+      const successParams = new URLSearchParams({
+        type: data.type,
+        category: data.category,
+        payment: data.paymentMethod,
+      });
+
+      // 3) Bei Online-Zahlung: in den bestehenden Spenden-/Zahlungsflow weiterleiten
       if (data.paymentMethod === 'stripe_card') {
-        nav('/checkout?membership=new');
+        const membershipFee = getFeeValue(data.type, data.category);
+        if (membershipFee !== null) {
+          const paymentParams = new URLSearchParams({
+            amount: String(membershipFee),
+            interval: 'yearly',
+            purpose: `Mitgliedsbeitrag – ${MEMBERSHIP_LABELS[data.type]}`,
+            context: 'membership',
+          });
+          nav(`/spenden?${paymentParams.toString()}`);
+          return;
+        }
+
+        nav(`/mitglied-werden/danke?${successParams.toString()}`);
         return;
       }
 
       // 4) Erfolgreich
-      nav('/mitglied-werden/danke');
+      nav(`/mitglied-werden/danke?${successParams.toString()}`);
     } catch (err: any) {
       setError(err?.message ?? 'Übermittlung fehlgeschlagen. Bitte erneut versuchen.');
       setSubmitting(false);
@@ -373,10 +406,15 @@ export default function JoinPage() {
         title="Mitglied werden – Menschlichkeit Österreich"
         description="Werden Sie Mitglied bei Menschlichkeit Österreich und setzen Sie sich gemeinsam mit uns für Demokratie, Menschenrechte und soziale Gerechtigkeit ein. Jetzt beitreten."
       />
+      <JsonLdBreadcrumb items={[
+        { name: 'Start', url: 'https://www.menschlichkeit-oesterreich.at/' },
+        { name: 'Mitglied werden', url: 'https://www.menschlichkeit-oesterreich.at/mitglied-werden' },
+      ]} />
+      <JsonLdFaq items={FAQ_ITEMS} />
       <Breadcrumb items={[{ label: 'Mitglied werden' }]} />
       <h1 className="text-2xl font-bold">Mitglied werden</h1>
       <p className="text-secondary-600 text-sm">
-        Digitaler Beitrittsantrag gemäß Vereinsstatuten und DSGVO.
+        Digitaler Beitrittsantrag gemäß Vereinsstatuten, Beitragsordnung und DSGVO.
       </p>
       <ProgressBar current={step} />
       {error && <Alert variant="error">{error}</Alert>}
@@ -395,6 +433,49 @@ export default function JoinPage() {
           )}
         </div>
       </Card>
+
+      <section className="grid gap-4 md:grid-cols-2">
+        <article className="rounded-2xl border border-secondary-200 bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-secondary-900">Vor dem Absenden sinnvoll</h2>
+          <ul className="mt-4 space-y-3 text-sm leading-relaxed text-secondary-700">
+            <li>Statuten und Beitragsordnung prüfen</li>
+            <li>Datenschutz und Betroffenenrechte ansehen</li>
+            <li>Bei Fragen vorab Kontakt aufnehmen</li>
+          </ul>
+          <div className="mt-5 flex flex-wrap gap-3 text-sm">
+            <Link to="/statuten" className="font-medium text-primary-700 hover:underline">Statuten</Link>
+            <Link to="/beitragsordnung" className="font-medium text-primary-700 hover:underline">Beitragsordnung</Link>
+            <Link to="/datenschutz" className="font-medium text-primary-700 hover:underline">Datenschutz</Link>
+            <a href={LEGAL_DOCS.statutes.href} target="_blank" rel="noopener noreferrer" className="font-medium text-primary-700 hover:underline">Statuten als PDF</a>
+            <a href={LEGAL_DOCS.contributionRules.href} target="_blank" rel="noopener noreferrer" className="font-medium text-primary-700 hover:underline">Beitragsordnung als PDF</a>
+          </div>
+        </article>
+        <article className="rounded-2xl border border-secondary-200 bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-secondary-900">Warum Mitglied werden?</h2>
+          <p className="mt-4 text-sm leading-relaxed text-secondary-700">
+            Mit Ihrer Mitgliedschaft stärken Sie eine Organisation, die demokratische Teilhabe, Menschenrechte und
+            soziale Gerechtigkeit in Österreich praktisch unterstützt. Gleichzeitig erhalten Sie einen klaren,
+            transparenten Antragsweg ohne unnötige Hürden.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3 text-sm">
+            <Link to="/transparenz" className="font-medium text-primary-700 hover:underline">Transparenz</Link>
+            <Link to="/ueber-uns" className="font-medium text-primary-700 hover:underline">Über uns</Link>
+            <Link to="/kontakt" className="font-medium text-primary-700 hover:underline">Kontakt</Link>
+          </div>
+        </article>
+      </section>
+
+      <section className="rounded-2xl border border-secondary-200 bg-white p-6 shadow-sm">
+        <h2 className="text-xl font-semibold text-secondary-900">Häufige Fragen zur Mitgliedschaft</h2>
+        <div className="mt-5 grid gap-4 md:grid-cols-3">
+          {FAQ_ITEMS.map((item) => (
+            <article key={item.question} className="rounded-2xl border border-secondary-100 bg-secondary-50 p-5">
+              <h3 className="font-semibold text-secondary-900">{item.question}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-secondary-700">{item.answer}</p>
+            </article>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }

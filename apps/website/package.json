@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "seo:assets": "node scripts/generate-seo-assets.mjs",
+    "docs:legal": "node scripts/sync-legal-docs.mjs",
+    "prebuild": "npm run seo:assets && npm run docs:legal",
     "dev": "vite",
     "build": "vite build",
     "build:ssr": "vite build --ssr src/entry-server.tsx --outDir dist-ssr",

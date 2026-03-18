@@ -1,14 +1,20 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import SeoHead from '../components/seo/SeoHead';
+import JsonLdBreadcrumb from '../components/seo/JsonLdBreadcrumb';
+import { CONTACT_EMAIL, LEGAL_DOCS, LEGAL_FACTS, WHATSAPP_URL } from '../config/siteConfig';
 
 export default function TransparenzPage() {
   return (
     <div>
       <SeoHead
         title="Transparenz – Vereinsdaten &amp; Finanzen"
-        description="Transparenz bei Menschlichkeit Österreich: ZVR-Nummer, Vereinszweck, Mittelverwendung und Finanzprinzipien. Gemeinnützigkeit und Rechenschaftspflicht."
+        description="Transparenz bei Menschlichkeit Österreich: Vereinsdaten, Registerauszug, Statuten, Beitragsordnung und Grundsätze zur Mittelverwendung."
       />
+      <JsonLdBreadcrumb items={[
+        { name: 'Start', url: 'https://www.menschlichkeit-oesterreich.at/' },
+        { name: 'Transparenz', url: 'https://www.menschlichkeit-oesterreich.at/transparenz' },
+      ]} />
 
       {/* Hero */}
       <section className="bg-gradient-to-br from-secondary-800 to-secondary-900 text-white py-16">
@@ -30,12 +36,13 @@ export default function TransparenzPage() {
               <tbody>
                 {[
                   ['Vereinsname', 'Menschlichkeit Österreich'],
-                  ['ZVR-Zahl', '1182213083'],
-                  ['Rechtsform', 'Gemeinnütziger Verein (ZVR-Österreich)'],
-                  ['Gründungsdatum', '28. Mai 2025'],
-                  ['Vereinssitz', 'Pottenbrunner Hauptstraße 108/Top 1, 3140 Pottenbrunn'],
-                  ['Zuständige Behörde', 'Bezirkshauptmannschaft St. Pölten-Land'],
-                  ['E-Mail', 'kontakt@menschlichkeit-oesterreich.at'],
+                  ['ZVR-Zahl', LEGAL_FACTS.zvr],
+                  ['Rechtsform', 'Verein laut Vereinsregisterauszug'],
+                  ['Gründungsdatum', LEGAL_FACTS.foundingDateLabel],
+                  ['Vereinssitz', LEGAL_FACTS.seat],
+                  ['Zustellanschrift', LEGAL_FACTS.mailingAddressLabel],
+                  ['E-Mail', CONTACT_EMAIL],
+                  ['WhatsApp', 'wa.me/436801608053'],
                   ['Website', 'www.menschlichkeit-oesterreich.at'],
                 ].map(([label, value]) => (
                   <tr key={label} className="border-b border-gray-50 last:border-0">
@@ -53,14 +60,14 @@ export default function TransparenzPage() {
           <h2 className="text-2xl font-bold mb-4">Vereinszweck</h2>
           <div className="prose prose-lg text-gray-700">
             <p>
-              Menschlichkeit Österreich ist ein gemeinnütziger Verein zur Förderung von Demokratie,
+              Menschlichkeit Österreich ist ein Verein zur Förderung von Demokratie,
               Menschenrechten, sozialer Gerechtigkeit und zivilgesellschaftlichem Engagement in
               Österreich.
             </p>
             <p>
-              Der Verein verfolgt ausschließlich gemeinnützige Zwecke im Sinne der
-              österreichischen Bundesabgabenordnung (BAO). Eine Gewinnorientierung ist
-              ausgeschlossen. Alle Mittel werden zweckgebunden für die Vereinsarbeit verwendet.
+              Die Statuten beschreiben eine nicht auf Gewinn gerichtete Tätigkeit und nennen als
+              Schwerpunkte soziale Gerechtigkeit, Menschenrechte, demokratische Teilhabe,
+              ökologische Verantwortung sowie Bildungs- und Beteiligungsarbeit in Österreich.
             </p>
           </div>
         </section>
@@ -107,9 +114,13 @@ export default function TransparenzPage() {
           <div className="flex flex-wrap gap-4">
             <Link to="/statuten" className="text-primary-600 hover:underline font-medium">→ Vereinsstatuten</Link>
             <Link to="/beitragsordnung" className="text-primary-600 hover:underline font-medium">→ Beitragsordnung</Link>
+            <a href={LEGAL_DOCS.statutes.href} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline font-medium">→ Statuten als PDF</a>
+            <a href={LEGAL_DOCS.contributionRules.href} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline font-medium">→ Beitragsordnung als PDF</a>
+            <a href={LEGAL_DOCS.registerExcerpt.href} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline font-medium">→ Vereinsregisterauszug</a>
             <Link to="/team" className="text-primary-600 hover:underline font-medium">→ Unser Team</Link>
             <Link to="/kontakt" className="text-primary-600 hover:underline font-medium">→ Kontakt</Link>
             <Link to="/impressum" className="text-primary-600 hover:underline font-medium">→ Impressum</Link>
+            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline font-medium">→ WhatsApp</a>
           </div>
         </section>
       </div>

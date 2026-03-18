@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import SeoHead from '../components/seo/SeoHead';
+import JsonLdBreadcrumb from '../components/seo/JsonLdBreadcrumb';
 
 interface ForumCategory {
   id: string;
@@ -26,13 +27,20 @@ interface ForumThread {
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const QUICK_LINKS = [
+  { to: '/themen', label: 'Themenübersicht' },
+  { to: '/veranstaltungen', label: 'Veranstaltungen' },
+  { to: '/mitglied-werden', label: 'Mitglied werden' },
+  { to: '/kontakt', label: 'Kontakt' },
+];
 
 export default function ForumPage() {
   const { token } = useAuth();
   const [categories, setCategories] = useState<ForumCategory[]>([]);
   const [threads, setThreads] = useState<ForumThread[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [newThread, setNewThread] = useState({ titel: '', inhalt: '', category_id: '' });
   const [createError, setCreateError] = useState('');
@@ -63,6 +71,7 @@ export default function ForumPage() {
         setThreads(data.data || []);
       }
     } catch { /* ignore */ }
+    setHasLoaded(true);
     setLoading(false);
   }
 
@@ -103,10 +112,16 @@ export default function ForumPage() {
         title="Forum – Diskussion und Austausch"
         description="Nehmen Sie an Diskussionen zu Demokratie, Menschenrechten und gesellschaftlichen Themen teil. Das Community-Forum von Menschlichkeit Österreich."
       />
+      <JsonLdBreadcrumb items={[
+        { name: 'Start', url: 'https://www.menschlichkeit-oesterreich.at/' },
+        { name: 'Forum', url: 'https://www.menschlichkeit-oesterreich.at/forum' },
+      ]} />
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Forum</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Diskussionen und Austausch der Vereinsgemeinschaft</p>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Diskussionen und Austausch zu Demokratie, Menschenrechten, sozialer Gerechtigkeit und Vereinsarbeit.
+          </p>
         </div>
         {token && (
           <button onClick={() => setShowCreate(!showCreate)}
@@ -115,6 +130,21 @@ export default function ForumPage() {
           </button>
         )}
       </div>
+
+      <section className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+        <h2 className="text-xl font-semibold text-gray-900">Wofür das Forum gedacht ist</h2>
+        <p className="mt-3 text-sm leading-relaxed text-gray-600">
+          Das Forum bündelt Diskussionen, Rückfragen und thematische Beiträge aus der Community. Es ergänzt unsere
+          Themen-, Bildungs- und Veranstaltungsseiten um direkten Austausch.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-3 text-sm">
+          {QUICK_LINKS.map((link) => (
+            <Link key={link.to} to={link.to} className="font-medium text-primary-700 hover:underline">
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      </section>
 
       {showCreate && (
         <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700 mb-6">
@@ -165,7 +195,7 @@ export default function ForumPage() {
         </div>
       )}
 
-      {loading ? (
+      {loading && !hasLoaded ? (
         <div className="text-center py-12">
           <div className="w-8 h-8 border-4 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
           <p className="text-gray-500">Wird geladen…</p>
@@ -174,7 +204,17 @@ export default function ForumPage() {
         <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
           <span className="text-5xl block mb-4">💬</span>
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Noch keine Themen</h2>
-          <p className="text-gray-500 dark:text-gray-400 mb-4">Starten Sie die erste Diskussion in unserem Forum.</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-4 max-w-2xl mx-auto">
+            Sobald erste Diskussionen veröffentlicht sind, erscheinen sie hier. Bis dahin finden Sie auf unseren Themen-
+            und Veranstaltungsseiten viele Einstiegsangebote.
+          </p>
+          <div className="mb-5 flex flex-wrap justify-center gap-3 text-sm">
+            {QUICK_LINKS.map((link) => (
+              <Link key={link.to} to={link.to} className="font-medium text-primary-600 hover:underline">
+                {link.label}
+              </Link>
+            ))}
+          </div>
           {token && (
             <button onClick={() => setShowCreate(true)} className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700">
               Erstes Thema erstellen

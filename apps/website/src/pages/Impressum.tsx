@@ -1,5 +1,8 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import SeoHead from '../components/seo/SeoHead';
+import JsonLdBreadcrumb from '../components/seo/JsonLdBreadcrumb';
+import { CONTACT_EMAIL, LEGAL_DOCS, LEGAL_FACTS, WHATSAPP_URL } from '../config/siteConfig';
 
 export default function Impressum() {
   return (
@@ -8,6 +11,10 @@ export default function Impressum() {
         title="Impressum – Menschlichkeit Österreich"
         description="Impressum des Vereins Menschlichkeit Österreich gemäß § 25 MedienG. ZVR: 1182213083."
       />
+      <JsonLdBreadcrumb items={[
+        { name: 'Start', url: 'https://www.menschlichkeit-oesterreich.at/' },
+        { name: 'Impressum', url: 'https://www.menschlichkeit-oesterreich.at/impressum' },
+      ]} />
       <h1 className="text-3xl font-bold mb-2">Impressum</h1>
       <p className="text-gray-500 mb-8">Angaben gemäß § 25 MedienG und § 14 UGB</p>
 
@@ -27,10 +34,16 @@ export default function Impressum() {
           <p className="text-gray-700">
             E-Mail:{' '}
             <a
-              href="mailto:kontakt@menschlichkeit-oesterreich.at"
+              href={`mailto:${CONTACT_EMAIL}`}
               className="text-primary-600 hover:underline"
             >
-              kontakt@menschlichkeit-oesterreich.at
+              {CONTACT_EMAIL}
+            </a>
+          </p>
+          <p className="mt-2 text-gray-700">
+            WhatsApp:{' '}
+            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline">
+              wa.me/436801608053
             </a>
           </p>
         </section>
@@ -39,22 +52,23 @@ export default function Impressum() {
           <h2 className="text-xl font-semibold mb-3">Vereinsregister</h2>
           <dl className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-gray-700">
             <dt className="font-medium">ZVR-Zahl</dt>
-            <dd>1182213083</dd>
-            <dt className="font-medium">Vereinsbehörde</dt>
-            <dd>Landespolizeidirektion Niederösterreich (LPD NÖ)</dd>
+            <dd>{LEGAL_FACTS.zvr}</dd>
             <dt className="font-medium">Gründungsdatum</dt>
-            <dd>28. Mai 2025</dd>
-            <dt className="font-medium">Gemeinnützigkeit</dt>
-            <dd>Anerkannt nach §§ 34 ff. BAO</dd>
+            <dd>{LEGAL_FACTS.foundingDateLabel}</dd>
+            <dt className="font-medium">Vereinssitz</dt>
+            <dd>{LEGAL_FACTS.seat}</dd>
+            <dt className="font-medium">Vereinsbehörde</dt>
+            <dd>{LEGAL_FACTS.registerAuthority}</dd>
           </dl>
         </section>
 
         <section>
           <h2 className="text-xl font-semibold mb-3">Vereinszweck</h2>
           <p className="text-gray-700 leading-relaxed">
-            Der Verein Menschlichkeit Österreich verfolgt ausschließlich gemeinnützige Zwecke.
-            Ziel ist die Förderung von Solidarität, sozialer Gerechtigkeit, ökologischer
-            Verantwortung und demokratischen Werten in Österreich.
+            Der Verein Menschlichkeit Österreich setzt sich laut Statuten für Solidarität,
+            soziale Gerechtigkeit, ökologische Verantwortung und demokratische Werte in
+            Österreich ein. Für die verbindliche juristische Fassung verweisen wir auf die
+            bereitgestellten Statuten.
           </p>
         </section>
 
@@ -76,6 +90,21 @@ export default function Impressum() {
             Verbreitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes
             bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.
           </p>
+        </section>
+
+        <section className="rounded-2xl border border-gray-200 bg-gray-50 p-6">
+          <h2 className="text-xl font-semibold mb-3">Weiterführende Informationen</h2>
+          <p className="text-gray-700 leading-relaxed mb-4">
+            Weitere Angaben zu Datenschutz, Transparenz und Vereinsgrundlagen finden Sie auf den folgenden Seiten.
+          </p>
+          <div className="flex flex-wrap gap-3 text-sm">
+            <Link to="/datenschutz" className="font-medium text-primary-600 hover:underline">Datenschutz</Link>
+            <Link to="/transparenz" className="font-medium text-primary-600 hover:underline">Transparenz</Link>
+            <Link to="/statuten" className="font-medium text-primary-600 hover:underline">Statuten</Link>
+            <Link to="/kontakt" className="font-medium text-primary-600 hover:underline">Kontakt</Link>
+            <a href={LEGAL_DOCS.statutes.href} target="_blank" rel="noopener noreferrer" className="font-medium text-primary-600 hover:underline">Statuten als PDF</a>
+            <a href={LEGAL_DOCS.registerExcerpt.href} target="_blank" rel="noopener noreferrer" className="font-medium text-primary-600 hover:underline">Vereinsregisterauszug</a>
+          </div>
         </section>
       </div>
     </div>

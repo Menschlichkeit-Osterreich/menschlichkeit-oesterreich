@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '../components/ui/Card';
 import SeoHead from '../components/seo/SeoHead';
-import JsonLdOrganization from '../components/seo/JsonLdOrganization';
+import { CONTACT_EMAIL, LEGAL_DOCS, LEGAL_FACTS, WHATSAPP_URL } from '../config/siteConfig';
 
 const topics = [
   {
@@ -50,10 +50,10 @@ const topics = [
 ];
 
 const stats = [
-  { value: '500+', label: 'Mitglieder' },
+  { value: 'ZVR', label: LEGAL_FACTS.zvr },
   { value: '2025', label: 'Gegründet' },
-  { value: 'AT', label: 'Österreichweit aktiv' },
-  { value: 'DSGVO', label: 'Datenschutzkonform' },
+  { value: '3140', label: 'Pottenbrunn' },
+  { value: 'de-AT', label: 'Sprache & Fokus' },
 ];
 
 export default function HomePage() {
@@ -61,10 +61,9 @@ export default function HomePage() {
     <div data-component="Home">
       <SeoHead
         title="Menschlichkeit Österreich – Verein für Demokratie &amp; Menschenrechte"
-        description="Gemeinnütziger Verein zur Förderung von Demokratie, Menschenrechten und Zivilgesellschaft in Österreich. Jetzt Mitglied werden oder spenden."
+        description="Verein zur Förderung von Demokratie, Menschenrechten und Zivilgesellschaft in Österreich. Jetzt Mitglied werden, spenden oder unsere Vereinsdokumente einsehen."
         canonical="https://www.menschlichkeit-oesterreich.at/"
       />
-      <JsonLdOrganization />
 
       {/* Hero Section */}
       <section
@@ -122,6 +121,10 @@ export default function HomePage() {
                   <img
                     src="/logo.jpg"
                     alt="Verein Menschlichkeit Österreich Logo"
+                    width={960}
+                    height={960}
+                    fetchPriority="high"
+                    decoding="async"
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -149,6 +152,50 @@ export default function HomePage() {
       </section>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-14">
+
+        {/* Schwerpunkte */}
+        <section className="mb-16 rounded-3xl border border-secondary-100 bg-secondary-50 p-8 md:p-10" aria-labelledby="trust-title">
+          <div className="grid gap-8 lg:grid-cols-[1.3fr_1fr] lg:items-start">
+            <div>
+              <h2 id="trust-title" className="text-3xl font-bold text-secondary-900 mb-4">
+                In Österreich verankert und transparent organisiert
+              </h2>
+              <p className="text-secondary-700 leading-relaxed mb-4">
+                Menschlichkeit Österreich arbeitet von Pottenbrunn aus an Bildungsangeboten, Veranstaltungen und
+                Beteiligungsformaten für Menschen in ganz Österreich. Transparenz, Datenschutz und nachvollziehbare
+                Vereinsstrukturen gehören für uns zur öffentlichen Verantwortung.
+              </p>
+              <p className="text-secondary-700 leading-relaxed">
+                Wenn Sie sich ein genaueres Bild machen möchten, finden Sie auf unseren Seiten zu Transparenz,
+                Statuten, Beitragsordnung und Datenschutz die wichtigsten Grundlagen unserer Arbeit.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-white bg-white p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-secondary-900">Schneller Überblick</h3>
+              <ul className="mt-4 space-y-3 text-sm text-secondary-700">
+                <li>Vereinssitz: {LEGAL_FACTS.seat}</li>
+                <li>Zustellanschrift: {LEGAL_FACTS.mailingAddressLabel}</li>
+                <li>Vereinsregister: ZVR {LEGAL_FACTS.zvr}</li>
+                <li>Kontakt: {CONTACT_EMAIL}</li>
+                <li>WhatsApp: 0680 1608053</li>
+              </ul>
+              <div className="mt-5 flex flex-wrap gap-3">
+                <Link to="/transparenz" className="text-sm font-semibold text-primary-700 hover:underline">
+                  Transparenz ansehen
+                </Link>
+                <Link to="/impressum" className="text-sm font-semibold text-primary-700 hover:underline">
+                  Impressum
+                </Link>
+                <Link to="/datenschutz" className="text-sm font-semibold text-primary-700 hover:underline">
+                  Datenschutz
+                </Link>
+                <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-primary-700 hover:underline">
+                  WhatsApp
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Schwerpunkte */}
         <section className="mb-16" aria-labelledby="topics-title" data-component="CardGrid">
@@ -207,6 +254,14 @@ export default function HomePage() {
               >
                 Statuten lesen
               </Link>
+              <a
+                href={LEGAL_DOCS.registerExcerpt.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center rounded-xl border-2 border-secondary-200 bg-white text-secondary-800 px-6 py-3.5 text-sm font-semibold hover:bg-secondary-50 transition-all"
+              >
+                Registerauszug herunterladen
+              </a>
             </div>
           </div>
         </section>
@@ -255,7 +310,7 @@ export default function HomePage() {
           <h2 id="legal-title" className="text-xs font-semibold text-secondary-400 uppercase tracking-wider mb-3">Rechtliches &amp; Datenschutz</h2>
           <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
             {[
-              { to: '/account/privacy', label: 'Datenschutz / DSGVO Art. 17', testId: 'link.privacy' },
+              { to: '/datenschutz#betroffenenrechte', label: 'Betroffenenrechte nach DSGVO', testId: 'link.privacy' },
               { to: '/statuten', label: 'Statuten' },
               { to: '/beitragsordnung', label: 'Beitragsordnung' },
               { to: '/impressum', label: 'Impressum' },

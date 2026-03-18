@@ -1,7 +1,10 @@
 export const DOMAIN = 'menschlichkeit-oesterreich.at';
+export const PUBLIC_CONTACT_EMAIL = `office@${DOMAIN}`;
+export const WHATSAPP_URL = 'https://wa.me/436801608053';
 
 export const EMAIL = {
-  kontakt: `kontakt@${DOMAIN}`,
+  kontakt: PUBLIC_CONTACT_EMAIL,
+  office: PUBLIC_CONTACT_EMAIL,
   info: `info@${DOMAIN}`,
   admin: `admin@${DOMAIN}`,
   noreply: `noreply@${DOMAIN}`,
@@ -15,9 +18,11 @@ export const ORGANIZATION = {
   name: 'Verein Menschlichkeit Österreich',
   zvr: '1182213083',
   gruendung: '28.05.2025',
+  sitz: 'St. Pölten (St. Pölten)',
+  zustellanschrift: 'Pottenbrunner Hauptstraße 108/Top 1, 3140 Pottenbrunn',
   adresse: 'Pottenbrunner Hauptstraße 108/Top 1, 3140 Pottenbrunn',
-  vereinsbehoerde: 'LPD Niederösterreich',
-  website: `https://${DOMAIN}`,
+  vereinsbehoerde: 'Landespolizeidirektion Niederösterreich - Referat SVA 3',
+  website: `https://www.${DOMAIN}`,
 } as const;
 
 export const MEMBERSHIP_TYPES = {

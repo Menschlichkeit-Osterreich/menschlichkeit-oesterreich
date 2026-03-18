@@ -1,13 +1,27 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Card } from '../components/ui/Card';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
 import SeoHead from '../components/seo/SeoHead';
 import { PageHeader } from '../components/ui/PageHeader';
+import { LEGAL_DOCS, LEGAL_FACTS } from '../config/siteConfig';
 
 const BEITRAEGE = [
-  { kategorie: 'Ordentliches Mitglied (Standard)', betrag: '€ 36,– / Jahr', hinweis: 'Entspricht € 3,– pro Monat' },
-  { kategorie: 'Ordentliches Mitglied (Ermäßigt)', betrag: '€ 18,– / Jahr', hinweis: 'Für Studierende, Arbeitssuchende, Pensionist*innen · Entspricht € 1,50 pro Monat' },
-  { kategorie: 'Ordentliches Mitglied (Härtefall)', betrag: '€ 0,– / Jahr', hinweis: 'Auf begründeten Antrag beim Vorstand; volle Mitgliedsrechte bleiben erhalten' },
+  {
+    kategorie: 'Standardmitgliedschaft',
+    betrag: '€ 36,00 pro Jahr',
+    hinweis: 'Alternativ € 3,00 pro Monat',
+  },
+  {
+    kategorie: 'Ermäßigte Mitgliedschaft',
+    betrag: '€ 18,00 pro Jahr',
+    hinweis: 'Alternativ € 1,50 pro Monat',
+  },
+  {
+    kategorie: 'Härtefallregelung',
+    betrag: '€ 0,00',
+    hinweis: 'Auf begründeten Antrag an den Vorstand',
+  },
 ];
 
 export default function BeitragsordnungPage() {
@@ -15,52 +29,61 @@ export default function BeitragsordnungPage() {
     <div className="mx-auto max-w-4xl p-4 space-y-6">
       <SeoHead
         title="Beitragsordnung – Menschlichkeit Österreich"
-        description="Mitgliedsbeiträge 2025: Standardbeitrag €36/Jahr, ermäßigt €18/Jahr. Informieren Sie sich über die Beitragsordnung des Vereins."
+        description="Aktuelle Beitragsordnung von Menschlichkeit Österreich mit direktem PDF-Download und Überblick über Beitragshöhen und Zahlungsmodalitäten."
       />
       <PageHeader
-        title="Beitragsordnung 2025"
-        description="Mitgliedsbeiträge des Vereins Menschlichkeit Österreich"
-        breadcrumb={<Breadcrumb items={[{ label: 'Beitragsordnung 2025' }]} />}
+        title="Beitragsordnung"
+        description="Die aktuelle Neufassung 2025 stellen wir als PDF bereit. Hier finden Sie die wichtigsten Eckpunkte in kurzer Form."
+        breadcrumb={<Breadcrumb items={[{ label: 'Beitragsordnung' }]} />}
       />
 
       <Card className="p-6">
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <a
-            className="inline-flex items-center gap-2 px-4 py-2 rounded bg-primary-600 text-white hover:bg-primary-700 transition-colors"
-            href="/docs/beitragsordnung-2025.pdf"
+            className="inline-flex items-center gap-2 rounded bg-primary-600 px-4 py-2 text-white transition-colors hover:bg-primary-700"
+            href={LEGAL_DOCS.contributionRules.href}
             target="_blank"
             rel="noopener noreferrer"
           >
-            📄 Beitragsordnung als PDF herunterladen
+            📄 {LEGAL_DOCS.contributionRules.label}
           </a>
-          <a
-            className="inline-flex items-center gap-2 px-4 py-2 rounded border border-primary-600 text-primary-600 hover:bg-primary-50 transition-colors"
-            href="/mitglied-werden"
+          <Link
+            className="inline-flex items-center gap-2 rounded border border-primary-600 px-4 py-2 text-primary-600 transition-colors hover:bg-primary-50"
+            to="/mitglied-werden"
           >
             🤝 Jetzt Mitglied werden
-          </a>
+          </Link>
         </div>
 
-        <p className="text-sm text-secondary-600 mb-6">
-          Beschlossen am 21. Mai 2025 · Gültig ab 1. Juli 2025
-        </p>
+        <div className="rounded-2xl border border-secondary-200 bg-secondary-50 p-5 text-sm text-secondary-700">
+          <p>
+            <strong>Beschlussdatum der Neufassung:</strong> {LEGAL_FACTS.contributionOrderResolutionLabel}
+          </p>
+          <p className="mt-2">
+            <strong>Gültig ab:</strong> {LEGAL_FACTS.contributionOrderEffectiveLabel}
+          </p>
+          <p className="mt-3">
+            Für den verbindlichen Wortlaut gilt ausschließlich die PDF-Fassung. Die Website-Zusammenfassung dient der
+            schnellen Orientierung.
+          </p>
+        </div>
 
-        <h2 className="text-lg font-semibold mb-4">§ 1 – Mitgliedsbeiträge</h2>
-        <div className="overflow-x-auto mb-6">
-          <table className="w-full text-sm border-collapse">
+        <h2 className="mt-8 text-lg font-semibold mb-4">Beitragshöhen ab 2025</h2>
+        <div className="mb-6 overflow-x-auto">
+          <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="bg-primary-50">
-                <th className="text-left p-3 border border-secondary-200 font-semibold">Kategorie</th>
-                <th className="text-left p-3 border border-secondary-200 font-semibold">Jahresbeitrag</th>
-                <th className="text-left p-3 border border-secondary-200 font-semibold">Hinweis</th>
+                <th className="border border-secondary-200 p-3 text-left font-semibold">Kategorie</th>
+                <th className="border border-secondary-200 p-3 text-left font-semibold">Beitrag</th>
+                <th className="border border-secondary-200 p-3 text-left font-semibold">Hinweis</th>
               </tr>
             </thead>
             <tbody>
               {BEITRAEGE.map((row, idx) => (
-                <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-secondary-50'}>
-                  <td className="p-3 border border-secondary-200">{row.kategorie}</td>
-                  <td className="p-3 border border-secondary-200 font-medium text-primary-700">{row.betrag}</td>
-                  <td className="p-3 border border-secondary-200 text-secondary-600">{row.hinweis}</td>
+                <tr key={row.kategorie} className={idx % 2 === 0 ? 'bg-white' : 'bg-secondary-50'}>
+                  <td className="border border-secondary-200 p-3">{row.kategorie}</td>
+                  <td className="border border-secondary-200 p-3 font-medium text-primary-700">{row.betrag}</td>
+                  <td className="border border-secondary-200 p-3 text-secondary-600">{row.hinweis}</td>
                 </tr>
               ))}
             </tbody>
@@ -68,25 +91,37 @@ export default function BeitragsordnungPage() {
         </div>
 
         <div className="space-y-4 text-sm text-secondary-700">
-          <div>
-            <h3 className="font-semibold text-base mb-1">§ 2 – Fälligkeit und Zahlungsmodalitäten</h3>
-            <p>Jahresbeiträge sind bis spätestens 31. März des jeweiligen Jahres zu entrichten. Monatsbeiträge sind bis zum 5. des jeweiligen Monats fällig. Die Zahlung erfolgt per SEPA-Lastschrift oder Banküberweisung.</p>
-          </div>
-          <div>
-            <h3 className="font-semibold text-base mb-1">§ 3 – Ermäßigter Beitrag</h3>
-            <p>Der ermäßigte Beitrag gilt für Studierende, Arbeitssuchende und Pensionist*innen. Ein entsprechender Nachweis ist beim Beitritt vorzulegen.</p>
-          </div>
-          <div>
-            <h3 className="font-semibold text-base mb-1">§ 4 – Härtefallregelung</h3>
-            <p>Mitglieder, die den Beitrag aus finanziellen Gründen nicht entrichten können, können beim Vorstand einen begründeten Antrag auf Befreiung stellen. Die vollen Mitgliedsrechte bleiben in jedem Fall erhalten.</p>
-          </div>
-          <div>
-            <h3 className="font-semibold text-base mb-1">§ 5 – Steuerliche Absetzbarkeit</h3>
-            <p>Mitgliedsbeiträge und Spenden sind im Rahmen der geltenden österreichischen Steuergesetze steuerlich absetzbar. Der Verein ist beim Finanzamt als gemeinnützig anerkannt.</p>
-          </div>
+          <section>
+            <h3 className="mb-1 text-base font-semibold">Zweck der Beiträge</h3>
+            <p>
+              Laut Beitragsordnung dienen die Mitgliedsbeiträge der Finanzierung der gemeinnützigen Vereinsarbeit,
+              insbesondere in den Bereichen soziale Gerechtigkeit, ökologische Verantwortung, demokratische Bildung
+              und Solidarität.
+            </p>
+          </section>
+          <section>
+            <h3 className="mb-1 text-base font-semibold">Zahlungsmodalitäten</h3>
+            <p>
+              Beiträge können jährlich oder monatlich geleistet werden. Bei Eintritt während des laufenden Jahres
+              wird der Beitrag aliquot ab dem Beitrittsmonat fällig.
+            </p>
+          </section>
+          <section>
+            <h3 className="mb-1 text-base font-semibold">Fälligkeit</h3>
+            <p>
+              Jahresbeiträge sind laut Neufassung bis 31. März, Monatsbeiträge jeweils bis zum 5. des laufenden
+              Monats zu entrichten.
+            </p>
+          </section>
+          <section>
+            <h3 className="mb-1 text-base font-semibold">Zahlungsarten</h3>
+            <p>
+              Die Ordnung nennt Banküberweisung auf das offizielle Vereinskonto sowie nach Absprache SEPA-Dauerauftrag
+              oder digitale Zahlung. Die konkreten Zahlungsdaten werden individuell übermittelt.
+            </p>
+          </section>
         </div>
       </Card>
     </div>
   );
 }
-

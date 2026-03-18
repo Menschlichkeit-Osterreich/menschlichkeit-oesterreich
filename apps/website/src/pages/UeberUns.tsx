@@ -69,8 +69,9 @@ export default function UeberUns() {
               Gesellschaft möglich ist – wenn wir gemeinsam dafür eintreten.
             </p>
             <p>
-              Als gemeinnützig anerkannter Verein (ZVR: 1182213083) arbeiten wir
-              ehrenamtlich und unparteiisch für das Wohl aller Menschen in Österreich.
+              Als Verein mit ZVR 1182213083 arbeiten wir ehrenamtlich und unparteiisch für
+              das Wohl aller Menschen in Österreich. Näheres zu Vereinsdaten und Dokumenten
+              finden Sie auf unserer Transparenz-Seite.
             </p>
           </div>
         </div>

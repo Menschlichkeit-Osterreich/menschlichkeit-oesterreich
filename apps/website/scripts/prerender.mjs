@@ -17,47 +17,28 @@
 
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+import routes from '../src/config/seoRoutes.json' with { type: 'json' };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const DIST = join(ROOT, 'dist');
 const DIST_SSR = join(ROOT, 'dist-ssr');
 
-// All static public routes to prerender
-const ROUTES_TO_PRERENDER = [
-  '/',
-  '/ueber-uns',
-  '/team',
-  '/transparenz',
-  '/presse',
-  '/statuten',
-  '/beitragsordnung',
-  '/themen',
-  '/themen/demokratie',
-  '/themen/menschenrechte',
-  '/themen/soziale-gerechtigkeit',
-  '/veranstaltungen',
-  '/bildung',
-  '/materialien',
-  '/mitglied-werden',
-  '/spenden',
-  '/kontakt',
-  '/impressum',
-  '/datenschutz',
-  '/forum',
-  '/blog',
-  '/spiel',
-];
+const ROUTES_TO_PRERENDER = routes
+  .filter((route) => route.prerender !== false)
+  .map((route) => route.path);
+
+const APP_HEAD_BLOCK = /<!--app-head:start-->[\s\S]*?<!--app-head:end-->/;
 
 async function prerender() {
   // Load the SSR server bundle
   const serverEntryPath = join(DIST_SSR, 'entry-server.js');
   let renderFn;
   try {
-    const serverModule = await import(serverEntryPath);
+    const serverModule = await import(pathToFileURL(serverEntryPath).href);
     renderFn = serverModule.render;
-  } catch (err) {
+  } catch (_err) {
     console.error(`[prerender] Could not load SSR bundle at ${serverEntryPath}`);
     console.error('[prerender] Run "npm run build:ssr" first.');
     process.exit(1);
@@ -66,6 +47,10 @@ async function prerender() {
   // Load the client-built index.html as template
   const templatePath = join(DIST, 'index.html');
   const template = readFileSync(templatePath, 'utf-8');
+  if (!APP_HEAD_BLOCK.test(template)) {
+    console.error('[prerender] Missing <!--app-head:start--> markers in dist/index.html.');
+    process.exit(1);
+  }
 
   let successCount = 0;
   const errors = [];
@@ -80,7 +65,9 @@ async function prerender() {
         helmet?.meta?.toString() ?? '',
         helmet?.link?.toString() ?? '',
         helmet?.script?.toString() ?? '',
-      ].join('\n    ');
+      ]
+        .filter(Boolean)
+        .join('\n    ');
 
       // Inject rendered HTML into the template
       // 1. Replace <div id="root"> content with server-rendered HTML
@@ -93,7 +80,7 @@ async function prerender() {
           /<div id="root">[\s\S]*?<\/div>\s*(?=\s*<\/body>)/,
           `<div id="root">${appHtml}</div>\n    `
         )
-        .replace('</head>', `  ${headTags}\n  </head>`);
+        .replace(APP_HEAD_BLOCK, `<!--app-head:start-->\n    ${headTags}\n    <!--app-head:end-->`);
 
       // Determine output path.
       // Strips the leading '/' from non-root routes before joining with DIST

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, MapPin, Clock, Users, ChevronRight, Filter } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { dashboardApi } from '../services/dashboard-api';
 import SeoHead from '../components/seo/SeoHead';
+import JsonLdBreadcrumb from '../components/seo/JsonLdBreadcrumb';
 import SpendenCTA from '../components/SpendenCTA';
+import { CONTACT_EMAIL } from '../config/siteConfig';
 
 interface Event {
   id: number;
@@ -19,83 +22,6 @@ interface Event {
   imageEmoji: string;
   isFeatured?: boolean;
 }
-
-const FALLBACK_EVENTS: Event[] = [
-  {
-    id: 1,
-    title: 'Demokratie-Workshop: Bürgerbeteiligung stärken',
-    date: '2026-03-15',
-    time: '14:00\u201317:00 Uhr',
-    location: 'Wien, 1. Bezirk \u2013 Volkshaus',
-    category: 'workshop',
-    description: 'Ein interaktiver Workshop über Möglichkeiten der direkten Demokratie in Österreich. Gemeinsam erkunden wir Bürgerbegehren, Volksbegehren und kommunale Beteiligungsformate.',
-    maxParticipants: 30,
-    currentParticipants: 18,
-    imageEmoji: '\uD83D\uDDF3\uFE0F',
-    isFeatured: true,
-  },
-  {
-    id: 2,
-    title: 'Vortrag: Menschenrechte im digitalen Zeitalter',
-    date: '2026-03-22',
-    time: '18:30\u201320:00 Uhr',
-    location: 'Online (Zoom)',
-    category: 'online',
-    description: 'Wie verändern Algorithmen, KI und Überwachungstechnologien unsere Grundrechte? Ein Vortrag mit anschließender Diskussion.',
-    maxParticipants: 200,
-    currentParticipants: 87,
-    imageEmoji: '\uD83D\uDCBB',
-    isFeatured: true,
-  },
-  {
-    id: 3,
-    title: 'Jugend-Forum: Klimagerechtigkeit und Demokratie',
-    date: '2026-04-05',
-    time: '10:00\u201316:00 Uhr',
-    location: 'Graz \u2013 Stadtbibliothek',
-    category: 'jugend',
-    description: 'Ein ganztägiges Forum für junge Menschen zwischen 14 und 26 Jahren.',
-    maxParticipants: 50,
-    currentParticipants: 34,
-    imageEmoji: '\uD83C\uDF31',
-  },
-  {
-    id: 4,
-    title: 'Netzwerktreffen: Zivilgesellschaft Österreich',
-    date: '2026-04-12',
-    time: '17:00\u201319:30 Uhr',
-    location: 'Linz \u2013 Kulturzentrum Ursulinenhof',
-    category: 'netzwerk',
-    description: 'Treffen Sie andere Engagierte aus der österreichischen Zivilgesellschaft.',
-    maxParticipants: 60,
-    currentParticipants: 22,
-    imageEmoji: '\uD83E\uDD1D',
-  },
-  {
-    id: 5,
-    title: 'Workshop: Konflikte konstruktiv lösen',
-    date: '2026-04-26',
-    time: '09:00\u201317:00 Uhr',
-    location: 'Salzburg \u2013 Bildungshaus St. Virgil',
-    category: 'workshop',
-    description: 'Ein Tagesworkshop mit Methoden der gewaltfreien Kommunikation und Mediation.',
-    maxParticipants: 20,
-    currentParticipants: 15,
-    imageEmoji: '\uD83D\uDD4A\uFE0F',
-  },
-  {
-    id: 6,
-    title: 'Online-Seminar: Vereinsrecht in Österreich',
-    date: '2026-05-08',
-    time: '18:00\u201319:30 Uhr',
-    location: 'Online (Zoom)',
-    category: 'online',
-    description: 'Alles Wichtige über Vereinsgründung, Statuten, Haftung und Buchhaltung.',
-    maxParticipants: 100,
-    currentParticipants: 43,
-    imageEmoji: '\uD83D\uDCCB',
-  },
-];
 
 const CATEGORY_LABELS: Record<Event['category'], string> = {
   workshop: 'Workshop',
@@ -129,6 +55,24 @@ const EMOJI_MAP: Record<string, string> = {
   online: '\uD83D\uDCBB',
   jugend: '\uD83C\uDF31',
 };
+
+const EVENT_FORMATS = [
+  {
+    title: 'Workshops & Bildung',
+    description: 'Formate zu Demokratie, Menschenrechten, Vereinsarbeit und gesellschaftlicher Teilhabe.',
+    icon: '\uD83C\uDF93',
+  },
+  {
+    title: 'Diskussionen & Vorträge',
+    description: 'Gespräche zu aktuellen Entwicklungen in Österreich mit Raum für Fragen und Debatte.',
+    icon: '\uD83D\uDDE3\uFE0F',
+  },
+  {
+    title: 'Vernetzung & Mitmachen',
+    description: 'Austausch für Mitglieder, Interessierte und Engagierte aus der Zivilgesellschaft.',
+    icon: '\uD83E\uDD1D',
+  },
+];
 
 function EventCard({ event, onRsvp }: { event: Event; onRsvp: (id: number) => void }) {
   const spotsLeft = event.maxParticipants - event.currentParticipants;
@@ -204,7 +148,8 @@ function EventCard({ event, onRsvp }: { event: Event; onRsvp: (id: number) => vo
 
 export default function Veranstaltungen() {
   const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const [activeFilter, setActiveFilter] = useState<Event['category'] | 'alle'>('alle');
 
   useEffect(() => {
@@ -228,10 +173,11 @@ export default function Veranstaltungen() {
         imageEmoji: e.imageEmoji || EMOJI_MAP[e.category || 'workshop'] || '\uD83D\uDCC5',
         isFeatured: e.isFeatured || e.featured || false,
       }));
-      setEvents(mapped.length > 0 ? mapped : FALLBACK_EVENTS);
+      setEvents(mapped);
     } catch {
-      setEvents(FALLBACK_EVENTS);
+      setEvents([]);
     } finally {
+      setHasLoaded(true);
       setLoading(false);
     }
   }
@@ -241,7 +187,7 @@ export default function Veranstaltungen() {
       await dashboardApi.rsvpEvent(String(eventId));
       loadEvents();
     } catch {
-      window.open('mailto:kontakt@menschlichkeit-oesterreich.at?subject=Anmeldung: Event ' + eventId, '_blank');
+      window.open(`mailto:${CONTACT_EMAIL}?subject=Anmeldung: Event ${eventId}`, '_blank');
     }
   }
 
@@ -257,43 +203,70 @@ export default function Veranstaltungen() {
         title="Veranstaltungen – Menschlichkeit Österreich"
         description="Workshops, Diskussionen, Netzwerktreffen und Online-Events des Vereins Menschlichkeit Österreich. Aktuelle Termine und Anmeldung."
       />
+      <JsonLdBreadcrumb items={[
+        { name: 'Start', url: 'https://www.menschlichkeit-oesterreich.at/' },
+        { name: 'Veranstaltungen', url: 'https://www.menschlichkeit-oesterreich.at/veranstaltungen' },
+      ]} />
       <section className="bg-gradient-to-br from-primary-900 to-primary-700 text-white py-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl font-bold mb-4">Veranstaltungen</h1>
           <p className="text-xl text-primary-100 max-w-2xl mx-auto">
-            Workshops, Vorträge, Netzwerktreffen und mehr – engagieren Sie sich und lernen Sie Gleichgesinnte kennen.
+            Workshops, Vorträge, Netzwerktreffen und mehr – hier finden Sie bestätigte Termine und Möglichkeiten zum Mitmachen.
           </p>
         </div>
       </section>
 
-      <section className="bg-white border-b border-secondary-200 sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-2 overflow-x-auto">
-          <Filter className="w-4 h-4 text-secondary-500 flex-shrink-0" />
-          {categories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setActiveFilter(cat)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                activeFilter === cat
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
-              }`}
-            >
-              {cat === 'alle' ? 'Alle' : CATEGORY_LABELS[cat]}
-            </button>
+      {events.length > 0 && (
+        <section className="bg-white border-b border-secondary-200 sticky top-0 z-10">
+          <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-2 overflow-x-auto">
+            <Filter className="w-4 h-4 text-secondary-500 flex-shrink-0" />
+            {categories.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setActiveFilter(cat)}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                  activeFilter === cat
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
+                }`}
+              >
+                {cat === 'alle' ? 'Alle' : CATEGORY_LABELS[cat]}
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section className="max-w-6xl mx-auto px-4 py-12">
+        <div className="grid gap-4 md:grid-cols-3">
+          {EVENT_FORMATS.map((format) => (
+            <article key={format.title} className="rounded-2xl border border-secondary-200 bg-white p-6 shadow-sm">
+              <div className="text-3xl" aria-hidden="true">{format.icon}</div>
+              <h2 className="mt-4 text-lg font-semibold text-secondary-900">{format.title}</h2>
+              <p className="mt-3 text-sm leading-relaxed text-secondary-700">{format.description}</p>
+            </article>
           ))}
         </div>
       </section>
 
       <section className="max-w-6xl mx-auto px-4 py-12">
-        {loading ? (
+        {loading && !hasLoaded ? (
           <div className="flex justify-center py-16">
             <div className="animate-spin h-8 w-8 border-4 border-primary-600 border-t-transparent rounded-full" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="text-center py-16 text-secondary-500">
+          <div className="rounded-3xl border border-secondary-200 bg-white px-6 py-12 text-center text-secondary-500 shadow-sm">
             <Calendar className="w-12 h-12 mx-auto mb-4 opacity-30" />
-            <p>Keine Veranstaltungen in dieser Kategorie gefunden.</p>
+            <h2 className="text-2xl font-bold text-secondary-900">Derzeit sind noch keine bestätigten Termine veröffentlicht</h2>
+            <p className="mt-4 max-w-2xl mx-auto text-secondary-600">
+              Sobald neue Veranstaltungen freigeschaltet sind, finden Sie sie hier. Bis dahin können Sie Themen,
+              Bildungsangebote und Kontaktmöglichkeiten nutzen, um mit uns in Verbindung zu bleiben.
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3 text-sm">
+              <Link to="/bildung" className="font-medium text-primary-700 hover:underline">Bildungsangebote</Link>
+              <Link to="/themen" className="font-medium text-primary-700 hover:underline">Themenübersicht</Link>
+              <Link to="/kontakt" className="font-medium text-primary-700 hover:underline">Kontakt</Link>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -313,7 +286,7 @@ export default function Veranstaltungen() {
           </p>
           <Button
             variant="primary"
-            onClick={() => window.open('mailto:kontakt@menschlichkeit-oesterreich.at?subject=Veranstaltungsvorschlag', '_blank')}
+            onClick={() => window.open(`mailto:${CONTACT_EMAIL}?subject=Veranstaltungsvorschlag`, '_blank')}
           >
             Veranstaltung vorschlagen
           </Button>
