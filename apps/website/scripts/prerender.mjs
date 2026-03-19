@@ -31,6 +31,29 @@ const ROUTES_TO_PRERENDER = routes
 
 const APP_HEAD_BLOCK = /<!--app-head:start-->[\s\S]*?<!--app-head:end-->/;
 
+function extractHeadTagsFromRenderedHtml(renderedHtml) {
+  // React 19 hoists <title>, <meta>, <link>, and <script> tags to the head at render time.
+  // With react-helmet-async the SSR context is empty in React 19, so we need to pull
+  // the head tags out of the rendered HTML body for prerendering.
+  const tags = [];
+  let remainder = renderedHtml;
+
+  const seoTagRegex = /^\s*(<title>[\s\S]*?<\/title>|<meta\b[^>]*>|<link\b[^>]*>|<script\b[^>]*type=(?:"|')application\/ld\+json(?:"|')[^>]*>[\s\S]*?<\/script>)/i;
+
+  while (true) {
+    const match = remainder.match(seoTagRegex);
+    if (!match) break;
+
+    tags.push(match[1].trim());
+    remainder = remainder.slice(match[0].length);
+  }
+
+  return {
+    headTags: tags.join('\n    '),
+    cleanedHtml: remainder.trimStart(),
+  };
+}
+
 async function prerender() {
   // Load the SSR server bundle
   const serverEntryPath = join(DIST_SSR, 'entry-server.js');
@@ -59,15 +82,26 @@ async function prerender() {
     try {
       const { html: appHtml, helmet } = renderFn(route);
 
-      // Build head tags from Helmet
-      const headTags = [
-        helmet?.title?.toString() ?? '',
-        helmet?.meta?.toString() ?? '',
-        helmet?.link?.toString() ?? '',
-        helmet?.script?.toString() ?? '',
-      ]
-        .filter(Boolean)
-        .join('\n    ');
+      // React 19 does not populate the react-helmet-async SSR context, so we may need
+      // to extract head tags from the rendered HTML body. This ensures prerendered
+      // output places meta/OG/Twitter/JSON-LD tags inside <head>.
+      let headTags = '';
+      let bodyHtml = appHtml;
+
+      if (helmet && (helmet.title || helmet.meta || helmet.link || helmet.script)) {
+        headTags = [
+          helmet.title?.toString() ?? '',
+          helmet.meta?.toString() ?? '',
+          helmet.link?.toString() ?? '',
+          helmet.script?.toString() ?? '',
+        ]
+          .filter(Boolean)
+          .join('\n    ');
+      } else {
+        const extracted = extractHeadTagsFromRenderedHtml(appHtml);
+        headTags = extracted.headTags;
+        bodyHtml = extracted.cleanedHtml;
+      }
 
       // Inject rendered HTML into the template
       // 1. Replace <div id="root"> content with server-rendered HTML
@@ -78,7 +112,7 @@ async function prerender() {
       let html = template
         .replace(
           /<div id="root">[\s\S]*?<\/div>\s*(?=\s*<\/body>)/,
-          `<div id="root">${appHtml}</div>\n    `
+          `<div id="root">${bodyHtml}</div>\n    `
         )
         .replace(APP_HEAD_BLOCK, `<!--app-head:start-->\n    ${headTags}\n    <!--app-head:end-->`);
 
