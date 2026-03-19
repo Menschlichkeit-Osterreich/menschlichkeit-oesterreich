@@ -107,7 +107,7 @@ jobs:
 
       - name: Dependencies installieren
         working-directory: apps/website
-        run: npm ci --prefer-offline
+        run: npm ci --prefer-offline --ignore-scripts
 
       - name: TypeScript-Check
         working-directory: apps/website
@@ -152,7 +152,7 @@ jobs:
 
       - name: Dependencies installieren
         working-directory: apps/website
-        run: npm ci --prefer-offline
+        run: npm ci --prefer-offline --ignore-scripts
 
       - name: Unit Tests ausführen
         working-directory: apps/website

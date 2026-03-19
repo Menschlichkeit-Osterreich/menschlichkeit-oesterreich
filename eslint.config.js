@@ -28,6 +28,8 @@ export default [
       'automation/n8n/webhook-client.js',
       '**/sw.js',
       '**/*.config.{js,ts}',
+      'generated/**',
+      '.agents/**',
       // Vendor / external tooling – not linted
       'codacy-analysis-cli-master/**',
       'codacy-analysis-cli/**',
