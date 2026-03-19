@@ -46,7 +46,7 @@ jobs:
           publish_results: false
 
       - name: Upload Scorecard results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@45775bd8235c68ba998cffa5171334d58593da47  # v3.28.1
+        uses: github/codeql-action/upload-sarif@b1bff81932f5cdfc8695c7752dcee935dcd061c8  # v3.28.1
         with:
           sarif_file: scorecard-results.sarif
           category: scorecard
