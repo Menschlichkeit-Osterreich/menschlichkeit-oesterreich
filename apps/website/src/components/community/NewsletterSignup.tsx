@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { civicrm } from '../../services/civicrm';
+import { api } from '../../services/api';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Alert } from '../ui/Alert';
@@ -27,7 +27,12 @@ export function NewsletterSignup({ variant = 'inline', className = '' }: Newslet
     setLoading(true);
     setError(null);
     try {
-      await civicrm.newsletter.subscribe(email, firstName, lastName);
+      await api.newsletter.subscribe({
+        email,
+        first_name: firstName || undefined,
+        last_name: lastName || undefined,
+        consent: true,
+      });
       setSuccess(true);
     } catch (err: unknown) {
       setError(`Anmeldung fehlgeschlagen: ${err instanceof Error ? err.message : 'Unbekannter Fehler'}`);

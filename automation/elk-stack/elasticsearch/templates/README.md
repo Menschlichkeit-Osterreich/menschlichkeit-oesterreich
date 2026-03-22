@@ -188,17 +188,17 @@ cd automation/elk-stack
 
 ```bash
 # Operational 30d
-curl -u elastic:PASSWORD -X PUT "http://localhost:9200/_ilm/policy/operational-retention-30d" \
+curl -u "$ELASTIC_BASIC_AUTH" -X PUT "http://localhost:9200/_ilm/policy/operational-retention-30d" \
   -H 'Content-Type: application/json' \
   -d @elasticsearch/templates/ilm-operational-30d.json
 
 # Compliance 1y
-curl -u elastic:PASSWORD -X PUT "http://localhost:9200/_ilm/policy/compliance-retention-1y" \
+curl -u "$ELASTIC_BASIC_AUTH" -X PUT "http://localhost:9200/_ilm/policy/compliance-retention-1y" \
   -H 'Content-Type: application/json' \
   -d @elasticsearch/templates/ilm-compliance-1y.json
 
 # Security Audit 7y
-curl -u elastic:PASSWORD -X PUT "http://localhost:9200/_ilm/policy/security-audit-retention-7y" \
+curl -u "$ELASTIC_BASIC_AUTH" -X PUT "http://localhost:9200/_ilm/policy/security-audit-retention-7y" \
   -H 'Content-Type: application/json' \
   -d @elasticsearch/templates/ilm-security-audit-7y.json
 ```
@@ -207,17 +207,17 @@ curl -u elastic:PASSWORD -X PUT "http://localhost:9200/_ilm/policy/security-audi
 
 ```bash
 # Operational
-curl -u elastic:PASSWORD -X PUT "http://localhost:9200/_index_template/logs-operational-template" \
+curl -u "$ELASTIC_BASIC_AUTH" -X PUT "http://localhost:9200/_index_template/logs-operational-template" \
   -H 'Content-Type: application/json' \
   -d @elasticsearch/templates/logs-operational-template.json
 
 # Compliance
-curl -u elastic:PASSWORD -X PUT "http://localhost:9200/_index_template/logs-compliance-template" \
+curl -u "$ELASTIC_BASIC_AUTH" -X PUT "http://localhost:9200/_index_template/logs-compliance-template" \
   -H 'Content-Type: application/json' \
   -d @elasticsearch/templates/logs-compliance-template.json
 
 # Security Audit
-curl -u elastic:PASSWORD -X PUT "http://localhost:9200/_index_template/logs-security-audit-template" \
+curl -u "$ELASTIC_BASIC_AUTH" -X PUT "http://localhost:9200/_index_template/logs-security-audit-template" \
   -H 'Content-Type: application/json' \
   -d @elasticsearch/templates/logs-security-audit-template.json
 ```
@@ -226,17 +226,17 @@ curl -u elastic:PASSWORD -X PUT "http://localhost:9200/_index_template/logs-secu
 
 ```bash
 # Operational
-curl -u elastic:PASSWORD -X PUT "http://localhost:9200/logs-operational-000001" \
+curl -u "$ELASTIC_BASIC_AUTH" -X PUT "http://localhost:9200/logs-operational-000001" \
   -H 'Content-Type: application/json' \
   -d '{"aliases": {"logs-operational": {"is_write_index": true}}}'
 
 # Compliance
-curl -u elastic:PASSWORD -X PUT "http://localhost:9200/logs-compliance-000001" \
+curl -u "$ELASTIC_BASIC_AUTH" -X PUT "http://localhost:9200/logs-compliance-000001" \
   -H 'Content-Type: application/json' \
   -d '{"aliases": {"logs-compliance": {"is_write_index": true}}}'
 
 # Security Audit
-curl -u elastic:PASSWORD -X PUT "http://localhost:9200/logs-security-audit-000001" \
+curl -u "$ELASTIC_BASIC_AUTH" -X PUT "http://localhost:9200/logs-security-audit-000001" \
   -H 'Content-Type: application/json' \
   -d '{"aliases": {"logs-security-audit": {"is_write_index": true}}}'
 ```
@@ -245,13 +245,13 @@ curl -u elastic:PASSWORD -X PUT "http://localhost:9200/logs-security-audit-00000
 
 ```bash
 # Check ILM policies
-curl -u elastic:PASSWORD "http://localhost:9200/_ilm/policy"
+curl -u "$ELASTIC_BASIC_AUTH" "http://localhost:9200/_ilm/policy"
 
 # Check index templates
-curl -u elastic:PASSWORD "http://localhost:9200/_index_template"
+curl -u "$ELASTIC_BASIC_AUTH" "http://localhost:9200/_index_template"
 
 # Check indices
-curl -u elastic:PASSWORD "http://localhost:9200/_cat/indices/logs-*?v"
+curl -u "$ELASTIC_BASIC_AUTH" "http://localhost:9200/_cat/indices/logs-*?v"
 ```
 
 ## Usage in Logstash
@@ -282,25 +282,25 @@ output {
 ### Check Index Health
 
 ```bash
-curl -u elastic:PASSWORD "http://localhost:9200/_cat/indices/logs-*?v&s=index"
+curl -u "$ELASTIC_BASIC_AUTH" "http://localhost:9200/_cat/indices/logs-*?v&s=index"
 ```
 
 ### Check ILM Execution
 
 ```bash
-curl -u elastic:PASSWORD "http://localhost:9200/logs-operational-*/_ilm/explain"
+curl -u "$ELASTIC_BASIC_AUTH" "http://localhost:9200/logs-operational-*/_ilm/explain"
 ```
 
 ### Manually Trigger Rollover
 
 ```bash
-curl -u elastic:PASSWORD -X POST "http://localhost:9200/logs-operational/_rollover"
+curl -u "$ELASTIC_BASIC_AUTH" -X POST "http://localhost:9200/logs-operational/_rollover"
 ```
 
 ### Monitor Index Size
 
 ```bash
-curl -u elastic:PASSWORD "http://localhost:9200/_cat/indices/logs-*?v&h=index,store.size,pri,rep,docs.count&s=store.size:desc"
+curl -u "$ELASTIC_BASIC_AUTH" "http://localhost:9200/_cat/indices/logs-*?v&h=index,store.size,pri,rep,docs.count&s=store.size:desc"
 ```
 
 ## Kibana Integration
@@ -327,8 +327,8 @@ Import from `automation/elk-stack/kibana/dashboards/`:
 
 ```bash
 # Re-create index with explicit template
-curl -u elastic:PASSWORD -X DELETE "http://localhost:9200/logs-operational-000001"
-curl -u elastic:PASSWORD -X PUT "http://localhost:9200/logs-operational-000001" \
+curl -u "$ELASTIC_BASIC_AUTH" -X DELETE "http://localhost:9200/logs-operational-000001"
+curl -u "$ELASTIC_BASIC_AUTH" -X PUT "http://localhost:9200/logs-operational-000001" \
   -H 'Content-Type: application/json' \
   -d '{"aliases": {"logs-operational": {"is_write_index": true}}}'
 ```
@@ -337,17 +337,17 @@ curl -u elastic:PASSWORD -X PUT "http://localhost:9200/logs-operational-000001" 
 
 ```bash
 # Check ILM status
-curl -u elastic:PASSWORD "http://localhost:9200/_ilm/status"
+curl -u "$ELASTIC_BASIC_AUTH" "http://localhost:9200/_ilm/status"
 
 # Start ILM (if stopped)
-curl -u elastic:PASSWORD -X POST "http://localhost:9200/_ilm/start"
+curl -u "$ELASTIC_BASIC_AUTH" -X POST "http://localhost:9200/_ilm/start"
 ```
 
 ### Snapshot Repository Not Found
 
 ```bash
 # Create snapshot repository (required for cold phase)
-curl -u elastic:PASSWORD -X PUT "http://localhost:9200/_snapshot/compliance_backups" \
+curl -u "$ELASTIC_BASIC_AUTH" -X PUT "http://localhost:9200/_snapshot/compliance_backups" \
   -H 'Content-Type: application/json' \
   -d '{
     "type": "fs",

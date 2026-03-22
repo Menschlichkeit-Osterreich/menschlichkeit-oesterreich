@@ -57,7 +57,7 @@ jobs:
           ENABLE_METRICS: "false"
           ENVIRONMENT: "test"
           DATABASE_URL: "postgresql://test:test@localhost/test"
-          JWT_SECRET: "test-secret-for-ci-only"
+          JWT_SECRET_KEY: "test-secret-for-ci-only-32-chars"
         run: |
           python - <<'EOF'
           import sys, json

@@ -20,7 +20,8 @@ interface Article {
   updated_at: string;
 }
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+import { API_BASE_URL } from '@/constants/api';
+const API_BASE = API_BASE_URL;
 
 export default function BlogArticle() {
   const { articleId } = useParams<{ articleId: string }>();

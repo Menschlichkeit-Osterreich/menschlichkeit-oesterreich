@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { API_BASE_URL } from '@/constants/api';
 
 interface KPI {
   label: string;
@@ -10,7 +11,7 @@ interface KPI {
 }
 
 const QUICK_LINKS = [
-  { label: 'Mitglieder verwalten', icon: '👥', path: '/admin/members', color: 'bg-blue-600' },
+  { label: 'CRM-Cockpit', icon: '👥', path: '/admin/members', color: 'bg-blue-600' },
   { label: 'Finanzen', icon: '💰', path: '/admin/finanzen', color: 'bg-green-600' },
   { label: 'Rechnungen', icon: '📄', path: '/admin/rechnungen', color: 'bg-yellow-600' },
   { label: 'Veranstaltungen', icon: '📅', path: '/admin/events', color: 'bg-purple-600' },
@@ -20,7 +21,7 @@ const QUICK_LINKS = [
   { label: 'Einstellungen', icon: '⚙️', path: '/admin/settings', color: 'bg-gray-600' },
 ];
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE = API_BASE_URL;
 
 function centsToEur(cents: number): string {
   return `€ ${(cents / 100).toLocaleString('de-AT', { minimumFractionDigits: 0 })}`;

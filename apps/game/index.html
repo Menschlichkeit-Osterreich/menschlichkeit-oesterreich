@@ -1,333 +1,344 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de-AT">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Brücken Bauen - Ein interaktives Lernspiel über Empathie, Menschenrechte und demokratischen Zusammenhalt">
-    <meta name="keywords" content="Demokratie, Menschenrechte, Empathie, Bildungsspiel, Menschlichkeit Österreich">
-    <meta name="author" content="Menschlichkeit Österreich">
-    
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="Brücken Bauen - Democracy Game">
-    <meta property="og:description" content="Ein interaktives Lernspiel über Empathie, Menschenrechte und demokratischen Zusammenhalt">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="./assets/icons/og-image.png">
-    <meta property="og:url" content="https://menschlichkeit-oesterreich.at/games/">
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="./manifest.json">
-    <meta name="theme-color" content="#b80000">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Brücken Bauen">
-    <link rel="apple-touch-icon" href="./assets/icons/icon-192x192.png">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="./assets/icons/favicon.ico">
-    <link rel="icon" type="image/png" sizes="32x32" href="./assets/icons/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="./assets/icons/favicon-16x16.png">
-    
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="./css/main.css">
-    <link rel="stylesheet" href="./css/components.css">
-    <link rel="stylesheet" href="./css/animations.css">
-    
-    <!-- Preload Critical Resources -->
-    <link rel="preload" href="./js/game.js" as="script">
-    <link rel="preload" href="./js/scenarios.js" as="script">
-    
-    <title>Brücken Bauen - Interactive Democracy Game | Menschlichkeit Österreich</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brücken Bauen in 3D | Demokratiespiel von Menschlichkeit Österreich</title>
+  <meta name="description" content="Brücken Bauen in 3D ist die kanonische Babylon.js-Spielplattform von Menschlichkeit Österreich: ein scenario-based 3D decision adventure mit Vertical Slice in der Welt Gemeinde und klarer Roadmap auf 100 Levels.">
+  <meta name="robots" content="index,follow">
+  <meta name="theme-color" content="#ef4444">
+  <link rel="canonical" href="https://games.menschlichkeit-oesterreich.at/">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="stylesheet" href="./css/babylon-game.css">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Menschlichkeit Österreich">
+  <meta property="og:title" content="Brücken Bauen in 3D">
+  <meta property="og:description" content="Das kanonische 3D-Demokratiespiel auf games.menschlichkeit-oesterreich.at mit 100 Levels, Rollenwahl und Lernpfaden zu Demokratie, Menschenrechten und Teilhabe.">
+  <meta property="og:url" content="https://games.menschlichkeit-oesterreich.at/">
+  <meta property="og:locale" content="de_AT">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Brücken Bauen in 3D">
+  <meta name="twitter:description" content="Das 3D-Demokratiespiel von Menschlichkeit Österreich mit 100 Levels, Themenwelten und Rollenwahl.">
 </head>
 <body>
-    <!-- Skip Navigation für Screen Reader -->
-    <a href="#main-content" class="skip-link">Zum Hauptinhalt springen</a>
-    
-    <!-- Header -->
-    <header class="game-header" role="banner">
-        <div class="header-content">
-            <div class="logo-section">
-                <svg class="logo-icon" width="40" height="40" viewBox="0 0 40 40" aria-hidden="true">
-                    <circle cx="20" cy="20" r="18" fill="#b80000" opacity="0.1"/>
-                    <path d="M10 20 L20 15 L30 20 L20 25 Z" fill="#b80000"/>
-                    <circle cx="20" cy="20" r="3" fill="#ffffff"/>
-                </svg>
-                <h1 class="game-title">Brücken Bauen</h1>
-            </div>
-            <div class="progress-section">
-                <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="8" aria-label="Spielfortschritt">
-                    <div class="progress-fill"></div>
-                </div>
-                <span class="progress-text" aria-live="polite">Szenario <span id="current-scenario">1</span> von 8</span>
-            </div>
-        </div>
+  <a class="skip-link" href="#interface-root">Zum Spielinterface springen</a>
+  <canvas id="renderCanvas" aria-hidden="true"></canvas>
+  <div class="page-glow" aria-hidden="true"></div>
+
+  <div class="ui-shell" id="interface-root">
+    <header class="topbar">
+      <a class="brand" href="https://www.menschlichkeit-oesterreich.at/spiel">
+        <span class="brand__seal" aria-hidden="true">🌉</span>
+        <span>
+          <span class="brand__eyebrow">games.menschlichkeit-oesterreich.at</span>
+          <span class="brand__title">Brücken Bauen in 3D</span>
+        </span>
+      </a>
+      <nav class="topbar__nav" aria-label="Website-Navigation">
+        <a href="https://www.menschlichkeit-oesterreich.at/spiel">Zur Landingpage</a>
+        <a href="https://www.menschlichkeit-oesterreich.at/bildung">Bildung</a>
+        <a href="https://www.menschlichkeit-oesterreich.at/mitglied-werden">Mitglied werden</a>
+        <a href="https://www.menschlichkeit-oesterreich.at/spenden">Spenden</a>
+        <button class="button-ghost topbar__action" id="pause-game-button" type="button" hidden>Pause</button>
+      </nav>
     </header>
 
-    <!-- Main Content -->
-    <main id="main-content" class="game-main" role="main">
-        
-        <!-- Start Screen -->
-        <section id="start-screen" class="screen active" aria-labelledby="start-title">
-            <div class="container">
-                <div class="welcome-card glass-card">
-                    <h2 id="start-title" class="screen-title">Willkommen bei Brücken Bauen</h2>
-                    <p class="screen-subtitle">Ein interaktives Lernspiel über Empathie, Menschenrechte und demokratischen Zusammenhalt</p>
-                    
-                    <div class="game-info">
-                        <div class="info-item">
-                            <svg class="info-icon" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" fill="currentColor"/>
-                            </svg>
-                            <span><strong>8 Szenarien</strong> aus dem echten Leben</span>
-                        </div>
-                        <div class="info-item">
-                            <svg class="info-icon" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z" fill="currentColor"/>
-                            </svg>
-                            <span><strong>20-30 Minuten</strong> Spieldauer</span>
-                        </div>
-                        <div class="info-item">
-                            <svg class="info-icon" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" fill="none" stroke="currentColor" stroke-width="2"/>
-                            </svg>
-                            <span><strong>Keine Anmeldung</strong> erforderlich</span>
-                        </div>
-                    </div>
-                    
-                    <div class="learning-goals">
-                        <h3>Das lernst du:</h3>
-                        <ul>
-                            <li>Empathie für verschiedene Perspektiven entwickeln</li>
-                            <li>Demokratische Werte im Alltag anwenden</li>
-                            <li>Menschenrechte als Grundlage erkennen</li>
-                            <li>Zivilcourage in schwierigen Situationen</li>
-                        </ul>
-                    </div>
-                    
-                    <button id="start-game-btn" class="cta-button primary-button" type="button">
-                        <svg class="button-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
-                            <path d="M6 4l8 6-8 6V4z" fill="currentColor"/>
-                        </svg>
-                        Spiel starten
-                    </button>
-                </div>
+    <main class="layout">
+      <section class="panel panel--hero" id="loading-screen" aria-live="polite">
+        <div class="hero-copy">
+          <span class="kicker">Babylon.js 3D-Plattform</span>
+          <h1>Brücken bauen zwischen Menschen, Rechten und Demokratie.</h1>
+          <p>
+            Das neue Spiel läuft als eigenständige 3D-Plattform auf der Games-Subdomain.
+            Du bewegst dich durch zehn Themenwelten, wählst eine Rolle und triffst Entscheidungen,
+            die Empathie, Menschenrechte, Teilhabe und Zivilcourage messbar machen.
+          </p>
+          <div class="meta-row">
+            <span class="meta-pill">10 kuratierte Slice-Levels</span>
+            <span class="meta-pill">100-Level-Roadmap</span>
+            <span class="meta-pill">6 Rollen</span>
+          </div>
+          <div class="stats-grid">
+            <article class="stat-card">
+              <strong id="loading-bar">0%</strong>
+              <span>Ladefortschritt</span>
+            </article>
+            <article class="stat-card">
+              <strong>1 Welt live</strong>
+              <span>Gemeinde als starker Vertical Slice</span>
+            </article>
+            <article class="stat-card">
+              <strong>3D-first Slice</strong>
+              <span>Babylon zeigt Weltzustand, Folgen und Debrief-Spuren sichtbar</span>
+            </article>
+            <article class="stat-card">
+              <strong>Barrierearm</strong>
+              <span>Reduced Motion, Low-Graphics und lokaler Save</span>
+            </article>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="preview-card">
+            <div class="preview-card__bridge" aria-hidden="true"></div>
+            <div class="preview-card__content">
+              <span class="preview-card__badge">Babylon wird initialisiert</span>
+              <h2 class="section-title">3D-Welten, klare Entscheidungen, sichtbarer Fortschritt.</h2>
+              <p class="section-copy" id="loading-status">Die Babylon-Bühne wird vorbereitet …</p>
             </div>
-        </section>
+          </div>
+        </div>
+      </section>
 
-        <!-- Game Screen -->
-        <section id="game-screen" class="screen" aria-labelledby="scenario-title">
-            <div class="container">
-                <div class="scenario-card glass-card">
-                    
-                    <!-- Scenario Header -->
-                    <div class="scenario-header">
-                        <span class="scenario-category" id="scenario-category">Szenario</span>
-                        <h2 id="scenario-title" class="scenario-title">Szenario wird geladen...</h2>
-                    </div>
-                    
-                    <!-- Scenario Content -->
-                    <div class="scenario-content">
-                        <div class="scenario-image-container">
-                            <div id="scenario-image" class="scenario-image" aria-hidden="true"></div>
-                        </div>
-                        <div class="scenario-text">
-                            <p id="scenario-description" class="scenario-description">
-                                Beschreibung wird geladen...
-                            </p>
-                        </div>
-                    </div>
-                    
-                    <!-- Decision Options -->
-                    <div class="decisions-section">
-                        <h3 class="decisions-title">Was machst du?</h3>
-                        <div id="decision-options" class="decision-options" role="radiogroup" aria-labelledby="decisions-title">
-                            <!-- Decision buttons will be populated by JavaScript -->
-                        </div>
-                    </div>
-                    
-                    <!-- Action Button -->
-                    <div class="action-section">
-                        <button id="submit-decision-btn" class="cta-button secondary-button" type="button" disabled>
-                            Entscheidung treffen
-                        </button>
-                    </div>
-                    
-                </div>
+      <section class="panel panel--hero" id="menu-screen" hidden>
+        <div class="hero-copy">
+          <span class="kicker">Startmenü</span>
+          <h2 class="section-title">Dein demokratischer Lernpfad beginnt hier.</h2>
+          <p class="section-copy">
+            Wähle eine Rolle, starte mit dem nächsten offenen Level oder springe direkt in eine
+            Welt, die du bereits freigespielt hast. Fortschritt und Einstellungen bleiben lokal
+            auf diesem Gerät gespeichert.
+          </p>
+          <div class="stack">
+            <div class="summary-card">
+              <strong id="menu-role"></strong>
+              <span>Aktive Rolle für dieses Profil</span>
             </div>
-        </section>
-
-        <!-- Result Screen -->
-        <section id="result-screen" class="screen" aria-labelledby="result-title">
-            <div class="container">
-                <div class="result-card glass-card">
-                    <div class="result-header">
-                        <h2 id="result-title" class="result-title">Deine Entscheidung</h2>
-                    </div>
-                    
-                    <div class="result-content">
-                        <div id="result-feedback" class="result-feedback">
-                            <p id="feedback-text" class="feedback-text"></p>
-                        </div>
-                        
-                        <div class="perspectives-section">
-                            <h3>Andere Perspektiven:</h3>
-                            <div id="perspectives-list" class="perspectives-list">
-                                <!-- Perspectives will be populated by JavaScript -->
-                            </div>
-                        </div>
-                        
-                        <div class="score-section">
-                            <h3>Dein Demokratie-Score:</h3>
-                            <div class="score-display">
-                                <div class="score-item">
-                                    <span class="score-label">Empathie</span>
-                                    <div class="score-bar">
-                                        <div id="empathy-score" class="score-fill" style="width: 0%"></div>
-                                    </div>
-                                </div>
-                                <div class="score-item">
-                                    <span class="score-label">Menschenrechte</span>
-                                    <div class="score-bar">
-                                        <div id="rights-score" class="score-fill" style="width: 0%"></div>
-                                    </div>
-                                </div>
-                                <div class="score-item">
-                                    <span class="score-label">Partizipation</span>
-                                    <div class="score-bar">
-                                        <div id="participation-score" class="score-fill" style="width: 0%"></div>
-                                    </div>
-                                </div>
-                                <div class="score-item">
-                                    <span class="score-label">Zivilcourage</span>
-                                    <div class="score-bar">
-                                        <div id="courage-score" class="score-fill" style="width: 0%"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="result-actions">
-                        <button id="continue-btn" class="cta-button primary-button" type="button">
-                            Weiter zum nächsten Szenario
-                        </button>
-                    </div>
-                </div>
+            <div class="summary-card">
+              <strong id="menu-progress"></strong>
+              <span>Gesamtfortschritt deines Spiels</span>
             </div>
-        </section>
-
-        <!-- Final Screen -->
-        <section id="final-screen" class="screen" aria-labelledby="final-title">
-            <div class="container">
-                <div class="final-card glass-card">
-                    <div class="final-header">
-                        <svg class="achievement-icon" width="64" height="64" viewBox="0 0 64 64" aria-hidden="true">
-                            <circle cx="32" cy="32" r="30" fill="#b80000" opacity="0.1"/>
-                            <path d="M32 8 L40 24 L56 24 L44 36 L48 52 L32 44 L16 52 L20 36 L8 24 L24 24 Z" fill="#b80000"/>
-                        </svg>
-                        <h2 id="final-title" class="final-title">Herzlichen Glückwunsch!</h2>
-                        <p class="final-subtitle">Du hast alle Szenarien erfolgreich durchgespielt</p>
-                    </div>
-                    
-                    <div class="final-content">
-                        <div class="final-score">
-                            <h3>Dein Demokratie-Profil:</h3>
-                            <div id="democracy-profile" class="democracy-profile">
-                                <!-- Profile will be generated by JavaScript -->
-                            </div>
-                        </div>
-                        
-                        <div class="reflection-section">
-                            <h3>Deine Reflexion:</h3>
-                            <textarea 
-                                id="reflection-text" 
-                                class="reflection-textarea" 
-                                placeholder="Was hast du aus diesem Spiel gelernt? Welche Erkenntnisse nimmst du für deinen Alltag mit?"
-                                rows="4"
-                                aria-label="Persönliche Reflexion über das Spiel"
-                            ></textarea>
-                        </div>
-                        
-                        <div class="resources-section">
-                            <h3>Weiterführende Ressourcen:</h3>
-                            <div class="resource-links">
-                                <a href="https://menschlichkeit-oesterreich.at/mitmachen" class="resource-link" target="_blank" rel="noopener">
-                                    <svg class="link-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
-                                        <path d="M17 2h-4v2h2.6l-3.3 3.3 1.4 1.4L17 5.4V8h2V2zM3 14V4h6V2H3a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-6h-2v6H3z" fill="currentColor"/>
-                                    </svg>
-                                    Bei Menschlichkeit Österreich mitmachen
-                                </a>
-                                <a href="https://menschlichkeit-oesterreich.at/bildung" class="resource-link" target="_blank" rel="noopener">
-                                    <svg class="link-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
-                                        <path d="M10 2L3 7v10h4v-6h6v6h4V7l-7-5z" fill="currentColor"/>
-                                    </svg>
-                                    Bildungsmaterialien herunterladen
-                                </a>
-                                <a href="https://menschlichkeit-oesterreich.at/spenden" class="resource-link" target="_blank" rel="noopener">
-                                    <svg class="link-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
-                                        <path d="M10 2C5.6 2 2 5.6 2 10s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zm3.5 6L10 11.5 6.5 8 8 6.5l2 2 4-4L15.5 6z" fill="currentColor"/>
-                                    </svg>
-                                    Demokratieförderung unterstützen
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="final-actions">
-                        <button id="share-btn" class="cta-button secondary-button" type="button">
-                            <svg class="button-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
-                                <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" fill="currentColor"/>
-                            </svg>
-                            Spiel teilen
-                        </button>
-                        <button id="restart-btn" class="cta-button primary-button" type="button">
-                            <svg class="button-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
-                                <path d="M4 2a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V4a2 2 0 00-2-2H4zm0 2h12v10H4V4zm2 2v6l4-3-4-3z" fill="currentColor"/>
-                            </svg>
-                            Nochmal spielen
-                        </button>
-                    </div>
-                </div>
+            <div class="summary-card">
+              <strong id="menu-roadmap"></strong>
+              <span>Was im Vollausbau noch kommt</span>
             </div>
-        </section>
+          </div>
+          <div class="hero-actions">
+            <button class="button" id="start-game-button" type="button">Neues Spiel starten</button>
+            <button class="button-secondary" id="resume-game-button" type="button">Fortsetzen</button>
+            <button class="button-ghost" id="choose-role-button" type="button">Rolle wählen</button>
+            <button class="button-ghost" id="open-main-site-button" type="button">Zur Hauptwebsite</button>
+          </div>
+        </div>
 
+        <div class="stack">
+          <section class="settings-card">
+            <span class="kicker">Demokratie-Profil</span>
+            <div class="result-grid" id="menu-profile"></div>
+          </section>
+          <section class="settings-card">
+            <span class="kicker">Spieloptionen</span>
+            <div class="settings-row">
+              <label><input id="setting-reduced-motion" type="checkbox"> Animationen reduzieren</label>
+              <label><input id="setting-low-graphics" type="checkbox"> Low-Graphics aktivieren</label>
+              <label><input id="setting-analytics-consent" type="checkbox"> Lokale Analytics fuer Debrief erlauben</label>
+            </div>
+            <p class="fine-print">
+              Analytics bleiben standardmaessig aus und werden nur lokal fuer Session-, Choice-, Teacher- und Debrief-Ereignisse gespeichert.
+            </p>
+            <div class="settings-links">
+              <a id="settings-education-link" class="button-ghost" href="#">Bildung</a>
+              <a id="settings-join-link" class="button-ghost" href="#">Mitglied werden</a>
+              <a id="settings-donate-link" class="button-ghost" href="#">Spenden</a>
+              <a id="settings-contact-link" class="button-ghost" href="#">Kontakt</a>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="panel" id="role-screen" hidden>
+        <div class="stack">
+          <div class="meta-row">
+            <button class="button-ghost" id="role-back-button" type="button">Zurück</button>
+            <span class="meta-pill" id="current-role-badge"></span>
+          </div>
+          <div>
+            <span class="kicker">Rollenwahl</span>
+            <h2 class="section-title">Welche Perspektive bringst du ins Spiel?</h2>
+            <p class="section-copy">
+              Jede Rolle verändert den Blick auf Konflikte, Beteiligung und Verantwortung. Du kannst
+              sie jederzeit wechseln, ohne deinen Fortschritt zu verlieren.
+            </p>
+          </div>
+          <div class="role-grid" id="role-grid"></div>
+        </div>
+      </section>
+
+      <section class="panel panel--worlds" id="world-screen" hidden>
+        <div class="stack">
+          <div class="meta-row">
+            <button class="button-ghost" id="world-back-button" type="button">Zurück</button>
+            <span class="meta-pill" id="progress-summary"></span>
+          </div>
+          <div>
+            <span class="kicker">Weltkarte</span>
+            <h2 class="section-title">Zehn Themenwelten, ein demokratischer Lernpfad.</h2>
+            <p class="section-copy" id="world-lead"></p>
+          </div>
+          <div class="world-grid" id="world-grid"></div>
+        </div>
+
+        <aside class="level-sidebar stack">
+          <div id="world-summary"></div>
+          <section class="settings-card">
+            <strong>Weltzustand</strong>
+            <p class="section-copy">Diese fuenf Spuren bleiben ueber Entscheidungen hinweg bestehen und machen Folgen auf der Weltkarte sichtbar.</p>
+            <div class="track-grid" id="world-state-grid"></div>
+          </section>
+          <div class="stack" id="level-list"></div>
+        </aside>
+      </section>
+
+      <section class="panel" id="scenario-screen" hidden>
+        <div class="scenario-layout">
+          <article class="scenario-card stack">
+            <div class="meta-row">
+              <button class="button-ghost" id="scenario-back-button" type="button">Zur Weltkarte</button>
+              <span class="meta-pill" id="scenario-meta"></span>
+            </div>
+            <div>
+              <span class="kicker" id="scenario-subtitle"></span>
+              <h2 id="scenario-title"></h2>
+              <p class="section-copy" id="scenario-context"></p>
+            </div>
+            <section class="settings-card">
+              <strong>Leitfrage</strong>
+              <p class="section-copy" id="scenario-prompt"></p>
+            </section>
+            <section class="settings-card">
+              <strong>Rollen-Intel</strong>
+              <p class="section-copy" id="scenario-intel"></p>
+            </section>
+          </article>
+
+          <article class="stack">
+            <section class="settings-card">
+              <strong>Lernfokus</strong>
+              <p class="section-copy" id="scenario-learning-focus"></p>
+              <ul class="note-list" id="scenario-stakes"></ul>
+              <p class="fine-copy" id="teacher-prompt"></p>
+            </section>
+            <section class="settings-card">
+              <strong>Rollen-Toolkit und verdeckte Variablen</strong>
+              <div class="insight-grid" id="scenario-role-tools"></div>
+              <ul class="note-list" id="scenario-hidden-variables"></ul>
+            </section>
+            <div class="choice-stack" id="scenario-choices"></div>
+            <div class="hero-actions">
+              <button class="button-secondary" id="signature-action-button" type="button">Rollenaktion aktivieren</button>
+              <button class="button" id="submit-choice-button" type="button" disabled>Entscheidung bestätigen</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel" id="result-screen" hidden>
+        <div class="stack">
+          <span class="kicker">Levelauswertung</span>
+          <span class="meta-pill" id="result-band"></span>
+          <h2 class="result-title" id="result-title"></h2>
+          <p class="section-copy" id="result-summary"></p>
+          <div class="result-grid">
+            <article class="result-card">
+              <strong id="result-score"></strong>
+              <span>Qualität deiner Entscheidung</span>
+            </article>
+            <article class="result-card">
+              <strong id="result-xp"></strong>
+              <span>Erfahrung und Profilfortschritt</span>
+            </article>
+          </div>
+          <div class="result-grid" id="result-stats"></div>
+          <section class="settings-card">
+            <strong>Persistenter Weltzustand</strong>
+            <div class="track-grid" id="result-world-state"></div>
+          </section>
+          <section class="settings-card">
+            <strong>Systemische Folgen</strong>
+            <div class="stack" id="result-consequences"></div>
+          </section>
+          <section class="settings-card">
+            <strong>Rollenwirkung</strong>
+            <p class="section-copy" id="result-signature"></p>
+          </section>
+          <section class="settings-card">
+            <strong>Reflexionsfragen</strong>
+            <ul class="note-list" id="result-debrief"></ul>
+          </section>
+          <section class="settings-card">
+            <strong>Teacher-Hooks und lokale Exporte</strong>
+            <ul class="note-list" id="teacher-exports"></ul>
+            <div class="hero-actions">
+              <button class="button-ghost" id="copy-teacher-export-button" type="button">Debrief-Export kopieren</button>
+            </div>
+          </section>
+          <div class="result-actions">
+            <button class="button" id="result-next-button" type="button">Nächstes Level</button>
+            <button class="button-secondary" id="result-worlds-button" type="button">Zur Weltkarte</button>
+            <button class="button-secondary" id="teacher-review-button" type="button">Teacher-Ansicht</button>
+            <button class="button-ghost" id="reset-progress-button" type="button">Fortschritt zurücksetzen</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="teacher-screen" hidden>
+        <div class="stack">
+          <div class="meta-row">
+            <button class="button-ghost" id="teacher-back-button" type="button">Zurueck zum Debrief</button>
+            <span class="meta-pill">Teacher Review</span>
+          </div>
+          <div>
+            <span class="kicker">Teacher-Ansicht</span>
+            <h2 class="section-title">Reflexion, Export und Session-Spuren</h2>
+            <p class="section-copy" id="teacher-session-summary"></p>
+          </div>
+          <section class="settings-card">
+            <strong>Aktueller Debrief</strong>
+            <div class="stack" id="teacher-latest-summary"></div>
+          </section>
+          <section class="settings-card">
+            <strong>Diskussionsimpulse</strong>
+            <ul class="note-list" id="teacher-discussion-list"></ul>
+          </section>
+          <section class="settings-card">
+            <strong>Session-Log</strong>
+            <div class="stack" id="teacher-log-list"></div>
+          </section>
+          <section class="settings-card">
+            <strong>Lokale Analytics</strong>
+            <div class="stack" id="teacher-analytics-summary"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="panel panel--pause" id="pause-screen" hidden>
+        <div class="stack">
+          <span class="kicker">Pause</span>
+          <h2 class="section-title">Du kannst jederzeit mit Ruhe weiterdenken.</h2>
+          <p class="section-copy">
+            Das Spiel bleibt lokal gespeichert. Nutze die Pause, um zur Weltkarte zu springen, kurz auf die Hauptnavigation zu gehen oder direkt ins Szenario zurueckzukehren.
+          </p>
+          <div class="result-actions">
+            <button class="button" id="pause-resume-button" type="button">Zurück ins Szenario</button>
+            <button class="button-secondary" id="pause-worlds-button" type="button">Zur Weltkarte</button>
+            <button class="button-ghost" id="pause-menu-button" type="button">Zum Menü</button>
+          </div>
+        </div>
+      </section>
     </main>
 
-    <!-- Footer -->
-    <footer class="game-footer" role="contentinfo">
-        <div class="footer-content">
-            <div class="footer-info">
-                <p class="footer-text">
-                    Entwickelt von 
-                    <a href="https://menschlichkeit-oesterreich.at" class="footer-link" target="_blank" rel="noopener">
-                        Menschlichkeit Österreich
-                    </a>
-                </p>
-                <p class="footer-mission">Für eine Gesellschaft der Empathie und des Zusammenhalts</p>
-            </div>
-            <div class="footer-links">
-                <a href="https://menschlichkeit-oesterreich.at/datenschutz" class="footer-link" target="_blank" rel="noopener">Datenschutz</a>
-                <a href="https://menschlichkeit-oesterreich.at/impressum" class="footer-link" target="_blank" rel="noopener">Impressum</a>
-                <a href="https://menschlichkeit-oesterreich.at/kontakt" class="footer-link" target="_blank" rel="noopener">Kontakt</a>
-            </div>
-        </div>
+    <footer class="footerbar">
+      <span>Babylon.js 3D-Spiel von Menschlichkeit Österreich</span>
+      <a href="https://www.menschlichkeit-oesterreich.at/kontakt">Kontakt</a>
+      <a href="https://www.menschlichkeit-oesterreich.at/datenschutz">Datenschutz</a>
+      <a href="https://www.menschlichkeit-oesterreich.at/impressum">Impressum</a>
     </footer>
+  </div>
 
-    <!-- Loading Screen -->
-    <div id="loading-screen" class="loading-screen" aria-hidden="true">
-        <div class="loading-content">
-            <div class="loading-spinner" aria-label="Laden..."></div>
-            <p class="loading-text">Spiel wird geladen...</p>
-        </div>
-    </div>
+  <div class="toast" id="toast" hidden aria-live="polite"></div>
 
-    <!-- Accessibility Announcements -->
-    <div id="announcements" class="sr-only" aria-live="polite" aria-atomic="true"></div>
-
-    <!-- JavaScript -->
-    <script src="./js/scenarios.js"></script>
-    <script src="./js/ui.js"></script>
-    <script src="./js/game.js"></script>
-    <script src="./js/pwa.js"></script>
-
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script type="module" src="./js/babylon-app.js"></script>
 </body>
 </html>

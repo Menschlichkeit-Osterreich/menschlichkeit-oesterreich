@@ -23,7 +23,8 @@ interface OpenClawChatProps {
   welcomeMessage?: string;
 }
 
-const BRIDGE_URL = import.meta.env.VITE_OPENCLAW_BRIDGE_URL || 'http://127.0.0.1:18790';
+import { OPENCLAW_BRIDGE_URL } from '@/constants/api';
+const BRIDGE_URL = OPENCLAW_BRIDGE_URL;
 
 const QUICK_ACTIONS = [
   { label: '🗓️ Nächste Events', query: 'Welche Events sind als nächstes geplant?' },

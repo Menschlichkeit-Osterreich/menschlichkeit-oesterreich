@@ -10,7 +10,7 @@ Verwendung:
     DATABASE_URL=postgresql://... JWT_SECRET_KEY=... python scripts/seed_test_users.py
 
 Oder mit .env-Datei:
-    python -m dotenv -f ../../.env.test run -- python scripts/seed_test_users.py
+    python -m dotenv -f ../../.env.test.local run -- python scripts/seed_test_users.py
 """
 
 from __future__ import annotations
@@ -22,14 +22,17 @@ import os
 import sys
 from pathlib import Path
 
-# .env.test automatisch laden falls vorhanden
-env_test = Path(__file__).parents[3] / ".env.test"
-if env_test.exists():
-    for line in env_test.read_text().splitlines():
+# Test env automatisch laden (lokal zuerst, dann Template)
+for env_name in (".env.test.local", ".env.test.example"):
+    env_file = Path(__file__).parents[3] / env_name
+    if not env_file.exists():
+        continue
+    for line in env_file.read_text().splitlines():
         line = line.strip()
         if line and not line.startswith("#") and "=" in line:
             key, _, val = line.partition("=")
             os.environ.setdefault(key.strip(), val.strip())
+    break
 
 import asyncpg
 
@@ -51,7 +54,7 @@ def hash_password(password: str) -> str:
 
 
 # ── Testbenutzer ──────────────────────────────────────────────────────────────
-# Credentials auch in .env.test und docs/test-credentials.md dokumentiert.
+# Credentials auch in .env.test.example und .env.test.local dokumentiert.
 TEST_USERS = [
     {
         "id": "00000000-0000-0000-0000-000000000001",
@@ -170,7 +173,7 @@ async def main() -> None:
 
     await conn.close()
     log.info(f"\n{len(TEST_USERS)} Testbenutzer angelegt / aktualisiert.")
-    log.info("Credentials: siehe .env.test und docs/test-credentials.md")
+    log.info("Credentials: siehe .env.test.example / .env.test.local")
 
 
 if __name__ == "__main__":

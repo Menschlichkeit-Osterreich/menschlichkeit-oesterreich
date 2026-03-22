@@ -6,7 +6,7 @@ import { PageHeader } from '../components/ui/PageHeader';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
 
 export default function AdminQueuePage() {
-  const { token, isAdmin } = useAuth();
+  const { token, hasBackofficeAccess } = useAuth();
   const [stats, setStats] = React.useState<any | null>(null);
   const [dlq, setDlq] = React.useState<{ total: number; items: any[] } | null>(null);
   const [loading, setLoading] = React.useState(false);
@@ -33,7 +33,7 @@ export default function AdminQueuePage() {
 
   React.useEffect(() => { refresh(); }, [token]);
 
-  if (!token || !isAdmin) {
+  if (!token || !hasBackofficeAccess) {
     return (
       <div className="p-6">
         <div className="text-red-700">Kein Zugriff.</div>

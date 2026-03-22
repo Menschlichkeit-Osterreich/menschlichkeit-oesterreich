@@ -41,12 +41,15 @@ if ($pkgChanged) {
 # ── 3. Test-Benutzer seeden ───────────────────────────────────
 Write-Host "`n[3/3] Testbenutzer anlegen / aktualisieren …" -ForegroundColor Yellow
 $SeedScript = Join-Path $RepoRoot "apps\api\scripts\seed_test_users.py"
-$EnvTest    = Join-Path $RepoRoot ".env.test"
+$EnvCandidates = @(
+    (Join-Path $RepoRoot ".env.test.local"),
+    (Join-Path $RepoRoot ".env.test.example")
+)
 
 if (Test-Path $SeedScript) {
-    if (Test-Path $EnvTest) {
-        # .env.test laden
-        Get-Content $EnvTest | ForEach-Object {
+    $LoadedEnv = $EnvCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+    if ($LoadedEnv) {
+        Get-Content $LoadedEnv | ForEach-Object {
             if ($_ -match "^\s*([^#][^=]+)=(.*)$") {
                 [System.Environment]::SetEnvironmentVariable($matches[1].Trim(), $matches[2].Trim(), "Process")
             }
@@ -54,7 +57,7 @@ if (Test-Path $SeedScript) {
     }
     python $SeedScript
     if ($LASTEXITCODE -ne 0) {
-        Write-Warning "  Seed fehlgeschlagen — Datenbank läuft? Siehe .env.test für DATABASE_URL."
+        Write-Warning "  Seed fehlgeschlagen — Datenbank läuft? Siehe .env.test.local bzw. .env.test.example."
     }
 } else {
     Write-Warning "  Seed-Script nicht gefunden: $SeedScript"
@@ -72,5 +75,5 @@ Test-Login-Daten (Webseite: http://localhost:5173):
   fördernd   test-foerdermitglied@menschlichkeit-oesterreich.at / TestFoerder2025!
   inaktiv    test-inaktiv@menschlichkeit-oesterreich.at   / TestInaktiv2025!
 
-API Login: POST http://localhost:8001/auth/login
+API Login: POST http://localhost:8001/api/auth/login
 "@ -ForegroundColor White

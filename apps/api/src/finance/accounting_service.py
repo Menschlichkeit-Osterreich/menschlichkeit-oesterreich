@@ -4,25 +4,27 @@ Einnahmen-Ausgaben-Rechnung & DATEV-Export nach österr. Vereinsrecht
 """
 
 from __future__ import annotations
+
 import csv
 import logging
+from io import StringIO
 from datetime import date, datetime
 from decimal import Decimal
-from typing import List, Dict, Any
-from io import StringIO
+from typing import Any, Dict, List
 
 logger = logging.getLogger(__name__)
 
 # Österreichischer Kontenrahmen für Vereine (Auszug)
 ACCOUNTING_MAP = {
     "membership_fee": {"account": 5000, "description": "Einnahmen aus Mitgliedsbeiträgen"},
-    "donation":       {"account": 5100, "description": "Einnahmen aus Spenden"},
-    "event_income":   {"account": 5300, "description": "Einnahmen aus Veranstaltungen"},
-    "rent":           {"account": 6100, "description": "Miete und Betriebskosten"},
-    "office_supplies":{"account": 6200, "description": "Bürobedarf und Verwaltung"},
-    "personnel":      {"account": 6000, "description": "Personalaufwand"},
-    "bank_charges":   {"account": 6700, "description": "Sonstiger betrieblicher Aufwand"},
+    "donation": {"account": 5100, "description": "Einnahmen aus Spenden"},
+    "event_income": {"account": 5300, "description": "Einnahmen aus Veranstaltungen"},
+    "rent": {"account": 6100, "description": "Miete und Betriebskosten"},
+    "office_supplies": {"account": 6200, "description": "Bürobedarf und Verwaltung"},
+    "personnel": {"account": 6000, "description": "Personalaufwand"},
+    "bank_charges": {"account": 6700, "description": "Sonstiger betrieblicher Aufwand"},
 }
+
 
 class AccountingService:
     """Generiert Buchhaltungsberichte und Exporte."""
@@ -31,7 +33,7 @@ class AccountingService:
         self,
         transactions: List[Dict[str, Any]],
         start_date: date,
-        end_date: date
+        end_date: date,
     ) -> Dict[str, Any]:
         """Erstellt eine Einnahmen-Ausgaben-Rechnung."""
         income = Decimal("0.00")
@@ -68,54 +70,59 @@ class AccountingService:
     def generate_datev_export(self, transactions: List[Dict[str, Any]]) -> str:
         """Erstellt einen DATEV-CSV-Export (vereinfachtes Format)."""
         output = StringIO()
-        writer = csv.writer(output, delimiter=";", quotechar=\'"\', quoting=csv.QUOTE_ALL)
+        writer = csv.writer(output, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL)
 
         # Header nach DATEV-Spezifikation
-        writer.writerow([
-            "Umsatz (ohne Soll/Haben-Kz)",
-            "Soll/Haben-Kennzeichen",
-            "WKZ Umsatz",
-            "Kurs",
-            "Basisu_msatz",
-            "WKZ Basisu_msatz",
-            "Konto",
-            "Gegenkonto (ohne BU-Schlüssel)",
-            "BU-Schlüssel",
-            "Belegdatum",
-            "Belegfeld 1",
-            "Belegfeld 2",
-            "Skonto",
-            "Buchungstext"
-        ])
+        writer.writerow(
+            [
+                "Umsatz (ohne Soll/Haben-Kz)",
+                "Soll/Haben-Kennzeichen",
+                "WKZ Umsatz",
+                "Kurs",
+                "Basisu_msatz",
+                "WKZ Basisu_msatz",
+                "Konto",
+                "Gegenkonto (ohne BU-Schlüssel)",
+                "BU-Schlüssel",
+                "Belegdatum",
+                "Belegfeld 1",
+                "Belegfeld 2",
+                "Skonto",
+                "Buchungstext",
+            ]
+        )
 
         for tx in transactions:
             is_income = tx["type"] == "income"
-            amount_str = f"{Decimal(str(tx["amount"])):.2f}".replace(".", ",")
+            amount_str = f"{Decimal(str(tx['amount'])):.2f}".replace(".", ",")
             tx_date = datetime.fromisoformat(tx["date"]).strftime("%d%m")
 
             konto = self._map_transaction_to_account(tx)
             gegenkonto = 1100  # Bank
 
-            writer.writerow([
-                amount_str,                                     # Umsatz
-                "H" if is_income else "S",                     # Soll/Haben
-                "EUR",                                          # WKZ Umsatz
-                "",                                             # Kurs
-                "",                                             # Basisumsatz
-                "",                                             # WKZ Basisumsatz
-                str(konto if is_income else gegenkonto),        # Konto
-                str(gegenkonto if is_income else konto),        # Gegenkonto
-                "",                                             # BU-Schlüssel
-                tx_date,                                        # Belegdatum (ddmm)
-                tx.get("invoice_number", tx.get("id")),       # Belegfeld 1
-                "",                                             # Belegfeld 2
-                "",                                             # Skonto
-                tx["description"]                               # Buchungstext
-            ])
+            writer.writerow(
+                [
+                    amount_str,
+                    "H" if is_income else "S",
+                    "EUR",
+                    "",
+                    "",
+                    "",
+                    str(konto if is_income else gegenkonto),
+                    str(gegenkonto if is_income else konto),
+                    "",
+                    tx_date,
+                    tx.get("invoice_number", tx.get("id")),
+                    "",
+                    "",
+                    tx["description"],
+                ]
+            )
 
         return output.getvalue()
 
-# ── Beispiel-Nutzung ───────────────────────────────────────────────────────────
+
+# ── Beispiel-Nutzung ─────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     dummy_transactions = [
@@ -131,13 +138,13 @@ if __name__ == "__main__":
     report = accounting_service.generate_income_expense_report(
         dummy_transactions,
         date(2026, 2, 1),
-        date(2026, 2, 28)
+        date(2026, 2, 28),
     )
     print("--- Einnahmen-Ausgaben-Rechnung ---")
-    print(f"Zeitraum: {report["start_date"]} - {report["end_date"]}")
-    print(f"Einnahmen: {report["total_income"]:.2f} EUR")
-    print(f"Ausgaben:  {report["total_expenses"]:.2f} EUR")
-    print(f"Ergebnis:  {report["result"]:.2f} EUR")
+    print(f"Zeitraum: {report['start_date']} - {report['end_date']}")
+    print(f"Einnahmen: {report['total_income']:.2f} EUR")
+    print(f"Ausgaben:  {report['total_expenses']:.2f} EUR")
+    print(f"Ergebnis:  {report['result']:.2f} EUR")
     print("-------------------------------------\n")
 
     # DATEV-Export generieren

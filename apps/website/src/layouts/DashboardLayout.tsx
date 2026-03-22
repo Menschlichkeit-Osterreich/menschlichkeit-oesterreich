@@ -19,7 +19,7 @@ const MEMBER_NAV: SideNavItem[] = [
 
 const ADMIN_NAV: SideNavItem[] = [
   { to: '/admin/dashboard', label: 'Dashboard', icon: '📊' },
-  { to: '/admin/members', label: 'Mitglieder', icon: '👥' },
+  { to: '/admin/members', label: 'CRM & Mitglieder', icon: '👥' },
   { to: '/admin/queue', label: 'Anfragen', icon: '📋' },
   { to: '/admin/finanzen', label: 'Finanzen', icon: '💰' },
   { to: '/admin/events', label: 'Veranstaltungen', icon: '📅' },
@@ -59,10 +59,10 @@ function SideNav({ items }: { items: SideNavItem[] }) {
 }
 
 export default function DashboardLayout() {
-  const { isAdmin } = useAuth();
-  const navItems = isAdmin ? ADMIN_NAV : MEMBER_NAV;
-  const areaLabel = isAdmin ? 'Adminbereich' : 'Mitgliederbereich';
-  const areaIcon = isAdmin ? '⚙️' : '👤';
+  const { hasBackofficeAccess } = useAuth();
+  const navItems = hasBackofficeAccess ? ADMIN_NAV : MEMBER_NAV;
+  const areaLabel = hasBackofficeAccess ? 'Backoffice' : 'Mitgliederbereich';
+  const areaIcon = hasBackofficeAccess ? '⚙️' : '👤';
 
   return (
     <div className="min-h-screen flex flex-col bg-secondary-50">

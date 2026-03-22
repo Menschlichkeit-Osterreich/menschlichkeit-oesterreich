@@ -26,7 +26,26 @@ from fastapi.responses import JSONResponse
 from prometheus_fastapi_instrumentator import Instrumentator
 
 # ── Router Imports ────────────────────────────────────────────────────────────
-from .routers import metrics, auth, members, forum, blog, events, roles, finance, sitemap, invoices
+from .routers import (
+    metrics,
+    auth,
+    members,
+    admin_crm,
+    forum,
+    blog,
+    events,
+    roles,
+    finance,
+    sitemap,
+    invoices,
+    newsletter,
+    contact,
+    privacy,
+    payments,
+    internal,
+    queue,
+    alerts,
+)
 from .audit import ensure_audit_table, write_audit_event
 from .security import enforce_csrf, rate_limiter, require_jwt_secret_configured
 from .middleware.pii_middleware import PiiSanitizationMiddleware, PiiLoggingMiddleware
@@ -39,7 +58,11 @@ logging.basicConfig(
 logger = logging.getLogger("menschlichkeit.api")
 
 # ── Environment ───────────────────────────────────────────────────────────────
-ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+ENVIRONMENT = os.getenv("ENVIRONMENT", "").strip()
+if not ENVIRONMENT:
+    ENVIRONMENT = os.getenv("APP_ENV", "development").strip() or "development"
+    if os.getenv("APP_ENV", "").strip():
+        logger.warning("APP_ENV ist veraltet – bitte ENVIRONMENT verwenden.")
 IS_PRODUCTION = ENVIRONMENT == "production"
 
 ALLOWED_ORIGINS_PROD = [
@@ -302,6 +325,14 @@ async def version():
 app.include_router(sitemap.router, tags=["SEO"])
 app.include_router(auth.router, prefix="/api", tags=["Authentifizierung"])
 app.include_router(members.router, prefix="/api", tags=["Mitglieder"])
+app.include_router(admin_crm.router, prefix="/api", tags=["CRM-Cockpit"])
+app.include_router(contact.router, prefix="/api", tags=["Kontakt"])
+app.include_router(newsletter.router, prefix="/api", tags=["Newsletter"])
+app.include_router(privacy.router, prefix="/api", tags=["DSGVO"])
+app.include_router(payments.router, prefix="/api", tags=["Payments"])
+app.include_router(internal.router, prefix="/api", tags=["Interne Integrationen"])
+app.include_router(queue.router, prefix="/api", tags=["Queue"])
+app.include_router(alerts.router, prefix="/api", tags=["Alerts"])
 app.include_router(forum.router, prefix="/api", tags=["Forum"])
 app.include_router(blog.router, prefix="/api", tags=["Blog"])
 app.include_router(events.router, prefix="/api", tags=["Veranstaltungen"])

@@ -1,0 +1,565 @@
+:root {
+  --bg: #08111f;
+  --surface: rgba(9, 17, 31, 0.86);
+  --line: rgba(255, 255, 255, 0.12);
+  --text: #f8fafc;
+  --muted: #cbd5e1;
+  --brand: #ef4444;
+  --brand-2: #f97316;
+  --brand-3: #38bdf8;
+  --shadow: 0 24px 72px rgba(2, 6, 23, 0.42);
+  --radius: 24px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+body {
+  overflow: hidden;
+}
+
+a {
+  color: inherit;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 3px solid #fde68a;
+  outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  z-index: 30;
+  transform: translateY(-200%);
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  background: #fff;
+  color: #111827;
+  font-weight: 700;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+#renderCanvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.page-glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at top right, rgba(249, 115, 22, 0.22), transparent 30%),
+    radial-gradient(circle at left center, rgba(56, 189, 248, 0.24), transparent 28%),
+    linear-gradient(180deg, rgba(8, 17, 31, 0.22), rgba(8, 17, 31, 0.9));
+}
+
+.ui-shell {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+  padding: 1rem;
+  gap: 1rem;
+}
+
+.topbar,
+.panel,
+.footerbar,
+.toast {
+  backdrop-filter: blur(18px);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.topbar,
+.footerbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-radius: 999px;
+  padding: 0.9rem 1.2rem;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  text-decoration: none;
+}
+
+.brand__seal {
+  display: inline-grid;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  box-shadow: 0 0 36px rgba(239, 68, 68, 0.32);
+  font-size: 1.2rem;
+}
+
+.brand__eyebrow,
+.footerbar,
+.kicker,
+.fine-print {
+  color: var(--muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.brand__title {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.topbar__nav,
+.footerbar,
+.hero-actions,
+.meta-row,
+.settings-row,
+.settings-links,
+.result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.topbar__nav a,
+.footerbar a {
+  text-decoration: none;
+  color: var(--muted);
+}
+
+.topbar__nav a:hover,
+.footerbar a:hover {
+  color: #fff;
+}
+
+.layout {
+  display: grid;
+}
+
+.panel {
+  border-radius: var(--radius);
+  padding: clamp(1.2rem, 2.4vw, 2rem);
+  width: min(1180px, 100%);
+  margin: 0 auto;
+}
+
+.panel[hidden] {
+  display: none;
+}
+
+.panel--hero,
+.panel--worlds,
+.scenario-layout {
+  display: grid;
+  gap: 1.2rem;
+}
+
+.panel--hero {
+  grid-template-columns: 1.15fr 0.95fr;
+}
+
+.panel--worlds,
+.scenario-layout {
+  grid-template-columns: 1.4fr 0.9fr;
+}
+
+.hero-copy h1,
+.section-title,
+.result-title,
+.scenario-card h2 {
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 1.05;
+  margin: 0.4rem 0 1rem;
+}
+
+.section-copy,
+.summary-card span,
+.choice-card span,
+.role-card__summary,
+.world-card__summary,
+.note-list li {
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.stack,
+.hero-visual,
+.choice-stack,
+.result-grid,
+.stats-grid,
+.role-grid,
+.world-grid,
+.track-grid,
+.insight-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.stats-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 1.5rem;
+}
+
+.result-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.role-grid,
+.world-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.track-grid {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.insight-grid {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.stat-card,
+.summary-card,
+.settings-card,
+.level-sidebar,
+.result-card,
+.track-card,
+.insight-card,
+.consequence-card,
+.teacher-log-card,
+.stat-pill,
+.meta-pill {
+  padding: 1rem 1.1rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line);
+}
+
+.meta-pill,
+.stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: auto;
+  padding: 0.5rem 0.85rem;
+  border-radius: 999px;
+}
+
+.stat-card strong,
+.summary-card strong,
+.result-card strong {
+  display: block;
+  font-size: 1.3rem;
+  margin-bottom: 0.25rem;
+}
+
+.preview-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 360px;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top, rgba(56, 189, 248, 0.24), transparent 34%),
+    linear-gradient(135deg, rgba(239, 68, 68, 0.18), rgba(15, 23, 42, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.preview-card__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--line);
+}
+
+.preview-card__content {
+  position: absolute;
+  inset: auto 1rem 1rem 1rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.preview-card__bridge {
+  position: absolute;
+  inset: 18% 12% auto;
+  height: 18rem;
+  pointer-events: none;
+}
+
+.preview-card__bridge::before,
+.preview-card__bridge::after {
+  content: "";
+  position: absolute;
+}
+
+.preview-card__bridge::before {
+  left: 5%;
+  right: 5%;
+  top: 42%;
+  height: 1rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #fb7185, #f97316 45%, #38bdf8);
+  transform: skewY(-4deg);
+}
+
+.preview-card__bridge::after {
+  left: 18%;
+  right: 18%;
+  top: 16%;
+  height: 10rem;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-bottom: 0;
+  border-radius: 999px 999px 0 0;
+}
+
+.button,
+.button-secondary,
+.button-ghost,
+.choice-card,
+.world-card,
+.role-card,
+.level-chip {
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+}
+
+.button,
+.button-secondary,
+.button-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.85rem 1.2rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button {
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  border-color: transparent;
+}
+
+.button-secondary {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(59, 130, 246, 0.24));
+}
+
+.button-ghost {
+  background: transparent;
+}
+
+.choice-card,
+.world-card,
+.role-card,
+.level-chip {
+  width: 100%;
+  padding: 1rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.choice-card.is-selected,
+.role-card.is-active,
+.world-card.is-selected,
+.level-chip.is-current {
+  border-color: rgba(56, 189, 248, 0.8);
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.16);
+}
+
+.world-card.is-locked,
+.level-chip.is-locked,
+.button[disabled],
+.button-secondary[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.world-card.is-locked {
+  cursor: pointer;
+}
+
+.role-card__icon,
+.world-card__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 0.75rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 1.4rem;
+}
+
+.role-card__name,
+.world-card__title,
+.choice-card strong,
+.level-chip strong {
+  display: block;
+  font-size: 1.05rem;
+  margin-bottom: 0.45rem;
+}
+
+.role-card__focus,
+.world-card__meta,
+.level-chip small {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.track-card,
+.insight-card,
+.consequence-card,
+.teacher-log-card {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.track-card strong,
+.teacher-log-card strong {
+  font-size: 1.2rem;
+}
+
+.track-card span,
+.track-card small,
+.insight-card,
+.teacher-log-card span {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.track-card--stabil {
+  border-color: rgba(16, 185, 129, 0.45);
+}
+
+.track-card--angespannt {
+  border-color: rgba(249, 115, 22, 0.45);
+}
+
+.track-card--kritisch,
+.consequence-card--negative {
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.consequence-card--positive {
+  border-color: rgba(56, 189, 248, 0.45);
+}
+
+.settings-card label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--muted);
+}
+
+.topbar__action {
+  min-height: 2.5rem;
+}
+
+.fine-copy {
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.note-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  color: var(--muted);
+  display: grid;
+  gap: 0.65rem;
+}
+
+.note-list li {
+  line-height: 1.6;
+}
+
+.panel--pause {
+  max-width: 780px;
+}
+
+#signature-action-button.is-active {
+  border-color: rgba(249, 115, 22, 0.85);
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.18);
+}
+
+.toast {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 25;
+  max-width: 24rem;
+  padding: 0.95rem 1.1rem;
+  border-radius: 18px;
+}
+
+@media (max-width: 980px) {
+  body {
+    overflow: auto;
+  }
+
+  .panel--hero,
+  .panel--worlds,
+  .scenario-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .topbar,
+  .footerbar {
+    border-radius: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .ui-shell {
+    padding: 0.75rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}

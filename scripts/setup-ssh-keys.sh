@@ -13,9 +13,17 @@ echo ""
 # Variablen
 SSH_PRIVATE_KEY="$HOME/.ssh/id_ed25519"
 SSH_PUBLIC_KEY="$HOME/.ssh/id_ed25519.pub"
-GITHUB_TOKEN="${GITHUB_TOKEN:-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}"
+GITHUB_TOKEN="${GH_TOKEN:-${GITHUB_TOKEN:-}}"
 GITHUB_REPO="Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development"
 PLESK_HOST="dmpl20230054@5.183.217.146"
+
+if [[ -z "$GITHUB_TOKEN" ]]; then
+    echo "❌ Kein GitHub-Token gesetzt."
+    echo "   Setze GH_TOKEN oder GITHUB_TOKEN mit Repository-Secrets-Berechtigung"
+    echo "   und starte das Skript danach erneut."
+    echo "   Ohne explizites Token wird absichtlich kein Fallback verwendet."
+    exit 1
+fi
 
 # Prüfe SSH-Schlüssel
 if [[ ! -f "$SSH_PRIVATE_KEY" ]]; then

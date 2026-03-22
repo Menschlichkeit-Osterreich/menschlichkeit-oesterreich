@@ -2,7 +2,8 @@ import os
 
 DOMAIN = "menschlichkeit-oesterreich.at"
 
-EMAIL_KONTAKT = os.getenv("EMAIL_KONTAKT", f"kontakt@{DOMAIN}")
+EMAIL_KONTAKT = os.getenv("EMAIL_KONTAKT", f"office@{DOMAIN}")
+EMAIL_OFFICE = os.getenv("EMAIL_OFFICE", EMAIL_KONTAKT)
 EMAIL_INFO = os.getenv("EMAIL_INFO", f"info@{DOMAIN}")
 EMAIL_ADMIN = os.getenv("EMAIL_ADMIN", f"admin@{DOMAIN}")
 EMAIL_NOREPLY = os.getenv("EMAIL_NOREPLY", f"noreply@{DOMAIN}")
@@ -17,8 +18,9 @@ EMAIL_DATENSCHUTZ = os.getenv("EMAIL_DATENSCHUTZ", f"datenschutz@{DOMAIN}")
 SMTP_HOST = os.getenv("MAIL_HOST", f"mail.{DOMAIN}")
 SMTP_PORT = int(os.getenv("MAIL_PORT", "587"))
 SMTP_ENCRYPTION = os.getenv("MAIL_ENCRYPTION", "tls")
-MAIL_FROM_ADDRESS = os.getenv("MAIL_FROM_ADDRESS", EMAIL_INFO)
+MAIL_FROM_ADDRESS = os.getenv("MAIL_FROM_ADDRESS", EMAIL_OFFICE)
 MAIL_FROM_NAME = os.getenv("MAIL_FROM_NAME", "Verein Menschlichkeit Österreich")
+MAIL_REPLY_TO_ADDRESS = os.getenv("MAIL_REPLY_TO_ADDRESS", EMAIL_OFFICE)
 
 ORGANIZATION = {
     "name": "Verein Menschlichkeit Österreich",

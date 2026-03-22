@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { civicrm, CiviEvent } from '../../services/civicrm';
+import { http } from '../../services/http';
 import { Card } from '../ui/Card';
 import { Alert } from '../ui/Alert';
 
@@ -9,7 +9,7 @@ interface EventsListProps {
 }
 
 export function EventsList({ limit = 6, className = '' }: EventsListProps) {
-  const [events, setEvents] = useState<CiviEvent[]>([]);
+  const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,8 +17,8 @@ export function EventsList({ limit = 6, className = '' }: EventsListProps) {
     const fetchEvents = async () => {
       setLoading(true);
       try {
-        const result = await civicrm.events.listPublic();
-        setEvents(result.values.slice(0, limit));
+        const result = await http.get<{ success: boolean; data: any[] }>(`/api/events?page_size=${limit}`);
+        setEvents((result.data || []).slice(0, limit));
       } catch (err: unknown) {
         setError(`Veranstaltungen konnten nicht geladen werden: ${err instanceof Error ? err.message : ''}`);
       } finally {
@@ -60,31 +60,29 @@ export function EventsList({ limit = 6, className = '' }: EventsListProps) {
         <Card key={event.id} className="p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
           <div>
             <span className="text-xs font-medium text-primary-600 uppercase tracking-wide">
-              {formatDate(event.start_date)}
+              {formatDate(event.start_date || event.start_datum)}
             </span>
-            {event.end_date && event.end_date !== event.start_date && (
-              <span className="text-xs text-secondary-500"> – {formatDate(event.end_date)}</span>
+            {(event.end_date || event.end_datum) && (event.end_date || event.end_datum) !== (event.start_date || event.start_datum) && (
+              <span className="text-xs text-secondary-500"> – {formatDate(event.end_date || event.end_datum)}</span>
             )}
           </div>
-          <h3 className="font-semibold text-base leading-snug">{event.title}</h3>
-          {event.location && (
+          <h3 className="font-semibold text-base leading-snug">{event.title || event.titel}</h3>
+          {(event.location || event.ort) && (
             <p className="text-sm text-secondary-600 flex items-center gap-1">
-              <span>📍</span> {event.location}
+              <span>📍</span> {event.location || event.ort}
             </p>
           )}
-          {event.description && (
-            <p className="text-sm text-secondary-600 line-clamp-2">{event.description}</p>
+          {(event.description || event.beschreibung) && (
+            <p className="text-sm text-secondary-600 line-clamp-2">{event.description || event.beschreibung}</p>
           )}
-          {event.max_participants && (
-            <p className="text-xs text-secondary-500">Max. {event.max_participants} Teilnehmer/innen</p>
+          {(event.max_participants || event.max_teilnehmer) && (
+            <p className="text-xs text-secondary-500">Max. {event.max_participants || event.max_teilnehmer} Teilnehmer/innen</p>
           )}
           <a
-            href={`${import.meta.env.VITE_CIVICRM_BASE_URL}/civicrm/event/info?id=${event.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/veranstaltungen"
             className="mt-auto inline-flex items-center gap-1 text-sm text-primary-600 hover:underline font-medium"
           >
-            Mehr erfahren & Anmelden →
+            Mehr erfahren →
           </a>
         </Card>
       ))}

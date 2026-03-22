@@ -10,6 +10,7 @@ import JsonLdBreadcrumb from '../components/seo/JsonLdBreadcrumb';
 import JsonLdFaq from '../components/seo/JsonLdFaq';
 import { CONTACT_EMAIL, LEGAL_DOCS } from '../config/siteConfig';
 import { api, CreateMembershipRequest } from '../services/api';
+import { http } from '../services/http';
 
 // ── Typen ──────────────────────────────────────────────────────────────────
 
@@ -348,25 +349,32 @@ export default function JoinPage() {
     setSubmitting(true);
     setError(null);
     try {
-      // 1) Registrierung
-      const reg = await api.auth.register({
+      const contactResult = await http.post<{ success: boolean; data?: { contact?: { id?: number } } }>('/api/contacts/create', {
         email: data.email,
         first_name: data.firstName,
         last_name: data.lastName,
+        phone: data.phone || undefined,
       });
-      const token = (reg.data as any)?.tokens?.token ?? (reg.data as any)?.access_token;
-      if (!token) throw new Error('Registrierung fehlgeschlagen.');
-      sessionStorage.setItem('moe_auth_token', token);
+      const contactId = contactResult.data?.contact?.id;
 
-      // 2) Mitgliedschaft anlegen
-      const membershipTypeId =
-        data.type === 'ordentlich' ? 1 : data.type === 'ausserordentlich' ? 2 : 3;
-      const contactId = (reg.data as any)?.contact?.id ?? 1;
-      const payload: CreateMembershipRequest = {
-        contact_id: contactId,
-        membership_type_id: membershipTypeId,
-      };
-      await api.memberships.create(payload, token);
+      if (contactId) {
+        const membershipTypeId =
+          data.type === 'ordentlich' ? 1 : data.type === 'ausserordentlich' ? 2 : 3;
+        const payload: CreateMembershipRequest = {
+          contact_id: contactId,
+          membership_type_id: membershipTypeId,
+        };
+        await api.memberships.create(payload);
+      }
+
+      if (data.newsletterOptIn) {
+        await api.newsletter.subscribe({
+          email: data.email,
+          first_name: data.firstName,
+          last_name: data.lastName,
+          consent: true,
+        });
+      }
 
       const successParams = new URLSearchParams({
         type: data.type,

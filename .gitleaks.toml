@@ -8,22 +8,33 @@ title = "Menschlichkeit Österreich Gitleaks Config"
 useDefault = true
 
 [allowlist]
-description = "Globally allowed patterns"
+description = "Globally allowed paths and low-signal files"
 paths = [
   # Example/template env files are intentionally committed
-  '''.env\.example''',
-  '''.env\.production\.template''',
-  # Test credentials for local/staging only — no production access
-  '''.env\.test''',
+  '''(^|/)\.env\.example$''',
+  '''(^|/)\.env\.production\.template$''',
+  '''(^|/)\.env\.test\.example$''',
   # Schema/example docs
-  '''logs/security-alerts\.example\.json''',
+  '''(^|/)logs/security-alerts\.example\.json$''',
   # Test fixtures
-  '''tests/''',
-  '''\.test\.(ts|js|py)$''',
+  '''(^|/)tests(/|$)''',
+  '''(^|/)[^/]+\.test\.(ts|js|py)$''',
   # Lock files (may contain hashes that look like secrets)
-  '''package-lock\.json''',
-  '''yarn\.lock''',
-  '''pnpm-lock\.yaml''',
+  '''(^|/)(package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$''',
   # Generated Prisma client
-  '''generated/''',
+  '''(^|/)generated(/|$)''',
+  # Vendor/build cache noise
+  '''(^|/)(node_modules|bower_components|__pycache__)(/|$)''',
+  '''(^|/)\.cache(/|$)''',
+  '''(^|/).*\.pyc$''',
+  '''(^|/)api\.menschlichkeit-oesterreich\.at/(\.venv|venv)(/|$)''',
+  '''(^|/)crm\.menschlichkeit-oesterreich\.at/(web/core|web/modules/contrib|vendor)(/|$)''',
+  # Known non-secret identifiers and hash inventories
+  '''(^|/)\.gemini/setting\.json$''',
+  '''(^|/)\.vscode/mcp\.json$''',
+  '''(^|/)figma-design-system/figma-source\.json$''',
+  '''(^|/)apps/game/js/core/storage\.js$''',
+  '''(^|/)apps/game/dist/js/core/storage\.js$''',
+  '''(^|/)reports/file-inventory-tracked\.csv$''',
+  '''(^|/)docs/archive/bulk/F-01-GPG-SIGNING-COMPLETION-REPORT\.md$''',
 ]

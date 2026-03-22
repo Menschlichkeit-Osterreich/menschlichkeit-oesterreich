@@ -45,10 +45,13 @@ apps/website/.vite/
 .env.*.decrypted
 *.env.*
 
-# Exception: Allow .env.example template and test credentials
-!.env.test
+# Exception: allow tracked templates
 !.env.example
 !.env.production.template
+!.env.test.example
+!**/.env.example
+!**/.env.production.template
+!**/.env.test.example
 
 # SOPS decrypted files
 *.decrypted
@@ -329,6 +332,30 @@ junit.xml
 coverage-report/
 
 # ========================================
+# Generated Reports & Session Artifacts
+# ========================================
+# AI/tool-generated reports (regenerierbar, nicht versionieren)
+.project-structure.md
+.complexity-log.md
+.todos-report.md
+.session-summary.md
+.pair-programming-session.md
+
+# Build & analysis reports
+build-report.json
+codacy-analysis.sarif
+multi-service-status-*.json
+
+# Cleanup artifacts
+_clean_deleted-*.csv
+_scan_hits.txt
+
+# Misc artifacts
+MOVES.csv
+TRASHLIST.csv
+Untitled-*.ipynb
+
+# ========================================
 # Project Specific
 # ========================================
 # MCP Server specific
@@ -451,6 +478,10 @@ crm.menschlichkeit-oesterreich.at/web/core/modules/**/tests/**/README.md
 !.env.project
 !.env.example
 !.env.production.template
+!.env.test.example
+!**/.env.example
+!**/.env.production.template
+!**/.env.test.example
 # OpenClaw – lokale Konfiguration (niemals einchecken)
 .openclaw/
 automation/openclaw/.env

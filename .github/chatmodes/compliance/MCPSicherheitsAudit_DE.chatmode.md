@@ -126,7 +126,7 @@ COMPLIANCE GATES:
 Via Filesystem MCP - Auth Flow Analysis:
 □ JWT Tokens: Secure generation/validation?
   → "Find all JWT sign/verify operations"
-□ Password Hashing: bcrypt/argon2 used?
+□ Password Hashing: bcrypt oder argon2 used?
   → "Search for password hash algorithms"
 □ Session Management: Secure cookies?
   → "Find all session/cookie configurations"

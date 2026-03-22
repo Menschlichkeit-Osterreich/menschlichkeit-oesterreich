@@ -366,7 +366,7 @@ public function testDictSanitizationDrop() {
     $input = [
         'username' => 'john_doe',
         'password' => 'secret123',  // Will be dropped
-        'api_key' => 'ABC123DEF456',  // Will be dropped
+        'api_key' => 'EXAMPLE_API_KEY',  // Will be dropped
         'email' => 'john@example.com',
     ];
 

@@ -45,7 +45,7 @@ rate_limiter = InMemoryRateLimiter(
 
 
 def require_jwt_secret_configured() -> None:
-    jwt_secret = os.getenv("JWT_SECRET_KEY")
+    jwt_secret = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET")
     if not jwt_secret:
         raise RuntimeError("JWT_SECRET_KEY environment variable is required")
 

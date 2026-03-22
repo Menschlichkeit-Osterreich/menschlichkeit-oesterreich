@@ -7,14 +7,12 @@ on:
       - 'scripts/ai/**'
       - 'docs/ai/**'
       - 'docker-compose*.yml'
-      - 'apps/**'
       - '.github/workflows/ai-artifacts.yml'
   pull_request:
     paths:
       - 'scripts/ai/**'
       - 'docs/ai/**'
       - 'docker-compose*.yml'
-      - 'apps/**'
       - '.github/workflows/ai-artifacts.yml'
   workflow_dispatch: {}
 

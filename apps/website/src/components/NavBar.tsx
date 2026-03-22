@@ -102,7 +102,7 @@ const MITMACHEN_ITEMS = [
 ];
 
 function CoreNavLinks({ onSelect }: { onSelect?: () => void }) {
-  const { token, isAdmin } = useAuth();
+  const { token, hasBackofficeAccess } = useAuth();
   return (
     <>
       <NavLink to="/" onClick={onSelect}>Home</NavLink>
@@ -111,13 +111,13 @@ function CoreNavLinks({ onSelect }: { onSelect?: () => void }) {
       <NavLink to="/veranstaltungen" onClick={onSelect}>Veranstaltungen</NavLink>
       <NavLink to="/spiel" onClick={onSelect}>Demokratiespiel</NavLink>
       {token && <NavLink to="/member" onClick={onSelect}>Mitgliederbereich</NavLink>}
-      {token && isAdmin && <NavLink to="/admin" onClick={onSelect}>Admin</NavLink>}
+      {token && hasBackofficeAccess && <NavLink to="/admin" onClick={onSelect}>Backoffice</NavLink>}
     </>
   );
 }
 
 export default function NavBar() {
-  const { token, logout, isAdmin } = useAuth();
+  const { token, logout, hasBackofficeAccess } = useAuth();
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const menuRef = React.useRef<HTMLDivElement | null>(null);
@@ -226,9 +226,9 @@ export default function NavBar() {
                     <Link role="menuitem" className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-secondary-700 hover:bg-secondary-50 transition-colors" to="/account/privacy" onClick={() => setMenuOpen(false)}>
                       <span aria-hidden="true" className="text-base">🔒</span> Datenschutz
                     </Link>
-                    {isAdmin && (
+                    {hasBackofficeAccess && (
                       <Link role="menuitem" className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-secondary-700 hover:bg-secondary-50 transition-colors" to="/admin/queue" onClick={() => setMenuOpen(false)}>
-                        <span aria-hidden="true" className="text-base">⚙️</span> Admin
+                        <span aria-hidden="true" className="text-base">⚙️</span> Backoffice
                       </Link>
                     )}
                   </div>

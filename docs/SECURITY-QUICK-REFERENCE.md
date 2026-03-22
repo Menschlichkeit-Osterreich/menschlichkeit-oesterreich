@@ -103,7 +103,7 @@ except (ValueError, KeyError) as e:
 
 ❌ **UNSICHER:**
 ```python
-API_KEY = "sk-1234567890abcdef"  # Im Code gespeichert
+API_KEY = "EXAMPLE_API_KEY"  # Im Code gespeichert
 ```
 
 ✅ **SICHER:**

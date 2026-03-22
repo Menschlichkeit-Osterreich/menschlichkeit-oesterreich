@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '@/constants/api';
+import { STORAGE_KEYS } from '@/constants/storage';
 export default function Register() {
   const _navigate = useNavigate();
   const [form, setForm] = useState({
@@ -40,7 +42,7 @@ export default function Register() {
 
     setLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/auth/register`, {
+      const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -54,7 +56,7 @@ export default function Register() {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.detail || 'Registrierung fehlgeschlagen');
       if (data?.data?.token) {
-        sessionStorage.setItem('moe_auth_token', data.data.token);
+        sessionStorage.setItem(STORAGE_KEYS.authToken, data.data.token);
         window.location.href = '/member/onboarding';
       }
     } catch (err: any) {

@@ -7,7 +7,6 @@ import { Breadcrumb } from '../components/ui/Breadcrumb';
 import JsonLdBreadcrumb from '../components/seo/JsonLdBreadcrumb';
 import JsonLdFaq from '../components/seo/JsonLdFaq';
 import { api } from '../services/api';
-import { useAuth } from '../auth/AuthContext';
 import { getStripe, createStripeIntent, createPayPalOrder, capturePayPalOrder } from '../services/payments';
 import { PayPalScriptProvider, PayPalButtons as PayPalButtonsReact } from '@paypal/react-paypal-js';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -54,7 +53,6 @@ const FAQ_ITEMS = [
 ];
 
 export default function DonatePage() {
-  const { token } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [firstName, setFirstName] = React.useState('');
@@ -108,7 +106,7 @@ export default function DonatePage() {
     let cancelled = false;
     const t = setTimeout(async () => {
       try {
-        const res = await createStripeIntent({ amount, currency: 'EUR', email, purpose, financial_type: financialType }, token || undefined);
+        const res = await createStripeIntent({ amount, currency: 'EUR', email, purpose, financial_type: financialType });
         const cs = (res.data as any)?.client_secret || null;
         if (!cancelled) {
           piCacheRef.current = { key, cs };
@@ -119,7 +117,7 @@ export default function DonatePage() {
       }
     }, 600);
     return () => { cancelled = true; clearTimeout(t); };
-  }, [instrument, amount, email, purpose, token, financialType]);
+  }, [instrument, amount, email, purpose, financialType]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -128,17 +126,10 @@ export default function DonatePage() {
     setMessage(null);
     setError(null);
     try {
-      // 1) Ensure contact exists via register (idempotent on email)
-      const reg = await api.auth.register({ email, first_name: firstName, last_name: lastName });
-      const tokens = (reg.data as any)?.tokens;
-      if (!tokens?.token) throw new Error('Registrierung fehlgeschlagen');
-      sessionStorage.setItem('moe_auth_token', tokens.token);
-
-      // 2) PSP flows
       if (['eps', 'sofort'].includes(instrument)) {
         const stripe = await getStripe();
         if (!stripe) throw new Error('Stripe nicht verfügbar');
-        const init = await createStripeIntent({ amount, currency: 'EUR', email, purpose, method: instrument as any, financial_type: financialType }, tokens.token);
+        const init = await createStripeIntent({ amount, currency: 'EUR', email, purpose, method: instrument as any, financial_type: financialType });
         const clientSecret = (init.data as any)?.client_secret;
         if (!clientSecret) throw new Error('Payment Intent fehlgeschlagen');
         const return_url = window.location.href;
@@ -151,7 +142,7 @@ export default function DonatePage() {
       if (instrument === 'sepa') {
         const stripe = await getStripe();
         if (!stripe) throw new Error('Stripe nicht verfügbar');
-        const init = await createStripeIntent({ amount, currency: 'EUR', email, purpose, method: 'sepa', financial_type: financialType }, tokens.token);
+        const init = await createStripeIntent({ amount, currency: 'EUR', email, purpose, method: 'sepa', financial_type: financialType });
         const clientSecret = (init.data as any)?.client_secret;
         const result = await stripe.confirmSepaDebitPayment(clientSecret, {
           payment_method: {
@@ -182,7 +173,6 @@ export default function DonatePage() {
           tribute_name: tribute || undefined,
           payment_instrument: instrument,
         },
-        tokens.token
       );
 
       setMessage('Vielen Dank für Ihre Unterstützung! Bestätigung erfolgt per E‑Mail.');
@@ -347,7 +337,7 @@ export default function DonatePage() {
                     style={{ layout: 'vertical' }}
                     createOrder={async () => {
                       try {
-                        const order = await createPayPalOrder({ amount, currency: 'EUR', email, purpose }, token || undefined);
+                        const order = await createPayPalOrder({ amount, currency: 'EUR', email, purpose });
                         return (order.data as any)?.id;
                       } catch (e: any) {
                         setError(e?.message || 'PayPal Order fehlgeschlagen');
@@ -356,7 +346,7 @@ export default function DonatePage() {
                     }}
                     onApprove={async (data) => {
                       try {
-                        await capturePayPalOrder({ order_id: (data as any).orderID, email, purpose }, token || undefined);
+                        await capturePayPalOrder({ order_id: (data as any).orderID, email, purpose });
                         setMessage('PayPal Zahlung erfasst. Vielen Dank!');
                       } catch (e: any) {
                         setError(e?.message || 'PayPal Capture fehlgeschlagen');

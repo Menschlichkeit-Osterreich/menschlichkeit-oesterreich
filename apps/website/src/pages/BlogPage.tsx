@@ -14,7 +14,8 @@ interface BlogArticle {
   og_image: string | null;
 }
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+import { API_BASE_URL } from '@/constants/api';
+const API_BASE = API_BASE_URL;
 const QUICK_LINKS = [
   { to: '/themen', label: 'Themenübersicht' },
   { to: '/veranstaltungen', label: 'Veranstaltungen' },

@@ -1,5 +1,34 @@
 <?php
 
+if (!function_exists('moe_env')) {
+    function moe_env(string $name, ?string $default = null): ?string {
+        $value = getenv($name);
+        if ($value === false || $value === '') {
+            return $default;
+        }
+        return $value;
+    }
+}
+
+$civicrm_db_host = moe_env('CIVICRM_DB_HOST', 'localhost');
+$civicrm_db_port = moe_env('CIVICRM_DB_PORT', '3306');
+$civicrm_db_name = moe_env('CIVICRM_DB_NAME', 'CHANGE_ME_CIVICRM_DB_NAME');
+$civicrm_db_user = moe_env('CIVICRM_DB_USER', 'CHANGE_ME_CIVICRM_DB_USER');
+$civicrm_db_pass = moe_env('CIVICRM_DB_PASS', 'CHANGE_ME_CIVICRM_DB_PASS');
+$civicrm_baseurl = rtrim(moe_env('CIVICRM_BASE_URL', 'https://crm.menschlichkeit-oesterreich.at/'), '/') . '/';
+$civicrm_root = rtrim(
+    moe_env('CIVICRM_ROOT', '/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/crm/httpdocs/'),
+    '/'
+) . '/';
+$civicrm_dsn = sprintf(
+    'mysql://%s:%s@%s:%s/%s?new_link=true',
+    $civicrm_db_user,
+    $civicrm_db_pass,
+    $civicrm_db_host,
+    $civicrm_db_port,
+    $civicrm_db_name
+);
+
 /**
  * =============================================================================
  * 🏥 CIVICRM CONFIGURATION - crm.menschlichkeit-oesterreich.at
@@ -15,21 +44,21 @@
  * 🗄️ CIVICRM DATABASE CONFIGURATION
  * =============================================================================
  */
-define('CIVICRM_DSN', 'mysql://civicrm_user:yFNhGHHcvU2Tw7BeSBgKwkFGxr@localhost:3306/mo_civicrm_data?new_link=true');
-define('CIVICRM_DB_HOST', 'localhost');
-define('CIVICRM_DB_PORT', '3306');
-define('CIVICRM_DB_NAME', 'mo_civicrm_data');
-define('CIVICRM_DB_USER', 'civicrm_user');
-define('CIVICRM_DB_PASS', 'yFNhGHHcvU2Tw7BeSBgKwkFGxr');
+define('CIVICRM_DSN', $civicrm_dsn);
+define('CIVICRM_DB_HOST', $civicrm_db_host);
+define('CIVICRM_DB_PORT', $civicrm_db_port);
+define('CIVICRM_DB_NAME', $civicrm_db_name);
+define('CIVICRM_DB_USER', $civicrm_db_user);
+define('CIVICRM_DB_PASS', $civicrm_db_pass);
 
 /**
  * =============================================================================
  * 🔐 CIVICRM SECURITY CONFIGURATION
  * =============================================================================
  */
-define('CIVICRM_SITE_KEY', hash('sha256', 'mo_civicrm_' . date('Y')));
-define('CIVICRM_CRED_KEYS', hash('sha256', 'mo_creds_' . date('Ymd')));
-define('CIVICRM_SIGN_KEYS', hash('sha256', 'mo_sign_' . date('YmdH')));
+define('CIVICRM_SITE_KEY', moe_env('CIVICRM_SITE_KEY', 'CHANGE_ME_CIVICRM_SITE_KEY'));
+define('CIVICRM_CRED_KEYS', moe_env('CIVICRM_CRED_KEYS', 'CHANGE_ME_CIVICRM_CRED_KEYS'));
+define('CIVICRM_SIGN_KEYS', moe_env('CIVICRM_SIGN_KEYS', 'CHANGE_ME_CIVICRM_SIGN_KEYS'));
 
 /**
  * =============================================================================
@@ -37,11 +66,10 @@ define('CIVICRM_SIGN_KEYS', hash('sha256', 'mo_sign_' . date('YmdH')));
  * =============================================================================
  */
 define('CIVICRM_UF', 'Drupal');
-define('CIVICRM_UF_DSN', 'mysql://civicrm_user:yFNhGHHcvU2Tw7BeSBgKwkFGxr@localhost:3306/mo_civicrm_data?new_link=true');
-define('CIVICRM_UF_BASEURL', 'https://crm.menschlichkeit-oesterreich.at/');
+define('CIVICRM_UF_DSN', $civicrm_dsn);
+define('CIVICRM_UF_BASEURL', $civicrm_baseurl);
 
 // Plesk-spezifische Pfade
-$civicrm_root = '/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/crm/httpdocs/';
 define('CIVICRM_TEMPLATE_COMPILEDIR', $civicrm_root . 'sites/default/files/civicrm/templates_c/');
 
 /**
@@ -54,7 +82,7 @@ define('CIVICRM_MAIL_LOG', 1);
 
 // SMTP Configuration über Plesk
 define('CIVICRM_MAILER_BOUNCE_PROCESSING', 1);
-define('CIVICRM_MAILING_BASE_URL', 'https://crm.menschlichkeit-oesterreich.at/');
+define('CIVICRM_MAILING_BASE_URL', $civicrm_baseurl);
 
 /**
  * =============================================================================
@@ -62,9 +90,9 @@ define('CIVICRM_MAILING_BASE_URL', 'https://crm.menschlichkeit-oesterreich.at/')
  * =============================================================================
  */
 // Integration mit anderen Subdomains
-define('CIVICRM_API_MAIN_SITE', 'https://menschlichkeit-oesterreich.at');
-define('CIVICRM_API_ENDPOINT', 'https://api.menschlichkeit-oesterreich.at');
-define('CIVICRM_GAMING_INTEGRATION', 'https://games.menschlichkeit-oesterreich.at');
+define('CIVICRM_API_MAIN_SITE', moe_env('MAIN_SITE_URL', 'https://menschlichkeit-oesterreich.at'));
+define('CIVICRM_API_ENDPOINT', moe_env('API_BASE_URL', 'https://api.menschlichkeit-oesterreich.at'));
+define('CIVICRM_GAMING_INTEGRATION', moe_env('GAMES_BASE_URL', 'https://games.menschlichkeit-oesterreich.at'));
 
 /**
  * =============================================================================
@@ -72,10 +100,10 @@ define('CIVICRM_GAMING_INTEGRATION', 'https://games.menschlichkeit-oesterreich.a
  * =============================================================================
  */
 define('CIVICRM_DB_CACHE_CLASS', 'CRM_Utils_Cache_Memcache');
-define('CIVICRM_DB_CACHE_HOST', 'localhost');
-define('CIVICRM_DB_CACHE_PORT', 11211);
-define('CIVICRM_DB_CACHE_TIMEOUT', 3600);
-define('CIVICRM_DB_CACHE_PREFIX', 'mo_civicrm_');
+define('CIVICRM_DB_CACHE_HOST', moe_env('CIVICRM_CACHE_HOST', 'localhost'));
+define('CIVICRM_DB_CACHE_PORT', (int) moe_env('CIVICRM_CACHE_PORT', '11211'));
+define('CIVICRM_DB_CACHE_TIMEOUT', (int) moe_env('CIVICRM_CACHE_TIMEOUT', '3600'));
+define('CIVICRM_DB_CACHE_PREFIX', moe_env('CIVICRM_CACHE_PREFIX', 'mo_civicrm_'));
 
 /**
  * =============================================================================
@@ -93,7 +121,7 @@ ini_set('error_log', $civicrm_root . 'sites/default/files/civicrm/ConfigAndLog/C
  * 📊 EXTENSIONS & CUSTOMIZATION
  * =============================================================================
  */
-define('CIVICRM_EXTENSIONS_BASE_URL', 'https://crm.menschlichkeit-oesterreich.at/sites/default/files/civicrm/ext/');
+define('CIVICRM_EXTENSIONS_BASE_URL', $civicrm_baseurl . 'sites/default/files/civicrm/ext/');
 define('CIVICRM_EXTENSIONS_BASE_DIR', $civicrm_root . 'sites/default/files/civicrm/ext/');
 
 /**
@@ -111,8 +139,8 @@ define('CIVICRM_DEFAULT_CURRENCY', 'EUR');
  * =============================================================================
  */
 define('CIVICRM_CMSDIR', $civicrm_root);
-define('CIVICRM_DOMAIN_ID', 1);
-define('CIVICRM_DOMAIN_ORG_URL', 'https://menschlichkeit-oesterreich.at');
+define('CIVICRM_DOMAIN_ID', (int) moe_env('CIVICRM_DOMAIN_ID', '1'));
+define('CIVICRM_DOMAIN_ORG_URL', moe_env('MAIN_SITE_URL', 'https://menschlichkeit-oesterreich.at'));
 
 /**
  * =============================================================================
@@ -121,7 +149,7 @@ define('CIVICRM_DOMAIN_ORG_URL', 'https://menschlichkeit-oesterreich.at');
  */
 define('CIVICRM_API_KEYS', 1);
 define('CIVICRM_WEBHOOK_ENABLED', 1);
-define('CIVICRM_WEBHOOK_URL', 'https://api.menschlichkeit-oesterreich.at/webhooks/civicrm');
+define('CIVICRM_WEBHOOK_URL', moe_env('CIVICRM_WEBHOOK_URL', 'https://api.menschlichkeit-oesterreich.at/webhooks/civicrm'));
 
 /**
  * =============================================================================
@@ -129,7 +157,7 @@ define('CIVICRM_WEBHOOK_URL', 'https://api.menschlichkeit-oesterreich.at/webhook
  * =============================================================================
  */
 define('CIVICRM_BACKUP_DIR', $civicrm_root . 'sites/default/files/civicrm/backup/');
-define('CIVICRM_BACKUP_RETENTION_DAYS', 30);
+define('CIVICRM_BACKUP_RETENTION_DAYS', (int) moe_env('CIVICRM_BACKUP_RETENTION_DAYS', '30'));
 
 /**
  * =============================================================================

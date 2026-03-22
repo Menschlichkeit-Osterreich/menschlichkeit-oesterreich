@@ -26,7 +26,6 @@ export default defineConfig(({ isSsrBuild }) => ({
           ? undefined
           : {
               react: ['react', 'react-dom'],
-              three: ['three', '@react-three/fiber', '@react-three/drei'],
             },
       },
     },
