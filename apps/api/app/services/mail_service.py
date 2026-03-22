@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 import os
 import re
@@ -8,6 +9,8 @@ from dataclasses import dataclass
 from email.message import EmailMessage
 from pathlib import Path
 from typing import Any
+
+_SMTP_MAX_RETRIES = 3
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -52,6 +55,13 @@ class MailService:
             "password_reset": MailTemplate("password_reset_email.html", "Passwort zurücksetzen", "Hier finden Sie Ihren Link zur Passwortwiederherstellung."),
             "contact_confirmation": MailTemplate("contact_confirmation.html", "Ihre Nachricht ist bei uns eingegangen", "Danke für Ihre Nachricht."),
             "admin_alert": MailTemplate("admin_alert.html", "Interne Benachrichtigung", "Es liegt ein neuer Vorgang vor."),
+            "invoice": MailTemplate("invoice_email.html", "Ihre Rechnung von Menschlichkeit Österreich", "Bitte überweisen Sie den fälligen Mitgliedsbeitrag."),
+            "dunning": MailTemplate("dunning_email.html", "Zahlungserinnerung – Menschlichkeit Österreich", "Es besteht noch ein offener Betrag."),
+            "donation_failed": MailTemplate("donation_failed.html", "Ihre Zahlung konnte nicht verarbeitet werden", "Bitte versuchen Sie die Zahlung erneut."),
+            "admin_new_donation": MailTemplate("admin_new_donation.html", "Neue Spende eingegangen", "Eine neue Spende wurde verarbeitet."),
+            "admin_new_registration": MailTemplate("admin_new_registration.html", "Neue Registrierung", "Ein neues Konto wurde angelegt."),
+            "opt_out_confirmed": MailTemplate("opt_out_confirmed.html", "Ihre Abmeldung wurde bestätigt", "Ihre Abmeldung wurde erfolgreich verarbeitet."),
+            "recurring_donation_problem": MailTemplate("recurring_donation_problem.html", "Problem mit Ihrer Dauerspende", "Bei Ihrer Dauerspende ist ein Problem aufgetreten."),
         }
 
     def _render(self, template_id: str, context: dict[str, Any]) -> tuple[str, str, str]:
@@ -113,16 +123,30 @@ class MailService:
             subject = subject_override
 
         provider = "smtp" if self._smtp_enabled() else "log-only"
-        try:
-            if self._smtp_enabled():
-                message = EmailMessage()
-                message["Subject"] = subject
-                message["From"] = f"{MAIL_FROM_NAME} <{MAIL_FROM_ADDRESS}>"
-                message["To"] = recipient_email
-                message["Reply-To"] = MAIL_REPLY_TO_ADDRESS
-                message.set_content(text)
-                message.add_alternative(html, subtype="html")
 
+        if not self._smtp_enabled():
+            await self.log_email(
+                recipient_email=recipient_email,
+                subject=subject,
+                template_name=template_id,
+                entity_type=entity_type,
+                entity_id=entity_id,
+                status="logged",
+                provider=provider,
+            )
+            return True
+
+        message = EmailMessage()
+        message["Subject"] = subject
+        message["From"] = f"{MAIL_FROM_NAME} <{MAIL_FROM_ADDRESS}>"
+        message["To"] = recipient_email
+        message["Reply-To"] = MAIL_REPLY_TO_ADDRESS
+        message.set_content(text)
+        message.add_alternative(html, subtype="html")
+
+        last_exc: Exception | None = None
+        for attempt in range(_SMTP_MAX_RETRIES):
+            try:
                 if SMTP_ENCRYPTION.lower() == "ssl":
                     with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT) as smtp:
                         smtp.login(self.smtp_user, self.smtp_password)
@@ -135,30 +159,40 @@ class MailService:
                             smtp.ehlo()
                         smtp.login(self.smtp_user, self.smtp_password)
                         smtp.send_message(message)
+                await self.log_email(
+                    recipient_email=recipient_email,
+                    subject=subject,
+                    template_name=template_id,
+                    entity_type=entity_type,
+                    entity_id=entity_id,
+                    status="sent",
+                    provider=provider,
+                )
+                return True
+            except Exception as exc:
+                last_exc = exc
+                logger.warning(
+                    "email_send_attempt_failed | template=%s | recipient=%s | attempt=%d/%d | error=%s",
+                    template_id, recipient_email, attempt + 1, _SMTP_MAX_RETRIES, exc,
+                )
+                if attempt < _SMTP_MAX_RETRIES - 1:
+                    await asyncio.sleep(2 ** attempt)
 
-            await self.log_email(
-                recipient_email=recipient_email,
-                subject=subject,
-                template_name=template_id,
-                entity_type=entity_type,
-                entity_id=entity_id,
-                status="sent" if self._smtp_enabled() else "logged",
-                provider=provider,
-            )
-            return True
-        except Exception as exc:
-            logger.warning("email_send_failed | template=%s | recipient=%s | error=%s", template_id, recipient_email, exc)
-            await self.log_email(
-                recipient_email=recipient_email,
-                subject=subject,
-                template_name=template_id,
-                entity_type=entity_type,
-                entity_id=entity_id,
-                status="failed",
-                provider=provider,
-                error_message=str(exc),
-            )
-            return False
+        logger.error(
+            "email_send_failed_all_retries | template=%s | recipient=%s | error=%s",
+            template_id, recipient_email, last_exc,
+        )
+        await self.log_email(
+            recipient_email=recipient_email,
+            subject=subject,
+            template_name=template_id,
+            entity_type=entity_type,
+            entity_id=entity_id,
+            status="failed",
+            provider=provider,
+            error_message=str(last_exc),
+        )
+        return False
 
 
 mail_service = MailService()
