@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 interface Props {
   children: React.ReactNode;
+  section?: string;
 }
 
 interface State {
@@ -33,7 +34,9 @@ export default class ErrorBoundary extends Component<Props, State> {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Etwas ist schiefgelaufen</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              {this.props.section ? `${this.props.section}: Fehler aufgetreten` : 'Etwas ist schiefgelaufen'}
+            </h1>
             <p className="text-gray-600 mb-6">
               Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.
             </p>

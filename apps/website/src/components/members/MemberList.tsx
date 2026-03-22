@@ -64,8 +64,8 @@ export function MemberList({ onMemberSelect }: MemberListProps) {
       const memberData = data.data?.contacts || [];
       setMembers(memberData);
       setFilteredMembers(memberData);
-    } catch (err: any) {
-      setError(err.message || 'Fehler beim Laden der Mitglieder');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Fehler beim Laden der Mitglieder');
     } finally {
       setLoading(false);
     }

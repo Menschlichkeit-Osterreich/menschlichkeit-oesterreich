@@ -3,13 +3,29 @@ import { http } from '../../services/http';
 import { Card } from '../ui/Card';
 import { Alert } from '../ui/Alert';
 
+interface EventItem {
+  id: string | number;
+  title?: string;
+  titel?: string;
+  start_date?: string;
+  start_datum?: string;
+  end_date?: string;
+  end_datum?: string;
+  location?: string;
+  ort?: string;
+  description?: string;
+  beschreibung?: string;
+  max_participants?: number;
+  max_teilnehmer?: number;
+}
+
 interface EventsListProps {
   limit?: number;
   className?: string;
 }
 
 export function EventsList({ limit = 6, className = '' }: EventsListProps) {
-  const [events, setEvents] = useState<any[]>([]);
+  const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,7 +33,7 @@ export function EventsList({ limit = 6, className = '' }: EventsListProps) {
     const fetchEvents = async () => {
       setLoading(true);
       try {
-        const result = await http.get<{ success: boolean; data: any[] }>(`/api/events?page_size=${limit}`);
+        const result = await http.get<{ success: boolean; data: EventItem[] }>(`/api/events?page_size=${limit}`);
         setEvents((result.data || []).slice(0, limit));
       } catch (err: unknown) {
         setError(`Veranstaltungen konnten nicht geladen werden: ${err instanceof Error ? err.message : ''}`);
@@ -60,10 +76,10 @@ export function EventsList({ limit = 6, className = '' }: EventsListProps) {
         <Card key={event.id} className="p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
           <div>
             <span className="text-xs font-medium text-primary-600 uppercase tracking-wide">
-              {formatDate(event.start_date || event.start_datum)}
+              {formatDate(event.start_date ?? event.start_datum ?? '')}
             </span>
             {(event.end_date || event.end_datum) && (event.end_date || event.end_datum) !== (event.start_date || event.start_datum) && (
-              <span className="text-xs text-secondary-500"> – {formatDate(event.end_date || event.end_datum)}</span>
+              <span className="text-xs text-secondary-500"> – {formatDate(event.end_date ?? event.end_datum ?? '')}</span>
             )}
           </div>
           <h3 className="font-semibold text-base leading-snug">{event.title || event.titel}</h3>

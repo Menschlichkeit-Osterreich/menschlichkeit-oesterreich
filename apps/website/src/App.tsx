@@ -8,6 +8,7 @@ import DashboardLayout from './layouts/DashboardLayout';
 import SettingsLayout from './layouts/SettingsLayout';
 import Login from './pages/Login';
 import SkipLink from './components/SkipLink';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const Home                    = React.lazy(() => import('./pages/Home'));
 const UeberUns                = React.lazy(() => import('./pages/UeberUns'));
@@ -94,10 +95,10 @@ export default function App() {
             <Route path="/veranstaltungen" element={<Veranstaltungen />} />
             <Route path="/bildung" element={<Bildung />} />
             <Route path="/materialien" element={<Materialien />} />
-            <Route path="/mitglied-werden" element={<JoinPage />} />
-            <Route path="/mitglied-werden/danke" element={<MembershipSuccessPage />} />
-            <Route path="/spenden" element={<DonatePage />} />
-            <Route path="/erfolg" element={<SuccessPage />} />
+            <Route path="/mitglied-werden" element={<ErrorBoundary section="Mitgliedschaft"><JoinPage /></ErrorBoundary>} />
+            <Route path="/mitglied-werden/danke" element={<ErrorBoundary section="Mitgliedschaft"><MembershipSuccessPage /></ErrorBoundary>} />
+            <Route path="/spenden" element={<ErrorBoundary section="Spenden"><DonatePage /></ErrorBoundary>} />
+            <Route path="/erfolg" element={<ErrorBoundary section="Spenden"><SuccessPage /></ErrorBoundary>} />
             <Route path="/spiel" element={<SpielPage />} />
             <Route path="/kontakt" element={<KontaktPage />} />
             <Route path="/impressum" element={<ImpressumPage />} />
@@ -116,14 +117,14 @@ export default function App() {
 
           <Route path="/registrieren" element={<Register />} />
 
-          <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+          <Route element={<ErrorBoundary section="Mitgliederbereich"><ProtectedRoute><DashboardLayout /></ProtectedRoute></ErrorBoundary>}>
             <Route path="/member" element={<MemberArea />} />
             <Route path="/member/profil" element={<MemberArea />} />
             <Route path="/member/dashboard" element={<MemberDashboard />} />
             <Route path="/member/onboarding" element={<MemberOnboarding />} />
           </Route>
 
-          <Route element={<AdminRoute><DashboardLayout /></AdminRoute>}>
+          <Route element={<ErrorBoundary section="Administration"><AdminRoute><DashboardLayout /></AdminRoute></ErrorBoundary>}>
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/vorstand" element={<BoardTreasurerDashboard />} />

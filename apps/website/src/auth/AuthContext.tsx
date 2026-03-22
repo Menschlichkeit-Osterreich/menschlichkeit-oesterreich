@@ -21,6 +21,7 @@ const STORAGE_KEY = 'moe_auth_token';
 interface JwtPayload {
   sub?: string;
   role?: UserRole;
+  exp?: number;
   [key: string]: unknown;
 }
 
@@ -35,6 +36,12 @@ function parseJwtPayload(t?: string | null): JwtPayload | null {
   }
 }
 
+function isTokenExpired(t: string): boolean {
+  const payload = parseJwtPayload(t);
+  if (!payload?.exp) return false;
+  return payload.exp * 1000 < Date.now();
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -42,20 +49,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const t = sessionStorage.getItem(STORAGE_KEY);
-    if (t) {
-      setToken(t);
-      const payload = parseJwtPayload(t);
-      setUserEmail(typeof payload?.sub === 'string' ? payload.sub : null);
-      setUserRole((payload?.role as UserRole) || 'member');
-    }
-    setUnauthorizedHandler(() => {
+    let expiryTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const doLogout = () => {
       sessionStorage.removeItem(STORAGE_KEY);
       setToken(null);
       setUserEmail(null);
       setUserRole('guest');
+    };
+
+    if (t && !isTokenExpired(t)) {
+      setToken(t);
+      const payload = parseJwtPayload(t);
+      setUserEmail(typeof payload?.sub === 'string' ? payload.sub : null);
+      setUserRole((payload?.role as UserRole) || 'member');
+      if (payload?.exp) {
+        const msUntilExpiry = payload.exp * 1000 - Date.now();
+        if (msUntilExpiry > 0) {
+          expiryTimer = setTimeout(doLogout, msUntilExpiry);
+        }
+      }
+    } else if (t) {
+      // Token abgelaufen — still aufräumen
+      sessionStorage.removeItem(STORAGE_KEY);
+    }
+
+    setUnauthorizedHandler(() => {
+      doLogout();
       try { window.location.assign('/login'); } catch { /* navigation fallback */ }
     });
-    return () => setUnauthorizedHandler(null);
+    return () => {
+      setUnauthorizedHandler(null);
+      if (expiryTimer) clearTimeout(expiryTimer);
+    };
   }, []);
 
   useEffect(() => {
