@@ -1,4 +1,5 @@
 import { apiClient, ApiResponse } from './client';
+import { STORAGE_KEYS } from '@/constants/storage';
 
 // Auth Types
 export interface User {
@@ -79,7 +80,14 @@ class AuthService {
 
   // Register
   async register(data: RegisterData): Promise<ApiResponse<{ user: User }>> {
-    return apiClient.post<ApiResponse<{ user: User }>>('/auth/register', data);
+    return apiClient.post<ApiResponse<{ user: User }>>('/auth/register', {
+      email: data.email,
+      password: data.password,
+      first_name: data.firstName,
+      last_name: data.lastName,
+      accept_terms: data.acceptTerms,
+      accept_privacy: data.acceptPrivacy,
+    });
   }
 
   // Logout
@@ -92,8 +100,8 @@ class AuthService {
     } finally {
       this.currentUser = null;
       apiClient.setToken(null);
-      localStorage.removeItem('refresh_token');
-      localStorage.removeItem('auth_token');
+      localStorage.removeItem(STORAGE_KEYS.refreshToken);
+      localStorage.removeItem(STORAGE_KEYS.authToken);
     }
   }
 
@@ -104,7 +112,7 @@ class AuthService {
 
   // Refresh Token
   async refreshToken(): Promise<boolean> {
-    const refreshToken = localStorage.getItem('refresh_token');
+    const refreshToken = localStorage.getItem(STORAGE_KEYS.refreshToken);
     if (!refreshToken) return false;
 
     try {
@@ -247,7 +255,7 @@ class AuthService {
 
   // Check Authentication Status
   isAuthenticated(): boolean {
-    return this.currentUser !== null && !!localStorage.getItem('auth_token');
+    return this.currentUser !== null && !!localStorage.getItem(STORAGE_KEYS.authToken);
   }
 
   // Check User Role
@@ -267,7 +275,7 @@ class AuthService {
 
   // Initialize from stored token
   async initializeFromToken(): Promise<boolean> {
-    const token = localStorage.getItem('auth_token');
+    const token = localStorage.getItem(STORAGE_KEYS.authToken);
     if (!token) return false;
 
     try {

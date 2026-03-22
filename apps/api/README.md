@@ -6,7 +6,7 @@ Backend-API für das Dashboard Vorstand/Kassier mit 5 KPI-Endpoints.
 
 ```bash
 # 1. Python Virtual Environment
-cd api/fastapi
+cd apps/api
 python -m venv .venv
 source .venv/bin/activate  # Linux/Mac
 # ODER: .venv\Scripts\Activate.ps1  # Windows
@@ -16,13 +16,13 @@ pip install -r requirements.txt
 
 # 3. Environment konfigurieren
 cp .env.example .env
-# .env bearbeiten: DATABASE_URL mit echten Credentials
+# .env bearbeiten: DATABASE_URL, JWT_SECRET_KEY und Integrationen setzen
 
 # 4. Server starten
-uvicorn app.main:app --host 0.0.0.0 --port 8080 --reload
+uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
 ```
 
-Server läuft unter: **http://localhost:8080**
+Server läuft unter: **http://localhost:8001**
 
 ## 📋 API Endpoints
 
@@ -157,13 +157,14 @@ api/fastapi/
 
 ## 🔐 Environment Variables
 
-Siehe `.env.example`:
+Siehe `apps/api/.env.example`:
 
 ```bash
 DATABASE_URL=postgresql://USER:PASS@HOST:5432/DBNAME
-APP_PORT=8080
-APP_ENV=development
-JWT_SECRET=your-jwt-secret  # Optional, falls Auth benötigt
+ENVIRONMENT=development
+JWT_SECRET_KEY=your-jwt-secret-key
+MOE_API_TOKEN=your-internal-bearer-token
+N8N_WEBHOOK_SECRET=your-hmac-secret
 ```
 
 ## 🚢 Production Deployment

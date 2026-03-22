@@ -6,6 +6,7 @@ import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Alert } from '../ui/Alert';
 import { useAuth } from '../../auth/AuthContext';
+import { API_BASE_URL } from '@/constants/api';
 
 interface Member {
   id: number;
@@ -51,7 +52,7 @@ export function MemberDetail({ member, onClose, onUpdate }: MemberDetailProps) {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/memberships/contact/${member.id}`,
+        `${API_BASE_URL}/memberships/contact/${member.id}`,
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -82,7 +83,7 @@ export function MemberDetail({ member, onClose, onUpdate }: MemberDetailProps) {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/contacts/${member.id}`,
+        `${API_BASE_URL}/contacts/${member.id}`,
         {
           method: 'PUT',
           headers: {

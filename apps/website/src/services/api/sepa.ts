@@ -1,4 +1,5 @@
 import { apiClient, ApiResponse, PaginatedResponse } from './client';
+import { STORAGE_KEYS } from '@/constants/storage';
 
 // SEPA Types
 export interface SepaMandate {
@@ -116,7 +117,7 @@ class SepaService {
   async downloadMandatePdf(mandateId: string): Promise<Blob> {
     const response = await fetch(`${apiClient['baseURL']}/sepa/mandates/${mandateId}/pdf`, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+        Authorization: `Bearer ${localStorage.getItem(STORAGE_KEYS.authToken)}`,
       },
     });
 

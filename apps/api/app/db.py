@@ -1,9 +1,14 @@
-"""Database connection pool for asyncpg (PostgreSQL)."""
+"""Database connection helpers for asyncpg (PostgreSQL)."""
 import os
+from contextlib import asynccontextmanager
+from pathlib import Path
+
 import asyncpg
 from dotenv import load_dotenv
 
-load_dotenv()
+_ENV_PATH = Path(__file__).resolve().parents[1] / ".env"
+if _ENV_PATH.exists():
+    load_dotenv(_ENV_PATH)
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
@@ -49,3 +54,20 @@ async def execute(query: str, *args):
     pool = await get_pool()
     async with pool.acquire() as conn:
         return await conn.execute(query, *args)
+
+
+@asynccontextmanager
+async def connection():
+    """Yield a pooled connection for multi-step operations."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        yield conn
+
+
+@asynccontextmanager
+async def transaction():
+    """Yield a connection wrapped in a database transaction."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            yield conn

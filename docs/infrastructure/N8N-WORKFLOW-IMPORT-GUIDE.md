@@ -119,7 +119,7 @@ uvicorn app.main:app --reload --port 8000
 
 # In anderem Terminal: Request deletion
 curl -X POST http://localhost:8000/privacy/data-deletion \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Authorization: Bearer <JWT_ACCESS_TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{"reason": "Test deletion", "scope": "full"}'
 ```

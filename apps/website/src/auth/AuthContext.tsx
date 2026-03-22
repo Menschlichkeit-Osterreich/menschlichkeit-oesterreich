@@ -2,13 +2,14 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from '
 import { api } from '../services/api';
 import { setUnauthorizedHandler } from '../services/http';
 
-type UserRole = 'guest' | 'member' | 'moderator' | 'admin' | 'sysadmin';
+type UserRole = 'guest' | 'member' | 'moderator' | 'staff' | 'finance' | 'admin' | 'sysadmin';
 
 type AuthState = {
   token: string | null;
   userEmail: string | null;
   userRole: UserRole;
   isAdmin: boolean;
+  hasBackofficeAccess: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 };
@@ -64,12 +65,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [token]);
 
   const isAdmin = userRole === 'admin' || userRole === 'sysadmin';
+  const hasBackofficeAccess =
+    userRole === 'staff' ||
+    userRole === 'finance' ||
+    userRole === 'admin' ||
+    userRole === 'sysadmin';
 
   const value = useMemo<AuthState>(() => ({
     token,
     userEmail,
     userRole,
     isAdmin,
+    hasBackofficeAccess,
     async login(email: string, password: string) {
       const res = await api.login(email, password);
       const t = res?.data?.token as string | undefined;
@@ -86,7 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUserEmail(null);
       setUserRole('guest');
     },
-  }), [token, userEmail, userRole, isAdmin]);
+  }), [token, userEmail, userRole, isAdmin, hasBackofficeAccess]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

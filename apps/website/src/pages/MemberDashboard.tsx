@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { dashboardApi } from '../services/dashboard-api';
+import { API_BASE_URL } from '@/constants/api';
 
 interface Badge {
   id: string;
@@ -61,7 +62,7 @@ const FALLBACK_ACTIVITIES: Activity[] = [
   { id: 1, type: 'event', title: 'Willkommen bei Menschlichkeit \u00D6sterreich', date: new Date().toISOString().split('T')[0], xp: 100, icon: '\uD83C\uDF1F' },
 ];
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE = API_BASE_URL;
 
 interface KpiOverview {
   mitglieder_gesamt: number;

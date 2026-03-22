@@ -1,5 +1,6 @@
 export const SITE_NAME = 'Menschlichkeit Österreich';
 export const SITE_URL = 'https://www.menschlichkeit-oesterreich.at';
+export const GAMES_SITE_URL = 'https://games.menschlichkeit-oesterreich.at';
 export const SITE_LANGUAGE = 'de-AT';
 export const SITE_LOCALE = 'de_AT';
 export const SITE_DESCRIPTION =

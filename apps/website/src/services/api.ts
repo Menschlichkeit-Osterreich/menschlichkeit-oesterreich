@@ -7,7 +7,7 @@ export interface HealthResponse {
 }
 
 const baseApi = {
-  health: () => http.get<HealthResponse>('/health'),
+  health: () => http.get<HealthResponse>('/healthz'),
   login: (email: string, password: string) =>
     http.post<LoginResponse>('/api/auth/login', { email, password }),
 };
@@ -69,36 +69,36 @@ export interface DeletionRequestItem {
 
 export const apiPaths = {
   contacts: {
-    create: '/contacts/create',
-    search: '/contacts/search',
+    create: '/api/contacts/create',
+    search: '/api/contacts/search',
   },
   memberships: {
-    create: '/memberships/create',
+    create: '/api/memberships/create',
   },
   auth: {
     register: '/api/auth/register',
   },
   contributions: {
-    create: '/contributions/create',
-    recur: '/contributions/recur',
+    create: '/api/contributions/create',
+    recur: '/api/contributions/recur',
   },
   queue: {
-    stats: '/queue/stats',
-    dlqList: '/queue/dlq/list',
-    dlqRequeue: '/queue/dlq/requeue',
-    dlqPurge: '/queue/dlq/purge',
+    stats: '/api/queue/stats',
+    dlqList: '/api/queue/dlq/list',
+    dlqRequeue: '/api/queue/dlq/requeue',
+    dlqPurge: '/api/queue/dlq/purge',
   },
 } as const;
 
 export const api = {
   ...baseApi,
   contacts: {
-    create: (payload: CreateContactRequest, token: string) =>
-      http.post<ApiResponse>(apiPaths.contacts.create, payload, { token }),
-    search: (email: string | undefined, token: string) =>
+    create: (payload: CreateContactRequest, token?: string) =>
+      http.post<ApiResponse>(apiPaths.contacts.create, payload, token ? { token } : {}),
+    search: (email: string | undefined, token?: string) =>
       http.get<ApiResponse>(
         `${apiPaths.contacts.search}${email ? `?email=${encodeURIComponent(email)}` : ''}`,
-        { token }
+        token ? { token } : {}
       ),
   },
   auth: {
@@ -106,8 +106,8 @@ export const api = {
       http.post<RegisterResponse>(apiPaths.auth.register, payload),
   },
   memberships: {
-    create: (payload: CreateMembershipRequest, token: string) =>
-      http.post<ApiResponse>(apiPaths.memberships.create, payload, { token }),
+    create: (payload: CreateMembershipRequest, token?: string) =>
+      http.post<ApiResponse>(apiPaths.memberships.create, payload, token ? { token } : {}),
   },
   contributions: {
     create: (
@@ -122,8 +122,8 @@ export const api = {
         tribute_name?: string | null;
         payment_instrument: 'bank_transfer' | 'sepa' | 'visa' | 'mastercard' | 'amex' | 'paypal' | 'apple_pay' | 'google_pay' | 'eps' | 'sofort' | 'revolut' | 'wise' | 'pos' | 'cash';
       },
-      token: string
-    ) => http.post<ApiResponse>(apiPaths.contributions.create, payload, { token }),
+      token?: string
+    ) => http.post<ApiResponse>(apiPaths.contributions.create, payload, token ? { token } : {}),
     recur: (
       payload: {
         email?: string;
@@ -135,8 +135,8 @@ export const api = {
         purpose?: string | null;
         payment_instrument: 'sepa' | 'visa' | 'mastercard' | 'amex' | 'paypal';
       },
-      token: string
-    ) => http.post<ApiResponse>(apiPaths.contributions.recur, payload, { token }),
+      token?: string
+    ) => http.post<ApiResponse>(apiPaths.contributions.recur, payload, token ? { token } : {}),
   },
   queue: {
     stats: (token: string) => http.get<ApiResponse>(apiPaths.queue.stats, { token }),
@@ -149,9 +149,13 @@ export const api = {
   },
   privacy: {
     requestDeletion: (payload: DataDeletionCreateRequest, token: string) =>
-      http.post<ApiResponse>(`/privacy/data-deletion`, payload, { token }),
+      http.post<ApiResponse>(`/api/privacy/data-deletion`, payload, { token }),
     listDeletions: (token: string) =>
-      http.get<ApiResponse<{ requests: DeletionRequestItem[] }>>(`/privacy/data-deletion`, { token }),
+      http.get<ApiResponse<{ requests: DeletionRequestItem[] }>>(`/api/privacy/data-deletion`, { token }),
+  },
+  newsletter: {
+    subscribe: (payload: { email: string; first_name?: string; last_name?: string; consent: boolean }) =>
+      http.post<ApiResponse>('/api/newsletter/subscribe', payload),
   },
 
   // ── FastAPI v2 endpoints (/api/*) ─────────────────────────────────────────

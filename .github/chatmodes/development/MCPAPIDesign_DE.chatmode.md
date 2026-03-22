@@ -441,7 +441,7 @@ Content-Type: application/json
 
 Response:
 {
-  "access_token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+  "access_token": "<JWT_ACCESS_TOKEN>",
   "token_type": "bearer"
 }
 

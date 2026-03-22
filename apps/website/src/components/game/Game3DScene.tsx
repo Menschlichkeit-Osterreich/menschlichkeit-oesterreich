@@ -1,131 +1,84 @@
-import React, { useRef, useMemo, Suspense } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Float, Environment } from '@react-three/drei';
-import * as THREE from 'three';
-
-interface Bridge3DProps {
+interface Game3DSceneProps {
   progress?: number;
   onInteract?: () => void;
 }
 
-function BridgeSegment({ index, total, built }: { index: number; total: number; built: boolean }) {
-  const x1 = -2 + (4 * index) / total;
-  const x2 = -2 + (4 * (index + 1)) / total;
-  const xMid = (x1 + x2) / 2;
-  const y = Math.sin(((index + 0.5) / total) * Math.PI) * 0.3;
-  const width = (x2 - x1) * 1.05;
+const THEMENWELTEN = [
+  'Gemeinde',
+  'Schule',
+  'Arbeit',
+  'Medien',
+  'Umwelt',
+  'Digital',
+];
 
-  if (!built) return null;
-
+export default function Game3DScene({ progress = 0, onInteract }: Game3DSceneProps) {
   return (
-    <mesh position={[xMid, y, 0]}>
-      <boxGeometry args={[width, 0.1, 0.4]} />
-      <meshStandardMaterial color="#c81919" metalness={0.3} roughness={0.6} />
-    </mesh>
-  );
-}
-
-function Pillar({ x }: { x: number }) {
-  return (
-    <mesh position={[x, -0.25, 0]}>
-      <boxGeometry args={[0.3, 0.5, 0.4]} />
-      <meshStandardMaterial color="#6b5b50" roughness={0.8} />
-    </mesh>
-  );
-}
-
-function Water() {
-  const meshRef = useRef<THREE.Mesh>(null);
-
-  useFrame(({ clock }) => {
-    if (meshRef.current) {
-      meshRef.current.position.y = -0.75 + Math.sin(clock.elapsedTime * 0.8) * 0.02;
-    }
-  });
-
-  return (
-    <mesh ref={meshRef} position={[0, -0.75, 0]} rotation={[-Math.PI / 12, 0, 0]}>
-      <planeGeometry args={[6, 1, 16, 4]} />
-      <meshStandardMaterial
-        color="#2563eb"
-        transparent
-        opacity={0.7}
-        metalness={0.4}
-        roughness={0.2}
-        side={THREE.DoubleSide}
-      />
-    </mesh>
-  );
-}
-
-function BridgeScene({ progress }: { progress: number }) {
-  const groupRef = useRef<THREE.Group>(null);
-  const segCount = 20;
-  const builtSegs = Math.floor(segCount * Math.min(progress / 100, 1));
-
-  useFrame(({ clock }) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.y = Math.sin(clock.elapsedTime * 0.3) * 0.1;
-    }
-  });
-
-  const segments = useMemo(() => {
-    return Array.from({ length: segCount }, (_, i) => (
-      <BridgeSegment key={i} index={i} total={segCount} built={i < builtSegs} />
-    ));
-  }, [builtSegs, segCount]);
-
-  return (
-    <Float speed={1.5} rotationIntensity={0.1} floatIntensity={0.3}>
-      <group ref={groupRef}>
-        {segments}
-        <Pillar x={-2.15} />
-        <Pillar x={2.15} />
-        <Water />
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[3, 5, 2]} intensity={1} castShadow />
-        <pointLight position={[-3, 2, 4]} intensity={0.4} color="#ff9040" />
-      </group>
-    </Float>
-  );
-}
-
-export default function Game3DScene({ progress = 0, onInteract }: Bridge3DProps) {
-  return (
-    <div
-      className="relative w-full rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-800"
-      style={{ aspectRatio: '16/9' }}
+    <button
+      type="button"
+      onClick={onInteract}
+      className="group relative w-full overflow-hidden rounded-[28px] border border-white/15 bg-slate-950/90 text-left shadow-2xl transition-transform hover:-translate-y-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+      style={{
+        aspectRatio: '16 / 10',
+        backgroundImage:
+          'radial-gradient(circle at top right, rgba(56,189,248,0.25), transparent 28%), radial-gradient(circle at left center, rgba(239,68,68,0.24), transparent 24%), linear-gradient(135deg, rgba(15,23,42,0.98), rgba(2,6,23,0.92))',
+      }}
+      aria-label="Babylon.js-Spiel auf games.menschlichkeit-oesterreich.at öffnen"
     >
-      <Canvas
-        camera={{ position: [0, 0.5, 4], fov: 45 }}
-        onClick={onInteract}
-        style={{ cursor: 'pointer' }}
-        gl={{ antialias: true, alpha: true }}
-      >
-        <Suspense fallback={null}>
-          <BridgeScene progress={progress} />
-          <Environment preset="sunset" />
-        </Suspense>
-      </Canvas>
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4 pointer-events-none">
-        <div className="flex items-center justify-between">
+      <div aria-hidden="true" className="absolute inset-0">
+        <div className="absolute left-[12%] right-[12%] top-[38%] h-3 rounded-full bg-gradient-to-r from-rose-500 via-orange-400 to-sky-400 shadow-[0_0_48px_rgba(56,189,248,0.35)]" />
+        <div className="absolute left-[22%] right-[22%] top-[14%] h-40 rounded-t-[999px] border-2 border-white/15 border-b-0" />
+        <div className="absolute left-[18%] top-[28%] h-28 w-28 rounded-full bg-rose-500/20 blur-3xl" />
+        <div className="absolute right-[16%] top-[16%] h-32 w-32 rounded-full bg-sky-400/20 blur-3xl" />
+      </div>
+
+      <div className="relative flex h-full flex-col justify-between p-6">
+        <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="text-white font-semibold text-sm">Brücken Bauen</h3>
-            <p className="text-white/70 text-xs">Demokratie-Lernspiel in 3D</p>
+            <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/80">
+              Babylon.js Preview
+            </span>
+            <h3 className="mt-4 text-2xl font-black text-white">Brücken Bauen in 3D</h3>
+            <p className="mt-2 max-w-sm text-sm leading-6 text-white/75">
+              Zehn Themenwelten, sechs Rollen und ein klarer demokratischer Lernpfad auf der Games-Subdomain.
+            </p>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="bg-white/20 rounded-full px-3 py-1">
-              <span className="text-white text-xs font-medium">{Math.round(progress)}% Fortschritt</span>
+          <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-2xl text-white shadow-lg">
+            🌉
+          </span>
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex flex-wrap gap-2">
+            {THEMENWELTEN.map((welt) => (
+              <span
+                key={welt}
+                className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-white/70"
+              >
+                {welt}
+              </span>
+            ))}
+          </div>
+
+          <div>
+            <div className="mb-2 flex items-center justify-between text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
+              <span>Projektfortschritt</span>
+              <span>{Math.round(progress)}%</span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-white/10">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-rose-500 via-orange-400 to-sky-400 transition-all duration-500"
+                style={{ width: `${Math.min(progress, 100)}%` }}
+              />
             </div>
           </div>
-        </div>
-        <div className="mt-2 h-1.5 bg-white/20 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-gradient-to-r from-red-500 to-orange-400 rounded-full transition-all duration-500"
-            style={{ width: `${Math.min(progress, 100)}%` }}
-          />
+
+          <div className="flex items-center justify-between text-sm text-white/75">
+            <span>Startet auf games.menschlichkeit-oesterreich.at</span>
+            <span className="font-semibold text-white group-hover:translate-x-1 transition-transform">Spiel öffnen →</span>
+          </div>
         </div>
       </div>
-    </div>
+    </button>
   );
 }

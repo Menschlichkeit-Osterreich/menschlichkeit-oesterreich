@@ -14,10 +14,20 @@ from typing import Optional
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from .lib.token_blacklist import is_token_revoked
+
 logger = logging.getLogger("menschlichkeit.rbac")
 
-_jwt_secret_raw = os.getenv("JWT_SECRET_KEY", "")
-_is_production = os.getenv("APP_ENV", "production") == "production"
+_jwt_secret_raw = os.getenv("JWT_SECRET_KEY", "").strip()
+if not _jwt_secret_raw:
+    _jwt_secret_raw = os.getenv("JWT_SECRET", "").strip()
+    if _jwt_secret_raw:
+        logger.warning("JWT_SECRET ist veraltet – bitte JWT_SECRET_KEY verwenden.")
+
+_environment = os.getenv("ENVIRONMENT", "").strip() or os.getenv("APP_ENV", "").strip() or "development"
+if os.getenv("APP_ENV", "").strip() and not os.getenv("ENVIRONMENT", "").strip():
+    logger.warning("APP_ENV ist veraltet – bitte ENVIRONMENT verwenden.")
+_is_production = _environment == "production"
 if not _jwt_secret_raw:
     if os.getenv("REPLIT_DEV_DOMAIN") and not _is_production:
         _jwt_secret_raw = "replit-dev-only-not-for-production"
@@ -28,7 +38,7 @@ if not _jwt_secret_raw:
             "Bitte setzen Sie einen sicheren Schlüssel (mind. 32 Zeichen) bevor Sie die API starten."
         )
 JWT_SECRET: str = _jwt_secret_raw
-JWT_ALGORITHM = "HS256"
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 JWT_EXPIRY_SECONDS = 3600
 
 security_scheme = HTTPBearer(auto_error=False)
@@ -119,6 +129,11 @@ async def get_current_user(
 ) -> Optional[dict]:
     if not credentials:
         return None
+    if is_token_revoked(credentials.credentials):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token wurde widerrufen",
+        )
     payload = decode_jwt(credentials.credentials)
     if not payload:
         raise HTTPException(
@@ -135,6 +150,11 @@ async def require_auth(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentifizierung erforderlich",
+        )
+    if is_token_revoked(credentials.credentials):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token wurde widerrufen",
         )
     payload = decode_jwt(credentials.credentials)
     if not payload:
@@ -153,6 +173,11 @@ def require_role(minimum_role: Role):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Authentifizierung erforderlich",
+            )
+        if is_token_revoked(credentials.credentials):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token wurde widerrufen",
             )
         payload = decode_jwt(credentials.credentials)
         if not payload:

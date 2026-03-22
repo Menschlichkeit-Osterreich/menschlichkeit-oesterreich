@@ -71,6 +71,72 @@ class CiviCRMService:
             return contact
         return None
 
+    async def list_contacts(self, limit: int = 5000) -> List[Dict[str, Any]]:
+        """Ruft Kontakte für interne Cockpit-Ansichten ab."""
+        result = await self._request("Contact", "get", {
+            "where": [["is_deleted", "=", False]],
+            "select": [
+                "id",
+                "display_name",
+                "sort_name",
+                "contact_type",
+                "first_name",
+                "last_name",
+                "email_primary.email",
+                "phone_primary.phone",
+                "address_primary.street_address",
+                "address_primary.city",
+                "address_primary.postal_code",
+            ],
+            "limit": limit,
+        })
+        contacts = result.get("values", [])
+        for contact in contacts:
+            contact["email"] = contact.get("email_primary.email", "")
+            contact["phone"] = contact.get("phone_primary.phone", "")
+            contact["city"] = contact.get("address_primary.city", "")
+            contact["postal_code"] = contact.get("address_primary.postal_code", "")
+            contact["street_address"] = contact.get("address_primary.street_address", "")
+            contact["display_name"] = contact.get("display_name") or " ".join(
+                part for part in [contact.get("first_name", ""), contact.get("last_name", "")] if part
+            ).strip()
+        contacts.sort(key=lambda item: (item.get("display_name") or item.get("sort_name") or "").casefold())
+        return contacts
+
+    async def get_contact_detail(self, contact_id: int) -> Optional[Dict[str, Any]]:
+        """Ruft einen Kontakt inklusive Adressdaten ab."""
+        result = await self._request("Contact", "get", {
+            "where": [["id", "=", contact_id]],
+            "select": [
+                "id",
+                "display_name",
+                "sort_name",
+                "contact_type",
+                "first_name",
+                "last_name",
+                "email_primary.email",
+                "phone_primary.phone",
+                "address_primary.street_address",
+                "address_primary.city",
+                "address_primary.postal_code",
+                "source",
+            ],
+            "limit": 1,
+        })
+        values = result.get("values", [])
+        if not values:
+            return None
+        contact = values[0]
+        contact["email"] = contact.get("email_primary.email", "")
+        contact["phone"] = contact.get("phone_primary.phone", "")
+        contact["city"] = contact.get("address_primary.city", "")
+        contact["postal_code"] = contact.get("address_primary.postal_code", "")
+        contact["street_address"] = contact.get("address_primary.street_address", "")
+        contact["display_name"] = contact.get("display_name") or " ".join(
+            part for part in [contact.get("first_name", ""), contact.get("last_name", "")] if part
+        ).strip()
+        return contact
+
     async def get_contacts_by_group(self, group_name: str) -> List[Dict[str, Any]]:
         """Ruft alle Kontakte einer bestimmten Gruppe ab."""
         result = await self._request("Contact", "get", {
@@ -160,6 +226,25 @@ class CiviCRMService:
         values = result.get("values", [])
         return values[0] if values else None
 
+    async def get_memberships_for_contact(self, contact_id: int, limit: int = 25) -> List[Dict[str, Any]]:
+        """Ruft die Mitgliedschaftshistorie eines Kontakts ab."""
+        result = await self._request("Membership", "get", {
+            "where": [["contact_id", "=", contact_id]],
+            "select": [
+                "id",
+                "membership_type_id.name",
+                "status_id:name",
+                "join_date",
+                "start_date",
+                "end_date",
+                "source",
+            ],
+            "limit": limit,
+        })
+        values = result.get("values", [])
+        values.sort(key=lambda item: item.get("start_date") or "", reverse=True)
+        return values
+
     async def renew_membership(self, membership_id: int) -> bool:
         """Verlängert eine bestehende Mitgliedschaft um ein Jahr."""
         membership = await self._request("Membership", "get", {
@@ -211,6 +296,48 @@ class CiviCRMService:
         })
         values = result.get("values", [{}])
         return float(values[0].get("total", 0.0)) if values else 0.0
+
+    async def get_contributions_for_contact(self, contact_id: int, limit: int = 50) -> List[Dict[str, Any]]:
+        """Ruft Contributions/Spenden für einen Kontakt ab."""
+        result = await self._request("Contribution", "get", {
+            "where": [["contact_id", "=", contact_id]],
+            "select": [
+                "id",
+                "total_amount",
+                "currency",
+                "financial_type_id:name",
+                "contribution_status_id:name",
+                "receive_date",
+                "source",
+                "trxn_id",
+            ],
+            "limit": limit,
+        })
+        values = result.get("values", [])
+        values.sort(key=lambda item: item.get("receive_date") or "", reverse=True)
+        return values
+
+    async def get_event_participations_for_contact(self, contact_id: int, limit: int = 25) -> List[Dict[str, Any]]:
+        """Ruft Event-Teilnahmen eines Kontakts ab."""
+        result = await self._request("Participant", "get", {
+            "where": [["contact_id", "=", contact_id]],
+            "select": [
+                "id",
+                "status_id:name",
+                "role_id:name",
+                "register_date",
+                "event_id",
+                "event_id.title",
+                "event_id.start_date",
+                "event_id.end_date",
+                "event_id.event_type_id:name",
+                "event_id.is_active",
+            ],
+            "limit": limit,
+        })
+        values = result.get("values", [])
+        values.sort(key=lambda item: item.get("event_id.start_date") or "", reverse=True)
+        return values
 
     # ── Newsletter-Gruppen ────────────────────────────────────────────────────
 

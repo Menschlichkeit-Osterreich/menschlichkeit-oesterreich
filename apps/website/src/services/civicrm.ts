@@ -4,8 +4,10 @@
  * Base URL is configured via VITE_CIVICRM_BASE_URL in .env files.
  */
 
-const BASE_URL = import.meta.env.VITE_CIVICRM_BASE_URL ?? 'https://crm.menschlichkeit-oesterreich.at';
-const API_ENDPOINT = import.meta.env.VITE_CIVICRM_API_ENDPOINT ?? '/api/v4';
+import { CIVICRM_BASE_URL, CIVICRM_API_ENDPOINT } from '@/constants/api';
+
+const BASE_URL = CIVICRM_BASE_URL;
+const API_ENDPOINT = CIVICRM_API_ENDPOINT;
 
 // ============================================================
 // Types

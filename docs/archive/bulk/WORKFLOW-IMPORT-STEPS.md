@@ -182,14 +182,14 @@ open http://localhost:5678
 
 ```bash
 openssl rand -hex 32
-# Kopiere Output: z.B. "a1b2c3d4e5f6..."
+# Kopiere Output: z.B. "EXAMPLE_WEBHOOK_SECRET"
 ```
 
 **Schritt 2:** In n8n setzen
 
 ```bash
 # Füge zu .env hinzu
-echo 'N8N_WEBHOOK_SECRET="a1b2c3d4e5f6..."' >> automation/n8n/.env
+echo 'N8N_WEBHOOK_SECRET="EXAMPLE_WEBHOOK_SECRET"' >> automation/n8n/.env
 
 # n8n neu starten
 docker-compose -f automation/n8n/docker-compose.yml restart
@@ -199,7 +199,7 @@ docker-compose -f automation/n8n/docker-compose.yml restart
 
 ```bash
 # Füge zu API .env hinzu
-echo 'N8N_WEBHOOK_SECRET="a1b2c3d4e5f6..."' >> api.menschlichkeit-oesterreich.at/.env
+echo 'N8N_WEBHOOK_SECRET="EXAMPLE_WEBHOOK_SECRET"' >> apps/api/.env
 ```
 
 ✅ **Jetzt:** Alle Webhooks werden mit HMAC-SHA256 signiert!
@@ -275,7 +275,7 @@ curl -X POST http://localhost:8000/auth/login \
 
 ```bash
 curl -X POST http://localhost:8000/privacy/data-deletion \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE" \
+  -H "Authorization: Bearer <JWT_ACCESS_TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{
     "reason": "GDPR Art. 17 - Right to be forgotten",

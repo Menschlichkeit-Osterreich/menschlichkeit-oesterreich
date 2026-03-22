@@ -252,13 +252,13 @@ Sentry.io → Create Project → Platform: Python (FastAPI) / JavaScript (React)
 #### GPG_PRIVATE_KEY (CI)
 ```yaml
 KEY: GPG_PRIVATE_KEY
-VALUE: -----BEGIN PGP PRIVATE KEY BLOCK----- ... -----END PGP PRIVATE KEY BLOCK-----
+VALUE: <ARMORED_PRIVATE_KEY_REDACTED>
 SOURCE: Generiert via gpg --full-generate-key (CI-spezifischer Key!)
 PURPOSE: Signierung von Git Commits/Tags in CI/CD
 SCOPE: CI (GitHub Actions)
 NOTES: NIEMALS persönlichen GPG-Key für CI verwenden!
 ROTATION: Alle 2 Jahre (Key-Expiry setzen)
-VALIDATION: ^-----BEGIN PGP PRIVATE KEY BLOCK-----
+VALIDATION: ^<ARMORED_PRIVATE_KEY_REDACTED>$
 SECURITY: Nur in GitHub Secrets speichern, niemals in .env/.env.vault
 ```
 

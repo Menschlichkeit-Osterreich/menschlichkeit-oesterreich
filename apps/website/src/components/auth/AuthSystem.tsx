@@ -591,17 +591,7 @@ export const AuthSystem: React.FC<{
       throw new Error('E-Mail-Adresse bereits registriert');
     }
 
-    // Create new user (will be handled by API in production)
-    console.log('Creating user:', {
-      id: Date.now().toString(),
-      email: data.email,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      role: 'member',
-      emailVerified: false,
-      twoFactorEnabled: false,
-      createdAt: new Date(),
-    });
+    // TODO: Replace with actual API call in production
 
     setMode('verify-email');
   };

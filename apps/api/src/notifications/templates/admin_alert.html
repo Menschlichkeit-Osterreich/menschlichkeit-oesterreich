@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="de">
+  <body style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.6;">
+    <p style="display:none;max-height:0;overflow:hidden;">{{ preheader }}</p>
+    <h1>{{ title or "Interne Benachrichtigung" }}</h1>
+    <div>{{ body_html | safe }}</div>
+    {% if related_id %}
+    <p>Referenz: {{ related_id }}</p>
+    {% endif %}
+  </body>
+</html>

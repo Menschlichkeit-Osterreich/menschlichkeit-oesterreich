@@ -161,7 +161,7 @@ curl -u "$DRUPAL_ADMIN_USER:$DRUPAL_ADMIN_PASS" \
 
 | Key | Beschreibung | Herkunft | Sensitivität | Rotation | Ablage | Prüfmethode | Rollen |
 |-----|--------------|----------|--------------|----------|--------|-------------|--------|
-| `ELASTIC_PASSWORD` | Elasticsearch Built-in User Password | Docker Setup | kritisch | 90 Tage | dotenv-vault | `curl -u elastic:PASS http://localhost:9200/_cluster/health` | Owner: Tech-Lead |
+| `ELASTIC_PASSWORD` | Elasticsearch Built-in User Password | Docker Setup | kritisch | 90 Tage | dotenv-vault | `curl -u "$ELASTIC_BASIC_AUTH" http://localhost:9200/_cluster/health` | Owner: Tech-Lead |
 | `KIBANA_SYSTEM_PASSWORD` | Kibana System User Password | Elasticsearch Setup | kritisch | 90 Tage | dotenv-vault | Kibana Startup Logs | Owner: Tech-Lead |
 | `CLUSTER_NAME` | Elasticsearch Cluster Name | Config | niedrig | Nie (nur bei Migration) | .env.example | `curl http://localhost:9200` → `cluster_name` | Reader: CI/CD |
 

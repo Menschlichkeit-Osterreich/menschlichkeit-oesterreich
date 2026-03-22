@@ -5,6 +5,7 @@ import { Input } from '../ui/Input';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { useAuth } from '../../auth/AuthContext';
+import { API_BASE_URL } from '@/constants/api';
 
 interface Member {
   id: number;
@@ -48,7 +49,7 @@ export function MemberList({ onMemberSelect }: MemberListProps) {
     
     try {
       // API-Call to get all contacts with memberships
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/contacts/search`, {
+      const response = await fetch(`${API_BASE_URL}/contacts/search`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',

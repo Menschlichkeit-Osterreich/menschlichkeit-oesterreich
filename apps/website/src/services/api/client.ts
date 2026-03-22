@@ -1,5 +1,5 @@
-// API Base Configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8001/api/v1';
+import { API_V2_URL } from '@/constants/api';
+import { STORAGE_KEYS } from '@/constants/storage';
 
 // API Response Types
 export interface ApiResponse<T = unknown> {
@@ -32,21 +32,21 @@ class ApiClient {
   private readonly baseURL: string;
   private token: string | null = null;
 
-  constructor(baseURL: string = API_BASE_URL) {
+  constructor(baseURL: string = API_V2_URL) {
     this.baseURL = baseURL;
     this.token = this.getStoredToken();
   }
 
   private getStoredToken(): string | null {
-    return localStorage.getItem('auth_token');
+    return localStorage.getItem(STORAGE_KEYS.authToken);
   }
 
   setToken(token: string | null): void {
     this.token = token;
     if (token) {
-      localStorage.setItem('auth_token', token);
+      localStorage.setItem(STORAGE_KEYS.authToken, token);
     } else {
-      localStorage.removeItem('auth_token');
+      localStorage.removeItem(STORAGE_KEYS.authToken);
     }
   }
 
@@ -72,10 +72,15 @@ class ApiClient {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        const message =
+          errorData?.message ||
+          errorData?.error?.message ||
+          errorData?.detail ||
+          `HTTP ${response.status}: ${response.statusText}`;
         throw new ApiError(
-          errorData.message || `HTTP ${response.status}: ${response.statusText}`,
+          message,
           response.status,
-          errorData.code
+          errorData?.code || errorData?.error?.code
         );
       }
 

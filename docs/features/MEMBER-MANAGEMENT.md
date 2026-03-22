@@ -234,11 +234,11 @@ test('Mitglied bearbeiten', async ({ page }) => {
 ```bash
 # Manual Testing
 curl -X GET "http://localhost:8001/contacts/search" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Authorization: Bearer <ACCESS_TOKEN>" \
   -H "Content-Type: application/json"
 
 curl -X PUT "http://localhost:8001/contacts/1" \
-  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Authorization: Bearer <ACCESS_TOKEN>" \
   -H "Content-Type: application/json" \
   -d '{
     "first_name": "Maria",
@@ -368,7 +368,7 @@ curl -X POST "https://crm.menschlichkeit-oesterreich.at/sites/all/modules/civicr
 docker logs moe-api --tail 100 | grep "CiviCRM"
 
 # 3. JWT-Token validieren
-jwt decode YOUR_TOKEN
+jwt decode <ACCESS_TOKEN>
 ```
 
 ### Problem: "Änderungen nicht gespeichert"

@@ -1,5 +1,15 @@
 <?php
 
+if (!function_exists('moe_env')) {
+    function moe_env(string $name, ?string $default = null): ?string {
+        $value = getenv($name);
+        if ($value === false || $value === '') {
+            return $default;
+        }
+        return $value;
+    }
+}
+
 /**
  * =============================================================================
  * 🏥 CRM SUBDOMAIN CONFIGURATION - crm.menschlichkeit-oesterreich.at
@@ -17,16 +27,16 @@
  */
 $databases = [];
 $databases['default']['default'] = array(
-    'database' => 'mo_civicrm_data',
-    'username' => 'civicrm_user',
-    'password' => 'yFNhGHHcvU2Tw7BeSBgKwkFGxr',
+    'database' => moe_env('DRUPAL_DB_NAME', 'CHANGE_ME_DRUPAL_DB_NAME'),
+    'username' => moe_env('DRUPAL_DB_USER', 'CHANGE_ME_DRUPAL_DB_USER'),
+    'password' => moe_env('DRUPAL_DB_PASS', 'CHANGE_ME_DRUPAL_DB_PASS'),
     'prefix' => '',
-    'host' => 'localhost',
-    'port' => '3306',
+    'host' => moe_env('DRUPAL_DB_HOST', 'localhost'),
+    'port' => moe_env('DRUPAL_DB_PORT', '3306'),
     'namespace' => 'Drupal\\mysql\\Driver\\Database\\mysql',
     'driver' => 'mysql',
-    'charset' => 'utf8mb4',
-    'collation' => 'utf8mb4_unicode_ci',
+    'charset' => moe_env('DRUPAL_DB_CHARSET', 'utf8mb4'),
+    'collation' => moe_env('DRUPAL_DB_COLLATE', 'utf8mb4_unicode_ci'),
     'autoload' => 'core/modules/mysql/src/Driver/Database/mysql/',
 );
 
@@ -35,7 +45,7 @@ $databases['default']['default'] = array(
  * 🔐 DRUPAL SECURITY CONFIGURATION
  * =============================================================================
  */
-$settings['hash_salt'] = 'your-unique-hash-salt-here-' . hash('sha256', 'mo_civicrm_data_salt');
+$settings['hash_salt'] = moe_env('DRUPAL_HASH_SALT', 'CHANGE_ME_DRUPAL_HASH_SALT');
 $settings['update_free_access'] = FALSE;
 $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
 
@@ -77,11 +87,11 @@ $settings['trusted_host_patterns'] = [
  * =============================================================================
  */
 $config['system.mail']['interface']['default'] = 'smtp';
-$config['smtp']['smtp_host'] = 'localhost';
-$config['smtp']['smtp_port'] = '587';
-$config['smtp']['smtp_username'] = 'crm@menschlichkeit-oesterreich.at';
-$config['smtp']['smtp_password'] = 'your-email-password-here';
-$config['smtp']['smtp_protocol'] = 'tls';
+$config['smtp']['smtp_host'] = moe_env('DRUPAL_SMTP_HOST', 'localhost');
+$config['smtp']['smtp_port'] = moe_env('DRUPAL_SMTP_PORT', '587');
+$config['smtp']['smtp_username'] = moe_env('DRUPAL_SMTP_USER', 'CHANGE_ME_DRUPAL_SMTP_USER');
+$config['smtp']['smtp_password'] = moe_env('DRUPAL_SMTP_PASS', 'CHANGE_ME_DRUPAL_SMTP_PASS');
+$config['smtp']['smtp_protocol'] = moe_env('DRUPAL_SMTP_PROTOCOL', 'tls');
 
 /**
  * =============================================================================

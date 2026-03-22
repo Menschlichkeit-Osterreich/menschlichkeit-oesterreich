@@ -19,16 +19,16 @@ export async function createStripeIntent(payload: {
   method?: 'card' | 'sepa' | 'eps' | 'sofort';
   financial_type?: 'donation' | 'membership_fee';
 }, token?: string) {
-  const res = await http.post<ApiResponse>('/payments/stripe/intent', payload, token ? { token } : {});
+  const res = await http.post<ApiResponse>('/api/payments/stripe/intent', payload, token ? { token } : {});
   return res;
 }
 
 export async function createPayPalOrder(payload: { amount: number; currency?: string; email?: string; purpose?: string }, token?: string) {
-  const res = await http.post<ApiResponse>('/payments/paypal/order', payload, token ? { token } : {});
+  const res = await http.post<ApiResponse>('/api/payments/paypal/order', payload, token ? { token } : {});
   return res;
 }
 
 export async function capturePayPalOrder(payload: { order_id: string; email?: string; contact_id?: number; purpose?: string }, token?: string) {
-  const res = await http.post<ApiResponse>('/payments/paypal/capture', payload, token ? { token } : {});
+  const res = await http.post<ApiResponse>('/api/payments/paypal/capture', payload, token ? { token } : {});
   return res;
 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { API_V2_URL } from '@/constants/api';
 
 export default function PasswordReset() {
   const [email, setEmail] = useState('');
@@ -12,7 +13,7 @@ export default function PasswordReset() {
     setError('');
     setLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/auth/password-reset`, {
+      const res = await fetch(`${API_V2_URL}/auth/password-reset-request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

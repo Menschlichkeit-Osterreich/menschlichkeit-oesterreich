@@ -723,13 +723,11 @@ export const SecurityDashboard: React.FC = () => {
   };
 
   const handleTerminateSession = (sessionId: string) => {
-    // In production: API call to terminate session
-    console.log('Terminating session:', sessionId);
+    // TODO: API call to terminate session
   };
 
   const handleTerminateAllOthers = () => {
-    // In production: API call to terminate all other sessions
-    console.log('Terminating all other sessions');
+    // TODO: API call to terminate all other sessions
   };
 
   const handleLogFilter = (filter: {
@@ -737,8 +735,7 @@ export const SecurityDashboard: React.FC = () => {
     severity?: string;
     timeRange?: string;
   }) => {
-    // In production: Apply filters to security logs
-    console.log('Applying filter:', filter);
+    // TODO: Apply filters to security logs via API
   };
 
   const handleResolveAlert = (alertId: string) => {

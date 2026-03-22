@@ -2,6 +2,12 @@
 
 Kurzbeschreibung der Änderung und Motivation.
 
+## Status
+
+- `Done:` Was in diesem PR abgeschlossen ist
+- `Blocked:` Was fuer die Vollverifikation oder den Merge noch extern blockiert ist
+- `Pending:` Operative Nacharbeiten oder bewusst ausgegliederte Follow-ups
+
 ## Checkliste
 
 - [ ] Tests hinzugefügt/aktualisiert (Unit/Integration)

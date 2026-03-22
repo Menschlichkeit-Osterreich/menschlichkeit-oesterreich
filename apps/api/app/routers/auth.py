@@ -1,195 +1,300 @@
 from __future__ import annotations
 
 import logging
-import secrets
-from datetime import datetime, timedelta, timezone
-from uuid import uuid4
+from datetime import datetime, timezone
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 
-from ..db import fetch, fetchrow, fetchval, execute
-from ..lib.pii_sanitizer import scrub
-from ..rbac import (
-    ADMIN_EMAILS,
-    Role,
-    create_jwt,
-    hash_password,
-    verify_password,
-)
+from ..db import execute, fetch
+from ..lib.token_blacklist import revoke_token
+from ..rbac import decode_jwt, hash_password, require_auth, verify_password
 from ..schemas.auth import (
     LoginRequest,
     MessageResponse,
     PasswordResetConfirm,
     PasswordResetRequest,
+    RefreshRequest,
     RegisterRequest,
-    TokenData,
-    TokenResponse,
+    VerifyEmailRequest,
 )
+from ..services.member_service import member_service, member_to_user
 
 logger = logging.getLogger("menschlichkeit.auth")
 router = APIRouter()
 
 
-async def _ensure_members_table() -> None:
-    await execute("""
-        CREATE TABLE IF NOT EXISTS members (
-            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            email TEXT UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL,
-            vorname TEXT NOT NULL DEFAULT '',
-            nachname TEXT NOT NULL DEFAULT '',
-            rolle TEXT NOT NULL DEFAULT 'member',
-            mitgliedschaft_typ TEXT NOT NULL DEFAULT 'ordentlich',
-            status TEXT NOT NULL DEFAULT 'Active',
-            joined_at TIMESTAMPTZ DEFAULT NOW(),
-            cancelled_at TIMESTAMPTZ,
-            created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-            updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-        );
-    """)
+def _request_meta(request: Request) -> dict[str, str | None]:
+    return {
+        "ip_address": request.client.host if request.client else None,
+        "user_agent": request.headers.get("User-Agent"),
+    }
 
 
-async def _ensure_password_reset_table() -> None:
-    await execute("""
-        CREATE TABLE IF NOT EXISTS password_reset_tokens (
-            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            email TEXT NOT NULL,
-            token TEXT UNIQUE NOT NULL,
-            expires_at TIMESTAMPTZ NOT NULL,
-            used BOOLEAN DEFAULT FALSE,
-            created_at TIMESTAMPTZ DEFAULT NOW()
-        );
-    """)
+def _ensure_names(body: RegisterRequest) -> tuple[str, str]:
+    first_name = body.first_name or body.firstName or body.vorname or ""
+    last_name = body.last_name or body.lastName or body.nachname or ""
+    if not first_name or not last_name:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Vorname und Nachname sind erforderlich",
+        )
+    return first_name, last_name
 
 
-@router.post("/auth/login", response_model=TokenResponse)
-async def login(body: LoginRequest):
-    await _ensure_members_table()
-    row = await fetchrow(
-        "SELECT id, email, password_hash, rolle, status FROM members WHERE LOWER(email) = LOWER($1)",
-        body.email,
+@router.post("/auth/login")
+async def login(body: LoginRequest, request: Request):
+    payload = await member_service.authenticate(
+        email=body.email,
+        password=body.password,
+        two_factor_code=body.twoFactorCode or body.two_factor_code,
     )
-    if not row:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Ungültige Anmeldedaten")
-
-    row = dict(row)
-    if not verify_password(body.password, row["password_hash"]):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Ungültige Anmeldedaten")
-
-    if row["status"] != "Active":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Konto ist nicht aktiv")
-
-    role = row["rolle"]
-    if body.email.lower() in ADMIN_EMAILS and role not in ("admin", "sysadmin"):
-        role = "admin"
-
-    token = create_jwt({"sub": row["email"], "uid": str(row["id"]), "role": role})
-    logger.info(f"Login erfolgreich: {scrub(row['email'])}")
-    return TokenResponse(data=TokenData(token=token, expires_in=3600))
-
-
-@router.post("/auth/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
-async def register(body: RegisterRequest):
-    await _ensure_members_table()
-    existing = await fetchval("SELECT COUNT(*) FROM members WHERE LOWER(email) = LOWER($1)", body.email)
-    if existing and existing > 0:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="E-Mail-Adresse bereits registriert")
-
-    member_id = str(uuid4())
-    pw_hash = hash_password(body.password)
-
-    role = "admin" if body.email.lower() in ADMIN_EMAILS else "member"
-
-    await execute(
-        """INSERT INTO members (id, email, password_hash, vorname, nachname, rolle, mitgliedschaft_typ)
-           VALUES ($1, $2, $3, $4, $5, $6, $7)""",
-        member_id, body.email.lower(), pw_hash, body.vorname, body.nachname, role, body.mitgliedschaft_typ,
+    await member_service.create_session(
+        member_id=payload["user"]["id"],
+        session_id=payload["sessionId"],
+        refresh_token=payload["refreshToken"],
+        **_request_meta(request),
     )
-
-    token = create_jwt({"sub": body.email.lower(), "uid": member_id, "role": role})
-    logger.info(f"Registrierung erfolgreich: {scrub(body.email)}")
-    return TokenResponse(data=TokenData(token=token, expires_in=3600))
+    return {"success": True, "data": payload}
 
 
-@router.post("/auth/password-reset", response_model=MessageResponse)
+@router.post("/auth/register", status_code=status.HTTP_201_CREATED)
+async def register(body: RegisterRequest, request: Request):
+    first_name, last_name = _ensure_names(body)
+    payload = await member_service.register_member(
+        email=body.email,
+        first_name=first_name,
+        last_name=last_name,
+        password=body.password,
+        membership_type=body.mitgliedschaftTyp or body.mitgliedschaft_typ,
+        accept_terms=body.accept_terms or body.acceptTerms,
+        accept_privacy=body.accept_privacy or body.acceptPrivacy,
+        newsletter_opt_in=body.newsletter_opt_in or body.newsletterOptIn,
+        source="website_register",
+        **_request_meta(request),
+    )
+    await member_service.create_session(
+        member_id=payload["user"]["id"],
+        session_id=payload["sessionId"],
+        refresh_token=payload["refreshToken"],
+        **_request_meta(request),
+    )
+    return {"success": True, "data": payload}
+
+
+@router.post("/auth/refresh")
+async def refresh_token(body: RefreshRequest, request: Request):
+    refresh_token_value = body.refreshToken or body.refresh_token
+    if not refresh_token_value:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Refresh-Token fehlt")
+    payload = await member_service.refresh_session(refresh_token_value)
+    await member_service.create_session(
+        member_id=payload["user"]["id"],
+        session_id=payload["sessionId"],
+        refresh_token=payload["refreshToken"],
+        **_request_meta(request),
+    )
+    return {"success": True, "data": payload}
+
+
+@router.post("/auth/logout", response_model=MessageResponse)
+async def logout(request: Request):
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer "):
+        token = auth_header.removeprefix("Bearer ").strip()
+        payload = decode_jwt(token) or {}
+        exp = payload.get("exp")
+        expires_at = datetime.fromtimestamp(exp, tz=timezone.utc) if exp else datetime.now(timezone.utc)
+        revoke_token(token, expires_at)
+        if payload.get("uid") and payload.get("sid"):
+            await member_service.revoke_session(member_id=payload["uid"], session_id=payload["sid"])
+    return MessageResponse(message="Erfolgreich abgemeldet.")
+
+
+@router.get("/auth/me")
+async def me(user: dict = Depends(require_auth)):
+    member = await member_service.get_member_by_id(user["uid"])
+    if not member:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Benutzer nicht gefunden")
+    return {"success": True, "data": {"user": member_to_user(member)}}
+
+
+@router.post("/auth/password-reset-request", response_model=MessageResponse)
 async def password_reset_request(body: PasswordResetRequest):
-    await _ensure_members_table()
-    await _ensure_password_reset_table()
-
-    row = await fetchrow(
-        "SELECT id, email FROM members WHERE LOWER(email) = LOWER($1) AND status = 'Active'",
-        body.email,
-    )
-
-    safe_message = "Falls ein Konto mit dieser E-Mail existiert, wurde ein Wiederherstellungs-Link gesendet."
-
-    if not row:
-        logger.info(f"Passwort-Reset angefordert für unbekannte E-Mail: {scrub(body.email)}")
-        return MessageResponse(message=safe_message)
-
-    reset_token = secrets.token_urlsafe(48)
-    expires_at = datetime.now(timezone.utc) + timedelta(hours=1)
-
-    await execute(
-        "UPDATE password_reset_tokens SET used = TRUE WHERE LOWER(email) = LOWER($1) AND used = FALSE",
-        body.email,
-    )
-
-    await execute(
-        "INSERT INTO password_reset_tokens (email, token, expires_at) VALUES ($1, $2, $3)",
-        body.email.lower(), reset_token, expires_at.isoformat(),
-    )
-
-    logger.info(f"Passwort-Reset Token erstellt für: {scrub(body.email)}")
-    return MessageResponse(message=safe_message)
+    message = await member_service.send_password_reset(body.email)
+    return MessageResponse(message=message)
 
 
 @router.post("/auth/password-reset/confirm", response_model=MessageResponse)
 async def password_reset_confirm(body: PasswordResetConfirm):
-    await _ensure_members_table()
-    await _ensure_password_reset_table()
+    new_password = body.new_password or body.password
+    if not new_password:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Neues Passwort fehlt")
+    if body.confirmPassword and body.confirmPassword != new_password:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Passwörter stimmen nicht überein")
+    message = await member_service.confirm_password_reset(token=body.token, new_password=new_password)
+    return MessageResponse(message=message)
 
-    row = await fetchrow(
-        "SELECT id, email, expires_at, used FROM password_reset_tokens WHERE token = $1",
-        body.token,
+
+@router.post("/auth/password-reset")
+async def password_reset_compat(payload: dict):
+    if payload.get("email"):
+        message = await member_service.send_password_reset(payload["email"])
+        return {"success": True, "message": message}
+    token = payload.get("token")
+    new_password = payload.get("new_password") or payload.get("password")
+    confirm_password = payload.get("confirmPassword")
+    if not token or not new_password:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Ungültige Passwort-Reset-Anfrage")
+    if confirm_password and confirm_password != new_password:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Passwörter stimmen nicht überein")
+    message = await member_service.confirm_password_reset(token=token, new_password=new_password)
+    return {"success": True, "message": message}
+
+
+@router.post("/auth/verify-email")
+async def verify_email(body: VerifyEmailRequest, request: Request):
+    payload = await member_service.verify_email(body.token)
+    await member_service.create_session(
+        member_id=payload["user"]["id"],
+        session_id=payload["sessionId"],
+        refresh_token=payload["refreshToken"],
+        **_request_meta(request),
     )
+    return {"success": True, "data": payload}
 
-    if not row:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Ungültiger oder abgelaufener Token",
-        )
 
-    row_dict = dict(row)
+@router.post("/auth/resend-verification", response_model=MessageResponse)
+async def resend_verification(user: dict = Depends(require_auth)):
+    await member_service.resend_verification(user["uid"])
+    return MessageResponse(message="Bestätigungs-E-Mail wurde erneut versendet.")
 
-    if row_dict.get("used"):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Dieser Token wurde bereits verwendet",
-        )
 
-    expires_at = row_dict["expires_at"]
-    if isinstance(expires_at, str):
-        expires_at = datetime.fromisoformat(expires_at)
-    if expires_at.tzinfo is None:
-        expires_at = expires_at.replace(tzinfo=timezone.utc)
-
-    if datetime.now(timezone.utc) > expires_at:
-        await execute("UPDATE password_reset_tokens SET used = TRUE WHERE token = $1", body.token)
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Ungültiger oder abgelaufener Token",
-        )
-
-    new_hash = hash_password(body.new_password)
-    email = row_dict["email"]
-
+@router.post("/auth/change-password", response_model=MessageResponse)
+async def change_password(payload: dict, user: dict = Depends(require_auth)):
+    current_password = payload.get("currentPassword")
+    new_password = payload.get("newPassword")
+    confirm_password = payload.get("confirmPassword")
+    if not current_password or not new_password:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Passwortdaten unvollständig")
+    if confirm_password and confirm_password != new_password:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Passwörter stimmen nicht überein")
+    member = await member_service.get_member_by_id(user["uid"])
+    if not member or not verify_password(current_password, member["password_hash"]):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Aktuelles Passwort ist ungültig")
     await execute(
-        "UPDATE members SET password_hash = $1, updated_at = NOW() WHERE LOWER(email) = LOWER($2)",
-        new_hash, email,
+        "UPDATE members SET password_hash = $1, updated_at = NOW() WHERE id = $2::uuid",
+        hash_password(new_password),
+        user["uid"],
     )
+    return MessageResponse(message="Passwort wurde erfolgreich geändert.")
 
-    await execute("UPDATE password_reset_tokens SET used = TRUE WHERE token = $1", body.token)
 
-    logger.info(f"Passwort erfolgreich zurückgesetzt für: {scrub(email)}")
-    return MessageResponse(message="Passwort wurde erfolgreich zurückgesetzt.")
+@router.post("/auth/2fa/setup")
+async def setup_two_factor(user: dict = Depends(require_auth)):
+    member = await member_service.get_member_by_id(user["uid"])
+    if not member:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Benutzer nicht gefunden")
+    data = await member_service.setup_two_factor(member_id=user["uid"], email=member["email"])
+    return {"success": True, "data": data}
+
+
+@router.post("/auth/2fa/enable")
+async def enable_two_factor(payload: dict, user: dict = Depends(require_auth)):
+    token = payload.get("token")
+    if not token:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="2FA-Code fehlt")
+    backup_codes = await member_service.enable_two_factor(member_id=user["uid"], token=token)
+    return {
+        "success": True,
+        "data": {
+            "backupCodes": backup_codes,
+        },
+        "message": "Zwei-Faktor-Authentifizierung wurde aktiviert.",
+    }
+
+
+@router.post("/auth/2fa/disable", response_model=MessageResponse)
+async def disable_two_factor(payload: dict, user: dict = Depends(require_auth)):
+    password = payload.get("password")
+    member = await member_service.get_member_by_id(user["uid"])
+    if not member or not password or not verify_password(password, member["password_hash"]):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Passwort ist ungültig")
+    await member_service.disable_two_factor(member_id=user["uid"])
+    return MessageResponse(message="Zwei-Faktor-Authentifizierung wurde deaktiviert.")
+
+
+@router.post("/auth/2fa/verify")
+async def verify_two_factor(payload: dict, user: dict = Depends(require_auth)):
+    token = payload.get("token")
+    if not token:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="2FA-Code fehlt")
+    verified = await member_service.verify_two_factor(member_id=user["uid"], token=token)
+    if not verified:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Ungültiger 2FA-Code")
+    return {"success": True, "message": "2FA-Code ist gültig."}
+
+
+@router.get("/auth/sessions")
+async def get_sessions(user: dict = Depends(require_auth)):
+    sessions = await member_service.list_sessions(member_id=user["uid"], current_session_id=user.get("sid"))
+    return {"success": True, "data": sessions}
+
+
+@router.delete("/auth/sessions/{session_id}", response_model=MessageResponse)
+async def revoke_session(session_id: str, user: dict = Depends(require_auth)):
+    await member_service.revoke_session(member_id=user["uid"], session_id=session_id)
+    return MessageResponse(message="Sitzung wurde widerrufen.")
+
+
+@router.post("/auth/sessions/revoke-all", response_model=MessageResponse)
+async def revoke_all_sessions(user: dict = Depends(require_auth)):
+    await member_service.revoke_all_sessions(member_id=user["uid"], exclude_session_id=user.get("sid"))
+    return MessageResponse(message="Alle weiteren Sitzungen wurden widerrufen.")
+
+
+@router.put("/auth/profile")
+async def update_profile(payload: dict, user: dict = Depends(require_auth)):
+    updated = await member_service.update_profile(user["uid"], payload)
+    return {"success": True, "data": {"user": updated}}
+
+
+@router.post("/auth/delete-account", response_model=MessageResponse)
+async def delete_account(payload: dict, user: dict = Depends(require_auth)):
+    password = payload.get("password")
+    member = await member_service.get_member_by_id(user["uid"])
+    if not member or not password or not verify_password(password, member["password_hash"]):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Passwort ist ungültig")
+    await execute(
+        "UPDATE members SET status = 'deleted', updated_at = NOW() WHERE id = $1::uuid",
+        user["uid"],
+    )
+    await member_service.revoke_all_sessions(member_id=user["uid"])
+    return MessageResponse(message="Konto wurde zur Löschung vorgemerkt.")
+
+
+@router.get("/auth/security-logs")
+async def security_logs(user: dict = Depends(require_auth)):
+    rows = await fetch(
+        """
+        SELECT id::text, method AS action, path AS description, created_at
+        FROM audit_trail
+        WHERE actor_id = $1
+        ORDER BY created_at DESC
+        LIMIT 50
+        """,
+        user.get("uid"),
+    )
+    return {
+        "success": True,
+        "data": [
+            {
+                "id": row["id"],
+                "action": row["action"],
+                "description": row["description"],
+                "ipAddress": "",
+                "userAgent": "",
+                "createdAt": row["created_at"].isoformat(),
+            }
+            for row in rows
+        ],
+    }

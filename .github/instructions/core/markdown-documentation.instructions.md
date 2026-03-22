@@ -481,7 +481,7 @@ DELETE /api/v1/resource/{id}
 
 Bearer Token Required:
 \`\`\`bash
-curl -H "Authorization: Bearer YOUR_TOKEN" \\
+curl -H "Authorization: Bearer <ACCESS_TOKEN>" \\
   https://api.example.com/v1/resource
 \`\`\`
 

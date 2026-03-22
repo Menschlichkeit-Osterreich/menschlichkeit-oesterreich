@@ -1,321 +1,235 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import Game3DScene from '../components/game/Game3DScene';
 import SeoHead from '../components/seo/SeoHead';
+import { GAMES_SITE_URL } from '../config/siteConfig';
 
-const GAME_FEATURES = [
+const SPIEL_KENNZAHLEN = [
+  { value: '100', label: 'Levels mit Fortschrittssystem' },
+  { value: '10', label: 'Themenwelten von Gemeinde bis Zukunft' },
+  { value: '6', label: 'Rollen mit eigener Perspektive' },
+  { value: '3D', label: 'Babylon.js-Erlebnis auf eigener Subdomain' },
+];
+
+const SPIEL_BAUSTEINE = [
   {
-    icon: '🌉',
-    title: 'Brücken Bauen',
-    description: 'Erlebe realistische Szenarien aus Nachbarschaft, Arbeitsplatz, Politik und Medien.',
-    color: 'from-red-500 to-orange-500',
+    title: 'Rolle wählen',
+    description:
+      'Du startest als engagierte Bürgerin, Lokalpolitiker, Journalistin, Aktivist, Verwaltungsbeamter oder Richterin.',
   },
   {
-    icon: '🗳️',
-    title: 'Demokratie erleben',
-    description: 'Triff Entscheidungen, die Empathie, Rechte, Partizipation und Zivilcourage fordern.',
-    color: 'from-blue-500 to-indigo-500',
+    title: 'Welt öffnen',
+    description:
+      'Jede Welt bündelt zehn Levels zu Demokratie, Menschenrechten, Medien, Digitalität, Umwelt oder sozialer Gerechtigkeit.',
   },
   {
-    icon: '📊',
-    title: 'Dein Profil',
-    description: 'Erhalte am Ende dein persönliches Demokratie-Profil mit Stärken und Empfehlungen.',
-    color: 'from-green-500 to-teal-500',
-  },
-  {
-    icon: '🎓',
-    title: 'Bildungsmaterial',
-    description: 'Jedes Szenario enthält Hintergrundinformationen und verschiedene Perspektiven.',
-    color: 'from-purple-500 to-violet-500',
+    title: 'Entscheidung treffen',
+    description:
+      'Jede Antwort verändert dein Demokratie-Profil in den Bereichen Empathie, Rechte, Teilhabe und Zivilcourage.',
   },
 ];
 
-const SCENARIOS_PREVIEW = [
-  { id: 1, category: 'Nachbarschaft', title: 'Der laute Nachbar', difficulty: 'Einstieg', icon: '🏘️' },
-  { id: 2, category: 'Arbeitsplatz', title: 'Diskriminierung im Büro', difficulty: 'Einstieg', icon: '💼' },
-  { id: 3, category: 'Politik', title: 'Wahlentscheidung', difficulty: 'Einstieg', icon: '🏛️' },
-  { id: 4, category: 'Medien', title: 'Fake News in der Familie', difficulty: 'Einstieg', icon: '📱' },
-  { id: 9, category: 'Schule', title: 'Das Schulprojekt', difficulty: 'Mittel', icon: '📚' },
-  { id: 10, category: 'Umwelt', title: 'Klimagerechtigkeit', difficulty: 'Mittel', icon: '🌍' },
+const THEMENWELTEN = [
+  'Gemeinde und Beteiligung',
+  'Schule und Chancengerechtigkeit',
+  'Arbeit und soziale Sicherheit',
+  'Medien und Informationskompetenz',
+  'Umwelt und Generationengerechtigkeit',
+  'Digitalisierung und Grundrechte',
+  'Gesundheit und Versorgung',
+  'Europa und Solidarität',
+  'Gerechtigkeit und Schutzrechte',
+  'Zukunft und demokratische Innovation',
 ];
 
-const SCORE_CATEGORIES = [
-  { name: 'Empathie', icon: '💙', description: 'Einfühlungsvermögen und Verständnis für andere', color: 'bg-blue-500' },
-  { name: 'Rechte', icon: '⚖️', description: 'Wissen über Grund- und Menschenrechte', color: 'bg-red-500' },
-  { name: 'Partizipation', icon: '🤝', description: 'Demokratische Teilhabe und Engagement', color: 'bg-green-500' },
-  { name: 'Zivilcourage', icon: '🦁', description: 'Mut, für Werte einzustehen', color: 'bg-orange-500' },
-];
-
-const STATS = [
-  { value: '8+', label: 'Szenarien' },
-  { value: '4', label: 'Bewertungskategorien' },
-  { value: '48+', label: 'Entscheidungspfade' },
-  { value: 'PWA', label: 'Offline spielbar' },
+const CTA_LINKS = [
+  { href: GAMES_SITE_URL, label: 'Spiel auf games.menschlichkeit-oesterreich.at öffnen' },
+  { href: '/bildung', label: 'Bildungsarbeit ansehen', internal: true },
+  { href: '/mitglied-werden', label: 'Mitglied werden', internal: true },
 ];
 
 export default function SpielPage() {
-  const [showEmbed, setShowEmbed] = useState(false);
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-
-  const closeEmbed = useCallback(() => {
-    setShowEmbed(false);
-    triggerRef.current?.focus();
-  }, []);
-
-  useEffect(() => {
-    if (!showEmbed) return;
-    document.body.style.overflow = 'hidden';
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') closeEmbed();
-    };
-    document.addEventListener('keydown', handleKey);
-    const firstFocusable = dialogRef.current?.querySelector<HTMLElement>('button, a, [tabindex]');
-    firstFocusable?.focus();
-    return () => {
-      document.body.style.overflow = '';
-      document.removeEventListener('keydown', handleKey);
-    };
-  }, [showEmbed, closeEmbed]);
-
   return (
     <div data-component="Spiel">
       <SeoHead
-        title="Demokratiespiel – Spielerisch Demokratie lernen"
-        description="Das interaktive Demokratiespiel von Menschlichkeit Österreich. Lernen Sie spielerisch, wie Demokratie funktioniert, und stärken Sie Ihr Verständnis für politische Teilhabe."
+        title="Brücken Bauen in 3D – Demokratiespiel"
+        description="Brücken Bauen in 3D ist das Babylon.js-Demokratiespiel von Menschlichkeit Österreich. Die Landingpage erklärt Spielidee, Themenwelten und den Einstieg auf games.menschlichkeit-oesterreich.at."
       />
+
       <section
         className="relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #b91c1c 0%, #dc2626 45%, #ea580c 100%)' }}
+        style={{ background: 'linear-gradient(135deg, #991b1b 0%, #dc2626 48%, #ea580c 100%)' }}
       >
-        <div className="absolute inset-0 opacity-10" aria-hidden="true">
-          <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-white blur-3xl -translate-y-1/2 translate-x-1/4" />
-          <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-white blur-3xl translate-y-1/3 -translate-x-1/4" />
+        <div className="absolute inset-0 opacity-15" aria-hidden="true">
+          <div className="absolute right-0 top-0 h-96 w-96 translate-x-1/3 -translate-y-1/3 rounded-full bg-white blur-3xl" />
+          <div className="absolute bottom-0 left-0 h-80 w-80 -translate-x-1/4 translate-y-1/3 rounded-full bg-white blur-3xl" />
         </div>
 
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-16 md:py-24">
-          <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
-            <div className="flex-1 text-center md:text-left">
-              <span className="inline-block px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold tracking-widest uppercase mb-4 backdrop-blur-sm border border-white/20">
-                Interaktives Lernspiel
+        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 md:py-24">
+          <div className="grid items-center gap-10 md:grid-cols-[1.15fr_0.95fr] md:gap-16">
+            <div className="text-center md:text-left">
+              <span className="inline-flex rounded-full border border-white/20 bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-sm">
+                Babylon.js 3D-Spiel
               </span>
-              <h1 className="text-4xl md:text-5xl font-extrabold text-white leading-tight mb-4">
-                Brücken Bauen
+              <h1 className="mt-5 text-4xl font-black leading-tight text-white md:text-6xl">
+                Demokratie spielbar machen, statt sie nur zu erklären.
               </h1>
-              <p className="text-lg md:text-xl text-white/90 max-w-xl mb-6 leading-relaxed">
-                Ein interaktives Spiel über Empathie, Menschenrechte und demokratischen Zusammenhalt.
-                Triff Entscheidungen in realistischen Szenarien und entdecke dein Demokratie-Profil.
+              <p className="mt-5 max-w-2xl text-lg leading-8 text-white/90 md:text-xl">
+                <strong>Brücken Bauen in 3D</strong> läuft als eigenständiges Spiel auf{' '}
+                <span className="font-semibold">games.menschlichkeit-oesterreich.at</span>.
+                Auf dieser Seite findest du den Einstieg, die Themenwelten und die Verbindung zu
+                Bildung, Mitmachen und zivilgesellschaftlicher Teilhabe.
               </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
-                <button
-                  ref={triggerRef}
-                  onClick={() => setShowEmbed(true)}
-                  className="px-6 py-3 bg-white text-red-700 font-bold rounded-xl shadow-lg hover:shadow-xl hover:bg-gray-50 transition-all text-base"
-                >
-                  Jetzt spielen
-                </button>
-                <a
-                  href="#features"
-                  className="px-6 py-3 bg-white/10 text-white font-semibold rounded-xl border border-white/30 hover:bg-white/20 transition-all text-base text-center backdrop-blur-sm"
-                >
-                  Mehr erfahren
-                </a>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center md:justify-start">
+                {CTA_LINKS.map((link) =>
+                  link.internal ? (
+                    <Link
+                      key={link.label}
+                      to={link.href}
+                      className="rounded-2xl bg-white px-6 py-3 text-center text-base font-bold text-red-700 shadow-lg transition-all hover:-translate-y-0.5 hover:bg-rose-50"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-2xl bg-white px-6 py-3 text-center text-base font-bold text-red-700 shadow-lg transition-all hover:-translate-y-0.5 hover:bg-rose-50"
+                    >
+                      {link.label}
+                    </a>
+                  ),
+                )}
               </div>
             </div>
 
-            <div className="flex-shrink-0 w-full md:w-96 relative">
-              <Game3DScene progress={65} onInteract={() => setShowEmbed(true)} />
+            <Game3DScene progress={72} onInteract={() => window.open(GAMES_SITE_URL, '_blank', 'noopener,noreferrer')} />
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-slate-200 bg-white py-10">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 sm:px-6 md:grid-cols-4">
+          {SPIEL_KENNZAHLEN.map((item) => (
+            <article key={item.label} className="text-center">
+              <div className="text-3xl font-black text-red-600 md:text-4xl">{item.value}</div>
+              <div className="mt-1 text-sm font-medium text-slate-600">{item.label}</div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="bg-slate-50 py-16 md:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="max-w-3xl">
+            <h2 className="text-3xl font-black text-slate-900 md:text-4xl">So funktioniert der neue Spielfluss.</h2>
+            <p className="mt-4 text-lg leading-8 text-slate-600">
+              Das Spiel ist bewusst von der Hauptwebsite entkoppelt. Dadurch bleibt die Website
+              schnell, indexierbar und klar strukturiert, während das Spiel auf der Games-Subdomain
+              als 3D-Erlebnis eigenständig wachsen kann.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            {SPIEL_BAUSTEINE.map((item, index) => (
+              <article key={item.title} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-red-600 to-orange-500 text-lg font-black text-white">
+                  {index + 1}
+                </div>
+                <h3 className="text-xl font-bold text-slate-900">{item.title}</h3>
+                <p className="mt-3 text-sm leading-7 text-slate-600">{item.description}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white py-16 md:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr]">
+            <div>
+              <h2 className="text-3xl font-black text-slate-900 md:text-4xl">Themenwelten statt einzelner Demo-Szenen.</h2>
+              <p className="mt-4 text-lg leading-8 text-slate-600">
+                Das bisherige Spiel mit wenigen Einzel-Szenarien wurde zu einer größeren Lernstruktur
+                weiterentwickelt. Die neue Plattform verbindet lokale, soziale und politische
+                Konflikte zu einem konsistenten Pfad, der auch in Bildungsarbeit eingesetzt werden
+                kann.
+              </p>
+              <div className="mt-8 rounded-3xl border border-red-100 bg-red-50 p-6">
+                <h3 className="text-lg font-bold text-red-900">Warum die Trennung wichtig ist</h3>
+                <p className="mt-3 text-sm leading-7 text-red-800">
+                  Die Hauptdomain bleibt Suchmaschinen-, Inhalts- und Vertrauenshub. Das Spiel
+                  selbst läuft separat auf der Games-Subdomain, damit 3D-Runtime, Service Worker,
+                  Assets und Updates nicht die redaktionellen Kernseiten der Website destabilisieren.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {THEMENWELTEN.map((welt) => (
+                <article
+                  key={welt}
+                  className="rounded-3xl border border-slate-200 bg-slate-50 p-5 shadow-sm transition-transform hover:-translate-y-0.5"
+                >
+                  <h3 className="text-base font-bold text-slate-900">{welt}</h3>
+                  <p className="mt-2 text-sm leading-7 text-slate-600">
+                    Jede Themenwelt bündelt zehn Levels und legt den Fokus auf reale Spannungsfelder
+                    zwischen Rechten, Beteiligung, Fairness und demokratischer Verantwortung.
+                  </p>
+                </article>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      <section className="bg-white py-10 border-b border-gray-100">
+      <section className="bg-slate-950 py-16 text-white md:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {STATS.map((s, i) => (
-              <div key={i} className="text-center">
-                <div className="text-3xl md:text-4xl font-extrabold text-red-600">{s.value}</div>
-                <div className="text-sm text-gray-500 mt-1 font-medium">{s.label}</div>
-              </div>
-            ))}
+          <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+            <div>
+              <h2 className="text-3xl font-black md:text-4xl">Bildung, Mitmachen und Spiel greifen ineinander.</h2>
+              <p className="mt-4 max-w-2xl text-lg leading-8 text-white/80">
+                Das Spiel ist kein isoliertes Gimmick. Es unterstützt politische Bildung,
+                niedrigschwellige Auseinandersetzung mit Konflikten und einen handlungsorientierten
+                Einstieg in die Themen von Menschlichkeit Österreich.
+              </p>
+            </div>
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
+              <ul className="space-y-4 text-sm leading-7 text-white/80">
+                <li>Die Landingpage erklärt den Kontext und verlinkt direkt in Bildung, Spenden und Mitgliedschaft.</li>
+                <li>Die Games-Subdomain kann unabhängig aktualisiert und auf Plesk separat ausgerollt werden.</li>
+                <li>Der alte `/game/`-Pfad wird nur noch als Kompatibilitätspfad behandelt und leitet auf die Subdomain weiter.</li>
+              </ul>
+            </div>
           </div>
-        </div>
-      </section>
 
-      <section id="features" className="py-16 md:py-20 bg-gray-50">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">Was erwartet dich?</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Brücken Bauen ist ein interaktives Lernspiel, das demokratische Werte erlebbar macht.
+          <div className="mt-12 rounded-[32px] bg-gradient-to-r from-red-600 to-orange-500 p-8 text-center shadow-2xl md:p-12">
+            <h2 className="text-3xl font-black">Bereit für das Babylon-Spiel?</h2>
+            <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-white/90">
+              Starte jetzt auf der Games-Subdomain oder nutze zuerst unsere Bildungs- und Mitmachangebote,
+              wenn du die Themen vertiefen möchtest.
             </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {GAME_FEATURES.map((f, i) => (
-              <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-                <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${f.color} flex items-center justify-center text-3xl mb-4 shadow-sm`}>
-                  {f.icon}
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">{f.title}</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">{f.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-16 md:py-20 bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">Bewertungskategorien</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Jede Entscheidung wird in vier Kategorien bewertet. Am Ende erhältst du dein persönliches Demokratie-Profil.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {SCORE_CATEGORIES.map((cat, i) => (
-              <div key={i} className="text-center p-6 rounded-2xl bg-gray-50 border border-gray-100">
-                <div className="text-4xl mb-3">{cat.icon}</div>
-                <h3 className="font-bold text-gray-900 text-lg mb-1">{cat.name}</h3>
-                <p className="text-sm text-gray-600">{cat.description}</p>
-                <div className="mt-4 w-full bg-gray-200 rounded-full h-2">
-                  <div className={`${cat.color} h-2 rounded-full`} style={{ width: `${60 + i * 10}%` }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-16 md:py-20 bg-gray-50">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">Szenarien-Übersicht</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Realistische Situationen aus verschiedenen Lebensbereichen.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {SCENARIOS_PREVIEW.map((s) => (
-              <div key={s.id} className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex items-start gap-4">
-                <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
-                  {s.icon}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full font-medium">{s.category}</span>
-                    <span className="text-xs px-2 py-0.5 bg-orange-50 text-orange-600 rounded-full font-medium">{s.difficulty}</span>
-                  </div>
-                  <h3 className="font-semibold text-gray-900 text-sm">Level {s.id}: {s.title}</h3>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="text-center mt-8">
-            <p className="text-sm text-gray-500">...und viele weitere Szenarien im Spiel!</p>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-16 md:py-20 bg-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="bg-gradient-to-r from-red-600 to-orange-500 rounded-3xl p-8 md:p-12 text-center text-white shadow-xl">
-            <h2 className="text-3xl font-bold mb-4">Bereit, Brücken zu bauen?</h2>
-            <p className="text-white/90 max-w-lg mx-auto mb-6 text-lg">
-              Starte jetzt das Demokratiespiel und entdecke, welcher Demokratie-Typ du bist.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <button
-                onClick={() => setShowEmbed(true)}
-                className="px-8 py-3 bg-white text-red-700 font-bold rounded-xl shadow-lg hover:shadow-xl hover:bg-gray-50 transition-all text-lg"
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <a
+                href={GAMES_SITE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-2xl bg-white px-8 py-3 text-base font-bold text-red-700 shadow-lg transition-all hover:-translate-y-0.5 hover:bg-rose-50"
               >
-                Jetzt spielen
-              </button>
+                Spiel starten
+              </a>
               <Link
-                to="/mitglied-werden"
-                className="px-8 py-3 bg-white/10 text-white font-semibold rounded-xl border border-white/30 hover:bg-white/20 transition-all text-lg text-center backdrop-blur-sm"
+                to="/bildung"
+                className="rounded-2xl border border-white/30 bg-white/10 px-8 py-3 text-base font-semibold text-white backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-white/15"
               >
-                Mitglied werden
+                Bildungsarbeit ansehen
               </Link>
             </div>
           </div>
         </div>
       </section>
-
-      <section className="py-12 bg-gray-50 border-t border-gray-100">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="text-3xl mb-2">🏫</div>
-              <h3 className="font-bold text-gray-900 mb-1">Für Schulen</h3>
-              <p className="text-sm text-gray-600">
-                Ideales Lernwerkzeug für den Unterricht. Inklusive Lehrer-Dashboard mit Lernanalysen.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl mb-2">📱</div>
-              <h3 className="font-bold text-gray-900 mb-1">Überall spielbar</h3>
-              <p className="text-sm text-gray-600">
-                Als Progressive Web App auch offline auf dem Handy oder Tablet spielbar.
-              </p>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl mb-2">♿</div>
-              <h3 className="font-bold text-gray-900 mb-1">Barrierefrei</h3>
-              <p className="text-sm text-gray-600">
-                WCAG-konform mit Tastaturnavigation, Screen-Reader-Unterstützung und hohen Kontrasten.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {showEmbed && (
-        <div
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Brücken Bauen — Demokratiespiel"
-          ref={dialogRef}
-          onClick={(e) => { if (e.target === e.currentTarget) closeEmbed(); }}
-        >
-          <div className="bg-white rounded-2xl w-full max-w-5xl h-[85vh] flex flex-col shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between px-5 py-3 bg-gray-50 border-b border-gray-200">
-              <div className="flex items-center gap-3">
-                <span className="text-xl">🌉</span>
-                <span className="font-bold text-gray-900">Brücken Bauen — Demokratiespiel</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <a
-                  href="/game/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  In neuem Tab öffnen
-                </a>
-                <button
-                  onClick={closeEmbed}
-                  className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-                  aria-label="Spiel schließen"
-                >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <iframe
-              src="/game/index.html"
-              className="flex-1 w-full border-0"
-              title="Brücken Bauen — Demokratiespiel"
-              sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-              allow="fullscreen"
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

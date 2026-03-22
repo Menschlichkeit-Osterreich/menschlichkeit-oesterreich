@@ -1,4 +1,6 @@
 import { apiClient, ApiResponse } from './client';
+import { API_V2_URL } from '@/constants/api';
+import { STORAGE_KEYS } from '@/constants/storage';
 
 // Privacy Types
 export interface DataExportRequest {
@@ -86,10 +88,9 @@ class PrivacyService {
   }
 
   async downloadDataExport(requestId: string): Promise<Blob> {
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8001/api/v1';
-    const response = await fetch(`${baseUrl}/privacy/data-export/${requestId}/download`, {
+    const response = await fetch(`${API_V2_URL}/privacy/data-export/${requestId}/download`, {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+        Authorization: `Bearer ${localStorage.getItem(STORAGE_KEYS.authToken)}`,
       },
     });
 

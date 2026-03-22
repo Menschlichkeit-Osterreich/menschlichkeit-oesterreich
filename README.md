@@ -71,8 +71,12 @@ cd menschlichkeit-oesterreich-development
 
 # 2. Umgebungsvariablen anlegen
 cp .env.example .env
+cp apps/api/.env.example apps/api/.env
 cp apps/website/.env.example apps/website/.env.local
-# → .env mit echten Werten befüllen (Datenbank, API-Keys)
+cp automation/n8n/.env.example automation/n8n/.env
+cp .env.test.example .env.test.local
+# → Root .env nur fuer Shared-/Deploy-Werte verwenden
+# → Laufzeitwerte in den service-spezifischen Env-Dateien pflegen
 
 # 3. Abhängigkeiten & Environments einrichten
 npm run setup:dev
@@ -207,6 +211,8 @@ npm run dev:api             # FastAPI + Uvicorn (Port 8001)
 cd apps/api && pytest tests/ # 33 Tests ausführen
 ```
 
+**Umgebungsvariablen:** [`apps/api/.env.example`](apps/api/.env.example)
+
 ---
 
 ### 👥 CRM (`apps/crm/`)
@@ -327,6 +333,7 @@ menschlichkeit-oesterreich-development/
 │   │   │   ├── rbac.py                 # JWT + Rollenmodell
 │   │   │   └── audit.py                # Audit-Trail
 │   │   ├── tests/                      # pytest Suite (33 Tests)
+│   │   ├── .env.example                # API Runtime-Variablen
 │   │   └── openapi.yaml                # OpenAPI 3.1
 │   │
 │   ├── crm/                            # Drupal 10 + CiviCRM (Port 8000)
@@ -360,7 +367,8 @@ menschlichkeit-oesterreich-development/
 │   └── db-user-setup.sql
 │
 ├── .github/workflows/                  # CI/CD (Node 22, Python 3.12)
-├── .env.example                        # Alle Umgebungsvariablen
+├── .env.example                        # Shared Workspace-/Deploy-Variablen
+├── .env.test.example                   # Lokale Test-Credentials Vorlage
 ├── CLAUDE.md                           # KI-Entwicklungsanweisungen
 ├── CONTRIBUTING.md
 ├── SECURITY.md

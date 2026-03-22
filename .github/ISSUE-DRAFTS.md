@@ -261,6 +261,77 @@ Steps:
 References:
 - `apps/game/v2/js/main.js:87` `// TODO: Settings-Screen`
 
+### 17. New Issue – API: Resolve FastAPI and Starlette dependency conflict
+    Title: [P1][area/backend] Resolve FastAPI and Starlette pin conflict blocking API tests
+    Files:
+    - `apps/api/requirements.txt`
+    - `.github/workflows/api-tests.yml`
+    - `.github/workflows/openapi-drift.yml`
+    - `.github/workflows/api-openapi-export.yml`
+    Body:
+
+The env contract cleanup is implementation-complete, but full API verification
+is still blocked because `fastapi==0.115.4` conflicts with the direct pin
+`starlette==0.49.1` in `apps/api/requirements.txt`.
+
+Scope:
+- remove the direct `starlette` pin unless a runtime code path truly requires it
+- re-resolve dependencies against `fastapi==0.115.4`
+- if newer Starlette APIs are needed, upgrade FastAPI to a compatible release
+  instead of keeping conflicting direct pins
+- align API-related CI install paths to one canonical command:
+  `pip install -r apps/api/requirements.txt`
+- only keep workflow-local extras if unavoidable and documented
+
+Success criteria:
+- clean `pip install -r apps/api/requirements.txt` on Python 3.12
+- green `python -m pytest -q tests/`
+- green `api-tests`, `openapi-drift`, and `api-openapi-export` workflows
+
+Suggested first checks:
+- inspect why `starlette==0.49.1` was pinned directly
+- compare FastAPI's supported Starlette range for `0.115.4`
+- remove redundant direct pins before changing workflow logic
+
+### 18. Private Ops Task – Rotate credentials exposed by historic/local env usage
+    Tracker: Private ops/security system, not public GitHub issues
+    Title: [P0][area/security][ops] Rotate external credentials after env contract cleanup
+    References:
+    - `docs/security/2026-03-env-cleanup-rotation-log.md`
+    - `docs/security/GH-PAT-ROTATION.md`
+    - `docs/security/secrets-catalog.md`
+    - `secrets/SECRETS-AUDIT.md`
+    Body:
+
+Treat the previous local `.env` secret set as compromise-suspect. Rotation must
+be tracked in the private ops system and mirrored in the repo rotation log.
+
+Priority order:
+1. GitHub tokens
+2. Database credentials
+3. Mail credentials
+4. Stripe/payment credentials
+5. Remaining API or third-party tokens
+
+Required steps for each secret class:
+- rotate provider-side credential
+- update GitHub Secrets/Environments and local secure stores
+- verify the application path that uses the credential
+- verify the old credential is revoked
+- record owner, date, and evidence in both tracking systems
+
+GitHub-specific note:
+- rotate `GH_TOKEN` and `OC_GITHUB_TOKEN`
+- validate `GITHUB_REPO` and `GITHUB_OWNER` after rotation, but do not treat
+  them as secrets because they are configuration values, not credentials
+
+Completion criteria:
+- every row in the rotation log is updated with owner, date, evidence, and
+  revocation status
+- post-rotation smoke tests completed for auth, API startup, mail, payment, and
+  deployment-related integrations
+- the old credentials are explicitly marked revoked, not only replaced
+
 ---
 
 ## API Examples (curl)

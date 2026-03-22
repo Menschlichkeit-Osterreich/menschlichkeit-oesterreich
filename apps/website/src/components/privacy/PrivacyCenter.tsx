@@ -648,10 +648,9 @@ export const PrivacyCenter: React.FC<{
         onRejectAll={handleRejectAllCookies}
         onCustomize={() => {
           setShowCookieBanner(false);
-          // This would open the full privacy center
+          // TODO: Open the full privacy center
           if (onClose) {
-            // In a real implementation, this would open the privacy center
-            console.log('Open privacy center for customization');
+            onClose();
           }
         }}
       />

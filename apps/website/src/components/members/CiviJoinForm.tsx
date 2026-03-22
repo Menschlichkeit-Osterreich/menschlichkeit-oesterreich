@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { civicrm } from '../../services/civicrm';
+import { http } from '../../services/http';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -56,9 +56,7 @@ export function CiviJoinForm({ onSuccess }: { onSuccess?: () => void }) {
     setLoading(true);
     setError(null);
     try {
-      // 1. Kontakt in CiviCRM erstellen
-      const contactResult = await civicrm.contacts.create({
-        contact_type: 'Individual',
+      const contactResult = await http.post<{ success: boolean; data?: { contact?: { id?: number } } }>('/api/contacts/create', {
         first_name: form.first_name,
         last_name: form.last_name,
         email: form.email,
@@ -66,21 +64,24 @@ export function CiviJoinForm({ onSuccess }: { onSuccess?: () => void }) {
         city: form.city,
         postal_code: form.postal_code,
       });
-      const contactId = contactResult.values[0]?.id;
+      const contactId = contactResult.data?.contact?.id;
       if (!contactId) throw new Error('Kontakt konnte nicht erstellt werden.');
 
-      // 2. Mitgliedschaft erstellen
       const selectedType = MEMBERSHIP_TYPES.find((t) => t.value === form.membership_type);
-      await civicrm.memberships.create({
+      await http.post('/api/memberships/create', {
         contact_id: contactId,
         membership_type_id: selectedType?.type_id ?? 1,
         start_date: new Date().toISOString().split('T')[0],
         source: 'Website-Beitrittsformular',
       });
 
-      // 3. Newsletter-Anmeldung (falls gewünscht)
       if (form.consent_newsletter) {
-        await civicrm.newsletter.subscribe(form.email, form.first_name, form.last_name);
+        await http.post('/api/newsletter/subscribe', {
+          email: form.email,
+          first_name: form.first_name,
+          last_name: form.last_name,
+          consent: true,
+        });
       }
 
       setSuccess(true);

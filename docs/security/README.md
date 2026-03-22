@@ -4,6 +4,10 @@ This directory contains security-related documentation for the Menschlichkeit Ö
 
 ## Documents
 
+### [2026-03-env-cleanup-rotation-log.md](./2026-03-env-cleanup-rotation-log.md)
+Technical mirror of the external ops/security task for post-cleanup credential
+rotation, including ownership, evidence, and revocation tracking.
+
 ### [SEMGREP-FINDINGS.md](./SEMGREP-FINDINGS.md)
 Comprehensive documentation of Semgrep security scan findings, including:
 - Identified XSS vulnerabilities

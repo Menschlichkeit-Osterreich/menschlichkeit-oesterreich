@@ -5,7 +5,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 
-const BRIDGE_URL = import.meta.env.VITE_OPENCLAW_BRIDGE_URL || 'http://127.0.0.1:18790';
+import { OPENCLAW_BRIDGE_URL } from '@/constants/api';
+const BRIDGE_URL = OPENCLAW_BRIDGE_URL;
 
 interface AgentStatus {
   id: string;
