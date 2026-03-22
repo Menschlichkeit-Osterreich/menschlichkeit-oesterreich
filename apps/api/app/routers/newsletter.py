@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import secrets
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, HTTPException, Query, Request, status
 
@@ -13,12 +14,26 @@ from ..services.utils import normalize_email
 
 router = APIRouter()
 
+_doi_schema_ready: bool = False
+
+
+async def _ensure_doi_expiry_column() -> None:
+    """Idempotente Migration: fügt token_created_at zur newsletter_subscriptions-Tabelle hinzu."""
+    global _doi_schema_ready
+    if _doi_schema_ready:
+        return
+    await execute(
+        "ALTER TABLE newsletter_subscriptions ADD COLUMN IF NOT EXISTS token_created_at TIMESTAMPTZ DEFAULT NOW()"
+    )
+    _doi_schema_ready = True
+
 
 @router.post("/newsletter/subscribe")
 async def subscribe_newsletter(body: NewsletterSubscribeRequest, request: Request):
     if not body.consent:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Newsletter-Einwilligung ist erforderlich")
 
+    await _ensure_doi_expiry_column()
     email = normalize_email(body.email)
     token = secrets.token_urlsafe(32)
     existing = await fetchrow("SELECT id FROM newsletter_subscriptions WHERE LOWER(email) = LOWER($1)", email)
@@ -27,7 +42,7 @@ async def subscribe_newsletter(body: NewsletterSubscribeRequest, request: Reques
             """
             UPDATE newsletter_subscriptions
             SET first_name = $1, last_name = $2, confirmation_token = $3,
-                status = 'pending_confirmation', source = $4, updated_at = NOW()
+                status = 'pending_confirmation', source = $4, token_created_at = NOW(), updated_at = NOW()
             WHERE id = $5
             """,
             body.first_name,
@@ -40,8 +55,8 @@ async def subscribe_newsletter(body: NewsletterSubscribeRequest, request: Reques
         await execute(
             """
             INSERT INTO newsletter_subscriptions (
-                email, first_name, last_name, status, confirmation_token, source
-            ) VALUES ($1, $2, $3, 'pending_confirmation', $4, $5)
+                email, first_name, last_name, status, confirmation_token, source, token_created_at
+            ) VALUES ($1, $2, $3, 'pending_confirmation', $4, $5, NOW())
             """,
             email,
             body.first_name,
@@ -69,6 +84,20 @@ async def subscribe_newsletter(body: NewsletterSubscribeRequest, request: Reques
 
 @router.get("/newsletter/confirm")
 async def confirm_newsletter(token: str = Query(..., min_length=10)):
+    await _ensure_doi_expiry_column()
+    pending = await fetchrow(
+        "SELECT id, token_created_at FROM newsletter_subscriptions WHERE confirmation_token = $1 AND status = 'pending_confirmation'",
+        token,
+    )
+    if not pending:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Ungültiger Bestätigungslink")
+    if pending["token_created_at"] is not None:
+        age = datetime.now(timezone.utc) - pending["token_created_at"]
+        if age > timedelta(hours=48):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Bestätigungslink abgelaufen. Bitte melden Sie sich erneut an.",
+            )
     row = await fetchrow(
         """
         UPDATE newsletter_subscriptions
@@ -145,6 +174,14 @@ async def unsubscribe_newsletter(body: NewsletterUnsubscribeRequest):
     subscription = dict(row)
     if subscription.get("civicrm_contact_id"):
         await crm_service.set_newsletter_subscription(contact_id=subscription["civicrm_contact_id"], subscribe=False)
+    await privacy_service.record_consent(
+        member_id=None,
+        email=subscription["email"],
+        consent_type="marketing",
+        version="2026-03",
+        status="revoked",
+        source="newsletter_unsubscribe",
+    )
     await mail_service.send_template(
         template_id="newsletter_unsubscribed",
         recipient_email=subscription["email"],

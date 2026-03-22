@@ -1,12 +1,35 @@
-<!doctype html>
-<html lang="de">
-  <body style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.6;">
-    <p style="display:none;max-height:0;overflow:hidden;">{{ preheader }}</p>
-    <h1>Bitte E-Mail-Adresse bestätigen</h1>
-    <p>Hallo {{ first_name }} {{ last_name }},</p>
-    <p>bitte bestätigen Sie Ihre E-Mail-Adresse für Menschlichkeit Österreich.</p>
-    <p><a href="{{ verification_url }}">E-Mail jetzt bestätigen</a></p>
-    <p>Falls der Link nicht klickbar ist, kopieren Sie bitte diese Adresse in Ihren Browser:</p>
-    <p>{{ verification_url }}</p>
-  </body>
-</html>
+{% extends "_base.html" %}
+
+{% block title %}E-Mail-Adresse bestätigen{% endblock %}
+
+{% block content %}
+<h1 style="margin:0 0 16px;font-size:22px;color:#2B231D;font-family:'Nunito Sans',Arial,sans-serif;font-weight:700;">
+  E-Mail-Adresse bestätigen
+</h1>
+<p style="margin:0 0 16px;font-size:15px;color:#4A4039;line-height:1.6;">
+  Hallo {{ first_name }} {{ last_name }},
+</p>
+<p style="margin:0 0 24px;font-size:15px;color:#4A4039;line-height:1.6;">
+  bitte bestätigen Sie Ihre E-Mail-Adresse, um Ihr Konto bei Menschlichkeit Österreich zu aktivieren.
+</p>
+
+<!-- CTA -->
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 24px;">
+  <tr>
+    <td style="background-color:#D84A1B;border-radius:6px;">
+      <a href="{{ verification_url }}" style="display:inline-block;padding:14px 32px;color:#FFFFFF;font-family:'Nunito Sans',Arial,sans-serif;font-size:16px;font-weight:700;text-decoration:none;">
+        E-Mail jetzt bestätigen
+      </a>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 8px;font-size:13px;color:#6B6560;line-height:1.5;">
+  Falls der Button nicht funktioniert, kopieren Sie diesen Link in Ihren Browser:
+</p>
+<p style="margin:0;font-size:13px;color:#1B4965;word-break:break-all;line-height:1.5;">
+  {{ verification_url }}
+</p>
+{% endblock %}
+
+{% block footer_reason %}Sie erhalten diese E-Mail, weil Sie sich bei Menschlichkeit Österreich registriert haben.{% endblock %}

@@ -1,72 +1,103 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rechnung {{invoice.number}} – Menschlichkeit Österreich</title>
-  <style>
-    body { margin: 0; padding: 0; background-color: #f4f4f4; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
-    .wrapper { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-    .header { background: linear-gradient(135deg, #1a4a6e 0%, #2d7dd2 100%); padding: 32px 40px; }
-    .header h1 { color: #ffffff; font-size: 22px; margin: 0; font-weight: 700; }
-    .header p { color: rgba(255,255,255,0.85); font-size: 14px; margin: 6px 0 0; }
-    .body { padding: 40px; }
-    .text { font-size: 15px; color: #444; line-height: 1.7; margin-bottom: 20px; }
-    .invoice-box { border: 1px solid #e0e0e0; border-radius: 10px; padding: 24px; margin: 24px 0; }
-    .invoice-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; color: #555; }
-    .invoice-row:last-child { border-bottom: none; font-weight: 700; font-size: 16px; color: #1a4a6e; }
-    .invoice-row span:first-child { color: #888; }
-    .invoice-row.total span { color: #1a4a6e; }
-    .payment-info { background: #f0f7ff; border-radius: 8px; padding: 20px 24px; margin: 24px 0; }
-    .payment-info h3 { color: #1a4a6e; font-size: 14px; margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .payment-info table { width: 100%; font-size: 13px; border-collapse: collapse; }
-    .payment-info td { padding: 4px 0; color: #444; }
-    .payment-info td:first-child { color: #888; width: 140px; }
-    .cta-button { display: block; width: fit-content; margin: 28px auto; background: linear-gradient(135deg, #1a4a6e, #2d7dd2); color: #ffffff !important; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-size: 15px; font-weight: 600; text-align: center; }
-    .footer { background: #f9f9f9; padding: 24px 40px; text-align: center; }
-    .footer p { font-size: 12px; color: #888; margin: 4px 0; line-height: 1.6; }
-    .footer a { color: #2d7dd2; text-decoration: none; }
-  </style>
-</head>
-<body>
-  <div class="wrapper">
-    <div class="header">
-      <h1>Rechnung {{invoice.number}}</h1>
-      <p>Menschlichkeit Österreich – Fällig bis {{invoice.due_date}}</p>
-    </div>
-    <div class="body">
-      <p class="text">Hallo {{contact.first_name}},</p>
-      <p class="text">
-        anbei erhalten Sie Ihre Rechnung für den Mitgliedsbeitrag {{invoice.period}}. Bitte überweisen Sie den fälligen Betrag bis zum <strong>{{invoice.due_date}}</strong>.
+{% extends "_base.html" %}
+
+{% block title %}Rechnung {{ invoice.number }} – Menschlichkeit Österreich{% endblock %}
+
+{% block content %}
+<h1 style="margin:0 0 16px;font-size:22px;color:#2B231D;font-family:'Nunito Sans',Arial,sans-serif;font-weight:700;">
+  Rechnung {{ invoice.number }}
+</h1>
+<p style="margin:0 0 8px;font-size:15px;color:#4A4039;line-height:1.6;">
+  Hallo {{ contact.first_name }},
+</p>
+<p style="margin:0 0 24px;font-size:15px;color:#4A4039;line-height:1.6;">
+  anbei erhalten Sie Ihre Rechnung für den Mitgliedsbeitrag {{ invoice.period }}.
+  Bitte überweisen Sie den fälligen Betrag bis zum
+  <strong style="color:#2B231D;">{{ invoice.due_date }}</strong>.
+</p>
+
+<!-- Rechnungsdetails -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #E8E0D8;border-radius:6px;margin:0 0 24px;">
+  <tr>
+    <td style="padding:20px 24px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:14px;">
+        <tr>
+          <td style="padding:8px 0;color:#6B6560;border-bottom:1px solid #F5F1ED;width:50%;">Rechnungsnummer</td>
+          <td style="padding:8px 0;color:#2B231D;border-bottom:1px solid #F5F1ED;text-align:right;">{{ invoice.number }}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 0;color:#6B6560;border-bottom:1px solid #F5F1ED;">Rechnungsdatum</td>
+          <td style="padding:8px 0;color:#2B231D;border-bottom:1px solid #F5F1ED;text-align:right;">{{ invoice.date }}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 0;color:#6B6560;border-bottom:1px solid #F5F1ED;">Fälligkeitsdatum</td>
+          <td style="padding:8px 0;color:#2B231D;border-bottom:1px solid #F5F1ED;text-align:right;">{{ invoice.due_date }}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 0;color:#6B6560;border-bottom:1px solid #F5F1ED;">Leistungszeitraum</td>
+          <td style="padding:8px 0;color:#2B231D;border-bottom:1px solid #F5F1ED;text-align:right;">{{ invoice.period }}</td>
+        </tr>
+        <tr>
+          <td style="padding:8px 0;color:#6B6560;border-bottom:1px solid #F5F1ED;">Mitgliedsbeitrag</td>
+          <td style="padding:8px 0;color:#2B231D;border-bottom:1px solid #F5F1ED;text-align:right;">{{ invoice.amount_net }} EUR</td>
+        </tr>
+        <tr>
+          <td style="padding:12px 0 0;color:#2B231D;font-weight:700;font-size:16px;">Gesamtbetrag</td>
+          <td style="padding:12px 0 0;color:#1B4965;font-weight:700;font-size:16px;text-align:right;">{{ invoice.amount_total }} EUR</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<!-- Zahlungsinformationen -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#EEF4F8;border-radius:6px;margin:0 0 24px;">
+  <tr>
+    <td style="padding:20px 24px;">
+      <p style="margin:0 0 12px;font-size:12px;color:#1B4965;font-weight:700;font-family:'Nunito Sans',Arial,sans-serif;text-transform:uppercase;letter-spacing:0.05em;">
+        Zahlungsinformationen
       </p>
-      <div class="invoice-box">
-        <div class="invoice-row"><span>Rechnungsnummer</span><span>{{invoice.number}}</span></div>
-        <div class="invoice-row"><span>Rechnungsdatum</span><span>{{invoice.date}}</span></div>
-        <div class="invoice-row"><span>Fälligkeitsdatum</span><span>{{invoice.due_date}}</span></div>
-        <div class="invoice-row"><span>Leistungszeitraum</span><span>{{invoice.period}}</span></div>
-        <div class="invoice-row"><span>Mitgliedsbeitrag</span><span>{{invoice.amount_net}} EUR</span></div>
-        <div class="invoice-row total"><span>Gesamtbetrag</span><span>{{invoice.amount_total}} EUR</span></div>
-      </div>
-      <div class="payment-info">
-        <h3>Zahlungsinformationen</h3>
-        <table>
-          <tr><td>Empfänger</td><td>Menschlichkeit Österreich</td></tr>
-          <tr><td>IBAN</td><td>AT{{bank.iban}}</td></tr>
-          <tr><td>BIC</td><td>{{bank.bic}}</td></tr>
-          <tr><td>Verwendungszweck</td><td>{{invoice.number}} – {{contact.last_name}}</td></tr>
-          <tr><td>Betrag</td><td><strong>{{invoice.amount_total}} EUR</strong></td></tr>
-        </table>
-      </div>
-      <p class="text" style="font-size: 13px; color: #666;">
-        Die Rechnung als PDF-Dokument finden Sie im Anhang dieser E-Mail. Bei Fragen wenden Sie sich bitte an <a href="mailto:buchhaltung@menschlichkeit-oesterreich.at">buchhaltung@menschlichkeit-oesterreich.at</a>.
-      </p>
-      <a href="https://menschlichkeit-oesterreich.at/mitglieder/rechnungen/{{invoice.id}}" class="cta-button">Rechnung online ansehen</a>
-    </div>
-    <div class="footer">
-      <p>Menschlichkeit Österreich | ZVR XXXXXXX | UID: ATU XXXXXXXX</p>
-      <p>Diese E-Mail wurde automatisch generiert. Bitte antworten Sie nicht direkt auf diese E-Mail.</p>
-      <p><a href="https://menschlichkeit-oesterreich.at/datenschutz">Datenschutz</a> | <a href="https://menschlichkeit-oesterreich.at/impressum">Impressum</a></p>
-    </div>
-  </div>
-</body>
-</html>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:13px;">
+        <tr>
+          <td style="padding:3px 0;color:#6B6560;width:140px;">Empfänger</td>
+          <td style="padding:3px 0;color:#4A4039;">Menschlichkeit Österreich</td>
+        </tr>
+        <tr>
+          <td style="padding:3px 0;color:#6B6560;">IBAN</td>
+          <td style="padding:3px 0;color:#4A4039;">AT{{ bank.iban }}</td>
+        </tr>
+        <tr>
+          <td style="padding:3px 0;color:#6B6560;">BIC</td>
+          <td style="padding:3px 0;color:#4A4039;">{{ bank.bic }}</td>
+        </tr>
+        <tr>
+          <td style="padding:3px 0;color:#6B6560;">Verwendungszweck</td>
+          <td style="padding:3px 0;color:#4A4039;">{{ invoice.number }} – {{ contact.last_name }}</td>
+        </tr>
+        <tr>
+          <td style="padding:3px 0;color:#6B6560;">Betrag</td>
+          <td style="padding:3px 0;color:#2B231D;font-weight:700;">{{ invoice.amount_total }} EUR</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 28px;font-size:13px;color:#6B6560;line-height:1.6;">
+  Die Rechnung als PDF-Dokument finden Sie im Anhang dieser E-Mail.
+  Bei Fragen wenden Sie sich bitte an
+  <a href="mailto:buchhaltung@menschlichkeit-oesterreich.at" style="color:#1B4965;">buchhaltung@menschlichkeit-oesterreich.at</a>.
+</p>
+
+<!-- CTA -->
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 8px;">
+  <tr>
+    <td style="background-color:#D84A1B;border-radius:6px;">
+      <a href="https://www.menschlichkeit-oesterreich.at/mitglieder/rechnungen/{{ invoice.id }}" style="display:inline-block;padding:14px 36px;color:#FFFFFF;font-family:'Nunito Sans',Arial,sans-serif;font-size:16px;font-weight:700;text-decoration:none;">
+        Rechnung online ansehen
+      </a>
+    </td>
+  </tr>
+</table>
+{% endblock %}
+
+{% block footer_reason %}Sie erhalten diese E-Mail, weil für Ihre Mitgliedschaft bei Menschlichkeit Österreich eine Rechnung ausgestellt wurde.{% endblock %}

@@ -1,90 +1,92 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vielen Dank für Ihre Spende!</title>
-  <style>
-    body { margin: 0; padding: 0; background-color: #f4f4f4; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
-    .wrapper { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-    .header { background: linear-gradient(135deg, #6b21a8 0%, #9333ea 100%); padding: 40px; text-align: center; }
-    .heart { font-size: 48px; display: block; margin-bottom: 12px; }
-    .header h1 { color: #ffffff; font-size: 26px; margin: 0; font-weight: 700; }
-    .header p { color: rgba(255,255,255,0.85); font-size: 15px; margin: 8px 0 0; }
-    .body { padding: 40px; }
-    .text { font-size: 15px; color: #444; line-height: 1.7; margin-bottom: 20px; }
-    .donation-highlight { text-align: center; padding: 24px; background: linear-gradient(135deg, #f5f0ff, #ede9fe); border-radius: 12px; margin: 24px 0; }
-    .donation-highlight .amount { font-size: 36px; font-weight: 800; color: #6b21a8; }
-    .donation-highlight .label { font-size: 14px; color: #888; margin-top: 4px; }
-    .impact-box { background: #f9f9f9; border-radius: 10px; padding: 24px; margin: 24px 0; }
-    .impact-box h3 { color: #333; font-size: 15px; margin: 0 0 16px; }
-    .impact-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
-    .impact-item .icon { font-size: 20px; flex-shrink: 0; }
-    .impact-item p { font-size: 14px; color: #555; margin: 0; line-height: 1.5; }
-    .receipt-note { background: #f0fdf4; border-left: 4px solid #22c55e; border-radius: 8px; padding: 16px 20px; margin: 24px 0; font-size: 13px; color: #555; }
-    .cta-button { display: block; width: fit-content; margin: 28px auto; background: linear-gradient(135deg, #6b21a8, #9333ea); color: #ffffff !important; text-decoration: none; padding: 14px 36px; border-radius: 8px; font-size: 15px; font-weight: 600; text-align: center; }
-    .footer { background: #f9f9f9; padding: 24px 40px; text-align: center; }
-    .footer p { font-size: 12px; color: #888; margin: 4px 0; line-height: 1.6; }
-    .footer a { color: #9333ea; text-decoration: none; }
-    .social-links a { display: inline-block; margin: 0 6px; color: #9333ea; font-size: 12px; text-decoration: none; }
-  </style>
-</head>
-<body>
-  <div class="wrapper">
-    <div class="header">
-      <span class="heart">❤️</span>
-      <h1>Vielen herzlichen Dank!</h1>
-      <p>Ihre Spende macht einen Unterschied</p>
-    </div>
-    <div class="body">
-      <p class="text">Liebe/r {{contact.first_name}},</p>
-      <p class="text">
-        Ihre großzügige Spende ist bei uns angekommen und wir sind tief berührt von Ihrer Unterstützung. Mit Ihrer Hilfe können wir unsere Mission für Demokratie, Menschlichkeit und ein respektvolles Miteinander in Österreich weiter vorantreiben.
+{% extends "_base.html" %}
+
+{% block title %}Vielen Dank für Ihre Spende!{% endblock %}
+
+{% block content %}
+<h1 style="margin:0 0 16px;font-size:24px;color:#2B231D;font-family:'Nunito Sans',Arial,sans-serif;font-weight:700;">
+  Vielen herzlichen Dank!
+</h1>
+<p style="margin:0 0 8px;font-size:15px;color:#4A4039;line-height:1.6;">
+  Liebe/r {{ contact.first_name }},
+</p>
+<p style="margin:0 0 24px;font-size:15px;color:#4A4039;line-height:1.6;">
+  Ihre großzügige Spende ist bei uns angekommen und wir sind tief berührt von Ihrer Unterstützung.
+  Mit Ihrer Hilfe können wir unsere Mission für Demokratie, Menschlichkeit und ein respektvolles
+  Miteinander in Österreich weiter vorantreiben.
+</p>
+
+<!-- Spenden-Betrag Highlight -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;">
+  <tr>
+    <td style="background-color:#EEF4F8;border-radius:8px;padding:28px;text-align:center;">
+      <p style="margin:0 0 4px;font-size:38px;font-weight:800;color:#1B4965;font-family:'Nunito Sans',Arial,sans-serif;line-height:1.1;">
+        {{ donation.amount }} EUR
       </p>
-
-      <div class="donation-highlight">
-        <div class="amount">{{donation.amount}} EUR</div>
-        <div class="label">Ihre Spende vom {{donation.date}}</div>
-      </div>
-
-      <div class="impact-box">
-        <h3>Was Ihre Spende bewirkt:</h3>
-        <div class="impact-item">
-          <span class="icon">🎮</span>
-          <p>Finanziert den Betrieb unseres Demokratie-Bildungsspiels für Schulen und Jugendgruppen</p>
-        </div>
-        <div class="impact-item">
-          <span class="icon">🏫</span>
-          <p>Ermöglicht Workshops und Veranstaltungen in Schulen und Gemeinden</p>
-        </div>
-        <div class="impact-item">
-          <span class="icon">📢</span>
-          <p>Unterstützt unsere Öffentlichkeitsarbeit für mehr Menschlichkeit in der Gesellschaft</p>
-        </div>
-      </div>
-
-      {{#if donation.receipt_eligible}}
-      <div class="receipt-note">
-        <strong>🧾 Spendenquittung:</strong> Da Ihre Spende den Betrag von 50 EUR übersteigt, erhalten Sie im Anhang eine steuerlich absetzbare Spendenquittung gemäß § 4a EStG. Bitte bewahren Sie diese für Ihre Steuererklärung auf.
-      </div>
-      {{/if}}
-
-      <p class="text">
-        Wenn Sie möchten, können Sie uns auch in Zukunft regelmäßig unterstützen – jeder Beitrag, egal wie groß oder klein, hilft uns, unsere Arbeit fortzuführen.
+      <p style="margin:0;font-size:14px;color:#6B6560;">
+        Ihre Spende vom {{ donation.date }}
       </p>
+    </td>
+  </tr>
+</table>
 
-      <a href="https://menschlichkeit-oesterreich.at/spenden" class="cta-button">Erneut spenden</a>
-    </div>
-    <div class="footer">
-      <div class="social-links">
-        <a href="https://instagram.com/menschlichkeit_at">Instagram</a>
-        <a href="https://facebook.com/menschlichkeitoesterreich">Facebook</a>
-        <a href="https://linkedin.com/company/menschlichkeit-oesterreich">LinkedIn</a>
-      </div>
-      <p>Menschlichkeit Österreich | ZVR XXXXXXX | Gemeinnütziger Verein</p>
-      <p>Spenden an Menschlichkeit Österreich sind steuerlich absetzbar.</p>
-      <p><a href="{{unsubscribe_url}}">Abmelden</a> | <a href="https://menschlichkeit-oesterreich.at/datenschutz">Datenschutz</a></p>
-    </div>
-  </div>
-</body>
-</html>
+<!-- Wirkungsbox -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F5F1ED;border-radius:6px;margin:0 0 24px;">
+  <tr>
+    <td style="padding:20px 24px;">
+      <p style="margin:0 0 14px;font-size:14px;color:#2B231D;font-weight:700;font-family:'Nunito Sans',Arial,sans-serif;">
+        Was Ihre Spende bewirkt:
+      </p>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr>
+          <td style="padding:0 0 10px;font-size:14px;color:#4A4039;line-height:1.6;">
+            &bull;&nbsp; Finanziert den Betrieb unseres Demokratie-Bildungsspiels für Schulen und Jugendgruppen
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0 0 10px;font-size:14px;color:#4A4039;line-height:1.6;">
+            &bull;&nbsp; Ermöglicht Workshops und Veranstaltungen in Schulen und Gemeinden
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0;font-size:14px;color:#4A4039;line-height:1.6;">
+            &bull;&nbsp; Unterstützt unsere Öffentlichkeitsarbeit für mehr Menschlichkeit in der Gesellschaft
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+{% if donation.receipt_eligible %}
+<!-- Spendenquittung Hinweis -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F0FDF4;border-left:4px solid #22C55E;border-radius:0 6px 6px 0;margin:0 0 24px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0;font-size:13px;color:#4A4039;line-height:1.5;">
+        <strong>Spendenquittung:</strong> Da Ihre Spende den Betrag von 50 EUR übersteigt,
+        erhalten Sie im Anhang eine steuerlich absetzbare Spendenquittung.
+        Bitte bewahren Sie diese für Ihre Steuererklärung auf.
+      </p>
+    </td>
+  </tr>
+</table>
+{% endif %}
+
+<p style="margin:0 0 28px;font-size:15px;color:#4A4039;line-height:1.6;">
+  Wenn Sie möchten, können Sie uns auch in Zukunft regelmäßig unterstützen —
+  jeder Beitrag, egal wie groß oder klein, hilft uns, unsere Arbeit fortzuführen.
+</p>
+
+<!-- CTA -->
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 28px;">
+  <tr>
+    <td style="background-color:#D84A1B;border-radius:6px;">
+      <a href="https://www.menschlichkeit-oesterreich.at/spenden" style="display:inline-block;padding:14px 36px;color:#FFFFFF;font-family:'Nunito Sans',Arial,sans-serif;font-size:16px;font-weight:700;text-decoration:none;">
+        Erneut spenden
+      </a>
+    </td>
+  </tr>
+</table>
+{% endblock %}
+
+{% block footer_reason %}Sie erhalten diese E-Mail als Bestätigung Ihrer Spende an Menschlichkeit Österreich.{% endblock %}

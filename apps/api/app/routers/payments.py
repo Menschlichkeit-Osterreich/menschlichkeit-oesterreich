@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import json
+from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
+from ..db import execute
 from ..schemas.payments import PayPalCaptureRequest, PayPalOrderRequest, StripeIntentRequest
+from ..services.mail_service import mail_service
 from ..services.member_service import member_service
 from ..services.payment_service import payment_service
 from ..rbac import get_current_user
@@ -81,6 +84,34 @@ async def stripe_webhook(request: Request):
             source=obj.get("metadata", {}).get("purpose") or "Stripe",
             gateway_charge_id=obj.get("id"),
         )
+    elif event_type in ("payment_intent.payment_failed", "payment_intent.canceled"):
+        gateway_intent_id = obj.get("id", "")
+        new_status = "failed" if event_type == "payment_intent.payment_failed" else "canceled"
+        if gateway_intent_id:
+            await execute(
+                "UPDATE payment_intents SET status = $1, updated_at = NOW() WHERE gateway_intent_id = $2",
+                new_status,
+                gateway_intent_id,
+            )
+        if event_type == "payment_intent.payment_failed":
+            email = obj.get("metadata", {}).get("email") or obj.get("receipt_email") or ""
+            if email:
+                amount = float(obj.get("amount", 0)) / 100
+                failure_reason = (obj.get("last_payment_error") or {}).get("message")
+                await mail_service.send_template(
+                    template_id="donation_failed",
+                    recipient_email=email,
+                    context={
+                        "contact": {"first_name": ""},
+                        "donation": {
+                            "amount": f"{amount:.2f}",
+                            "date": str(date.today()),
+                            "failure_reason": failure_reason,
+                        },
+                        "retry_url": "https://www.menschlichkeit-oesterreich.at/spenden",
+                    },
+                    entity_type="payment_intent",
+                )
     return {"success": True}
 
 
@@ -97,4 +128,40 @@ async def paypal_webhook(request: Request):
         signature_valid=bool(request.headers.get("paypal-transmission-id")),
     ):
         return {"success": True, "message": "Webhook bereits verarbeitet."}
+
+    event_type = payload.get("event_type", "")
+    resource = payload.get("resource", {})
+
+    if event_type in ("CHECKOUT.ORDER.COMPLETED", "PAYMENT.CAPTURE.COMPLETED"):
+        if event_type == "CHECKOUT.ORDER.COMPLETED":
+            payer = resource.get("payer", {})
+            email = payer.get("email_address", "")
+            purchase_units = resource.get("purchase_units", [{}])
+            amount_info = purchase_units[0].get("amount", {})
+            amount = float(amount_info.get("value", "0") or 0)
+            currency = amount_info.get("currency_code", "EUR")
+            order_id = resource.get("id", "")
+        else:
+            amount_info = resource.get("amount", {})
+            amount = float(amount_info.get("value", "0") or 0)
+            currency = amount_info.get("currency_code", "EUR")
+            email = ""
+            order_id = resource.get("id", "")
+        await payment_service.record_successful_donation(
+            donor_email=email,
+            donor_name=email or "PayPal-Spender/in",
+            amount=amount,
+            currency=currency,
+            donation_type="one_time",
+            source="PayPal",
+            gateway_charge_id=order_id,
+        )
+    elif event_type == "PAYMENT.CAPTURE.DENIED":
+        capture_id = resource.get("id", "")
+        if capture_id:
+            await execute(
+                "UPDATE payment_intents SET status = 'failed', updated_at = NOW() WHERE gateway_intent_id = $1",
+                capture_id,
+            )
+
     return {"success": True}

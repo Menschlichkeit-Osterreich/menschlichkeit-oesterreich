@@ -1,0 +1,101 @@
+{% extends "_base.html" %}
+
+{% block title %}Neue Registrierung{% endblock %}
+
+{% block header %}
+<tr>
+  <td style="background-color:#2B231D;padding:20px 32px;text-align:center;">
+    <span style="color:#D84A1B;font-family:'Nunito Sans',Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;">
+      Admin-Benachrichtigung
+    </span>
+  </td>
+</tr>
+{% endblock %}
+
+{% block content %}
+<h1 style="margin:0 0 16px;font-size:20px;color:#2B231D;font-family:'Nunito Sans',Arial,sans-serif;font-weight:700;">
+  Neue Registrierung
+</h1>
+<p style="margin:0 0 24px;font-size:15px;color:#4A4039;line-height:1.6;">
+  Ein neues Konto wurde auf der Plattform angelegt.
+</p>
+
+<!-- Nutzerdetails -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #E8E0D8;border-radius:6px;margin:0 0 24px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0 0 10px;font-size:12px;color:#6B6560;text-transform:uppercase;letter-spacing:0.05em;font-family:'Nunito Sans',Arial,sans-serif;">
+        Nutzerdaten
+      </p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:13px;">
+        <tr>
+          <td style="padding:4px 0;color:#6B6560;width:160px;">Name</td>
+          <td style="padding:4px 0;color:#2B231D;font-weight:600;">{{ user.first_name }} {{ user.last_name }}</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0;color:#6B6560;">E-Mail</td>
+          <td style="padding:4px 0;color:#4A4039;">{{ user.email }}</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0;color:#6B6560;">Registriert am</td>
+          <td style="padding:4px 0;color:#4A4039;">{{ user.registered_at }}</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0;color:#6B6560;">Rolle</td>
+          <td style="padding:4px 0;color:#4A4039;">{{ user.role | default('MEMBER') }}</td>
+        </tr>
+        {% if user.membership_type %}
+        <tr>
+          <td style="padding:4px 0;color:#6B6560;">Mitgliedstyp</td>
+          <td style="padding:4px 0;color:#4A4039;">{{ user.membership_type }}</td>
+        </tr>
+        {% endif %}
+        {% if user.source %}
+        <tr>
+          <td style="padding:4px 0;color:#6B6560;">Quelle</td>
+          <td style="padding:4px 0;color:#4A4039;">{{ user.source }}</td>
+        </tr>
+        {% endif %}
+      </table>
+    </td>
+  </tr>
+</table>
+
+<!-- Status -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F5F1ED;border-radius:6px;margin:0 0 16px;">
+  <tr>
+    <td style="padding:14px 20px;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td style="padding-right:16px;font-size:13px;color:#6B6560;">
+            E-Mail verifiziert:
+            <strong style="color:{% if user.email_verified %}#22C55E{% else %}#D84A1B{% endif %};">
+              {% if user.email_verified %}Ja{% else %}Ausstehend{% endif %}
+            </strong>
+          </td>
+          <td style="font-size:13px;color:#6B6560;">
+            CiviCRM-Sync:
+            <strong style="color:{% if user.crm_synced %}#22C55E{% else %}#E67E22{% endif %};">
+              {% if user.crm_synced %}Synchronisiert{% else %}Ausstehend{% endif %}
+            </strong>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+{% if related_id %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F5F1ED;border-radius:6px;margin:0 0 16px;">
+  <tr>
+    <td style="padding:12px 20px;">
+      <p style="margin:0;font-size:13px;color:#6B6560;">
+        Interne User-ID: <strong style="color:#2B231D;font-family:monospace;">{{ related_id }}</strong>
+      </p>
+    </td>
+  </tr>
+</table>
+{% endif %}
+{% endblock %}
+
+{% block footer_reason %}Interne Benachrichtigung für das Administrationsteam von Menschlichkeit Österreich.{% endblock %}
