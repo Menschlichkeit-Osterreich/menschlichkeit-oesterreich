@@ -36,7 +36,17 @@ async def subscribe_newsletter(body: NewsletterSubscribeRequest, request: Reques
     await _ensure_doi_expiry_column()
     email = normalize_email(body.email)
     token = secrets.token_urlsafe(32)
-    existing = await fetchrow("SELECT id FROM newsletter_subscriptions WHERE LOWER(email) = LOWER($1)", email)
+    existing = await fetchrow(
+        "SELECT id, token_created_at FROM newsletter_subscriptions WHERE LOWER(email) = LOWER($1)", email
+    )
+    # DoS-Schutz: max. 1 neues Token alle 5 Minuten pro E-Mail-Adresse
+    if existing and existing["token_created_at"] is not None:
+        age = datetime.now(timezone.utc) - existing["token_created_at"]
+        if age < timedelta(minutes=5):
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Bitte warten Sie 5 Minuten, bevor Sie sich erneut anmelden.",
+            )
     if existing:
         await execute(
             """

@@ -74,8 +74,6 @@ async def _ensure_finance_tables() -> None:
 
 @router.get("/finance/overview", response_model=FinanceOverviewResponse)
 async def finance_overview(user: dict = require_role(Role.ADMIN)):
-    await _ensure_finance_tables()
-
     einnahmen_monat = await fetchval(
         "SELECT COALESCE(SUM(amount_cents),0) FROM payments WHERE booked_at >= date_trunc('month', CURRENT_DATE)"
     ) or 0

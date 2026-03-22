@@ -141,8 +141,7 @@ webhooks:
     - dlq-admin
     - WebhookQueue_Processor
     - mail-archiver-logging
-    # DSGVO
-    - right-to-erasure
+    # DSGVO (einzige kanonische Version: right-to-erasure-fixed mit HMAC-Signatur)
     - right-to-erasure-fixed
     # Social & Kommunikation
     - social-media-crosspost

@@ -2,115 +2,123 @@
 JWT Token Blacklist
 ===================
 
-In-memory Blacklist für widerrufene JWT-Tokens.
+Widerruf-Speicher für JWT-Tokens. Bei gesetztem REDIS_URL wird Redis verwendet,
+sodass Widerrufe über alle Worker-Instanzen hinweg gelten.
+Ohne REDIS_URL fällt das System auf einen In-Memory-Store zurück (nur Dev).
 
-Wenn ein Nutzer sein Konto löscht (DSGVO Art. 17), wird der aktive JWT-Token
-sofort gesperrt, sodass er nicht mehr für API-Requests verwendet werden kann.
-
-Hinweis: Diese In-Memory-Implementierung gilt nur für den laufenden Prozess.
-In der Produktion sollte ein Redis-Backend verwendet werden, das über alle
-Worker-Instanzen hinweg geteilt wird.
+Wenn ein Nutzer sein Konto löscht (DSGVO Art. 17) oder sich ausloggt, wird der
+aktive JWT-Token sofort gesperrt und kann nicht mehr für API-Requests verwendet werden.
 
 Author: Menschlichkeit Österreich DevOps
 """
 
 from __future__ import annotations
 
+import hashlib
 import logging
+import os
 import threading
+import time
 from datetime import datetime
-
 
 logger = logging.getLogger(__name__)
 
 
-class TokenBlacklist:
-    """
-    Thread-sichere In-Memory-Blacklist für widerrufene JWT-Tokens.
+def _token_key(token: str) -> str:
+    """SHA-256-Hash des Tokens als Redis-Key (kein Klartexttoken im Cache)."""
+    return "jwtbl:" + hashlib.sha256(token.encode()).hexdigest()
 
-    Einträge werden automatisch entfernt, sobald das Token ohnehin
-    abgelaufen wäre (TTL-basiertes Cleanup).
-    """
+
+class InMemoryTokenBlacklist:
+    """Thread-sichere In-Memory-Blacklist — nur für Entwicklung / Einzelinstanz."""
 
     def __init__(self) -> None:
-        # token_string → expiry datetime
-        self._store: dict[str, datetime] = {}
+        # token_string → Unix-Timestamp des Ablaufs
+        self._store: dict[str, float] = {}
         self._lock = threading.Lock()
 
-    def revoke(self, token: str, expires_at: datetime) -> None:
-        """
-        Widerruft ein Token bis zu seinem Ablaufdatum.
-
-        Args:
-            token:      Der rohe JWT-Token-String (ohne "Bearer "-Präfix).
-            expires_at: Zeitpunkt, ab dem das Token ohnehin ungültig wäre.
-                        Danach wird der Eintrag bei der nächsten Prüfung entfernt.
-        """
+    async def revoke(self, token: str, expires_at: datetime) -> None:
+        exp_ts = expires_at.timestamp()
         with self._lock:
-            self._store[token] = expires_at
+            self._store[token] = exp_ts
             logger.debug(
-                "JWT-Token widerrufen (läuft ab: %s). "
-                "Blacklist enthält %d Einträge.",
-                expires_at.isoformat(),
-                len(self._store),
+                "JWT widerrufen (in-memory, %d Einträge gesamt)", len(self._store)
             )
 
-    def is_revoked(self, token: str) -> bool:
-        """
-        Prüft, ob ein Token widerrufen wurde.
-
-        Abgelaufene Einträge werden dabei automatisch bereinigt.
-
-        Returns:
-            True  – Token ist gesperrt und darf nicht akzeptiert werden.
-            False – Token ist nicht in der Blacklist.
-        """
-        now = datetime.utcnow()
+    async def is_revoked(self, token: str) -> bool:
+        now = time.time()
         with self._lock:
-            expiry = self._store.get(token)
-            if expiry is None:
+            exp_ts = self._store.get(token)
+            if exp_ts is None:
                 return False
-            if now >= expiry:
-                # Token wäre bereits abgelaufen – Eintrag nicht mehr nötig
+            if now >= exp_ts:
                 del self._store[token]
                 return False
             return True
 
-    def cleanup_expired(self) -> int:
-        """
-        Entfernt alle abgelaufenen Einträge aus der Blacklist.
-
-        Kann periodisch aufgerufen werden (z. B. per APScheduler/Celery).
-
-        Returns:
-            Anzahl der entfernten Einträge.
-        """
-        now = datetime.utcnow()
-        with self._lock:
-            expired = [t for t, exp in self._store.items() if now >= exp]
-            for token in expired:
-                del self._store[token]
-        if expired:
-            logger.debug("TokenBlacklist: %d abgelaufene Einträge entfernt.", len(expired))
-        return len(expired)
+    async def close(self) -> None:
+        pass
 
     def __len__(self) -> int:
         with self._lock:
             return len(self._store)
 
 
+class RedisTokenBlacklist:
+    """Redis-gestützte Blacklist — gültig über alle Instanzen und Neustarts.
+
+    Speichert einen SHA-256-Hash des Tokens (nie den Klartext).
+    TTL entspricht der verbleibenden Token-Laufzeit — Redis räumt automatisch auf.
+    Bei Redis-Ausfall: fail-open (Token wird als nicht widerrufen betrachtet, Warning geloggt).
+    """
+
+    def __init__(self, redis_url: str) -> None:
+        import redis.asyncio as aioredis  # lazy import — nur wenn REDIS_URL gesetzt
+        self._redis = aioredis.from_url(redis_url, encoding="utf-8", decode_responses=True)
+
+    async def revoke(self, token: str, expires_at: datetime) -> None:
+        ttl = max(1, int(expires_at.timestamp() - time.time()))
+        try:
+            await self._redis.set(_token_key(token), "1", ex=ttl)
+            logger.debug("JWT widerrufen (redis, TTL=%ds)", ttl)
+        except Exception as exc:
+            logger.warning("redis_blacklist_revoke_error | error=%s", exc)
+
+    async def is_revoked(self, token: str) -> bool:
+        try:
+            return bool(await self._redis.exists(_token_key(token)))
+        except Exception as exc:
+            logger.warning("redis_blacklist_check_error | error=%s", exc)
+            return False  # fail-open: Token als gültig betrachten
+
+    async def close(self) -> None:
+        await self._redis.aclose()
+
+
+def _build_token_blacklist() -> InMemoryTokenBlacklist | RedisTokenBlacklist:
+    redis_url = os.getenv("REDIS_URL")
+    if redis_url:
+        logger.info("token_blacklist=redis")
+        return RedisTokenBlacklist(redis_url)
+    logger.warning(
+        "token_blacklist=in_memory | REDIS_URL nicht gesetzt — "
+        "Token-Widerrufe gelten NUR für diese Prozessinstanz"
+    )
+    return InMemoryTokenBlacklist()
+
+
 # ---------------------------------------------------------------------------
 # Modul-Singleton
 # ---------------------------------------------------------------------------
 
-_blacklist = TokenBlacklist()
+_blacklist: InMemoryTokenBlacklist | RedisTokenBlacklist = _build_token_blacklist()
 
 
-def revoke_token(token: str, expires_at: datetime) -> None:
-    """Widerruft einen JWT-Token sofort. Shortcut für _blacklist.revoke()."""
-    _blacklist.revoke(token, expires_at)
+async def revoke_token(token: str, expires_at: datetime) -> None:
+    """Widerruft einen JWT-Token sofort."""
+    await _blacklist.revoke(token, expires_at)
 
 
-def is_token_revoked(token: str) -> bool:
-    """Gibt True zurück, wenn der Token widerrufen wurde. Shortcut für _blacklist.is_revoked()."""
-    return _blacklist.is_revoked(token)
+async def is_token_revoked(token: str) -> bool:
+    """Gibt True zurück, wenn der Token widerrufen wurde."""
+    return await _blacklist.is_revoked(token)

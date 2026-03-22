@@ -5,7 +5,7 @@ from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
-from ..db import execute
+from ..db import execute, fetchrow as db_fetchrow
 from ..schemas.payments import PayPalCaptureRequest, PayPalOrderRequest, StripeIntentRequest
 from ..services.mail_service import mail_service
 from ..services.member_service import member_service
@@ -63,16 +63,18 @@ async def stripe_webhook(request: Request):
     event_id = payload.get("id")
     if not event_id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Stripe-Event-ID fehlt")
-    if not await payment_service.record_webhook_event(
-        provider="stripe",
-        event_id=event_id,
-        payload=payload,
-        signature_valid=True,
-    ):
+    # Idempotenz-Vorprüfung: bereits verarbeitet?
+    already = await db_fetchrow(
+        "SELECT id FROM webhook_events WHERE provider = $1 AND provider_event_id = $2",
+        "stripe", event_id,
+    )
+    if already:
         return {"success": True, "message": "Webhook bereits verarbeitet."}
 
     event_type = payload.get("type")
     obj = payload.get("data", {}).get("object", {})
+
+    # Schritt 1: Geschäftslogik ausführen (idempotent via gateway_charge_id)
     if event_type == "payment_intent.succeeded":
         amount = float(obj.get("amount_received", obj.get("amount", 0))) / 100
         await payment_service.record_successful_donation(
@@ -112,6 +114,13 @@ async def stripe_webhook(request: Request):
                     },
                     entity_type="payment_intent",
                 )
+    # Schritt 2: Webhook als verarbeitet markieren (erst nach erfolgreicher Geschäftslogik)
+    await payment_service.record_webhook_event(
+        provider="stripe",
+        event_id=event_id,
+        payload=payload,
+        signature_valid=True,
+    )
     return {"success": True}
 
 

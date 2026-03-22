@@ -104,7 +104,7 @@ async def logout(request: Request):
         payload = decode_jwt(token) or {}
         exp = payload.get("exp")
         expires_at = datetime.fromtimestamp(exp, tz=timezone.utc) if exp else datetime.now(timezone.utc)
-        revoke_token(token, expires_at)
+        await revoke_token(token, expires_at)
         if payload.get("uid") and payload.get("sid"):
             await member_service.revoke_session(member_id=payload["uid"], session_id=payload["sid"])
     return MessageResponse(message="Erfolgreich abgemeldet.")

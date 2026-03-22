@@ -129,7 +129,7 @@ async def get_current_user(
 ) -> Optional[dict]:
     if not credentials:
         return None
-    if is_token_revoked(credentials.credentials):
+    if await is_token_revoked(credentials.credentials):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token wurde widerrufen",
@@ -151,7 +151,7 @@ async def require_auth(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentifizierung erforderlich",
         )
-    if is_token_revoked(credentials.credentials):
+    if await is_token_revoked(credentials.credentials):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token wurde widerrufen",
@@ -174,7 +174,7 @@ def require_role(minimum_role: Role):
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Authentifizierung erforderlich",
             )
-        if is_token_revoked(credentials.credentials):
+        if await is_token_revoked(credentials.credentials):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Token wurde widerrufen",

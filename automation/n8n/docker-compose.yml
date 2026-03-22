@@ -12,7 +12,7 @@ services:
     environment:
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=${N8N_USER:-admin}
-      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD:-changeme123}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD:?N8N_PASSWORD muss in .env gesetzt sein}
       - N8N_HOST=${N8N_HOST:-localhost}
       - N8N_PORT=5678
       - N8N_PROTOCOL=http
@@ -44,7 +44,7 @@ services:
     image: redis:7-alpine
     container_name: moe-n8n-redis
     restart: unless-stopped
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-redis123}
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD muss in .env gesetzt sein}
     volumes:
       - redis_n8n_data:/data
     networks:
@@ -58,7 +58,7 @@ services:
     environment:
       - POSTGRES_DB=n8n
       - POSTGRES_USER=n8n_user
-      - POSTGRES_PASSWORD=${N8N_DB_PASSWORD:-n8n_secure_pass}
+      - POSTGRES_PASSWORD=${N8N_DB_PASSWORD:?N8N_DB_PASSWORD muss in .env gesetzt sein}
     volumes:
       - postgres_n8n_data:/var/lib/postgresql/data
     networks:

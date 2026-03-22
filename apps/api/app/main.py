@@ -47,7 +47,9 @@ from .routers import (
     alerts,
 )
 from .audit import ensure_audit_table, write_audit_event
+from .routers.finance import _ensure_finance_tables
 from .security import enforce_csrf, rate_limiter, require_jwt_secret_configured
+from .lib.token_blacklist import _blacklist as token_blacklist
 from .middleware.pii_middleware import PiiSanitizationMiddleware, PiiLoggingMiddleware
 
 # ── Logging Setup ─────────────────────────────────────────────────────────────
@@ -91,8 +93,13 @@ async def lifespan(app: FastAPI):
     """Startup & Shutdown Events."""
     require_jwt_secret_configured()
     await ensure_audit_table()
+    await _ensure_finance_tables()
     logger.info(f"🚀 Menschlichkeit API starting | env={ENVIRONMENT}")
     yield
+    if hasattr(rate_limiter, "close"):
+        await rate_limiter.close()
+    if hasattr(token_blacklist, "close"):
+        await token_blacklist.close()
     logger.info("🛑 Menschlichkeit API shutting down")
 
 
@@ -208,7 +215,7 @@ async def request_logging_middleware(request: Request, call_next: Callable) -> R
         enforce_csrf(request)
         client = request.client.host if request.client else "unknown"
         rate_limit_key = f"{client}:{request.url.path}"
-        allowed, retry_after = rate_limiter.check(rate_limit_key)
+        allowed, retry_after = await rate_limiter.check(rate_limit_key)
         if not allowed:
             return JSONResponse(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,

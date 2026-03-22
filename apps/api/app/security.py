@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import os
 import time
 from collections import defaultdict, deque
@@ -7,6 +8,8 @@ from dataclasses import dataclass
 from typing import Deque
 
 from fastapi import HTTPException, Request, status
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -20,7 +23,7 @@ class InMemoryRateLimiter:
         self.config = config
         self._requests: dict[str, Deque[float]] = defaultdict(deque)
 
-    def check(self, key: str) -> tuple[bool, int]:
+    async def check(self, key: str) -> tuple[bool, int]:
         now = time.time()
         window_start = now - self.config.window_seconds
         bucket = self._requests[key]
@@ -36,12 +39,82 @@ class InMemoryRateLimiter:
         return True, 0
 
 
-rate_limiter = InMemoryRateLimiter(
-    RateLimitConfig(
+# Atomares Lua-Script: ZREMRANGEBYSCORE + ZCARD + ZADD ohne Race Condition
+_RATE_LIMIT_LUA = """
+local key = KEYS[1]
+local now = tonumber(ARGV[1])
+local window = tonumber(ARGV[2])
+local limit = tonumber(ARGV[3])
+local window_start = now - window
+
+redis.call('ZREMRANGEBYSCORE', key, '-inf', window_start)
+local count = redis.call('ZCARD', key)
+
+if count >= limit then
+    local oldest = redis.call('ZRANGE', key, 0, 0, 'WITHSCORES')
+    local retry_after = math.ceil(window - (now - tonumber(oldest[2])))
+    return {0, math.max(retry_after, 1)}
+end
+
+local member = tostring(now) .. ':' .. tostring(math.random(1, 1000000))
+redis.call('ZADD', key, now, member)
+redis.call('EXPIRE', key, window + 1)
+return {1, 0}
+"""
+
+
+class RedisRateLimiter:
+    """Sliding-Window Rate Limiter mit Redis-Backend.
+
+    Das Lua-Script wird atomar ausgeführt — ZREMRANGEBYSCORE + ZCARD + ZADD
+    laufen ohne Race Condition auch bei mehreren API-Instanzen.
+    Bei Redis-Ausfall: fail-open (Request wird durchgelassen, Warning geloggt).
+    """
+
+    def __init__(self, redis_url: str, config: RateLimitConfig) -> None:
+        import redis.asyncio as aioredis  # lazy import — nur wenn REDIS_URL gesetzt
+        self._redis = aioredis.from_url(redis_url, encoding="utf-8", decode_responses=True)
+        self.config = config
+
+    async def check(self, key: str) -> tuple[bool, int]:
+        try:
+            now = time.time()
+            result = await self._redis.eval(
+                _RATE_LIMIT_LUA,
+                1,
+                f"rl:{key}",
+                now,
+                self.config.window_seconds,
+                self.config.requests,
+            )
+            return bool(int(result[0])), int(result[1])
+        except Exception as exc:
+            logger.warning("redis_rate_limiter_error | key=%s | error=%s", key, exc)
+            return True, 0  # fail-open: Request erlauben wenn Redis nicht erreichbar
+
+    async def close(self) -> None:
+        await self._redis.aclose()
+
+
+def _build_rate_limiter() -> InMemoryRateLimiter | RedisRateLimiter:
+    config = RateLimitConfig(
         requests=int(os.getenv("RATE_LIMIT_REQUESTS", "120")),
         window_seconds=int(os.getenv("RATE_LIMIT_WINDOW_SECONDS", "60")),
     )
-)
+    redis_url = os.getenv("REDIS_URL")
+    if redis_url:
+        # URL für Logging anonymisieren (Passwort ausblenden)
+        safe_url = redis_url.split("@")[-1] if "@" in redis_url else redis_url
+        logger.info("rate_limiter=redis | host=%s", safe_url)
+        return RedisRateLimiter(redis_url, config)
+    logger.warning(
+        "rate_limiter=in_memory | REDIS_URL nicht gesetzt — "
+        "Rate Limits werden NICHT über mehrere Instanzen geteilt"
+    )
+    return InMemoryRateLimiter(config)
+
+
+rate_limiter: InMemoryRateLimiter | RedisRateLimiter = _build_rate_limiter()
 
 
 def require_jwt_secret_configured() -> None:
