@@ -57,7 +57,7 @@ const UIScreens = (() => {
     if (btn) {
       btn.style.display = 'flex';
       btn.onclick = () => {
-        document.getElementById('role-selection').classList.add('hidden');
+        document.getElementById('role-select-screen').classList.add('hidden');
         document.getElementById('world-map').classList.remove('hidden');
         GAME_STATE.phase = 'world-map';
         if (typeof SceneWorldmap !== 'undefined') SceneWorldmap.init();

@@ -126,6 +126,11 @@ const SceneGame = (() => {
     },
   };
 
+  // Erweiterte Szenarien aus data-scenarios.js einbinden (Level 11-100)
+  if (typeof EXTENDED_SCENARIOS !== 'undefined') {
+    Object.assign(SCENARIOS, EXTENDED_SCENARIOS);
+  }
+
   // ── Level starten ──────────────────────────────────────────
   function startLevel(level) {
     currentLevel = level;
