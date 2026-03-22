@@ -1,61 +1,61 @@
 [
   {
-    "filePath": "E:/openclawd-win-bridge/repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/apps/game/docs/CONTENT_MATRIX.md",
-    "timestamp": 1774176082381,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "E:/openclawd-win-bridge/repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/apps/game/docs/IMPLEMENTATION_ROADMAP.md",
-    "timestamp": 1774176139283,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "E:/openclawd-win-bridge/repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/apps/game/docs/BABYLON_ARCHITECTURE_PLAN.md",
-    "timestamp": 1774176158244,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "E:/openclawd-win-bridge/repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/apps/game/docs/FILE_BY_FILE_PLAN.md",
-    "timestamp": 1774176189312,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "E:/openclawd-win-bridge/repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/apps/game/docs/BACKLOG_EPICS.md",
-    "timestamp": 1774176307213,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "E:/openclawd-win-bridge/repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/apps/game/docs/GAME_SYSTEMS_BLUEPRINT.md",
-    "timestamp": 1774176348947,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "E:/openclawd-win-bridge/repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/apps/game/docs/RISK_REGISTER.md",
-    "timestamp": 1774176368630,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "E:\\openclawd-win-bridge\\repos\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich-development\\apps\\game\\v2\\js\\ui-screens.js",
-    "timestamp": 1774176595895,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
-    "filePath": "E:\\openclawd-win-bridge\\repos\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich-development\\apps\\game\\v2\\js\\analytics.js",
-    "timestamp": 1774176606659,
-    "focus": false,
-    "openLocation": 0
-  },
-  {
     "filePath": "E:\\openclawd-win-bridge\\repos\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich-development\\apps\\game\\v2\\js\\scene-game.js",
     "timestamp": 1774176614703,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "E:\\openclawd-win-bridge\\repos\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich-development\\apps\\api\\app\\routers\\finance.py",
+    "timestamp": 1774180961894,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "E:\\openclawd-win-bridge\\repos\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich-development\\apps\\api\\app\\main.py",
+    "timestamp": 1774180966410,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "E:\\openclawd-win-bridge\\repos\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich-development\\apps\\api\\app\\main.py",
+    "timestamp": 1774180972909,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "E:\\openclawd-win-bridge\\repos\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich-development\\apps\\api\\app\\routers\\newsletter.py",
+    "timestamp": 1774180998063,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "E:\\openclawd-win-bridge\\repos\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich-development\\apps\\api\\app\\routers\\payments.py",
+    "timestamp": 1774181090710,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "E:\\openclawd-win-bridge\\repos\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich-development\\apps\\api\\app\\routers\\payments.py",
+    "timestamp": 1774181101131,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "E:\\openclawd-win-bridge\\repos\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich-development\\apps\\api\\app\\routers\\payments.py",
+    "timestamp": 1774181105526,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "E:\\openclawd-win-bridge\\repos\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich-development\\apps\\api\\app\\routers\\payments.py",
+    "timestamp": 1774181110593,
+    "focus": false,
+    "openLocation": 0
+  },
+  {
+    "filePath": "C:\\Users\\schul\\.claude\\plans\\prancy-brewing-sifakis.md",
+    "timestamp": 1774181243690,
     "focus": false,
     "openLocation": 0
   }
