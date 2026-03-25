@@ -1,5 +1,5 @@
 fastapi==0.115.4
-uvicorn[standard]==0.30.6
+uvicorn[standard]==0.42.0
 httpx==0.28.1
 pydantic[email]==2.12.5
 PyJWT==2.10.1
