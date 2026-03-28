@@ -29,7 +29,7 @@ export const TrendChart: React.FC<TrendChartProps> = ({
   title,
   xKey = 'date',
   yKey = 'value',
-  color = '#2563eb', // blue-600
+  color = '#1B4965', // Demokratie-Blau (Brand)
   formatYAxis,
   loading = false,
 }) => {
@@ -47,10 +47,10 @@ export const TrendChart: React.FC<TrendChartProps> = ({
       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{title}</h3>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#DDD5CC" />
           <XAxis
             dataKey={xKey}
-            stroke="#6b7280"
+            stroke="#7A6E62"
             style={{ fontSize: 12 }}
             tickFormatter={(value: string) => {
               const date = new Date(value);
@@ -58,16 +58,16 @@ export const TrendChart: React.FC<TrendChartProps> = ({
             }}
           />
           <YAxis
-            stroke="#6b7280"
+            stroke="#7A6E62"
             style={{ fontSize: 12 }}
             tickFormatter={formatYAxis ?? ((value: number) => value.toString())}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: '#1f2937',
+              backgroundColor: '#4A4039',
               border: 'none',
               borderRadius: '0.5rem',
-              color: '#fff',
+              color: '#ffffff',
             }}
             labelFormatter={(value: unknown) => {
               const date = new Date(value as string);

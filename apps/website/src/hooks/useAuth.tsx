@@ -30,7 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(authService.getCurrentUser());
         }
       } catch (error) {
-        console.error('Auth initialization failed:', error);
+        console.error('Auth initialization failed:', error instanceof Error ? error.message : 'Unknown error');
       } finally {
         setIsLoading(false);
       }
@@ -84,7 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(null);
       }
     } catch (error) {
-      console.error('User refresh failed:', error);
+      console.error('User refresh failed:', error instanceof Error ? error.message : 'Unknown error');
       setUser(null);
     }
   }, []);

@@ -9,6 +9,11 @@ from typing import Deque
 
 from fastapi import HTTPException, Request, status
 
+try:
+    from redis.exceptions import RedisError as _RedisError
+except ImportError:
+    _RedisError = OSError  # type: ignore[assignment,misc]
+
 from .secrets_provider import get_secret
 
 logger = logging.getLogger(__name__)
@@ -90,7 +95,7 @@ class RedisRateLimiter:
                 self.config.requests,
             )
             return bool(int(result[0])), int(result[1])
-        except Exception as exc:
+        except _RedisError as exc:
             logger.warning("redis_rate_limiter_error | key=%s | error=%s", key, exc)
             return True, 0  # fail-open: Request erlauben wenn Redis nicht erreichbar
 

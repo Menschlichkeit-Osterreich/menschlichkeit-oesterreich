@@ -23,6 +23,8 @@ from .mail_service import mail_service
 from .privacy_service import privacy_service
 from .utils import hash_optional, normalize_email, utcnow
 
+_PUBLIC_APP_URL = os.environ["PUBLIC_APP_URL"]  # Pflichtfeld — fehlt → App startet nicht
+
 logger = logging.getLogger("menschlichkeit.members.service")
 
 PASSWORD_RESET_TTL_HOURS = 1
@@ -263,7 +265,7 @@ class MemberService:
             )
             member["civicrm_contact_id"] = int(crm_contact["id"])
 
-        verify_url = f"{os.getenv('PUBLIC_APP_URL', 'https://www.menschlichkeit-oesterreich.at')}/verify-email?token={verification_token}"
+        verify_url = f"{_PUBLIC_APP_URL}/verify-email?token={verification_token}"
         await mail_service.send_template(
             template_id="verify_email",
             recipient_email=email,
@@ -454,7 +456,7 @@ class MemberService:
             token,
             expires_at,
         )
-        reset_url = f"{os.getenv('PUBLIC_APP_URL', 'https://www.menschlichkeit-oesterreich.at')}/passwort-zuruecksetzen?token={token}"
+        reset_url = f"{_PUBLIC_APP_URL}/passwort-zuruecksetzen?token={token}"
         await mail_service.send_template(
             template_id="password_reset",
             recipient_email=email,
@@ -523,7 +525,7 @@ class MemberService:
         if not row:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Benutzer nicht gefunden")
         member = dict(row)
-        verify_url = f"{os.getenv('PUBLIC_APP_URL', 'https://www.menschlichkeit-oesterreich.at')}/verify-email?token={token}"
+        verify_url = f"{_PUBLIC_APP_URL}/verify-email?token={token}"
         await mail_service.send_template(
             template_id="verify_email",
             recipient_email=member["email"],

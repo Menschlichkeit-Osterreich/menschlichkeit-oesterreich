@@ -104,7 +104,7 @@ def decode_jwt(token: str) -> Optional[dict]:
         if payload.get("exp", 0) < int(time.time()):
             return None
         return payload
-    except Exception:
+    except (ValueError, KeyError):
         return None
 
 
@@ -121,7 +121,7 @@ def verify_password(password: str, stored_hash: str) -> bool:
         expected_key = bytes.fromhex(key_hex)
         actual_key = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, 100000)
         return hmac.compare_digest(expected_key, actual_key)
-    except Exception:
+    except ValueError:
         return False
 
 

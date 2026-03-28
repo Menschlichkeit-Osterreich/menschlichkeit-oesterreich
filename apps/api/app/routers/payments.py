@@ -77,9 +77,10 @@ async def stripe_webhook(request: Request):
     # Schritt 1: Geschäftslogik ausführen (idempotent via gateway_charge_id)
     if event_type == "payment_intent.succeeded":
         amount = float(obj.get("amount_received", obj.get("amount", 0))) / 100
+        _meta = obj.get("metadata", {})
         await payment_service.record_successful_donation(
-            donor_email=obj.get("metadata", {}).get("email", ""),
-            donor_name=obj.get("metadata", {}).get("email", "Spender/in"),
+            donor_email=_meta.get("email", ""),
+            donor_name=_meta.get("name") or _meta.get("donor_name") or "Spender/in",
             amount=amount,
             currency=obj.get("currency", "eur").upper(),
             donation_type="one_time",

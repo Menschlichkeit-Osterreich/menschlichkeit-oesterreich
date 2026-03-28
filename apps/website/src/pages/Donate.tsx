@@ -178,7 +178,7 @@ export default function DonatePage() {
       setMessage('Vielen Dank für Ihre Unterstützung! Bestätigung erfolgt per E‑Mail.');
       navigate(`/erfolg?amount=${encodeURIComponent(amount)}&currency=EUR&purpose=${encodeURIComponent(purpose)}&method=${encodeURIComponent(instrument)}`);
     } catch (err: any) {
-      console.error(err);
+      console.error('Spendenvorgang fehlgeschlagen:', err instanceof Error ? err.message : 'Unknown error');
       setError(err?.message || 'Spende fehlgeschlagen. Bitte erneut versuchen.');
     } finally {
       setSubmitting(false);

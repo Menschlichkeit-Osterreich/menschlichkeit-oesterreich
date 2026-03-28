@@ -66,7 +66,7 @@ export function MemberDetail({ member, onClose, onUpdate }: MemberDetailProps) {
         setMemberships(data.data?.values || []);
       }
     } catch (err) {
-      console.error('Fehler beim Laden der Mitgliedschaftsdetails:', err);
+      console.error('Fehler beim Laden der Mitgliedschaftsdetails:', err instanceof Error ? err.message : 'Unknown error');
     }
   }
 
