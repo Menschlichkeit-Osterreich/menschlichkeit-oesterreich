@@ -1,4 +1,4 @@
-FROM python:3.13-slim AS base
+FROM python:3.13-slim@sha256:7d8999b140f22939451e00b79c0fd86f13d0bc0577b369f8212fce063101fb2a AS base
 
 WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -7,8 +7,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+
 COPY plesk_client.py .
 COPY app/ app/
+
+RUN chown -R appuser:appgroup /app
+USER appuser
 
 EXPOSE 8005
 

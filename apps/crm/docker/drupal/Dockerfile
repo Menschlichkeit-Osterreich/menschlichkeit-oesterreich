@@ -1,4 +1,4 @@
-FROM php:8.2-fpm
+FROM php:8.2-fpm@sha256:2509cda8128e084b8cbb9e560dffae5f53e24e0cd90355414d57ed9a28727711
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
