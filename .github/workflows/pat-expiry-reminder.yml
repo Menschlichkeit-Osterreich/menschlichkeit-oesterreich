@@ -1,7 +1,7 @@
 name: PAT Expiry Reminder
 on:
   schedule:
-    - cron: '0 7 * * *'  # Täglich 07:00 UTC (09:00 CEST)
+    - cron: '0 7 * * *' # Täglich 07:00 UTC (09:00 CEST)
   workflow_dispatch:
 
 permissions:
@@ -14,7 +14,7 @@ jobs:
       - name: Calculate days until expiry
         id: calc
         run: |
-          EXPIRY="2026-10-18"
+          EXPIRY="2027-03-26"
           CURRENT=$(date -u +%s)
           EXPIRY_TIMESTAMP=$(date -u -d "$EXPIRY" +%s)
           DAYS=$(( ( $EXPIRY_TIMESTAMP - $CURRENT ) / 86400 ))
@@ -48,15 +48,15 @@ jobs:
           ## 📋 Ablauf-Information
 
           - **Aktuelles Datum:** $(date -u +%Y-%m-%d)
-          - **Ablaufdatum:** 2026-10-18
+          - **Ablaufdatum:** 2027-03-26
           - **Verbleibende Tage:** $DAYS
-          - **Token-Name:** \`GH_TOKEN\`
+          - **Token-Name:** \`claud code full\` (GH_TOKEN)
 
           ## ✅ Rotation-Schritte
 
           1. **Neuen PAT erstellen:** https://github.com/settings/tokens?type=beta
              - Scopes: \`repo\`, \`workflow\`, \`admin:org\`, \`codespace\`
-             - Ablauf: 1 Jahr (bis 2027-10-18)
+             - Ablauf: 1 Jahr (bis 2028-03-26)
 
           2. **Secret aktualisieren:**
              \`\`\`bash

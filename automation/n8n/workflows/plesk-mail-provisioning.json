@@ -1,0 +1,186 @@
+{
+  "name": "Plesk Mail Provisioning",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "plesk-mail",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body.action }}",
+              "operation": "equals",
+              "value2": "create"
+            }
+          ]
+        }
+      },
+      "id": "switch-action",
+      "name": "Route by Action",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [400, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://{{ $env.PLESK_HOST }}:8443/enterprise/control/agent.php",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "HTTP_AUTH_LOGIN",
+              "value": "={{ $env.PLESK_LOGIN }}"
+            },
+            {
+              "name": "HTTP_AUTH_PASSWD",
+              "value": "={{ $env.PLESK_PASSWORD }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "text/xml"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "text/xml",
+        "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><packet version=\"1.6.9.1\"><mail><create><filter><site-id>={{ $json.body.site_id }}</site-id><mailname><name>={{ $json.body.name }}</name><mailbox><enabled>true</enabled></mailbox><password><value>={{ $json.body.password }}</value><type>plain</type></password></mailname></filter></create></mail></packet>",
+        "options": {
+          "allowUnauthorizedCerts": false,
+          "timeout": 30000
+        }
+      },
+      "id": "create-mailbox",
+      "name": "Create Mailbox",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [600, 200]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://{{ $env.PLESK_HOST }}:8443/enterprise/control/agent.php",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "HTTP_AUTH_LOGIN",
+              "value": "={{ $env.PLESK_LOGIN }}"
+            },
+            {
+              "name": "HTTP_AUTH_PASSWD",
+              "value": "={{ $env.PLESK_PASSWORD }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "text/xml"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "text/xml",
+        "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><packet version=\"1.6.9.1\"><mail><get_info><filter><site-id>={{ $json.body.site_id }}</site-id></filter><mailbox/></get_info></mail></packet>",
+        "options": {
+          "allowUnauthorizedCerts": false,
+          "timeout": 30000
+        }
+      },
+      "id": "list-mailboxes",
+      "name": "List Mailboxes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [600, 400]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: 'ok', data: $json }) }}"
+      },
+      "id": "respond-success",
+      "name": "Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [800, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Route by Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Action": {
+      "main": [
+        [
+          {
+            "node": "Create Mailbox",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "List Mailboxes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Mailbox": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Mailboxes": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": [
+    {
+      "name": "plesk"
+    },
+    {
+      "name": "mail"
+    },
+    {
+      "name": "infrastructure"
+    }
+  ]
+}

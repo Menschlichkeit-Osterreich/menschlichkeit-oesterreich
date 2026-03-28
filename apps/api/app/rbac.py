@@ -15,12 +15,13 @@ from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from .lib.token_blacklist import is_token_revoked
+from .secrets_provider import get_secret
 
 logger = logging.getLogger("menschlichkeit.rbac")
 
-_jwt_secret_raw = os.getenv("JWT_SECRET_KEY", "").strip()
+_jwt_secret_raw = get_secret("JWT_SECRET_KEY", bsm_key="api/JWT_SECRET_KEY").strip()
 if not _jwt_secret_raw:
-    _jwt_secret_raw = os.getenv("JWT_SECRET", "").strip()
+    _jwt_secret_raw = get_secret("JWT_SECRET", bsm_key="api/JWT_SECRET").strip()
     if _jwt_secret_raw:
         logger.warning("JWT_SECRET ist veraltet – bitte JWT_SECRET_KEY verwenden.")
 

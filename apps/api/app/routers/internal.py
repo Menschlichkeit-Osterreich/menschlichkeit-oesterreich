@@ -7,6 +7,8 @@ import os
 
 from fastapi import APIRouter, HTTPException, Request, status
 
+from ..secrets_provider import get_secret
+
 from ..db import execute, fetch, fetchrow
 from ..schemas.internal import InternalMailSendRequest, InternalPaymentConfirmedRequest, InternalSyncMemberRequest
 from ..services.crm_service import crm_service
@@ -22,14 +24,14 @@ async def _require_internal_signature(request: Request) -> None:
     bearer_token = request.headers.get("authorization", "").removeprefix("Bearer ").strip()
     api_key = request.headers.get("x-api-key", "").strip()
     shared_token = (
-        os.getenv("MOE_API_TOKEN", "").strip()
-        or os.getenv("N8N_API_KEY", "").strip()
-        or os.getenv("INTERNAL_API_TOKEN", "").strip()
+        get_secret("MOE_API_TOKEN", bsm_key="api/MOE_API_TOKEN").strip()
+        or get_secret("N8N_API_KEY", bsm_key="api/N8N_API_KEY").strip()
+        or get_secret("INTERNAL_API_TOKEN", bsm_key="api/INTERNAL_API_TOKEN").strip()
     )
     if shared_token and (bearer_token == shared_token or api_key == shared_token):
         return
 
-    shared_secret = os.getenv("N8N_WEBHOOK_SECRET", "").strip() or os.getenv("INTERNAL_API_SECRET", "").strip()
+    shared_secret = get_secret("N8N_WEBHOOK_SECRET", bsm_key="api/N8N_WEBHOOK_SECRET").strip() or get_secret("INTERNAL_API_SECRET", bsm_key="api/INTERNAL_API_SECRET").strip()
     if not shared_secret:
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Interne Signaturprüfung nicht konfiguriert")
     incoming = request.headers.get("x-webhook-signature") or request.headers.get("x-internal-signature")

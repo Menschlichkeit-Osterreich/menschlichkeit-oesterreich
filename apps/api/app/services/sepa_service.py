@@ -9,6 +9,7 @@ from typing import Any
 from xml.etree import ElementTree as ET
 
 from ..db import connection, execute, fetch, fetchrow
+from ..secrets_provider import get_secret
 from .crm_service import crm_service
 from ._payment_helpers import _money, _to_cents, _resolve_contact_id
 
@@ -257,10 +258,10 @@ class SepaService:
         batch_reference: str,
         total_amount: Decimal,
     ) -> str:
-        creditor_name = os.getenv("SEPA_CREDITOR_NAME", "Menschlichkeit Österreich").strip()
-        creditor_id = os.getenv("SEPA_CREDITOR_ID", "AT00ZZZ00000000000").strip()
-        creditor_iban = os.getenv("SEPA_CREDITOR_IBAN", "AT000000000000000000").strip()
-        creditor_bic = os.getenv("SEPA_CREDITOR_BIC", "SPUEAT21XXX").strip()
+        creditor_name = get_secret("SEPA_CREDITOR_NAME", "Menschlichkeit Österreich", bsm_key="api/SEPA_CREDITOR_NAME").strip()
+        creditor_id = get_secret("SEPA_CREDITOR_ID", "AT00ZZZ00000000000", bsm_key="api/SEPA_CREDITOR_ID").strip()
+        creditor_iban = get_secret("SEPA_CREDITOR_IBAN", "AT000000000000000000", bsm_key="api/SEPA_CREDITOR_IBAN").strip()
+        creditor_bic = get_secret("SEPA_CREDITOR_BIC", "SPUEAT21XXX", bsm_key="api/SEPA_CREDITOR_BIC").strip()
 
         root = ET.Element(
             "Document",

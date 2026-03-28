@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       service:
-        description: "Service deployen"
+        description: 'Service deployen'
         required: true
         type: choice
         default: all
@@ -18,7 +18,7 @@ on:
           - crm
           - games
       dry_run:
-        description: "Dry-Run (kein echtes Deployment)"
+        description: 'Dry-Run (kein echtes Deployment)'
         required: false
         type: boolean
         default: false
@@ -32,18 +32,30 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  SSH_HOST:   ${{ secrets.PLESK_HOST }}
-  SSH_PORT:   ${{ secrets.PLESK_PORT || '22' }}
-  SSH_USER:   ${{ secrets.PLESK_USER }}
-  BASE_PATH:  ${{ vars.PLESK_BASE_PATH || '/var/www/vhosts/menschlichkeit-oesterreich.at/httpdocs' }}
+  SSH_HOST: ${{ secrets.PLESK_HOST }}
+  SSH_PORT: ${{ secrets.PLESK_PORT || '22' }}
+  SSH_USER: ${{ secrets.PLESK_USER }}
+  BASE_PATH: ${{ vars.PLESK_BASE_PATH || '/var/www/vhosts/menschlichkeit-oesterreich.at/httpdocs' }}
   FRONTEND_REMOTE_PATH: ${{ vars.PLESK_FRONTEND_PATH || 'httpdocs' }}
   API_REMOTE_PATH: ${{ vars.PLESK_API_PATH || 'subdomains/api/httpdocs' }}
   CRM_REMOTE_PATH: ${{ vars.PLESK_CRM_PATH || 'subdomains/crm/httpdocs' }}
   GAMES_REMOTE_PATH: ${{ vars.PLESK_GAMES_PATH || 'subdomains/games/httpdocs' }}
   MAIN_DOMAIN: ${{ vars.MAIN_DOMAIN || 'menschlichkeit-oesterreich.at' }}
-  NODE_VERSION: "22"
+  NODE_VERSION: '22'
 
 jobs:
+  # ============================================================
+  # BSM — Bitwarden Secrets Manager Injection (optional)
+  # ============================================================
+  bsm-secrets:
+    name: 'BSM: Production Secrets laden'
+    if: ${{ secrets.BW_ACCESS_TOKEN != '' }}
+    uses: ./.github/workflows/reusable-bsm-secrets.yml
+    with:
+      profile: deploy-production
+    secrets:
+      BW_ACCESS_TOKEN: ${{ secrets.BW_ACCESS_TOKEN }}
+
   # ============================================================
   # VALIDATE — Env-Vars, Branch-Schutz, Dry-Run-Banner
   # ============================================================
@@ -52,7 +64,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Branch-Schutz prüfen
         run: |
@@ -71,9 +83,9 @@ jobs:
       - name: Pflicht-Secrets prüfen
         if: ${{ github.event_name == 'workflow_dispatch' }}
         env:
-          HAS_HOST:       ${{ secrets.PLESK_HOST != '' }}
-          HAS_USER:       ${{ secrets.PLESK_USER != '' }}
-          HAS_KEY:        ${{ secrets.PLESK_SSH_PRIVATE_KEY != '' }}
+          HAS_HOST: ${{ secrets.PLESK_HOST != '' }}
+          HAS_USER: ${{ secrets.PLESK_USER != '' }}
+          HAS_KEY: ${{ secrets.PLESK_SSH_PRIVATE_KEY != '' }}
           HAS_KNOWN_HOSTS: ${{ secrets.PLESK_KNOWN_HOSTS != '' }}
         run: |
           ERRORS=0
@@ -96,13 +108,13 @@ jobs:
     needs: [validate]
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Node.js ${{ env.NODE_VERSION }} einrichten
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af  # v4.2.0
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.2.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          cache: 'npm'
           cache-dependency-path: apps/website/package-lock.json
 
       - name: Dependencies installieren
@@ -118,15 +130,15 @@ jobs:
         run: npm run build:prerender
         env:
           NODE_ENV: production
-          VITE_APP_URL: "https://${{ env.MAIN_DOMAIN }}"
-          VITE_API_URL: "https://api.${{ env.MAIN_DOMAIN }}"
+          VITE_APP_URL: 'https://${{ env.MAIN_DOMAIN }}'
+          VITE_API_URL: 'https://api.${{ env.MAIN_DOMAIN }}'
 
       - name: Build-Größe ausgeben
         working-directory: apps/website
         run: du -sh dist/ && find dist/ -name "*.js" | head -5
 
       - name: Build-Artefakt speichern
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: frontend-dist-${{ github.sha }}
           path: apps/website/dist/
@@ -141,10 +153,10 @@ jobs:
     needs: [validate]
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Node.js ${{ env.NODE_VERSION }} einrichten
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af  # v4.2.0
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.2.0
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -152,7 +164,7 @@ jobs:
         run: node apps/game/scripts/build-game.mjs
 
       - name: Games-Artefakt speichern
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: games-dist-${{ github.sha }}
           path: apps/game/dist/
@@ -167,13 +179,13 @@ jobs:
     needs: [validate]
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Node.js einrichten
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af  # v4.2.0
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.2.0
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "npm"
+          cache: 'npm'
           cache-dependency-path: apps/website/package-lock.json
 
       - name: Dependencies installieren
@@ -201,11 +213,11 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       # ── SSH einrichten ──────────────────────────────────────
       - name: SSH-Agent starten
-        uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd  # v0.9.1
+        uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
         with:
           ssh-private-key: ${{ secrets.PLESK_SSH_PRIVATE_KEY }}
 
@@ -257,7 +269,7 @@ jobs:
         if: >
           github.event.inputs.service == 'all' ||
           github.event.inputs.service == 'frontend'
-        uses: actions/download-artifact@fa0a91b85d4f404e444306234f5d70e8f8d04eea  # v4.1.8
+        uses: actions/download-artifact@fa0a91b85d4f404e444306234f5d70e8f8d04eea # v4.1.8
         with:
           name: frontend-dist-${{ github.sha }}
           path: _dist_frontend/
@@ -323,7 +335,7 @@ jobs:
         if: >
           github.event.inputs.service == 'all' ||
           github.event.inputs.service == 'games'
-        uses: actions/download-artifact@fa0a91b85d4f404e444306234f5d70e8f8d04eea  # v4.1.8
+        uses: actions/download-artifact@fa0a91b85d4f404e444306234f5d70e8f8d04eea # v4.1.8
         with:
           name: games-dist-${{ github.sha }}
           path: _dist_games/

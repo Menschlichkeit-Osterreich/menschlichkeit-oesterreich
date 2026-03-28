@@ -37,12 +37,14 @@ structlog.configure(
 log = structlog.get_logger()
 
 # ─── Konfiguration ────────────────────────────────────────
+from .secrets_provider import get_secret
+
 NATS_URL = os.getenv("OC_NATS_URL", "nats://localhost:4222")
-REDIS_URL = os.getenv("OC_REDIS_URL", "redis://localhost:6380")
-PG_DSN = os.getenv("OC_PG_DSN", "postgresql://oc:oc_dev_only@localhost:55432/oc")
+REDIS_URL = get_secret("OC_REDIS_URL", "redis://localhost:6380", bsm_key="openclaw/OC_REDIS_URL")
+PG_DSN = get_secret("OC_PG_DSN", "postgresql://oc:oc_dev_only@localhost:55432/oc", bsm_key="openclaw/OC_PG_DSN")
 QDRANT_URL = os.getenv("OC_QDRANT_URL", "http://localhost:6333")
 TOOL_GW_URL = os.getenv("OC_TOOL_GATEWAY_URL", "http://localhost:9101")
-OPENAI_API_KEY = os.getenv("OC_OPENAI_API_KEY", os.getenv("OPENAI_API_KEY", ""))
+OPENAI_API_KEY = get_secret("OC_OPENAI_API_KEY", bsm_key="openclaw/OC_OPENAI_API_KEY") or get_secret("OPENAI_API_KEY", bsm_key="openclaw/OPENAI_API_KEY")
 DEFAULT_MODEL = os.getenv("OC_DEFAULT_MODEL", "gpt-4.1-mini")
 FALLBACK_MODEL = os.getenv("OC_FALLBACK_MODEL", "gpt-4.1-nano")
 MAX_TOOL_CALLS = int(os.getenv("OC_MAX_TOOL_CALLS", "20"))

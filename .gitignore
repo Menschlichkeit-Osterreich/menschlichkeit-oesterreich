@@ -63,6 +63,10 @@ temp/*.decrypted
 secrets/development/*.yaml
 secrets/production/*.yaml
 
+# Credential checklists — NEVER track plaintext credentials
+secrets/ZUGANGSDATEN-CHECKLISTE.md
+secrets/ZUGANGSDATEN-WOHER-BEKOMMEN.txt
+
 # Private keys & certificates
 *.pem
 *.key

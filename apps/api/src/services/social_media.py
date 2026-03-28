@@ -16,6 +16,8 @@ from enum import Enum
 
 import requests
 
+from ...app.secrets_provider import get_secret
+
 logger = logging.getLogger(__name__)
 
 
@@ -109,8 +111,8 @@ class InstagramClient:
     BASE = "https://graph.facebook.com/v19.0"
 
     def __init__(self):
-        self.access_token = os.getenv("INSTAGRAM_ACCESS_TOKEN", "")
-        self.ig_user_id   = os.getenv("INSTAGRAM_USER_ID", "")
+        self.access_token = get_secret("INSTAGRAM_ACCESS_TOKEN", bsm_key="api/INSTAGRAM_ACCESS_TOKEN")
+        self.ig_user_id   = get_secret("INSTAGRAM_USER_ID", bsm_key="api/INSTAGRAM_USER_ID")
         self.enabled      = bool(self.access_token and self.ig_user_id)
 
     def post(self, post: SocialPost) -> PostResult:
@@ -162,8 +164,8 @@ class FacebookClient:
     BASE = "https://graph.facebook.com/v19.0"
 
     def __init__(self):
-        self.page_access_token = os.getenv("FACEBOOK_PAGE_ACCESS_TOKEN", "")
-        self.page_id           = os.getenv("FACEBOOK_PAGE_ID", "")
+        self.page_access_token = get_secret("FACEBOOK_PAGE_ACCESS_TOKEN", bsm_key="api/FACEBOOK_PAGE_ACCESS_TOKEN")
+        self.page_id           = get_secret("FACEBOOK_PAGE_ID", bsm_key="api/FACEBOOK_PAGE_ID")
         self.enabled           = bool(self.page_access_token and self.page_id)
 
     def post(self, post: SocialPost) -> PostResult:
@@ -204,11 +206,11 @@ class XTwitterClient:
     BASE = "https://api.twitter.com/2"
 
     def __init__(self):
-        self.bearer_token  = os.getenv("X_BEARER_TOKEN", "")
-        self.api_key       = os.getenv("X_API_KEY", "")
-        self.api_secret    = os.getenv("X_API_SECRET", "")
-        self.access_token  = os.getenv("X_ACCESS_TOKEN", "")
-        self.access_secret = os.getenv("X_ACCESS_SECRET", "")
+        self.bearer_token  = get_secret("X_BEARER_TOKEN", bsm_key="api/X_BEARER_TOKEN")
+        self.api_key       = get_secret("X_API_KEY", bsm_key="api/X_API_KEY")
+        self.api_secret    = get_secret("X_API_SECRET", bsm_key="api/X_API_SECRET")
+        self.access_token  = get_secret("X_ACCESS_TOKEN", bsm_key="api/X_ACCESS_TOKEN")
+        self.access_secret = get_secret("X_ACCESS_SECRET", bsm_key="api/X_ACCESS_SECRET")
         self.enabled       = bool(self.api_key and self.access_token)
 
     def _get_oauth1_header(self) -> dict:
@@ -258,8 +260,8 @@ class LinkedInClient:
     BASE = "https://api.linkedin.com/v2"
 
     def __init__(self):
-        self.access_token = os.getenv("LINKEDIN_ACCESS_TOKEN", "")
-        self.org_id       = os.getenv("LINKEDIN_ORG_ID", "")
+        self.access_token = get_secret("LINKEDIN_ACCESS_TOKEN", bsm_key="api/LINKEDIN_ACCESS_TOKEN")
+        self.org_id       = get_secret("LINKEDIN_ORG_ID", bsm_key="api/LINKEDIN_ORG_ID")
         self.enabled      = bool(self.access_token and self.org_id)
 
     def post(self, post: SocialPost) -> PostResult:

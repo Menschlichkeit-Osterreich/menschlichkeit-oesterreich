@@ -6,11 +6,13 @@ from pathlib import Path
 import asyncpg
 from dotenv import load_dotenv
 
+from .secrets_provider import get_secret
+
 _ENV_PATH = Path(__file__).resolve().parents[1] / ".env"
 if _ENV_PATH.exists():
     load_dotenv(_ENV_PATH)
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = get_secret("DATABASE_URL", bsm_key="api/DATABASE_URL")
 
 _pool: asyncpg.Pool | None = None
 

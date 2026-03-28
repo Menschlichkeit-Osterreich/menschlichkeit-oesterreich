@@ -9,6 +9,8 @@ from typing import Deque
 
 from fastapi import HTTPException, Request, status
 
+from .secrets_provider import get_secret
+
 logger = logging.getLogger(__name__)
 
 
@@ -101,7 +103,7 @@ def _build_rate_limiter() -> InMemoryRateLimiter | RedisRateLimiter:
         requests=int(os.getenv("RATE_LIMIT_REQUESTS", "120")),
         window_seconds=int(os.getenv("RATE_LIMIT_WINDOW_SECONDS", "60")),
     )
-    redis_url = os.getenv("REDIS_URL")
+    redis_url = get_secret("REDIS_URL", bsm_key="api/REDIS_URL") or None
     if redis_url:
         # URL für Logging anonymisieren (Passwort ausblenden)
         safe_url = redis_url.split("@")[-1] if "@" in redis_url else redis_url
@@ -118,7 +120,7 @@ rate_limiter: InMemoryRateLimiter | RedisRateLimiter = _build_rate_limiter()
 
 
 def require_jwt_secret_configured() -> None:
-    jwt_secret = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET")
+    jwt_secret = get_secret("JWT_SECRET_KEY", bsm_key="api/JWT_SECRET_KEY") or os.getenv("JWT_SECRET")
     if not jwt_secret:
         raise RuntimeError("JWT_SECRET_KEY environment variable is required")
 

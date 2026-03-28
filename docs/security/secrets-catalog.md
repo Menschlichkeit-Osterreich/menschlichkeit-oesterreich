@@ -2,8 +2,49 @@
 
 **Organisation**: Menschlichkeit Österreich  
 **Secret Management Owner**: DevOps Team  
-**Last Updated**: 2025-10-12  
+**Last Updated**: 2026-03-25
 **Review Cycle**: Quartalsweise + bei jeder Secret-Änderung
+
+---
+
+## 🔑 Bitwarden Secrets Manager (BSM) — Primäre Secret-Quelle
+
+**Seit März 2026** werden CI/CD-Secrets primär über Bitwarden Secrets Manager (EU-Vault: `vault.bitwarden.eu`) verwaltet und in GitHub Actions injiziert.
+
+| Eigenschaft               | Wert                                                                                        |
+| ------------------------- | ------------------------------------------------------------------------------------------- |
+| **Provider**              | Bitwarden Secrets Manager (EU)                                                              |
+| **Vault URL**             | `https://vault.bitwarden.eu`                                                                |
+| **Projekte**              | `moe-development`, `moe-staging`, `moe-production`                                          |
+| **Service Accounts**      | 10 (sa-api-dev/stg/prod, sa-openclaw-dev/prod, sa-n8n-dev/prod, sa-cicd, sa-infra-dev/prod) |
+| **Verwaltete Secrets**    | 44 (definiert in `secrets.manifest.json`)                                                   |
+| **GitHub Integration**    | `.github/workflows/reusable-bsm-secrets.yml`                                                |
+| **UUID-Mapping**          | `.github/bsm-secret-ids.json`                                                               |
+| **Migrations-Checkliste** | `docs/security/BSM-MIGRATION-CHECKLIST.md`                                                  |
+
+### BSM Access Token
+
+| Secret Name       | Beschreibung                  | Scope             | Rotation |
+| ----------------- | ----------------------------- | ----------------- | -------- |
+| `BW_ACCESS_TOKEN` | BSM Service Account `sa-cicd` | Repository Secret | 90 Tage  |
+
+---
+
+## 🔑 GitHub Personal Access Token (PAT)
+
+| Eigenschaft             | Wert                                                             |
+| ----------------------- | ---------------------------------------------------------------- |
+| **Token-Name**          | `claud code full`                                                |
+| **Typ**                 | Fine-grained PAT                                                 |
+| **Erstellt**            | 2026-03-25                                                       |
+| **Ablauf**              | 2027-03-26                                                       |
+| **Berechtigungen**      | 30 Repository + 36 Organisation                                  |
+| **GitHub Secret**       | `GH_TOKEN`                                                       |
+| **Erinnerung**          | `.github/workflows/pat-expiry-reminder.yml` (30 Tage vor Ablauf) |
+| **Rotation-Playbook**   | `docs/security/GH-PAT-ROTATION.md`                               |
+| **Vollständiger Audit** | `docs/security/GITHUB-AUDIT-2026-03.md`                          |
+
+**Verwendung:** Nur für Admin-/Cross-Repo-Operationen. CI/CD-Secrets über BSM.
 
 ---
 
@@ -11,12 +52,13 @@
 
 Secrets sind nach **Scope** kategorisiert:
 
-| Scope | Zugriff | Verwendung | Verwaltung |
-|-------|---------|------------|-----------|
-| **Organization** | Alle/ausgewählte Repos | Shared Services (Figma, Codacy) | GitHub Settings → Secrets → Organization |
-| **Repository** | Einzelnes Repo | Repo-spezifisch (Deploy-Keys) | GitHub Repo → Settings → Secrets |
-| **Environment** | Environment (staging/prod) | Deployment-spezifisch | GitHub Repo → Settings → Environments |
-| **Codespaces** | Development | Lokale Entwicklung | GitHub Settings → Codespaces → Secrets |
+| Scope            | Zugriff                    | Verwendung                      | Verwaltung                                        |
+| ---------------- | -------------------------- | ------------------------------- | ------------------------------------------------- |
+| **BSM (primär)** | CI/CD Workflows            | Deployment, Tests, Automation   | Bitwarden Vault (EU) → `reusable-bsm-secrets.yml` |
+| **Organization** | Alle/ausgewählte Repos     | Shared Services (Figma, Codacy) | GitHub Settings → Secrets → Organization          |
+| **Repository**   | Einzelnes Repo             | Repo-spezifisch (Deploy-Keys)   | GitHub Repo → Settings → Secrets                  |
+| **Environment**  | Environment (staging/prod) | Deployment-spezifisch           | GitHub Repo → Settings → Environments             |
+| **Codespaces**   | Development                | Lokale Entwicklung              | GitHub Settings → Codespaces → Secrets            |
 
 ---
 
@@ -26,26 +68,26 @@ Secrets sind nach **Scope** kategorisiert:
 
 ### Quality & Security Tools
 
-| Secret Name | Beschreibung | Benötigte Repos | Rotation | Status |
-|-------------|--------------|-----------------|----------|--------|
-| `CODACY_API_TOKEN` | Codacy Code Quality | Alle | 90 Tage | ✅ Aktiv |
-| `SEMGREP_APP_TOKEN` | Semgrep SAST Scanner | Alle | 90 Tage | ⚠️ Optional |
-| `SNYK_TOKEN` | Snyk Dependency Scanner | Alle | 90 Tage | ⚠️ Optional |
-| `SONAR_TOKEN` | SonarQube Analysis | Alle | 90 Tage | ⚠️ Optional |
+| Secret Name         | Beschreibung            | Benötigte Repos | Rotation | Status      |
+| ------------------- | ----------------------- | --------------- | -------- | ----------- |
+| `CODACY_API_TOKEN`  | Codacy Code Quality     | Alle            | 90 Tage  | ✅ Aktiv    |
+| `SEMGREP_APP_TOKEN` | Semgrep SAST Scanner    | Alle            | 90 Tage  | ⚠️ Optional |
+| `SNYK_TOKEN`        | Snyk Dependency Scanner | Alle            | 90 Tage  | ⚠️ Optional |
+| `SONAR_TOKEN`       | SonarQube Analysis      | Alle            | 90 Tage  | ⚠️ Optional |
 
 ### Design & Integration
 
-| Secret Name | Beschreibung | Benötigte Repos | Rotation | Status |
-|-------------|--------------|-----------------|----------|--------|
+| Secret Name          | Beschreibung             | Benötigte Repos                        | Rotation | Status   |
+| -------------------- | ------------------------ | -------------------------------------- | -------- | -------- |
 | `FIGMA_ACCESS_TOKEN` | Figma Design System Sync | menschlichkeit-oesterreich-development | 180 Tage | ✅ Aktiv |
-| `FIGMA_FILE_ID` | Figma File Identifier | menschlichkeit-oesterreich-development | Nie (ID) | ✅ Aktiv |
+| `FIGMA_FILE_ID`      | Figma File Identifier    | menschlichkeit-oesterreich-development | Nie (ID) | ✅ Aktiv |
 
 ### Monitoring (Optional)
 
-| Secret Name | Beschreibung | Benötigte Repos | Rotation | Status |
-|-------------|--------------|-----------------|----------|--------|
-| `SENTRY_DSN` | Error Tracking | Alle Services | Nie (DSN) | ⚠️ Optional |
-| `LHCI_TOKEN` | Lighthouse CI | menschlichkeit-oesterreich-development | 90 Tage | ⚠️ Optional |
+| Secret Name  | Beschreibung   | Benötigte Repos                        | Rotation  | Status      |
+| ------------ | -------------- | -------------------------------------- | --------- | ----------- |
+| `SENTRY_DSN` | Error Tracking | Alle Services                          | Nie (DSN) | ⚠️ Optional |
+| `LHCI_TOKEN` | Lighthouse CI  | menschlichkeit-oesterreich-development | 90 Tage   | ⚠️ Optional |
 
 ---
 
@@ -55,67 +97,67 @@ Secrets sind nach **Scope** kategorisiert:
 
 ### SSH & Deployment (CRITICAL)
 
-| Secret Name | Beschreibung | Format | Rotation | Backup |
-|-------------|--------------|--------|----------|--------|
-| `SSH_PRIVATE_KEY` | Plesk Deployment SSH Key | Base64-encoded ED25519 | Nie (außer Kompromittierung) | ✅ Offline |
-| `SSH_HOST` | Plesk Server Hostname | `user@host` oder IP | Bei Server-Wechsel | ✅ Dokumentiert |
-| `SSH_USER` | SSH Username | String | Bei Server-Wechsel | ✅ Dokumentiert |
-| `SSH_PORT` | SSH Port | Integer (default: 22) | Bei Config-Änderung | ✅ Dokumentiert |
-| `PLESK_API_KEY` | Plesk Panel API Key | UUID | 90 Tage | ✅ Offline |
+| Secret Name       | Beschreibung             | Format                 | Rotation                     | Backup          |
+| ----------------- | ------------------------ | ---------------------- | ---------------------------- | --------------- |
+| `SSH_PRIVATE_KEY` | Plesk Deployment SSH Key | Base64-encoded ED25519 | Nie (außer Kompromittierung) | ✅ Offline      |
+| `SSH_HOST`        | Plesk Server Hostname    | `user@host` oder IP    | Bei Server-Wechsel           | ✅ Dokumentiert |
+| `SSH_USER`        | SSH Username             | String                 | Bei Server-Wechsel           | ✅ Dokumentiert |
+| `SSH_PORT`        | SSH Port                 | Integer (default: 22)  | Bei Config-Änderung          | ✅ Dokumentiert |
+| `PLESK_API_KEY`   | Plesk Panel API Key      | UUID                   | 90 Tage                      | ✅ Offline      |
 
 ### Database Credentials (CRITICAL)
 
 **Tier 1: Plesk MariaDB (localhost)**
 
-| Secret Name | Beschreibung | Rotation | Notes |
-|-------------|--------------|----------|-------|
-| `MO_MAIN_DB_PASS` | Website DB Password | 90 Tage | Used by mo_main |
-| `MO_VOTES_DB_PASS` | Voting System DB | 90 Tage | Used by mo_votes |
-| `MO_SUPPORT_DB_PASS` | Support Tickets DB | 90 Tage | Used by mo_support |
-| `MO_NEWSLETTER_DB_PASS` | Newsletter DB | 90 Tage | Used by mo_newsletter |
-| `MO_FORUM_DB_PASS` | Forum DB | 90 Tage | Used by mo_forum |
+| Secret Name             | Beschreibung        | Rotation | Notes                 |
+| ----------------------- | ------------------- | -------- | --------------------- |
+| `MO_MAIN_DB_PASS`       | Website DB Password | 90 Tage  | Used by mo_main       |
+| `MO_VOTES_DB_PASS`      | Voting System DB    | 90 Tage  | Used by mo_votes      |
+| `MO_SUPPORT_DB_PASS`    | Support Tickets DB  | 90 Tage  | Used by mo_support    |
+| `MO_NEWSLETTER_DB_PASS` | Newsletter DB       | 90 Tage  | Used by mo_newsletter |
+| `MO_FORUM_DB_PASS`      | Forum DB            | 90 Tage  | Used by mo_forum      |
 
 **Tier 2: External MariaDB**
 
-| Secret Name | Beschreibung | Rotation | Notes |
-|-------------|--------------|----------|-------|
-| `MYSQL_HOST` | External MySQL Hostname | Bei Migration | Shared Host |
-| `MO_CRM_DB_PASS` | CiviCRM + Drupal DB | 90 Tage | PII-Critical |
-| `MO_N8N_DB_PASS` | n8n Workflows DB | 90 Tage | Automation |
-| `MO_HOOKS_DB_PASS` | Webhook Logs DB | 90 Tage | - |
-| `MO_CONSENT_DB_PASS` | DSGVO Consent DB | 90 Tage | DSGVO-Critical |
-| `MO_GAMES_DB_PASS` | Gaming Platform DB | 90 Tage | - |
-| `MO_ANALYTICS_DB_PASS` | Analytics DB | 90 Tage | - |
-| `MO_API_STG_DB_PASS` | API Staging DB | 90 Tage | Staging only |
-| `MO_ADMIN_STG_DB_PASS` | Admin Staging DB | 90 Tage | Staging only |
-| `MO_NEXTCLOUD_DB_PASS` | Nextcloud DB | 90 Tage | File Storage |
+| Secret Name            | Beschreibung            | Rotation      | Notes          |
+| ---------------------- | ----------------------- | ------------- | -------------- |
+| `MYSQL_HOST`           | External MySQL Hostname | Bei Migration | Shared Host    |
+| `MO_CRM_DB_PASS`       | CiviCRM + Drupal DB     | 90 Tage       | PII-Critical   |
+| `MO_N8N_DB_PASS`       | n8n Workflows DB        | 90 Tage       | Automation     |
+| `MO_HOOKS_DB_PASS`     | Webhook Logs DB         | 90 Tage       | -              |
+| `MO_CONSENT_DB_PASS`   | DSGVO Consent DB        | 90 Tage       | DSGVO-Critical |
+| `MO_GAMES_DB_PASS`     | Gaming Platform DB      | 90 Tage       | -              |
+| `MO_ANALYTICS_DB_PASS` | Analytics DB            | 90 Tage       | -              |
+| `MO_API_STG_DB_PASS`   | API Staging DB          | 90 Tage       | Staging only   |
+| `MO_ADMIN_STG_DB_PASS` | Admin Staging DB        | 90 Tage       | Staging only   |
+| `MO_NEXTCLOUD_DB_PASS` | Nextcloud DB            | 90 Tage       | File Storage   |
 
 **Tier 3: PostgreSQL**
 
-| Secret Name | Beschreibung | Rotation | Notes |
-|-------------|--------------|----------|-------|
-| `PG_HOST` | PostgreSQL Hostname | Bei Migration | Shared Host |
-| `PG_IDP_DB_PASS` | Keycloak IDP DB | 90 Tage | Auth-Critical |
-| `PG_GRAFANA_DB_PASS` | Grafana Metrics DB | 90 Tage | Monitoring |
-| `PG_DISCOURSE_DB_PASS` | Discourse Forum DB | 90 Tage | Optional |
+| Secret Name            | Beschreibung        | Rotation      | Notes         |
+| ---------------------- | ------------------- | ------------- | ------------- |
+| `PG_HOST`              | PostgreSQL Hostname | Bei Migration | Shared Host   |
+| `PG_IDP_DB_PASS`       | Keycloak IDP DB     | 90 Tage       | Auth-Critical |
+| `PG_GRAFANA_DB_PASS`   | Grafana Metrics DB  | 90 Tage       | Monitoring    |
+| `PG_DISCOURSE_DB_PASS` | Discourse Forum DB  | 90 Tage       | Optional      |
 
 **Tier 4: Redis (Optional)**
 
-| Secret Name | Beschreibung | Rotation | Notes |
-|-------------|--------------|----------|-------|
-| `REDIS_HOST` | Redis Server | Bei Migration | Cache |
-| `REDIS_PASSWORD` | Redis Auth | 90 Tage | - |
+| Secret Name      | Beschreibung | Rotation      | Notes |
+| ---------------- | ------------ | ------------- | ----- |
+| `REDIS_HOST`     | Redis Server | Bei Migration | Cache |
+| `REDIS_PASSWORD` | Redis Auth   | 90 Tage       | -     |
 
 ### Application Secrets (HIGH PRIORITY)
 
-| Secret Name | Beschreibung | Format | Rotation | Validation |
-|-------------|--------------|--------|----------|------------|
-| `CIVICRM_SITE_KEY` | CiviCRM Security Key | 32-char random | 180 Tage | Required |
-| `CIVICRM_API_KEY` | CiviCRM API v4 Key | UUID | 90 Tage | Required |
-| `JWT_SECRET` | JWT Signing Secret | 32-char random | 90 Tage | ✅ Min 32 chars |
-| `N8N_ENCRYPTION_KEY` | n8n Workflow Encryption | 32-char random | 180 Tage | ✅ Required |
-| `N8N_USER` | n8n Admin Username | String | Bei Änderung | - |
-| `N8N_PASSWORD` | n8n Admin Password | Strong | 90 Tage | ✅ Min 16 chars |
+| Secret Name          | Beschreibung            | Format         | Rotation     | Validation      |
+| -------------------- | ----------------------- | -------------- | ------------ | --------------- |
+| `CIVICRM_SITE_KEY`   | CiviCRM Security Key    | 32-char random | 180 Tage     | Required        |
+| `CIVICRM_API_KEY`    | CiviCRM API v4 Key      | UUID           | 90 Tage      | Required        |
+| `JWT_SECRET`         | JWT Signing Secret      | 32-char random | 90 Tage      | ✅ Min 32 chars |
+| `N8N_ENCRYPTION_KEY` | n8n Workflow Encryption | 32-char random | 180 Tage     | ✅ Required     |
+| `N8N_USER`           | n8n Admin Username      | String         | Bei Änderung | -               |
+| `N8N_PASSWORD`       | n8n Admin Password      | Strong         | 90 Tage      | ✅ Min 16 chars |
 
 ---
 
@@ -125,22 +167,22 @@ Secrets sind nach **Scope** kategorisiert:
 
 ### Staging Environment
 
-| Secret Name | Beschreibung | Value Source |
-|-------------|--------------|--------------|
-| `DATABASE_URL` | Staging DB Connection | Different from Prod |
-| `API_BASE_URL` | Staging API Endpoint | `https://api.stg.menschlichkeit-oesterreich.at` |
-| `ENABLE_DEBUG` | Debug Mode | `true` |
-| `LOG_LEVEL` | Log Verbosity | `debug` |
+| Secret Name    | Beschreibung          | Value Source                                    |
+| -------------- | --------------------- | ----------------------------------------------- |
+| `DATABASE_URL` | Staging DB Connection | Different from Prod                             |
+| `API_BASE_URL` | Staging API Endpoint  | `https://api.stg.menschlichkeit-oesterreich.at` |
+| `ENABLE_DEBUG` | Debug Mode            | `true`                                          |
+| `LOG_LEVEL`    | Log Verbosity         | `debug`                                         |
 
 ### Production Environment
 
-| Secret Name | Beschreibung | Value Source |
-|-------------|--------------|--------------|
-| `DATABASE_URL` | Production DB Connection | Prod Credentials |
-| `API_BASE_URL` | Production API Endpoint | `https://api.menschlichkeit-oesterreich.at` |
-| `ENABLE_DEBUG` | Debug Mode | `false` |
-| `LOG_LEVEL` | Log Verbosity | `info` |
-| `SENTRY_DSN` | Error Tracking | Production DSN |
+| Secret Name    | Beschreibung             | Value Source                                |
+| -------------- | ------------------------ | ------------------------------------------- |
+| `DATABASE_URL` | Production DB Connection | Prod Credentials                            |
+| `API_BASE_URL` | Production API Endpoint  | `https://api.menschlichkeit-oesterreich.at` |
+| `ENABLE_DEBUG` | Debug Mode               | `false`                                     |
+| `LOG_LEVEL`    | Log Verbosity            | `info`                                      |
+| `SENTRY_DSN`   | Error Tracking           | Production DSN                              |
 
 ---
 
@@ -148,11 +190,11 @@ Secrets sind nach **Scope** kategorisiert:
 
 **Verwaltung**: GitHub Settings → Codespaces → Secrets
 
-| Secret Name | Beschreibung | Scope | Notes |
-|-------------|--------------|-------|-------|
-| `DEV_DATABASE_URL` | Local Development DB | All Repos | Testdaten |
-| `FIGMA_ACCESS_TOKEN` | Design System Sync | Selected Repos | Same as Org |
-| `GITHUB_TOKEN` | Codespace Git Operations | Auto-injected | GitHub-managed |
+| Secret Name          | Beschreibung             | Scope          | Notes          |
+| -------------------- | ------------------------ | -------------- | -------------- |
+| `DEV_DATABASE_URL`   | Local Development DB     | All Repos      | Testdaten      |
+| `FIGMA_ACCESS_TOKEN` | Design System Sync       | Selected Repos | Same as Org    |
+| `GITHUB_TOKEN`       | Codespace Git Operations | Auto-injected  | GitHub-managed |
 
 ---
 
@@ -204,13 +246,13 @@ echo "$SECRET_NAME rotated on $(date)" >> .secret-rotation-log
 
 ### Rotation Schedule
 
-| Secret Type | Frequenz | Nächste Rotation | Owner |
-|-------------|----------|------------------|-------|
-| **SSH Keys** | Nur bei Kompromittierung | - | DevOps |
-| **DB Passwords** | 90 Tage | 2026-01-10 | DBA |
-| **API Keys** | 90 Tage | 2026-01-10 | API Team |
-| **JWT/Encryption** | 90 Tage | 2026-01-10 | Security |
-| **CiviCRM Keys** | 180 Tage | 2026-04-10 | CRM Admin |
+| Secret Type        | Frequenz                 | Nächste Rotation | Owner     |
+| ------------------ | ------------------------ | ---------------- | --------- |
+| **SSH Keys**       | Nur bei Kompromittierung | -                | DevOps    |
+| **DB Passwords**   | 90 Tage                  | 2026-01-10       | DBA       |
+| **API Keys**       | 90 Tage                  | 2026-01-10       | API Team  |
+| **JWT/Encryption** | 90 Tage                  | 2026-01-10       | Security  |
+| **CiviCRM Keys**   | 180 Tage                 | 2026-04-10       | CRM Admin |
 
 ---
 
@@ -221,19 +263,20 @@ echo "$SECRET_NAME rotated on $(date)" >> .secret-rotation-log
 GitHub scannt **bei jedem Push** nach Secrets und **blockiert** den Push.
 
 **Konfiguration**:
+
 - ✅ Repository Settings → Code security → Secret scanning → Push protection
 - ✅ Alert bei Bypass-Versuchen
 - ✅ Automatische Issue-Erstellung bei Detection
 
 **Bypass-Policy**:
+
 ```yaml
 Bypass erlaubt nur wenn:
   - False Positive (dokumentiert)
   - Staging/Test-Secret (kein Production)
   - Legacy-Code-Migration (zeitlich begrenzt)
 
-Bypass-Prozess:
-  1. Reason angeben (obligatorisch)
+Bypass-Prozess: 1. Reason angeben (obligatorisch)
   2. Security-Review (DPO Approval)
   3. Issue erstellen (Tracking)
   4. Nachträgliche Rotation (innerhalb 24h)
@@ -242,11 +285,13 @@ Bypass-Prozess:
 ### Secret Scanning ✅ AKTIVIERT
 
 **Automatische Scans**:
+
 - ✅ Bei jedem Push (Push Protection)
 - ✅ Historische Commits (GitHub-Scan)
 - ✅ Dependencies (npm, composer, pip)
 
 **Partner-Patterns**:
+
 - GitHub scannt nach 200+ Partner-Secrets (AWS, Azure, Stripe, etc.)
 - Bei Fund: Automatische Benachrichtigung an Partner (Secret wird invalidiert)
 
@@ -259,12 +304,12 @@ Bypass-Prozess:
 jobs:
   deploy:
     permissions:
-      id-token: write  # OIDC Token-Erstellung
+      id-token: write # OIDC Token-Erstellung
       contents: read
     steps:
       - uses: azure/login@v1
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}    # Nur ID, kein Secret!
+          client-id: ${{ secrets.AZURE_CLIENT_ID }} # Nur ID, kein Secret!
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           # KEIN client-secret benötigt!
@@ -274,6 +319,7 @@ jobs:
 ```
 
 **Vorteile**:
+
 - ✅ Keine Langzeit-Secrets (Token lebt nur Job-Dauer)
 - ✅ Automatische Rotation (jeder Job = neuer Token)
 - ✅ Audit-Trail (Cloud IAM Logs)
@@ -301,6 +347,7 @@ npm run validate:secrets
 ### Secret-Qualität
 
 **Anforderungen**:
+
 ```yaml
 Passwörter:
   - Länge: ≥16 Zeichen (Admin: ≥20)
@@ -320,11 +367,13 @@ SSH Keys:
 ### Leak-Detection
 
 **Tools**:
+
 - ✅ Gitleaks (CI/CD): `.github/workflows/gitleaks.yml`
 - ✅ GitHub Secret Scanning (automatisch)
 - ✅ Pre-Commit Hook: `.pre-commit-config.yaml`
 
 **Bei Secret-Leak**:
+
 1. **Sofort rotieren** (siehe Emergency Rotation)
 2. **Incident erstellen**: Art. 33 DSGVO prüfen
 3. **Root Cause**: Warum nicht verhindert?

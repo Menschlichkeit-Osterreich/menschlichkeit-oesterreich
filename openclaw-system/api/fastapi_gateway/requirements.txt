@@ -7,3 +7,4 @@ redis[asyncio]==5.1.0
 pyyaml==6.0.2
 structlog==24.4.0
 nats-py==2.9.0
+bitwarden-sdk>=2.0.0

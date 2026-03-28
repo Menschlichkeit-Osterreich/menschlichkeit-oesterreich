@@ -11,6 +11,8 @@ from decimal import Decimal
 from typing import Optional, List, Dict, Any
 import httpx
 
+from ...app.secrets_provider import get_secret
+
 logger = logging.getLogger(__name__)
 
 # ── Konfiguration ──────────────────────────────────────────────────────────────
@@ -59,7 +61,7 @@ INVOICE_CONFIG = {
 }
 
 N8N_BASE = os.getenv("N8N_WEBHOOK_BASE_URL", "http://localhost:5678/webhook/")
-N8N_KEY  = os.getenv("N8N_API_KEY", "")
+N8N_KEY  = get_secret("N8N_API_KEY", bsm_key="api/N8N_API_KEY")
 
 
 # ── Hilfsfunktionen ────────────────────────────────────────────────────────────

@@ -10,6 +10,7 @@ from typing import Any
 import httpx
 
 from ..db import execute
+from ..secrets_provider import get_secret
 from ._payment_helpers import _money, _resolve_contact_id
 
 logger = logging.getLogger("menschlichkeit.payments.paypal")
@@ -17,8 +18,8 @@ logger = logging.getLogger("menschlichkeit.payments.paypal")
 
 class PayPalService:
     def __init__(self) -> None:
-        self.paypal_client_id = os.getenv("PAYPAL_CLIENT_ID", "").strip()
-        self.paypal_client_secret = os.getenv("PAYPAL_CLIENT_SECRET", "").strip()
+        self.paypal_client_id = get_secret("PAYPAL_CLIENT_ID", bsm_key="api/PAYPAL_CLIENT_ID").strip()
+        self.paypal_client_secret = get_secret("PAYPAL_CLIENT_SECRET", bsm_key="api/PAYPAL_CLIENT_SECRET").strip()
         self.paypal_base_url = os.getenv("PAYPAL_BASE_URL", "https://api-m.sandbox.paypal.com").rstrip("/")
 
     async def _paypal_access_token(self) -> str:

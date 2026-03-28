@@ -6,7 +6,7 @@ applyTo: '**'
 # 🔑 GitHub PAT – Optimal genutzt, sicher betrieben
 
 **Rolle (an Copilot):**
-Handle als DevOps/Security-Engineer. Implementiere **Least-Privilege-Nutzung**, **sichere Ablage**, **automatisierte Workflows** und **Rotation** für den GitHub-PAT (`GH_TOKEN`, gültig bis 18.10.2026). Keine Tokens im Klartext ins Repo.
+Handle als DevOps/Security-Engineer. Implementiere **Least-Privilege-Nutzung**, **sichere Ablage**, **automatisierte Workflows** und **Rotation** für den GitHub-PAT (`claud code full` / `GH_TOKEN`, gültig bis 26.03.2027). Keine Tokens im Klartext ins Repo. **Bitwarden Secrets Manager (BSM)** ist die primäre Secret-Quelle für CI/CD — PAT nur für Admin-/Cross-Repo-Operationen verwenden.
 
 ---
 
@@ -134,7 +134,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4  # Nutzt GITHUB_TOKEN automatisch
+      - uses: actions/checkout@v4 # Nutzt GITHUB_TOKEN automatisch
 
       - uses: actions/setup-node@v4
         with:
@@ -147,7 +147,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: gh pr comment ${{ github.event.number }} --body "✅ Tests passed"
         env:
-          GH_TOKEN: ${{ github.token }}  # GITHUB_TOKEN, NICHT secrets.GH_TOKEN
+          GH_TOKEN: ${{ github.token }} # GITHUB_TOKEN, NICHT secrets.GH_TOKEN
 ```
 
 ---
@@ -182,7 +182,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GH_TOKEN }}  # Explizit PAT für cross-repo
+          token: ${{ secrets.GH_TOKEN }} # Explizit PAT für cross-repo
 
       - name: Sync labels org-weit
         if: inputs.operation == 'sync-labels'
@@ -314,11 +314,11 @@ npm ci
 
 ### 3.1 Kategorien
 
-| Typ | Verwendung | Beispiel |
-|-----|------------|----------|
-| **Secrets** | Vertrauliche Daten (Tokens, Keys) | `GH_TOKEN`, `DATABASE_URL` |
-| **Variables** | Unvertrauliche Konfiguration | `DEPLOY_ENV=prod` |
-| **Environments** | Scoped Secrets + Approval-Regeln | `staging`, `production` |
+| Typ              | Verwendung                        | Beispiel                   |
+| ---------------- | --------------------------------- | -------------------------- |
+| **Secrets**      | Vertrauliche Daten (Tokens, Keys) | `GH_TOKEN`, `DATABASE_URL` |
+| **Variables**    | Unvertrauliche Konfiguration      | `DEPLOY_ENV=prod`          |
+| **Environments** | Scoped Secrets + Approval-Regeln  | `staging`, `production`    |
 
 ### 3.2 Environment-basierte Deployments
 
@@ -338,7 +338,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}  # Nutzt Environment Secrets
+    environment: ${{ inputs.environment }} # Nutzt Environment Secrets
 
     steps:
       - uses: actions/checkout@v4
@@ -347,9 +347,9 @@ jobs:
         run: |
           ssh $DEPLOY_USER@$DEPLOY_HOST "cd /var/www && git pull"
         env:
-          DEPLOY_USER: ${{ vars.DEPLOY_USER }}      # Variable (nicht Secret)
-          DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}      # Variable
-          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}   # Secret (scoped per Environment)
+          DEPLOY_USER: ${{ vars.DEPLOY_USER }} # Variable (nicht Secret)
+          DEPLOY_HOST: ${{ vars.DEPLOY_HOST }} # Variable
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }} # Secret (scoped per Environment)
 ```
 
 **Environment Configuration** (Settings → Environments):
@@ -366,26 +366,59 @@ jobs:
 
 ### 4.1 Token-Scopes Audit
 
-**Aktueller PAT-Scope (GH_TOKEN):**
+**Aktueller PAT: `claud code full`** (Fine-grained, erstellt 25.03.2026, Ablauf 26.03.2027)
 
-```yaml
-# Vollzugriff (zu weitreichend für CI/CD!)
-repo: all
-workflow: all
-admin:org: all
-admin:repo_hook: all
-delete_repo: all
-...
-```
+**Repository-Berechtigungen (30):**
 
-**Empfohlene Segmentierung:**
+- Actions: Read/Write
+- Administration: Read/Write
+- Artifact metadata: Read/Write
+- Attestations: Read/Write
+- Code scanning alerts: Read/Write
+- Codespaces: Read/Write (+ lifecycle admin, secrets)
+- Commit statuses: Read/Write
+- Contents: Read/Write
+- Custom properties: Read/Write
+- Dependabot alerts/secrets: Read/Write
+- Deployments: Read/Write
+- Discussions: Read/Write
+- Environments: Read/Write
+- Issues: Read/Write
+- Merge queues: Read/Write
+- Metadata: Read-only
+- Pages: Read/Write
+- Pull requests: Read/Write
+- Secret scanning (alerts, dismissals, push protection bypass): Read/Write
+- Repository security advisories: Read/Write
+- Secrets: Read/Write
+- Variables: Read/Write
+- Webhooks: Read/Write
+- Workflows: Read/Write
 
-| Token | Scopes | Verwendung |
-|-------|--------|-----------|
-| `GH_TOKEN_CI` | `repo:status`, `repo:public_repo` | CI/PR Checks |
-| `GH_TOKEN_ADMIN` | `admin:org`, `admin:repo_hook` | Admin-Operationen |
-| `GH_TOKEN_PACKAGES` | `write:packages`, `delete:packages` | Package Registry |
-| `GH_TOKEN_CODESPACES` | `codespace`, `codespace:secrets` | Devcontainer Management |
+**Organisations-Berechtigungen (36):**
+
+- Administration, Members, Variables: Read/Write
+- Copilot (agent settings, Business, metrics, content exclusion): Read/Write
+- Custom org/repo roles, properties: Read/Write + Admin
+- Codespaces (org, secrets, settings): Read/Write
+- Dependabot (secrets, dismissals): Read/Write
+- Events, Models, Plan, API Insights: Read-only
+- Network configurations, private registries: Read/Write
+- Projects: Admin
+- Secrets, Self-hosted runners: Read/Write
+- Webhooks, Campaigns, Issue Fields/Types: Read/Write
+- Blocking users, Hosted runner images: Read/Write
+
+**Empfohlene Segmentierung (Zukunft — nach GitHub App Migration):**
+
+| Token                 | Scopes                              | Verwendung              |
+| --------------------- | ----------------------------------- | ----------------------- |
+| `GH_TOKEN_CI`         | `repo:status`, `repo:public_repo`   | CI/PR Checks            |
+| `GH_TOKEN_ADMIN`      | `admin:org`, `admin:repo_hook`      | Admin-Operationen       |
+| `GH_TOKEN_PACKAGES`   | `write:packages`, `delete:packages` | Package Registry        |
+| `GH_TOKEN_CODESPACES` | `codespace`, `codespace:secrets`    | Devcontainer Management |
+
+> **Hinweis:** Der aktuelle PAT hat bewusst breite Berechtigungen (30 repo + 36 org), da er sowohl für Claude Code-Automatisierung als auch für Admin-Operationen genutzt wird. Nach der GitHub App Migration werden die Scopes aufgeteilt.
 
 ### 4.2 Workflow Permissions
 
@@ -426,7 +459,7 @@ permissions:
 name: PAT Expiry Reminder
 on:
   schedule:
-    - cron: '0 7 * * *'  # Täglich 07:00 UTC (09:00 CEST)
+    - cron: '0 7 * * *' # Täglich 07:00 UTC (09:00 CEST)
   workflow_dispatch:
 
 permissions:
@@ -439,7 +472,7 @@ jobs:
       - name: Calculate days until expiry
         id: calc
         run: |
-          EXPIRY="2026-10-18"
+          EXPIRY="2027-03-26"
           DAYS=$(( ( $(date -u -d "$EXPIRY" +%s) - $(date -u +%s) ) / 86400 ))
           echo "days=$DAYS" >> $GITHUB_OUTPUT
 
@@ -468,7 +501,7 @@ jobs:
 
 **`docs/security/GH-PAT-ROTATION.md`**
 
-```markdown
+````markdown
 # GitHub PAT Rotation – Schritt-für-Schritt
 
 ## 1. Vorbereitung (1 Woche vor Ablauf)
@@ -481,13 +514,14 @@ jobs:
 **URL:** https://github.com/settings/tokens?type=beta
 
 **Scopes (Minimum für CI/CD):**
+
 - ✅ Contents: Read/Write
 - ✅ Actions: Read/Write
 - ✅ Secrets: Read/Write
 - ✅ Attestations: Write
 - ❌ Administration (nur wenn nötig)
 
-**Ablauf:** 1 Jahr (2026-10-18 → 2027-10-18)
+**Ablauf:** 1 Jahr (2027-03-26 → 2027-10-18)
 
 ## 3. Secret aktualisieren
 
@@ -497,6 +531,7 @@ jobs:
 # Oder via gh CLI (benötigt alten PAT):
 echo "NEW_PAT_HERE" | gh secret set GH_TOKEN --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
 ```
+````
 
 ## 4. Lokal updaten
 
@@ -539,7 +574,8 @@ gh run view <RUN_ID> --log
 2. Secret zurücksetzen auf alten PAT
 3. Workflows prüfen
 4. Root-Cause-Analysis
-```
+
+````
 
 ---
 
@@ -581,7 +617,7 @@ gh run view <RUN_ID> --log
     gh api user --silent
   env:
     GH_TOKEN: ${{ secrets.GH_TOKEN }}
-```
+````
 
 **Audit-Logging:**
 
@@ -774,19 +810,20 @@ gh api repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/se
 
 ### Warum GitHub Apps > PAT?
 
-| Kriterium | PAT | GitHub App |
-|-----------|-----|------------|
-| **Ablauf** | 1 Jahr max | Kein Ablauf |
-| **Rechte** | User-basiert (zu weitreichend) | Repo/Org-spezifisch |
-| **Audit** | Schwer nachvollziehbar | Jede Aktion geloggt |
-| **Rate-Limits** | 5000/h | 15000/h |
-| **Installation** | Manuell | Org-weit automatisch |
+| Kriterium        | PAT                            | GitHub App           |
+| ---------------- | ------------------------------ | -------------------- |
+| **Ablauf**       | 1 Jahr max                     | Kein Ablauf          |
+| **Rechte**       | User-basiert (zu weitreichend) | Repo/Org-spezifisch  |
+| **Audit**        | Schwer nachvollziehbar         | Jede Aktion geloggt  |
+| **Rate-Limits**  | 5000/h                         | 15000/h              |
+| **Installation** | Manuell                        | Org-weit automatisch |
 
 ### Migration-Playbook (Zukunft)
 
 1. **GitHub App erstellen:** Settings → Developer settings → GitHub Apps
 2. **Scopes setzen:** Minimal (nur `contents:read`, `actions:write`)
 3. **Workflows migrieren:**
+
    ```yaml
    - uses: actions/create-github-app-token@v1
      id: app-token
@@ -798,6 +835,7 @@ gh api repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/se
      env:
        GH_TOKEN: ${{ steps.app-token.outputs.token }}
    ```
+
 4. **PAT auslaufen lassen** (nicht erneuern)
 
 ---
@@ -809,6 +847,7 @@ gh api repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/se
 **Ursache:** Token-Scope reicht nicht aus.
 
 **Lösung:**
+
 ```bash
 # 1. Token-Scopes prüfen
 gh auth status
@@ -824,6 +863,7 @@ gh auth status
 **Ursache:** Secret `GH_TOKEN` nicht gesetzt oder abgelaufen.
 
 **Lösung:**
+
 ```bash
 # 1. Secret prüfen (Admin-Zugriff erforderlich)
 gh secret list --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
@@ -839,11 +879,12 @@ echo "NEW_TOKEN" | gh secret set GH_TOKEN --repo Menschlichkeit-Osterreich/mensc
 **Symptom:** Cross-Repo-Operation schlägt fehl.
 
 **Lösung:**
+
 ```yaml
 # Checkout mit PAT (nicht GITHUB_TOKEN)
 - uses: actions/checkout@v4
   with:
-    token: ${{ secrets.GH_TOKEN }}  # Explizit PAT
+    token: ${{ secrets.GH_TOKEN }} # Explizit PAT
 ```
 
 ---
@@ -851,12 +892,14 @@ echo "NEW_TOKEN" | gh secret set GH_TOKEN --repo Menschlichkeit-Osterreich/mensc
 ## 12. Referenzen
 
 **Interne Dokumentation:**
+
 - `.github/instructions/dsgvo-compliance.instructions.md` (Datenschutz bei Token-Logging)
 - `docs/security/GH-TOKEN-USAGE.md` (Quick-Start-Guide)
 - `docs/security/GH-PAT-ROTATION.md` (Rotation-Playbook)
 - `scripts/gh/` (Admin-Skripte)
 
 **Externe Quellen:**
+
 - [GitHub PAT Best Practices](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
 - [Fine-grained PATs](https://github.blog/2022-10-18-introducing-fine-grained-personal-access-tokens-for-github/)
 - [GitHub Apps vs PATs](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/about-authentication-with-a-github-app)
@@ -864,8 +907,10 @@ echo "NEW_TOKEN" | gh secret set GH_TOKEN --repo Menschlichkeit-Osterreich/mensc
 
 ---
 
-**Erstellt:** 2025-10-18
-**Token-Ablauf:** 2026-10-18
-**Nächste Review:** 2026-09-18 (1 Monat vor Ablauf)
+**Erstellt:** 2025-10-18 (Dokument), aktualisiert 2026-03-25
+**Token-Name:** `claud code full`
+**Token-Ablauf:** 2027-03-26
+**Nächste Review:** 2027-02-26 (1 Monat vor Ablauf)
 **Owner:** Security Analyst + DevOps Engineer
 **Status:** ACTIVE
+**BSM-Integration:** ✅ Reusable Workflow `.github/workflows/reusable-bsm-secrets.yml`

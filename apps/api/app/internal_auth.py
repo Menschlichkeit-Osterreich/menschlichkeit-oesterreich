@@ -7,6 +7,7 @@ import os
 from fastapi import Depends, HTTPException, Request, status
 
 from .rbac import get_current_user
+from .secrets_provider import get_secret
 
 ADMIN_ROLES = {"admin", "sysadmin", "finance", "staff"}
 
@@ -22,14 +23,14 @@ async def require_internal_or_admin(
     bearer_token = auth_header.removeprefix("Bearer ").strip()
     api_key = request.headers.get("x-api-key", "").strip()
     shared_token = (
-        os.getenv("MOE_API_TOKEN", "").strip()
-        or os.getenv("N8N_API_KEY", "").strip()
-        or os.getenv("INTERNAL_API_TOKEN", "").strip()
+        get_secret("MOE_API_TOKEN", bsm_key="api/MOE_API_TOKEN").strip()
+        or get_secret("N8N_API_KEY", bsm_key="api/N8N_API_KEY").strip()
+        or get_secret("INTERNAL_API_TOKEN", bsm_key="api/INTERNAL_API_TOKEN").strip()
     )
     if shared_token and (bearer_token == shared_token or api_key == shared_token):
         return {"auth_type": "internal"}
 
-    shared_secret = os.getenv("N8N_WEBHOOK_SECRET", "").strip() or os.getenv("INTERNAL_API_SECRET", "").strip()
+    shared_secret = get_secret("N8N_WEBHOOK_SECRET", bsm_key="api/N8N_WEBHOOK_SECRET").strip() or get_secret("INTERNAL_API_SECRET", bsm_key="api/INTERNAL_API_SECRET").strip()
     incoming = request.headers.get("x-webhook-signature") or request.headers.get("x-internal-signature")
     if shared_secret and incoming:
         raw_body = await request.body()

@@ -1,141 +1,64 @@
 {
-  "version": "1",
-  "servers": {
-    "filesystem": {
-      "command": "bash",
-      "args": {
-        "script": "scripts/mcp/wrapper-filesystem.sh"
-      }
-    },
-    "git": {
-      "command": "git",
-      "args": {}
-    },
-    "docker": {
-      "command": "docker",
-      "args": {}
-    },
-    "codacy-cli": {
-      "command": "bash",
-      "args": {
-        "script": "scripts/codacy/codacy-cli.sh",
-        "mode": "analyze",
-        "output": "quality-reports/codacy-analysis.json",
-        "format": "json",
-        "path": "${workspaceFolder}"
-      }
-    },
-    "prisma": {
-      "command": "prisma",
-      "args": {
-        "schema": "schema.prisma",
-        "generate": true
-      }
-    },
-    "lighthouse": {
-      "command": "lighthouse-ci",
-      "args": {
-        "config": "lighthouse.config.cjs",
-        "budgets-path": "frontend/lighthouse-budgets.json"
-      }
-    },
-    "trivy-security": {
-      "command": "trivy",
-      "args": {
-        "config": "trivy.yaml",
-        "format": "sarif",
-        "output": "quality-reports/security-findings.sarif"
-      }
-    },
-    "n8n-webhook": {
+  "mcpServers": {
+    "file-server": {
       "command": "node",
-      "args": {
-        "script": "automation/n8n/webhook-client.js",
-        "environment": "development"
-      }
-    },
-    "build-pipeline": {
-      "command": "bash",
-      "args": {
-        "script": "./build-pipeline.sh",
-        "dry-run": true
-      }
-    },
-    "plesk-deploy": {
-      "command": "bash",
-      "args": {
-        "script": "./scripts/safe-deploy.sh",
-        "mode": "dry-run"
+      "args": ["mcp-servers/file-server/index.js"],
+      "env": {
+        "PROJECT_ROOT": "${workspaceFolder}"
       }
     },
     "quality-reporter": {
       "command": "node",
-      "args": {
-        "script": "scripts/generate-quality-report.js",
-        "output-dir": "quality-reports"
-      }
-    },
-    "github-cli": {
-      "command": "python",
-      "args": {
-        "script": "scripts/validate-github-files.py",
-        "mode": "issues"
-      },
+      "args": ["mcp-servers/quality-reporter/index.js"],
       "env": {
-        "GH_TOKEN": "${env:GH_TOKEN}",
-        "GITHUB_TOKEN": "${env:GITHUB_TOKEN}"
+        "PROJECT_ROOT": "${workspaceFolder}",
+        "REPORTS_DIR": "${workspaceFolder}/quality-reports"
       }
     },
-    "memory": {
-      "command": "bash",
-      "args": {
-        "script": "scripts/mcp/wrapper-memory.sh"
+    "build-pipeline": {
+      "command": "node",
+      "args": ["mcp-servers/build-pipeline/index.js"],
+      "env": {
+        "PROJECT_ROOT": "${workspaceFolder}"
       }
     },
-    "sequential-thinking": {
-      "command": "bash",
-      "args": {
-        "script": "scripts/mcp/wrapper-sequential-thinking.sh"
+    "n8n-webhook": {
+      "command": "node",
+      "args": ["mcp-servers/n8n-webhook/index.js"],
+      "env": {
+        "PROJECT_ROOT": "${workspaceFolder}",
+        "N8N_BASE_URL": "http://localhost:5678"
+      }
+    },
+    "bitwarden-cli": {
+      "command": "node",
+      "args": ["mcp-servers/bitwarden-cli/index.js"],
+      "env": {
+        "PROJECT_ROOT": "${workspaceFolder}",
+        "BW_CLIENTID": "${BW_CLIENTID}",
+        "BW_CLIENTSECRET": "${BW_CLIENTSECRET}",
+        "BW_PASSWORD": "${BW_PASSWORD}"
       }
     },
     "context7": {
-      "command": "bash",
-      "args": {
-        "script": "scripts/mcp/wrapper-context7.sh"
-      }
-    },
-    "gitleaks": {
-      "command": "gitleaks",
-      "args": {
-        "config": "gitleaks.toml",
-        "report": "quality-reports/gitleaks-report.json"
-      }
-    },
-    "pii-sanitizer-test": {
-      "command": "pytest",
-      "args": {
-        "file": "tests/test_pii_sanitizer.py",
-        "output": "quality-reports/pii-sanitizer-test.txt"
-      }
-    },
-    "design-tokens-validate": {
-      "command": "node",
-      "args": {
-        "script": "scripts/validate-design-tokens.js",
-        "tokens": "figma-design-system/00_design-tokens.json"
-      }
-    },
-    "docs": {
       "command": "npx",
-      "args": ["-y", "mcp-server-docs"]
+      "args": ["-y", "@upstash/context7-mcp@latest"]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "."]
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
     },
     "playwright": {
       "command": "npx",
-      "args": ["-y", "playwright-mcp-server"]
-    },
-    "eslint": {
-      "command": "npx",
-      "args": ["-y", "eslint-mcp-server"]
+      "args": ["-y", "@playwright/mcp@latest"]
     }
   }
 }

@@ -11,3 +11,4 @@ httpx==0.27.2
 structlog==24.4.0
 prometheus-fastapi-instrumentator==7.0.0
 redis[asyncio]>=5.0.0
+bitwarden-sdk>=2.0.0

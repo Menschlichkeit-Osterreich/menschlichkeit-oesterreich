@@ -39,11 +39,13 @@ structlog.configure(
 log = structlog.get_logger()
 
 # ─── Konfiguration ────────────────────────────────────────
+from .secrets_provider import get_secret
+
 WORKSPACE_ROOT = Path(os.getenv("OC_WORKSPACE_ROOT", "/workspace"))
 OC_OUT_ROOT = WORKSPACE_ROOT / "openclaw-system" / "workspace" / "oc_out"
-PG_DSN = os.getenv("OC_PG_DSN", "postgresql://oc:oc_dev_only@localhost:55432/oc")
-REDIS_URL = os.getenv("OC_REDIS_URL", "redis://localhost:6380")
-GITHUB_TOKEN = os.getenv("OC_GITHUB_TOKEN", "")
+PG_DSN = get_secret("OC_PG_DSN", "postgresql://oc:oc_dev_only@localhost:55432/oc", bsm_key="openclaw/OC_PG_DSN")
+REDIS_URL = get_secret("OC_REDIS_URL", "redis://localhost:6380", bsm_key="openclaw/OC_REDIS_URL")
+GITHUB_TOKEN = get_secret("OC_GITHUB_TOKEN", "", bsm_key="openclaw/OC_GITHUB_TOKEN")
 N8N_URL = os.getenv("N8N_URL", "http://localhost:5678")
 
 # Capabilities laden

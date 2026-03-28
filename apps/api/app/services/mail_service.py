@@ -15,6 +15,7 @@ _SMTP_MAX_RETRIES = 3
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from ..db import execute
+from ..secrets_provider import get_secret
 from ..email_config import (
     MAIL_FROM_ADDRESS,
     MAIL_FROM_NAME,
@@ -42,8 +43,8 @@ class MailService:
             loader=FileSystemLoader(str(TEMPLATE_DIR)),
             autoescape=select_autoescape(["html", "xml"]),
         )
-        self.smtp_user = os.getenv("MAIL_USERNAME", "").strip()
-        self.smtp_password = os.getenv("MAIL_PASSWORD", "").strip()
+        self.smtp_user = get_secret("MAIL_USERNAME", bsm_key="api/MAIL_USERNAME").strip()
+        self.smtp_password = get_secret("MAIL_PASSWORD", bsm_key="api/MAIL_PASSWORD").strip()
         self.templates: dict[str, MailTemplate] = {
             "welcome": MailTemplate("welcome_email.html", "Willkommen bei Menschlichkeit Österreich", "Danke für Ihre Registrierung bei Menschlichkeit Österreich."),
             "verify_email": MailTemplate("verify_email.html", "Bitte E-Mail-Adresse bestätigen", "Bestätigen Sie bitte Ihre E-Mail-Adresse."),

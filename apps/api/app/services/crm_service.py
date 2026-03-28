@@ -7,21 +7,22 @@ from functools import lru_cache
 from typing import Any
 
 from ...src.crm.civi_service import CiviCRMService
+from ..secrets_provider import get_secret
 
 logger = logging.getLogger("menschlichkeit.crm")
 
 
 class CrmConfig:
     def __init__(self) -> None:
-        self.base_url = os.getenv("CIVICRM_BASE_URL", "").strip()
-        self.site_key = os.getenv("CIVICRM_SITE_KEY", "").strip()
-        self.api_key = os.getenv("CIVICRM_API_KEY", "").strip()
+        self.base_url = get_secret("CIVICRM_BASE_URL", bsm_key="api/CIVICRM_BASE_URL").strip()
+        self.site_key = get_secret("CIVICRM_SITE_KEY", bsm_key="api/CIVICRM_SITE_KEY").strip()
+        self.api_key = get_secret("CIVICRM_API_KEY", bsm_key="api/CIVICRM_API_KEY").strip()
         self.membership_type_map = self._load_map("CIVICRM_MEMBERSHIP_TYPE_MAP")
         self.group_map = self._load_map("CIVICRM_GROUP_MAP")
 
     @staticmethod
     def _load_map(env_name: str) -> dict[str, Any]:
-        raw = os.getenv(env_name, "").strip()
+        raw = get_secret(env_name, bsm_key=f"api/{env_name}").strip()
         if not raw:
             return {}
         try:

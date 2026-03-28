@@ -249,7 +249,8 @@ def create_auth_dependencies():
         import os
 
         security = HTTPBearer()
-        SECRET_KEY = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET")
+        from ...app.secrets_provider import get_secret as _get_secret
+        SECRET_KEY = _get_secret("JWT_SECRET_KEY", bsm_key="api/JWT_SECRET_KEY") or _get_secret("JWT_SECRET", bsm_key="api/JWT_SECRET")
         ALGORITHM  = os.getenv("JWT_ALGORITHM", "HS256")
 
         def get_current_user(

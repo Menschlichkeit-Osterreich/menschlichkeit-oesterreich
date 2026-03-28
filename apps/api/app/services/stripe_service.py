@@ -11,6 +11,7 @@ from typing import Any
 import httpx
 
 from ..db import fetchrow
+from ..secrets_provider import get_secret
 from ._payment_helpers import _resolve_contact_id, _to_cents
 
 logger = logging.getLogger("menschlichkeit.payments.stripe")
@@ -18,8 +19,8 @@ logger = logging.getLogger("menschlichkeit.payments.stripe")
 
 class StripeService:
     def __init__(self) -> None:
-        self.stripe_secret = os.getenv("STRIPE_SECRET_KEY", "").strip()
-        self.stripe_webhook_secret = os.getenv("STRIPE_WEBHOOK_SECRET", "").strip()
+        self.stripe_secret = get_secret("STRIPE_SECRET_KEY", bsm_key="api/STRIPE_SECRET_KEY").strip()
+        self.stripe_webhook_secret = get_secret("STRIPE_WEBHOOK_SECRET", bsm_key="api/STRIPE_WEBHOOK_SECRET").strip()
 
     async def create_stripe_intent(
         self,
