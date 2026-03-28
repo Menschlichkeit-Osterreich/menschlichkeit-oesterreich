@@ -13,8 +13,7 @@ Menschlichkeit Österreich is a multi-service NGO platform for democratic partic
 | Frontend               | `apps/website/`                                                   | React 18 + TS + Vite              | 5173  |
 | API                    | `apps/api/` (neu) · `api.menschlichkeit-oesterreich.at/` (legacy) | FastAPI (Python 3.12+)            | 8001  |
 | CRM                    | `apps/crm/`                                                       | Drupal 10 + CiviCRM (PHP 8.1)     | 8000  |
-| Games                  | `apps/game/` · `web/`                                             | Static + Prisma schema            | 3000  |
-| Babylon 3D             | `apps/babylon-game/`                                              | Next.js 16 + Babylon.js 8 + Havok | 3001  |
+| Games (Babylon 3D)     | `apps/babylon-game/`                                              | Next.js 16 + Babylon.js 8 + Havok | 3001  |
 | n8n Automation         | `automation/n8n/`                                                 | Docker                            | 5678  |
 | OpenClaw Tool-Gateway  | `openclaw-system/api/fastapi_gateway/`                            | FastAPI                           | 9101  |
 | OpenClaw Agent-Runtime | `openclaw-system/core/agent_runtime/`                             | Python asyncio                    | 9100  |
@@ -36,7 +35,7 @@ npm run dev:babylon        # Babylon.js 3D app (Next.js, port 3001)
 npm run dev:frontend       # Frontend only (Vite)
 npm run dev:api            # API only
 npm run dev:crm            # CRM only (php -S localhost:8000)
-npm run dev:games          # Games only (python http.server)
+npm run dev:babylon        # Babylon.js 3D app (Next.js, port 3001)
 npm run docker:up          # Start PostgreSQL + Redis + n8n
 ```
 
