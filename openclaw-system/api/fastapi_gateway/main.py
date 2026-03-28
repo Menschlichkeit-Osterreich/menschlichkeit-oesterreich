@@ -9,6 +9,7 @@ Port: 9101
 
 import asyncio
 import hashlib
+import hmac
 import json
 import os
 import re
@@ -20,6 +21,7 @@ from typing import Any, Optional
 
 import httpx
 import redis.asyncio as aioredis
+import sqlparse
 import yaml
 from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -27,6 +29,26 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 import asyncpg
 import structlog
+
+# ─── OpenTelemetry (P3-1) ────────────────────────────────
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
+from opentelemetry.sdk.resources import Resource
+
+_otel_resource = Resource.create({"service.name": "oc-tool-gateway", "service.version": "1.0.0"})
+_tracer_provider = TracerProvider(resource=_otel_resource)
+
+# OTLP-Exporter wenn Endpoint konfiguriert, sonst Console
+_otel_endpoint = os.getenv("OTEL_ENDPOINT", "")
+if _otel_endpoint:
+    from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+    _tracer_provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter(endpoint=_otel_endpoint)))
+else:
+    _tracer_provider.add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
+
+trace.set_tracer_provider(_tracer_provider)
+tracer = trace.get_tracer("oc.tool_gateway")
 
 # ─── Logging ──────────────────────────────────────────────
 structlog.configure(
@@ -47,6 +69,7 @@ PG_DSN = get_secret("OC_PG_DSN", "postgresql://oc:oc_dev_only@localhost:55432/oc
 REDIS_URL = get_secret("OC_REDIS_URL", "redis://localhost:6380", bsm_key="openclaw/OC_REDIS_URL")
 GITHUB_TOKEN = get_secret("OC_GITHUB_TOKEN", "", bsm_key="openclaw/OC_GITHUB_TOKEN")
 N8N_URL = os.getenv("N8N_URL", "http://localhost:5678")
+N8N_WEBHOOK_SECRET = get_secret("N8N_WEBHOOK_SECRET", "", bsm_key="openclaw/N8N_WEBHOOK_SECRET")
 
 # Capabilities laden
 CAPS_PATH = Path("/app/configs/capabilities.yaml")
@@ -64,6 +87,53 @@ ALLOWED_WEBHOOKS: frozenset[str] = frozenset(
 # Kompiliertes Regex für Audit-Log-Redaktion sensitiver Args-Keys
 _SENSITIVE_KEY_RE = re.compile(r"token|key|secret|password", re.IGNORECASE)
 
+# ─── SQL-Validierung (P0-1) ──────────────────────────────
+_SQL_FORBIDDEN_KEYWORDS = frozenset({
+    "INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "CREATE", "TRUNCATE",
+    "GRANT", "REVOKE", "COPY", "EXECUTE", "EXEC", "CALL",
+})
+
+
+def validate_readonly_query(query: str) -> bool:
+    """Prüft via sqlparse-AST, dass query NUR aus SELECT/WITH-Statements besteht.
+
+    Blockt:
+      - Stacked queries (SELECT 1; DROP TABLE x)
+      - DML/DDL getarnt als SELECT-Prefix
+      - Semicolons innerhalb des Statements
+    """
+    try:
+        parsed = sqlparse.parse(query)
+    except Exception:
+        return False
+
+    if not parsed:
+        return False
+
+    for stmt in parsed:
+        # Leere Statements ignorieren (trailing semicolons)
+        if not stmt.tokens or str(stmt).strip() == "":
+            continue
+
+        # Statement-Typ bestimmen
+        stmt_type = stmt.get_type()
+        if stmt_type not in ("SELECT", "UNKNOWN"):
+            # UNKNOWN kann bei WITH ... SELECT auftreten
+            return False
+
+        # Zusätzlich: alle Tokens auf verbotene Keywords scannen
+        flat = [
+            t.ttype and t.normalized
+            for t in stmt.flatten()
+            if t.ttype in (sqlparse.tokens.Keyword, sqlparse.tokens.Keyword.DDL,
+                           sqlparse.tokens.Keyword.DML)
+        ]
+        if any(kw in _SQL_FORBIDDEN_KEYWORDS for kw in flat if kw):
+            return False
+
+    return True
+
+
 # ─── FastAPI App ──────────────────────────────────────────
 app = FastAPI(
     title="OpenClaw Tool-Gateway",
@@ -78,6 +148,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# P3-1: FastAPI Auto-Instrumentation
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+FastAPIInstrumentor.instrument_app(app)
+
 # ─── DB-Pool ──────────────────────────────────────────────
 db_pool: Optional[asyncpg.Pool] = None
 redis_client: Optional[aioredis.Redis] = None
@@ -89,9 +163,25 @@ async def startup():
         db_pool = await asyncpg.create_pool(PG_DSN, min_size=2, max_size=10)
         redis_client = aioredis.from_url(REDIS_URL, decode_responses=True)
         OC_OUT_ROOT.mkdir(parents=True, exist_ok=True)
+        # P2-1: Audit-Log Partitionen erstellen und alte bereinigen
+        await _ensure_audit_partitions()
         log.info("tool_gateway_started", workspace=str(WORKSPACE_ROOT))
     except Exception as e:
         log.error("startup_failed", error=str(e))
+
+
+async def _ensure_audit_partitions():
+    """Erstellt kommende Partitionen und bereinigt abgelaufene (P2-1)."""
+    if not db_pool:
+        return
+    try:
+        await db_pool.execute("SELECT oc_ensure_partitions()")
+        retention = CAPABILITIES.get("audit", {}).get("retention_days", 90)
+        dropped = await db_pool.fetchval("SELECT oc_cleanup_old_partitions($1)", retention)
+        if dropped:
+            log.info("audit_partitions_cleaned", dropped=dropped)
+    except Exception as e:
+        log.warning("audit_partition_setup_skipped", error=str(e))
 
 @app.on_event("shutdown")
 async def shutdown():
@@ -151,14 +241,19 @@ def check_policy(role: str, tool: str, args: dict) -> tuple[bool, str]:
     return True, ""
 
 async def check_rate_limit(agent_id: str, tool: str) -> bool:
-    """Rate-Limiting via Redis."""
+    """Rate-Limiting via Redis. Fail-closed: bei Redis-Ausfall werden Calls abgelehnt."""
     if not redis_client:
-        return True
-    key = f"oc:rate:{agent_id}:{tool}"
-    count = await redis_client.incr(key)
-    if count == 1:
-        await redis_client.expire(key, 60)
-    return count <= 60  # 60 Calls/Minute pro Agent+Tool
+        log.warning("rate_limit_no_redis", agent_id=agent_id, tool=tool)
+        return False  # P0-3: Fail-closed statt fail-open
+    try:
+        key = f"oc:rate:{agent_id}:{tool}"
+        count = await redis_client.incr(key)
+        if count == 1:
+            await redis_client.expire(key, 60)
+        return count <= 60  # 60 Calls/Minute pro Agent+Tool
+    except Exception as e:
+        log.warning("rate_limit_redis_error", error=str(e), agent_id=agent_id, tool=tool)
+        return False  # Fail-closed bei Redis-Fehlern
 
 async def audit_log(req: ToolRequest, status: str, duration_ms: int,
                     result_size: int = 0, error: str = None, denied: bool = False) -> str:
@@ -212,6 +307,13 @@ async def tool_fs_write(args: dict) -> Any:
     path = Path(args["path"])
     if not path.is_absolute():
         path = OC_OUT_ROOT / path
+    # P0-2: Path Traversal Protection – resolve() + relative_to() Containment
+    resolved = Path(os.path.realpath(path))
+    sandbox = Path(os.path.realpath(OC_OUT_ROOT))
+    try:
+        resolved.relative_to(sandbox)
+    except ValueError:
+        raise ValueError(f"Pfad '{args['path']}' liegt außerhalb der Sandbox ({OC_OUT_ROOT})")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(args["content"], encoding="utf-8")
     return {"written": str(path), "size": len(args["content"])}
@@ -293,10 +395,8 @@ async def tool_db_query_readonly(args: dict) -> Any:
     if not db_pool:
         raise RuntimeError("Datenbank nicht verfügbar")
     query = args["query"]
-    # Nur SELECT erlauben
-    q = query.strip().upper()
-    if not q.startswith("SELECT") and not q.startswith("WITH"):
-        raise ValueError("Nur SELECT-Abfragen erlaubt")
+    if not validate_readonly_query(query):
+        raise ValueError("Nur einzelne SELECT/WITH-Abfragen erlaubt – DML/DDL und Stacked Queries sind verboten")
     rows = await db_pool.fetch(query, *args.get("params", []))
     return [dict(r) for r in rows]
 
@@ -311,8 +411,16 @@ async def tool_n8n_trigger_webhook(args: dict) -> Any:
     # Whitelist aus capabilities.yaml (ALLOWED_WEBHOOKS frozenset, O(1)-Lookup)
     if webhook_id not in ALLOWED_WEBHOOKS:
         raise ValueError(f"Webhook '{webhook_id}' nicht in der Whitelist")
+    body_bytes = json.dumps(payload, sort_keys=True).encode()
+    headers: dict[str, str] = {"Content-Type": "application/json"}
+    # P1-2: HMAC-SHA256 Signatur für kryptographische Integrität
+    if N8N_WEBHOOK_SECRET:
+        sig = hmac.new(N8N_WEBHOOK_SECRET.encode(), body_bytes, hashlib.sha256).hexdigest()
+        headers["X-Webhook-Signature"] = f"sha256={sig}"
     async with httpx.AsyncClient(timeout=15) as client:
-        resp = await client.post(f"{N8N_URL}/webhook/{webhook_id}", json=payload)
+        resp = await client.post(
+            f"{N8N_URL}/webhook/{webhook_id}", content=body_bytes, headers=headers
+        )
         return {"status": resp.status_code, "response": resp.text[:1000]}
 
 async def tool_ci_run_local(args: dict) -> Any:
@@ -331,6 +439,44 @@ async def tool_ci_run_local(args: dict) -> Any:
         "passed": result.returncode == 0,
     }
 
+async def tool_qdrant_delete_by_agent(args: dict) -> Any:
+    """P2-2: Löscht Qdrant-Vektoren nach agent_id (DSGVO Recht auf Löschung)."""
+    agent_id = args["agent_id"]
+    collection = args.get("collection", "oc_docs")
+    async with httpx.AsyncClient(timeout=15) as client:
+        resp = await client.post(
+            f"{os.getenv('OC_QDRANT_URL', 'http://localhost:6333')}"
+            f"/collections/{collection}/points/delete",
+            json={
+                "filter": {
+                    "must": [{"key": "agent_id", "match": {"value": agent_id}}]
+                }
+            }
+        )
+        return {"status": resp.status_code, "deleted_for_agent": agent_id}
+
+
+async def tool_qdrant_cleanup_expired(args: dict) -> Any:
+    """P2-2: Löscht Qdrant-Vektoren älter als retention_days."""
+    retention_days = args.get("retention_days", 90)
+    cutoff = datetime.now(timezone.utc).timestamp() - (retention_days * 86400)
+    collections = ["oc_docs", "oc_code", "oc_events_sem"]
+    results = {}
+    async with httpx.AsyncClient(timeout=30) as client:
+        for coll in collections:
+            resp = await client.post(
+                f"{os.getenv('OC_QDRANT_URL', 'http://localhost:6333')}"
+                f"/collections/{coll}/points/delete",
+                json={
+                    "filter": {
+                        "must": [{"key": "created_at", "range": {"lt": cutoff}}]
+                    }
+                }
+            )
+            results[coll] = resp.status_code
+    return {"cleanup_results": results, "cutoff_timestamp": cutoff}
+
+
 # Tool-Registry
 TOOLS: dict[str, Any] = {
     "fs.read": tool_fs_read,
@@ -347,6 +493,8 @@ TOOLS: dict[str, Any] = {
     "n8n.get_status": tool_n8n_get_status,
     "n8n.trigger_webhook": tool_n8n_trigger_webhook,
     "ci.run_local": tool_ci_run_local,
+    "qdrant.delete_by_agent": tool_qdrant_delete_by_agent,
+    "qdrant.cleanup_expired": tool_qdrant_cleanup_expired,
 }
 
 # ─── Endpoints ────────────────────────────────────────────
@@ -388,20 +536,26 @@ async def call_tool(req: ToolRequest):
     if req.tool not in TOOLS:
         raise HTTPException(404, f"Tool '{req.tool}' nicht implementiert")
     
-    # Tool ausführen
-    try:
-        result = await TOOLS[req.tool](req.args)
-        duration = int((time.monotonic() - start) * 1000)
-        result_size = len(json.dumps(result)) if result else 0
-        audit_id = await audit_log(req, "success", duration, result_size)
-        log.info("tool_called", tool=req.tool, agent=req.agent_id,
-                 duration_ms=duration, result_size=result_size)
-        return ToolResponse(success=True, result=result, duration_ms=duration,
-                           tool=req.tool, audit_id=audit_id)
-    except Exception as e:
-        duration = int((time.monotonic() - start) * 1000)
-        audit_id = await audit_log(req, "error", duration, error=str(e))
-        log.error("tool_error", tool=req.tool, error=str(e))
+    # Tool ausführen (P3-1: OTel Span)
+    with tracer.start_as_current_span("tool_call", attributes={
+        "oc.tool": req.tool, "oc.agent_id": req.agent_id, "oc.role": req.agent_role,
+    }) as span:
+        try:
+            result = await TOOLS[req.tool](req.args)
+            duration = int((time.monotonic() - start) * 1000)
+            result_size = len(json.dumps(result)) if result else 0
+            audit_id = await audit_log(req, "success", duration, result_size)
+            span.set_attribute("oc.duration_ms", duration)
+            span.set_attribute("oc.result_size", result_size)
+            log.info("tool_called", tool=req.tool, agent=req.agent_id,
+                     duration_ms=duration, result_size=result_size)
+            return ToolResponse(success=True, result=result, duration_ms=duration,
+                               tool=req.tool, audit_id=audit_id)
+        except Exception as e:
+            duration = int((time.monotonic() - start) * 1000)
+            audit_id = await audit_log(req, "error", duration, error=str(e))
+            span.set_attribute("oc.error", str(e))
+            log.error("tool_error", tool=req.tool, error=str(e))
         return ToolResponse(success=False, error=str(e), duration_ms=duration,
                            tool=req.tool, audit_id=audit_id)
 

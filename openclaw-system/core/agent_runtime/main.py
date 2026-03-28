@@ -10,6 +10,7 @@ Port: 9100
 import asyncio
 import json
 import os
+import re
 import time
 import uuid
 from datetime import datetime, timezone
@@ -26,6 +27,25 @@ import yaml
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+# ─── OpenTelemetry (P3-1) ────────────────────────────────
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
+from opentelemetry.sdk.resources import Resource
+
+_otel_resource = Resource.create({"service.name": "oc-agent-runtime", "service.version": "1.0.0"})
+_tracer_provider = TracerProvider(resource=_otel_resource)
+
+_otel_endpoint = os.getenv("OTEL_ENDPOINT", "")
+if _otel_endpoint:
+    from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
+    _tracer_provider.add_span_processor(BatchSpanProcessor(OTLPSpanExporter(endpoint=_otel_endpoint)))
+else:
+    _tracer_provider.add_span_processor(BatchSpanProcessor(ConsoleSpanExporter()))
+
+trace.set_tracer_provider(_tracer_provider)
+tracer = trace.get_tracer("oc.agent_runtime")
+
 # ─── Logging ──────────────────────────────────────────────
 structlog.configure(
     processors=[
@@ -35,6 +55,52 @@ structlog.configure(
     ]
 )
 log = structlog.get_logger()
+
+# ─── PII-Scrubbing (P3-3) ────────────────────────────────
+# Patterns aus apps/api/app/lib/pii_sanitizer.py portiert
+_PII_EMAIL = re.compile(r"[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}")
+_PII_PHONE = re.compile(r"(?:\+\d{1,3}[\s\-]?)?(?:\(?\d{2,4}\)?[\s\-]?){1,3}\d{3,6}")
+_PII_IBAN = re.compile(r"\b[A-Z]{2}\d{2}[\s]?[\dA-Z]{4}[\s]?(?:[\dA-Z]{4}[\s]?){2,7}[\dA-Z]{1,4}\b")
+_PII_CREDIT_CARD = re.compile(r"\b(?:\d{4}[\s\-]?){3}\d{4}\b")
+
+# Konfiguration: PII-Scrubbing aktiviert?
+_PII_SCRUB_EVENTS = os.getenv("OC_PII_SCRUB_EVENTS", "true").lower() == "true"
+
+
+def _scrub_email(match: re.Match) -> str:
+    local, domain = match.group().split("@", 1)
+    return f"{local[0]}**@{domain}" if local else "***@" + domain
+
+
+def scrub_pii(text: str) -> str:
+    """Maskiert PII-Daten in einem Text-String."""
+    text = _PII_EMAIL.sub(_scrub_email, text)
+    text = _PII_IBAN.sub(lambda m: m.group()[:4] + "***", text)
+    text = _PII_CREDIT_CARD.sub("[KARTE-REDACTED]", text)
+    # Telefonnummern nur ersetzen wenn > 7 Zeichen (vermeidet False-Positives bei IDs)
+    text = _PII_PHONE.sub(lambda m: "[TEL-REDACTED]" if len(m.group()) > 7 else m.group(), text)
+    return text
+
+
+def scrub_pii_dict(data: dict) -> dict:
+    """Rekursives PII-Scrubbing für verschachtelte Dicts."""
+    result = {}
+    for k, v in data.items():
+        if isinstance(v, str):
+            result[k] = scrub_pii(v)
+        elif isinstance(v, dict):
+            result[k] = scrub_pii_dict(v)
+        elif isinstance(v, list):
+            result[k] = [
+                scrub_pii_dict(i) if isinstance(i, dict)
+                else scrub_pii(i) if isinstance(i, str)
+                else i
+                for i in v
+            ]
+        else:
+            result[k] = v
+    return result
+
 
 # ─── Konfiguration ────────────────────────────────────────
 from .secrets_provider import get_secret
@@ -47,6 +113,8 @@ TOOL_GW_URL = os.getenv("OC_TOOL_GATEWAY_URL", "http://localhost:9101")
 OPENAI_API_KEY = get_secret("OC_OPENAI_API_KEY", bsm_key="openclaw/OC_OPENAI_API_KEY") or get_secret("OPENAI_API_KEY", bsm_key="openclaw/OPENAI_API_KEY")
 DEFAULT_MODEL = os.getenv("OC_DEFAULT_MODEL", "gpt-4.1-mini")
 FALLBACK_MODEL = os.getenv("OC_FALLBACK_MODEL", "gpt-4.1-nano")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+OLLAMA_URL = os.getenv("OC_OLLAMA_URL", "http://localhost:11434")
 MAX_TOOL_CALLS = int(os.getenv("OC_MAX_TOOL_CALLS", "20"))
 MAX_MINUTES = float(os.getenv("OC_MAX_MINUTES", "15"))
 MAX_COST_EUR = float(os.getenv("OC_MAX_COST_EUR", "0.20"))
@@ -96,33 +164,119 @@ class Budget:
             return False, f"Kosten-Budget erschöpft ({MAX_COST_EUR} EUR)"
         return True, ""
 
+# ─── LLM Pricing (P1-1) ──────────────────────────────────
+# Preise in EUR pro 1M Tokens (Stand: März 2026, OpenAI)
+_LLM_PRICING: dict[str, dict[str, float]] = {
+    "gpt-4.1-mini":  {"input": 0.37, "output": 1.48},
+    "gpt-4.1-nano":  {"input": 0.09, "output": 0.37},
+    "gpt-4.1":       {"input": 1.85, "output": 7.39},
+    "gpt-4o-mini":   {"input": 0.14, "output": 0.55},
+    "gpt-4o":        {"input": 2.30, "output": 9.20},
+}
+_DEFAULT_PRICING = {"input": 2.30, "output": 9.20}  # Konservativ für unbekannte Modelle
+
+
+def update_cost(budget: "Budget", model: str, usage: dict) -> None:
+    """Aktualisiert budget.cost_eur basierend auf der Token-Usage aus der API-Antwort."""
+    pricing = _LLM_PRICING.get(model, _DEFAULT_PRICING)
+    prompt_tokens = usage.get("prompt_tokens", 0)
+    completion_tokens = usage.get("completion_tokens", 0)
+    cost = (prompt_tokens * pricing["input"] + completion_tokens * pricing["output"]) / 1_000_000
+    budget.cost_eur += cost
+
+
+# ─── LLM Provider Failover (P3-2) ────────────────────────
+def _build_provider_chain(model: str) -> list[dict]:
+    """Baut die Failover-Chain: OpenAI → Groq → Ollama."""
+    chain = []
+    if OPENAI_API_KEY:
+        chain.append({
+            "name": "openai",
+            "base_url": "https://api.openai.com/v1/chat/completions",
+            "headers": {"Authorization": f"Bearer {OPENAI_API_KEY}"},
+            "model": model,
+            "json_mode": True,
+        })
+    if GROQ_API_KEY:
+        # Groq unterstützt OpenAI-kompatible API
+        groq_model = "llama-3.3-70b-versatile" if "4.1" in model else "llama-3.1-8b-instant"
+        chain.append({
+            "name": "groq",
+            "base_url": "https://api.groq.com/openai/v1/chat/completions",
+            "headers": {"Authorization": f"Bearer {GROQ_API_KEY}"},
+            "model": groq_model,
+            "json_mode": True,
+        })
+    # Ollama als letzter Fallback (lokal, kein API-Key)
+    chain.append({
+        "name": "ollama",
+        "base_url": f"{OLLAMA_URL}/v1/chat/completions",
+        "headers": {},
+        "model": os.getenv("OC_LOCAL_MODEL", "llama3.2"),
+        "json_mode": False,  # Nicht alle Ollama-Modelle unterstützen json_mode
+    })
+    return chain
+
+
 # ─── LLM-Client ───────────────────────────────────────────
 async def llm_call(system_prompt: str, user_message: str,
-                   model: str = DEFAULT_MODEL) -> str:
-    """Ruft das LLM auf und gibt die Antwort zurück."""
-    if not OPENAI_API_KEY:
+                   model: str = DEFAULT_MODEL,
+                   budget: Optional["Budget"] = None) -> str:
+    """Ruft das LLM auf mit Failover-Chain. Aktualisiert budget.cost_eur."""
+    if not OPENAI_API_KEY and not GROQ_API_KEY:
         # Fallback: Strukturierte Dummy-Antwort für Tests
         return json.dumps({
             "plan": [{"step": 1, "role": "research", "task": user_message[:100]}],
             "success_criteria": ["Task completed"],
         })
-    
-    async with httpx.AsyncClient(timeout=60) as client:
-        resp = await client.post(
-            "https://api.openai.com/v1/chat/completions",
-            headers={"Authorization": f"Bearer {OPENAI_API_KEY}"},
-            json={
-                "model": model,
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_message},
-                ],
-                "temperature": 0.1,
-                "response_format": {"type": "json_object"},
-            }
-        )
-        data = resp.json()
-        return data["choices"][0]["message"]["content"]
+
+    chain = _build_provider_chain(model)
+    last_error = None
+
+    for provider in chain:
+        with tracer.start_as_current_span("llm_call", attributes={
+            "oc.model": provider["model"], "oc.provider": provider["name"],
+        }) as span:
+            try:
+                body: dict[str, Any] = {
+                    "model": provider["model"],
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_message},
+                    ],
+                    "temperature": 0.1,
+                }
+                if provider["json_mode"]:
+                    body["response_format"] = {"type": "json_object"}
+
+                async with httpx.AsyncClient(timeout=60) as client:
+                    resp = await client.post(
+                        provider["base_url"], headers=provider["headers"], json=body
+                    )
+
+                if resp.status_code == 429 or resp.status_code >= 500:
+                    last_error = f"{provider['name']}: HTTP {resp.status_code}"
+                    log.warning("llm_failover", provider=provider["name"],
+                                status=resp.status_code, next=True)
+                    continue
+
+                data = resp.json()
+                # P1-1: Cost-Tracking
+                if budget and "usage" in data:
+                    update_cost(budget, provider["model"], data["usage"])
+                    span.set_attribute("oc.cost_eur", budget.cost_eur)
+                    span.set_attribute("oc.prompt_tokens", data["usage"].get("prompt_tokens", 0))
+                    span.set_attribute("oc.completion_tokens", data["usage"].get("completion_tokens", 0))
+
+                span.set_attribute("oc.provider_used", provider["name"])
+                return data["choices"][0]["message"]["content"]
+
+            except (httpx.TimeoutException, httpx.ConnectError) as e:
+                last_error = f"{provider['name']}: {e}"
+                log.warning("llm_failover", provider=provider["name"], error=str(e))
+                continue
+
+    raise RuntimeError(f"Alle LLM-Provider fehlgeschlagen. Letzter Fehler: {last_error}")
 
 # ─── Tool-Gateway-Client ──────────────────────────────────
 async def call_tool(tool: str, args: dict, agent_id: str, role: str,
@@ -267,7 +421,7 @@ Constraints: {json.dumps(task.get('constraints', {}))}
 Erstelle einen JSON-Plan mit den Schritten zur Erledigung dieses Tasks.
 Antworte NUR mit JSON: {{"steps": [{{"action": "...", "tool": "...", "args": {{}}}}]}}"""
         
-        response = await llm_call(self.system_prompt, prompt, self.model)
+        response = await llm_call(self.system_prompt, prompt, self.model, budget)
         try:
             return json.loads(response)
         except json.JSONDecodeError:
@@ -301,7 +455,7 @@ Ergebnisse: {json.dumps(results[:5])}
 Bewerte die Ergebnisse und erstelle eine Zusammenfassung.
 Antworte mit JSON: {{"qa_score": 0-100, "summary": "...", "issues": []}}"""
         
-        response = await llm_call(self.system_prompt, prompt, FALLBACK_MODEL)
+        response = await llm_call(self.system_prompt, prompt, FALLBACK_MODEL, budget)
         try:
             return json.loads(response)
         except json.JSONDecodeError:
@@ -349,6 +503,9 @@ Antworte mit JSON: {{"qa_score": 0-100, "summary": "...", "issues": []}}"""
         )
 
     async def publish_event(self, event_type: str, task_id: str, payload: dict):
+        # P3-3: PII-Scrubbing vor Event-Publish
+        if _PII_SCRUB_EVENTS:
+            payload = scrub_pii_dict(payload)
         event = {
             "event_id": str(uuid.uuid4()),
             "schema_version": "oc.event.v1",
@@ -370,6 +527,10 @@ Antworte mit JSON: {{"qa_score": 0-100, "summary": "...", "issues": []}}"""
 
 # ─── FastAPI Health-Endpoint ──────────────────────────────
 app = FastAPI(title="OpenClaw Agent-Runtime", version="1.0.0")
+
+# P3-1: FastAPI Auto-Instrumentation
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+FastAPIInstrumentor.instrument_app(app)
 
 agents: list[Agent] = []
 db_pool: Optional[asyncpg.Pool] = None
