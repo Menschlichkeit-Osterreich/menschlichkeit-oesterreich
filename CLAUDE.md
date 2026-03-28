@@ -8,21 +8,21 @@ Menschlichkeit Österreich is a multi-service NGO platform for democratic partic
 
 ## Services & Ports
 
-| Service                | Location                                                          | Tech                              | Port  |
-| ---------------------- | ----------------------------------------------------------------- | --------------------------------- | ----- |
-| Frontend               | `apps/website/`                                                   | React 18 + TS + Vite              | 5173  |
-| API                    | `apps/api/` (neu) · `api.menschlichkeit-oesterreich.at/` (legacy) | FastAPI (Python 3.12+)            | 8001  |
-| CRM                    | `apps/crm/`                                                       | Drupal 10 + CiviCRM (PHP 8.1)     | 8000  |
-| Games (Babylon 3D)     | `apps/babylon-game/`                                              | Next.js 16 + Babylon.js 8 + Havok | 3001  |
-| n8n Automation         | `automation/n8n/`                                                 | Docker                            | 5678  |
-| OpenClaw Tool-Gateway  | `openclaw-system/api/fastapi_gateway/`                            | FastAPI                           | 9101  |
-| OpenClaw Agent-Runtime | `openclaw-system/core/agent_runtime/`                             | Python asyncio                    | 9100  |
-| Windows-Bridge         | `openclaw-system/windows-bridge/`                                 | PowerShell/Node                   | 18790 |
-| PostgreSQL (Haupt-DB)  | Docker                                                            | PostgreSQL ≥15                    | 5432  |
-| PostgreSQL (OpenClaw)  | Docker                                                            | PostgreSQL ≥15                    | 55432 |
-| Redis (OpenClaw)       | Docker                                                            | Redis                             | 6380  |
-| Qdrant (OpenClaw)      | Docker                                                            | Qdrant Vektordatenbank            | 6333  |
-| NATS JetStream         | Docker                                                            | NATS                              | 4222  |
+| Service                | Location                                                            | Tech                              | Port  |
+| ---------------------- | ------------------------------------------------------------------- | --------------------------------- | ----- |
+| Frontend               | `apps/website/`                                                     | React 18 + TS + Vite              | 5173  |
+| API                    | `apps/api/` · ~~`api.menschlichkeit-oesterreich.at/`~~ (deprecated) | FastAPI (Python 3.12+)            | 8001  |
+| CRM                    | `apps/crm/`                                                         | Drupal 10 + CiviCRM (PHP 8.1)     | 8000  |
+| Games (Babylon 3D)     | `apps/babylon-game/`                                                | Next.js 16 + Babylon.js 8 + Havok | 3001  |
+| n8n Automation         | `automation/n8n/`                                                   | Docker                            | 5678  |
+| OpenClaw Tool-Gateway  | `openclaw-system/api/fastapi_gateway/`                              | FastAPI                           | 9101  |
+| OpenClaw Agent-Runtime | `openclaw-system/core/agent_runtime/`                               | Python asyncio                    | 9100  |
+| Windows-Bridge         | `openclaw-system/windows-bridge/`                                   | PowerShell/Node                   | 18790 |
+| PostgreSQL (Haupt-DB)  | Docker                                                              | PostgreSQL ≥15                    | 5432  |
+| PostgreSQL (OpenClaw)  | Docker                                                              | PostgreSQL ≥15                    | 55432 |
+| Redis (OpenClaw)       | Docker                                                              | Redis                             | 6380  |
+| Qdrant (OpenClaw)      | Docker                                                              | Qdrant Vektordatenbank            | 6333  |
+| NATS JetStream         | Docker                                                              | NATS                              | 4222  |
 
 ## Key Commands
 
@@ -75,12 +75,8 @@ npm run docker:up          # Start PostgreSQL/Redis
 npx prisma migrate dev     # Prisma migrations (Games)
 npx prisma generate        # Regenerate Prisma client
 npx prisma studio          # Prisma Studio UI
-# Schema-Strategie (zwei Ansätze, je nach Komplexität):
-#   Standardfall: CREATE TABLE IF NOT EXISTS direkt in den Router-Startup-Hooks
-#   (apps/api/app/routers/) — für einfache, dienst-eigene Tabellen.
-#   Finance-Ausnahme: apps/api/alembic/ verwendet Alembic-Migrations für das
-#   komplexe Finance-Schema (invoices, invoice_items, payment_intents, donations,
-#   sepa_mandates, sepa_batches, dunning_runs) mit FK-Constraints und Indizes.
+# Schema-Strategie: Alembic-Migrations (apps/api/alembic/)
+#   Alle Tabellen werden über versionierte Migrations verwaltet.
 #   Alembic ausführen: cd apps/api && alembic upgrade head
 ```
 
@@ -104,11 +100,11 @@ npm run build:frontend
 
 ### Monorepo Structure
 
-npm workspaces root. Die neue Primärstruktur ist `apps/<name>/`. Das Verzeichnis `api.menschlichkeit-oesterreich.at/` ist die Legacy-Kopie der API (wird synchron gehalten, aber nicht aktiv weiterentwickelt). The `packages/` directory contains shared `design-system` and `ui` packages.
+npm workspaces root. Die neue Primärstruktur ist `apps/<name>/`. Das Verzeichnis `api.menschlichkeit-oesterreich.at/` ist **deprecated** — alle API-Entwicklung findet in `apps/api/` statt. Die Legacy-Kopie wird nicht mehr synchron gehalten und soll entfernt werden.
 
 ### Shared PostgreSQL Database
 
-Alle Dienste teilen eine PostgreSQL ≥15-Instanz (Port 5432) via `DATABASE_URL`. Das OpenClaw-System nutzt eine separate Instanz (Port 55432, `OC_PG_DSN`). Schema-Änderungen erfolgen standardmäßig via `CREATE TABLE IF NOT EXISTS` direkt in den Router-Startup-Hooks. **Ausnahme:** Das Finance-Schema (`apps/api/alembic/`) nutzt Alembic-Migrations wegen komplexer FK-Constraints — `alembic upgrade head` nach DB-Neuanlage ausführen. Prisma (Games) läuft parallel.
+Alle Dienste teilen eine PostgreSQL ≥15-Instanz (Port 5432) via `DATABASE_URL`. Das OpenClaw-System nutzt eine separate Instanz (Port 55432, `OC_PG_DSN`). Schema-Änderungen erfolgen über Alembic-Migrations (`apps/api/alembic/`). Nach DB-Neuanlage: `cd apps/api && alembic upgrade head`. Prisma (Games) läuft parallel.
 
 ### Design Tokens
 
@@ -116,10 +112,9 @@ Design tokens live in `figma-design-system/00_design-tokens.json`. **Never hardc
 
 ### DSGVO/PII Compliance (Kritisch)
 
-- **FastAPI** (`apps/api/` + `api.menschlichkeit-oesterreich.at/`):
+- **FastAPI** (`apps/api/`):
   - Middleware: `app/middleware/pii_middleware.py` (PiiSanitizationMiddleware, PiiLoggingMiddleware)
   - Library: `app/lib/pii_sanitizer.py` (PiiSanitizer, scrub, scrub_dict)
-  - Beide Kopien müssen synchron gehalten werden bis zur Zusammenführung in `packages/`
 - **Drupal**: custom module `apps/crm/web/modules/custom/pii_sanitizer/`
 - Regeln: Kein PII in Logs. E-Mail-Maskierung (`t**@example.com`), IBAN-Redaktion (`AT61***`), Luhn-validierte Kreditkartennummern.
 - Tests: `cd apps/api && pytest tests/test_pii_sanitizer.py`

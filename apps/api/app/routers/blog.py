@@ -19,26 +19,6 @@ logger = logging.getLogger("menschlichkeit.blog")
 router = APIRouter()
 
 
-async def _ensure_blog_table() -> None:
-    await execute("""
-        CREATE TABLE IF NOT EXISTS blog_articles (
-            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            titel TEXT NOT NULL,
-            inhalt TEXT NOT NULL,
-            zusammenfassung TEXT,
-            kategorie TEXT NOT NULL DEFAULT 'Allgemein',
-            tags JSONB DEFAULT '[]'::jsonb,
-            autor_id UUID NOT NULL,
-            veroeffentlicht BOOLEAN DEFAULT FALSE,
-            seo_title TEXT,
-            seo_description TEXT,
-            og_image TEXT,
-            created_at TIMESTAMPTZ DEFAULT NOW(),
-            updated_at TIMESTAMPTZ DEFAULT NOW()
-        );
-    """)
-
-
 def _row_to_response(r: dict) -> BlogArticleResponse:
     tags = r.get("tags", [])
     if isinstance(tags, str):
@@ -63,7 +43,6 @@ async def list_articles(
     kategorie: str = Query("", max_length=100),
     nur_veroeffentlicht: bool = Query(True),
 ):
-    await _ensure_blog_table()
     conditions = ["1=1"]
     params: list = []
     idx = 1
@@ -95,7 +74,6 @@ async def list_articles(
 
 @router.get("/blog/articles/{article_id}", response_model=BlogArticleResponse)
 async def get_article(article_id: str):
-    await _ensure_blog_table()
     row = await fetchrow("""
         SELECT b.*, m.vorname || ' ' || m.nachname AS autor_name
         FROM blog_articles b
@@ -109,7 +87,6 @@ async def get_article(article_id: str):
 
 @router.post("/blog/articles", response_model=BlogArticleResponse, status_code=201)
 async def create_article(body: BlogArticleCreate, user: dict = require_role(Role.MODERATOR)):
-    await _ensure_blog_table()
     aid = str(uuid4())
     uid = user.get("uid", str(uuid4()))
     await execute(
@@ -124,7 +101,6 @@ async def create_article(body: BlogArticleCreate, user: dict = require_role(Role
 
 @router.put("/blog/articles/{article_id}", response_model=BlogArticleResponse)
 async def update_article(article_id: str, body: BlogArticleUpdate, user: dict = require_role(Role.MODERATOR)):
-    await _ensure_blog_table()
     row = await fetchrow("SELECT * FROM blog_articles WHERE id = $1::uuid", article_id)
     if not row:
         raise HTTPException(status_code=404, detail="Artikel nicht gefunden")

@@ -1,13 +1,24 @@
 # API Service – FastAPI Backend
 
+> ## DEPRECATED
+>
+> **Dieses Verzeichnis ist veraltet.** Die aktive API-Entwicklung findet ausschließlich
+> in `apps/api/` statt. Diese Kopie wird nicht mehr synchron gehalten und soll in einer
+> zukünftigen Version entfernt werden.
+>
+> **Migration:** Alle neuen Endpunkte, Bugfixes und Schema-Änderungen gehören nach `apps/api/`.
+> Bestehende Deployments sollten auf `apps/api/` umgestellt werden.
+
+---
+
 > **Zentrale Backend-API für Menschlichkeit Österreich Platform**
 
-**Base URL (Production)**: `https://api.menschlichkeit-oesterreich.at`  
+**Base URL (Production)**: `https://api.menschlichkeit-oesterreich.at`
 **Base URL (Development)**: `http://localhost:8001`
 
 ---
 
-## 🎯 Übersicht
+## Übersicht
 
 Der API Service ist ein **FastAPI**-basierter Python-Backend, der:
 

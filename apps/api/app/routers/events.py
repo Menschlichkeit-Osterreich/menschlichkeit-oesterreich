@@ -20,35 +20,6 @@ logger = logging.getLogger("menschlichkeit.events")
 router = APIRouter()
 
 
-async def _ensure_events_tables() -> None:
-    await execute("""
-        CREATE TABLE IF NOT EXISTS events (
-            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            titel TEXT NOT NULL,
-            beschreibung TEXT NOT NULL,
-            ort TEXT,
-            start_datum TIMESTAMPTZ NOT NULL,
-            end_datum TIMESTAMPTZ,
-            max_teilnehmer INTEGER,
-            kategorie TEXT DEFAULT 'Allgemein',
-            ist_oeffentlich BOOLEAN DEFAULT TRUE,
-            ersteller_id UUID NOT NULL,
-            created_at TIMESTAMPTZ DEFAULT NOW(),
-            updated_at TIMESTAMPTZ DEFAULT NOW()
-        );
-    """)
-    await execute("""
-        CREATE TABLE IF NOT EXISTS event_rsvps (
-            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            event_id UUID REFERENCES events(id) ON DELETE CASCADE,
-            user_id UUID NOT NULL,
-            status TEXT DEFAULT 'angemeldet',
-            created_at TIMESTAMPTZ DEFAULT NOW(),
-            UNIQUE(event_id, user_id)
-        );
-    """)
-
-
 def _row_to_response(r: dict) -> EventResponse:
     return EventResponse(
         id=str(r["id"]), titel=r["titel"], beschreibung=r["beschreibung"],
@@ -71,7 +42,6 @@ async def list_events(
     kategorie: str = Query("", max_length=100),
     nur_oeffentlich: bool = Query(True),
 ):
-    await _ensure_events_tables()
     conditions = ["1=1"]
     params: list = []
     idx = 1
@@ -104,7 +74,6 @@ async def list_events(
 
 @router.get("/events/{event_id}", response_model=EventResponse)
 async def get_event(event_id: str):
-    await _ensure_events_tables()
     row = await fetchrow("""
         SELECT e.*, m.vorname || ' ' || m.nachname AS ersteller_name,
                COALESCE((SELECT COUNT(*) FROM event_rsvps r WHERE r.event_id = e.id AND r.status = 'angemeldet'), 0) AS aktuelle_teilnehmer
@@ -119,7 +88,6 @@ async def get_event(event_id: str):
 
 @router.post("/events", response_model=EventResponse, status_code=201)
 async def create_event(body: EventCreate, user: dict = require_role(Role.MODERATOR)):
-    await _ensure_events_tables()
     eid = str(uuid4())
     uid = user.get("uid", str(uuid4()))
     await execute(
@@ -134,7 +102,6 @@ async def create_event(body: EventCreate, user: dict = require_role(Role.MODERAT
 
 @router.put("/events/{event_id}", response_model=EventResponse)
 async def update_event(event_id: str, body: EventUpdate, user: dict = require_role(Role.MODERATOR)):
-    await _ensure_events_tables()
     row = await fetchrow("SELECT * FROM events WHERE id = $1::uuid", event_id)
     if not row:
         raise HTTPException(status_code=404, detail="Veranstaltung nicht gefunden")
@@ -170,7 +137,6 @@ async def delete_event(event_id: str, user: dict = require_role(Role.ADMIN)):
 
 @router.post("/events/{event_id}/rsvp", response_model=EventRsvpResponse)
 async def rsvp_event(event_id: str, user: dict = Depends(require_auth)):
-    await _ensure_events_tables()
     event = await fetchrow("SELECT * FROM events WHERE id = $1::uuid", event_id)
     if not event:
         raise HTTPException(status_code=404, detail="Veranstaltung nicht gefunden")

@@ -14,26 +14,12 @@ from ..services.utils import normalize_email
 
 router = APIRouter()
 
-_doi_schema_ready: bool = False
-
-
-async def _ensure_doi_expiry_column() -> None:
-    """Idempotente Migration: fügt token_created_at zur newsletter_subscriptions-Tabelle hinzu."""
-    global _doi_schema_ready
-    if _doi_schema_ready:
-        return
-    await execute(
-        "ALTER TABLE newsletter_subscriptions ADD COLUMN IF NOT EXISTS token_created_at TIMESTAMPTZ DEFAULT NOW()"
-    )
-    _doi_schema_ready = True
-
 
 @router.post("/newsletter/subscribe")
 async def subscribe_newsletter(body: NewsletterSubscribeRequest, request: Request):
     if not body.consent:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Newsletter-Einwilligung ist erforderlich")
 
-    await _ensure_doi_expiry_column()
     email = normalize_email(body.email)
     token = secrets.token_urlsafe(32)
     existing = await fetchrow(
@@ -94,7 +80,6 @@ async def subscribe_newsletter(body: NewsletterSubscribeRequest, request: Reques
 
 @router.get("/newsletter/confirm")
 async def confirm_newsletter(token: str = Query(..., min_length=10)):
-    await _ensure_doi_expiry_column()
     pending = await fetchrow(
         "SELECT id, token_created_at FROM newsletter_subscriptions WHERE confirmation_token = $1 AND status = 'pending_confirmation'",
         token,

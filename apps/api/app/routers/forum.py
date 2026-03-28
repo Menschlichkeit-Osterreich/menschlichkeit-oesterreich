@@ -21,61 +21,8 @@ logger = logging.getLogger("menschlichkeit.forum")
 router = APIRouter()
 
 
-DEFAULT_CATEGORIES = [
-    ("Allgemein", "Allgemeine Diskussionen rund um den Verein", 1),
-    ("Demokratie & Politik", "Diskussionen zu Demokratie, Politik und Menschenrechten", 2),
-    ("Veranstaltungen", "Austausch zu Veranstaltungen und Events", 3),
-    ("Bildung", "Bildungsthemen, Workshops und Materialien", 4),
-    ("Technik & Plattform", "Fragen und Anregungen zur Plattform", 5),
-]
-
-
-async def _ensure_forum_tables() -> None:
-    await execute("""
-        CREATE TABLE IF NOT EXISTS forum_categories (
-            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            name TEXT NOT NULL,
-            beschreibung TEXT,
-            sort_order INTEGER DEFAULT 0,
-            created_at TIMESTAMPTZ DEFAULT NOW()
-        );
-    """)
-    await execute("""
-        CREATE TABLE IF NOT EXISTS forum_threads (
-            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            category_id UUID REFERENCES forum_categories(id),
-            titel TEXT NOT NULL,
-            inhalt TEXT NOT NULL,
-            autor_id UUID NOT NULL,
-            is_pinned BOOLEAN DEFAULT FALSE,
-            is_locked BOOLEAN DEFAULT FALSE,
-            created_at TIMESTAMPTZ DEFAULT NOW(),
-            updated_at TIMESTAMPTZ DEFAULT NOW()
-        );
-    """)
-    await execute("""
-        CREATE TABLE IF NOT EXISTS forum_posts (
-            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            thread_id UUID REFERENCES forum_threads(id) ON DELETE CASCADE,
-            inhalt TEXT NOT NULL,
-            autor_id UUID NOT NULL,
-            created_at TIMESTAMPTZ DEFAULT NOW(),
-            updated_at TIMESTAMPTZ DEFAULT NOW()
-        );
-    """)
-    existing = await fetchval("SELECT COUNT(*) FROM forum_categories")
-    if not existing or int(existing) == 0:
-        for name, beschreibung, sort_order in DEFAULT_CATEGORIES:
-            await execute(
-                "INSERT INTO forum_categories (name, beschreibung, sort_order) VALUES ($1, $2, $3)",
-                name, beschreibung, sort_order,
-            )
-        logger.info("Forum-Kategorien initialisiert: %d Kategorien", len(DEFAULT_CATEGORIES))
-
-
 @router.get("/forum/categories", response_model=list[ForumCategoryResponse])
 async def list_categories():
-    await _ensure_forum_tables()
     rows = await fetch("""
         SELECT c.*,
                COALESCE((SELECT COUNT(*) FROM forum_threads t WHERE t.category_id = c.id), 0) AS thread_count,
@@ -98,7 +45,6 @@ async def list_threads(
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
 ):
-    await _ensure_forum_tables()
     conditions = ["1=1"]
     params: list = []
     idx = 1
@@ -141,7 +87,6 @@ async def list_threads(
 
 @router.get("/forum/threads/{thread_id}", response_model=ForumThreadResponse)
 async def get_thread(thread_id: str):
-    await _ensure_forum_tables()
     row = await fetchrow("""
         SELECT t.*, m.vorname || ' ' || m.nachname AS autor_name,
                c.name AS category_name,
@@ -166,7 +111,6 @@ async def get_thread(thread_id: str):
 
 @router.post("/forum/threads", response_model=ForumThreadResponse, status_code=201)
 async def create_thread(body: ForumThreadCreate, user: dict = Depends(require_auth)):
-    await _ensure_forum_tables()
     tid = str(uuid4())
     uid = user.get("uid", str(uuid4()))
     await execute(
@@ -179,7 +123,6 @@ async def create_thread(body: ForumThreadCreate, user: dict = Depends(require_au
 
 @router.put("/forum/threads/{thread_id}", response_model=ForumThreadResponse)
 async def update_thread(thread_id: str, body: ForumThreadUpdate, user: dict = require_role(Role.MODERATOR)):
-    await _ensure_forum_tables()
     row = await fetchrow("SELECT * FROM forum_threads WHERE id = $1::uuid", thread_id)
     if not row:
         raise HTTPException(status_code=404, detail="Thread nicht gefunden")
@@ -216,7 +159,6 @@ async def delete_thread(thread_id: str, user: dict = require_role(Role.MODERATOR
 
 @router.get("/forum/threads/{thread_id}/posts", response_model=list[ForumPostResponse])
 async def list_posts(thread_id: str, page: int = Query(1, ge=1), page_size: int = Query(50, ge=1, le=100)):
-    await _ensure_forum_tables()
     offset = (page - 1) * page_size
     rows = await fetch("""
         SELECT p.*, m.vorname || ' ' || m.nachname AS autor_name
@@ -238,7 +180,6 @@ async def list_posts(thread_id: str, page: int = Query(1, ge=1), page_size: int 
 
 @router.post("/forum/posts", response_model=ForumPostResponse, status_code=201)
 async def create_post(body: ForumPostCreate, user: dict = Depends(require_auth)):
-    await _ensure_forum_tables()
     thread = await fetchrow("SELECT * FROM forum_threads WHERE id = $1::uuid", body.thread_id)
     if not thread:
         raise HTTPException(status_code=404, detail="Thread nicht gefunden")
