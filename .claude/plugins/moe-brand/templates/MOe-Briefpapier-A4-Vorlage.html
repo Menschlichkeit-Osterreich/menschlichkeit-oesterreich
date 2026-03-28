@@ -1,0 +1,172 @@
+<!-- Menschlichkeit Österreich – Briefpapier DIN A4 v1.0
+     Zum Drucken: Datei in Browser öffnen → Drucken → PDF speichern
+     Ränder: 25mm links, 20mm rechts, 20mm unten (DIN 5008) -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Briefpapier – Menschlichkeit Österreich</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@700&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  @page {
+    size: A4;
+    margin: 20mm 20mm 25mm 25mm;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Source Sans 3', 'Segoe UI', Arial, sans-serif;
+    font-size: 11pt;
+    color: #4A4039;
+    line-height: 1.5;
+    max-width: 165mm;
+    margin: 0 auto;
+    padding: 20mm;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 16px;
+    border-bottom: 3px solid #D4611E;
+    margin-bottom: 24px;
+  }
+  .header-logo {
+    max-width: 180px;
+    height: auto;
+  }
+  .header-text {
+    text-align: right;
+    font-size: 9pt;
+    color: #7A6E62;
+  }
+  .header-text strong {
+    color: #1B4965;
+    font-size: 10pt;
+  }
+
+  .absender {
+    font-size: 8pt;
+    color: #B8ADA0;
+    border-bottom: 1px solid #DDD5CC;
+    padding-bottom: 4px;
+    margin-bottom: 24px;
+  }
+
+  .empfaenger {
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+
+  .datum {
+    text-align: right;
+    margin-bottom: 24px;
+    color: #7A6E62;
+  }
+
+  .betreff {
+    font-family: 'Nunito Sans', sans-serif;
+    font-weight: 700;
+    font-size: 13pt;
+    color: #2B231D;
+    margin-bottom: 20px;
+  }
+
+  .brieftext p {
+    margin-bottom: 1em;
+    text-align: left; /* NIEMALS Blocksatz */
+  }
+
+  .gruss {
+    margin-top: 32px;
+    margin-bottom: 48px;
+  }
+
+  .unterschrift {
+    color: #2B231D;
+    font-weight: 600;
+  }
+
+  .footer {
+    position: fixed;
+    bottom: 15mm;
+    left: 25mm;
+    right: 20mm;
+    border-top: 1px solid #DDD5CC;
+    padding-top: 8px;
+    font-size: 8pt;
+    color: #B8ADA0;
+    display: flex;
+    justify-content: space-between;
+  }
+  .footer a {
+    color: #B8ADA0;
+    text-decoration: none;
+  }
+
+  @media print {
+    body { padding: 0; max-width: none; }
+    .footer { position: fixed; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <!-- Logo: Durch tatsächliches Logo-Bild ersetzen -->
+    <div style="font-family:'Nunito Sans',sans-serif;font-weight:700;font-size:18pt;color:#D4611E;">
+      Menschlichkeit<br>Österreich
+    </div>
+    <div style="font-size:9pt;color:#7A6E62;margin-top:2px;">für Demokratie &amp; Menschenrechte</div>
+  </div>
+  <div class="header-text">
+    <strong>Verein Menschlichkeit Österreich</strong><br>
+    3140 Pottenbrunn<br>
+    kontakt@menschlichkeit-oesterreich.at<br>
+    www.menschlichkeit-oesterreich.at
+  </div>
+</div>
+
+<div class="absender">
+  Verein Menschlichkeit Österreich · 3140 Pottenbrunn
+</div>
+
+<div class="empfaenger">
+  [Empfänger Name]<br>
+  [Straße Nr.]<br>
+  [PLZ Ort]
+</div>
+
+<div class="datum">
+  Pottenbrunn, [Datum]
+</div>
+
+<div class="betreff">
+  Betreff: [Betreff hier einfügen]
+</div>
+
+<div class="brieftext">
+  <p>Sehr geehrte Damen und Herren,</p>
+
+  <p>[Hier beginnt der Brieftext. Diese Vorlage folgt den Brand Guidelines von Menschlichkeit Österreich. Bitte diesen Platzhaltertext ersetzen.]</p>
+
+  <p>[Weiterer Absatz mit 1.5-fachem Zeilenabstand für optimale Lesbarkeit.]</p>
+</div>
+
+<div class="gruss">
+  <p>Mit freundlichen Grüßen</p>
+</div>
+
+<div class="unterschrift">
+  [Name]<br>
+  <span style="font-weight:400;color:#7A6E62;">[Funktion], Menschlichkeit Österreich</span>
+</div>
+
+<div class="footer">
+  <span>Verein Menschlichkeit Österreich · ZVR 1182213083</span>
+  <span>kontakt@menschlichkeit-oesterreich.at · <a href="https://www.menschlichkeit-oesterreich.at">menschlichkeit-oesterreich.at</a></span>
+</div>
+
+</body>
+</html>

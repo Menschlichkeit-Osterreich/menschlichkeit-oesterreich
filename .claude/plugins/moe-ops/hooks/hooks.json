@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo $TOOL_INPUT | grep -qiE '(docker-compose|deploy|workflow.*\\.yml|\\.github/workflows)' && echo '[!] MOe-Ops: Infrastruktur-Datei geaendert - bitte Deploy-Checkliste und Healthchecks pruefen!' || true"
+          }
+        ]
+      }
+    ]
+  }
+}

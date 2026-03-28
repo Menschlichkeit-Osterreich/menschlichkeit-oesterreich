@@ -1,0 +1,45 @@
+{
+  "name": "@moe/babylon-game",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "scripts": {
+    "dev": "next dev --turbopack -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001",
+    "preview": "next build && next start -p 3001",
+    "generate": "babylonjs-editor-cli pack",
+    "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf .next out"
+  },
+  "dependencies": {
+    "@babylonjs/addons": "8.41.0",
+    "@babylonjs/core": "8.41.0",
+    "@babylonjs/gui": "8.41.0",
+    "@babylonjs/havok": "1.3.10",
+    "@babylonjs/materials": "8.41.0",
+    "babylonjs-editor-tools": "5.3.1",
+    "next": "16.1.5",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@babylonjs/inspector": "8.41.0",
+    "@types/node": "22.19.15",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "autoprefixer": "^10.0.1",
+    "babylonjs-editor-cli": "5.3.1",
+    "eslint": "^9.37.0",
+    "eslint-config-next": "16.1.5",
+    "postcss": "^8",
+    "raw-loader": "^4.0.2",
+    "tailwindcss": "3.4.4",
+    "typescript": "5.9.3"
+  }
+}

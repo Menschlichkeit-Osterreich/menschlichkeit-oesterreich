@@ -1,0 +1,13 @@
+{
+  "name": "menschlichkeit-dev-suite",
+  "version": "1.0.0",
+  "description": "Optimierte Entwicklungsumgebung für das Menschlichkeit Österreich Repository — Compliance-Audits, Demokratiespiel, DSGVO-sichere Agenten, Barrierefreiheit und Österreichisches Deutsch",
+  "author": {
+    "name": "Menschlichkeit Österreich Dev-Team",
+    "email": "office@menschlichkeit-oesterreich.at"
+  },
+  "agent": "menschlichkeit-architect",
+  "skills": ["transparency-audit", "democracy-game-dev"],
+  "hooks": "hooks/hooks.json",
+  "mcp": ".mcp.json"
+}

@@ -1,0 +1,14 @@
+{
+  "name": "moe-ops",
+  "version": "1.0.0",
+  "description": "Deployment-Sicherheit, Healthchecks, Rollback, n8n-Workflow-Steuerung und Quality Gates fuer Menschlichkeit Oesterreich",
+  "author": {
+    "name": "Menschlichkeit Oesterreich",
+    "url": "https://www.menschlichkeit-oesterreich.at"
+  },
+  "license": "MIT",
+  "keywords": ["deployment", "ops", "n8n", "healthcheck", "quality-gate", "rollback"],
+  "agent": "ops-engineer",
+  "skills": ["deploy-verify", "n8n-trigger", "n8n-security-audit", "quality-gate"],
+  "hooks": "hooks/hooks.json"
+}

@@ -1,0 +1,14 @@
+{
+  "name": "moe-qa",
+  "version": "1.0.0",
+  "description": "Quality Assurance: Test-Generierung, Accessibility-Audit, Payment-Flow-Tests und E2E-Playwright fuer Menschlichkeit Oesterreich",
+  "author": {
+    "name": "Menschlichkeit Oesterreich",
+    "url": "https://www.menschlichkeit-oesterreich.at"
+  },
+  "license": "MIT",
+  "keywords": ["testing", "qa", "accessibility", "wcag", "playwright", "pytest", "payments"],
+  "agent": "qa-engineer",
+  "skills": ["payment-test-gen", "a11y-audit", "api-test-gen", "e2e-playwright"],
+  "hooks": "hooks/hooks.json"
+}

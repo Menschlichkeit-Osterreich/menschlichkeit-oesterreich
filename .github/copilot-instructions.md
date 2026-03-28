@@ -13,6 +13,7 @@ Austrian NGO multi-service platform with strict GDPR compliance, automated quali
 ## Architecture
 
 Monorepo mit 5 Services, gemeinsame PostgreSQL-DB:
+
 - CRM: Drupal 10 + CiviCRM (Port 8000)
 - API: FastAPI (Port 8001)
 - Frontend: React + Vite (Port 5173)
@@ -37,6 +38,18 @@ Monorepo mit 5 Services, gemeinsame PostgreSQL-DB:
 - **Commits:** `type(scope): description` (feat, fix, docs, etc.)
 - **Issues:** Definition of Ready mit Akzeptanzkriterien (Gherkin)
 
-Siehe [CLAUDE.md](../CLAUDE.md) für detaillierte Projektübersicht, Befehle und Architektur.  
-Siehe [agents.md](../agents.md) für detaillierte Rollen, Workflows und Prioritäten.
+## Babylon.js 3D App (`apps/babylon-game/`)
 
+- **Tech:** Next.js 16 + Babylon.js 8 + Havok Physics (Port 3001)
+- **Dev:** `npm run dev:babylon`
+- **Paradigm:** Unity-like MonoBehaviour lifecycle via `babylon.toolkit.js`
+- **TypeScript:** Classic UMD, `PROJECT` namespace, extend `TOOLKIT.ScriptComponent`
+- **Lifecycle:** `awake()`, `start()`, `update()`, `late()`, `fixed()`
+- **Components:** `TOOLKIT.SceneManager.GetComponent(transform, classname)`
+- **Input:** `TOOLKIT.InputController` (`IC` alias)
+- **Naming:** PascalCase classes, camelCase methods/variables, `ID` → `Id`
+- **Interfaces:** All members optional (`?`), full namespace references
+- Siehe `apps/babylon-game/` fuer Babylon.js-spezifische Copilot-Regeln in `.github/copilot-instructions.md` (Root)
+
+Siehe [CLAUDE.md](../CLAUDE.md) für detaillierte Projektübersicht, Befehle und Architektur.
+Siehe [agents.md](../agents.md) für detaillierte Rollen, Workflows und Prioritäten.

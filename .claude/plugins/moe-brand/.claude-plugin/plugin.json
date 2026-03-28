@@ -1,0 +1,12 @@
+{
+  "name": "moe-brand",
+  "description": "Menschlichkeit Österreich – Brand Guidelines Plugin. Setzt alle Markenrichtlinien v1.0 um: Farben, Typografie, Logo-Regeln, Brand Voice, Templates für Social Media, Briefpapier, E-Mail-Signaturen, Präsentationen, Flyer, Infografiken. WCAG AA/AAA-konform. Für Claude Code Agenten und Cowork.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Menschlichkeit Österreich",
+    "url": "https://www.menschlichkeit-oesterreich.at"
+  },
+  "homepage": "https://www.menschlichkeit-oesterreich.at",
+  "license": "MIT",
+  "keywords": ["brand", "nonprofit", "austria", "design-system", "accessibility", "wcag", "canva", "cowork"]
+}

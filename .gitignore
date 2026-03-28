@@ -499,5 +499,16 @@ docs/media/internal/
 backups/
 *.sql.gz
 *.tar.gz.bak
-.claude/
+# Claude Code - user-local (nie committen)
+.claude/settings.local.json
+.claude/secrets.env
+.claude/plans/
 .claude_pr_body.md
+
+# Babylon.js Editor
+.bjseditor/
+apps/babylon-game/.next/
+
+# Ausnahme: Babylon.js Environment-Textures sind 3D-Assets, keine Secrets
+!apps/babylon-game/public/**/*.env
+!apps/babylon-game/assets/**/*.env

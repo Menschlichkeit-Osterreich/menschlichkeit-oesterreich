@@ -1,0 +1,425 @@
+/**
+ * Menschlichkeit Österreich – Brand CSS Starter v1.0
+ * Basierend auf Brand Guidelines v1.0 | März 2026
+ * 
+ * Verwendung: In jedes Webprojekt einbinden.
+ * Enthält: Custom Properties, Typografie, Utility-Klassen, Komponenten.
+ */
+
+/* ============================================
+   1. GOOGLE FONTS
+   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&family=Source+Sans+3:wght@400;600;700&family=Merriweather:ital@1&display=swap');
+
+/* ============================================
+   2. CUSTOM PROPERTIES (Design Tokens)
+   ============================================ */
+:root {
+  /* Hauptfarben */
+  --moe-logo-orange: #d4611e;
+  --moe-text-orange: #b54a0f;
+  --moe-demokratie-blau: #1b4965;
+
+  /* Sekundärfarben */
+  --moe-petrol: #00695c;
+  --moe-warmton: #8b6f4e;
+
+  /* Neutrale Farben (Warmgrau-System) */
+  --moe-n50: #faf7f5;
+  --moe-n100: #f0ebe6;
+  --moe-n200: #ddd5cc;
+  --moe-n300: #b8ada0;
+  --moe-n500: #7a6e62;
+  --moe-n700: #4a4039;
+  --moe-n900: #2b231d;
+  --moe-white: #ffffff;
+
+  /* Funktionsfarben */
+  --moe-success: #2e7d32;
+  --moe-warning: #e65100;
+  --moe-error: #c62828;
+  --moe-info: #1565c0;
+
+  /* Typografie */
+  --moe-font-heading: 'Nunito Sans', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --moe-font-body: 'Source Sans 3', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --moe-font-quote: 'Merriweather', Georgia, 'Times New Roman', serif;
+
+  /* 8px Grid-Abstände */
+  --moe-sp-1: 8px;
+  --moe-sp-2: 16px;
+  --moe-sp-3: 24px;
+  --moe-sp-4: 32px;
+  --moe-sp-5: 40px;
+  --moe-sp-6: 48px;
+  --moe-sp-8: 64px;
+  --moe-sp-10: 80px;
+  --moe-sp-16: 128px;
+
+  /* Radien */
+  --moe-r-sm: 8px;
+  --moe-r-md: 12px;
+  --moe-r-lg: 16px;
+  --moe-r-full: 9999px;
+
+  /* Schatten (warm) */
+  --moe-shadow-sm: 0 2px 8px rgba(43, 35, 29, 0.06);
+  --moe-shadow-md: 0 4px 16px rgba(43, 35, 29, 0.1);
+  --moe-shadow-lg: 0 8px 32px rgba(43, 35, 29, 0.14);
+
+  /* Layout */
+  --moe-max-w: 1200px;
+  --moe-gutter: 24px;
+}
+
+/* ============================================
+   3. RESET & BASE
+   ============================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px; /* Mindestgröße lt. Guidelines */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--moe-font-body);
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--moe-n700); /* Standard-Textfarbe */
+  background: var(--moe-white);
+}
+
+/* ============================================
+   4. TYPOGRAFIE-HIERARCHIE
+   ============================================ */
+h1,
+h2,
+h3 {
+  font-family: var(--moe-font-heading);
+  color: var(--moe-n900);
+}
+
+h4,
+h5,
+h6 {
+  font-family: var(--moe-font-body);
+  color: var(--moe-n900);
+}
+
+h1 {
+  font-weight: 800;
+  font-size: 3rem; /* 48px */
+  line-height: 1.2;
+  margin-bottom: var(--moe-sp-3);
+}
+
+h2 {
+  font-weight: 700;
+  font-size: 2.25rem; /* 36px */
+  line-height: 1.25;
+  margin-top: var(--moe-sp-6);
+  margin-bottom: var(--moe-sp-2);
+}
+
+h3 {
+  font-weight: 700;
+  font-size: 1.75rem; /* 28px */
+  line-height: 1.3;
+  margin-top: var(--moe-sp-4);
+  margin-bottom: var(--moe-sp-2);
+}
+
+h4 {
+  font-weight: 600;
+  font-size: 1.375rem; /* 22px */
+  line-height: 1.35;
+  margin-top: var(--moe-sp-3);
+  margin-bottom: var(--moe-sp-1);
+}
+
+h5 {
+  font-weight: 600;
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.4;
+}
+
+p {
+  margin-bottom: var(--moe-sp-2);
+  max-width: 72ch; /* 60-80 Zeichen */
+}
+
+/* Lead/Intro */
+.moe-lead {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: var(--moe-n700);
+}
+
+/* Bildunterschrift */
+.moe-caption {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--moe-n500);
+}
+
+/* Blockzitat */
+blockquote,
+.moe-quote {
+  font-family: var(--moe-font-quote);
+  font-style: italic;
+  font-size: 1.25rem;
+  line-height: 1.7;
+  padding: var(--moe-sp-3);
+  padding-left: var(--moe-sp-3);
+  border-left: 4px solid var(--moe-logo-orange);
+  background: var(--moe-n100);
+  border-radius: 0 var(--moe-r-sm) var(--moe-r-sm) 0;
+  margin: var(--moe-sp-3) 0;
+}
+
+/* REGEL: Linksbündig, kein Blocksatz */
+body,
+p,
+li,
+td,
+th {
+  text-align: left;
+}
+
+/* ============================================
+   5. LINKS & BUTTONS
+   ============================================ */
+a {
+  color: var(--moe-text-orange);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+a:hover {
+  color: var(--moe-demokratie-blau);
+}
+
+/* Primärer Button: Orange */
+.moe-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--moe-sp-1);
+  font-family: var(--moe-font-heading);
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.2;
+  padding: 12px 24px;
+  border: none;
+  border-radius: var(--moe-r-sm);
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
+}
+.moe-btn:active {
+  transform: scale(0.98);
+}
+
+.moe-btn-primary {
+  background: var(--moe-text-orange);
+  color: var(--moe-white);
+}
+.moe-btn-primary:hover {
+  background: var(--moe-logo-orange);
+  color: var(--moe-white);
+}
+
+/* Sekundärer Button: Blau */
+.moe-btn-secondary {
+  background: var(--moe-demokratie-blau);
+  color: var(--moe-white);
+}
+.moe-btn-secondary:hover {
+  background: #153a52;
+  color: var(--moe-white);
+}
+
+/* Tertiärer Button: Outline */
+.moe-btn-outline {
+  background: transparent;
+  color: var(--moe-text-orange);
+  border: 2px solid var(--moe-text-orange);
+}
+.moe-btn-outline:hover {
+  background: var(--moe-text-orange);
+  color: var(--moe-white);
+}
+
+/* ============================================
+   6. LAYOUT
+   ============================================ */
+.moe-container {
+  max-width: var(--moe-max-w);
+  margin: 0 auto;
+  padding: 0 var(--moe-gutter);
+}
+
+.moe-section {
+  padding: var(--moe-sp-6) 0;
+}
+
+/* 12-Spalten-Grid */
+.moe-grid {
+  display: grid;
+  gap: var(--moe-gutter);
+}
+.moe-grid-2 {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+.moe-grid-3 {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+.moe-grid-4 {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+/* ============================================
+   7. KARTEN & KOMPONENTEN
+   ============================================ */
+.moe-card {
+  background: var(--moe-n50);
+  border-radius: var(--moe-r-md);
+  padding: var(--moe-sp-3);
+}
+
+.moe-card-dark {
+  background: var(--moe-n900);
+  color: var(--moe-white);
+}
+
+/* Infobox */
+.moe-info {
+  background: var(--moe-n100);
+  border-radius: var(--moe-r-sm);
+  padding: var(--moe-sp-2) var(--moe-sp-3);
+  color: var(--moe-n700);
+  border-left: 4px solid var(--moe-info);
+}
+
+/* Akzentlinie */
+.moe-accent {
+  width: 60px;
+  height: 4px;
+  background: var(--moe-logo-orange);
+  border-radius: 2px;
+  margin: var(--moe-sp-2) 0;
+}
+
+/* Kennzahlenkarte */
+.moe-stat {
+  text-align: center;
+  padding: var(--moe-sp-3);
+}
+.moe-stat-number {
+  font-family: var(--moe-font-heading);
+  font-weight: 800;
+  font-size: 3rem;
+  color: var(--moe-text-orange);
+  line-height: 1.1;
+}
+.moe-stat-label {
+  font-size: 1rem;
+  color: var(--moe-n500);
+  margin-top: var(--moe-sp-1);
+}
+
+/* ============================================
+   8. FUNKTIONSFARBEN-BADGES
+   ============================================ */
+.moe-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: var(--moe-r-full);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+.moe-badge-success {
+  background: var(--moe-success);
+  color: #fff;
+}
+.moe-badge-warning {
+  background: var(--moe-warning);
+  color: #fff;
+}
+.moe-badge-error {
+  background: var(--moe-error);
+  color: #fff;
+}
+.moe-badge-info {
+  background: var(--moe-info);
+  color: #fff;
+}
+
+/* ============================================
+   9. LABEL / VERSALIEN (sparsam!)
+   ============================================ */
+.moe-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--moe-n500);
+}
+
+/* ============================================
+   10. RESPONSIV
+   ============================================ */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2.25rem;
+  } /* 36px mobil */
+  h2 {
+    font-size: 1.75rem;
+  } /* 28px */
+  h3 {
+    font-size: 1.5rem;
+  } /* 24px */
+  h4 {
+    font-size: 1.25rem;
+  } /* 20px */
+
+  .moe-lead {
+    font-size: 1.125rem;
+  }
+
+  .moe-container {
+    padding: 0 var(--moe-sp-2);
+  }
+}
+
+/* ============================================
+   11. PRINT
+   ============================================ */
+@media print {
+  body {
+    color: #000;
+    font-size: 11pt;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: #000;
+  }
+  a {
+    color: #000;
+    text-decoration: underline;
+  }
+  .moe-btn,
+  .moe-badge {
+    display: none;
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "file-server": {
+      "command": "node",
+      "args": ["../../menschlichkeit-oesterreich-development/mcp-servers/file-server/index.js"],
+      "env": {
+        "PROJECT_ROOT": "../../menschlichkeit-oesterreich-development",
+        "TOOLSET": "civicrm"
+      }
+    }
+  }
+}

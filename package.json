@@ -6,6 +6,7 @@
   "private": true,
   "workspaces": [
     "apps/website",
+    "apps/babylon-game",
     "mcp-servers/*"
   ],
   "scripts": {
@@ -25,7 +26,9 @@
     "clean:dry-run": "node scripts/clean-workspace.mjs --dry-run",
     "clean:dist": "node scripts/clean-workspace.mjs --only=dist,build",
     "clean:node-modules": "node scripts/clean-workspace.mjs --only=node_modules",
-    "dev:all": "concurrently \"npm run dev:crm\" \"npm run dev:api\" \"npm run dev:frontend\" \"npm run dev:games\"",
+    "dev:all": "concurrently \"npm run dev:crm\" \"npm run dev:api\" \"npm run dev:frontend\" \"npm run dev:games\" \"npm run dev:babylon\"",
+    "dev:babylon": "npm run dev --workspace=@moe/babylon-game",
+    "build:babylon": "npm run build --workspace=@moe/babylon-game",
     "dev:crm": "php -S localhost:8000 -t apps/crm/web",
     "dev:api": "bash scripts/start-api-dev.sh",
     "dev:frontend": "npm run dev --workspace=@moe/frontend",

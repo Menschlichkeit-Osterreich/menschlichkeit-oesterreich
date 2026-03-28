@@ -1,0 +1,14 @@
+{
+  "name": "moe-compliance",
+  "version": "1.0.0",
+  "description": "DSGVO-Compliance, Email-Template-Validierung, PII-Schutz und Transparenz-Audit fuer Menschlichkeit Oesterreich",
+  "author": {
+    "name": "Menschlichkeit Oesterreich",
+    "url": "https://www.menschlichkeit-oesterreich.at"
+  },
+  "license": "MIT",
+  "keywords": ["dsgvo", "gdpr", "compliance", "pii", "datenschutz", "austria", "ecg"],
+  "agent": "compliance-officer",
+  "skills": ["dsgvo-email-check", "pii-scan", "consent-audit", "transparenz-check"],
+  "hooks": "hooks/hooks.json"
+}
