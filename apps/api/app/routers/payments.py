@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -111,7 +112,7 @@ async def stripe_webhook(request: Request):
                             "date": str(date.today()),
                             "failure_reason": failure_reason,
                         },
-                        "retry_url": "https://www.menschlichkeit-oesterreich.at/spenden",
+                        "retry_url": f"{os.environ['PUBLIC_APP_URL']}/spenden",
                     },
                     entity_type="payment_intent",
                 )
