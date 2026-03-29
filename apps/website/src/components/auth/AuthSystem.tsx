@@ -1,20 +1,7 @@
-// Authentication & Security System - Sprint 1 Critical Component
+// Authentication & Security System
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-
-// TypeScript Interfaces
-interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: 'admin' | 'moderator' | 'member' | 'guest';
-  avatar?: string;
-  emailVerified: boolean;
-  twoFactorEnabled: boolean;
-  lastLogin?: Date;
-  createdAt: Date;
-}
+import { authService } from '../../services/api';
 
 interface LoginCredentials {
   email: string;
@@ -33,43 +20,6 @@ interface RegisterData {
   agreeToPrivacy: boolean;
   agreeToNewsletter?: boolean;
 }
-
-// Mock users for demonstration (Sprint 1 - replace with API)
-const MOCK_USERS: User[] = [
-  {
-    id: '1',
-    email: 'admin@menschlichkeit-oesterreich.at',
-    firstName: 'System',
-    lastName: 'Admin',
-    role: 'admin',
-    emailVerified: true,
-    twoFactorEnabled: true,
-    lastLogin: new Date(),
-    createdAt: new Date('2025-01-01'),
-  },
-  {
-    id: '2',
-    email: 'moderator@menschlichkeit-oesterreich.at',
-    firstName: 'Maria',
-    lastName: 'Moderatorin',
-    role: 'moderator',
-    emailVerified: true,
-    twoFactorEnabled: false,
-    lastLogin: new Date(),
-    createdAt: new Date('2025-02-15'),
-  },
-  {
-    id: '3',
-    email: 'member@menschlichkeit-oesterreich.at',
-    firstName: 'Max',
-    lastName: 'Mustermann',
-    role: 'member',
-    emailVerified: true,
-    twoFactorEnabled: false,
-    lastLogin: new Date(),
-    createdAt: new Date('2025-03-01'),
-  },
-];
 
 // Password strength validation
 const validatePassword = (password: string) => {
@@ -243,22 +193,6 @@ const LoginForm: React.FC<{
             )}
           </button>
         </form>
-
-        {/* Demo Credentials */}
-        <div className="mt-6 p-4 bg-info/10 border border-info/20 rounded-lg">
-          <h3 className="text-sm font-semibold text-info mb-2">Demo-Zugangsdaten</h3>
-          <div className="text-xs text-muted space-y-1">
-            <p>
-              <strong>Admin:</strong> admin@menschlichkeit-oesterreich.at / demo123
-            </p>
-            <p>
-              <strong>Moderator:</strong> moderator@menschlichkeit-oesterreich.at / demo123
-            </p>
-            <p>
-              <strong>Mitglied:</strong> member@menschlichkeit-oesterreich.at / demo123
-            </p>
-          </div>
-        </div>
 
         <div className="mt-8 text-center">
           <p className="text-sm text-muted">
@@ -550,6 +484,97 @@ const RegisterForm: React.FC<{
   );
 };
 
+// Forgot Password Form Component
+const ForgotPasswordForm: React.FC<{
+  onBack: () => void;
+}> = ({ onBack }) => {
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const response = await authService.requestPasswordReset({ email });
+      if (!response.success) {
+        throw new Error(response.message || 'Anfrage fehlgeschlagen');
+      }
+      setIsSuccess(true);
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      setError(error.message || 'Anfrage fehlgeschlagen');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="card-modern p-8 text-center">
+      <div className="w-12 h-12 bg-warning rounded-full mx-auto mb-4 flex items-center justify-center">
+        <i className="bi bi-key text-white text-xl" aria-hidden="true"></i>
+      </div>
+      <h2 className="text-xl font-bold text-text mb-4">Passwort zurücksetzen</h2>
+
+      {isSuccess ? (
+        <>
+          <p className="text-muted mb-6">
+            Falls ein Konto mit dieser E-Mail-Adresse existiert, haben wir Ihnen einen Link zum
+            Zurücksetzen Ihres Passworts gesendet.
+          </p>
+          <button onClick={onBack} className="btn btn-primary w-full">
+            Zur Anmeldung
+          </button>
+        </>
+      ) : (
+        <>
+          <p className="text-muted mb-6">
+            Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen
+            Ihres Passworts.
+          </p>
+
+          {error && (
+            <div className="mb-4 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+              <div className="flex items-center gap-2">
+                <i className="bi bi-exclamation-triangle text-destructive" aria-hidden="true"></i>
+                <p className="text-sm text-destructive font-medium">{error}</p>
+              </div>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <input
+              type="email"
+              className="input w-full"
+              placeholder="Ihre E-Mail-Adresse"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              disabled={isLoading}
+              required
+            />
+            <button type="submit" className="btn btn-primary w-full" disabled={isLoading || !email}>
+              {isLoading ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Wird gesendet...
+                </>
+              ) : (
+                'Reset-Link senden'
+              )}
+            </button>
+            <button type="button" onClick={onBack} className="btn btn-ghost w-full">
+              Zurück zur Anmeldung
+            </button>
+          </form>
+        </>
+      )}
+    </div>
+  );
+};
+
 // Main Authentication System Component
 export const AuthSystem: React.FC<{
   isOpen: boolean;
@@ -559,39 +584,33 @@ export const AuthSystem: React.FC<{
   const [mode, setMode] = useState<'login' | 'register' | 'forgot-password' | 'verify-email'>(
     initialMode
   );
-  // Auth state management - ready for production implementation
-  // const [authState, setAuthState] = useState<AuthState>({ ... }); - Will be used in Sprint 2
+  const handleLogin = async (credentials: LoginCredentials): Promise<void> => {
+    const response = await authService.login({
+      email: credentials.email,
+      password: credentials.password,
+      twoFactorCode: credentials.twoFactorCode,
+    });
 
-  // Mock authentication functions (replace with API calls in Sprint 2)
-  const mockLogin = async (credentials: LoginCredentials): Promise<void> => {
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API delay
-
-    const user = MOCK_USERS.find(u => u.email === credentials.email);
-    if (!user || credentials.password !== 'demo123') {
-      throw new Error('Ungültige Anmeldedaten');
+    if (!response.success) {
+      throw new Error(response.message || 'Anmeldung fehlgeschlagen');
     }
 
-    if (user.twoFactorEnabled && !credentials.twoFactorCode) {
-      throw new Error('TWO_FACTOR_REQUIRED');
-    }
-
-    if (user.twoFactorEnabled && credentials.twoFactorCode !== '123456') {
-      throw new Error('Ungültiger 2FA-Code');
-    }
-
-    // In production, update global auth state here
     onClose();
   };
 
-  const mockRegister = async (data: RegisterData): Promise<void> => {
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API delay
+  const handleRegister = async (data: RegisterData): Promise<void> => {
+    const response = await authService.register({
+      email: data.email,
+      password: data.password,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      acceptTerms: data.agreeToTerms,
+      acceptPrivacy: data.agreeToPrivacy,
+    });
 
-    // Check if email already exists
-    if (MOCK_USERS.find(u => u.email === data.email)) {
-      throw new Error('E-Mail-Adresse bereits registriert');
+    if (!response.success) {
+      throw new Error(response.message || 'Registrierung fehlgeschlagen');
     }
-
-    // TODO: Replace with actual API call in production
 
     setMode('verify-email');
   };
@@ -630,14 +649,14 @@ export const AuthSystem: React.FC<{
 
           {mode === 'login' && (
             <LoginForm
-              onLogin={mockLogin}
+              onLogin={handleLogin}
               onSwitchToRegister={() => setMode('register')}
               onForgotPassword={handleForgotPassword}
             />
           )}
 
           {mode === 'register' && (
-            <RegisterForm onRegister={mockRegister} onSwitchToLogin={() => setMode('login')} />
+            <RegisterForm onRegister={handleRegister} onSwitchToLogin={() => setMode('login')} />
           )}
 
           {mode === 'verify-email' && (
@@ -657,24 +676,7 @@ export const AuthSystem: React.FC<{
           )}
 
           {mode === 'forgot-password' && (
-            <div className="card-modern p-8 text-center">
-              <div className="w-12 h-12 bg-warning rounded-full mx-auto mb-4 flex items-center justify-center">
-                <i className="bi bi-key text-white text-xl"></i>
-              </div>
-              <h2 className="text-xl font-bold text-text mb-4">Passwort zurücksetzen</h2>
-              <p className="text-muted mb-6">
-                Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen
-                Ihres Passworts.
-              </p>
-
-              <div className="space-y-4">
-                <input type="email" className="input w-full" placeholder="Ihre E-Mail-Adresse" />
-                <button className="btn btn-primary w-full">Reset-Link senden</button>
-                <button onClick={() => setMode('login')} className="btn btn-ghost w-full">
-                  Zurück zur Anmeldung
-                </button>
-              </div>
-            </div>
+            <ForgotPasswordForm onBack={() => setMode('login')} />
           )}
         </motion.div>
       </motion.div>
@@ -682,14 +684,3 @@ export const AuthSystem: React.FC<{
   );
 };
 
-// Export auth state and functions for use in other components
-export const useAuth = () => {
-  // This would be implemented with Context API or state management in Sprint 2
-  return {
-    user: null,
-    isAuthenticated: false,
-    login: (_credentials: LoginCredentials) => Promise.resolve(),
-    logout: () => Promise.resolve(),
-    register: (_data: RegisterData) => Promise.resolve(),
-  };
-};
