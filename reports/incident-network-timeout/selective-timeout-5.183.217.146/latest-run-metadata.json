@@ -1,0 +1,66 @@
+{
+  "CaseName": "selective-timeout-5.183.217.146",
+  "RunName": "20260329T195425Z-current-shell",
+  "EgressLabel": "current-shell",
+  "CollectedAtUtc": "2026-03-29T19:54:51Z",
+  "LocalHost": "virus666",
+  "TargetHost": "plesk7.digimagical.com",
+  "TargetIp": "5.183.217.146",
+  "SshUser": "dmpl20230054",
+  "PublicIp": {
+    "Value": "81.217.7.174",
+    "Provider": "api.ipify.org",
+    "Outcome": "ok",
+    "File": "public-ip.txt"
+  },
+  "Dns": {
+    "A": {
+      "Name": "dns-a",
+      "File": "dns-a.txt",
+      "Outcome": "ok",
+      "Answers": ["5.183.217.146"]
+    },
+    "Ptr": {
+      "Name": "dns-ptr",
+      "File": "dns-ptr.txt",
+      "Outcome": "ok",
+      "Answers": ["plesk7.digimagical.com"]
+    },
+    "Aaaa": {
+      "Name": "dns-aaaa",
+      "File": "dns-aaaa.txt",
+      "Outcome": "no_record",
+      "Answers": []
+    }
+  },
+  "Tests": {
+    "direct443": {
+      "Name": "curl-direct-443",
+      "File": "curl-direct-443.txt",
+      "Command": "$ C:\\WINDOWS\\system32\\curl.exe -vk --connect-timeout 5 https://5.183.217.146/",
+      "ExitCode": 28,
+      "Outcome": "timeout"
+    },
+    "sni443": {
+      "Name": "curl-sni-443",
+      "File": "curl-sni-443.txt",
+      "Command": "$ C:\\WINDOWS\\system32\\curl.exe -vk --connect-timeout 5 --resolve plesk7.digimagical.com:443:5.183.217.146 https://plesk7.digimagical.com/",
+      "ExitCode": 28,
+      "Outcome": "timeout"
+    },
+    "direct8443": {
+      "Name": "curl-direct-8443",
+      "File": "curl-direct-8443.txt",
+      "Command": "$ C:\\WINDOWS\\system32\\curl.exe -vk --connect-timeout 5 https://5.183.217.146:8443/",
+      "ExitCode": 28,
+      "Outcome": "timeout"
+    },
+    "ssh22": {
+      "Name": "ssh-direct-22",
+      "File": "ssh-direct-22.txt",
+      "Command": "$ C:\\WINDOWS\\System32\\OpenSSH\\ssh.exe -o ConnectTimeout=5 -o BatchMode=yes dmpl20230054@5.183.217.146 exit",
+      "ExitCode": 255,
+      "Outcome": "timeout"
+    }
+  }
+}

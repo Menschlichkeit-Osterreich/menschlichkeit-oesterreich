@@ -6,12 +6,12 @@
 
 ## Severity-Klassifikation
 
-| Severity | Definition | Beispiele | Response |
-|----------|-----------|---------|----------|
-| **P0 – KRITISCH** | Plattform komplett down, Datenleck, DSGVO-Vorfall | DB nicht erreichbar, Secret leaked, PII-Exposure | Sofort, 24/7 |
-| **P1 – HOCH** | Wesentliche Funktion ausgefallen, Security-Issue | API down, Auth broken, CRM nicht erreichbar | < 2 Stunden |
-| **P2 – MITTEL** | Teilfunktion beeinträchtigt | Games offline, n8n-Workflow fehlerhaft | < 8 Stunden |
-| **P3 – NIEDRIG** | Kosmetisch, Minor | 404-Seite, Lighthouse-Score-Drop | Nächster Sprint |
+| Severity          | Definition                                        | Beispiele                                        | Response        |
+| ----------------- | ------------------------------------------------- | ------------------------------------------------ | --------------- |
+| **P0 – KRITISCH** | Plattform komplett down, Datenleck, DSGVO-Vorfall | DB nicht erreichbar, Secret leaked, PII-Exposure | Sofort, 24/7    |
+| **P1 – HOCH**     | Wesentliche Funktion ausgefallen, Security-Issue  | API down, Auth broken, CRM nicht erreichbar      | < 2 Stunden     |
+| **P2 – MITTEL**   | Teilfunktion beeinträchtigt                       | Games offline, n8n-Workflow fehlerhaft           | < 8 Stunden     |
+| **P3 – NIEDRIG**  | Kosmetisch, Minor                                 | 404-Seite, Lighthouse-Score-Drop                 | Nächster Sprint |
 
 ---
 
@@ -39,6 +39,7 @@ DSGVO-Vorfall: datenschutz@menschlichkeit-oesterreich.at (sofort, Art. 33 72h-Fr
 **Service offline:** → [Runbook Service-Neustart](../../runbooks/service-restart.md)
 
 **Secret geleaked:**
+
 ```bash
 # 1. Secret SOFORT rotieren (beim Anbieter)
 # 2. Gitleaks-Report prüfen:
@@ -52,6 +53,7 @@ npm run security:rewrite-public-secrets -- -ReplaceText ../replace-text.txt -Mir
 ```
 
 **Datenleck / PII-Exposure:**
+
 ```
 1. Betroffene Daten identifizieren und isolieren
 2. Datenschutzbeauftragte:r informieren: datenschutz@menschlichkeit-oesterreich.at
@@ -60,12 +62,22 @@ npm run security:rewrite-public-secrets -- -ReplaceText ../replace-text.txt -Mir
 ```
 
 **API komplett down:**
+
 ```bash
 # Logs prüfen:
 cd api.menschlichkeit-oesterreich.at
 # Container-Neustart:
 docker-compose restart api
 # Oder: manueller Neustart via Plesk
+```
+
+**Selektive Netzwerk-Timeouts / Provider-Verdacht:**
+
+```bash
+# Reproduzierbare Netzwerk-Artefakte erzeugen:
+npm run security:incident:network-timeout -- --CaseName selective-timeout-5.183.217.146 --EgressLabel current-shell
+# Danach denselben Collector von LTE/VPN wiederholen
+# und den Ticket-Entwurf unter quality-reports/incident-network-timeout/<case>/provider-ticket.md verwenden
 ```
 
 ---
@@ -79,6 +91,7 @@ docs/security/incidents/YYYY-MM-DD-kurzbeschreibung.md
 ```
 
 Template:
+
 ```markdown
 # Incident: [Kurzbeschreibung]
 
@@ -86,6 +99,7 @@ Template:
 **Severity**: P0/P1/P2
 **Status**: Investigating / Resolved
 **Timeline**:
+
 - HH:MM – Vorfall erkannt
 - HH:MM – Erstmaßnahmen
 - HH:MM – Ursache identifiziert
@@ -103,10 +117,12 @@ Template:
 ## Kommunikation
 
 **Intern (P0/P1):**
+
 - Maintainer sofort informieren
 - Keine öffentlichen Aussagen vor Klärung
 
 **Extern (bei Nutzer-Impact):**
+
 - Status-Update auf Website (Hinweis-Banner) bei > 30 min Downtime
 - Bei DSGVO-Vorfall: Betroffene gemäß Art. 34 DSGVO informieren
 
@@ -126,4 +142,4 @@ Nach jedem P0/P1-Vorfall innerhalb von 5 Werktagen:
 
 ---
 
-*Verwandt: [Runbooks](../../runbooks/) | [Secrets Policy](../security/secrets-policy.md) | [DSGVO-Betrieb](../compliance/gdpr-operations.md) | [Secret-Exposure Runbook](../security/incidents/2026-03-secret-exposure-response.md)*
+_Verwandt: [Runbooks](../../runbooks/) | [Secrets Policy](../security/secrets-policy.md) | [DSGVO-Betrieb](../compliance/gdpr-operations.md) | [Secret-Exposure Runbook](../security/incidents/2026-03-secret-exposure-response.md)_

@@ -58,6 +58,7 @@
     "security:gitleaks": "node scripts/ci/run-gitleaks.mjs",
     "security:gitleaks:tree": "node scripts/ci/run-gitleaks.mjs --mode=dir",
     "security:incident:audit": "pwsh -File scripts/security/incident-secret-audit.ps1",
+    "security:incident:network-timeout": "pwsh -File scripts/security/incident-network-timeout.ps1",
     "security:rewrite-public-secrets": "pwsh -File scripts/security/rewrite-public-secrets.ps1",
     "security:scan": "npm run security:trivy && npm run security:bandit && npm run security:gitleaks",
     "performance:lighthouse": "npm run lh:ci --workspace=@moe/frontend",
