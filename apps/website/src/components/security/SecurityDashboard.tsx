@@ -1,6 +1,7 @@
 // Security Dashboard - Sprint 1 Critical Component
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { authService } from '../../services/api';
 
 // TypeScript Interfaces for Security Management
 interface SecurityLog {
@@ -613,100 +614,81 @@ export const SecurityDashboard: React.FC = () => {
     'overview'
   );
 
-  // Mock data - in production, these would come from APIs
-  const [metrics] = useState<SecurityMetrics>({
-    totalLogins: 1247,
-    failedLogins: 23,
-    activeSessions: 12,
-    twoFactorUsage: 78,
-    suspiciousActivities: 2,
-    dataExports: 5,
-    passwordChanges: 8,
-    lastSecurityIncident: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+  const [metrics, setMetrics] = useState<SecurityMetrics>({
+    totalLogins: 0,
+    failedLogins: 0,
+    activeSessions: 0,
+    twoFactorUsage: 0,
+    suspiciousActivities: 0,
+    dataExports: 0,
+    passwordChanges: 0,
   });
 
-  const [sessions] = useState<Session[]>([
-    {
-      id: '1',
-      userId: 'user1',
-      userEmail: 'admin@menschlichkeit-oesterreich.at',
-      ipAddress: '192.168.1.100',
-      userAgent:
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/91.0.4472.124',
-      location: 'Wien, Österreich',
-      createdAt: new Date(),
-      lastActivity: new Date(),
-      isActive: true,
-      isCurrent: true,
-    },
-    {
-      id: '2',
-      userId: 'user1',
-      userEmail: 'admin@menschlichkeit-oesterreich.at',
-      ipAddress: '10.0.0.50',
-      userAgent:
-        'Mozilla/5.0 (iPhone; CPU iPhone OS 14_7_1 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1',
-      location: 'Graz, Österreich',
-      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      lastActivity: new Date(Date.now() - 30 * 60 * 1000),
-      isActive: true,
-      isCurrent: false,
-    },
-  ]);
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [securityLogs, setSecurityLogs] = useState<SecurityLog[]>([]);
+  const [alerts, setAlerts] = useState<SecurityAlert[]>([]);
 
-  const [securityLogs] = useState<SecurityLog[]>([
-    {
-      id: '1',
-      timestamp: new Date(),
-      event: 'login_success',
-      userId: 'user1',
-      userEmail: 'admin@menschlichkeit-oesterreich.at',
-      ipAddress: '192.168.1.100',
-      userAgent: 'Chrome 91.0',
-      severity: 'low',
-      description: 'Erfolgreiche Anmeldung mit 2FA',
-      metadata: { loginMethod: '2fa', deviceType: 'desktop' },
-    },
-    {
-      id: '2',
-      timestamp: new Date(Date.now() - 15 * 60 * 1000),
-      event: 'sepa_mandate_created',
-      userId: 'user2',
-      userEmail: 'member@example.com',
-      ipAddress: '203.0.113.1',
-      userAgent: 'Firefox 89.0',
-      severity: 'medium',
-      description: 'Neues SEPA-Lastschriftmandat erstellt',
-      metadata: { amount: 25.0, frequency: 'monthly' },
-    },
-    {
-      id: '3',
-      timestamp: new Date(Date.now() - 45 * 60 * 1000),
-      event: 'suspicious_activity',
-      ipAddress: '198.51.100.1',
-      userAgent: 'Bot/1.0',
-      severity: 'high',
-      description: 'Mehrfache Login-Versuche von unbekannter IP',
-      metadata: { attemptCount: 15, blockedAt: new Date() },
-    },
-  ]);
+  const loadSessions = useCallback(async () => {
+    try {
+      const response = await authService.getSessions();
+      if (response.success && response.data) {
+        const mapped: Session[] = response.data.map(s => ({
+          id: s.id,
+          userId: '',
+          userEmail: '',
+          ipAddress: '',
+          userAgent: s.deviceInfo,
+          location: s.location,
+          createdAt: new Date(s.lastActivity),
+          lastActivity: new Date(s.lastActivity),
+          isActive: true,
+          isCurrent: s.isCurrent,
+        }));
+        setSessions(mapped);
+        setMetrics(prev => ({ ...prev, activeSessions: mapped.length }));
+      }
+    } catch {
+      // Sessions nicht verfügbar — leere Liste beibehalten
+    }
+  }, []);
 
-  const [alerts, setAlerts] = useState<SecurityAlert[]>([
-    {
-      id: '1',
-      type: 'brute_force',
-      severity: 'high',
-      title: 'Brute-Force-Angriff erkannt',
-      description: 'Mehrfache fehlgeschlagene Login-Versuche von IP 198.51.100.1',
-      timestamp: new Date(Date.now() - 30 * 60 * 1000),
-      isResolved: false,
-      recommendedActions: [
-        'IP-Adresse temporär blockieren',
-        'Betroffene Benutzerkonten überprüfen',
-        'Sicherheitsteam informieren',
-      ],
-    },
-  ]);
+  const loadSecurityLogs = useCallback(async () => {
+    try {
+      const response = await authService.getSecurityLogs();
+      if (response.success && response.data) {
+        const mapped: SecurityLog[] = response.data.map(log => ({
+          id: log.id,
+          timestamp: new Date(log.createdAt),
+          event: log.action as SecurityEventType,
+          ipAddress: log.ipAddress,
+          userAgent: log.userAgent,
+          severity: 'low' as const,
+          description: log.description,
+        }));
+        setSecurityLogs(mapped);
+
+        // Metriken aus Logs ableiten
+        const failed = mapped.filter(l => l.event === 'login_failed').length;
+        const suspicious = mapped.filter(l => l.event === 'suspicious_activity').length;
+        const logins = mapped.filter(l => l.event === 'login_success').length;
+        const pwChanges = mapped.filter(l => l.event === 'password_changed').length;
+        setMetrics(prev => ({
+          ...prev,
+          failedLogins: failed,
+          suspiciousActivities: suspicious,
+          totalLogins: logins + failed,
+          passwordChanges: pwChanges,
+        }));
+      }
+    } catch {
+      // Logs nicht verfügbar — leere Liste beibehalten
+    }
+  }, []);
+
+  useEffect(() => {
+    loadSessions();
+    loadSecurityLogs();
+  }, [loadSessions, loadSecurityLogs]);
 
   const handleViewDetails = (metric: keyof SecurityMetrics) => {
     switch (metric) {
@@ -722,20 +704,66 @@ export const SecurityDashboard: React.FC = () => {
     }
   };
 
-  const handleTerminateSession = (sessionId: string) => {
-    // TODO: API call to terminate session
+  const handleTerminateSession = async (sessionId: string) => {
+    try {
+      await authService.revokeSession(sessionId);
+      setSessions(prev => prev.filter(s => s.id !== sessionId));
+      setMetrics(prev => ({ ...prev, activeSessions: Math.max(0, prev.activeSessions - 1) }));
+    } catch {
+      // Fehler bei Sitzungsbeendigung — UI bleibt konsistent
+    }
   };
 
-  const handleTerminateAllOthers = () => {
-    // TODO: API call to terminate all other sessions
+  const handleTerminateAllOthers = async () => {
+    try {
+      await authService.revokeAllSessions();
+      setSessions(prev => prev.filter(s => s.isCurrent));
+      setMetrics(prev => ({ ...prev, activeSessions: 1 }));
+    } catch {
+      // Fehler bei Sitzungsbeendigung
+    }
   };
 
-  const handleLogFilter = (filter: {
+  const handleLogFilter = async (filter: {
     event?: SecurityEventType;
     severity?: string;
     timeRange?: string;
   }) => {
-    // TODO: Apply filters to security logs via API
+    try {
+      const response = await authService.getSecurityLogs();
+      if (response.success && response.data) {
+        let mapped: SecurityLog[] = response.data.map(log => ({
+          id: log.id,
+          timestamp: new Date(log.createdAt),
+          event: log.action as SecurityEventType,
+          ipAddress: log.ipAddress,
+          userAgent: log.userAgent,
+          severity: 'low' as const,
+          description: log.description,
+        }));
+
+        if (filter.event) {
+          mapped = mapped.filter(l => l.event === filter.event);
+        }
+        if (filter.timeRange) {
+          const now = Date.now();
+          const ranges: Record<string, number> = {
+            '1h': 60 * 60 * 1000,
+            '24h': 24 * 60 * 60 * 1000,
+            '7d': 7 * 24 * 60 * 60 * 1000,
+            '30d': 30 * 24 * 60 * 60 * 1000,
+          };
+          const cutoff = ranges[filter.timeRange];
+          if (cutoff) {
+            mapped = mapped.filter(l => now - l.timestamp.getTime() <= cutoff);
+          }
+        }
+
+        setSecurityLogs(mapped);
+      }
+    } catch {
+      // Fehler beim Laden der Logs
+    }
   };
 
   const handleResolveAlert = (alertId: string) => {
