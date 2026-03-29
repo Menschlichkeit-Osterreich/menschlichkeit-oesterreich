@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { api } from '../services/api';
 import { setUnauthorizedHandler } from '../services/http';
+import { secureSet, secureGet, secureRemove } from '../utils/secureStorage';
 
 type UserRole = 'guest' | 'member' | 'moderator' | 'staff' | 'finance' | 'admin' | 'sysadmin';
 
@@ -48,31 +49,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userRole, setUserRole] = useState<UserRole>('guest');
 
   useEffect(() => {
-    const t = sessionStorage.getItem(STORAGE_KEY);
     let expiryTimer: ReturnType<typeof setTimeout> | null = null;
 
     const doLogout = () => {
-      sessionStorage.removeItem(STORAGE_KEY);
+      secureRemove(STORAGE_KEY, 'session');
       setToken(null);
       setUserEmail(null);
       setUserRole('guest');
     };
 
-    if (t && !isTokenExpired(t)) {
-      setToken(t);
-      const payload = parseJwtPayload(t);
-      setUserEmail(typeof payload?.sub === 'string' ? payload.sub : null);
-      setUserRole((payload?.role as UserRole) || 'member');
-      if (payload?.exp) {
-        const msUntilExpiry = payload.exp * 1000 - Date.now();
-        if (msUntilExpiry > 0) {
-          expiryTimer = setTimeout(doLogout, msUntilExpiry);
+    const initToken = async () => {
+      const t = await secureGet(STORAGE_KEY, 'session');
+
+      if (t && !isTokenExpired(t)) {
+        setToken(t);
+        const payload = parseJwtPayload(t);
+        setUserEmail(typeof payload?.sub === 'string' ? payload.sub : null);
+        setUserRole((payload?.role as UserRole) || 'member');
+        if (payload?.exp) {
+          const msUntilExpiry = payload.exp * 1000 - Date.now();
+          if (msUntilExpiry > 0) {
+            expiryTimer = setTimeout(doLogout, msUntilExpiry);
+          }
         }
+      } else if (t) {
+        // Token abgelaufen — aufräumen
+        secureRemove(STORAGE_KEY, 'session');
       }
-    } else if (t) {
-      // Token abgelaufen — still aufräumen
-      sessionStorage.removeItem(STORAGE_KEY);
-    }
+    };
+
+    initToken();
 
     setUnauthorizedHandler(() => {
       doLogout();
@@ -107,14 +113,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const res = await api.login(email, password);
       const t = res?.data?.token as string | undefined;
       if (!t) throw new Error('Kein Token erhalten');
-      sessionStorage.setItem(STORAGE_KEY, t);
+      await secureSet(STORAGE_KEY, t, 'session');
       setToken(t);
       const payload = parseJwtPayload(t);
       setUserEmail(typeof payload?.sub === 'string' ? payload.sub : null);
       setUserRole((payload?.role as UserRole) || 'member');
     },
     logout() {
-      sessionStorage.removeItem(STORAGE_KEY);
+      secureRemove(STORAGE_KEY, 'session');
       setToken(null);
       setUserEmail(null);
       setUserRole('guest');

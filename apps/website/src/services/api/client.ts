@@ -1,5 +1,6 @@
 import { API_V2_URL } from '@/constants/api';
 import { STORAGE_KEYS } from '@/constants/storage';
+import { secureSet, secureGet, secureRemove } from '@/utils/secureStorage';
 
 // API Response Types
 export interface ApiResponse<T = unknown> {
@@ -34,19 +35,28 @@ class ApiClient {
 
   constructor(baseURL: string = API_V2_URL) {
     this.baseURL = baseURL;
-    this.token = this.getStoredToken();
+    // Synchroner Fallback für sofortigen Zugriff
+    this.token = localStorage.getItem(STORAGE_KEYS.authToken);
+    // Asynchron den verschlüsselten Wert laden (überschreibt ggf. den Fallback)
+    this.loadEncryptedToken();
   }
 
-  private getStoredToken(): string | null {
-    return localStorage.getItem(STORAGE_KEYS.authToken);
+  private async loadEncryptedToken(): Promise<void> {
+    const decrypted = await secureGet(STORAGE_KEYS.authToken);
+    if (decrypted) {
+      this.token = decrypted;
+    }
   }
 
   setToken(token: string | null): void {
     this.token = token;
     if (token) {
-      localStorage.setItem(STORAGE_KEYS.authToken, token);
+      secureSet(STORAGE_KEYS.authToken, token).catch(() => {
+        // Fallback: unverschlüsselt speichern
+        localStorage.setItem(STORAGE_KEYS.authToken, token);
+      });
     } else {
-      localStorage.removeItem(STORAGE_KEYS.authToken);
+      secureRemove(STORAGE_KEYS.authToken);
     }
   }
 

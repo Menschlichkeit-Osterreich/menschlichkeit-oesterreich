@@ -1,5 +1,6 @@
 import { apiClient, ApiResponse } from './client';
 import { STORAGE_KEYS } from '@/constants/storage';
+import { secureSet, secureRemove } from '@/utils/secureStorage';
 
 // Auth Types
 export interface User {
@@ -71,8 +72,8 @@ class AuthService {
       this.currentUser = response.data.user;
       apiClient.setToken(response.data.token);
 
-      // Store refresh token
-      localStorage.setItem('refresh_token', response.data.refreshToken);
+      // Store refresh token (encrypted)
+      secureSet(STORAGE_KEYS.refreshToken, response.data.refreshToken);
     }
 
     return response;
@@ -100,8 +101,8 @@ class AuthService {
     } finally {
       this.currentUser = null;
       apiClient.setToken(null);
-      localStorage.removeItem(STORAGE_KEYS.refreshToken);
-      localStorage.removeItem(STORAGE_KEYS.authToken);
+      secureRemove(STORAGE_KEYS.refreshToken);
+      secureRemove(STORAGE_KEYS.authToken);
     }
   }
 
@@ -112,7 +113,8 @@ class AuthService {
 
   // Refresh Token
   async refreshToken(): Promise<boolean> {
-    const refreshToken = localStorage.getItem(STORAGE_KEYS.refreshToken);
+    const { secureGet } = await import('@/utils/secureStorage');
+    const refreshToken = await secureGet(STORAGE_KEYS.refreshToken);
     if (!refreshToken) return false;
 
     try {
@@ -123,7 +125,7 @@ class AuthService {
       if (response.success && response.data) {
         this.currentUser = response.data.user;
         apiClient.setToken(response.data.token);
-        localStorage.setItem('refresh_token', response.data.refreshToken);
+        secureSet(STORAGE_KEYS.refreshToken, response.data.refreshToken);
         return true;
       }
     } catch (error) {
@@ -253,9 +255,9 @@ class AuthService {
     >('/auth/security-logs');
   }
 
-  // Check Authentication Status
+  // Check Authentication Status (synchron — basiert auf In-Memory-State)
   isAuthenticated(): boolean {
-    return this.currentUser !== null && !!localStorage.getItem(STORAGE_KEYS.authToken);
+    return this.currentUser !== null;
   }
 
   // Check User Role
@@ -275,7 +277,8 @@ class AuthService {
 
   // Initialize from stored token
   async initializeFromToken(): Promise<boolean> {
-    const token = localStorage.getItem(STORAGE_KEYS.authToken);
+    const { secureGet } = await import('@/utils/secureStorage');
+    const token = await secureGet(STORAGE_KEYS.authToken);
     if (!token) return false;
 
     try {
