@@ -326,6 +326,9 @@ function Get-CaseSummaryOutcome {
             $_.Tests.direct443.Outcome -eq "timeout" -and $_.Tests.sni443.Outcome -eq "timeout"
         }
     )
+    $distinctPublicIpCount = @(
+        $Runs | ForEach-Object { $_.PublicIp.Value } | Where-Object { $_ } | Select-Object -Unique
+    ).Count
     $reachingRuns = @(
         $Runs | Where-Object {
             (Test-ReachedRemote $_.Tests.direct443.Outcome) -or
@@ -340,8 +343,7 @@ function Get-CaseSummaryOutcome {
     }
 
     if ($failingRuns.Count -eq $Runs.Count -and $Runs.Count -gt 1) {
-        $distinctEgressCount = @($Runs | ForEach-Object { $_.EgressLabel } | Select-Object -Unique).Count
-        if ($distinctEgressCount -ge 2) {
+        if ($distinctPublicIpCount -ge 2) {
             return "all_runs_failing"
         }
     }
@@ -357,12 +359,28 @@ function Get-CaseAssessmentLines {
     param([object[]]$Runs)
 
     $outcome = Get-CaseSummaryOutcome -Runs $Runs
+    $distinctPublicIps = @(
+        $Runs | ForEach-Object { $_.PublicIp.Value } | Where-Object { $_ } | Select-Object -Unique
+    )
+    $distinctEgresses = @(
+        $Runs | ForEach-Object { $_.EgressLabel } | Where-Object { $_ } | Select-Object -Unique
+    )
+    $reaching8443Runs = @(
+        $Runs | Where-Object {
+            Test-ReachedRemote $_.Tests.direct8443.Outcome
+        }
+    )
+
     switch ($outcome) {
         "source_path_selective_filtering_likely" {
-            return @(
+            $lines = @(
                 '- Mindestens ein Egress timed out auf direkter IP und mit `--resolve`; DNS ist fuer diese Runs nicht ursaechlich.',
                 "- Mindestens ein anderer Egress erreicht den Zielhost oder zumindest den TCP/TLS/SSH-Handshake; source-/path-selektives Filtering ist derzeit die staerkste Hypothese."
             )
+            if ($reaching8443Runs.Count -eq 0) {
+                $lines += "- Port 8443 timed out bislang auch auf dem Kontrollpfad und sollte separat von 22/443 bewertet werden."
+            }
+            return $lines
         }
         "all_runs_failing" {
             return @(
@@ -371,10 +389,14 @@ function Get-CaseAssessmentLines {
             )
         }
         "dns_excluded_but_control_pending" {
-            return @(
+            $lines = @(
                 '- Fuer mindestens einen Run scheitern direkte IP und `--resolve` identisch; DNS ist fuer diesen Pfad nicht die Primaerursache.',
                 "- Ein funktionierender Kontrollpfad (LTE oder VPN) fehlt noch; selektives Filtering ist plausibel, aber noch nicht provider-tauglich bewiesen."
             )
+            if ($distinctEgresses.Count -ge 2 -and $distinctPublicIps.Count -eq 1) {
+                $lines += "- Mehrere Egress-Labels wurden erfasst, aber bislang mit derselben oeffentlichen IP; das ist noch keine echte Vergleichsquelle."
+            }
+            return $lines
         }
         default {
             return @(
@@ -469,6 +491,22 @@ function Update-CaseArtifacts {
             (Test-ReachedRemote $_.Tests.ssh22.Outcome)
         }
     )
+    $reaching8443Runs = @(
+        $runs | Where-Object {
+            Test-ReachedRemote $_.Tests.direct8443.Outcome
+        }
+    )
+    $reachingSshRuns = @(
+        $runs | Where-Object {
+            Test-ReachedRemote $_.Tests.ssh22.Outcome
+        }
+    )
+    $reaching443Runs = @(
+        $runs | Where-Object {
+            (Test-ReachedRemote $_.Tests.direct443.Outcome) -or
+            (Test-ReachedRemote $_.Tests.sni443.Outcome)
+        }
+    )
     $failingIps = @($failingRuns | ForEach-Object { $_.PublicIp.Value } | Where-Object { $_ } | Sort-Object -Unique)
     $reachingIps = @($reachingRuns | ForEach-Object { $_.PublicIp.Value } | Where-Object { $_ } | Sort-Object -Unique)
     $ticketLines = New-Object System.Collections.Generic.List[string]
@@ -476,7 +514,7 @@ function Update-CaseArtifacts {
     $ticketLines.Add("")
     $ticketLines.Add("## Subject")
     $ticketLines.Add("")
-    $ticketLines.Add("[NETWORK] Selective connect timeouts to $TargetIp ($TargetHost) on 22/443/8443")
+    $ticketLines.Add("[NETWORK] Source-IP-dependent connectivity to $TargetIp ($TargetHost); 22/443 selective, 8443 still filtered")
     $ticketLines.Add("")
     $ticketLines.Add("## Problem Summary")
     $ticketLines.Add("")
@@ -489,6 +527,15 @@ function Update-CaseArtifacts {
         $ticketLines.Add('- Control-path source IPs that can reach the service: `' + ($reachingIps -join '`, `') + '`')
     } else {
         $ticketLines.Add("- Control-path source IPs: still pending; add LTE or VPN capture before sending if available.")
+    }
+    if ($reaching443Runs.Count -gt 0) {
+        $ticketLines.Add("- Port 443 is reachable on at least one control path.")
+    }
+    if ($reachingSshRuns.Count -gt 0) {
+        $ticketLines.Add("- Port 22 reaches the SSH service on at least one control path (currently auth failure instead of connect timeout).")
+    }
+    if ($reaching8443Runs.Count -eq 0) {
+        $ticketLines.Add("- Port 8443 currently times out on all observed source IPs and should be treated as a separate issue from the selective 22/443 behavior.")
     }
     $ticketLines.Add('- `plesk7.digimagical.com` resolves consistently to `' + $TargetIp + '`; reverse PTR points back to `' + $TargetHost + '`; no AAAA record is present in the current captures.')
     $ticketLines.Add("- A prior packet capture taken inside WSL2/NAT is excluded from causal interpretation because it does not prove packet arrival on the target host or edge firewall.")

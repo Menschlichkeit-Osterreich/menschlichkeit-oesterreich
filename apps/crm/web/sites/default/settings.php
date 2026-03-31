@@ -5,7 +5,7 @@
  * Drupal site settings für Menschlichkeit Österreich CRM (Plesk-Produktion).
  *
  * Wird in das Chroot-Home deployt nach:
- *   subdomains/crm/httpdocs/web/sites/default/settings.php
+ *   subdomains/crm/httpdocs/native/sites/default/settings.php
  *
  * DSGVO: Kein PII in Logs.
  */
@@ -36,6 +36,10 @@ $settings['trusted_host_patterns'] = [
   '^localhost$',
   '^127\.0\.0\.1$',
 ];
+
+// ── Basis-URL fuer den Native-Backoffice-Pfad ────────────────────────────────
+// Das produktive Drupal/CiviCRM-Runtime liegt unter https://crm.../native/.
+$base_url = getenv('DRUPAL_BASE_URL') ?: 'https://crm.menschlichkeit-oesterreich.at/native';
 
 // ── Konfigurationsverzeichnis ────────────────────────────────────────────────
 $settings['config_sync_directory'] = '../config/sync';

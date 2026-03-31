@@ -8,11 +8,13 @@ priority: high
 category: core
 applyTo: **/*.md
 ---
+
 # Markdown & Documentation Best Practices
 
 ## Dokumentations-Hierarchie
 
 ### Projekt-Level Dokumentation
+
 ```text
 /README.md                    → Projekt-Übersicht, Quick Start
 /TODO.md                      → Aktuelle Aufgaben, Roadmap
@@ -21,6 +23,7 @@ applyTo: **/*.md
 ```
 
 ### Service-Level Dokumentation
+
 ```text
 /<service>/README.md          → Service-spezifische Docs
 /<service>/API.md             → API Dokumentation
@@ -29,6 +32,7 @@ applyTo: **/*.md
 ```
 
 ### Developer Dokumentation
+
 ```text
 /docs/                        → Entwickler-Dokumentation
 /docs/ARCHITECTURE.md         → System-Architektur
@@ -40,12 +44,14 @@ applyTo: **/*.md
 ## Markdown Standards (GitHub Flavored)
 
 ### Struktur-Template für READMEs
+
 ```markdown
 # Projekt/Service Name
 
 > Kurze Beschreibung (1-2 Sätze)
 
 ## 📋 Inhaltsverzeichnis
+
 - [Features](#features)
 - [Installation](#installation)
 - [Verwendung](#verwendung)
@@ -65,34 +71,44 @@ applyTo: **/*.md
 ## 🚀 Installation
 
 ### Voraussetzungen
+
 - Node.js ≥ 18.x
 - PostgreSQL ≥ 15
 - Docker (optional)
 
 ### Setup
 ```
+
 # 1. Repository klonen
-git clone https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development.git
+
+git clone https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich.git
 
 # 2. Dependencies installieren
+
 npm install
 
 # 3. Environment konfigurieren
+
 cp .env.example .env
 npm run setup:dev
+
 ```bash
 
 ## 📖 Verwendung
 
 ### Development Server starten
 ```
+
 npm run dev:<service>
+
 ```bash
 
 ### Production Build
 ```
+
 npm run build
 npm run start
+
 ```text
 
 ## ⚙️ Konfiguration
@@ -112,14 +128,19 @@ npm run start
 ## 🧪 Testing
 
 ```
+
 # Unit Tests
+
 npm run test:unit
 
 # E2E Tests
+
 npm run test:e2e
 
 # Coverage Report
+
 npm run test:coverage
+
 ```text
 
 ## 🚢 Deployment
@@ -128,7 +149,9 @@ Siehe [DEPLOYMENT.md](./DEPLOYMENT.md) für detaillierte Anweisungen.
 
 ### Quick Deploy
 ```
+
 ./deployment-scripts/deploy-<service>-plesk.sh
+
 ```text
 
 ## 🔧 Troubleshooting
@@ -138,11 +161,15 @@ Siehe [DEPLOYMENT.md](./DEPLOYMENT.md) für detaillierte Anweisungen.
 
 **Lösung**:
 ```
+
 # Schritt 1
+
 npm run clean
 
 # Schritt 2
+
 npm run setup:dev
+
 ```text
 
 ### Weitere Probleme
@@ -166,54 +193,76 @@ Dieses Projekt ist lizenziert unter der [MIT License](./LICENSE).
 ## 📞 Kontakt
 
 - **Website**: https://menschlichkeit-oesterreich.at
-- **Issues**: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues
-- **Discussions**: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/discussions
+- **Issues**: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/issues
+- **Discussions**: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/discussions
 ```
 
 ## Formatting Best Practices
 
 ### Überschriften
+
 ```markdown
 # H1 - Nur für Dokumenten-Titel (1x pro Datei)
+
 ## H2 - Hauptabschnitte
+
 ### H3 - Unterabschnitte
+
 #### H4 - Details (sparsam verwenden)
 
 ❌ FALSCH:
+
 # Titel
+
 # Weitere Überschrift gleichen Levels
 
 ✅ RICHTIG:
+
 # Titel
+
 ## Abschnitt 1
+
 ### Unterabschnitt 1.1
+
 ## Abschnitt 2
 ```
 
 ### Code-Blöcke
+
 ```markdown
 ✅ IMMER Syntax-Highlighting verwenden:
 ```
+
 npm install
+
 ```text
 
 ```
+
 const example: string = "typed code";
+
 ```text
 
 ```
-SELECT * FROM users WHERE active = true;
+
+SELECT \* FROM users WHERE active = true;
+
 ```text
 
 ❌ NICHT Generic:
 ```
+
 npm install
+
 ```text
+
 ```
 
 ### Listen
+
 ```markdown
 ✅ Ungeordnete Listen:
+
 - Erster Punkt
 - Zweiter Punkt
   - Unterpunkt mit 2 Spaces Einzug
@@ -221,6 +270,7 @@ npm install
 - Dritter Punkt
 
 ✅ Geordnete Listen:
+
 1. Erster Schritt
 2. Zweiter Schritt
    1. Unterschritt
@@ -228,19 +278,21 @@ npm install
 3. Dritter Schritt
 
 ✅ Task Listen:
+
 - [x] Abgeschlossene Aufgabe
 - [ ] Offene Aufgabe
 - [ ] Weitere Aufgabe
 ```
 
 ### Tabellen
+
 ```markdown
 ✅ Rechtsbündig für Zahlen, Linksbündig für Text:
 | Feature | Status | Priority | Effort |
 |---------|:------:|---------:|-------:|
-| Auth    | ✅     | High     | 8h     |
-| API     | 🚧     | Medium   | 16h    |
-| UI      | ❌     | Low      | 4h     |
+| Auth | ✅ | High | 8h |
+| API | 🚧 | Medium | 16h |
+| UI | ❌ | Low | 4h |
 
 Alignment:
 | Left | Center | Right |
@@ -248,6 +300,7 @@ Alignment:
 ```
 
 ### Links & Referenzen
+
 ```markdown
 ✅ Inline Links:
 [Link-Text](https://example.com)
@@ -266,6 +319,7 @@ Siehe [Google][1] und [GitHub][2] für Details.
 ```
 
 ### Bilder
+
 ```markdown
 ✅ Mit Alt-Text (Accessibility):
 ![Austrian Flag](./assets/flag.png)
@@ -276,43 +330,58 @@ Siehe [Google][1] und [GitHub][2] für Details.
 ```
 
 ### Hervorhebungen
+
 ```markdown
 ✅ Emphasis:
-*kursiv* oder _kursiv_
-**fett** oder __fett__
-***fett und kursiv***
+_kursiv_ oder _kursiv_
+**fett** oder **fett**
+**_fett und kursiv_**
 
 ✅ Inline Code:
 Verwende `npm install` für Dependencies.
 Die Variable `DATABASE_URL` ist erforderlich.
 
 ✅ Blockquotes:
+
 > **Wichtig**: Diese Änderung ist breaking!
 
 > **Tipp**: Verwende `--dry-run` zum Testen.
 ```
 
 ### Emojis (GitHub Support)
+
 ```markdown
 ✅ Für visuelle Ankerpunkte:
+
 ## 🚀 Quick Start
+
 ## 📖 Dokumentation
+
 ## ⚙️ Konfiguration
+
 ## 🧪 Testing
+
 ## 🔒 Security
+
 ## 🐛 Bugfixes
+
 ## ✨ Features
+
 ## 📊 Performance
+
 ## ♿ Accessibility
+
 ## 🌍 Internationalisierung
 
 ❌ NICHT übertreiben:
+
 ## 🎉🎊✨🚀 Super Mega Feature 🔥💯👍
 ```
 
 ## Dokumentations-Standards
 
 ### README.md Checkliste
+
 ```markdown
 □ Klare Projekt-Beschreibung (1-2 Sätze)
 □ Badges (Build Status, Coverage, License)
@@ -330,10 +399,12 @@ Die Variable `DATABASE_URL` ist erforderlich.
 ```
 
 ### API.md Struktur
+
 ```markdown
 # API Dokumentation
 
 ## Übersicht
+
 - Base URL
 - Authentication
 - Rate Limits
@@ -342,6 +413,7 @@ Die Variable `DATABASE_URL` ist erforderlich.
 ## Endpoints
 
 ### GET /api/users
+
 **Beschreibung**: Holt alle Benutzer
 
 **Query Parameter**:
@@ -353,17 +425,19 @@ Die Variable `DATABASE_URL` ist erforderlich.
 
 **Response**:
 ```
+
 {
-  "users": [
-    {
-      "id": 1,
-      "email": "user@example.com",
-      "displayName": "Max Mustermann"
-    }
-  ],
-  "total": 42,
-  "hasMore": true
+"users": [
+{
+"id": 1,
+"email": "user@example.com",
+"displayName": "Max Mustermann"
 }
+],
+"total": 42,
+"hasMore": true
+}
+
 ```text
 
 **Error Codes**:
@@ -373,6 +447,7 @@ Die Variable `DATABASE_URL` ist erforderlich.
 ```
 
 ### CHANGELOG.md Format
+
 ```markdown
 # Changelog
 
@@ -382,33 +457,44 @@ Format basiert auf [Keep a Changelog](https://keepachangelog.com/de/1.0.0/),
 Versionierung folgt [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unreleased]
+
 ### Added
+
 - Neue Feature XYZ
 
 ### Changed
+
 - Verbessertes Performance für ABC
 
 ### Deprecated
+
 - API v1 wird in v3.0.0 entfernt
 
 ### Removed
+
 - Legacy Support für IE11
 
 ### Fixed
+
 - Bug #123: Falsche Berechnung bei XYZ
 
 ### Security
+
 - CVE-2024-XXXX: XSS Vulnerability gefixt
 
 ## [2.1.0] - 2025-10-01
+
 ### Added
+
 - Design Token Sync mit Figma
 - n8n Automation Workflows
 
 ...
 
 ## [2.0.0] - 2025-09-15
+
 ### Breaking Changes
+
 - API v1 entfernt, Migration zu v2 erforderlich
 - PostgreSQL 15+ jetzt Mindestvoraussetzung
 
@@ -422,27 +508,33 @@ Versionierung folgt [Semantic Versioning](https://semver.org/lang/de/).
 ## Projekt-Spezifische Standards
 
 ### Sprache (Austrian German + English)
+
 ```markdown
 ✅ UI-Dokumentation: Deutsch (AT)
+
 - Hauptseiten-README.md
 - Benutzer-Handbücher
 - DSGVO-Dokumente
 
 ✅ Technische Docs: Englisch
+
 - API.md
 - ARCHITECTURE.md
 - Code-Kommentare in Funktionen
 
 ✅ Mixed: Pragmatisch
+
 - README.md: Deutsch, Code-Beispiele englisch
 - DEPLOYMENT.md: Deutsch, Commands englisch
 ```
 
 ### DSGVO-Compliance in Docs
+
 ```markdown
 ⚠️ IMMER beachten:
 
 ❌ NIEMALS in Docs committen:
+
 - Echte Email-Adressen
 - Telefonnummern
 - Namen von realen Personen (außer Public Figures)
@@ -450,6 +542,7 @@ Versionierung folgt [Semantic Versioning](https://semver.org/lang/de/).
 - IP-Adressen
 
 ✅ Verwende Beispiel-Daten:
+
 - user@example.com
 - Max Mustermann
 - +43 XXX XXXXXXX
@@ -458,22 +551,26 @@ Versionierung folgt [Semantic Versioning](https://semver.org/lang/de/).
 ```
 
 ### Links zu externen Quellen
+
 ```markdown
 ✅ Verwende offizielle Dokumentation:
+
 - [React Docs](https://react.dev)
 - [PostgreSQL Manual](https://www.postgresql.org/docs/)
 - [DSGVO Volltext](https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=CELEX:32016R0679)
 
 ✅ Vermeide:
+
 - Broken Links (regelmäßig prüfen)
 - Paywalled Content
 - Nicht-HTTPS Seiten
-- Tracking-URLs (utm_* Parameter)
+- Tracking-URLs (utm\_\* Parameter)
 ```
 
 ## Automatisierung & Tooling
 
 ### Markdown Linting
+
 ```bash
 # Via Copilot Instructions (automatisch):
 - Prüfe Markdown-Syntax
@@ -485,6 +582,7 @@ npm run lint:markdown
 ```
 
 ### Link Checker
+
 ```bash
 # Broken Links finden:
 npm run docs:check-links
@@ -494,6 +592,7 @@ npm run docs:fix-links
 ```
 
 ### TOC Generierung
+
 ```bash
 # Table of Contents auto-generieren:
 npm run docs:generate-toc
@@ -503,6 +602,7 @@ npx markdown-toc README.md -i
 ```
 
 ### Preview
+
 ```bash
 # Live Preview im Browser:
 npm run docs:preview
@@ -514,6 +614,7 @@ npm run docs:preview
 ## MCP-Integration für Docs
 
 ### Filesystem MCP für Doc-Management
+
 ```markdown
 "Find all README files and check for completeness"
 "List all markdown files without proper headings"
@@ -521,6 +622,7 @@ npm run docs:preview
 ```
 
 ### GitHub MCP für Doc-Tracking
+
 ```markdown
 "Create issue for missing API documentation"
 "List all docs-related issues"
@@ -528,6 +630,7 @@ npm run docs:preview
 ```
 
 ### Brave Search MCP für Best Practices
+
 ```markdown
 "Search for Markdown best practices 2025"
 "Find Austrian DSGVO documentation standards"
@@ -537,6 +640,7 @@ npm run docs:preview
 ## Quality Gates für Dokumentation
 
 ### Pre-Commit
+
 ```markdown
 □ Markdown-Syntax korrekt (markdownlint)
 □ Links funktionieren (markdown-link-check)
@@ -546,6 +650,7 @@ npm run docs:preview
 ```
 
 ### Pre-PR
+
 ```markdown
 □ README.md aktualisiert (bei Feature-Änderungen)
 □ CHANGELOG.md entry erstellt
@@ -557,6 +662,7 @@ npm run docs:preview
 ## Best Practices Zusammenfassung
 
 ### DO's
+
 ```markdown
 ✅ Klare, strukturierte Hierarchie (H1 → H2 → H3)
 ✅ Syntax-Highlighting für alle Code-Blöcke
@@ -571,6 +677,7 @@ npm run docs:preview
 ```
 
 ### DON'Ts
+
 ```markdown
 ❌ Multiple H1 in einem Dokument
 ❌ Generic Code-Blöcke ohne Syntax

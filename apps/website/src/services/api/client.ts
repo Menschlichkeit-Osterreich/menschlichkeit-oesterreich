@@ -28,6 +28,22 @@ export class ApiError extends Error {
   }
 }
 
+function canUseBrowserStorage(): boolean {
+  return typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+}
+
+function getStoredToken(): string | null {
+  if (!canUseBrowserStorage()) {
+    return null;
+  }
+
+  try {
+    return window.localStorage.getItem(STORAGE_KEYS.authToken);
+  } catch {
+    return null;
+  }
+}
+
 // HTTP Client Class
 class ApiClient {
   private readonly baseURL: string;
@@ -35,10 +51,12 @@ class ApiClient {
 
   constructor(baseURL: string = API_V2_URL) {
     this.baseURL = baseURL;
-    // Synchroner Fallback für sofortigen Zugriff
-    this.token = localStorage.getItem(STORAGE_KEYS.authToken);
-    // Asynchron den verschlüsselten Wert laden (überschreibt ggf. den Fallback)
-    this.loadEncryptedToken();
+    // Synchroner Fallback fuer sofortigen Browser-Zugriff
+    this.token = getStoredToken();
+    // Nur im Browser den verschluesselten Wert aus Session/Local Storage laden.
+    if (canUseBrowserStorage()) {
+      this.loadEncryptedToken();
+    }
   }
 
   private async loadEncryptedToken(): Promise<void> {
@@ -52,8 +70,10 @@ class ApiClient {
     this.token = token;
     if (token) {
       secureSet(STORAGE_KEYS.authToken, token).catch(() => {
-        // Fallback: unverschlüsselt speichern
-        localStorage.setItem(STORAGE_KEYS.authToken, token);
+        // Fallback: unverschluesselt speichern
+        if (canUseBrowserStorage()) {
+          window.localStorage.setItem(STORAGE_KEYS.authToken, token);
+        }
       });
     } else {
       secureRemove(STORAGE_KEYS.authToken);

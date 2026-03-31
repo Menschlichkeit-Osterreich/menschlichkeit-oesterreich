@@ -6,7 +6,7 @@ import os
 from functools import lru_cache
 from typing import Any
 
-from ...src.crm.civi_service import CiviCRMService
+from src.crm.civi_service import CiviCRMService
 from ..secrets_provider import get_secret
 
 logger = logging.getLogger("menschlichkeit.crm")
@@ -92,8 +92,15 @@ class CrmFacade:
             logger.info("crm_disabled | action=upsert_contact | email=%s", email)
             return None
         try:
-            existing = await self.find_contact_by_email(email)
+            lookup_result = await client._request("Contact", "get", {
+                "where": [["email_primary.email", "=", email]],
+                "select": ["id", "first_name", "last_name", "email_primary.email", "phone_primary.phone"],
+                "limit": 1,
+            })
+            values = lookup_result.get("values", [])
+            existing = values[0] if values else None
             if existing:
+                existing["email"] = existing.get("email_primary.email", email)
                 await client.update_contact(existing["id"], {
                     "first_name": first_name,
                     "last_name": last_name,

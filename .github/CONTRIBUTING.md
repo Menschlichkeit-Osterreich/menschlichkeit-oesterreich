@@ -32,8 +32,8 @@ Dieses Projekt folgt unserem [Code of Conduct](CODE_OF_CONDUCT.md). Durch die Te
 
 ```bash
 # Repository klonen
-git clone git@github.com:Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development.git
-cd menschlichkeit-oesterreich-development
+git clone git@github.com:Menschlichkeit-Osterreich/menschlichkeit-oesterreich.git
+cd menschlichkeit-oesterreich
 
 # Abhängigkeiten installieren
 npm install
@@ -53,12 +53,12 @@ npm run dev:all
 ### Architektur Überblick
 
 ```text
-menschlichkeit-oesterreich-development/
-├── api.menschlichkeit-oesterreich.at/    # FastAPI Backend
-├── crm.menschlichkeit-oesterreich.at/    # Drupal + CiviCRM
-├── frontend/                             # React/TypeScript
-├── website/                              # Main Website
-├── web/                                  # Educational Games
+menschlichkeit-oesterreich/
+├── apps/api/                             # FastAPI Backend
+├── apps/crm/                             # Drupal + CiviCRM
+├── apps/website/                         # React/TypeScript Website
+├── apps/babylon-game/                    # Educational Games
+├── apps/forum/                           # Forum
 ├── automation/n8n/                      # Workflow Automation
 └── deployment-scripts/                  # Plesk Deployment
 ```
@@ -68,7 +68,7 @@ menschlichkeit-oesterreich-development/
 ### Branch Strategie
 
 - **main** - Production-ready Code
-- **develop** - Integration Branch
+- **main** - Integrations- und Release-Branch
 - **feature/\*** - Feature Branches
 - **fix/\*** - Bug Fixes
 - **hotfix/\*** - Critical Production Fixes
@@ -329,17 +329,20 @@ Bedeutende Beiträge werden anerkannt durch:
 Vielen Dank, dass Sie zu unserem Projekt beitragen möchten! Bitte folgen Sie dieser Anleitung, um sicherzustellen, dass Ihr Beitrag effektiv und wertvoll ist.
 
 ### Prompts & Chatmodes
+
 - Lege neue Chatmodes als YAML in `.github/prompts/chatmodes/` an (kebab_case id, SemVer).
 - Erzeuge/aktualisiere passende `_examples.md`.
 - Halte dich an `global/01_style_guide.md` und `global/02_guardrails.md`.
 - Füge Assertions unter `tests:` hinzu (Form: `assertion`, `expected`).
 - Lokale Validierung optional:
+
 ```bash
 for f in .github/prompts/chatmodes/*.yaml; do yq -o=json "$f" > "$f.json"; done
 ajv validate -s .github/prompts/chatmodes/_schema.json -d ".github/prompts/chatmodes/*.yaml.json"
 ```
 
 #### Workflow für Prompt-Änderungen
+
 1. Mapping prüfen/anpassen in `.github/prompts/MIGRATION_MAP.md` (Alt → Neu).
 2. YAML aktualisieren (Version nach SemVer anheben) und `_examples.md` pflegen.
 3. `tests:` Assertions ergänzen/prüfen (id/semver, ggf. domänenspezifisch).

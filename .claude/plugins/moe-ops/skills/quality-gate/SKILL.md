@@ -12,7 +12,7 @@ allowed-tools:
 
 ## Zweck
 
-Liest die neuesten Quality-Reports (SARIF, JSON) aus `menschlichkeit-oesterreich-development/quality-reports/` und entscheidet ob ein Deployment freigegeben wird.
+Liest die neuesten Quality-Reports (SARIF, JSON) aus `quality-reports/` und entscheidet ob ein Deployment freigegeben wird.
 
 ## Report-Quellen
 

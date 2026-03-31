@@ -33,7 +33,7 @@ WCAG 2.1 AA ist Brand-Pflicht fuer Menschlichkeit Oesterreich. Dieses Skill fueh
 ### Pa11y
 
 ```bash
-cd menschlichkeit-oesterreich-development
+cd .
 npx pa11y-ci --config pa11yci.json
 ```
 

@@ -1,55 +1,82 @@
-# Menschlichkeit Österreich – Copilot Leitfaden
+# Menschlichkeit Oesterreich - Copilot Leitfaden
 
-Austrian NGO multi-service platform with strict GDPR compliance, automated quality gates, and MCP-enhanced development workflow.
+GitHub Copilot arbeitet in diesem Repository nicht frei schwebend, sondern entlang desselben Repo-Vertrags wie Codex und Claude Code.
 
-## Code Style
+## Zuerst lesen
 
-- **Language:** Österreichisches Deutsch (de-AT) für alle UI-Texte und Kommentare
-- **Frontend:** React 18 + TypeScript + Vite + TailwindCSS; PascalCase Komponenten, named exports + hooks
-- **API:** FastAPI + Python 3.12+; Pydantic v2 Schemas, RBAC decorators (`require_auth`, `require_role`)
-- **Database:** German snake_case Spalten (`vorname`, `mitgliedschaft_typ`); Alembic für komplexe Schemas, CREATE TABLE für einfache
-- **Linting:** ESLint (auto-fix), PHPStan, Markdownlint; ignoriert: `vendor/`, `dist/`, `.venv/`, `apps/game/`
+1. `AGENTS.md` fuer Rollen, Routing und aktive Artefakte
+2. `CLAUDE.md` fuer Repo-Betrieb, Services und Guardrails
+3. `.github/instructions/core/*.instructions.md` fuer gemeinsame Policies
 
-## Architecture
+## Repo-Identitaet
 
-Monorepo mit 5 Services, gemeinsame PostgreSQL-DB:
+- Repository: `Menschlichkeit-Osterreich/menschlichkeit-oesterreich`
+- Aktiver Root: `E:\Menschlichkeit-Osterreich\menschlichkeit-oesterreich`
+- Main-first Workflow
+- Aktive Services unter `apps/website`, `apps/api`, `apps/crm`, `apps/babylon-game`, `apps/forum`
 
-- CRM: Drupal 10 + CiviCRM (Port 8000)
-- API: FastAPI (Port 8001)
-- Frontend: React + Vite (Port 5173)
-- Games: Prisma ORM (Port 3000)
-- Automation: n8n (Port 5678)
+Historische Root-Pfade und alte Einzelordner sind keine aktiven Entwicklungsziele.
 
-**Integration:** Shared DB via `DATABASE_URL`; PII-Sanitization in API + CRM; Design Tokens aus Figma.
+## Agentenauswahl
 
-## Build and Test
+Nutze das Rollenmodell aus `AGENTS.md`:
 
-- **Setup:** `npm run setup:dev` (install + composer + environments)
-- **Dev:** `npm run dev:all` (alle Services parallel)
-- **Test:** `npm run test:unit` (Vitest), `npm run test:e2e` (Playwright), `cd apps/api && pytest tests/`
-- **Quality Gates:** `npm run quality:gates` (Codacy + Security + Lighthouse + DSGVO + Tests)
-- **Deploy:** `./build-pipeline.sh staging|production`
+- `architect` fuer Architektur, Service-Schnittstellen, ADR-nahe Arbeit
+- `developer` fuer Features, Bugs, Refactorings und Tests
+- `devops` fuer Workflows, Deployments, MCP, VS Code und Betriebsfragen
+- `security` fuer DSGVO, Secrets, GitHub-Sicherheit und Haertung
+- `qa` fuer Reviews, Accessibility, Performance und Quality-Gates
 
-## Conventions
+Copilot-spezifische Einstiegspunkte:
 
-- **DSGVO:** Keine PII in Logs; automatische Maskierung (E-Mail: `t**@example.com`, IBAN: `AT61***`)
-- **Security:** Trivy + Gitleaks (0 HIGH/CRITICAL); Secrets via GitHub Secrets
-- **Performance:** Lighthouse ≥0.90; Coverage ≥80%
-- **Commits:** `type(scope): description` (feat, fix, docs, etc.)
-- **Issues:** Definition of Ready mit Akzeptanzkriterien (Gherkin)
+- `.github/agents/task-planner.agent.md`
+- `.github/agents/devops-expert.agent.md`
+- `.github/agents/mentor.agent.md`
 
-## Babylon.js 3D App (`apps/babylon-game/`)
+Aktive Chatmodes:
 
-- **Tech:** Next.js 16 + Babylon.js 8 + Havok Physics (Port 3001)
-- **Dev:** `npm run dev:babylon`
-- **Paradigm:** Unity-like MonoBehaviour lifecycle via `babylon.toolkit.js`
-- **TypeScript:** Classic UMD, `PROJECT` namespace, extend `TOOLKIT.ScriptComponent`
-- **Lifecycle:** `awake()`, `start()`, `update()`, `late()`, `fixed()`
-- **Components:** `TOOLKIT.SceneManager.GetComponent(transform, classname)`
-- **Input:** `TOOLKIT.InputController` (`IC` alias)
-- **Naming:** PascalCase classes, camelCase methods/variables, `ID` → `Id`
-- **Interfaces:** All members optional (`?`), full namespace references
-- Siehe `apps/babylon-game/` fuer Babylon.js-spezifische Copilot-Regeln in `.github/copilot-instructions.md` (Root)
+- `.github/chatmodes/**/*.chatmode.md`
 
-Siehe [CLAUDE.md](../CLAUDE.md) für detaillierte Projektübersicht, Befehle und Architektur.
-Siehe [agents.md](../agents.md) für detaillierte Rollen, Workflows und Prioritäten.
+Ergaenzende Prompt-Artefakte:
+
+- `.github/prompts/*.prompt.md`
+
+Nicht aktiv:
+
+- `.github/prompts/chatmodes/*.yaml` sind Legacy und nicht die fuehrende Wahrheit.
+
+## Arbeitsregeln
+
+- Repository first: vor Vorschlaegen immer den realen Repo-Stand lesen.
+- Keine neuen Parallelstrukturen erfinden, wenn `AGENTS.md`, `CLAUDE.md` oder Core-Instructions schon den Vertrag definieren.
+- Nutzertexte bleiben in oesterreichischem Deutsch.
+- Keine Secrets oder PII in Code, Logs, Beispielen oder Prompts.
+- Brand-Arbeit folgt den Token- und Plugin-Quellen im Repo.
+
+## Implementierungsstandards
+
+- Frontend: React 19 + TypeScript + Vite
+- API: FastAPI + Python 3.12+
+- CRM: Drupal 10 + CiviCRM
+- Games: Next.js 16 + Babylon.js 8 auf Port 3001
+- Forum: phpBB auf Port 8002
+
+## Build und Validierung
+
+- `npm run dev:frontend`
+- `npm run dev:api`
+- `npm run test:unit`
+- `npm run test:api`
+- `npm run quality:gates`
+- `npm run governance:check`
+
+## Dokumentationsregel
+
+Wenn eine Aenderung aktive Ablaeufe, Rollen, Pfade oder Tooling betrifft, muessen mindestens die betroffenen Governance-Dateien mitgezogen werden:
+
+- `AGENTS.md`
+- `CLAUDE.md`
+- `.github/copilot-instructions.md`
+- `.github/instructions/copilot-workflow.md`
+- `.github/chatmodes/README.md`
+- `.github/prompts/README.md`

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import NavBar from '../components/NavBar';
 import { useAuth } from '../auth/AuthContext';
+import { buildPublicUrl } from '../utils/runtimeHost';
 
 interface SideNavItem {
   to: string;
@@ -13,8 +14,11 @@ interface SideNavItem {
 const MEMBER_NAV: SideNavItem[] = [
   { to: '/member/dashboard', label: 'Übersicht', icon: '🏠' },
   { to: '/member', label: 'Mein Profil', icon: '👤', exact: true },
+  { to: '/member/rechnungen', label: 'Rechnungen & Belege', icon: '🧾' },
+  { to: '/member/sepa', label: 'SEPA-Mandat', icon: '🏦' },
+  { to: '/member/newsletter', label: 'Newsletter', icon: '📧' },
+  { to: '/member/datenschutz', label: 'Datenschutz', icon: '🔒' },
   { to: '/member/onboarding', label: 'Onboarding', icon: '🎯' },
-  { to: '/account/privacy', label: 'Datenschutz', icon: '🔒' },
 ];
 
 const ADMIN_NAV: SideNavItem[] = [
@@ -24,9 +28,11 @@ const ADMIN_NAV: SideNavItem[] = [
   { to: '/admin/finanzen', label: 'Finanzen', icon: '💰' },
   { to: '/admin/events', label: 'Veranstaltungen', icon: '📅' },
   { to: '/admin/newsletter', label: 'Newsletter', icon: '📧' },
+  { to: '/admin/community', label: 'Blog & Forum', icon: '📰' },
   { to: '/admin/dsgvo', label: 'DSGVO', icon: '🔒' },
   { to: '/admin/reports', label: 'Berichte', icon: '📈' },
   { to: '/admin/settings', label: 'Einstellungen', icon: '⚙️' },
+  { to: '/admin/openclaw', label: 'OpenClaw', icon: '🤖' },
 ];
 
 function SideNav({ items }: { items: SideNavItem[] }) {
@@ -80,12 +86,12 @@ export default function DashboardLayout() {
 
             {/* Bottom links */}
             <div className="mt-6 pt-4 border-t border-secondary-200">
-              <Link
-                to="/"
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-secondary-500 hover:text-secondary-700 hover:bg-secondary-50 transition-all"
+              <a
+                href={buildPublicUrl('/')}
+                className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-secondary-500 transition-all hover:bg-secondary-50 hover:text-secondary-700"
               >
                 <span aria-hidden="true">←</span> Zur Website
-              </Link>
+              </a>
             </div>
           </div>
         </aside>

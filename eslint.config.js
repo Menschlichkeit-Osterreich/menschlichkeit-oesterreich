@@ -30,6 +30,8 @@ export default [
       '**/*.config.{js,ts}',
       'generated/**',
       '.agents/**',
+      '.browser-pilot/**',
+      '.blender-toolkit/**',
       // Vendor / external tooling – not linted
       'codacy-analysis-cli-master/**',
       'codacy-analysis-cli/**',

@@ -15,11 +15,13 @@ lastUpdated: 2025-10-18
 Dieser Leitfaden definiert **verbindliche Regeln** für den Umgang mit GitHub Personal Access Tokens (PATs) im Projekt. Ziel: Sicherheit > Convenience.
 
 **Rechtlicher Rahmen:**
+
 - DSGVO Art. 32 (Technische und organisatorische Maßnahmen)
 - BSI IT-Grundschutz (Authentifizierung, Zugriffsschutz)
 - GitHub Terms of Service (Token-Schutz)
 
 **Geltungsbereich:**
+
 - Lokale Entwicklungsumgebungen (VS Code, CLI)
 - CI/CD (GitHub Actions, DevContainers)
 - MCP-Server (Filesystem, GitHub)
@@ -34,6 +36,7 @@ Dieser Leitfaden definiert **verbindliche Regeln** für den Umgang mit GitHub Pe
 **Verwendung:** Legacy-Integration, Breitzugriff
 
 **Scopes (minimal):**
+
 ```text
 ✓ repo (Full control of private repos)
 ✓ read:org (Read org and team membership)
@@ -54,7 +57,7 @@ Dieser Leitfaden definiert **verbindliche Regeln** für den Umgang mit GitHub Pe
 ```yaml
 Resource owner: peschull (persönlich) oder "Menschlichkeit Österreich" (Organisation)
 Repository access: Only select repositories
-  - Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
+  - Menschlichkeit-Osterreich/menschlichkeit-oesterreich
 
 Permissions:
   Repository permissions:
@@ -71,6 +74,7 @@ Permissions:
 **Ablaufzeit:** Max. 90 Tage (automatische Rotation via GitHub)
 
 **Erstellung:**
+
 1. GitHub → Settings → Developer settings → Personal access tokens → Fine-grained tokens
 2. "Generate new token"
 3. Name: `MOE-Dev-2025-10-18` (Projekt-Dev-Datum)
@@ -96,6 +100,7 @@ NIEMALS:
 ```
 
 **Enforcement:**
+
 - Gitleaks blockt Commits mit PATs
 - Pre-commit-Hooks scannen auf `ghp_` und `github_pat_*`
 
@@ -116,12 +121,14 @@ npx dotenv-vault pull
 ```
 
 **Vorteile:**
+
 - End-to-End-Verschlüsselung
 - Versionskontrolle (Audit-Trail)
 - Team-Sharing (nur für berechtigte Personen)
 - `.env.vault` ist Git-safe (öffentlich commitbar)
 
 **Nachteil:**
+
 - Externe Abhängigkeit (dotenv.org)
 - Kostet $7/Monat für Teams (aktuell: 1 User = Free Tier OK)
 
@@ -143,17 +150,19 @@ gh auth status
 # → Sollte zeigen: "Logged in to github.com as <username>"
 
 # Token verwenden (automatisch aus Credential Store)
-gh repo clone Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
+gh repo clone Menschlichkeit-Osterreich/menschlichkeit-oesterreich
 gh issue list
 gh pr create
 ```
 
 **Vorteile:**
+
 - OS-sicherer Speicher (Windows Credential Manager)
 - Keine `.env`-Datei nötig
 - Automatische Rotation via `gh auth refresh`
 
 **Nachteil:**
+
 - Nur für `gh`-CLI (nicht für Git-Push via HTTPS)
 
 ---
@@ -180,11 +189,13 @@ git push origin main
 ```
 
 **Vorteile:**
+
 - Nahtlose Integration mit Git
 - Token-Rotation via GitHub
 - OS-sichere Speicherung
 
 **Nachteil:**
+
 - Nur für Git-Operationen (nicht für API-Calls, Scripts)
 
 ---
@@ -212,11 +223,13 @@ echo $GH_TOKEN
 ```
 
 **Vorteile:**
+
 - Kein Festplatten-Speicher
 - Session-isoliert (andere Terminals sehen Token nicht)
 - Prozess-Ende → Token weg
 
 **Nachteil:**
+
 - Mühsam bei jedem Terminal-Neustart
 
 ---
@@ -324,7 +337,7 @@ print(response.json())
 ```yaml
 # .github/workflows/deploy.yml
 env:
-  GH_TOKEN: ghp_ABC123...  # NIEMALS hardcoded!
+  GH_TOKEN: ghp_ABC123... # NIEMALS hardcoded!
 ```
 
 **✅ RICHTIG:**
@@ -375,11 +388,11 @@ jobs:
 
 **Regel:** Alle PATs **müssen** ein Ablaufdatum haben.
 
-| Umgebung | Max. Lebensdauer | Rotation |
-|----------|------------------|----------|
-| **Lokal (Dev)** | 90 Tage | Manuell (Kalender-Reminder) |
-| **CI/CD** | 90 Tage | Automatisch (GitHub Secrets Rotation) |
-| **Production** | 30 Tage | Automatisch (via GitHub Apps empfohlen) |
+| Umgebung        | Max. Lebensdauer | Rotation                                |
+| --------------- | ---------------- | --------------------------------------- |
+| **Lokal (Dev)** | 90 Tage          | Manuell (Kalender-Reminder)             |
+| **CI/CD**       | 90 Tage          | Automatisch (GitHub Secrets Rotation)   |
+| **Production**  | 30 Tage          | Automatisch (via GitHub Apps empfohlen) |
 
 ---
 
@@ -392,8 +405,8 @@ name: Rotate GitHub PAT
 
 on:
   schedule:
-    - cron: '0 3 1 * *'  # 1. des Monats, 03:00 UTC
-  workflow_dispatch:     # Manueller Trigger
+    - cron: '0 3 1 * *' # 1. des Monats, 03:00 UTC
+  workflow_dispatch: # Manueller Trigger
 
 jobs:
   rotate-pat:
@@ -449,6 +462,7 @@ jobs:
 **Sofortmaßnahmen (< 10 Minuten):**
 
 1. **Token widerrufen:**
+
    ```bash
    # Web: GitHub → Settings → Developer settings → PATs → Token auswählen → Revoke
    # CLI:
@@ -456,11 +470,13 @@ jobs:
    ```
 
 2. **Gitleaks-Scan ausführen:**
+
    ```powershell
    gitleaks detect --report-path quality-reports/incident-token-leak.json
    ```
 
 3. **Git-History säubern (falls committed):**
+
    ```bash
    # BFG Repo-Cleaner (empfohlen)
    bfg --replace-text secrets.txt  # secrets.txt: ghp_ABC123=***REMOVED***
@@ -474,16 +490,19 @@ jobs:
 4. **Neuen Token generieren** (siehe 1.2)
 
 5. **Incident dokumentieren:**
+
    ```markdown
    # quality-reports/incident-2025-10-18-token-leak.md
 
    ## Incident: GitHub PAT Leak
+
    **Datum:** 2025-10-18 14:23 UTC
    **Schwere:** P1-High (keine unbefugten Zugriffe festgestellt)
    **Ursache:** Versehentlich in .env committed
    **Betroffene Tokens:** ghp_ABC123... (widerrufen)
 
    ### Timeline:
+
    - 14:23: Token in Commit abc1234 entdeckt
    - 14:25: Token widerrufen
    - 14:30: Git-History gesäubert (BFG)
@@ -491,6 +510,7 @@ jobs:
    - 14:40: CI/CD-Pipeline getestet (erfolgreich)
 
    ### Lessons Learned:
+
    - Pre-commit-Hook für Gitleaks aktivieren
    - dotenv-vault-Workflow im Onboarding betonen
    ```
@@ -558,6 +578,7 @@ Siehe `.vscode/tasks.json`:
 ```
 
 **Verwendung (VS Code):**
+
 1. Cmd/Ctrl + Shift + P → "Tasks: Run Task"
 2. "🔐 Security: Pull GitHub PAT (dotenv-vault)"
 3. Token wird in `.env` geladen
@@ -569,6 +590,7 @@ Siehe `.vscode/tasks.json`:
 ### Problem: "Bad credentials" bei GitHub API
 
 **Symptom:**
+
 ```text
 curl: (22) The requested URL returned error: 401 Unauthorized
 {
@@ -578,6 +600,7 @@ curl: (22) The requested URL returned error: 401 Unauthorized
 ```
 
 **Lösung:**
+
 ```powershell
 # 1. Token-Format prüfen (muss mit "ghp_" oder "github_pat_" beginnen)
 echo $env:GH_TOKEN
@@ -597,6 +620,7 @@ npx --yes dotenv-vault@1.24.0 pull --yes
 ### Problem: "Token expired"
 
 **Symptom:**
+
 ```text
 {
   "message": "This token has expired on 2025-10-18T14:23:00Z",
@@ -605,6 +629,7 @@ npx --yes dotenv-vault@1.24.0 pull --yes
 ```
 
 **Lösung:**
+
 1. Neuen Token generieren (siehe 1.2)
 2. dotenv-vault updaten: `npx dotenv-vault push`
 3. GitHub Secrets aktualisieren (Repo Settings)
@@ -615,6 +640,7 @@ npx --yes dotenv-vault@1.24.0 pull --yes
 ### Problem: "Resource not accessible by integration"
 
 **Symptom:**
+
 ```text
 {
   "message": "Resource not accessible by integration",
@@ -623,6 +649,7 @@ npx --yes dotenv-vault@1.24.0 pull --yes
 ```
 
 **Lösung:**
+
 - Token hat nicht die erforderlichen Permissions
 - Neuen Token mit korrekten Scopes generieren (siehe 1.2)
 - Für GitHub Actions: `GITHUB_TOKEN` statt `GH_TOKEN` verwenden (automatische Permissions)

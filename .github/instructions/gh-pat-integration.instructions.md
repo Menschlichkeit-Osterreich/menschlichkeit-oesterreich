@@ -187,7 +187,7 @@ jobs:
       - name: Sync labels org-weit
         if: inputs.operation == 'sync-labels'
         run: |
-          gh label clone Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development \
+          gh label clone Menschlichkeit-Osterreich/menschlichkeit-oesterreich \
             --repo $GITHUB_REPOSITORY --force
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -529,7 +529,7 @@ jobs:
 # GitHub UI: Settings → Secrets → GH_TOKEN → Update
 
 # Oder via gh CLI (benötigt alten PAT):
-echo "NEW_PAT_HERE" | gh secret set GH_TOKEN --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
+echo "NEW_PAT_HERE" | gh secret set GH_TOKEN --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich
 ```
 ````
 
@@ -643,7 +643,7 @@ gh run view <RUN_ID> --log
 
 set -euo pipefail
 
-REPO="${1:-Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development}"
+REPO="${1:-Menschlichkeit-Osterreich/menschlichkeit-oesterreich}"
 
 # Sicherheits-Features aktivieren
 gh api -X PATCH "repos/$REPO" \
@@ -685,7 +685,7 @@ echo "✅ Webhook konfiguriert: $WEBHOOK_URL"
 #!/bin/bash
 # Secrets zwischen Repos synchronisieren
 
-SOURCE_REPO="Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development"
+SOURCE_REPO="Menschlichkeit-Osterreich/menschlichkeit-oesterreich"
 TARGET_REPO="peschull/website-prod"
 SECRET_NAME="DATABASE_URL"
 
@@ -705,10 +705,10 @@ echo "✅ Secret synchronisiert: $SECRET_NAME → $TARGET_REPO"
 
 ```bash
 # Alle Alerts auflisten
-gh api repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/code-scanning/alerts
+gh api repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/code-scanning/alerts
 
 # Alert schließen
-gh api -X PATCH repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/code-scanning/alerts/123 \
+gh api -X PATCH repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/code-scanning/alerts/123 \
   -f state=dismissed \
   -f dismissed_reason="false positive"
 ```
@@ -801,7 +801,7 @@ grep -r "secrets.GH_TOKEN" .github/workflows/ | wc -l
 grep -A5 "permissions:" .github/workflows/*.yml
 
 # 4. Secret-Scanning-Status
-gh api repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/secret-scanning/alerts
+gh api repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/secret-scanning/alerts
 ```
 
 ---
@@ -866,10 +866,10 @@ gh auth status
 
 ```bash
 # 1. Secret prüfen (Admin-Zugriff erforderlich)
-gh secret list --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
+gh secret list --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich
 
 # 2. Neu setzen
-echo "NEW_TOKEN" | gh secret set GH_TOKEN --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
+echo "NEW_TOKEN" | gh secret set GH_TOKEN --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich
 ```
 
 ---

@@ -1,65 +1,49 @@
-# 🧭 Menschlichkeit Österreich – GitHub Copilot Workflow Anpassung
-Version: 1.0  · Status: Stable  · Review: alle 12 Stunden
+# GitHub Copilot Workflow
 
-Ziel: Copilot arbeitet immer kontextbewusst anhand des aktuellen Repo-Stands (Code, CI/CD, Doku, Secrets, Compliance, Designsystem) und verhält sich als kontextgebundener Contributor.
+Version: 2.0  
+Status: Active
 
----
+## Ziel
 
-## 🎯 Ziel
-GitHub Copilot soll immer an den aktuellen Stand des Repos angepasst arbeiten. Das umfasst Code, CI/CD-Workflows, Dokumentation, Secrets, Compliance-Vorgaben und Designsystem. Copilot agiert nicht isoliert, sondern als kontextbewusster Contributor.
+Copilot soll im Repo aktiv dieselbe Governance nutzen wie Codex und Claude Code, statt eigene Parallelregeln aufzubauen.
 
-## 🔑 Core-Prinzipien
-1. Repository First – immer vom aktuellen Repo-Stand ausgehen (main/dev Branch, Monorepo-Struktur).
-2. Definition of Excellence – Code und Doku müssen CI/CD, Security-Gates und ADR-Standards erfüllen.
-3. Minimal Drift – neue Vorschläge müssen an bestehende Pipelines, ENV-Variablen und Secrets angepasst sein.
-4. Kontextbindung – Copilot zieht `.github/instructions/*`, `docs/`, `docs/adr/` und `figma-design-system/` immer mit ein.
-5. Iterative Anpassung – wenn sich Workflows oder Strukturen ändern, passen sich alle Copilot-Prompts automatisch an.
+## Verbindliche Reihenfolge
 
-## ⚙️ Workflow-Anpassungen für Copilot
-- CI/CD
-  - Nutze vorhandene Workflows (`.github/workflows/*.yml`) als Leitlinie.
-  - Wenn neue Jobs vorgeschlagen werden → Kompatibilität mit Trivy, CodeQL, SBOM, Merge-Gates prüfen.
-  - Artefakte/Logs immer im Pfad `quality-reports/` oder `artifacts/` ablegen.
+1. `AGENTS.md`
+2. `CLAUDE.md`
+3. `.github/copilot-instructions.md`
+4. `.github/instructions/core/*.instructions.md`
 
-- Secrets & ENV
-  - Vorschläge dürfen keine Secrets im Klartext enthalten.
-  - Nutze `.env.example` / `.env.local.example` als Vorlage; Secrets via GitHub Actions Secrets oder dotenv-vault.
+## Arbeitsmodell
 
-- Code & Struktur
-  - Respektiere Monorepo-Struktur (z. B. `frontend/`, `api.menschlichkeit-oesterreich.at/`, `crm.menschlichkeit-oesterreich.at/`, `automation/n8n/`).
-  - Neue Module müssen in die bestehende Architektur eingehängt werden (Imports, Router, CI-Testpfade).
+- Copilot arbeitet repo-first und liest zuerst die aktive Monorepo-Struktur.
+- Rollen werden ueber `AGENTS.md` gewaehlt.
+- Aktive Arbeitsmodi kommen aus `.github/chatmodes/**/*.chatmode.md`.
+- `.github/prompts/*.prompt.md` sind Zusatzwerkzeuge fuer konkrete Aufgaben.
+- `.github/prompts/chatmodes/*.yaml` sind Legacy und nicht mehr fuehrend.
 
-- Dokumentation
-  - Jede relevante Änderung → Update in `docs/` oder `.github/instructions/`.
-  - Bei neuen Features → ADR (`docs/adr/ADR-xxxx.md`) vorschlagen/anlegen.
+## Operative Regeln
 
-- Designsystem
-  - Frontend: Vorschläge basieren auf Figma Tokens + Tailwind Tokens.
-  - UI-Komponenten nur nach Styleguide; niemals Farben/Spacing hardcoden.
+- Keine alten Repo-Namen oder alten Pfade in neue Vorschlaege uebernehmen.
+- Kein `develop`-basierter Workflow in neuen Vorschlaegen.
+- Keine Guidance erstellen, die historische Root-Pfade oder alte Einzelordner als aktive Ziele behandelt.
+- Bei VS Code-, MCP- oder CI-Themen immer die aktuellen Repo-Dateien als Wahrheit nehmen.
 
-## 📌 Vorgehen bei jedem Vorschlag
-1. Repo-Analyse – Ordnerstruktur, Workflows, ADRs prüfen.
-2. Standardabgleich – `.github/instructions/` und `docs/` referenzieren.
-3. Integration – sicherstellen, dass Änderungen in CI/CD, ENV, Security passen.
-4. Dokumentation – Doku/ADR ergänzen.
-5. Commit-Qualität – Conventional Commits verwenden.
+## Bei Aenderungen an Governance
 
-## ✅ Definition of Done
-- Build & Tests grün in CI.
-- Code entspricht ADR-Standards.
-- Secrets/ENV sicher (keine Klartext-Secrets).
-- Dokumentation und ADRs synchron.
-- Designsystem konsistent eingebunden.
+Wenn Copilot Vorschlaege fuer Rollen, Prompts, Chatmodes, VS Code oder Repo-Workflows macht, muessen diese Dateien zusammen gedacht werden:
 
-## 🔄 Automatische Anpassung
-- Bei Änderungen an Workflows, ENV, Struktur → sofortige Übernahme in Copilot-Prompts.
-- Bei neuen Services/Features → Integration in CI/CD + ADRs vorschlagen.
-- Bei Breaking Changes → Migrationshinweise + Update-Doku generieren.
+- `AGENTS.md`
+- `CLAUDE.md`
+- `.github/copilot-instructions.md`
+- `.github/agents/*.agent.md`
+- `.github/chatmodes/**/*.chatmode.md`
+- `.github/prompts/README.md`
 
----
+## Definition of Done fuer Copilot-nahe Aenderungen
 
-Hinweise (Repo-spezifisch):
-- Siehe `.github/copilot-instructions.md` (Projektleitfaden) für Architektur, DSGVO, Quality-Gates.
-- DSGVO verbindlich: `.github/instructions/dsgvo-compliance.instructions.md`.
-- PAT-Nutzung & Rotation: `.github/instructions/gh-pat-integration.instructions.md`.
-- Agents-Governance: `agents.md` (nicht duplizieren, nur referenzieren).
+- aktive Referenzen zeigen nur auf existierende Dateien
+- alte Repo-Namen und tote Pfade sind entfernt
+- Chatmodes sind die aktive Mode-Ebene
+- Prompt-Artefakte sind als supplementaer eingeordnet
+- `npm run governance:check` bleibt gruen

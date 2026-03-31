@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import asyncio
 from datetime import datetime, timezone
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -17,21 +17,19 @@ def _run(coro):
     return asyncio.run(coro)
 
 
-def _make_consent_row(status: str = "granted") -> MagicMock:
+def _make_consent_row(status: str = "granted") -> dict:
     """Simuliert eine asyncpg-Zeile aus consent_records."""
-    row = MagicMock()
-    row.__iter__ = lambda _: iter([
-        ("id", 1),
-        ("member_id", None),
-        ("email", "test@example.at"),
-        ("consent_type", "marketing"),
-        ("version", "2026-03"),
-        ("status", status),
-        ("source", "newsletter_doi"),
-        ("legal_basis", "consent"),
-        ("created_at", datetime(2026, 3, 22, 10, 0, 0, tzinfo=timezone.utc)),
-    ])
-    return row
+    return {
+        "id": 1,
+        "member_id": None,
+        "email": "test@example.at",
+        "consent_type": "marketing",
+        "version": "2026-03",
+        "status": status,
+        "source": "newsletter_doi",
+        "legal_basis": "consent",
+        "created_at": datetime(2026, 3, 22, 10, 0, 0, tzinfo=timezone.utc),
+    }
 
 
 class TestRecordConsent:
@@ -152,19 +150,12 @@ class TestConsentIntegration:
 
     def test_newsletter_abmeldung_zeichnet_consent_widerruf_auf(self, client):
         """Newsletter-Unsubscribe muss privacy_service.record_consent mit status='revoked' aufrufen."""
-        sub_row = MagicMock()
-        sub_row.get = lambda k, d=None: {
+        sub_row = {
             "email": "sub@example.at",
             "first_name": "Erika",
             "last_name": "Musterfrau",
             "civicrm_contact_id": None,
-        }.get(k, d)
-        sub_row.__iter__ = lambda _: iter([
-            ("email", "sub@example.at"),
-            ("first_name", "Erika"),
-            ("last_name", "Musterfrau"),
-            ("civicrm_contact_id", None),
-        ])
+        }
         with (
             patch("app.routers.newsletter.fetchrow", new=AsyncMock(return_value=sub_row)),
             patch("app.routers.newsletter.privacy_service.record_consent", new=AsyncMock()) as mock_consent,
@@ -199,26 +190,18 @@ class TestConsentIntegration:
 
     def test_doi_bestaetigung_zeichnet_consent_auf(self, client):
         """DOI-Confirm muss privacy_service.record_consent mit status='granted' aufrufen."""
-        from unittest.mock import MagicMock
         from datetime import timedelta
 
-        pending = MagicMock()
         token_created = datetime.now(timezone.utc) - timedelta(hours=1)
-        pending.__getitem__ = lambda _, k: token_created if k == "token_created_at" else "99"
+        pending = {"id": "99", "token_created_at": token_created}
 
-        confirmed = MagicMock()
-        confirmed.__iter__ = lambda _: iter([
-            ("id", 1),
-            ("email", "doi@example.at"),
-            ("first_name", "Max"),
-            ("last_name", "Mustermann"),
-            ("civicrm_contact_id", None),
-        ])
-        confirmed.get = lambda k, d=None: {
+        confirmed = {
+            "id": 1,
             "email": "doi@example.at",
             "first_name": "Max",
             "last_name": "Mustermann",
-        }.get(k, d)
+            "civicrm_contact_id": None,
+        }
 
         with (
             patch("app.routers.newsletter.fetchrow", side_effect=[pending, confirmed]),

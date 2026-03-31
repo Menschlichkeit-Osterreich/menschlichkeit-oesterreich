@@ -18,6 +18,8 @@ def _run(coro):
 _MINIMAL_CONTEXTS: dict[str, dict] = {
     "welcome": {
         "contact": {"first_name": "Max", "last_name": "Mustermann", "email": "max@example.at"},
+        "member": {"membership_number": "MOE-2026-001"},
+        "invoice": {"amount": 48.0},
     },
     "verify_email": {
         "first_name": "Max",

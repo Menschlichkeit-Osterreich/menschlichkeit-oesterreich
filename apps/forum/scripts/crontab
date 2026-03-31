@@ -1,0 +1,13 @@
+# =============================================================
+# phpBB Cron-Tabelle — Periodische Wartungsaufgaben
+# Installiert in: Docker phpbb-cron Container
+# =============================================================
+
+# phpBB Cron-Tasks (Session-Cleanup, Notifications, Stats)
+*/5 * * * * /bin/sh /var/www/phpbb/scripts/phpbb-cron.sh >> /proc/1/fd/1 2>&1
+
+# Tägliches Backup (03:00 Uhr MEZ)
+0 3 * * * /bin/sh /var/www/phpbb/scripts/backup-forum.sh >> /proc/1/fd/1 2>&1
+
+# Wöchentliche DB-Optimierung (Sonntag 04:00)
+0 4 * * 0 php /var/www/phpbb/bin/phpbbcli.php db:recount --quiet >> /proc/1/fd/1 2>&1

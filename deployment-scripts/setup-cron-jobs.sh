@@ -26,7 +26,26 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 PLESK_ROOT="/var/www/vhosts/menschlichkeit-oesterreich.at"
 CRM_ROOT="${PLESK_ROOT}/crm.menschlichkeit-oesterreich.at/httpdocs"
 DRUSH_PATH="${CRM_ROOT}/vendor/bin/drush"
-PHP_BINARY="/usr/bin/php"
+
+# Auto-detect PHP binary (prefer Plesk PHP if available, fallback to system PHP)
+if [[ -f "/opt/plesk/php/8.3/bin/php" ]]; then
+    PHP_BINARY="/opt/plesk/php/8.3/bin/php"
+elif [[ -f "/opt/plesk/php/8.4/bin/php" ]]; then
+    PHP_BINARY="/opt/plesk/php/8.4/bin/php"
+else
+    PHP_BINARY="/usr/bin/php"
+fi
+
+# Validate PHP binary
+if ! command -v "$PHP_BINARY" &> /dev/null; then
+    log_error "PHP binary not found: $PHP_BINARY"
+    log_info "Available PHP binaries:"
+    find /opt/plesk/php -name "php" -type f 2>/dev/null || echo "No Plesk PHP found"
+    command -v php && echo "System PHP: $(which php)" || echo "No system PHP found"
+    exit 1
+fi
+
+log_info "Using PHP binary: $PHP_BINARY"
 
 # Email for cron job notifications
 ADMIN_EMAIL="admin@menschlichkeit-oesterreich.at"

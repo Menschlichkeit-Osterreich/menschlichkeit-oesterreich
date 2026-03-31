@@ -7,41 +7,41 @@
 :root {
   /* === COLORS === */
 
-  /* Primary Scale - Blue */
-  --color-primary-50: #f0f9ff;
-  --color-primary-100: #e0f2fe;
-  --color-primary-200: #bae6fd;
-  --color-primary-300: #7dd3fc;
-  --color-primary-400: #38bdf8;
-  --color-primary-500: #0ea5e9;
-  --color-primary-600: #0284c7;
-  --color-primary-700: #0369a1;
-  --color-primary-800: #075985;
-  --color-primary-900: #0c4a6e;
+  /* Primary Scale - Menschlichkeit Orange */
+  --color-primary-50: #fdf3ed;
+  --color-primary-100: #fae2d4;
+  --color-primary-200: #f6c5a8;
+  --color-primary-300: #eea06f;
+  --color-primary-400: #e27a3f;
+  --color-primary-500: #d4611e;
+  --color-primary-600: #b54a0f;
+  --color-primary-700: #973b10;
+  --color-primary-800: #7a3213;
+  --color-primary-900: #512311;
 
-  /* Secondary Scale - Gray */
-  --color-secondary-50: #f8fafc;
-  --color-secondary-100: #f1f5f9;
-  --color-secondary-200: #e2e8f0;
-  --color-secondary-300: #cbd5e1;
-  --color-secondary-400: #94a3b8;
-  --color-secondary-500: #64748b;
-  --color-secondary-600: #475569;
-  --color-secondary-700: #334155;
-  --color-secondary-800: #1e293b;
-  --color-secondary-900: #0f172a;
+  /* Secondary Scale - Warm Neutral */
+  --color-secondary-50: #faf7f5;
+  --color-secondary-100: #f0ebe6;
+  --color-secondary-200: #ddd5cc;
+  --color-secondary-300: #c8bdb2;
+  --color-secondary-400: #aa9d91;
+  --color-secondary-500: #7a6e62;
+  --color-secondary-600: #64574d;
+  --color-secondary-700: #4a4039;
+  --color-secondary-800: #382f29;
+  --color-secondary-900: #2b231d;
 
-  /* Accent Scale - Pink/Magenta */
-  --color-accent-50: #fef7ff;
-  --color-accent-100: #fdeef9;
-  --color-accent-200: #fde6f4;
-  --color-accent-300: #fcceeb;
-  --color-accent-400: #f9a8d4;
-  --color-accent-500: #f472b6;
-  --color-accent-600: #ec4899;
-  --color-accent-700: #db2777;
-  --color-accent-800: #be185d;
-  --color-accent-900: #9d174d;
+  /* Accent Scale - Demokratie Blue */
+  --color-accent-50: #eef5f8;
+  --color-accent-100: #d7e7ef;
+  --color-accent-200: #b2d1e0;
+  --color-accent-300: #82b4cb;
+  --color-accent-400: #4f8bae;
+  --color-accent-500: #1b4965;
+  --color-accent-600: #163d55;
+  --color-accent-700: #143245;
+  --color-accent-800: #132a39;
+  --color-accent-900: #101f2a;
 
   /* Success Scale - Green */
   --color-success-50: #f0fdf4;
@@ -81,27 +81,25 @@
 
   /* Semantic Colors */
   --color-background: #ffffff;
-  --color-surface: #f8fafc;
+  --color-surface: #faf7f5;
   --color-overlay: rgba(0, 0, 0, 0.5);
-  --color-text-primary: #0f172a;
-  --color-text-secondary: #64748b;
-  --color-text-muted: #94a3b8;
+  --color-text-primary: #2b231d;
+  --color-text-secondary: #4a4039;
+  --color-text-muted: #7a6e62;
   --color-text-inverse: #ffffff;
-  --color-border: #e2e8f0;
-  --color-border-focus: #0ea5e9;
-  --color-disabled: #f1f5f9;
+  --color-border: #ddd5cc;
+  --color-border-focus: #1b4965;
+  --color-disabled: #f0ebe6;
 
   /* === TYPOGRAPHY === */
 
   /* Font Families */
   --font-primary:
-    "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-    "Helvetica Neue", Arial, sans-serif;
-  --font-secondary:
-    "Merriweather", Georgia, Cambria, "Times New Roman", Times, serif;
+    'Nunito Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-secondary: 'Source Sans 3', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-mono:
-    "JetBrains Mono", "Fira Code", Monaco, Consolas, "Liberation Mono",
-    "Courier New", monospace;
+    'JetBrains Mono', 'Fira Code', Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 
   /* Font Sizes */
   --text-xs: 0.75rem; /* 12px */
@@ -177,12 +175,9 @@
   /* === SHADOWS === */
   --shadow-none: none;
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg:
-    0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl:
-    0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
   --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
 
@@ -226,26 +221,23 @@
 
 /* === DARK MODE === */
 .dark,
-[data-theme="dark"] {
-  --color-background: #0f172a;
-  --color-surface: #1e293b;
+[data-theme='dark'] {
+  --color-background: #1f1915;
+  --color-surface: #2b231d;
   --color-overlay: rgba(0, 0, 0, 0.8);
-  --color-text-primary: #f8fafc;
-  --color-text-secondary: #cbd5e1;
-  --color-text-muted: #94a3b8;
-  --color-text-inverse: #0f172a;
-  --color-border: #334155;
-  --color-border-focus: #38bdf8;
-  --color-disabled: #334155;
+  --color-text-primary: #faf7f5;
+  --color-text-secondary: #ddd5cc;
+  --color-text-muted: #c8bdb2;
+  --color-text-inverse: #2b231d;
+  --color-border: #4a4039;
+  --color-border-focus: #82b4cb;
+  --color-disabled: #382f29;
 
   /* Adjust shadows for dark mode */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md:
-    0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
-  --shadow-lg:
-    0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
-  --shadow-xl:
-    0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
   --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 

@@ -3,36 +3,47 @@ name: Prompt CI
 on:
   pull_request:
     paths:
+      - 'AGENTS.md'
+      - 'agents.md'
+      - 'CLAUDE.md'
+      - '.claude/**'
+      - '.github/agents/**'
+      - '.github/chatmodes/**'
       - '.github/prompts/**'
+      - '.github/instructions/copilot-workflow.md'
+      - '.github/copilot-instructions.md'
+      - '.vscode/**'
+      - '*.code-workspace'
+      - 'scripts/validate-ai-governance.mjs'
   push:
     branches: [main, chore/**, release/**]
     paths:
+      - 'AGENTS.md'
+      - 'agents.md'
+      - 'CLAUDE.md'
+      - '.claude/**'
+      - '.github/agents/**'
+      - '.github/chatmodes/**'
       - '.github/prompts/**'
+      - '.github/instructions/copilot-workflow.md'
+      - '.github/copilot-instructions.md'
+      - '.vscode/**'
+      - '*.code-workspace'
+      - 'scripts/validate-ai-governance.mjs'
 
 permissions:
   contents: read
 
 jobs:
   validate:
-    name: Prompt/Chatmode Validation
+    name: Prompt and Agent Governance Validation
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Setup Node.js
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af  # v4.2.0
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.2.0
         with:
           node-version: '22'
-      - name: Install tools (yq, ajv-cli)
-        run: |
-          npm i -g ajv-cli@5
-          sudo snap install yq --channel=v4/stable --classic || sudo apt-get update && sudo apt-get install -y yq || npm i -g @mclayfield/yq
-      - name: Validate chatmodes against schema
-        shell: bash
-        run: |
-          set -euo pipefail
-          shopt -s nullglob
-          for f in .github/prompts/chatmodes/*.yaml; do
-            yq -o=json "$f" > "$f.json"
-          done
-          ajv validate -s .github/prompts/chatmodes/_schema.json -d ".github/prompts/chatmodes/*.yaml.json"
+      - name: Validate AI governance
+        run: npm run governance:check

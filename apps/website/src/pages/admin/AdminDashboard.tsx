@@ -16,8 +16,10 @@ const QUICK_LINKS = [
   { label: 'Rechnungen', icon: '📄', path: '/admin/rechnungen', color: 'bg-yellow-600' },
   { label: 'Veranstaltungen', icon: '📅', path: '/admin/events', color: 'bg-purple-600' },
   { label: 'Newsletter', icon: '📧', path: '/admin/newsletter', color: 'bg-teal-600' },
+  { label: 'Blog & Forum', icon: '📰', path: '/admin/community', color: 'bg-orange-600' },
   { label: 'DSGVO', icon: '🔒', path: '/admin/dsgvo', color: 'bg-red-600' },
   { label: 'Berichte', icon: '📊', path: '/admin/reports', color: 'bg-indigo-600' },
+  { label: 'OpenClaw', icon: '🤖', path: '/admin/openclaw', color: 'bg-slate-700' },
   { label: 'Einstellungen', icon: '⚙️', path: '/admin/settings', color: 'bg-gray-600' },
 ];
 

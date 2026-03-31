@@ -1,59 +1,59 @@
 ---
-description: 'Schnellreferenz aller Services mit Start-Befehlen'
+description: 'Schnellreferenz aller aktiven Services mit aktuellen Startbefehlen'
 disable-model-invocation: true
 ---
 
 # MOe Services
 
+Aktueller Repo-Root:
+
+```powershell
+$env:MOE_REPO_ROOT = "E:\Menschlichkeit-Osterreich\menschlichkeit-oesterreich"
+Set-Location $env:MOE_REPO_ROOT
+```
+
 ## Einzeln starten
 
-```bash
-# Frontend (React 19 + Vite)
-cd menschlichkeit-oesterreich-development && npm run dev:frontend
+```powershell
+# Website
+npm run dev:frontend
 
-# API (FastAPI Python 3.12)
-cd menschlichkeit-oesterreich-development && npm run dev:api
+# API
+npm run dev:api
 
-# CRM (Drupal 10 + CiviCRM)
-cd menschlichkeit-oesterreich-development && npm run dev:crm
+# CRM
+npm run dev:crm
 
-# Games (Static Server)
-cd menschlichkeit-oesterreich-development && npm run dev:games
+# Games
+npm run dev:games
 
-# Root App (Next.js + Babylon.js)
-npm run dev
+# Forum
+npm run dev:forum
 ```
 
 ## Alle zusammen
 
-```bash
-cd menschlichkeit-oesterreich-development && npm run dev:all
+```powershell
+npm run dev:all
 ```
 
-## Infrastruktur (Docker)
+## Infrastruktur
 
-```bash
-cd menschlichkeit-oesterreich-development
-
-# PostgreSQL + Redis + n8n
+```powershell
+# Docker-Basisdienste
 npm run docker:up
 
-# n8n separat (mit eigenem Postgres + Redis)
+# n8n separat
 npm run n8n:start
 
-# CRM Docker-Stack (MariaDB + Nginx + MailHog)
-cd apps/crm && docker-compose up -d
-
-# OpenClaw Multi-Agent
+# OpenClaw Runtime
 bash openclaw-system/scripts/boot.sh
 ```
 
 ## Datenbank
 
-```bash
-cd menschlichkeit-oesterreich-development
-
-# Prisma Studio (DB-UI)
+```powershell
+# Prisma Studio
 npm run db:studio
 
 # Migrationen
@@ -63,14 +63,26 @@ npm run db:migrate
 npm run db:seed
 ```
 
-## Deployment (Production)
+## Governance und Betrieb
 
-```bash
-cd menschlichkeit-oesterreich-development
+```powershell
+# MCP
+npm run mcp:check
+npm run mcp:health
 
+# Governance
+npm run governance:check
+
+# Quality Gates
+npm run quality:gates
+```
+
+## Deployment
+
+```powershell
 # Plesk Deploy (PowerShell)
-powershell scripts/deploy-to-plesk.ps1
+pwsh -File scripts/deploy-to-plesk.ps1
 
-# Plesk Sync (Bash)
-bash scripts/plesk-sync.sh push
+# Dry Run
+bash scripts/safe-deploy.sh --dry-run
 ```

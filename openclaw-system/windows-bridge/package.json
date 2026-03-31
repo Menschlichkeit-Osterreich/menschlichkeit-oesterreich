@@ -1,0 +1,18 @@
+{
+  "name": "@moe/windows-bridge",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Windows-zu-WSL-Bridge fuer den OpenClaw-Stack",
+  "type": "commonjs",
+  "main": "wsl-proxy.js",
+  "scripts": {
+    "start": "node wsl-proxy.js",
+    "smoke": "node -e \"fetch('http://127.0.0.1:18790/health').then(async (response) => { if (!response.ok) throw new Error(`HTTP ${response.status}`); console.log(await response.text()); }).catch((error) => { console.error(error); process.exit(1); })\""
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "dependencies": {
+    "http-proxy": "^1.18.1"
+  }
+}

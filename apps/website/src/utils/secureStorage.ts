@@ -78,8 +78,29 @@ async function decrypt(encoded: string): Promise<string> {
 
 type StorageBackend = 'local' | 'session';
 
+const noopStorage: Storage = {
+  length: 0,
+  clear() {},
+  getItem() {
+    return null;
+  },
+  key() {
+    return null;
+  },
+  removeItem() {},
+  setItem() {},
+};
+
 function getBackend(backend: StorageBackend): Storage {
-  return backend === 'local' ? localStorage : sessionStorage;
+  if (typeof window === 'undefined') {
+    return noopStorage;
+  }
+
+  try {
+    return backend === 'local' ? window.localStorage : window.sessionStorage;
+  } catch {
+    return noopStorage;
+  }
 }
 
 /**

@@ -1,25 +1,22 @@
 {
-    "recommendations": [
-        "GitHub.copilot",
-        "GitHub.copilot-chat",
-        "ms-python.python",
-        "ms-python.flake8",
-        "ms-python.pylint",
-        "ms-vscode.vscode-typescript-next",
-        "esbenp.prettier-vscode",
-        "ms-eslint.vscode-eslint",
-        "bmewburn.vscode-intelephense-client",
-        "ms-playwright.playwright",
-        "bradlc.vscode-tailwindcss",
-        "ms-vscode.vscode-json",
-        "ms-vscode-remote.remote-containers",
-        "eamodio.gitlens",
-        "ms-azuretools.vscode-docker",
-        "redhat.vscode-yaml",
-        "ms-vscode.vscode-markdownlint",
-        "ms-vscode.powershell",
-        "ms-vscode.vscode-jupyter",
-        "ms-vscode-remote.remote-wsl"
-    ],
-    "unwantedRecommendations": []
+  "recommendations": [
+    "GitHub.copilot",
+    "GitHub.copilot-chat",
+    "ms-vscode.vscode-typescript-next",
+    "ms-eslint.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-python.black-formatter",
+    "bmewburn.vscode-intelephense-client",
+    "Prisma.prisma",
+    "ms-playwright.playwright",
+    "bradlc.vscode-tailwindcss",
+    "redhat.vscode-yaml",
+    "ms-vscode.powershell",
+    "eamodio.gitlens",
+    "ms-azuretools.vscode-docker",
+    "EditorConfig.EditorConfig"
+  ],
+  "unwantedRecommendations": ["ms-python.flake8", "ms-python.pylint", "ms-vscode.vscode-jupyter"]
 }

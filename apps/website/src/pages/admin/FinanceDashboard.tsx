@@ -1,479 +1,279 @@
-import React, { useState, useEffect } from 'react';
-import { dashboardApi } from '../../services/dashboard-api';
-import { http } from '../../services/http';
+import React from 'react';
 import { useAuth } from '../../auth/AuthContext';
+import { api } from '../../services/api';
+import { dashboardApi } from '../../services/dashboard-api';
 
-// ── Typen ──────────────────────────────────────────────────────────────────────
-
-interface KPI {
-  label: string;
-  value: string;
-  change: number;
-  changeLabel: string;
-  icon: string;
-  color: string;
+interface FinanceOverview {
+  einnahmen_monat_cents: number;
+  ausgaben_monat_cents: number;
+  saldo_monat_cents: number;
+  einnahmen_jahr_cents: number;
+  ausgaben_jahr_cents: number;
+  saldo_jahr_cents: number;
+  offene_rechnungen: number;
+  ueberfaellige_rechnungen: number;
 }
 
-interface Transaction {
-  id: string;
-  date: string;
-  description: string;
+interface InvoiceListItem {
+  id: number;
+  invoice_number: string;
+  recipient_name: string;
+  total_amount: number;
+  currency: string;
+  issue_date: string;
+  due_date: string;
+  status: string;
+  pdf_path?: string | null;
+}
+
+interface DonationListItem {
+  id: number;
+  donor_name: string;
   amount: number;
-  type: 'income' | 'expense';
-  category: string;
-  status: 'paid' | 'open' | 'overdue';
-  invoice_number?: string;
+  currency: string;
+  donation_type: string;
+  status: string;
+  donation_date: string;
+  receipt_eligible: boolean;
 }
 
-interface MonthlyData {
-  month: string;
-  income: number;
-  expenses: number;
-  result: number;
+interface SepaMandate {
+  id: number;
+  mandate_reference: string;
+  account_holder: string;
+  signed_date: string;
+  is_active: boolean;
 }
 
-interface DonationCampaign {
-  name: string;
-  target: number;
-  raised: number;
-  donors: number;
+interface SepaBatch {
+  id: number;
+  batch_reference: string;
+  batch_type: string;
+  collection_date: string;
+  total_amount: number;
+  mandate_count: number;
+  status: string;
 }
 
-// ── Hilfsfunktionen ────────────────────────────────────────────────────────────
+const formatCurrency = (amountInEuro: number, currency = 'EUR') =>
+  new Intl.NumberFormat('de-AT', { style: 'currency', currency }).format(amountInEuro);
 
-const formatCurrency = (amount: number): string =>
-  new Intl.NumberFormat('de-AT', { style: 'currency', currency: 'EUR' }).format(amount);
+const centsToCurrency = (amountInCents: number) => formatCurrency(amountInCents / 100);
 
-const formatDate = (dateStr: string): string =>
-  new Intl.DateTimeFormat('de-AT', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(dateStr));
+const formatDate = (value?: string | null) =>
+  value ? new Date(value).toLocaleDateString('de-AT') : 'Noch offen';
 
-// ── Mock-Daten für die Entwicklung ─────────────────────────────────────────────
+type TabId = 'overview' | 'invoices' | 'donations' | 'sepa' | 'accounting';
 
-const MOCK_KPIs: KPI[] = [
-  { label: 'Jahreseinnahmen', value: '€ 48.750', change: 12.5, changeLabel: 'vs. Vorjahr', icon: '📈', color: 'green' },
-  { label: 'Jahresausgaben', value: '€ 41.200', change: -3.2, changeLabel: 'vs. Vorjahr', icon: '📉', color: 'red' },
-  { label: 'Jahresergebnis', value: '€ 7.550', change: 85.0, changeLabel: 'vs. Vorjahr', icon: '💰', color: 'blue' },
-  { label: 'Offene Rechnungen', value: '€ 3.240', change: 0, changeLabel: '12 Rechnungen', icon: '📋', color: 'yellow' },
-  { label: 'Überfällige Rechnungen', value: '€ 840', change: 0, changeLabel: '3 Rechnungen', icon: '⚠️', color: 'red' },
-  { label: 'Aktive Mitglieder', value: '247', change: 8.3, changeLabel: 'vs. Vormonat', icon: '👥', color: 'green' },
-  { label: 'Spendeneinnahmen', value: '€ 12.300', change: 22.1, changeLabel: 'vs. Vorjahr', icon: '❤️', color: 'purple' },
-  { label: 'Bankguthaben', value: '€ 18.450', change: 0, changeLabel: 'Aktueller Stand', icon: '🏦', color: 'blue' },
-];
-
-const MOCK_MONTHLY: MonthlyData[] = [
-  { month: 'Jan', income: 3200, expenses: 2800, result: 400 },
-  { month: 'Feb', income: 4100, expenses: 3200, result: 900 },
-  { month: 'Mär', income: 5200, expenses: 3800, result: 1400 },
-  { month: 'Apr', income: 3800, expenses: 3500, result: 300 },
-  { month: 'Mai', income: 4500, expenses: 4100, result: 400 },
-  { month: 'Jun', income: 3900, expenses: 3200, result: 700 },
-  { month: 'Jul', income: 2800, expenses: 2900, result: -100 },
-  { month: 'Aug', income: 3100, expenses: 2700, result: 400 },
-  { month: 'Sep', income: 4800, expenses: 3600, result: 1200 },
-  { month: 'Okt', income: 5100, expenses: 4200, result: 900 },
-  { month: 'Nov', income: 4300, expenses: 3800, result: 500 },
-  { month: 'Dez', income: 3900, expenses: 3400, result: 500 },
-];
-
-const MOCK_TRANSACTIONS: Transaction[] = [
-  { id: '1', date: '2026-02-28', description: 'Mitgliedsbeitrag – Maria Huber', amount: 120, type: 'income', category: 'membership_fee', status: 'paid', invoice_number: 'RE-2026-000247' },
-  { id: '2', date: '2026-02-27', description: 'Spende – Klaus Berger', amount: 250, type: 'income', category: 'donation', status: 'paid' },
-  { id: '3', date: '2026-02-26', description: 'Miete Büro März 2026', amount: 850, type: 'expense', category: 'rent', status: 'paid' },
-  { id: '4', date: '2026-02-25', description: 'Mitgliedsbeitrag – Thomas Maier', amount: 120, type: 'income', category: 'membership_fee', status: 'open', invoice_number: 'RE-2026-000246' },
-  { id: '5', date: '2026-02-20', description: 'Büromaterial', amount: 45.50, type: 'expense', category: 'office_supplies', status: 'paid' },
-  { id: '6', date: '2026-02-15', description: 'Mitgliedsbeitrag – Anna Schneider', amount: 120, type: 'income', category: 'membership_fee', status: 'overdue', invoice_number: 'RE-2026-000231' },
-  { id: '7', date: '2026-02-10', description: 'Veranstaltung: Demokratie-Workshop', amount: 1200, type: 'income', category: 'event_income', status: 'paid' },
-  { id: '8', date: '2026-02-08', description: 'Druckkosten Flyer', amount: 180, type: 'expense', category: 'office_supplies', status: 'paid' },
-];
-
-const MOCK_CAMPAIGNS: DonationCampaign[] = [
-  { name: 'Demokratiebildung 2026', target: 10000, raised: 7850, donors: 43 },
-  { name: 'Schulprojekt Wien', target: 5000, raised: 3200, donors: 28 },
-  { name: 'Jahresfonds', target: 20000, raised: 12300, donors: 89 },
-];
-
-// ── Unterkomponenten ───────────────────────────────────────────────────────────
-
-const KPICard: React.FC<{ kpi: KPI }> = ({ kpi }) => {
-  const colorMap: Record<string, string> = {
-    green: 'bg-green-50 border-green-200 text-green-700',
-    red: 'bg-red-50 border-red-200 text-red-700',
-    blue: 'bg-blue-50 border-blue-200 text-blue-700',
-    yellow: 'bg-yellow-50 border-yellow-200 text-yellow-700',
-    purple: 'bg-purple-50 border-purple-200 text-purple-700',
-  };
-  const changeColor = kpi.change > 0 ? 'text-green-600' : kpi.change < 0 ? 'text-red-600' : 'text-gray-500';
-
-  return (
-    <div className={`rounded-xl border p-4 ${colorMap[kpi.color] || 'bg-gray-50 border-gray-200'}`}>
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-2xl">{kpi.icon}</span>
-        {kpi.change !== 0 && (
-          <span className={`text-xs font-medium ${changeColor}`}>
-            {kpi.change > 0 ? '▲' : '▼'} {Math.abs(kpi.change)}%
-          </span>
-        )}
-      </div>
-      <div className="text-2xl font-bold text-gray-900 mb-1">{kpi.value}</div>
-      <div className="text-sm font-medium text-gray-600">{kpi.label}</div>
-      <div className="text-xs text-gray-400 mt-1">{kpi.changeLabel}</div>
-    </div>
-  );
-};
-
-const BarChart: React.FC<{ data: MonthlyData[] }> = ({ data }) => {
-  const maxValue = Math.max(...data.map(d => Math.max(d.income, d.expenses)));
-  return (
-    <div className="flex items-end gap-1 h-48 w-full">
-      {data.map((d) => (
-        <div key={d.month} className="flex-1 flex flex-col items-center gap-0.5">
-          <div className="w-full flex gap-0.5 items-end" style={{ height: '160px' }}>
-            <div
-              className="flex-1 bg-green-400 rounded-t opacity-80 hover:opacity-100 transition-opacity"
-              style={{ height: `${(d.income / maxValue) * 100}%` }}
-              title={`Einnahmen: ${formatCurrency(d.income)}`}
-            />
-            <div
-              className="flex-1 bg-red-400 rounded-t opacity-80 hover:opacity-100 transition-opacity"
-              style={{ height: `${(d.expenses / maxValue) * 100}%` }}
-              title={`Ausgaben: ${formatCurrency(d.expenses)}`}
-            />
-          </div>
-          <span className="text-xs text-gray-500">{d.month}</span>
-        </div>
-      ))}
-    </div>
-  );
-};
-
-const CampaignProgress: React.FC<{ campaign: DonationCampaign }> = ({ campaign }) => {
-  const percent = Math.min((campaign.raised / campaign.target) * 100, 100);
-  return (
-    <div className="mb-4">
-      <div className="flex justify-between items-center mb-1">
-        <span className="text-sm font-medium text-gray-700">{campaign.name}</span>
-        <span className="text-xs text-gray-500">{campaign.donors} Spender</span>
-      </div>
-      <div className="w-full bg-gray-200 rounded-full h-2.5">
-        <div
-          className="bg-purple-500 h-2.5 rounded-full transition-all duration-500"
-          style={{ width: `${percent}%` }}
-        />
-      </div>
-      <div className="flex justify-between text-xs text-gray-500 mt-1">
-        <span>{formatCurrency(campaign.raised)} gesammelt</span>
-        <span>{percent.toFixed(0)}% von {formatCurrency(campaign.target)}</span>
-      </div>
-    </div>
-  );
-};
-
-const StatusBadge: React.FC<{ status: Transaction['status'] }> = ({ status }) => {
-  const map = {
-    paid: { label: 'Bezahlt', cls: 'bg-green-100 text-green-800' },
-    open: { label: 'Offen', cls: 'bg-yellow-100 text-yellow-800' },
-    overdue: { label: 'Überfällig', cls: 'bg-red-100 text-red-800' },
-  };
-  const { label, cls } = map[status];
-  return <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${cls}`}>{label}</span>;
-};
-
-// ── Hauptkomponente ────────────────────────────────────────────────────────────
-
-const FinanceDashboard: React.FC = () => {
+export default function FinanceDashboard() {
   const { token } = useAuth();
-  const [activeTab, setActiveTab] = useState<'overview' | 'transactions' | 'invoices' | 'donations' | 'accounting'>('overview');
-  const [selectedYear, setSelectedYear] = useState(2026);
-  const [filterStatus, setFilterStatus] = useState<'all' | 'paid' | 'open' | 'overdue'>('all');
-  const [kpis, setKpis] = useState<KPI[]>(MOCK_KPIs);
-  const [monthly, _setMonthly] = useState<MonthlyData[]>(MOCK_MONTHLY);
-  const [transactions, setTransactions] = useState<Transaction[]>(MOCK_TRANSACTIONS);
-  const [campaigns, _setCampaigns] = useState<DonationCampaign[]>(MOCK_CAMPAIGNS);
-  const [_loading, setLoading] = useState(true);
-  const [apiError, setApiError] = useState<string | null>(null);
-  const [apiInvoices, setApiInvoices] = useState<any[]>([]);
-  const [invoicesLoading, setInvoicesLoading] = useState(false);
-  const [apiDonations, setApiDonations] = useState<any[]>([]);
-  const [donationsLoading, setDonationsLoading] = useState(false);
+  const [activeTab, setActiveTab] = React.useState<TabId>('overview');
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [overview, setOverview] = React.useState<FinanceOverview | null>(null);
+  const [invoices, setInvoices] = React.useState<InvoiceListItem[]>([]);
+  const [donations, setDonations] = React.useState<DonationListItem[]>([]);
+  const [mandates, setMandates] = React.useState<SepaMandate[]>([]);
+  const [batches, setBatches] = React.useState<SepaBatch[]>([]);
 
-  useEffect(() => {
-    loadFinanceData();
-  }, []);
-
-  async function loadFinanceData() {
-    setLoading(true);
-    setApiError(null);
-    setInvoicesLoading(true);
-    setDonationsLoading(true);
-    try {
-      const [finRes, invRes, donRes] = await Promise.allSettled([
-        dashboardApi.getFinanceOverview(),
-        dashboardApi.getInvoices(),
-        http.get<{ donations: any[] }>('/api/donations', { token: token ?? undefined }),
-      ]);
-
-      if (finRes.status === 'fulfilled' && finRes.value?.data) {
-        const d = finRes.value.data;
-        setKpis([
-          { label: 'Jahreseinnahmen', value: formatCurrency((d.einnahmen_jahr_cents || 0) / 100), change: 0, changeLabel: selectedYear.toString(), icon: '\uD83D\uDCC8', color: 'green' },
-          { label: 'Jahresausgaben', value: formatCurrency((d.ausgaben_jahr_cents || 0) / 100), change: 0, changeLabel: selectedYear.toString(), icon: '\uD83D\uDCC9', color: 'red' },
-          { label: 'Jahresergebnis', value: formatCurrency((d.saldo_jahr_cents || 0) / 100), change: 0, changeLabel: 'Saldo', icon: '\uD83D\uDCB0', color: 'blue' },
-          { label: 'Offene Rechnungen', value: String(d.offene_rechnungen || 0), change: 0, changeLabel: 'Rechnungen', icon: '\uD83D\uDCCB', color: 'yellow' },
-          { label: '\u00DCberf\u00E4llige Rechnungen', value: String(d.ueberfaellige_rechnungen || 0), change: 0, changeLabel: 'Rechnungen', icon: '\u26A0\uFE0F', color: 'red' },
-          { label: 'Monatseinnahmen', value: formatCurrency((d.einnahmen_monat_cents || 0) / 100), change: 0, changeLabel: 'Aktueller Monat', icon: '\uD83D\uDCB5', color: 'green' },
-          { label: 'Monatsausgaben', value: formatCurrency((d.ausgaben_monat_cents || 0) / 100), change: 0, changeLabel: 'Aktueller Monat', icon: '\uD83D\uDCB8', color: 'red' },
-          { label: 'Monatssaldo', value: formatCurrency((d.saldo_monat_cents || 0) / 100), change: 0, changeLabel: 'Aktueller Monat', icon: '\uD83C\uDFE6', color: 'blue' },
-        ]);
-      }
-
-      if (invRes.status === 'fulfilled' && invRes.value?.data) {
-        setApiInvoices(invRes.value.data);
-        setTransactions(invRes.value.data.map((inv: any) => ({
-          id: inv.id || '',
-          date: inv.date || inv.datum || '',
-          description: inv.description || inv.beschreibung || '',
-          amount: (inv.amount_cents || inv.amount || 0) / 100,
-          type: inv.type || (inv.amount_cents > 0 ? 'income' : 'expense'),
-          category: inv.category || inv.kategorie || 'sonstiges',
-          status: inv.status || 'open',
-          invoice_number: inv.invoice_number || inv.rechnungsnummer || undefined,
-        })));
-      }
-      setInvoicesLoading(false);
-
-      if (donRes.status === 'fulfilled' && donRes.value?.donations) {
-        setApiDonations(donRes.value.donations);
-      }
-      setDonationsLoading(false);
-
-      const allFailed = finRes.status === 'rejected' && invRes.status === 'rejected';
-      const anyFailed = finRes.status === 'rejected' || invRes.status === 'rejected';
-      if (allFailed) {
-        setApiError('Verbindung zur API nicht m\u00F6glich \u2013 Beispieldaten werden angezeigt.');
-      } else if (anyFailed) {
-        setApiError('Einige Daten konnten nicht geladen werden \u2013 teilweise Beispieldaten.');
-      }
-    } catch {
-      setApiError('Verbindung zur API nicht m\u00F6glich \u2013 Beispieldaten werden angezeigt.');
-    } finally {
-      setLoading(false);
+  React.useEffect(() => {
+    if (!token) {
+      return;
     }
+    const authToken = token;
+
+    let cancelled = false;
+
+    async function load() {
+      setLoading(true);
+      setError(null);
+      try {
+        const [overviewResponse, invoiceResponse, donationResponse, mandateResponse, batchResponse] = await Promise.all([
+          dashboardApi.getFinanceOverview(),
+          api.invoices.list(authToken),
+          api.donations.list(authToken),
+          api.sepa.listMandates(authToken, false),
+          api.sepa.listBatches(authToken),
+        ]);
+
+        if (cancelled) {
+          return;
+        }
+
+        setOverview(overviewResponse.data);
+        setInvoices((invoiceResponse.invoices || []) as InvoiceListItem[]);
+        setDonations((donationResponse.donations || []) as DonationListItem[]);
+        setMandates((mandateResponse.mandates || []) as SepaMandate[]);
+        setBatches((batchResponse.batches || []) as SepaBatch[]);
+      } catch {
+        if (!cancelled) {
+          setError('Finanzdaten konnten nicht geladen werden.');
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  async function downloadInvoice(invoiceId: number) {
+    if (!token) {
+      return;
+    }
+    const authToken = token;
+
+    const response = await api.invoices.downloadUrl(invoiceId, authToken);
+    window.open(response.url, '_blank', 'noopener,noreferrer');
   }
 
-  const filteredTransactions = transactions.filter(
-    tx => filterStatus === 'all' || tx.status === filterStatus
-  );
-
-
-  const tabs = [
-    { id: 'overview', label: '📊 Übersicht' },
-    { id: 'transactions', label: '💳 Transaktionen' },
-    { id: 'invoices', label: '📄 Rechnungen' },
-    { id: 'donations', label: '❤️ Spenden' },
-    { id: 'accounting', label: '📒 Buchhaltung' },
-  ] as const;
-
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Finanz-Dashboard</h1>
-          <p className="text-sm text-gray-500">Menschlichkeit Österreich – Vereinsfinanzen {selectedYear}</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <select
-            value={selectedYear}
-            onChange={e => setSelectedYear(Number(e.target.value))}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
-          >
-            {[2024, 2025, 2026].map(y => <option key={y} value={y}>{y}</option>)}
-          </select>
+          <h1 className="text-2xl font-bold text-secondary-900">Finanz-Dashboard</h1>
+          <p className="mt-1 text-sm text-secondary-500">
+            Reale Vereinsfinanzdaten aus Rechnungen, Spenden und SEPA-Prozessen.
+          </p>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 mb-6 bg-white rounded-xl p-1 shadow-sm border border-gray-200">
-        {tabs.map(tab => (
+      {error && (
+        <div className="rounded-2xl border border-error-200 bg-error-50 px-4 py-3 text-sm text-error-700">
+          {error}
+        </div>
+      )}
+
+      <div className="grid gap-4 md:grid-cols-4">
+        {[
+          { label: 'Jahreseinnahmen', value: overview ? centsToCurrency(overview.einnahmen_jahr_cents) : '…' },
+          { label: 'Jahresausgaben', value: overview ? centsToCurrency(overview.ausgaben_jahr_cents) : '…' },
+          { label: 'Jahressaldo', value: overview ? centsToCurrency(overview.saldo_jahr_cents) : '…' },
+          { label: 'Offene Rechnungen', value: overview?.offene_rechnungen ?? '…' },
+        ].map(item => (
+          <div key={item.label} className="rounded-3xl border border-secondary-200 bg-white p-5 shadow-sm">
+            <div className="text-sm font-medium text-secondary-500">{item.label}</div>
+            <div className="mt-2 text-2xl font-bold text-secondary-900">{loading ? '…' : item.value}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex gap-2 rounded-full bg-secondary-100 p-1">
+        {([
+          { id: 'overview', label: 'Übersicht' },
+          { id: 'invoices', label: 'Rechnungen' },
+          { id: 'donations', label: 'Spenden' },
+          { id: 'sepa', label: 'SEPA' },
+          { id: 'accounting', label: 'Buchhaltung' },
+        ] as const).map(tab => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            className={[
+              'rounded-full px-4 py-2 text-sm font-semibold transition-colors',
               activeTab === tab.id
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-            }`}
+                ? 'bg-white text-secondary-900 shadow-sm'
+                : 'text-secondary-600 hover:text-secondary-900',
+            ].join(' ')}
+            onClick={() => setActiveTab(tab.id)}
           >
             {tab.label}
           </button>
         ))}
       </div>
 
-      {/* Übersicht */}
-      {activeTab === 'overview' && (
-        <div className="space-y-6">
-          {apiError && (
-            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
-              {apiError}
-            </div>
-          )}
-          {/* KPI-Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {kpis.map((kpi, i) => <KPICard key={i} kpi={kpi} />)}
-          </div>
-
-          {/* Charts */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Monatlicher Verlauf */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-              <h2 className="text-base font-semibold text-gray-900 mb-4">Monatlicher Verlauf {selectedYear}</h2>
-              <div className="flex gap-4 mb-3 text-xs">
-                <span className="flex items-center gap-1"><span className="w-3 h-3 bg-green-400 rounded inline-block" /> Einnahmen</span>
-                <span className="flex items-center gap-1"><span className="w-3 h-3 bg-red-400 rounded inline-block" /> Ausgaben</span>
+      {loading ? (
+        <div className="rounded-3xl border border-secondary-200 bg-white p-6 text-sm text-secondary-500 shadow-sm">
+          Finanzdaten werden geladen…
+        </div>
+      ) : activeTab === 'overview' ? (
+        <div className="grid gap-6 xl:grid-cols-2">
+          <section className="rounded-3xl border border-secondary-200 bg-white p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-secondary-900">Monatsstatus</h2>
+            <div className="mt-5 grid gap-4 sm:grid-cols-3">
+              <div className="rounded-2xl bg-secondary-50 p-4">
+                <div className="text-xs font-semibold uppercase tracking-wide text-secondary-500">Einnahmen</div>
+                <div className="mt-1 text-xl font-bold text-secondary-900">
+                  {overview ? centsToCurrency(overview.einnahmen_monat_cents) : '—'}
+                </div>
               </div>
-              <BarChart data={monthly} />
+              <div className="rounded-2xl bg-secondary-50 p-4">
+                <div className="text-xs font-semibold uppercase tracking-wide text-secondary-500">Ausgaben</div>
+                <div className="mt-1 text-xl font-bold text-secondary-900">
+                  {overview ? centsToCurrency(overview.ausgaben_monat_cents) : '—'}
+                </div>
+              </div>
+              <div className="rounded-2xl bg-secondary-50 p-4">
+                <div className="text-xs font-semibold uppercase tracking-wide text-secondary-500">Saldo</div>
+                <div className="mt-1 text-xl font-bold text-secondary-900">
+                  {overview ? centsToCurrency(overview.saldo_monat_cents) : '—'}
+                </div>
+              </div>
             </div>
+          </section>
 
-            {/* Spendenkampagnen */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-              <h2 className="text-base font-semibold text-gray-900 mb-4">Aktive Spendenkampagnen</h2>
-              {campaigns.map((c, i) => <CampaignProgress key={i} campaign={c} />)}
+          <section className="rounded-3xl border border-secondary-200 bg-white p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-secondary-900">Offene Vorgänge</h2>
+            <div className="mt-5 space-y-3">
+              <div className="rounded-2xl border border-secondary-200 px-4 py-4">
+                <div className="font-medium text-secondary-900">Offene Rechnungen</div>
+                <div className="mt-1 text-sm text-secondary-500">
+                  {overview?.offene_rechnungen ?? 0} Rechnungen warten auf Zahlung.
+                </div>
+              </div>
+              <div className="rounded-2xl border border-secondary-200 px-4 py-4">
+                <div className="font-medium text-secondary-900">Überfällige Rechnungen</div>
+                <div className="mt-1 text-sm text-secondary-500">
+                  {overview?.ueberfaellige_rechnungen ?? 0} Rechnungen sind bereits überfällig.
+                </div>
+              </div>
+              <div className="rounded-2xl border border-secondary-200 px-4 py-4">
+                <div className="font-medium text-secondary-900">SEPA-Mandate</div>
+                <div className="mt-1 text-sm text-secondary-500">
+                  {mandates.filter(mandate => mandate.is_active).length} aktive Mandate im System.
+                </div>
+              </div>
             </div>
-          </div>
-
-          {/* Letzte Transaktionen */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-            <h2 className="text-base font-semibold text-gray-900 mb-4">Letzte Transaktionen</h2>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-gray-500 border-b border-gray-100">
-                    <th className="pb-3 font-medium">Datum</th>
-                    <th className="pb-3 font-medium">Beschreibung</th>
-                    <th className="pb-3 font-medium">Kategorie</th>
-                    <th className="pb-3 font-medium text-right">Betrag</th>
-                    <th className="pb-3 font-medium">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {transactions.slice(0, 5).map(tx => (
-                    <tr key={tx.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                      <td className="py-3 text-gray-500">{formatDate(tx.date)}</td>
-                      <td className="py-3 text-gray-900">{tx.description}</td>
-                      <td className="py-3 text-gray-500 capitalize">{tx.category.replace('_', ' ')}</td>
-                      <td className={`py-3 text-right font-medium ${tx.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
-                        {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
-                      </td>
-                      <td className="py-3"><StatusBadge status={tx.status} /></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          </section>
         </div>
-      )}
-
-      {/* Transaktionen */}
-      {activeTab === 'transactions' && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-semibold text-gray-900">Alle Transaktionen</h2>
-            <div className="flex gap-2">
-              {(['all', 'paid', 'open', 'overdue'] as const).map(s => (
-                <button
-                  key={s}
-                  onClick={() => setFilterStatus(s)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                    filterStatus === s ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
-                >
-                  {s === 'all' ? 'Alle' : s === 'paid' ? 'Bezahlt' : s === 'open' ? 'Offen' : 'Überfällig'}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-gray-500 border-b border-gray-100">
-                  <th className="pb-3 font-medium">Datum</th>
-                  <th className="pb-3 font-medium">Beschreibung</th>
-                  <th className="pb-3 font-medium">Rechnungs-Nr.</th>
-                  <th className="pb-3 font-medium">Kategorie</th>
-                  <th className="pb-3 font-medium text-right">Betrag</th>
-                  <th className="pb-3 font-medium">Status</th>
-                  <th className="pb-3 font-medium">Aktionen</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredTransactions.map(tx => (
-                  <tr key={tx.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                    <td className="py-3 text-gray-500">{formatDate(tx.date)}</td>
-                    <td className="py-3 text-gray-900">{tx.description}</td>
-                    <td className="py-3 text-gray-500 font-mono text-xs">{tx.invoice_number || '—'}</td>
-                    <td className="py-3 text-gray-500 capitalize">{tx.category.replace('_', ' ')}</td>
-                    <td className={`py-3 text-right font-medium ${tx.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
-                      {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
-                    </td>
-                    <td className="py-3"><StatusBadge status={tx.status} /></td>
-                    <td className="py-3">
-                      <button className="text-blue-600 hover:text-blue-800 text-xs mr-2">Details</button>
-                      {tx.invoice_number && (
-                        <button className="text-gray-500 hover:text-gray-700 text-xs">PDF</button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* Rechnungen */}
-      {activeTab === 'invoices' && (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-semibold text-gray-900">Rechnungen</h2>
-            <span className="text-xs text-gray-400">{apiInvoices.length > 0 ? `${apiInvoices.length} Einträge` : 'Echtzeitdaten werden geladen…'}</span>
-          </div>
-          {invoicesLoading && <p className="text-sm text-gray-500 py-8 text-center">Lade Rechnungen…</p>}
-          {!invoicesLoading && apiInvoices.length === 0 && (
-            <p className="text-sm text-gray-400 text-center py-8">Keine Rechnungen gefunden.</p>
-          )}
-          {!invoicesLoading && apiInvoices.length > 0 && (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+      ) : activeTab === 'invoices' ? (
+        <section className="rounded-3xl border border-secondary-200 bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-secondary-900">Rechnungen</h2>
+          {invoices.length === 0 ? (
+            <p className="mt-4 text-sm text-secondary-500">Keine Rechnungen vorhanden.</p>
+          ) : (
+            <div className="mt-5 overflow-x-auto">
+              <table className="w-full min-w-[760px] text-left text-sm">
                 <thead>
-                  <tr className="text-left text-gray-500 border-b border-gray-100">
-                    <th className="pb-3 font-medium">Rechnungs-Nr.</th>
+                  <tr className="border-b border-secondary-200 text-secondary-500">
+                    <th className="pb-3 font-medium">Rechnung</th>
                     <th className="pb-3 font-medium">Empfänger</th>
                     <th className="pb-3 font-medium">Ausgestellt</th>
                     <th className="pb-3 font-medium">Fällig</th>
-                    <th className="pb-3 font-medium text-right">Betrag</th>
                     <th className="pb-3 font-medium">Status</th>
-                    <th className="pb-3 font-medium">Aktionen</th>
+                    <th className="pb-3 text-right font-medium">Betrag</th>
+                    <th className="pb-3 text-right font-medium">PDF</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {apiInvoices.map((inv: any) => (
-                    <tr key={inv.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                      <td className="py-3 font-mono text-xs text-gray-700">{inv.invoice_number}</td>
-                      <td className="py-3 text-gray-900">{inv.recipient_name || '—'}</td>
-                      <td className="py-3 text-gray-500">{inv.issue_date ? formatDate(inv.issue_date) : '—'}</td>
-                      <td className="py-3 text-gray-500">{inv.due_date ? formatDate(inv.due_date) : '—'}</td>
-                      <td className="py-3 text-right font-medium text-gray-900">{formatCurrency(Number(inv.total_amount))}</td>
-                      <td className="py-3"><StatusBadge status={inv.status === 'paid' ? 'paid' : inv.status === 'overdue' ? 'overdue' : 'open'} /></td>
-                      <td className="py-3">
-                        {inv.pdf_path && (
-                          <button
-                            className="text-blue-600 hover:text-blue-800 text-xs"
-                            onClick={() => http.get<{ url: string }>(`/api/invoices/${inv.id}/download`, { token: token ?? undefined }).then((r) => window.open(r.url, '_blank'))}
-                          >
-                            PDF
-                          </button>
-                        )}
+                  {invoices.map(invoice => (
+                    <tr key={invoice.id} className="border-b border-secondary-100">
+                      <td className="py-3 font-medium text-secondary-900">{invoice.invoice_number}</td>
+                      <td className="py-3 text-secondary-600">{invoice.recipient_name || '—'}</td>
+                      <td className="py-3 text-secondary-600">{formatDate(invoice.issue_date)}</td>
+                      <td className="py-3 text-secondary-600">{formatDate(invoice.due_date)}</td>
+                      <td className="py-3 text-secondary-600">{invoice.status}</td>
+                      <td className="py-3 text-right font-semibold text-secondary-900">
+                        {formatCurrency(Number(invoice.total_amount || 0), invoice.currency)}
+                      </td>
+                      <td className="py-3 text-right">
+                        <button className="text-sm font-semibold text-primary-700 hover:underline" onClick={() => downloadInvoice(invoice.id)}>
+                          PDF
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -481,176 +281,107 @@ const FinanceDashboard: React.FC = () => {
               </table>
             </div>
           )}
-        </div>
-      )}
-
-      {/* Buchhaltung */}
-      {activeTab === 'accounting' && (
-        <div className="space-y-6">
-          {/* E/A-Rechnung Zusammenfassung */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-            <h2 className="text-base font-semibold text-gray-900 mb-4">Einnahmen-Ausgaben-Rechnung {selectedYear}</h2>
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              <div className="bg-green-50 rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-green-700">€ 48.750</div>
-                <div className="text-sm text-green-600">Gesamteinnahmen</div>
-              </div>
-              <div className="bg-red-50 rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-red-700">€ 41.200</div>
-                <div className="text-sm text-red-600">Gesamtausgaben</div>
-              </div>
-              <div className="bg-blue-50 rounded-lg p-4 text-center">
-                <div className="text-2xl font-bold text-blue-700">€ 7.550</div>
-                <div className="text-sm text-blue-600">Jahresergebnis</div>
-              </div>
-            </div>
-
-            {/* Kontenübersicht */}
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">Kontenübersicht</h3>
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-gray-500 border-b border-gray-100">
-                  <th className="pb-2 font-medium">Konto</th>
-                  <th className="pb-2 font-medium">Bezeichnung</th>
-                  <th className="pb-2 font-medium text-right">Betrag</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="bg-green-50"><td colSpan={3} className="py-2 px-1 text-xs font-semibold text-green-700">EINNAHMEN</td></tr>
-                {[
-                  { konto: '5000', name: 'Mitgliedsbeiträge', amount: 29640 },
-                  { konto: '5100', name: 'Spenden', amount: 12300 },
-                  { konto: '5300', name: 'Veranstaltungen', amount: 4800 },
-                  { konto: '5400', name: 'Sonstige Einnahmen', amount: 2010 },
-                ].map(row => (
-                  <tr key={row.konto} className="border-b border-gray-50 hover:bg-gray-50">
-                    <td className="py-2 font-mono text-xs text-gray-500">{row.konto}</td>
-                    <td className="py-2 text-gray-700">{row.name}</td>
-                    <td className="py-2 text-right text-green-600 font-medium">{formatCurrency(row.amount)}</td>
-                  </tr>
-                ))}
-                <tr className="bg-red-50"><td colSpan={3} className="py-2 px-1 text-xs font-semibold text-red-700">AUSGABEN</td></tr>
-                {[
-                  { konto: '6000', name: 'Personalaufwand', amount: 18000 },
-                  { konto: '6100', name: 'Miete & Betriebskosten', amount: 10200 },
-                  { konto: '6200', name: 'Bürobedarf & Verwaltung', amount: 3800 },
-                  { konto: '6300', name: 'Projekt- & Veranstaltungsaufwand', amount: 6500 },
-                  { konto: '6400', name: 'Werbe- & Reisekosten', amount: 2700 },
-                ].map(row => (
-                  <tr key={row.konto} className="border-b border-gray-50 hover:bg-gray-50">
-                    <td className="py-2 font-mono text-xs text-gray-500">{row.konto}</td>
-                    <td className="py-2 text-gray-700">{row.name}</td>
-                    <td className="py-2 text-right text-red-600 font-medium">{formatCurrency(row.amount)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-            <h2 className="text-base font-semibold text-gray-900 mb-4">Exporte & Berichte</h2>
-            <p className="text-sm text-gray-500">
-              Export-Funktionen (DATEV, E/A-Bericht, SEPA) werden in einer zukünftigen Version verfügbar sein.
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Spenden */}
-      {activeTab === 'donations' && (
-        <div className="space-y-6">
-          {/* Live-Aggregate */}
-          {apiDonations.length > 0 && (() => {
-            const total = apiDonations.reduce((s: number, d: any) => s + Number(d.amount), 0);
-            const avg = total / apiDonations.length;
-            return (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold text-purple-700">{formatCurrency(total)}</div>
-                  <div className="text-sm text-purple-600">Spenden (live)</div>
+        </section>
+      ) : activeTab === 'donations' ? (
+        <section className="rounded-3xl border border-secondary-200 bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-secondary-900">Spenden</h2>
+          {donations.length === 0 ? (
+            <p className="mt-4 text-sm text-secondary-500">Keine Spenden vorhanden.</p>
+          ) : (
+            <div className="mt-5 space-y-3">
+              {donations.map(donation => (
+                <div key={donation.id} className="flex flex-col gap-3 rounded-2xl border border-secondary-200 px-4 py-4 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <div className="font-medium text-secondary-900">{donation.donor_name || 'Unbekannt'}</div>
+                    <div className="mt-1 text-sm text-secondary-500">
+                      {donation.donation_type} · {formatDate(donation.donation_date)} · {donation.status}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-semibold text-secondary-900">
+                      {formatCurrency(Number(donation.amount || 0), donation.currency)}
+                    </div>
+                    <div className="text-xs text-secondary-500">
+                      {donation.receipt_eligible ? 'Quittung möglich' : 'Ohne Quittung'}
+                    </div>
+                  </div>
                 </div>
-                <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold text-purple-700">{apiDonations.length}</div>
-                  <div className="text-sm text-purple-600">Einzelspenden</div>
-                </div>
-                <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
-                  <div className="text-2xl font-bold text-purple-700">{formatCurrency(avg)}</div>
-                  <div className="text-sm text-purple-600">Ø Spendenbetrag</div>
-                </div>
-              </div>
-            );
-          })()}
-          {!apiDonations.length && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
-                <div className="text-2xl font-bold text-purple-700">€ 12.300</div>
-                <div className="text-sm text-purple-600">Gesamtspenden {selectedYear}</div>
-              </div>
-              <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
-                <div className="text-2xl font-bold text-purple-700">89</div>
-                <div className="text-sm text-purple-600">Einzelspender</div>
-              </div>
-              <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
-                <div className="text-2xl font-bold text-purple-700">€ 138</div>
-                <div className="text-sm text-purple-600">Ø Spendenbetrag</div>
-              </div>
+              ))}
             </div>
           )}
+        </section>
+      ) : activeTab === 'sepa' ? (
+        <div className="grid gap-6 xl:grid-cols-2">
+          <section className="rounded-3xl border border-secondary-200 bg-white p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-secondary-900">Mandate</h2>
+            {mandates.length === 0 ? (
+              <p className="mt-4 text-sm text-secondary-500">Keine SEPA-Mandate vorhanden.</p>
+            ) : (
+              <div className="mt-5 space-y-3">
+                {mandates.map(mandate => (
+                  <div key={mandate.id} className="rounded-2xl border border-secondary-200 px-4 py-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <div className="font-medium text-secondary-900">{mandate.account_holder}</div>
+                        <div className="mt-1 text-sm text-secondary-500">
+                          {mandate.mandate_reference} · {formatDate(mandate.signed_date)}
+                        </div>
+                      </div>
+                      <span className="rounded-full bg-secondary-100 px-3 py-1 text-xs font-semibold text-secondary-700">
+                        {mandate.is_active ? 'Aktiv' : 'Inaktiv'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
 
-          {/* Spendenliste (API) */}
-          {apiDonations.length > 0 && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-              <h2 className="text-base font-semibold text-gray-900 mb-4">Spenden (live)</h2>
-              {donationsLoading && <p className="text-sm text-gray-500">Lade…</p>}
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-left text-gray-500 border-b border-gray-100">
-                      <th className="pb-3 font-medium">Datum</th>
-                      <th className="pb-3 font-medium">Spender</th>
-                      <th className="pb-3 font-medium">Art</th>
-                      <th className="pb-3 font-medium text-right">Betrag</th>
-                      <th className="pb-3 font-medium">Quittung</th>
-                      <th className="pb-3 font-medium">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {apiDonations.map((d: any) => (
-                      <tr key={d.id} className="border-b border-gray-50 hover:bg-gray-50">
-                        <td className="py-3 text-gray-500">{d.donation_date ? formatDate(d.donation_date) : '—'}</td>
-                        <td className="py-3 text-gray-900">{d.donor_name || '—'}</td>
-                        <td className="py-3 text-gray-500 capitalize">{d.donation_type}</td>
-                        <td className="py-3 text-right font-medium text-green-600">{formatCurrency(Number(d.amount))}</td>
-                        <td className="py-3">{d.receipt_eligible ? <span className="text-green-600 text-xs font-medium">✓</span> : '—'}</td>
-                        <td className="py-3"><StatusBadge status={d.status === 'paid' ? 'paid' : 'open'} /></td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+          <section className="rounded-3xl border border-secondary-200 bg-white p-6 shadow-sm">
+            <h2 className="text-lg font-semibold text-secondary-900">SEPA-Batches</h2>
+            {batches.length === 0 ? (
+              <p className="mt-4 text-sm text-secondary-500">Noch keine SEPA-Batches vorhanden.</p>
+            ) : (
+              <div className="mt-5 space-y-3">
+                {batches.map(batch => (
+                  <div key={batch.id} className="rounded-2xl border border-secondary-200 px-4 py-4">
+                    <div className="font-medium text-secondary-900">{batch.batch_reference}</div>
+                    <div className="mt-1 text-sm text-secondary-500">
+                      {batch.batch_type} · {formatDate(batch.collection_date)} · {batch.mandate_count} Mandate
+                    </div>
+                    <div className="mt-2 text-sm font-semibold text-secondary-900">
+                      {formatCurrency(Number(batch.total_amount || 0))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
+      ) : (
+        <section className="rounded-3xl border border-secondary-200 bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-secondary-900">Buchhaltung & Exporte</h2>
+          <div className="mt-5 grid gap-4 md:grid-cols-3">
+            <div className="rounded-2xl bg-secondary-50 p-4">
+              <div className="text-xs font-semibold uppercase tracking-wide text-secondary-500">Jahresergebnis</div>
+              <div className="mt-1 text-xl font-bold text-secondary-900">
+                {overview ? centsToCurrency(overview.saldo_jahr_cents) : '—'}
               </div>
             </div>
-          )}
-
-          {/* Kampagnen (immer sichtbar) */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-            <h2 className="text-base font-semibold text-gray-900 mb-4">Spendenkampagnen</h2>
-            {MOCK_CAMPAIGNS.map((c, i) => <CampaignProgress key={i} campaign={c} />)}
-          </div>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-base font-semibold text-gray-900">Spendenquittungen</h2>
-              <button className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors">
-                Jahresquittungen erstellen
-              </button>
+            <div className="rounded-2xl bg-secondary-50 p-4">
+              <div className="text-xs font-semibold uppercase tracking-wide text-secondary-500">Rechnungsbestand</div>
+              <div className="mt-1 text-xl font-bold text-secondary-900">{invoices.length}</div>
             </div>
-            <p className="text-sm text-gray-500">
-              Erstellen Sie automatisch alle Spendenquittungen für das Steuerjahr {selectedYear - 1} und versenden Sie diese per E-Mail.
-            </p>
+            <div className="rounded-2xl bg-secondary-50 p-4">
+              <div className="text-xs font-semibold uppercase tracking-wide text-secondary-500">Spendenvorgänge</div>
+              <div className="mt-1 text-xl font-bold text-secondary-900">{donations.length}</div>
+            </div>
           </div>
-        </div>
+          <p className="mt-5 text-sm text-secondary-500">
+            Exportfunktionen bauen auf diesen Live-Datenbeständen auf. In dieser Oberfläche werden keine Beispielwerte mehr eingeblendet.
+          </p>
+        </section>
       )}
     </div>
   );
-};
-
-export default FinanceDashboard;
+}

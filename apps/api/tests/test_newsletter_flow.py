@@ -10,13 +10,6 @@ import pytest
 _MOCK_BASE = "app.routers.newsletter"
 
 
-@pytest.fixture(autouse=True)
-def mock_doi_schema():
-    """DOI-Schema-Migration in Tests überspringen."""
-    with patch(f"{_MOCK_BASE}._ensure_doi_expiry_column", new=AsyncMock(return_value=None)):
-        yield
-
-
 class TestSubscribeNewsletter:
     def test_subscribe_happy_path(self, client):
         with (
@@ -45,8 +38,7 @@ class TestSubscribeNewsletter:
         assert resp.status_code == 400
 
     def test_subscribe_existing_email_resets_token(self, client):
-        existing_row = MagicMock()
-        existing_row.__getitem__ = lambda _, k: "42" if k == "id" else None
+        existing_row = {"id": "42", "token_created_at": None}
         with (
             patch(f"{_MOCK_BASE}.fetchrow", new=AsyncMock(return_value=existing_row)),
             patch(f"{_MOCK_BASE}.execute", new=AsyncMock()) as mock_exec,
@@ -79,19 +71,18 @@ class TestSubscribeNewsletter:
 
 class TestConfirmNewsletter:
     def _make_pending_row(self, hours_old: float = 1.0):
-        row = MagicMock()
         token_created = datetime.now(timezone.utc) - timedelta(hours=hours_old)
-        row.__getitem__ = lambda _, k: token_created if k == "token_created_at" else "99"
-        return row
+        return {"id": "99", "token_created_at": token_created}
 
     def test_confirm_happy_path(self, client):
         pending = self._make_pending_row(hours_old=1.0)
-        confirmed = MagicMock()
-        confirmed.__iter__ = lambda _: iter([
-            ("id", 1), ("email", "test@example.at"), ("first_name", "Erika"),
-            ("last_name", "Musterfrau"), ("civicrm_contact_id", None),
-        ])
-        confirmed.get = lambda k, d=None: {"email": "test@example.at", "first_name": "Erika", "last_name": "Musterfrau"}.get(k, d)
+        confirmed = {
+            "id": 1,
+            "email": "test@example.at",
+            "first_name": "Erika",
+            "last_name": "Musterfrau",
+            "civicrm_contact_id": None,
+        }
 
         with (
             patch(f"{_MOCK_BASE}.fetchrow", side_effect=[pending, confirmed]),
@@ -114,22 +105,17 @@ class TestConfirmNewsletter:
         with patch(f"{_MOCK_BASE}.fetchrow", new=AsyncMock(return_value=expired)):
             resp = client.get("/api/newsletter/confirm?token=expiredtoken1234567890abcdef")
             assert resp.status_code == 400
-            assert "abgelaufen" in resp.json()["detail"].lower()
+            assert "abgelaufen" in resp.json()["error"]["message"].lower()
 
 
 class TestUnsubscribeNewsletter:
     def test_unsubscribe_happy_path(self, client):
-        sub_row = MagicMock()
-        sub_row.get = lambda k, d=None: {
+        sub_row = {
             "email": "sub@example.at",
             "first_name": "Erika",
             "last_name": "Musterfrau",
             "civicrm_contact_id": None,
-        }.get(k, d)
-        sub_row.__iter__ = lambda _: iter([
-            ("email", "sub@example.at"), ("first_name", "Erika"),
-            ("last_name", "Musterfrau"), ("civicrm_contact_id", None),
-        ])
+        }
 
         with (
             patch(f"{_MOCK_BASE}.fetchrow", new=AsyncMock(return_value=sub_row)),

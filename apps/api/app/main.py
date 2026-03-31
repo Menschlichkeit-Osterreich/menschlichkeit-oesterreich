@@ -45,9 +45,11 @@ from .routers import (
     internal,
     queue,
     alerts,
+    game,
 )
 from .audit import ensure_audit_table, write_audit_event
 from .routers.finance import _ensure_finance_tables
+from .routers.newsletter import ensure_newsletter_admin_tables
 from .security import enforce_csrf, rate_limiter, require_jwt_secret_configured
 from .lib.token_blacklist import _blacklist as token_blacklist
 from .middleware.pii_middleware import PiiSanitizationMiddleware, PiiLoggingMiddleware
@@ -70,15 +72,19 @@ IS_PRODUCTION = ENVIRONMENT == "production"
 ALLOWED_ORIGINS_PROD = [
     "https://menschlichkeit-oesterreich.at",
     "https://www.menschlichkeit-oesterreich.at",
+    "https://crm.menschlichkeit-oesterreich.at",
     "https://app.menschlichkeit-oesterreich.at",
     "https://admin.menschlichkeit-oesterreich.at",
+    "https://games.menschlichkeit-oesterreich.at",
 ]
 
 ALLOWED_ORIGINS_DEV = [
     "http://localhost:3000",
+    "http://localhost:3001",
     "http://localhost:5173",
     "http://localhost:8080",
     "http://127.0.0.1:3000",
+    "http://127.0.0.1:3001",
     "http://127.0.0.1:5173",
 ]
 
@@ -94,6 +100,7 @@ async def lifespan(app: FastAPI):
     require_jwt_secret_configured()
     await ensure_audit_table()
     await _ensure_finance_tables()
+    await ensure_newsletter_admin_tables()
     logger.info(f"🚀 Menschlichkeit API starting | env={ENVIRONMENT}")
     yield
     if hasattr(rate_limiter, "close"):
@@ -293,6 +300,12 @@ async def healthz():
     return {"status": "ok", "environment": ENVIRONMENT}
 
 
+@app.get("/health", tags=["Health"], summary="Legacy Health Check")
+async def health():
+    """Legacy-Healthcheck für bestehende Reverse-Proxies und externe Uptime-Monitore."""
+    return await healthz()
+
+
 @app.get("/readyz", tags=["Health"], summary="Readiness Check")
 async def readyz():
     """Readiness-Check – prüft DB-Verbindung und externe Services."""
@@ -322,7 +335,7 @@ async def version():
         "environment": ENVIRONMENT,
         "features": [
             "metrics", "finance", "crm", "newsletter",
-            "social_media", "analytics", "rbac", "dsgvo",
+            "social_media", "analytics", "rbac", "dsgvo", "game",
         ],
     }
 
@@ -340,6 +353,7 @@ app.include_router(payments.router, prefix="/api", tags=["Payments"])
 app.include_router(internal.router, prefix="/api", tags=["Interne Integrationen"])
 app.include_router(queue.router, prefix="/api", tags=["Queue"])
 app.include_router(alerts.router, prefix="/api", tags=["Alerts"])
+app.include_router(game.router, prefix="/api", tags=["Game"])
 app.include_router(forum.router, prefix="/api", tags=["Forum"])
 app.include_router(blog.router, prefix="/api", tags=["Blog"])
 app.include_router(events.router, prefix="/api", tags=["Veranstaltungen"])

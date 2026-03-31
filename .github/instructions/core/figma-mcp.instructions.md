@@ -6,8 +6,9 @@ lastUpdated: 2025-10-08
 status: ACTIVE
 priority: medium
 category: core
-applyTo: figma-design-system/**,frontend/**,website/**
+applyTo: figma-design-system/**,apps/website/**,apps/babylon-game/**
 ---
+
 # Figma MCP Integration Rules
 
 ## Aktivierung
@@ -42,13 +43,13 @@ node scripts/validate-design-tokens.js
 ### Frontend (React/TypeScript)
 
 - **Design Tokens**: Import via `figma-design-system/index.ts`
-- **Tailwind Config**: `frontend/tailwind.config.cjs` konsumiert Tokens
+- **Tailwind Config**: `apps/website/tailwind.config.cjs` konsumiert Tokens
 - **Komponenten**: `figma-design-system/components/` mit TypeScript Types
 
-### Website (WordPress/HTML)
+### Website (React/Vite)
 
-- **CSS Variables**: `website/assets/css/figma-tokens.css`
-- **Branding**: Rot-Weiß-Rot österreichische Farben aus Tokens
+- **CSS Variables**: `apps/website/src/styles/tokens.css`
+- **Branding**: aktive Markenfarben `#D4611E`, `#B54A0F`, `#1B4965`
 
 ## MANDATORY bei Figma-Änderungen
 
@@ -73,7 +74,7 @@ node scripts/validate-design-tokens.js
 
 1. User gibt Figma URL oder NodeId
 2. Copilot nutzt `mcp_figma_get_code(nodeId, fileKey)`
-3. Generierter Code wird nach `frontend/src/components/` oder `figma-design-system/components/` geschrieben
+3. Generierter Code wird nach `apps/website/src/components/` oder `figma-design-system/components/` geschrieben
 4. Automatische Codacy-Analyse nach Datei-Edit
 5. Design Token Validierung läuft automatisch
 

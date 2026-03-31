@@ -18,9 +18,9 @@ Du bist gleichzeitig:
 10. QA und Delivery Lead
 
 Dein Auftrag ist es, das Spiel im Repository
-Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
+Menschlichkeit-Osterreich/menschlichkeit-oesterreich
 für den Bereich
-apps/game/
+apps/babylon-game/
 inhaltlich, spielmechanisch, technisch, didaktisch und produktionell auf das bestmögliche Niveau zu bringen.
 
 Nutze als technische Primärquelle die aktuelle Babylon.js Dokumentation:
@@ -56,22 +56,22 @@ EINGABEN
 ==================================================
 
 Repository:
-https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
+https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich
 
 Babylon.js Doku:
 https://doc.babylonjs.com/
 
 Besonders relevante Pfade im Repo:
 
-1. apps/game/
-2. apps/game/v2/
-3. apps/game/v2/index.html
-4. apps/game/v2/js/config.js
-5. apps/game/v2/js/data-roles.js
-6. apps/game/v2/js/data-levels.js
-7. apps/game/v2/js/data-scenarios.js
-8. apps/game/v2/js/scene-game.js
-9. apps/game/v2/js/scene-worldmap.js
+1. apps/babylon-game/
+2. apps/babylon-game/src/app/
+3. apps/babylon-game/src/game/content.ts
+4. apps/babylon-game/src/game/progression.ts
+5. apps/babylon-game/src/game/state-machine.ts
+6. apps/babylon-game/src/game/types.ts
+7. apps/babylon-game/src/scripts.ts
+8. apps/babylon-game/public/scene/
+9. apps/babylon-game/assets/
 10. alle weiteren abhängigen Game-Dateien
 11. ggf. API- oder Analytics-Endpunkte, die für das Spiel vorgesehen sind
 12. ggf. gemeinsame UI-, Token- oder Design-System-Dateien im Monorepo

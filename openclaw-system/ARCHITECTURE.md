@@ -60,22 +60,22 @@ Das Tool-Gateway ist der einzige Einstiegspunkt für alle Tool-Aufrufe der Agent
 
 **Verfügbare Tools:**
 
-| Tool | Beschreibung | Erlaubte Rollen |
-| :--- | :--- | :--- |
-| `fs.read` | Datei lesen | alle |
-| `fs.write` | Datei schreiben | code, orchestrator |
-| `web.search` | Web-Suche | research, orchestrator |
-| `web.fetch` | URL abrufen | research, orchestrator |
-| `github.read` | GitHub-Repo lesen | alle |
-| `github.commit` | Commit erstellen | code, orchestrator |
-| `github.pr` | Pull Request erstellen | code, orchestrator |
-| `db.query` | Datenbank abfragen | alle |
-| `llm.complete` | LLM-Completion | alle |
-| `llm.embed` | Text einbetten | research, memory |
-| `memory.store` | Erinnerung speichern | memory, orchestrator |
-| `memory.search` | Erinnerung suchen | alle |
-| `email.send` | E-Mail senden | write, orchestrator |
-| `n8n.trigger` | n8n-Workflow auslösen | orchestrator |
+| Tool            | Beschreibung           | Erlaubte Rollen        |
+| :-------------- | :--------------------- | :--------------------- |
+| `fs.read`       | Datei lesen            | alle                   |
+| `fs.write`      | Datei schreiben        | code, orchestrator     |
+| `web.search`    | Web-Suche              | research, orchestrator |
+| `web.fetch`     | URL abrufen            | research, orchestrator |
+| `github.read`   | GitHub-Repo lesen      | alle                   |
+| `github.commit` | Commit erstellen       | code, orchestrator     |
+| `github.pr`     | Pull Request erstellen | code, orchestrator     |
+| `db.query`      | Datenbank abfragen     | alle                   |
+| `llm.complete`  | LLM-Completion         | alle                   |
+| `llm.embed`     | Text einbetten         | research, memory       |
+| `memory.store`  | Erinnerung speichern   | memory, orchestrator   |
+| `memory.search` | Erinnerung suchen      | alle                   |
+| `email.send`    | E-Mail senden          | write, orchestrator    |
+| `n8n.trigger`   | n8n-Workflow auslösen  | orchestrator           |
 
 ### Agent-Runtime (Python asyncio, Port 9100)
 
@@ -83,14 +83,14 @@ Die Agent-Runtime verwaltet alle 6 Agenten und deren Lebenszyklen:
 
 **Agenten-Rollen:**
 
-| Rolle | Beschreibung | Budget (Token/Tag) |
-| :--- | :--- | :--- |
-| `orchestrator` | Zerlegt Aufgaben und koordiniert andere Agenten | 500.000 |
-| `research` | Recherchiert Informationen aus Web und Datenbanken | 300.000 |
-| `code` | Schreibt und überarbeitet Code | 400.000 |
-| `write` | Erstellt Texte, E-Mails und Dokumente | 200.000 |
-| `qa` | Prüft Ergebnisse und gibt Feedback | 150.000 |
-| `memory` | Verwaltet Langzeit-Erinnerungen in Qdrant | 100.000 |
+| Rolle          | Beschreibung                                       | Budget (Token/Tag) |
+| :------------- | :------------------------------------------------- | :----------------- |
+| `orchestrator` | Zerlegt Aufgaben und koordiniert andere Agenten    | 500.000            |
+| `research`     | Recherchiert Informationen aus Web und Datenbanken | 300.000            |
+| `code`         | Schreibt und überarbeitet Code                     | 400.000            |
+| `write`        | Erstellt Texte, E-Mails und Dokumente              | 200.000            |
+| `qa`           | Prüft Ergebnisse und gibt Feedback                 | 150.000            |
+| `memory`       | Verwaltet Langzeit-Erinnerungen in Qdrant          | 100.000            |
 
 **Task-Lebenszyklus:**
 
@@ -99,9 +99,9 @@ PENDING → RUNNING → DONE
                  ↘ DEADLETTER (nach 3 Fehlversuchen)
 ```
 
-### Windows-Bridge (C:\openclawd-win-bridge)
+### Windows-Bridge (`openclaw-system/windows-bridge/`)
 
-Die Windows-Bridge ermöglicht die Kommunikation zwischen Windows-Anwendungen und dem OpenClaw-System in WSL2/Docker:
+Die Windows-Bridge ist ein eigenes Node/CommonJS-Paket und ermöglicht die Kommunikation zwischen Windows-Anwendungen und dem OpenClaw-System in WSL2/Docker:
 
 ```
 Windows-App → Bridge (Port 18790) → WSL2 → Docker → Services
@@ -109,17 +109,17 @@ Windows-App → Bridge (Port 18790) → WSL2 → Docker → Services
 
 **Endpunkte:**
 
-| Endpunkt | Methode | Beschreibung |
-| :--- | :--- | :--- |
-| `/health` | GET | Bridge-Status |
-| `/agent/*` | ANY | Proxy zu Agent-Runtime |
-| `/tools/*` | ANY | Proxy zu Tool-Gateway |
-| `/wsl/status` | GET | Docker-Container-Status |
-| `/wsl/start-stack` | POST | Stack starten |
+| Endpunkt           | Methode | Beschreibung                                                   |
+| :----------------- | :------ | :------------------------------------------------------------- |
+| `/health`          | GET     | Bridge-Status und konfigurierte Targets                        |
+| `/agent/*`         | ANY     | Proxy zu Agent-Runtime                                         |
+| `/tools/*`         | ANY     | Proxy zu Tool-Gateway                                          |
+| `/wsl/status`      | GET     | Docker-Container-Status in der konfigurierten WSL-Distro       |
+| `/wsl/start-stack` | POST    | Startet `openclaw-system/scripts/boot.sh` ueber PowerShell/WSL |
 
 ## Datenbank-Schema
 
-### PostgreSQL (oc_*)
+### PostgreSQL (oc\_\*)
 
 ```sql
 oc_tasks         -- Task-Definitionen und Status

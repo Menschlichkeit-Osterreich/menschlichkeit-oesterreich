@@ -3,6 +3,7 @@ import { useAuth } from '../auth/AuthContext';
 import { api, DataDeletionCreateRequest, DeletionRequestItem } from '../services/api';
 import { PageHeader } from '../components/ui/PageHeader';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
+import { http } from '../services/http';
 
 export default function PrivacySettings() {
   const { token } = useAuth();
@@ -12,6 +13,7 @@ export default function PrivacySettings() {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [requests, setRequests] = useState<DeletionRequestItem[] | null>(null);
+  const [consents, setConsents] = useState<Array<{ consent_type: string; status: string; granted_at?: string | null; revoked_at?: string | null }>>([]);
   const [exportLoading, setExportLoading] = useState(false);
   const [exportMessage, setExportMessage] = useState<string | null>(null);
 
@@ -20,9 +22,13 @@ export default function PrivacySettings() {
   async function fetchRequests() {
     if (!token) return;
     try {
-      const res = await api.privacy.listDeletions(token);
-      const list = res?.data?.requests || [];
+      const [deletionRes, consentRes] = await Promise.all([
+        api.privacy.listDeletions(token),
+        http.get<{ success: boolean; data: { consents: Array<{ consent_type: string; status: string; granted_at?: string | null; revoked_at?: string | null }> } }>('/api/privacy/consents', { token }),
+      ]);
+      const list = deletionRes?.data?.requests || [];
       setRequests(list);
+      setConsents(consentRes.data.consents || []);
     } catch (_e) {
       // ignore
     }
@@ -72,47 +78,68 @@ export default function PrivacySettings() {
     return (
       <div className="max-w-xl mx-auto p-6">
         <h1 className="text-2xl font-semibold mb-4">Datenschutz & Konto</h1>
-        <p className="mb-2">Bitte melde dich an, um Kontolöschungen zu verwalten.</p>
-        <a className="text-blue-600 underline" href="/Login">Zum Login</a>
+        <p className="mb-2">Bitte melde dich an, um Export-, Consent- und Löschanfragen zu verwalten.</p>
+        <a className="text-blue-600 underline" href="/login">Zum Login</a>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-6">
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
       <PageHeader
-        title="Mein Konto löschen (DSGVO Art. 17)"
-        description="Anfragen können rechtliche Ausnahmen (z. B. Aufbewahrungspflichten) berücksichtigen und ggf. zur Anonymisierung führen."
-        breadcrumb={<Breadcrumb items={[{ label: 'Einstellungen' }, { label: 'Datenschutz' }]} />}
+        title="Datenschutz-Center"
+        description="Datenexport, Einwilligungen und Löschanfragen an einem Ort. Rechtliche Aufbewahrungspflichten können bestimmte Daten weiterhin erfordern."
+        breadcrumb={<Breadcrumb items={[{ label: 'Mitgliederbereich' }, { label: 'Datenschutz' }]} />}
       />
-      <header>
-        <h1 className="text-2xl font-semibold">Mein Konto löschen (DSGVO Art. 17)</h1>
-        <p className="text-sm text-gray-600">Anfragen können rechtliche Ausnahmen (z. B. Aufbewahrungspflichten) berücksichtigen und ggf. zur Anonymisierung führen.</p>
-      </header>
 
-      {/* DSGVO Art. 15: Auskunftsrecht */}
-      <section className="border rounded-md p-4 space-y-3">
-        <h2 className="text-xl font-semibold">Meine Daten exportieren (DSGVO Art. 15)</h2>
-        <p className="text-sm text-gray-600">
-          Sie haben das Recht, eine Kopie aller über Sie gespeicherten Daten zu erhalten.
-          Der Export wird innerhalb von 30 Tagen per E-Mail zugesendet.
-        </p>
-        <button
-          type="button"
-          className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
-          onClick={onRequestDataExport}
-          disabled={exportLoading}
-        >
-          {exportLoading ? 'Sende Anfrage…' : 'Datenexport anfordern'}
-        </button>
-        {exportMessage && (
-          <p className={`text-sm ${exportMessage.includes('Fehler') ? 'text-red-700' : 'text-green-700'}`}>
-            {exportMessage}
+      <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
+        <section className="border rounded-md p-4 space-y-3 bg-white">
+          <h2 className="text-xl font-semibold">Datenexport anfordern</h2>
+          <p className="text-sm text-gray-600">
+            Sie können eine Kopie Ihrer gespeicherten Daten anfordern. Der Export wird nach Bearbeitung per E-Mail bereitgestellt.
           </p>
-        )}
-      </section>
+          <button
+            type="button"
+            className="bg-blue-600 text-white px-4 py-2 rounded disabled:opacity-50"
+            onClick={onRequestDataExport}
+            disabled={exportLoading}
+          >
+            {exportLoading ? 'Sende Anfrage…' : 'Datenexport anfordern'}
+          </button>
+          {exportMessage && (
+            <p className={`text-sm ${exportMessage.includes('Fehler') ? 'text-red-700' : 'text-green-700'}`}>
+              {exportMessage}
+            </p>
+          )}
+        </section>
 
-      <form onSubmit={onRequestDeletion} className="space-y-4 border rounded-md p-4">
+        <section className="border rounded-md p-4 bg-white">
+          <h2 className="text-xl font-semibold mb-3">Einwilligungen</h2>
+          {!consents.length ? (
+            <p className="text-sm text-gray-600">Noch keine gespeicherten Einwilligungen vorhanden.</p>
+          ) : (
+            <ul className="space-y-3">
+              {consents.map((consent, index) => (
+                <li key={`${consent.consent_type}-${index}`} className="rounded-md border p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="font-medium">{consent.consent_type}</span>
+                    <span className={`text-xs font-semibold ${consent.status === 'granted' ? 'text-green-700' : 'text-red-700'}`}>
+                      {consent.status}
+                    </span>
+                  </div>
+                  <div className="mt-2 text-xs text-gray-500">
+                    Aktiv seit: {consent.granted_at ? new Date(consent.granted_at).toLocaleString('de-AT') : '—'}
+                    {consent.revoked_at ? ` · Widerrufen: ${new Date(consent.revoked_at).toLocaleString('de-AT')}` : ''}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      </div>
+
+      <form onSubmit={onRequestDeletion} className="space-y-4 border rounded-md p-4 bg-white">
+        <h2 className="text-xl font-semibold">Löschantrag stellen</h2>
         <div>
           <label className="block text-sm font-medium mb-1">Begründung</label>
           <textarea
@@ -146,7 +173,7 @@ export default function PrivacySettings() {
         </div>
       </form>
 
-      <section>
+      <section className="bg-white border rounded-md p-4">
         <h2 className="text-xl font-semibold mb-2">Meine Löschanträge</h2>
         {!requests?.length && <p className="text-sm text-gray-600">Keine Anträge vorhanden.</p>}
         {!!requests?.length && (

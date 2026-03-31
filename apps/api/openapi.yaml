@@ -142,7 +142,261 @@ components:
         as_of: { type: string, format: date }
         since: { type: string, format: date }
 
+    GameSettings:
+      type: object
+      properties:
+        reducedMotion: { type: boolean }
+        lowGraphics: { type: boolean }
+
+    GameProfile:
+      type: object
+      properties:
+        selectedRole: { type: string }
+        currentWorldId: { type: string }
+        resumeScenarioId: { type: string, nullable: true }
+        settings: { $ref: '#/components/schemas/GameSettings' }
+        stats:
+          type: object
+          additionalProperties:
+            type: integer
+        worldState:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: integer
+        totalXp: { type: integer }
+        playerLevel: { type: integer }
+
+    GameProgress:
+      type: object
+      properties:
+        completedScenarioIds:
+          type: array
+          items: { type: string }
+        completedCount: { type: integer }
+        unlockedScenarioIds:
+          type: array
+          items: { type: string }
+        nextScenarioId: { type: string, nullable: true }
+        unlockedWorldIds:
+          type: array
+          items: { type: string }
+
+    GameBootstrapResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        data:
+          type: object
+          properties:
+            member:
+              type: object
+              additionalProperties: true
+            privacy:
+              type: object
+              properties:
+                analyticsEnabled: { type: boolean }
+                analyticsConsentId: { type: string, nullable: true }
+                analyticsSource: { type: string }
+            profile:
+              $ref: '#/components/schemas/GameProfile'
+            progress:
+              $ref: '#/components/schemas/GameProgress'
+            contentVersion: { type: string }
+            gameplaySummary:
+              type: object
+              properties:
+                roleCount: { type: integer }
+                worldCount: { type: integer }
+                playableWorldCount: { type: integer }
+                scenarioCount: { type: integer }
+
+    GameProfileUpdateRequest:
+      type: object
+      properties:
+        selectedRole: { type: string }
+        currentWorldId: { type: string }
+        resumeScenarioId: { type: string, nullable: true }
+        settings: { $ref: '#/components/schemas/GameSettings' }
+
+    GameScenarioCompleteRequest:
+      type: object
+      required: [roleId, choiceId]
+      properties:
+        roleId: { type: string }
+        choiceId: { type: string }
+        useSignatureAction: { type: boolean }
+
+    GameEventCreateRequest:
+      type: object
+      required: [eventType]
+      properties:
+        eventType: { type: string }
+        sessionId: { type: string, nullable: true }
+        payload:
+          type: object
+          additionalProperties: true
+
+    GameScenarioCompleteResponse:
+      type: object
+      properties:
+        success: { type: boolean }
+        data:
+          type: object
+          properties:
+            scenarioId: { type: string }
+            alreadyCompleted: { type: boolean }
+            outcome:
+              type: object
+              properties:
+                choiceId: { type: string }
+                roleId: { type: string }
+                usedSignatureAction: { type: boolean }
+                score: { type: integer }
+                xpAwarded: { type: integer }
+                band: { type: string }
+                statsDelta:
+                  type: object
+                  additionalProperties:
+                    type: integer
+                worldDelta:
+                  type: object
+                  additionalProperties:
+                    type: integer
+                worldStateAfter:
+                  type: object
+                  additionalProperties:
+                    type: integer
+                summary: { type: string }
+                immediate: { type: string }
+                mediumTerm: { type: string }
+            profile:
+              $ref: '#/components/schemas/GameProfile'
+            progress:
+              $ref: '#/components/schemas/GameProgress'
+
 paths:
+  /api/game/bootstrap:
+    get:
+      tags: [Game]
+      summary: Game Bootstrap laden
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Erfolgreiches Bootstrap fuer den aktuellen Benutzer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameBootstrapResponse'
+        '401':
+          description: Authentifizierung erforderlich
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /api/game/profile:
+    put:
+      tags: [Game]
+      summary: Game-Profil aktualisieren
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameProfileUpdateRequest'
+      responses:
+        '200':
+          description: Profil erfolgreich gespeichert
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data: { $ref: '#/components/schemas/GameProfile' }
+        '401':
+          description: Authentifizierung erforderlich
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422':
+          description: Unbekannte Rolle, Welt oder Resume-ID
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /api/game/scenarios/{scenario_id}/complete:
+    post:
+      tags: [Game]
+      summary: Szenario abschliessen und Fortschritt persistieren
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: scenario_id
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameScenarioCompleteRequest'
+      responses:
+        '200':
+          description: Abschluss erfolgreich verarbeitet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameScenarioCompleteResponse'
+        '401':
+          description: Authentifizierung erforderlich
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '403':
+          description: Szenario ist noch nicht freigeschaltet
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '422':
+          description: Unbekannte Rolle, Entscheidung oder Szenario-ID
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /api/game/events:
+    post:
+      tags: [Game]
+      summary: Optionale consent-basierte Gameplay-Telemetrie senden
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GameEventCreateRequest'
+      responses:
+        '200':
+          description: Event akzeptiert oder wegen fehlender Einwilligung verworfen
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  data:
+                    type: object
+                    properties:
+                      accepted: { type: boolean }
+                      reason: { type: string, nullable: true }
+                      analyticsConsentId: { type: string, nullable: true }
+
   # ── Health ──────────────────────────────────────────────────────────────────
   /healthz:
     get:
@@ -799,7 +1053,12 @@ paths:
             schema:
               type: object
               properties:
-                email: { type: string, format: email, description: 'Wenn leer: recipient_email der Rechnung' }
+                email:
+                  {
+                    type: string,
+                    format: email,
+                    description: 'Wenn leer: recipient_email der Rechnung',
+                  }
       responses:
         '200':
           description: E-Mail in Warteschlange

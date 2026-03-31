@@ -35,7 +35,7 @@ def _ensure_names(body: RegisterRequest) -> tuple[str, str]:
     last_name = body.last_name or body.lastName or body.nachname or ""
     if not first_name or not last_name:
         raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             detail="Vorname und Nachname sind erforderlich",
         )
     return first_name, last_name
@@ -128,9 +128,9 @@ async def password_reset_request(body: PasswordResetRequest):
 async def password_reset_confirm(body: PasswordResetConfirm):
     new_password = body.new_password or body.password
     if not new_password:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Neues Passwort fehlt")
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Neues Passwort fehlt")
     if body.confirmPassword and body.confirmPassword != new_password:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Passwörter stimmen nicht überein")
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Passwörter stimmen nicht überein")
     message = await member_service.confirm_password_reset(token=body.token, new_password=new_password)
     return MessageResponse(message=message)
 
@@ -144,9 +144,9 @@ async def password_reset_compat(payload: dict):
     new_password = payload.get("new_password") or payload.get("password")
     confirm_password = payload.get("confirmPassword")
     if not token or not new_password:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Ungültige Passwort-Reset-Anfrage")
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Ungültige Passwort-Reset-Anfrage")
     if confirm_password and confirm_password != new_password:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Passwörter stimmen nicht überein")
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Passwörter stimmen nicht überein")
     message = await member_service.confirm_password_reset(token=token, new_password=new_password)
     return {"success": True, "message": message}
 
@@ -175,9 +175,9 @@ async def change_password(payload: dict, user: dict = Depends(require_auth)):
     new_password = payload.get("newPassword")
     confirm_password = payload.get("confirmPassword")
     if not current_password or not new_password:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Passwortdaten unvollständig")
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Passwortdaten unvollständig")
     if confirm_password and confirm_password != new_password:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Passwörter stimmen nicht überein")
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="Passwörter stimmen nicht überein")
     member = await member_service.get_member_by_id(user["uid"])
     if not member or not verify_password(current_password, member["password_hash"]):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Aktuelles Passwort ist ungültig")
@@ -202,7 +202,7 @@ async def setup_two_factor(user: dict = Depends(require_auth)):
 async def enable_two_factor(payload: dict, user: dict = Depends(require_auth)):
     token = payload.get("token")
     if not token:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="2FA-Code fehlt")
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="2FA-Code fehlt")
     backup_codes = await member_service.enable_two_factor(member_id=user["uid"], token=token)
     return {
         "success": True,
@@ -227,7 +227,7 @@ async def disable_two_factor(payload: dict, user: dict = Depends(require_auth)):
 async def verify_two_factor(payload: dict, user: dict = Depends(require_auth)):
     token = payload.get("token")
     if not token:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="2FA-Code fehlt")
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="2FA-Code fehlt")
     verified = await member_service.verify_two_factor(member_id=user["uid"], token=token)
     if not verified:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Ungültiger 2FA-Code")

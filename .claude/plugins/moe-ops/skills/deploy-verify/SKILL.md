@@ -19,7 +19,7 @@ Fuehrt nach einem Deployment systematische Healthchecks aller Services durch und
 
 ### 1. Environment bestimmen
 
-- `local`: Localhost-Ports (5173, 8001, 8000, 3000)
+- `local`: Localhost-Ports (5173, 8001, 8000, 3001)
 - `staging`: Staging-Subdomains auf Plesk
 - `production`: Production-Domains auf Plesk
 
@@ -45,7 +45,7 @@ curl -sf http://localhost:5678/healthz && echo "n8n: OK" || echo "n8n: FAIL"
 
 ```bash
 # API
-curl -sf https://api.menschlichkeit-oesterreich.at/health
+curl -sf "${API_HEALTH_URL:-https://api.example.invalid/health}"
 
 # Frontend
 curl -sf https://www.menschlichkeit-oesterreich.at/ | head -1

@@ -18,9 +18,11 @@ Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
 # n8n Quality Reporting Automation Prompt
 
 ## Ziel
+
 Automatisiere die Generierung und Verteilung von Quality Reports aus allen Quality Gates für tägliches Monitoring und Trend-Analysen.
 
 ## Kontext
+
 - **Projekt:** Menschlichkeit Österreich Multi-Service Platform
 - **Quality Gates:** Security, DSGVO, Code Quality, Performance, Accessibility
 - **Report-Quellen:** Codacy, Trivy, Lighthouse, Playwright, Custom Scripts
@@ -29,8 +31,9 @@ Automatisiere die Generierung und Verteilung von Quality Reports aus allen Quali
 ## Workflow-Anforderungen
 
 ### 1. Daily Quality Report Generation
+
 ```yaml
-Trigger: 
+Trigger:
   - Täglich 6:00 UTC
   - Nach jedem Production Deployment
   - On-Demand via Webhook
@@ -50,8 +53,9 @@ Workflow:
 ```
 
 ### 2. Gate Failure Notifications
+
 ```yaml
-Trigger: 
+Trigger:
   - Webhook von GitHub Actions (quality-gates.yml)
   - Quality Gate Status: FAILED
 
@@ -73,8 +77,9 @@ Workflow:
 ```
 
 ### 3. Weekly Quality Trend Report
+
 ```yaml
-Trigger: 
+Trigger:
   - Montag 9:00 UTC
   - Manuell via Webhook
 
@@ -101,25 +106,27 @@ Workflow:
 ```
 
 ### 4. Quality Dashboard Update
+
 ```yaml
-Trigger: 
+Trigger:
   - Alle 15 Minuten (während Arbeitszeit)
   - Nach jedem Deployment
 
 Workflow:
   1. Lese aktuelle Metriken:
-     - quality-reports/deployment-metrics/*.ndjson
-     - build-report.json
-     - playwright-results/report.json
+    - quality-reports/deployment-metrics/*.ndjson
+    - build-report.json
+    - playwright-results/report.json
   2. Update Dashboard JSON:
-     - quality-reports/dashboard.json
+    - quality-reports/dashboard.json
   3. Optional: Push zu externer Visualisierung
-     - Grafana/Tableau/Spreadsheet
+    - Grafana/Tableau/Spreadsheet
 ```
 
 ### 5. DSGVO Compliance Report (Monatlich)
+
 ```yaml
-Trigger: 
+Trigger:
   - Erster Montag im Monat, 10:00 UTC
 
 Workflow:
@@ -144,6 +151,7 @@ Workflow:
 ## n8n Node-Struktur
 
 ### Nodes Required
+
 1. **Cron Trigger** - Zeitgesteuerte Ausführung
 2. **Webhook Trigger** - Empfange GitHub Actions Callbacks
 3. **HTTP Request** - Abrufen von Quality Reports (GitHub API)
@@ -160,6 +168,7 @@ Workflow:
 ### JavaScript Code Examples
 
 #### Aggregate Quality Metrics
+
 ```javascript
 // Aggregiere alle Reports aus quality-reports/
 const reports = items.map(item => JSON.parse(item.json.content));
@@ -171,7 +180,7 @@ const aggregated = {
     vulnerabilities: {
       critical: reports.filter(r => r.severity === 'CRITICAL').length,
       high: reports.filter(r => r.severity === 'HIGH').length,
-    }
+    },
   },
   quality: {
     maintainability: average(reports.map(r => r.maintainability)),
@@ -181,23 +190,27 @@ const aggregated = {
     lighthouse: average(reports.map(r => r.lighthouse?.performance || 0)),
   },
   dsgvo: {
-    compliant: reports.every(r => r.dsgvo_compliant)
-  }
+    compliant: reports.every(r => r.dsgvo_compliant),
+  },
 };
 
 function calculateSecurityScore(reports) {
   const maxPossible = reports.length * 100;
   const deductions = reports.reduce((sum, r) => {
-    return sum + (r.vulnerabilities?.critical || 0) * 20 
-               + (r.vulnerabilities?.high || 0) * 10;
+    return (
+      sum +
+      (r.vulnerabilities?.critical || 0) * 20 +
+      (r.vulnerabilities?.high || 0) * 10
+    );
   }, 0);
-  return Math.max(0, 100 - (deductions / maxPossible * 100));
+  return Math.max(0, 100 - (deductions / maxPossible) * 100);
 }
 
 return [{ json: aggregated }];
 ```
 
 #### Calculate Trends
+
 ```javascript
 // Vergleiche mit Historical Data
 const today = items[0].json;
@@ -206,18 +219,23 @@ const yesterday = $('Read Historical').first().json;
 const trends = {
   security: {
     score: today.security.score - yesterday.security.score,
-    direction: today.security.score > yesterday.security.score ? '📈' : '📉'
+    direction: today.security.score > yesterday.security.score ? '📈' : '📉',
   },
   quality: {
-    maintainability: today.quality.maintainability - yesterday.quality.maintainability,
-    direction: today.quality.maintainability > yesterday.quality.maintainability ? '📈' : '📉'
-  }
+    maintainability:
+      today.quality.maintainability - yesterday.quality.maintainability,
+    direction:
+      today.quality.maintainability > yesterday.quality.maintainability
+        ? '📈'
+        : '📉',
+  },
 };
 
 return [{ json: { ...today, trends } }];
 ```
 
 #### Generate Markdown Report
+
 ```javascript
 const data = items[0].json;
 
@@ -250,7 +268,9 @@ ${generateActionItems(data)}
 function generateActionItems(data) {
   const actions = [];
   if (data.security.vulnerabilities.critical > 0) {
-    actions.push('🚨 **CRITICAL:** Fix critical security vulnerabilities immediately');
+    actions.push(
+      '🚨 **CRITICAL:** Fix critical security vulnerabilities immediately'
+    );
   }
   if (data.quality.maintainability < 85) {
     actions.push('⚠️ Improve code maintainability (target: ≥85%)');
@@ -258,7 +278,9 @@ function generateActionItems(data) {
   if (!data.dsgvo.compliant) {
     actions.push('🔒 Address DSGVO compliance issues');
   }
-  return actions.length > 0 ? actions.map(a => `- ${a}`).join('\n') : '✅ No critical actions required';
+  return actions.length > 0
+    ? actions.map(a => `- ${a}`).join('\n')
+    : '✅ No critical actions required';
 }
 
 return [{ json: { markdown } }];
@@ -267,6 +289,7 @@ return [{ json: { markdown } }];
 ## Integration mit Quality Gates
 
 ### Webhook Setup (GitHub Actions)
+
 ```yaml
 # .github/workflows/quality-gates.yml
 jobs:
@@ -290,6 +313,7 @@ jobs:
 ```
 
 ### Slack Message Format
+
 ```javascript
 // Formatiere Slack Message für bessere Lesbarkeit
 const data = items[0].json;
@@ -302,17 +326,23 @@ const slackMessage = {
       type: 'header',
       text: {
         type: 'plain_text',
-        text: `🚨 Quality Gate Failed: ${data.gate}`
-      }
+        text: `🚨 Quality Gate Failed: ${data.gate}`,
+      },
     },
     {
       type: 'section',
       fields: [
-        { type: 'mrkdwn', text: `*Severity:*\n${getSeverityEmoji(data.severity)} ${data.severity}` },
+        {
+          type: 'mrkdwn',
+          text: `*Severity:*\n${getSeverityEmoji(data.severity)} ${data.severity}`,
+        },
         { type: 'mrkdwn', text: `*Service:*\n${data.service}` },
         { type: 'mrkdwn', text: `*Branch:*\n${data.branch}` },
-        { type: 'mrkdwn', text: `*Commit:*\n\`${data.commit.substring(0, 7)}\`` }
-      ]
+        {
+          type: 'mrkdwn',
+          text: `*Commit:*\n\`${data.commit.substring(0, 7)}\``,
+        },
+      ],
     },
     {
       type: 'actions',
@@ -321,11 +351,11 @@ const slackMessage = {
           type: 'button',
           text: { type: 'plain_text', text: 'View Run' },
           url: data.run_url,
-          style: 'danger'
-        }
-      ]
-    }
-  ]
+          style: 'danger',
+        },
+      ],
+    },
+  ],
 };
 
 function getSeverityEmoji(severity) {
@@ -333,7 +363,7 @@ function getSeverityEmoji(severity) {
     CRITICAL: '🔴',
     HIGH: '🟠',
     MEDIUM: '🟡',
-    LOW: '🟢'
+    LOW: '🟢',
   };
   return emojis[severity] || '⚪';
 }
@@ -350,7 +380,7 @@ N8N_WEBHOOK_QUALITY_DAILY=https://n8n.example.com/webhook/quality-daily
 
 # GitHub
 GITHUB_TOKEN=ghp_xxxxxxxxxxxxx
-GITHUB_REPO=Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
+GITHUB_REPO=Menschlichkeit-Osterreich/menschlichkeit-oesterreich
 
 # Slack
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/T00000000/B00000000/xxxxxxxxxxxx
@@ -370,6 +400,7 @@ DASHBOARD_UPDATE_INTERVAL=15 # Minuten
 ## Testing der Workflows
 
 ### 1. Manual Test via Webhook
+
 ```bash
 # Test Daily Report Generation
 curl -X POST http://localhost:5678/webhook/quality-daily \
@@ -391,6 +422,7 @@ curl -X POST http://localhost:5678/webhook/quality-failure \
 ```
 
 ### 2. Validate Output
+
 ```bash
 # Prüfe generierte Reports
 ls -lh quality-reports/daily/

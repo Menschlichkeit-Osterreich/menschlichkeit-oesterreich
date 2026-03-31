@@ -1,21 +1,21 @@
 # Selective Timeout Run
 
 - Case: `selective-timeout-5.183.217.146`
-- Run: `20260329T195425Z-current-shell`
-- Egress label: `current-shell`
-- Collected at (UTC): `2026-03-29T19:54:51Z`
+- Run: `20260329T201048Z-iphone-hotspot-active`
+- Egress label: `iphone-hotspot-active`
+- Collected at (UTC): `2026-03-29T20:10:56Z`
 - Local host: `virus666`
-- Public source IP: `81.217.7.174`
+- Public source IP: `46.125.130.131`
 
 ## Key Findings
 
 - DNS A result: `5.183.217.146`
 - DNS PTR result: `plesk7.digimagical.com`
 - DNS AAAA result: `no_record`
-- Direct 443 outcome: `timeout`
-- SNI/`--resolve` 443 outcome: `timeout`
+- Direct 443 outcome: `connected`
+- SNI/`--resolve` 443 outcome: `connected`
 - Direct 8443 outcome: `timeout`
-- SSH 22 outcome: `timeout`
+- SSH 22 outcome: `connected_auth_failed`
 
 ## Files
 

@@ -1,7 +1,7 @@
 ---
 name: Dashboard Frontend Integration
 about: metricsAPI.ts an FastAPI-Pfade binden
-title: "[FE] metricsAPI.ts an FastAPI-Pfade binden"
+title: '[FE] metricsAPI.ts an FastAPI-Pfade binden'
 labels: dashboard, frontend, integration, priority:high
 assignees: ''
 ---
@@ -12,7 +12,7 @@ Frontend-API-Client (`metricsAPI.ts`) an laufende FastAPI-Backend-Endpoints anbi
 
 ## ✅ Akzeptanzkriterien
 
-- [ ] `frontend/src/lib/metricsAPI.ts` Base-URL ENV-gestützt (`VITE_API_BASE_URL`)
+- [ ] `apps/website/src/lib/metricsAPI.ts` Base-URL ENV-gestützt (`VITE_API_BASE_URL`)
 - [ ] Alle 5 API-Endpoints erfolgreich erreichbar (via `metricsAPI.getOverviewKPIs()` etc.)
 - [ ] `KpiCard`-Komponente zeigt echte KPI-Werte (keine Mock-Daten)
 - [ ] `TrendChart`-Komponente rendert Mitglieder-Zeitreihe (via `getMembersTimeseries()`)
@@ -24,9 +24,10 @@ Frontend-API-Client (`metricsAPI.ts`) an laufende FastAPI-Backend-Endpoints anbi
 ## 📋 Tasks
 
 ### 1. Environment konfigurieren
+
 ```bash
-# frontend/.env erstellen
-cd frontend
+# apps/website/.env erstellen
+cd apps/website
 cp .env.example .env
 
 # VITE_API_BASE_URL setzen
@@ -34,38 +35,43 @@ echo "VITE_API_BASE_URL=http://localhost:8080" >> .env
 ```
 
 ### 2. Backend starten (falls noch nicht läuft)
+
 ```bash
 # In separatem Terminal
-cd api/fastapi
-source .venv/bin/activate
-uvicorn app.main:app --reload --port 8080
+cd apps/api
+python -m uvicorn app.main:app --reload --port 8001
 ```
 
 ### 3. Frontend Dev-Server starten
+
 ```bash
-cd frontend
+cd apps/website
 npm run dev
 # Läuft unter: http://localhost:5173
 ```
 
 ### 4. Dashboard aufrufen
+
 ```
 http://localhost:5173/admin/dashboard
 ```
 
 ### 5. Browser-Konsole prüfen
+
 - **Erwartung:** Keine Fetch-Fehler (CORS, 404, 500)
 - **Erfolgreich:** KPI-Werte sichtbar (z.B. "150 Aktive Mitglieder")
 
 ### 6. API-Calls testen (Browser DevTools)
+
 ```javascript
 // Browser-Konsole:
-fetch('http://localhost:8080/api/kpis/overview')
+fetch('http://localhost:8001/api/kpis/overview')
   .then(res => res.json())
   .then(data => console.log(data));
 ```
 
 ### 7. Error-Handling testen
+
 ```bash
 # Backend stoppen → Frontend sollte Fehler-Banner zeigen
 # Backend neu starten → "Retry" sollte funktionieren
@@ -74,15 +80,17 @@ fetch('http://localhost:8080/api/kpis/overview')
 ## 📦 Betroffene Dateien
 
 **Bereits erstellt (in vorherigen Issues):**
-- ✅ `frontend/src/lib/metricsAPI.ts` (TypeScript API-Client, 171 Zeilen)
-- ✅ `frontend/src/components/dashboard/KpiCard.tsx` (Widget)
-- ✅ `frontend/src/components/dashboard/TrendChart.tsx` (Recharts-Wrapper)
-- ✅ `frontend/src/pages/BoardTreasurerDashboard.tsx` (Dashboard-Seite)
-- ✅ `frontend/src/App.tsx` (Route `/admin/dashboard`)
+
+- ✅ `apps/website/src/lib/metricsAPI.ts` (TypeScript API-Client)
+- ✅ `apps/website/src/components/dashboard/KpiCard.tsx` (Widget)
+- ✅ `apps/website/src/components/dashboard/TrendChart.tsx` (Recharts-Wrapper)
+- ✅ `apps/website/src/pages/BoardTreasurerDashboard.tsx` (Dashboard-Seite)
+- ✅ `apps/website/src/App.tsx` (Route `/admin/dashboard`)
 
 **Zu prüfen/editieren:**
-- [ ] `frontend/.env` (VITE_API_BASE_URL setzen)
-- [ ] `frontend/src/pages/BoardTreasurerDashboard.tsx` (Falls Mock-Daten noch drin sind → entfernen)
+
+- [ ] `apps/website/.env` (VITE_API_BASE_URL setzen)
+- [ ] `apps/website/src/pages/BoardTreasurerDashboard.tsx` (Falls Mock-Daten noch drin sind → entfernen)
 
 ## 🔧 Integration-Code (Beispiel)
 
@@ -151,6 +159,7 @@ npm run performance:lighthouse -- --url=http://localhost:5173/admin/dashboard
 ## 🐛 Troubleshooting
 
 **Problem:** CORS-Fehler (Cross-Origin Request Blocked)
+
 - Lösung: Backend `main.py` → CORS-Middleware hinzufügen:
   ```python
   from fastapi.middleware.cors import CORSMiddleware
@@ -164,12 +173,15 @@ npm run performance:lighthouse -- --url=http://localhost:5173/admin/dashboard
   ```
 
 **Problem:** 404 Not Found (API-Endpunkt nicht erreichbar)
+
 - Lösung: Backend läuft? `curl http://localhost:8080/healthz`
 
 **Problem:** Infinite Loading (keine Daten)
+
 - Lösung: Browser DevTools → Network → Fetch-Requests prüfen
 
 **Problem:** TypeError: Cannot read property 'members_total' of null
+
 - Lösung: Null-Checks in Dashboard-Komponente (`overview?.members_total`)
 
 ## 📊 Definition of Done

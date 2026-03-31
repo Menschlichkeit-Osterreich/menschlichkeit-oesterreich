@@ -18,6 +18,71 @@ from ..schemas.blog import (
 logger = logging.getLogger("menschlichkeit.blog")
 router = APIRouter()
 
+SEED_ARTICLES = [
+    {
+        "id": "seed-demokratie-auftakt",
+        "titel": "Demokratie beginnt im Alltag",
+        "inhalt": (
+            "Demokratie wird nicht nur bei Wahlen sichtbar. Sie zeigt sich in Gesprächen, "
+            "in Vereinen, in Schulen und überall dort, wo Menschen Verantwortung füreinander übernehmen.\n\n"
+            "Menschlichkeit Österreich verbindet politische Bildung, soziale Teilhabe und konkrete Unterstützung vor Ort. "
+            "Mit unseren Veranstaltungen, Materialien und Community-Formaten schaffen wir niedrigschwellige Zugänge für Mitwirkung."
+        ),
+        "zusammenfassung": "Warum demokratische Kultur im Alltag beginnt und wie der Verein konkrete Räume für Teilhabe aufbaut.",
+        "kategorie": "Demokratie",
+        "tags": ["Demokratie", "Teilhabe", "Zivilgesellschaft"],
+        "autor_id": "seed-redaktion",
+        "autor_name": "Redaktion Menschlichkeit Österreich",
+        "veroeffentlicht": True,
+        "seo_title": "Demokratie beginnt im Alltag",
+        "seo_description": "Ein Überblick über demokratische Teilhabe, Vereinsarbeit und zivilgesellschaftliche Räume in Österreich.",
+        "og_image": None,
+        "created_at": "2026-03-20T09:00:00+00:00",
+        "updated_at": "2026-03-20T09:00:00+00:00",
+    },
+    {
+        "id": "seed-mitmachen-fruehjahr",
+        "titel": "Mitmachen, lernen, gemeinsam handeln",
+        "inhalt": (
+            "Unsere Arbeit lebt davon, dass Menschen sich mit ihren Perspektiven, Fragen und Fähigkeiten einbringen. "
+            "Deshalb verknüpfen wir Bildungsangebote, Veranstaltungen und Community-Formate stärker miteinander.\n\n"
+            "Wer Mitglied wird, findet im Portal künftig nicht nur Verwaltungsfunktionen, sondern auch klarere Wege zu Mitmachen, "
+            "Datenschutz, Veranstaltungen und redaktionellen Inhalten."
+        ),
+        "zusammenfassung": "Wie wir Portal, Veranstaltungen und Community zu einer klaren Mitmach-Struktur verbinden.",
+        "kategorie": "Vereinsleben",
+        "tags": ["Mitgliedschaft", "Community", "Vereinsleben"],
+        "autor_id": "seed-redaktion",
+        "autor_name": "Redaktion Menschlichkeit Österreich",
+        "veroeffentlicht": True,
+        "seo_title": "Mitmachen, lernen, gemeinsam handeln",
+        "seo_description": "So verzahnt Menschlichkeit Österreich Portal, Community und Veranstaltungen für neue Beteiligung.",
+        "og_image": None,
+        "created_at": "2026-03-25T10:30:00+00:00",
+        "updated_at": "2026-03-25T10:30:00+00:00",
+    },
+    {
+        "id": "seed-soziale-gerechtigkeit",
+        "titel": "Soziale Gerechtigkeit braucht verlässliche Strukturen",
+        "inhalt": (
+            "Soziale Gerechtigkeit entsteht nicht allein durch Appelle. Sie braucht zugängliche Beratung, verlässliche Organisation "
+            "und eine Kultur, in der Menschen ernst genommen werden.\n\n"
+            "Deshalb arbeiten wir an einer Infrastruktur, die Spenden, Mitgliedschaften, Kommunikation und Datenschutz nachvollziehbar verbindet."
+        ),
+        "zusammenfassung": "Ein Blick darauf, warum funktionierende Infrastruktur Teil sozialer Verantwortung ist.",
+        "kategorie": "Soziale Gerechtigkeit",
+        "tags": ["Soziale Gerechtigkeit", "Transparenz", "Organisation"],
+        "autor_id": "seed-redaktion",
+        "autor_name": "Redaktion Menschlichkeit Österreich",
+        "veroeffentlicht": True,
+        "seo_title": "Soziale Gerechtigkeit braucht verlässliche Strukturen",
+        "seo_description": "Warum transparente Vereinsprozesse und zugängliche Infrastruktur zu sozialer Gerechtigkeit beitragen.",
+        "og_image": None,
+        "created_at": "2026-03-29T14:00:00+00:00",
+        "updated_at": "2026-03-29T14:00:00+00:00",
+    },
+]
+
 
 def _row_to_response(r: dict) -> BlogArticleResponse:
     tags = r.get("tags", [])
@@ -34,6 +99,10 @@ def _row_to_response(r: dict) -> BlogArticleResponse:
         og_image=r.get("og_image"),
         created_at=str(r["created_at"]), updated_at=str(r["updated_at"]),
     )
+
+
+def _seed_to_response(item: dict) -> BlogArticleResponse:
+    return BlogArticleResponse(**item)
 
 
 @router.get("/blog/articles", response_model=BlogListResponse)
@@ -69,6 +138,19 @@ async def list_articles(
         LIMIT ${idx} OFFSET ${idx+1}
     """, *params)
 
+    if not rows:
+        seeded = [
+            item for item in SEED_ARTICLES
+            if (not nur_veroeffentlicht or item["veroeffentlicht"])
+            and (not kategorie or item["kategorie"] == kategorie)
+        ]
+        offset = (page - 1) * page_size
+        page_items = seeded[offset:offset + page_size]
+        return BlogListResponse(
+            data=[_seed_to_response(item) for item in page_items],
+            total=len(seeded),
+        )
+
     return BlogListResponse(data=[_row_to_response(dict(r)) for r in rows], total=int(total))
 
 
@@ -81,7 +163,10 @@ async def get_article(article_id: str):
         WHERE b.id = $1::uuid
     """, article_id)
     if not row:
-        raise HTTPException(status_code=404, detail="Artikel nicht gefunden")
+        seed = next((item for item in SEED_ARTICLES if item["id"] == article_id), None)
+        if not seed:
+            raise HTTPException(status_code=404, detail="Artikel nicht gefunden")
+        return _seed_to_response(seed)
     return _row_to_response(dict(row))
 
 

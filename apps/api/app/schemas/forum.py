@@ -18,6 +18,16 @@ class ForumCategoryResponse(ForumCategoryBase):
     post_count: int = 0
 
 
+class ForumCategoryCreate(ForumCategoryBase):
+    pass
+
+
+class ForumCategoryUpdate(BaseModel):
+    name: Optional[str] = Field(default=None, min_length=1, max_length=200)
+    beschreibung: Optional[str] = None
+    sort_order: Optional[int] = None
+
+
 class ForumThreadCreate(BaseModel):
     category_id: str
     titel: str = Field(min_length=1, max_length=300)

@@ -1,6 +1,6 @@
 ---
 name: democracy-game-dev
-description: Führt durch die Entwicklung und Wartung des Demokratiespiel-Moduls (apps/game/) — Spielmechanik, Datenbankschema, Barrierefreiheit und demokratische Spielszenarien für Menschlichkeit Österreich. Wird aufgerufen bei `/democracy-game-dev`.
+description: Fuehrt durch die Entwicklung und Wartung des Demokratiespiel-Moduls (`apps/babylon-game/`) — Spielmechanik, Content, Barrierefreiheit und demokratische Spielszenarien fuer Menschlichkeit Oesterreich. Wird aufgerufen bei `/democracy-game-dev`.
 argument-hint: '[neues-szenario|schema|barrierefreiheit|bugfix|analyse]'
 allowed-tools:
   - Read
@@ -21,17 +21,17 @@ Das Demokratiespiel simuliert demokratische Entscheidungsprozesse und fördert p
 
 **Kern-Verzeichnisse:**
 
-- `menschlichkeit-oesterreich-development/apps/game/` — Hauptmodul
-- `menschlichkeit-oesterreich-development/apps/game/web/` — Frontend (statisch)
-- Prisma-Schema: `menschlichkeit-oesterreich-development/` nach `schema.prisma` suchen
+- `apps/babylon-game/` — Hauptmodul
+- `apps/babylon-game/src/` — Next.js App, Gameplay und UI
+- `apps/babylon-game/public/` und `apps/babylon-game/assets/` — Szene- und Asset-Bestand
 
 ---
 
 ## Schritt 1 — Codebase verstehen
 
 ```bash
-find menschlichkeit-oesterreich-development/apps/game -type f | head -30
-ls -la menschlichkeit-oesterreich-development/apps/game/
+rg --files apps/babylon-game | Select-Object -First 30
+Get-ChildItem apps/babylon-game
 ```
 
 Identifiziere:
@@ -45,10 +45,10 @@ Identifiziere:
 
 ## Schritt 2 — Prisma-Schema für Spielmechanik
 
-Das Spiel nutzt Prisma für die Datenverwaltung:
+Das Spiel nutzt aktuell keinen separaten Prisma-Unterordner im Game-Modul; Daten- oder Persistenzlogik muss zuerst im realen Repo verifiziert werden.
 
 ```bash
-find menschlichkeit-oesterreich-development -name "schema.prisma" | head -3
+rg --files . | rg "schema\\.prisma"
 ```
 
 **Wichtige Modelle (Beispiel-Struktur):**
@@ -75,7 +75,7 @@ model DemocracyScenario {
 Bei Schema-Änderungen immer:
 
 ```bash
-cd menschlichkeit-oesterreich-development && npx prisma migrate dev --name <beschreibung>
+cd . && npx prisma migrate dev --name <beschreibung>
 npx prisma generate
 ```
 
@@ -106,7 +106,7 @@ Alle Spielelemente müssen barrierefrei sein:
 
 ```bash
 # Prüfe Frontend auf ARIA-Labels
-grep -rn "aria-\|role=" menschlichkeit-oesterreich-development/apps/game/web/ | head -20
+rg -n "aria-|role=" apps/babylon-game/src apps/babylon-game/public | Select-Object -First 20
 ```
 
 **Pflichtanforderungen:**
@@ -124,10 +124,10 @@ grep -rn "aria-\|role=" menschlichkeit-oesterreich-development/apps/game/web/ | 
 
 ```bash
 # Unit-Tests für Spiellogik
-cd menschlichkeit-oesterreich-development && npx vitest run apps/game/
+npm --prefix apps/babylon-game run type-check
 
 # Playwright E2E
-cd menschlichkeit-oesterreich-development && npx playwright test --grep "game"
+npx playwright test --grep "game"
 ```
 
 Neue Features erfordern Tests für:

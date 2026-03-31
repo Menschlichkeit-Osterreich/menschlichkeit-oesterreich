@@ -1,0 +1,619 @@
+/**
+ * =============================================================
+ * Menschlichkeit Österreich — phpBB Brand-Theme
+ * Brand Guidelines v1.0 — STRIKT VERBINDLICH
+ *
+ * Farbverteilung (60-30-10-Regel):
+ *   60% Neutral (Weiß, Warmgrau) — Hintergründe, Fließtext
+ *   30% Demokratie-Blau #1B4965 — Struktur, Navigation, Überschriften
+ *   10% Text-Orange #B54A0F — Akzente, CTAs, Buttons
+ *
+ * WCAG AA Pflicht: min. 4.5:1 Kontrast für normalen Text
+ * =============================================================
+ */
+
+/* ── CSS Custom Properties (Brand-Farben) ──────────────────── */
+:root {
+  /* Primärfarben */
+  --moe-logo-orange: #d4611e;
+  --moe-text-orange: #b54a0f;
+  --moe-demokratie-blau: #1b4965;
+  --moe-solidaritaets-petrol: #00695c;
+  --moe-warmton: #8b6f4e;
+
+  /* Neutrale (Warmgrau) */
+  --moe-neutral-50: #faf7f5;
+  --moe-neutral-100: #f0ebe6;
+  --moe-neutral-200: #ddd5cc;
+  --moe-neutral-300: #b8ada0;
+  --moe-neutral-500: #7a6e62;
+  --moe-neutral-700: #4a4039;
+  --moe-neutral-900: #2b231d;
+
+  /* Funktionsfarben */
+  --moe-erfolg: #2e7d32;
+  --moe-warnung: #e65100;
+  --moe-fehler: #c62828;
+  --moe-info: #1565c0;
+
+  /* Abstände */
+  --moe-radius: 8px;
+  --moe-radius-sm: 4px;
+}
+
+/* ── Typografie (Google Fonts via Header-Template geladen) ──── */
+body,
+.wrap {
+  font-family: 'Source Sans 3', 'Segoe UI', Roboto, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--moe-neutral-900);
+  background-color: var(--moe-neutral-50);
+}
+
+h1,
+h2,
+h3,
+h4,
+.forum-title,
+.topic-title,
+.page-title,
+dl.details dt,
+.panel h2,
+.panel h3 {
+  font-family: 'Nunito Sans', 'Segoe UI', Roboto, Arial, sans-serif;
+  font-weight: 800;
+  color: var(--moe-demokratie-blau);
+}
+
+blockquote,
+.quotecontent {
+  font-family: 'Merriweather', Georgia, 'Times New Roman', serif;
+  font-style: italic;
+  border-left: 4px solid var(--moe-warmton);
+  background-color: var(--moe-neutral-100);
+  padding: 12px 16px;
+  margin: 12px 0;
+  border-radius: var(--moe-radius-sm);
+}
+
+/* ── Header & Navigation (30% Demokratie-Blau) ────────────── */
+#site-description,
+.headerbar,
+.navbar {
+  background-color: var(--moe-demokratie-blau) !important;
+  color: #ffffff;
+}
+
+.navbar a,
+.navbar a:link,
+.navbar a:visited {
+  color: #ffffff !important;
+}
+
+.navbar a:hover,
+.navbar a:focus {
+  color: var(--moe-neutral-200) !important;
+  text-decoration: underline;
+}
+
+/* Tab-Navigation */
+ul.navlinks li a,
+.tab-container .tab a {
+  color: var(--moe-demokratie-blau);
+  font-weight: 600;
+}
+
+ul.navlinks li a:hover,
+.tab-container .tab a:hover {
+  color: var(--moe-text-orange);
+}
+
+/* ── Buttons & Links (10% Orange-Akzente) ─────────────────── */
+a,
+a:link {
+  color: var(--moe-text-orange);
+  text-decoration: none;
+}
+
+a:hover,
+a:focus {
+  color: var(--moe-logo-orange);
+  text-decoration: underline;
+}
+
+a:visited {
+  color: var(--moe-warmton);
+}
+
+/* Primäre Buttons */
+input[type='submit'],
+input.button1,
+a.button1,
+.button.button-primary {
+  background-color: var(--moe-text-orange) !important;
+  color: #ffffff !important;
+  border: none;
+  border-radius: var(--moe-radius);
+  padding: 10px 20px;
+  font-family: 'Nunito Sans', 'Segoe UI', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  /* WCAG: min. Touch-Target 24×24px */
+  min-height: 36px;
+  min-width: 36px;
+}
+
+input[type='submit']:hover,
+input.button1:hover,
+a.button1:hover,
+.button.button-primary:hover {
+  background-color: var(--moe-logo-orange) !important;
+}
+
+input[type='submit']:focus-visible,
+input.button1:focus-visible,
+a.button1:focus-visible {
+  outline: 3px solid var(--moe-demokratie-blau);
+  outline-offset: 2px;
+}
+
+/* Sekundäre Buttons */
+input.button2,
+a.button2,
+.button.button-secondary {
+  background-color: var(--moe-neutral-200) !important;
+  color: var(--moe-neutral-900) !important;
+  border: 1px solid var(--moe-neutral-300);
+  border-radius: var(--moe-radius);
+  padding: 10px 20px;
+  font-weight: 600;
+  min-height: 36px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+input.button2:hover,
+a.button2:hover {
+  background-color: var(--moe-neutral-300) !important;
+}
+
+/* ── Forum-Listen & Panels ─────────────────────────────────── */
+.forabg,
+.forumbg {
+  background-color: #ffffff;
+  border: 1px solid var(--moe-neutral-200);
+  border-radius: var(--moe-radius);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.forabg .header,
+.forumbg .header {
+  background-color: var(--moe-demokratie-blau) !important;
+  color: #ffffff;
+  padding: 10px 16px;
+}
+
+.forabg .header a,
+.forumbg .header a {
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+/* Zeilen-Streifen */
+li.row {
+  border-bottom: 1px solid var(--moe-neutral-100);
+  padding: 10px 16px;
+}
+
+li.row:nth-child(even) {
+  background-color: var(--moe-neutral-50);
+}
+
+li.row:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+li.row:hover {
+  background-color: var(--moe-neutral-100);
+}
+
+/* ── Beitrags-Darstellung ──────────────────────────────────── */
+.post {
+  border: 1px solid var(--moe-neutral-200);
+  border-radius: var(--moe-radius);
+  margin-bottom: 16px;
+  background-color: #ffffff;
+}
+
+.post .postbody {
+  padding: 16px;
+  line-height: 1.6;
+}
+
+.post .author {
+  background-color: var(--moe-neutral-100);
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--moe-neutral-200);
+  font-weight: 600;
+  color: var(--moe-demokratie-blau);
+}
+
+/* Code-Blöcke */
+.codebox code,
+pre code {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+  background-color: var(--moe-neutral-100);
+  padding: 12px 16px;
+  border-radius: var(--moe-radius-sm);
+  border: 1px solid var(--moe-neutral-200);
+  display: block;
+  overflow-x: auto;
+}
+
+/* ── Footer ────────────────────────────────────────────────── */
+#page-footer,
+.copyright {
+  background-color: var(--moe-neutral-900);
+  color: var(--moe-neutral-300);
+  padding: 24px 16px;
+}
+
+#page-footer a,
+.copyright a {
+  color: var(--moe-neutral-200) !important;
+}
+
+#page-footer a:hover,
+.copyright a:hover {
+  color: #ffffff !important;
+}
+
+/* ── Formulare ─────────────────────────────────────────────── */
+input[type='text'],
+input[type='email'],
+input[type='password'],
+input[type='url'],
+input[type='search'],
+textarea,
+select {
+  border: 1px solid var(--moe-neutral-300);
+  border-radius: var(--moe-radius-sm);
+  padding: 8px 12px;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 16px;
+  color: var(--moe-neutral-900);
+  background-color: #ffffff;
+  transition: border-color 0.2s ease;
+  min-height: 36px;
+}
+
+input[type='text']:focus,
+input[type='email']:focus,
+input[type='password']:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--moe-demokratie-blau);
+  outline: 2px solid var(--moe-demokratie-blau);
+  outline-offset: 1px;
+}
+
+/* ── Funktionsfarben (Alerts) ──────────────────────────────── */
+.successbox,
+.success {
+  background-color: #e8f5e9;
+  border-left: 4px solid var(--moe-erfolg);
+  color: var(--moe-erfolg);
+  padding: 12px 16px;
+  border-radius: var(--moe-radius-sm);
+}
+
+.errorbox,
+.error {
+  background-color: #ffebee;
+  border-left: 4px solid var(--moe-fehler);
+  color: var(--moe-fehler);
+  padding: 12px 16px;
+  border-radius: var(--moe-radius-sm);
+}
+
+.noticebox,
+.notice {
+  background-color: #e3f2fd;
+  border-left: 4px solid var(--moe-info);
+  color: var(--moe-info);
+  padding: 12px 16px;
+  border-radius: var(--moe-radius-sm);
+}
+
+/* ── Pagination ────────────────────────────────────────────── */
+.pagination a,
+.pagination strong {
+  border-radius: var(--moe-radius-sm);
+  padding: 4px 10px;
+  margin: 0 2px;
+  font-weight: 600;
+}
+
+.pagination a {
+  background-color: var(--moe-neutral-100);
+  color: var(--moe-demokratie-blau);
+}
+
+.pagination a:hover {
+  background-color: var(--moe-demokratie-blau);
+  color: #ffffff;
+}
+
+.pagination strong {
+  background-color: var(--moe-text-orange);
+  color: #ffffff;
+}
+
+/* ── Skip-to-Content (WCAG 2.4.1) ─────────────────────────── */
+.moe-skip-link {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 10000;
+  background-color: var(--moe-demokratie-blau);
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 0 0 var(--moe-radius) var(--moe-radius);
+  font-weight: 700;
+  text-decoration: none;
+  transition: top 0.2s ease;
+}
+
+.moe-skip-link:focus {
+  top: 0;
+  outline: 3px solid var(--moe-text-orange);
+}
+
+/* ── Cookie-Consent Banner (DSGVO) ─────────────────────────── */
+.moe-cookie-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background-color: var(--moe-neutral-900);
+  color: var(--moe-neutral-200);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 14px;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.moe-cookie-banner a {
+  color: var(--moe-logo-orange) !important;
+  text-decoration: underline;
+}
+
+.moe-cookie-banner__accept {
+  background-color: var(--moe-text-orange);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--moe-radius-sm);
+  padding: 8px 24px;
+  font-weight: 700;
+  cursor: pointer;
+  min-height: 36px;
+}
+
+.moe-cookie-banner__reject {
+  background-color: transparent;
+  color: var(--moe-neutral-300);
+  border: 1px solid var(--moe-neutral-500);
+  border-radius: var(--moe-radius-sm);
+  padding: 8px 24px;
+  cursor: pointer;
+  min-height: 36px;
+}
+
+.moe-cookie-banner[hidden] {
+  display: none;
+}
+
+/* ── Breadcrumbs (verbessert) ──────────────────────────────── */
+.breadcrumbs,
+#nav-breadcrumbs {
+  padding: 8px 16px;
+  font-size: 13px;
+  color: var(--moe-neutral-500);
+}
+
+.breadcrumbs a,
+#nav-breadcrumbs a {
+  color: var(--moe-demokratie-blau);
+  font-weight: 600;
+}
+
+.breadcrumbs .crumb::after,
+#nav-breadcrumbs .crumb::after {
+  content: ' › ';
+  color: var(--moe-neutral-300);
+  margin: 0 4px;
+}
+
+/* ── Online-Status Indikator ───────────────────────────────── */
+.user-online-status {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 4px;
+}
+
+.user-online-status--online {
+  background-color: var(--moe-erfolg);
+}
+.user-online-status--offline {
+  background-color: var(--moe-neutral-300);
+}
+
+/* ── Verbesserte Avatare ───────────────────────────────────── */
+.avatar-container img,
+.postprofile .avatar img {
+  border-radius: 50%;
+  border: 2px solid var(--moe-neutral-200);
+  transition: border-color 0.2s ease;
+}
+
+.avatar-container img:hover,
+.postprofile .avatar img:hover {
+  border-color: var(--moe-demokratie-blau);
+}
+
+/* ── Smooth Scroll ─────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ── Animations (reduziert für a11y) ───────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Dark Mode ─────────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --moe-neutral-50: #1a1714;
+    --moe-neutral-100: #252119;
+    --moe-neutral-200: #3a3229;
+    --moe-neutral-300: #5a4f44;
+    --moe-neutral-500: #9a8e82;
+    --moe-neutral-700: #c4b8ac;
+    --moe-neutral-900: #f0ebe6;
+  }
+
+  body,
+  .wrap {
+    background-color: #141210;
+    color: #e8e2db;
+  }
+
+  .forabg,
+  .forumbg,
+  .post {
+    background-color: #1a1714;
+    border-color: #3a3229;
+  }
+
+  li.row:nth-child(odd) {
+    background-color: #1a1714;
+  }
+
+  li.row:nth-child(even) {
+    background-color: #1e1b17;
+  }
+
+  li.row:hover {
+    background-color: #252119;
+  }
+
+  .post .author {
+    background-color: #252119;
+    border-color: #3a3229;
+  }
+
+  blockquote,
+  .quotecontent {
+    background-color: #252119;
+    border-left-color: var(--moe-warmton);
+  }
+
+  input[type='text'],
+  input[type='email'],
+  input[type='password'],
+  textarea,
+  select {
+    background-color: #1a1714;
+    color: #e8e2db;
+    border-color: #3a3229;
+  }
+
+  .codebox code,
+  pre code {
+    background-color: #0d0c0a;
+    border-color: #3a3229;
+    color: #c4b8ac;
+  }
+
+  /* Alert-Boxen im Dark Mode */
+  .successbox,
+  .success {
+    background-color: #1a2e1a;
+  }
+  .errorbox,
+  .error {
+    background-color: #2e1a1a;
+  }
+  .noticebox,
+  .notice {
+    background-color: #1a1a2e;
+  }
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  body,
+  .wrap {
+    font-size: 15px;
+  }
+
+  input[type='submit'],
+  input.button1,
+  a.button1 {
+    width: 100%;
+    padding: 12px 16px;
+    min-height: 44px; /* WCAG: größere Touch-Targets auf Mobil */
+  }
+
+  .post .postbody {
+    padding: 12px;
+  }
+
+  .moe-cookie-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: 12px;
+  }
+}
+
+/* ── Print ─────────────────────────────────────────────────── */
+@media print {
+  .headerbar,
+  .navbar,
+  #page-footer,
+  .pagination,
+  .moe-cookie-banner,
+  .moe-platform-nav {
+    display: none !important;
+  }
+
+  body {
+    font-size: 10pt;
+    color: #000;
+    background: #fff;
+  }
+
+  a {
+    color: #000;
+    text-decoration: underline;
+  }
+}

@@ -19,15 +19,16 @@ function main() {
   // Find project root (walk up from plugin dir)
   const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT || __dirname;
   const projectRoot = path.resolve(pluginRoot, '..', '..', '..', '..');
-  const devRoot = path.join(projectRoot, 'menschlichkeit-oesterreich-development');
 
   // Check .env existence
-  const envPath = path.join(devRoot, '.env');
+  const envPath = path.join(projectRoot, '.env');
   const envExists = fs.existsSync(envPath);
 
+  lines.push(`Repo-Root: ${projectRoot}`);
+
   if (!envExists) {
-    lines.push('⚠ .env-Datei fehlt in menschlichkeit-oesterreich-development/');
-    lines.push('  Erstelle sie aus .env.example: cp .env.example .env');
+    lines.push('⚠ .env-Datei fehlt im Repo-Root.');
+    lines.push('  Erstelle sie aus .env.example: Copy-Item .env.example .env');
   } else {
     // Check critical env vars by reading .env
     try {
@@ -94,6 +95,32 @@ function main() {
     }
   } catch {
     // Skip
+  }
+
+  try {
+    const origin = execFileSync(
+      'git',
+      ['remote', 'get-url', 'origin'],
+      { cwd: projectRoot, encoding: 'utf8', timeout: 3000 }
+    ).trim();
+
+    if (origin) {
+      lines.push(`Origin: ${origin}`);
+    }
+
+    const expectedOrigin = 'https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich.git';
+    if (origin !== expectedOrigin) {
+      lines.push(`⚠ Git-Remote weicht vom erwarteten Repo ab: ${expectedOrigin}`);
+    }
+  } catch {
+    // Skip
+  }
+
+  const requiredDocs = ['AGENTS.md', 'CLAUDE.md'];
+  for (const doc of requiredDocs) {
+    if (!fs.existsSync(path.join(projectRoot, doc))) {
+      lines.push(`⚠ Governance-Datei fehlt: ${doc}`);
+    }
   }
 
   if (lines.length > 0) {

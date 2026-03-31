@@ -2,10 +2,19 @@
 
 Diese Skripte automatisieren Builds und Deployments auf der Plesk-Umgebung mit Subdomain-Architektur.
 
+## Produktiver Standard
+
+Der kanonische Produktionspfad ist der GitHub-Workflow `.github/workflows/deploy-plesk.yml`.
+
+- `www.menschlichkeit-oesterreich.at` bekommt den hostbewussten Build aus `apps/website/`.
+- `crm.menschlichkeit-oesterreich.at` bekommt denselben Build als Portal-Root.
+- `crm.menschlichkeit-oesterreich.at/native/` bekommt das native Drupal/CiviCRM-Runtime aus `apps/crm/`.
+- `api.` und `games.` bleiben eigenstaendige Deploy-Ziele.
+
 ## Wichtige Skripte
 
 - ./scripts/safe-deploy.sh: Sicherer Deploy mit Vorab-Checks (immer zuerst mit --dry-run)
-- ./deployment-scripts/deploy-crm-plesk.sh: CRM-Deployment (Drupal + CiviCRM)
+- ./deployment-scripts/deploy-crm-plesk.sh: Legacy-Hilfsskript fuer native CRM-Arbeit; produktiv gilt der Workflow-Split aus `deploy-plesk.yml`
 - ./deployment-scripts/deploy-api-plesk.sh: API-Deployment (FastAPI)
 - ./build-pipeline.sh: Qualität prüfen, bauen, Berichte erzeugen
 

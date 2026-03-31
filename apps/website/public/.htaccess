@@ -1,0 +1,22 @@
+Options -Indexes
+DirectoryIndex index.html
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Block internal build/runtime directories when the CRM portal and native
+  # runtime share one document root on Plesk.
+  RewriteRule "^(\.|composer\.(json|lock)|config/|drush/|private/|sites/|vendor/)" - [F,L,NC]
+
+  # Let ACME challenges and the native Drupal subtree handle their own routing.
+  RewriteCond %{REQUEST_URI} ^/\.well-known/ [OR]
+  RewriteCond %{REQUEST_URI} ^/native(?:/|$)
+  RewriteRule ^ - [L]
+
+  # Serve existing files directly; all other requests become SPA routes.
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+
+  RewriteRule ^ index.html [L]
+</IfModule>

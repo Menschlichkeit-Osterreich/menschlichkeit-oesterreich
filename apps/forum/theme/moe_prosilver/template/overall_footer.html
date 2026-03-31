@@ -1,0 +1,74 @@
+{# ── Menschlichkeit Österreich: Brand-Footer + DSGVO Cookie-Consent ── #}
+
+<!-- MÖ Brand Footer -->
+<footer class="moe-brand-footer" style="
+    background-color: #2B231D;
+    color: #B8ADA0;
+    padding: 32px 16px 16px;
+    font-family: 'Source Sans 3', 'Segoe UI', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    text-align: center;
+    margin-top: 32px;
+">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <p style="color: #F0EBE6; font-family: 'Nunito Sans', sans-serif; font-weight: 700; font-size: 16px; margin-bottom: 8px;">
+            Menschlichkeit &Ouml;sterreich
+        </p>
+        <p style="margin-bottom: 16px;">
+            Gemeinsam f&uuml;r Demokratie, Menschenrechte und gesellschaftlichen Zusammenhalt.
+        </p>
+        <nav aria-label="Footer-Navigation" style="margin-bottom: 16px;">
+            <a href="https://menschlichkeit-oesterreich.at/datenschutz" style="color: #DDD5CC; text-decoration: none; margin: 0 8px;">Datenschutz</a>
+            <span style="color: #7A6E62;">&middot;</span>
+            <a href="https://menschlichkeit-oesterreich.at/impressum" style="color: #DDD5CC; text-decoration: none; margin: 0 8px;">Impressum</a>
+            <span style="color: #7A6E62;">&middot;</span>
+            <a href="https://menschlichkeit-oesterreich.at/kontakt" style="color: #DDD5CC; text-decoration: none; margin: 0 8px;">Kontakt</a>
+            <span style="color: #7A6E62;">&middot;</span>
+            <a href="https://menschlichkeit-oesterreich.at/barrierefreiheit" style="color: #DDD5CC; text-decoration: none; margin: 0 8px;">Barrierefreiheit</a>
+        </nav>
+        <p style="color: #7A6E62; font-size: 12px;">
+            &copy; <!-- IF S_TIMEZONE -->{{ 'now'|date('Y') }}<!-- ELSE -->2026<!-- ENDIF --> Menschlichkeit &Ouml;sterreich &mdash; Alle Rechte vorbehalten
+        </p>
+    </div>
+</footer>
+
+<!-- DSGVO Cookie-Consent Banner -->
+<div class="moe-cookie-banner" id="moe-cookie-consent" role="alertdialog" aria-label="Cookie-Hinweis" hidden>
+    <p>
+        Dieses Forum verwendet technisch notwendige Cookies f&uuml;r Login und Sitzungsverwaltung.
+        Weitere Informationen finden Sie in unserer
+        <a href="https://menschlichkeit-oesterreich.at/datenschutz">Datenschutzerkl&auml;rung</a>.
+    </p>
+    <button class="moe-cookie-banner__accept" onclick="moeCookieAccept()" type="button">
+        Verstanden
+    </button>
+    <button class="moe-cookie-banner__reject" onclick="moeCookieReject()" type="button">
+        Nur notwendige
+    </button>
+</div>
+
+<script>
+(function() {
+    'use strict';
+    var banner = document.getElementById('moe-cookie-consent');
+    if (!banner) return;
+
+    // Banner nur zeigen wenn noch nicht akzeptiert
+    if (!localStorage.getItem('moe_cookie_consent')) {
+        banner.removeAttribute('hidden');
+    }
+
+    window.moeCookieAccept = function() {
+        localStorage.setItem('moe_cookie_consent', 'accepted');
+        banner.setAttribute('hidden', '');
+    };
+
+    window.moeCookieReject = function() {
+        localStorage.setItem('moe_cookie_consent', 'essential');
+        banner.setAttribute('hidden', '');
+    };
+})();
+</script>
+
+{% INCLUDE 'overall_footer.html' %}

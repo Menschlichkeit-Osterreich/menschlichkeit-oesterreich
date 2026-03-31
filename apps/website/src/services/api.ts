@@ -1,4 +1,7 @@
 import { http } from './http';
+export { authService } from './api/auth';
+export { sepaService } from './api/sepa';
+export { privacyService } from './api/privacy';
 
 export interface HealthResponse {
   status: string;

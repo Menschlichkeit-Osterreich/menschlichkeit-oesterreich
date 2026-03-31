@@ -39,6 +39,8 @@ env:
   FRONTEND_REMOTE_PATH: ${{ vars.PLESK_FRONTEND_PATH || 'httpdocs' }}
   API_REMOTE_PATH: ${{ vars.PLESK_API_PATH || 'subdomains/api/httpdocs' }}
   CRM_REMOTE_PATH: ${{ vars.PLESK_CRM_PATH || 'subdomains/crm/httpdocs' }}
+  CRM_NATIVE_REMOTE_PATH: ${{ vars.PLESK_CRM_NATIVE_PATH || 'subdomains/crm/httpdocs/native' }}
+  CRM_NATIVE_BUILD_PATH: ${{ vars.PLESK_CRM_NATIVE_BUILD_PATH || 'subdomains/crm/httpdocs/.native-build' }}
   GAMES_REMOTE_PATH: ${{ vars.PLESK_GAMES_PATH || 'subdomains/games/httpdocs' }}
   MAIN_DOMAIN: ${{ vars.MAIN_DOMAIN || 'menschlichkeit-oesterreich.at' }}
   NODE_VERSION: '22'
@@ -160,14 +162,23 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Games-Dependencies installieren
+        working-directory: apps/babylon-game
+        run: npm ci --prefer-offline --ignore-scripts
+
       - name: Games-Build schreiben
-        run: node apps/game/scripts/build-game.mjs
+        working-directory: apps/babylon-game
+        run: npm run build
 
       - name: Games-Artefakt speichern
         uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: games-dist-${{ github.sha }}
-          path: apps/game/dist/
+          path: |
+            apps/babylon-game/.next/
+            apps/babylon-game/public/
+            apps/babylon-game/package.json
+            apps/babylon-game/next.config.ts
           retention-days: 3
 
   # ============================================================
@@ -272,7 +283,7 @@ jobs:
         uses: actions/download-artifact@fa0a91b85d4f404e444306234f5d70e8f8d04eea # v4.1.8
         with:
           name: frontend-dist-${{ github.sha }}
-          path: _dist_frontend/
+          path: _dist_website/
 
       - name: Frontend → scp (Chroot-SSH)
         if: >
@@ -280,10 +291,10 @@ jobs:
           github.event.inputs.service == 'frontend'
         run: |
           # Chroot-SSH: Pfade relativ zum Home-Verzeichnis des Chroot-Users
-          find _dist_frontend -name "*.map" -delete
+          find _dist_website -name "*.map" -delete
           ssh plesk-prod "mkdir -p '${{ env.FRONTEND_REMOTE_PATH }}'"
           scp -r -F ~/.ssh/config \
-            _dist_frontend/. \
+            _dist_website/. \
             "plesk-prod:${{ env.FRONTEND_REMOTE_PATH }}/"
           ssh plesk-prod \
             "printf '%s\n' '${{ steps.release.outputs.marker }}' > '${{ env.FRONTEND_REMOTE_PATH }}/.deploy_release'"
@@ -310,25 +321,94 @@ jobs:
           echo "✓ API deployt."
 
       # ── CRM deployen ────────────────────────────────────────
-      - name: CRM → scp (Chroot-SSH)
+      - name: CRM-Portal-Artefakt herunterladen
+        if: >
+          github.event.inputs.service == 'all' ||
+          github.event.inputs.service == 'crm'
+        uses: actions/download-artifact@fa0a91b85d4f404e444306234f5d70e8f8d04eea # v4.1.8
+        with:
+          name: frontend-dist-${{ github.sha }}
+          path: _dist_crm_portal/
+
+      - name: CRM-Portal → scp (Chroot-SSH)
+        if: >
+          github.event.inputs.service == 'all' ||
+          github.event.inputs.service == 'crm'
+        run: |
+          find _dist_crm_portal -name "*.map" -delete
+          ssh plesk-prod "
+            set -e
+            mkdir -p '${{ env.CRM_REMOTE_PATH }}' '${{ env.CRM_NATIVE_REMOTE_PATH }}' '${{ env.CRM_NATIVE_BUILD_PATH }}' '${{ env.CRM_REMOTE_PATH }}/config' '${{ env.CRM_REMOTE_PATH }}/private'
+            find '${{ env.CRM_REMOTE_PATH }}' -mindepth 1 -maxdepth 1 \
+              ! -name native \
+              ! -name .native-build \
+              ! -name .well-known \
+              ! -name config \
+              ! -name private \
+              -exec rm -rf {} +
+          "
+          scp -r -F ~/.ssh/config \
+            _dist_crm_portal/. \
+            "plesk-prod:${{ env.CRM_REMOTE_PATH }}/"
+          ssh plesk-prod \
+            "printf '%s\n' '${{ steps.release.outputs.marker }} portal-root' > '${{ env.CRM_REMOTE_PATH }}/.deploy_release'"
+          echo "✓ CRM-Portal deployt."
+
+      - name: CRM-Native-Quelle hochladen
         if: >
           github.event.inputs.service == 'all' ||
           github.event.inputs.service == 'crm'
         run: |
           tar --exclude=".git" --exclude="node_modules" --exclude="vendor" \
               --exclude="web/sites/*/files" --exclude=".env" --exclude="*.log" \
-              -czf /tmp/crm.tar.gz -C apps/crm .
-          ssh plesk-prod "mkdir -p '${{ env.CRM_REMOTE_PATH }}'"
-          scp -F ~/.ssh/config /tmp/crm.tar.gz "plesk-prod:crm.tar.gz"
-          ssh plesk-prod "tar -xzf crm.tar.gz -C '${{ env.CRM_REMOTE_PATH }}' && rm crm.tar.gz"
-          ssh plesk-prod \
-            "cd '${{ env.CRM_REMOTE_PATH }}' && command -v composer && \
-             composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction 2>&1 | tail -5 && \
-             vendor/bin/drush updb -y && vendor/bin/drush cr" || \
-            echo "⚠️ composer/drush nicht im Chroot."
-          ssh plesk-prod \
-            "printf '%s\n' '${{ steps.release.outputs.marker }}' > '${{ env.CRM_REMOTE_PATH }}/.deploy_release'"
-          echo "✓ CRM deployt."
+              -czf /tmp/crm-native-src.tar.gz -C apps/crm .
+          scp -F ~/.ssh/config /tmp/crm-native-src.tar.gz "plesk-prod:crm-native-src.tar.gz"
+          ssh plesk-prod "
+            set -e
+            mkdir -p '${{ env.CRM_NATIVE_BUILD_PATH }}'
+            find '${{ env.CRM_NATIVE_BUILD_PATH }}' -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+            tar -xzf crm-native-src.tar.gz -C '${{ env.CRM_NATIVE_BUILD_PATH }}'
+            rm crm-native-src.tar.gz
+          "
+          echo "✓ CRM-Native-Quelle hochgeladen."
+
+      - name: CRM-Native bauen und synchronisieren
+        if: >
+          github.event.inputs.service == 'all' ||
+          github.event.inputs.service == 'crm'
+        run: |
+          ssh plesk-prod "
+            set -e
+            cd '${{ env.CRM_NATIVE_BUILD_PATH }}'
+            command -v composer >/dev/null
+            composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction 2>&1 | tail -20
+            mkdir -p web/sites/default/files
+            if [ -x vendor/bin/drush ]; then
+              if php vendor/bin/drush --root=web status --field=bootstrap 2>/dev/null | grep -qi Successful; then
+                php vendor/bin/drush --root=web updatedb -y
+                php vendor/bin/drush --root=web config:import -y
+                php vendor/bin/drush --root=web cache:rebuild
+              else
+                echo '⚠️ Drupal bootstrap nicht erfolgreich; updb/cim/cr wurden uebersprungen.'
+              fi
+            fi
+            mkdir -p '${{ env.CRM_NATIVE_REMOTE_PATH }}' '${{ env.CRM_REMOTE_PATH }}/config' '${{ env.CRM_REMOTE_PATH }}/private'
+            if command -v rsync >/dev/null; then
+              rsync -a --delete --exclude 'sites/default/files/***' '${{ env.CRM_NATIVE_BUILD_PATH }}/web/' '${{ env.CRM_NATIVE_REMOTE_PATH }}/'
+              rsync -a --delete '${{ env.CRM_NATIVE_BUILD_PATH }}/config/' '${{ env.CRM_REMOTE_PATH }}/config/'
+            else
+              find '${{ env.CRM_NATIVE_REMOTE_PATH }}' -mindepth 1 -maxdepth 1 ! -name sites -exec rm -rf {} +
+              mkdir -p '${{ env.CRM_NATIVE_REMOTE_PATH }}/sites/default/files'
+              tar -C '${{ env.CRM_NATIVE_BUILD_PATH }}/web' --exclude='sites/default/files' -cf - . | tar -C '${{ env.CRM_NATIVE_REMOTE_PATH }}' -xf -
+              rm -rf '${{ env.CRM_REMOTE_PATH }}/config'
+              mkdir -p '${{ env.CRM_REMOTE_PATH }}/config'
+              tar -C '${{ env.CRM_NATIVE_BUILD_PATH }}' -cf - config | tar -C '${{ env.CRM_REMOTE_PATH }}' -xf -
+            fi
+            chmod -R 775 '${{ env.CRM_NATIVE_REMOTE_PATH }}/sites/default/files' || true
+            chmod -R 750 '${{ env.CRM_REMOTE_PATH }}/private' || true
+            printf '%s\n' '${{ steps.release.outputs.marker }} native-runtime' > '${{ env.CRM_NATIVE_REMOTE_PATH }}/.deploy_release'
+          "
+          echo "✓ CRM-Native unter /native synchronisiert."
 
       # ── Games deployen ──────────────────────────────────────
       - name: Games-Artefakt herunterladen
@@ -379,6 +459,32 @@ jobs:
           echo "API HTTP: ${HTTP}"
           [[ "${HTTP}" =~ ^[23] ]] || echo "⚠️ API Healthcheck: ${HTTP} (API benötigt ggf. Neustart via Plesk)"
 
+      - name: Healthcheck — CRM-Portal
+        if: >
+          always() && (
+            github.event.inputs.service == 'all' ||
+            github.event.inputs.service == 'crm'
+          )
+        run: |
+          sleep 5
+          HTTP=$(curl --silent --max-time 15 --output /dev/null --write-out "%{http_code}" \
+            "https://crm.${{ env.MAIN_DOMAIN }}/")
+          echo "CRM Portal HTTP: ${HTTP}"
+          [[ "${HTTP}" =~ ^[23] ]] || { echo "✗ CRM-Portal Healthcheck fehlgeschlagen."; exit 1; }
+
+      - name: Healthcheck — CRM-Native
+        if: >
+          always() && (
+            github.event.inputs.service == 'all' ||
+            github.event.inputs.service == 'crm'
+          )
+        run: |
+          sleep 5
+          HTTP=$(curl --silent --max-time 15 --output /dev/null --write-out "%{http_code}" \
+            "https://crm.${{ env.MAIN_DOMAIN }}/native/")
+          echo "CRM Native HTTP: ${HTTP}"
+          [[ "${HTTP}" =~ ^[23] ]] || { echo "✗ CRM-Native Healthcheck fehlgeschlagen."; exit 1; }
+
       - name: Healthcheck — Games
         if: >
           always() && (
@@ -410,4 +516,5 @@ jobs:
           echo "| 🌐 Frontend | https://${{ env.MAIN_DOMAIN }}/ |" >> "$GITHUB_STEP_SUMMARY"
           echo "| ⚙️ API | https://api.${{ env.MAIN_DOMAIN }}/ |" >> "$GITHUB_STEP_SUMMARY"
           echo "| 📋 CRM | https://crm.${{ env.MAIN_DOMAIN }}/ |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| 🧭 CRM Native | https://crm.${{ env.MAIN_DOMAIN }}/native/ |" >> "$GITHUB_STEP_SUMMARY"
           echo "| 🎮 Games | https://games.${{ env.MAIN_DOMAIN }}/ |" >> "$GITHUB_STEP_SUMMARY"

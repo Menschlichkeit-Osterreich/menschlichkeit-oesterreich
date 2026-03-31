@@ -6,9 +6,10 @@ import { Button } from '../components/ui/Button';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
 import { PageHeader } from '../components/ui/PageHeader';
 import { http } from '../services/http';
+import { buildPublicUrl } from '../utils/runtimeHost';
 
 interface MemberProfile {
-  id: number;
+  id: string;
   first_name: string;
   last_name: string;
   email: string;
@@ -29,8 +30,28 @@ export default function MemberAreaPage() {
     const fetchProfile = async () => {
       setLoading(true);
       try {
-        const data = await http.get('/api/members/me/profile', { token });
-        setProfile(data as MemberProfile);
+        const response = await http.get<{
+          success: boolean;
+          data: {
+            id: string;
+            firstName?: string;
+            lastName?: string;
+            email: string;
+            mitgliedschaftTyp?: string;
+            status?: string;
+            createdAt?: string | null;
+          };
+        }>('/api/members/me/profile', { token });
+        const data = response.data;
+        setProfile({
+          id: data.id,
+          first_name: data.firstName || '',
+          last_name: data.lastName || '',
+          email: data.email,
+          membership_type: data.mitgliedschaftTyp || 'ordentlich',
+          membership_status: data.status || 'active',
+          member_since: data.createdAt || new Date().toISOString(),
+        });
       } catch {
         setError('Profildaten konnten nicht geladen werden.');
       } finally {
@@ -69,7 +90,7 @@ export default function MemberAreaPage() {
           <Card className="p-6 md:col-span-1">
             <div className="text-center mb-4">
               <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center mx-auto mb-3 text-2xl font-bold text-primary-700">
-                {profile ? `${profile.first_name[0]}${profile.last_name[0]}` : '?'}
+                {profile ? `${profile.first_name?.[0] || ''}${profile.last_name?.[0] || ''}` || '?' : '?'}
               </div>
               <h2 className="text-lg font-semibold">
                 {profile ? `${profile.first_name} ${profile.last_name}` : 'Unbekannt'}
@@ -101,10 +122,10 @@ export default function MemberAreaPage() {
               </div>
             )}
             <div className="mt-4 space-y-2">
-              <Button variant="secondary" className="w-full text-sm" onClick={() => window.location.href = '/account/privacy'}>
+              <Button variant="secondary" className="w-full text-sm" onClick={() => window.location.href = '/member/datenschutz'}>
                 Datenschutz-Einstellungen
               </Button>
-              <Button variant="secondary" className="w-full text-sm" onClick={() => window.location.href = '/spenden'}>
+              <Button variant="secondary" className="w-full text-sm" onClick={() => window.location.href = buildPublicUrl('/spenden')}>
                 Spende tätigen
               </Button>
             </div>
@@ -115,12 +136,12 @@ export default function MemberAreaPage() {
               <h3 className="font-semibold text-base mb-3">Schnellzugriff</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {[
-                  { label: 'Mitgliedsdaten ändern', href: '/account/profile', icon: '✏️' },
-                  { label: 'SEPA-Mandat', href: '/account/sepa', icon: '🏦' },
-                  { label: 'Spendenquittung', href: '/account/receipts', icon: '🧾' },
-                  { label: 'Newsletter', href: '/account/newsletter', icon: '📧' },
-                  { label: 'Veranstaltungen', href: '/veranstaltungen', icon: '📅' },
-                  { label: 'Forum', href: 'https://forum.menschlichkeit-oesterreich.at', icon: '💬' },
+                  { label: 'Mitgliedsdaten ändern', href: '/member/profil', icon: '✏️' },
+                  { label: 'SEPA-Mandat', href: '/member/sepa', icon: '🏦' },
+                  { label: 'Rechnungen & Belege', href: '/member/rechnungen', icon: '🧾' },
+                  { label: 'Newsletter', href: '/member/newsletter', icon: '📧' },
+                  { label: 'Veranstaltungen', href: buildPublicUrl('/veranstaltungen'), icon: '📅' },
+                  { label: 'Forum', href: buildPublicUrl('/forum'), icon: '💬' },
                 ].map((item) => (
                   <a
                     key={item.href}

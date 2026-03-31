@@ -261,7 +261,7 @@ Plesk unterstützt **Git-basierte Deployments** (benötigt Git-Extension).
 1. Plesk → **Domains** → `menschlichkeit-oesterreich.at` → **Git**
 2. **Add Repository**
 3. Konfiguration:
-   - **Repository-URL:** `https://github.com/peschull/menschlichkeit-oesterreich-development.git`
+   - **Repository-URL:** `https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich.git`
    - **Branch:** `main` (oder `production`)
    - **Repository-Pfad:** `/httpdocs` (oder `/frontend`, `/crm`, etc.)
    - **Deployment-Mode:**
@@ -305,7 +305,7 @@ ssh user@menschlichkeit-oesterreich.at
 cd httpdocs/crm
 
 # 3. Git-Repository klonen (Erstes Mal)
-git clone https://github.com/peschull/menschlichkeit-oesterreich-development.git .
+git clone https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich.git .
 
 # 4. Oder: Pull bei Updates
 git pull origin main
@@ -324,8 +324,8 @@ chown -R user:psacln sites/default/files  # user = Domain-User
 
 **WICHTIG:**
 
-- **GitHub-Token erforderlich** (für private Repos): `git clone https://<TOKEN>@github.com/peschull/menschlichkeit-oesterreich-development.git`
-- **SSH-Key-Auth bevorzugt:** `git clone git@github.com:peschull/menschlichkeit-oesterreich-development.git` (SSH-Key in GitHub-Account hinterlegen)
+- **GitHub-Token erforderlich** (für private Repos): `git clone https://<TOKEN>@github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich.git`
+- **SSH-Key-Auth bevorzugt:** `git clone git@github.com:Menschlichkeit-Osterreich/menschlichkeit-oesterreich.git` (SSH-Key in GitHub-Account hinterlegen)
 
 ---
 
@@ -339,8 +339,8 @@ chown -R user:psacln sites/default/files  # user = Domain-User
 
 # 2. rsync-Upload (Beispiel: Frontend-Build)
 rsync -avz --delete \
-  ./frontend/dist/ \
-  user@menschlichkeit-oesterreich.at:/httpdocs/frontend/
+  ./apps/website/dist/ \
+  user@menschlichkeit-oesterreich.at:/httpdocs/
 
 # 3. Oder: SFTP-Client (FileZilla, WinSCP)
 # Host: menschlichkeit-oesterreich.at
@@ -414,7 +414,7 @@ chown -R user:psacln sites/default/files/civicrm
 
 **Workflow:**
 
-1. Plesk → **Domains** → `api.menschlichkeit-oesterreich.at`
+1. Plesk → **Domains** → `api.<main-domain>`
 2. **Node.js** (neue Option nach Komponenten-Installation)
 3. **Enable Node.js**
 4. Konfiguration:
@@ -581,17 +581,33 @@ pm2 startup  # Auto-Start nach Reboot (benötigt Root für systemd)
 
 ### 6.1 PHP-Versionen
 
-**Plesk-Admin:**
+**Verfügbare PHP-Versionen in Plesk Obsidian:**
+
+- ✅ PHP 8.4.11 (System-Standard, empfohlen für neue Projekte)
+- ✅ PHP 8.3.x (für Cron-Jobs und CLI-Tools)
+- ✅ PHP 8.2.x (für Legacy-Kompatibilität)
+- ✅ PHP 8.1.x (Minimum für Drupal 10 + CiviCRM)
+- ⚠️ PHP 7.4.x (EOL, nur für Legacy-Apps)
+
+**Installation (Plesk-Admin):**
 
 1. **Tools & Settings** → **Updates** → **Add/Remove Components**
-2. **PHP** → Mehrere Versionen auswählen (7.4, 8.0, 8.1, 8.2, 8.3)
+2. **PHP** → Mehrere Versionen auswählen (8.1, 8.2, 8.3, 8.4)
 3. **Apply Changes** → Plesk installiert PHP-Versionen
 
 **Pro Domain konfigurierbar:**
 
 - Plesk → **Domains** → `menschlichkeit-oesterreich.at` → **PHP Settings**
-- **PHP-Version:** 8.1 (für Drupal 10 + CiviCRM)
-- **Extensions:** mbstring, xml, gd, curl, zip, pdo_mysql (automatisch aktiviert)
+- **PHP-Version:** 8.4.11 (empfohlen für Production)
+- **Extensions:** mbstring, xml, gd, curl, zip, pdo_mysql, pdo_pgsql (automatisch aktiviert)
+
+**WICHTIG für Cron-Jobs:**
+
+- Cron-Jobs nutzen `/usr/bin/php` (System-Standard) oder `/opt/plesk/php/8.3/bin/php`
+- **NICHT** `/opt/plesk/php/8.3.22/bin/php` (spezifische Patch-Versionen existieren oft nicht)
+- Bei Chroot: `./update-chroot.sh --add php8.3` verwenden
+
+**Quelle:** [Plesk Docs - PHP Management](https://docs.plesk.com/en-US/obsidian/administrator-guide/server-administration/php-management.70669/)
 
 ---
 

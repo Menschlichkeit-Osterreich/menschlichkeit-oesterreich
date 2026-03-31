@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '@/constants/api';
 import { STORAGE_KEYS } from '@/constants/storage';
+import { buildPortalUrl } from '../utils/runtimeHost';
 export default function Register() {
   const _navigate = useNavigate();
   const [form, setForm] = useState({
@@ -55,10 +56,8 @@ export default function Register() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.detail || 'Registrierung fehlgeschlagen');
-      if (data?.data?.token) {
-        sessionStorage.setItem(STORAGE_KEYS.authToken, data.data.token);
-        window.location.href = '/member/onboarding';
-      }
+      sessionStorage.removeItem(STORAGE_KEYS.authToken);
+      window.location.href = buildPortalUrl('/login');
     } catch (err: any) {
       setError(err.message || 'Registrierung fehlgeschlagen');
     } finally {

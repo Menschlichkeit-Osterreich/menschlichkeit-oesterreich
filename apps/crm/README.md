@@ -2,14 +2,21 @@
 
 > **Customer Relationship Management für Menschlichkeit Österreich**
 
-**URL (Production)**: `https://crm.menschlichkeit-oesterreich.at`  
+**Portal (Production)**: `https://crm.menschlichkeit-oesterreich.at`  
+**Native Backoffice (Production)**: `https://crm.menschlichkeit-oesterreich.at/native/`  
 **URL (Development)**: `http://localhost:8000`
 
 ---
 
 ## 🎯 Übersicht
 
-Das CRM System basiert auf **Drupal 10** + **CiviCRM** und verwaltet:
+Das CRM-System ist produktiv als **Hybrid-Split** aufgebaut:
+
+- `crm.menschlichkeit-oesterreich.at/` liefert das React-/FastAPI-Portal für Login, Mitglieder-Self-Service und Staff-Backoffice.
+- `crm.menschlichkeit-oesterreich.at/native/` liefert das native **Drupal 10 + CiviCRM** Runtime für Deep-Operations.
+- Diese App (`apps/crm/`) ist die Quelle für das native Runtime, nicht für das Portal-Frontend.
+
+Das native CRM basiert auf **Drupal 10** + **CiviCRM** und verwaltet:
 
 - 👥 **Contacts** (Mitglieder, Spender, Freiwillige)
 - 💳 **Memberships** (Mitgliedschaften mit SEPA-Integration)
@@ -34,7 +41,7 @@ Das CRM System basiert auf **Drupal 10** + **CiviCRM** und verwaltet:
 
 ```bash
 # In CRM-Verzeichnis wechseln
-cd crm.menschlichkeit-oesterreich.at
+cd apps/crm
 
 # Composer Dependencies installieren
 composer install
@@ -45,13 +52,13 @@ composer install
 #   --db-url=mysql://user:password@localhost/crm_db \
 #   --site-name="Menschlichkeit Österreich CRM"
 
-# Development Server starten (von Root)
-npm run dev:crm
-# ODER manuell:
+# Native Runtime lokal starten
 php -S localhost:8000 -t web
 ```
 
-**CRM verfügbar unter**: <http://localhost:8000>
+**Native CRM lokal verfügbar unter**: <http://localhost:8000>
+
+Das produktive Portal-Frontend kommt aus `apps/website/` und wird hostabhaengig sowohl fuer `www.` als auch fuer `crm.` gebaut.
 
 ---
 
@@ -96,12 +103,12 @@ crm.menschlichkeit-oesterreich.at/
 
 ### Contributed Modules
 
-| Modul | Version | Zweck |
-|-------|---------|-------|
-| **CiviCRM** | 5.75+ | CRM-Funktionalität |
-| **Token** | 1.13+ | Token Replacement |
-| **Backup & Migrate** | 5.0+ | Database Backups |
-| **Admin Toolbar** | 3.4+ | Improved Admin UX |
+| Modul                | Version | Zweck              |
+| -------------------- | ------- | ------------------ |
+| **CiviCRM**          | 5.75+   | CRM-Funktionalität |
+| **Token**            | 1.13+   | Token Replacement  |
+| **Backup & Migrate** | 5.0+    | Database Backups   |
+| **Admin Toolbar**    | 3.4+    | Improved Admin UX  |
 
 ### Custom Modules
 
@@ -252,16 +259,21 @@ git commit -m "feat: update drupal config"
 
 ### Plesk Deployment
 
-```bash
-# Von Root-Verzeichnis
-./deployment-scripts/deploy-crm-plesk.sh
+Der produktive Deploy erfolgt nicht mehr ueber das alte Placeholder-HTML, sondern ueber den Split in `.github/workflows/deploy-plesk.yml`:
 
-# Steps:
-# 1. Git pull auf Server
-# 2. composer install --no-dev
-# 3. drush updatedb (Database Updates)
-# 4. drush config:import (Config Import)
-# 5. drush cache:rebuild
+- CRM-Root bekommt den `apps/website`-Build als Portal.
+- Das native Drupal/CiviCRM-Runtime wird in einen versteckten Build-Pfad installiert und anschliessend nach `/native/` synchronisiert.
+- `config/sync`, `private/` und `sites/default/files` bleiben dabei als eigene Runtime-Pfade erhalten.
+
+```bash
+# GitHub Actions Workflow
+# .github/workflows/deploy-plesk.yml
+#
+# CRM-Service:
+# 1. frontend-dist nach crm-root deployen
+# 2. apps/crm in .native-build installieren
+# 3. drush updatedb + config:import + cache:rebuild
+# 4. web/ nach /native/ synchronisieren
 ```
 
 ### Environment Variables (Production)

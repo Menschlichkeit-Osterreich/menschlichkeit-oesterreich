@@ -1,11 +1,11 @@
 ---
-title: "Mcpfeatureimplementation"
-description: "MCP-gestützte Feature Implementation"
+title: 'Mcpfeatureimplementation'
+description: 'MCP-gestützte Feature Implementation'
 lastUpdated: 2025-10-10
 status: ACTIVE
 category: development
 tags: ['development', 'mcp', 'dsgvo']
-version: "1.0.0"
+version: '1.0.0'
 language: de-AT
 audience: ['Backend Team', 'Frontend Team']
 ---
@@ -25,9 +25,9 @@ mcpTools: required
 ## 📋 Phase 1: Requirements & Design (Figma MCP + GitHub MCP)
 
 ```
-1. Via GitHub MCP: 
+
+1. Via GitHub MCP:
    "Show issue #{ISSUE_NUMBER} with all comments and requirements"
-   
 2. Via Figma MCP:
    "Get design system rules for {FEATURE_NAME}"
    "Extract component code from node {NODE_ID}"
@@ -37,25 +37,29 @@ mcpTools: required
    "Load similar feature implementations from past"
 
 OUTPUT: Vollständiges Requirements-Dokument mit Design-Specs
+
 ```text
 
 ## 🏗️ Phase 2: Architecture Planning (Multi-Service)
 
 ```
+
 Feature: "Newsletter-Anmeldung mit DSGVO-Consent"
 
 ### CRM Service (Drupal + CiviCRM)
+
 Via PostgreSQL MCP:
 "Check if table civicrm_contact has consent_newsletter column"
 "Show contact schema for required fields"
 
 Falls Migration nötig:
 Via Filesystem MCP:
-"Create migration: crm.menschlichkeit-oesterreich.at/migrations/add_newsletter_consent.php"
+"Create migration or CRM patch under: apps/crm/web/modules/custom/"
 
 ### API Backend (FastAPI)
+
 Via Filesystem MCP:
-"Create endpoint: api.menschlichkeit-oesterreich.at/app/routers/newsletter.py"
+"Create endpoint: apps/api/app/routers/newsletter.py"
 
 Code Template:
 from fastapi import APIRouter, Depends
@@ -66,87 +70,93 @@ router = APIRouter(prefix="/newsletter", tags=["newsletter"])
 
 @router.post("/subscribe")
 async def subscribe(
-    email: str,
-    consent_given: bool,
-    db: Session = Depends(get_db)
-):
-    # PII Sanitization
-    sanitized = sanitize_pii({"email": email})
-    
+email: str,
+consent_given: bool,
+db: Session = Depends(get_db)
+): # PII Sanitization
+sanitized = sanitize_pii({"email": email})
+
     # DSGVO: Explicit Consent Check
     if not consent_given:
         raise HTTPException(400, "Consent required")
-    
+
     # Via PostgreSQL MCP: Store in CRM
     # ...
 
 ### Frontend (React/TypeScript)
+
 Via Figma MCP:
 "Get code for newsletter form component"
 
 Via Filesystem MCP:
-"Create component: frontend/src/components/Newsletter/SubscribeForm.tsx"
+"Create component: apps/website/src/components/Newsletter/SubscribeForm.tsx"
 
 Code:
 import { Button } from '@/components/ui/Button';
 import { useState } from 'react';
 
 export const NewsletterForm = () => {
-  const [email, setEmail] = useState('');
-  const [consent, setConsent] = useState(false);
-  
-  const handleSubmit = async () => {
-    // Via API: POST /newsletter/subscribe
-    const response = await fetch('/api/newsletter/subscribe', {
-      method: 'POST',
-      body: JSON.stringify({ email, consent_given: consent })
-    });
-    
+const [email, setEmail] = useState('');
+const [consent, setConsent] = useState(false);
+
+const handleSubmit = async () => {
+// Via API: POST /newsletter/subscribe
+const response = await fetch('/api/newsletter/subscribe', {
+method: 'POST',
+body: JSON.stringify({ email, consent_given: consent })
+});
+
     if (response.ok) {
       // Success handling
     }
-  };
-  
-  return (
-    <form onSubmit={handleSubmit}>
-      <input 
-        type="email" 
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="border-brand-red p-md"
-      />
-      
+
+};
+
+return (
+<form onSubmit={handleSubmit}>
+<input
+type="email"
+value={email}
+onChange={(e) => setEmail(e.target.value)}
+className="border-brand-red p-md"
+/>
+
       <label>
-        <input 
-          type="checkbox" 
+        <input
+          type="checkbox"
           checked={consent}
           onChange={(e) => setConsent(e.target.checked)}
         />
         Ich stimme der Datenverarbeitung gemäß DSGVO zu
         <a href="/datenschutz">Datenschutzerklärung</a>
       </label>
-      
+
       <Button variant="primary" type="submit">
         Anmelden
       </Button>
     </form>
-  );
+
+);
 };
 
 ### n8n Automation
+
 Via Filesystem MCP:
 "Create workflow: automation/n8n/workflows/newsletter-welcome-email.json"
 
 Workflow:
+
 1. Webhook Trigger (from API)
 2. CRM Lookup (via PostgreSQL)
 3. Email Send (via SMTP)
 4. Analytics Event
+
 ```text
 
 ## 🧪 Phase 3: Test Implementation (Playwright MCP)
 
 ```
+
 Via Playwright MCP:
 "Create E2E test for newsletter subscription flow"
 
@@ -156,40 +166,44 @@ Via Filesystem MCP:
 import { test, expect } from '@playwright/test';
 
 test.describe('Newsletter Subscription', () => {
-  test('should successfully subscribe with valid email and consent', async ({ page }) => {
-    await page.goto('http://localhost:3000/newsletter');
-    
+test('should successfully subscribe with valid email and consent', async ({ page }) => {
+await page.goto('http://localhost:5173/newsletter');
+
     // Fill form
     await page.fill('[data-testid="email-input"]', 'test@example.com');
     await page.check('[data-testid="consent-checkbox"]');
-    
+
     // Submit
     await page.click('[data-testid="submit-button"]');
-    
+
     // Verify success
     await expect(page.locator('[data-testid="success-message"]')).toBeVisible();
-  });
-  
-  test('should reject subscription without consent (DSGVO)', async ({ page }) => {
-    await page.goto('http://localhost:3000/newsletter');
-    
+
+});
+
+test('should reject subscription without consent (DSGVO)', async ({ page }) => {
+await page.goto('http://localhost:5173/newsletter');
+
     await page.fill('[data-testid="email-input"]', 'test@example.com');
     // NO consent checked
-    
+
     await page.click('[data-testid="submit-button"]');
-    
+
     // Verify error
     await expect(page.locator('[data-testid="error-message"]')).toContainText('Zustimmung erforderlich');
-  });
+
+});
 });
 
 Via Playwright MCP:
 "Run test and capture results"
+
 ```text
 
 ## 🔒 Phase 4: Security & DSGVO Audit
 
 ```
+
 Via GitHub MCP:
 "Check for Dependabot alerts in added dependencies"
 
@@ -199,7 +213,7 @@ Via PostgreSQL MCP:
 
 Via Filesystem MCP:
 "Search for PII in application logs":
-→ "grep -r 'log.*email' api.menschlichkeit-oesterreich.at/app/"
+→ "grep -r 'log.\*email' apps/api/app/"
 
 Via Brave Search MCP:
 "Search GDPR requirements for newsletter subscriptions"
@@ -211,11 +225,13 @@ CHECKLIST:
 □ Encryption at Rest (PostgreSQL)?
 □ PII nicht in Logs?
 □ Privacy Notice verlinkt?
+
 ```text
 
 ## ✨ Phase 5: Design System Compliance
 
 ```
+
 Via Figma MCP:
 "Get latest design tokens for newsletter component"
 
@@ -230,11 +246,13 @@ VERIFY:
 
 Falls Abweichungen:
 "Refactor to use design tokens from figma-design-system/"
+
 ```text
 
 ## 📊 Phase 6: Performance Check
 
 ```
+
 Via Filesystem MCP:
 "Analyze bundle size impact":
 → "npm run build && ls -lh dist/"
@@ -247,20 +265,22 @@ METRICS:
 □ Lazy Loading: Newsletter-Modul async geladen?
 □ API Response Time: <200ms?
 □ Lighthouse Score: Performance ≥90?
+
 ```text
 
 ## 🚀 Phase 7: Deployment Pipeline
 
 ```
+
 Via GitHub MCP:
 "Create Pull Request with feature branch"
 
-PR Template:
----
+## PR Template:
 
 ## Feature: {FEATURE_NAME}
 
 ### Changes:
+
 - [ ] CRM: Newsletter consent column added
 - [ ] API: /newsletter/subscribe endpoint
 - [ ] Frontend: NewsletterForm component
@@ -268,6 +288,7 @@ PR Template:
 - [ ] Tests: E2E tests added
 
 ### Quality Gates:
+
 - [x] Security: 0 CVEs
 - [x] DSGVO: Explicit consent implemented
 - [x] Design: Token compliance 100%
@@ -275,9 +296,11 @@ PR Template:
 - [x] Tests: E2E passing
 
 ### Screenshots:
+
 [Via Figma MCP screenshot]
 
 ### Related Issue: #{ISSUE_NUMBER}
+
 ---
 
 Via Filesystem MCP:
@@ -286,11 +309,13 @@ Via Filesystem MCP:
 
 Via GitHub MCP:
 "Request review from code owners"
+
 ```text
 
 ## 🔄 Phase 8: Post-Deployment Monitoring
 
 ```
+
 Via GitHub MCP:
 "Monitor workflow runs for deployment status"
 
@@ -303,11 +328,13 @@ Via Brave Search MCP (bei Problemen):
 
 Via Memory MCP:
 "Store implementation patterns for future features"
+
 ```text
 
 ## 📈 Success Metrics
 
 ```
+
 TECHNICAL:
 ✅ All Quality Gates passed
 ✅ E2E Tests: 100% passing
@@ -324,6 +351,7 @@ DOCUMENTATION:
 ✅ API docs updated (OpenAPI)
 ✅ Component docs in Storybook
 ✅ Deployment notes archived
+
 ```text
 
 ## 🎯 Beispiel-Ablauf

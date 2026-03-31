@@ -28,10 +28,10 @@ Du führst eine strukturierte Transparenz-Prüfung für den Verein Menschlichkei
 Prüfe ob ZVR-Nummer `1182213083` vorkommt in:
 
 ```bash
-grep -rn "1182213083" menschlichkeit-oesterreich-development/apps/website/src/
-grep -rn "1182213083" menschlichkeit-oesterreich-development/apps/crm/
-grep -rn "1182213083" menschlichkeit-oesterreich-development/ --include="*.md"
-grep -rn "1182213083" menschlichkeit-oesterreich-development/ --include="*.html"
+rg -n "1182213083" apps/website/src
+rg -n "1182213083" apps/crm
+rg -n "1182213083" . -g "*.md"
+rg -n "1182213083" . -g "*.html"
 ```
 
 **Erwartete Fundorte:**
@@ -50,7 +50,7 @@ Fehlende Fundorte als `[FEHLT]` markieren.
 Lies die Impressum-Datei(en):
 
 ```bash
-find menschlichkeit-oesterreich-development -name "impressum*" -o -name "Impressum*" | head -5
+Get-ChildItem -Recurse -Path . -Include "impressum*","Impressum*" | Select-Object -First 5 -ExpandProperty FullName
 ```
 
 **Pflichtangaben gemäß § 5 ECG:**
@@ -71,8 +71,8 @@ Jedes fehlende Pflichtfeld als `[FEHLT — § 5 ECG]` kennzeichnen.
 ## Prüfschritt 3 — Datenschutzerklärung (DSGVO Art. 13/14)
 
 ```bash
-find menschlichkeit-oesterreich-development -name "datenschutz*" -o -name "Datenschutz*" | head -5
-find menschlichkeit-oesterreich-development -name "privacy*" | head -5
+Get-ChildItem -Recurse -Path . -Include "datenschutz*","Datenschutz*" | Select-Object -First 5 -ExpandProperty FullName
+Get-ChildItem -Recurse -Path . -Include "privacy*" | Select-Object -First 5 -ExpandProperty FullName
 ```
 
 **Pflichtinhalte gemäß DSGVO:**
@@ -92,8 +92,8 @@ find menschlichkeit-oesterreich-development -name "privacy*" | head -5
 ## Prüfschritt 4 — Vereinsstatuten-Referenz
 
 ```bash
-find menschlichkeit-oesterreich-development -name "statuten*" -o -name "Statuten*" -o -name "satzung*" | head -5
-grep -rn "Statuten\|Vereinsstatut" menschlichkeit-oesterreich-development/ --include="*.md" | head -10
+Get-ChildItem -Recurse -Path . -Include "statuten*","Statuten*","satzung*" | Select-Object -First 5 -ExpandProperty FullName
+rg -n "Statuten|Vereinsstatut" . -g "*.md" | Select-Object -First 10
 ```
 
 Prüfe ob die Statuten:
@@ -107,7 +107,7 @@ Prüfe ob die Statuten:
 ## Prüfschritt 5 — Cookie-Banner und Einwilligung
 
 ```bash
-grep -rn "cookie\|Cookie\|Einwilligung\|consent" menschlichkeit-oesterreich-development/apps/website/src/ | grep -v "node_modules" | head -20
+rg -n "cookie|Cookie|Einwilligung|consent" apps/website/src | Select-Object -First 20
 ```
 
 - [ ] Cookie-Banner mit Opt-In (nicht nur Opt-Out)

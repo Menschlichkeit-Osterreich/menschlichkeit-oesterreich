@@ -1,37 +1,43 @@
 """Tests für Security-Middleware: Rate-Limiting, CSRF."""
 from __future__ import annotations
 
+import asyncio
+
 import pytest
 from app.security import InMemoryRateLimiter, RateLimitConfig
+
+
+def _run(coro):
+    return asyncio.run(coro)
 
 
 class TestRateLimiter:
     def test_allows_requests_within_limit(self):
         limiter = InMemoryRateLimiter(RateLimitConfig(requests=5, window_seconds=60))
         for _ in range(5):
-            allowed, retry_after = limiter.check("test_key")
+            allowed, retry_after = _run(limiter.check("test_key"))
             assert allowed is True
             assert retry_after == 0
 
     def test_blocks_after_limit_exceeded(self):
         limiter = InMemoryRateLimiter(RateLimitConfig(requests=3, window_seconds=60))
         for _ in range(3):
-            limiter.check("key")
-        allowed, retry_after = limiter.check("key")
+            _run(limiter.check("key"))
+        allowed, retry_after = _run(limiter.check("key"))
         assert allowed is False
         assert retry_after > 0
 
     def test_different_keys_independent(self):
         limiter = InMemoryRateLimiter(RateLimitConfig(requests=1, window_seconds=60))
-        allowed_a, _ = limiter.check("key_a")
-        allowed_b, _ = limiter.check("key_b")
+        allowed_a, _ = _run(limiter.check("key_a"))
+        allowed_b, _ = _run(limiter.check("key_b"))
         assert allowed_a is True
         assert allowed_b is True
 
     def test_second_request_for_same_key_blocked_at_limit_1(self):
         limiter = InMemoryRateLimiter(RateLimitConfig(requests=1, window_seconds=60))
-        limiter.check("key")
-        allowed, retry = limiter.check("key")
+        _run(limiter.check("key"))
+        allowed, retry = _run(limiter.check("key"))
         assert allowed is False
 
 

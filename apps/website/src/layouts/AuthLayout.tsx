@@ -1,5 +1,6 @@
 import React from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
+import { buildPublicUrl } from '../utils/runtimeHost';
 
 export default function AuthLayout() {
   return (
@@ -7,7 +8,7 @@ export default function AuthLayout() {
       {/* Left brand panel */}
       <div
         className="hidden lg:flex lg:w-1/2 flex-col items-center justify-center p-12 relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #b91c1c 0%, #dc2626 45%, #ea580c 100%)' }}
+        style={{ background: 'linear-gradient(135deg, #1b4965 0%, #285a79 42%, #d4611e 100%)' }}
         aria-hidden="true"
       >
         <div className="absolute inset-0 opacity-10">
@@ -25,14 +26,14 @@ export default function AuthLayout() {
               className="w-full h-full object-cover"
             />
           </div>
-          <span className="text-white/70 text-xs font-semibold uppercase tracking-widest mb-2">Verein</span>
+          <span className="text-white/70 text-xs font-semibold uppercase tracking-widest mb-2">CRM-Portal</span>
           <h1 className="text-3xl font-bold text-white mb-4 leading-tight">
             Menschlichkeit<br />Österreich
           </h1>
-          <p className="text-red-100 text-sm leading-relaxed max-w-xs">
-            Initiative für soziale Gerechtigkeit, demokratische Teilhabe und ökologische Verantwortung.
+          <p className="max-w-xs text-sm leading-relaxed text-white/85">
+            Mitglieder-Self-Service, Vereinsverwaltung und redaktionelle Pflege auf einer gemeinsamen Arbeitsoberfläche.
           </p>
-          <div className="mt-8 flex flex-col gap-2 text-xs text-red-200">
+          <div className="mt-8 flex flex-col gap-2 text-xs text-white/70">
             <span>ZVR: 1182213083</span>
             <span>Gegründet: 28. Mai 2025</span>
           </div>
@@ -43,7 +44,7 @@ export default function AuthLayout() {
       <div className="flex-1 flex flex-col">
         {/* Mobile header */}
         <div className="lg:hidden flex items-center gap-3 px-6 py-4 border-b border-secondary-100">
-          <Link to="/" className="flex items-center gap-2">
+          <a href={buildPublicUrl('/')} className="flex items-center gap-2">
             <img
               src="/logo.jpg"
               alt="Menschlichkeit Österreich"
@@ -53,7 +54,7 @@ export default function AuthLayout() {
               className="h-9 w-9 rounded-full object-cover ring-2 ring-primary-100"
             />
             <span className="font-bold text-secondary-900 text-sm">Menschlichkeit Österreich</span>
-          </Link>
+          </a>
         </div>
 
         <main id="main" className="flex-1 flex items-center justify-center p-6 sm:p-12 bg-secondary-50">
@@ -63,11 +64,11 @@ export default function AuthLayout() {
         </main>
 
         <footer className="text-center text-xs text-secondary-400 py-4 px-6">
-          <Link to="/" className="hover:text-primary-600 transition-colors">← Zurück zur Website</Link>
+          <a href={buildPublicUrl('/')} className="hover:text-primary-600 transition-colors">← Zurück zur Website</a>
           {' · '}
-          <Link to="/datenschutz" className="hover:text-primary-600 transition-colors">Datenschutz</Link>
+          <a href={buildPublicUrl('/datenschutz')} className="hover:text-primary-600 transition-colors">Datenschutz</a>
           {' · '}
-          <Link to="/impressum" className="hover:text-primary-600 transition-colors">Impressum</Link>
+          <a href={buildPublicUrl('/impressum')} className="hover:text-primary-600 transition-colors">Impressum</a>
         </footer>
       </div>
     </div>

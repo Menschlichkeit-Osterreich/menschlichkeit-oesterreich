@@ -2,7 +2,7 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "🚀 Dev: Start All Services",
+      "label": "Dev: All Services",
       "type": "shell",
       "command": "npm",
       "args": ["run", "dev:all"],
@@ -15,376 +15,228 @@
         "reveal": "always",
         "focus": false,
         "panel": "shared",
-        "group": "development"
+        "group": "dev"
       },
-      "problemMatcher": [],
-      "runOptions": {
-        "runOn": "folderOpen"
-      }
+      "problemMatcher": []
     },
     {
-      "label": "🔍 Quality: Run All Gates",
+      "label": "Dev: Frontend",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dev:frontend"],
+      "group": "build",
+      "presentation": {
+        "panel": "shared",
+        "group": "dev"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: API",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dev:api"],
+      "group": "build",
+      "presentation": {
+        "panel": "shared",
+        "group": "dev"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: CRM",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dev:crm"],
+      "group": "build",
+      "presentation": {
+        "panel": "shared",
+        "group": "dev"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: Games",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dev:games"],
+      "group": "build",
+      "presentation": {
+        "panel": "shared",
+        "group": "dev"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: Forum",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dev:forum"],
+      "group": "build",
+      "presentation": {
+        "panel": "shared",
+        "group": "dev"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: Website Unit",
+      "type": "shell",
+      "command": "npm",
+      "args": ["--prefix", "apps/website", "run", "test:unit", "--", "--run"],
+      "group": "test",
+      "presentation": {
+        "panel": "shared",
+        "group": "test"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: API",
+      "type": "shell",
+      "command": "python",
+      "args": ["-m", "pytest", "apps/api/tests", "-q"],
+      "group": "test",
+      "presentation": {
+        "panel": "shared",
+        "group": "test"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Quality: Gates",
       "type": "shell",
       "command": "npm",
       "args": ["run", "quality:gates"],
       "group": "test",
       "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
         "panel": "shared",
         "group": "quality"
       },
-      "problemMatcher": ["$eslint-stylish"]
+      "problemMatcher": []
     },
     {
-      "label": "🛡️ Security: Full Scan",
+      "label": "Quality: Governance",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "governance:check"],
+      "group": "test",
+      "presentation": {
+        "panel": "shared",
+        "group": "quality"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Security: Scan",
       "type": "shell",
       "command": "npm",
       "args": ["run", "security:scan"],
       "group": "test",
       "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
         "panel": "shared",
         "group": "security"
       },
       "problemMatcher": []
     },
     {
-      "label": "🏗️ Build: Production Pipeline",
-      "type": "shell",
-      "command": "./build-pipeline.sh",
-      "args": ["production"],
-      "group": "build",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared",
-        "group": "build"
-      },
-      "problemMatcher": ["$eslint-stylish", "$tsc"]
-    },
-    {
-      "label": "🧪 Test: E2E Playwright",
+      "label": "MCP: Check",
       "type": "shell",
       "command": "npm",
-      "args": ["run", "test:e2e"],
-      "group": "test",
+      "args": ["run", "mcp:check"],
+      "group": "none",
       "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
         "panel": "shared",
-        "group": "testing"
+        "group": "ops"
       },
       "problemMatcher": []
     },
     {
-      "label": "📊 Performance: Lighthouse Audit",
+      "label": "MCP: Health",
       "type": "shell",
       "command": "npm",
-      "args": ["run", "performance:lighthouse"],
-      "group": "test",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared",
-        "group": "performance"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "🔄 n8n: Start Automation",
-      "type": "shell",
-      "command": "npm",
-      "args": ["run", "n8n:start"],
-      "group": "build",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "group": "automation"
-      },
-      "problemMatcher": [],
-      "isBackground": true
-    },
-    {
-      "label": "🗄️ Database: Prisma Generate",
-      "type": "shell",
-      "command": "npx",
-      "args": ["prisma", "generate"],
-      "group": "build",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": false,
-        "panel": "shared",
-        "group": "database"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "🚢 Deploy: Dry Run",
-      "type": "shell",
-      "command": "./scripts/safe-deploy.sh",
-      "args": ["--dry-run"],
-      "group": "build",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared",
-        "group": "deployment"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "📋 Reports: Generate Quality Reports",
-      "type": "shell",
-      "command": "npm",
-      "args": ["run", "quality:reports"],
-      "group": "test",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared",
-        "group": "reports"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "🛡️ Security: Trivy FS Scan",
-      "type": "shell",
-      "command": "trivy",
-      "args": ["fs", "--format", "sarif", "--output", "quality-reports/trivy-security.sarif", "."],
-      "group": "test",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared",
-        "group": "security"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "🛡️ Security: Gitleaks Secrets Scan",
-      "type": "shell",
-      "command": "gitleaks",
-      "args": ["detect", "--report-path", "quality-reports/secrets-scan.json", "--report-format", "json"],
-      "group": "test",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared",
-        "group": "security"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "🔍 Code Quality: Codacy Docker Analyze",
-      "type": "shell",
-      "command": "npm",
-      "args": ["run", "quality:codacy"],
-      "group": "test",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared",
-        "group": "quality"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "Plesk: Verbindung testen",
-      "type": "shell",
-      "command": "ssh -v plesk-prod-cs",
-      "problemMatcher": []
-    },
-    {
-      "label": "Plesk: Deploy httpdocs (rsync)",
-      "type": "shell",
-      "command": "rsync -avz --delete ./site/ plesk-prod-cs:/var/www/vhosts/menschlichkeit-oesterreich.at/httpdocs/",
-      "problemMatcher": []
-    },
-    {
-      "label": "🔐 GPG: Export Keys",
-      "type": "shell",
-      "command": "bash",
-      "args": ["scripts/gpg/export-keys.sh"],
+      "args": ["run", "mcp:health"],
       "group": "none",
       "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
         "panel": "shared",
-        "group": "security"
+        "group": "ops"
       },
       "problemMatcher": []
     },
     {
-      "label": "🔐 GPG: Verify Signature (README)",
-      "type": "shell",
-      "command": "bash",
-      "args": ["scripts/gpg/verify-signature.sh", "README.md", "README.md.asc"],
-      "group": "none",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared",
-        "group": "security"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "🔧 GitHub: Repository Settings Update",
-      "type": "shell",
-      "command": "bash",
-      "args": ["scripts/gh/repo-settings.sh"],
-      "group": "none",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared",
-        "group": "github"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "🔗 GitHub: Setup n8n Webhook",
-      "type": "shell",
-      "command": "bash",
-      "args": ["scripts/gh/webhook-setup.sh"],
-      "group": "none",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared",
-        "group": "github"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "🔄 GitHub: Sync Secret (PowerShell)",
-      "type": "shell",
-      "command": "pwsh",
-      "args": [
-        "-File",
-        "${workspaceFolder}/scripts/gh/secret-sync.ps1",
-        "-SecretName",
-        "${input:secretName}",
-        "-TargetRepo",
-        "${input:targetRepo}"
-      ],
-      "group": "none",
-      "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
-        "panel": "shared",
-        "group": "github"
-      },
-      "problemMatcher": []
-    },
-    {
-      "label": "🐙 GitHub: Auth Status",
+      "label": "GitHub: Auth Status",
       "type": "shell",
       "command": "gh",
       "args": ["auth", "status"],
       "group": "none",
       "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
         "panel": "shared",
-        "group": "github"
+        "group": "ops"
       },
       "problemMatcher": []
     },
     {
-      "label": "🐙 GitHub: List Repos",
+      "label": "Git: Hooks Enable",
       "type": "shell",
-      "command": "gh",
-      "args": [
-        "repo",
-        "list",
-        "--limit",
-        "50",
-        "--json",
-        "name,visibility,updatedAt"
-      ],
+      "command": "npm",
+      "args": ["run", "git:hooks:enable"],
       "group": "none",
       "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
         "panel": "shared",
-        "group": "github"
+        "group": "ops"
       },
       "problemMatcher": []
     },
     {
-      "label": "🐙 GitHub: List Open Issues",
+      "label": "Git: Sync Status",
       "type": "shell",
-      "command": "gh",
-      "args": [
-        "issue",
-        "list",
-        "--state",
-        "open",
-        "--json",
-        "number,title,labels,createdAt"
-      ],
+      "command": "npm",
+      "args": ["run", "git:sync:status"],
       "group": "none",
       "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
         "panel": "shared",
-        "group": "github"
+        "group": "ops"
       },
       "problemMatcher": []
     },
     {
-      "label": "🐙 GitHub: Validate Token",
+      "label": "Git: Commit + Sync",
       "type": "shell",
       "command": "pwsh",
       "args": [
         "-File",
-        "${workspaceFolder}/scripts/gh/Run-GitHubTokenValidation.ps1"
+        "${workspaceFolder}/scripts/git-sync.ps1",
+        "-Action",
+        "sync",
+        "-Message",
+        "${input:gitSyncMessage}"
       ],
       "group": "none",
       "presentation": {
-        "echo": true,
-        "reveal": "always",
-        "focus": true,
         "panel": "shared",
-        "group": "github"
+        "group": "ops"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "GitHub: Validate Token",
+      "type": "shell",
+      "command": "pwsh",
+      "args": ["-File", "${workspaceFolder}/scripts/gh/Run-GitHubTokenValidation.ps1"],
+      "group": "none",
+      "presentation": {
+        "panel": "shared",
+        "group": "ops"
       },
       "problemMatcher": []
     }
   ],
   "inputs": [
     {
-      "id": "secretName",
+      "id": "gitSyncMessage",
       "type": "promptString",
-      "description": "Secret-Name (z.B. DATABASE_URL, GH_TOKEN)"
-    },
-    {
-      "id": "targetRepo",
-      "type": "promptString",
-      "description": "Ziel-Repository (owner/repo)"
+      "description": "Conventional-Commit-Message fuer den Sync",
+      "default": "chore(repo): sync workspace"
     }
   ]
 }

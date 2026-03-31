@@ -10,14 +10,15 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: menschlichkeit_dev
-      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=de_AT.UTF-8"
+      POSTGRES_INITDB_ARGS: '--encoding=UTF8 --locale=de_AT.UTF-8'
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/01-init-db.sql:ro
+      - ./apps/forum/scripts/init-phpbb-db.sql:/docker-entrypoint-initdb.d/02-init-phpbb-db.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -28,14 +29,135 @@ services:
     restart: unless-stopped
     command: redis-server --appendonly yes
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redis_data:/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 5s
       retries: 5
+
+  # ── phpBB Forum (PHP 8.3-FPM + Nginx + Cron) ────────────────
+  phpbb-fpm:
+    build:
+      context: ./apps/forum/docker
+      dockerfile: Dockerfile
+    container_name: menschlichkeit-phpbb-fpm
+    restart: unless-stopped
+    environment:
+      - PHPBB_DB_HOST=postgres
+      - PHPBB_DB_PORT=5432
+      - PHPBB_DB_NAME=phpbb
+      - PHPBB_DB_USER=phpbb
+      - PHPBB_DB_PASSWORD=${PHPBB_DB_PASSWORD:-phpbb_dev}
+      - PHPBB_REDIS_HOST=redis
+      - PHPBB_REDIS_PORT=6379
+      - PHPBB_ENVIRONMENT=development
+    volumes:
+      - phpbb_web:/var/www/phpbb
+      - phpbb_data:/var/www/phpbb/store
+      - phpbb_files:/var/www/phpbb/files
+      - phpbb_images:/var/www/phpbb/images/avatars/upload
+      - ./apps/forum/theme/moe_prosilver:/var/www/phpbb/styles/moe_prosilver:ro
+      - ./apps/forum/scripts:/var/www/phpbb/scripts:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '1.0'
+        reservations:
+          memory: 128M
+          cpus: '0.25'
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+    healthcheck:
+      test: ['CMD-SHELL', 'php-fpm -t 2>/dev/null || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  phpbb-nginx:
+    image: nginx:1.27-alpine
+    container_name: menschlichkeit-phpbb-nginx
+    restart: unless-stopped
+    ports:
+      - '8002:80'
+    volumes:
+      - ./apps/forum/nginx/dev.conf:/etc/nginx/conf.d/default.conf:ro
+      - phpbb_web:/var/www/phpbb:ro
+    depends_on:
+      - phpbb-fpm
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: '0.5'
+        reservations:
+          memory: 32M
+          cpus: '0.1'
+    logging:
+      driver: json-file
+      options:
+        max-size: '5m'
+        max-file: '3'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://localhost/fpm-ping || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  phpbb-cron:
+    build:
+      context: ./apps/forum/docker
+      dockerfile: Dockerfile
+    container_name: menschlichkeit-phpbb-cron
+    restart: unless-stopped
+    user: root
+    entrypoint: ['/sbin/tini', '--']
+    command: ['crond', '-f', '-l', '6']
+    environment:
+      - PHPBB_DB_HOST=postgres
+      - PHPBB_DB_PORT=5432
+      - PHPBB_DB_NAME=phpbb
+      - PHPBB_DB_USER=phpbb
+      - PHPBB_DB_PASSWORD=${PHPBB_DB_PASSWORD:-phpbb_dev}
+      - PHPBB_REDIS_HOST=redis
+      - PHPBB_REDIS_PORT=6379
+      - PGPASSWORD=${PHPBB_DB_PASSWORD:-phpbb_dev}
+    volumes:
+      - phpbb_web:/var/www/phpbb
+      - phpbb_data:/var/www/phpbb/store
+      - phpbb_files:/var/www/phpbb/files
+      - phpbb_images:/var/www/phpbb/images/avatars/upload
+      - ./apps/forum/scripts:/var/www/phpbb/scripts:ro
+      - ./apps/forum/scripts/crontab:/etc/crontabs/root:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 64M
+          cpus: '0.1'
+    logging:
+      driver: json-file
+      options:
+        max-size: '5m'
+        max-file: '3'
 
   # Optional: n8n für Automation Workflows
   n8n:
@@ -52,7 +174,7 @@ services:
       - WEBHOOK_URL=http://localhost:5678/
       - GENERIC_TIMEZONE=Europe/Vienna
     ports:
-      - "5678:5678"
+      - '5678:5678'
     volumes:
       - n8n_data:/home/node/.n8n
       - ./automation/n8n/workflows:/home/node/.n8n/workflows
@@ -68,6 +190,14 @@ volumes:
   redis_data:
     driver: local
   n8n_data:
+    driver: local
+  phpbb_data:
+    driver: local
+  phpbb_files:
+    driver: local
+  phpbb_images:
+    driver: local
+  phpbb_web:
     driver: local
 
 networks:

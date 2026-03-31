@@ -8,6 +8,7 @@ import sys
 os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-min-32-chars-long-xyz")
 os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("DATABASE_URL", "postgresql://test:test@localhost:5432/test")
+os.environ.setdefault("PUBLIC_APP_URL", "http://localhost:3000")
 
 # Pfad für Imports setzen
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
@@ -20,13 +21,30 @@ from app.main import app
 from app.rbac import create_jwt, Role
 
 
+def _make_pool_mock() -> MagicMock:
+    conn = MagicMock()
+    conn.fetchrow = AsyncMock(return_value=None)
+    conn.fetch = AsyncMock(return_value=[])
+    conn.fetchval = AsyncMock(return_value=1)
+    conn.execute = AsyncMock(return_value="OK")
+
+    acquire_ctx = MagicMock()
+    acquire_ctx.__aenter__ = AsyncMock(return_value=conn)
+    acquire_ctx.__aexit__ = AsyncMock(return_value=False)
+
+    pool = MagicMock()
+    pool.acquire.return_value = acquire_ctx
+    return pool
+
+
 @pytest.fixture
 def client():
     """FastAPI TestClient mit gemockter DB für Tests ohne PostgreSQL."""
+    pool = _make_pool_mock()
     with (
         patch("app.audit.ensure_audit_table", new=AsyncMock(return_value=None)),
         patch("app.audit.write_audit_event", new=AsyncMock(return_value=None)),
-        patch("app.db.get_pool", new=AsyncMock(return_value=MagicMock())),
+        patch("app.db.get_pool", new=AsyncMock(return_value=pool)),
     ):
         with TestClient(app, raise_server_exceptions=False) as c:
             yield c

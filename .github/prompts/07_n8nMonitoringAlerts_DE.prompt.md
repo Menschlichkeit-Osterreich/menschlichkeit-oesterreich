@@ -1,18 +1,21 @@
 ---
-title: "07 N8Nmonitoringalerts"
-description: "n8n Monitoring & Alert-Integration"
+title: '07 N8Nmonitoringalerts'
+description: 'n8n Monitoring & Alert-Integration'
 lastUpdated: 2025-10-10
 status: ACTIVE
 category: monitoring
 tags: ['monitoring', 'n8n']
-version: "1.0.0"
+version: '1.0.0'
 language: de-AT
 audience: ['DevOps Team', 'SRE']
 ---
 
 ---
+
 description: 'n8n Monitoring-Integration für Grafana, Service Health und SSL-Zertifikate'
-  - 03_MCPMultiServiceDeployment_DE
+
+- 03_MCPMultiServiceDeployment_DE
+
 ---
 
 # n8n Monitoring & Alert-Integration
@@ -26,20 +29,23 @@ description: 'n8n Monitoring-Integration für Grafana, Service Health und SSL-Ze
 ### Monitoring-Infrastruktur
 
 **Grafana Instance:**
+
 - URL: grafana.menschlichkeit-oesterreich.at
 - Alert Manager integriert
 - Multi-Channel Notifications (Email, Slack, n8n Webhooks)
 
 **Services zu überwachen (20+):**
+
 - menschlichkeit-oesterreich.at (Main Website)
-- api.menschlichkeit-oesterreich.at (FastAPI Backend)
+- apps/api (FastAPI Backend)
 - crm.menschlichkeit-oesterreich.at (Drupal + CiviCRM)
 - n8n.menschlichkeit-oesterreich.at (n8n Workflows)
 - grafana.menschlichkeit-oesterreich.at (Monitoring)
-- + 15 weitere Subdomains
+- - 15 weitere Subdomains
 
 **SSL Certificates:**
-- Wildcard: *.menschlichkeit-oesterreich.at
+
+- Wildcard: \*.menschlichkeit-oesterreich.at
 - Let's Encrypt Auto-Renewal (alle 90 Tage)
 - Manual Certificates für spezielle Subdomains
 
@@ -62,28 +68,29 @@ Type: webhook
 URL: https://n8n.menschlichkeit-oesterreich.at/webhook/grafana-alert
 Method: POST
 Authentication: Basic Auth
-  Username: n8n-grafana
-  Password: [aus secrets/]
+Username: n8n-grafana
+Password: [aus secrets/]
 
 HTTP Headers:
-  Content-Type: application/json
-  X-Grafana-Token: [aus secrets/grafana-webhook-token.enc]
+Content-Type: application/json
+X-Grafana-Token: [aus secrets/grafana-webhook-token.enc]
 
 Message Template (JSON):
 {
-  "alert_name": "{{ .CommonLabels.alertname }}",
-  "severity": "{{ .CommonLabels.severity }}",
-  "service": "{{ .CommonLabels.service }}",
-  "message": "{{ .CommonAnnotations.summary }}",
-  "details": "{{ .CommonAnnotations.description }}",
-  "firing_alerts": {{ len .Alerts.Firing }},
-  "resolved_alerts": {{ len .Alerts.Resolved }},
-  "dashboard_url": "{{ .ExternalURL }}",
-  "timestamp": "{{ .CommonLabels.timestamp }}"
+"alert_name": "{{ .CommonLabels.alertname }}",
+"severity": "{{ .CommonLabels.severity }}",
+"service": "{{ .CommonLabels.service }}",
+"message": "{{ .CommonAnnotations.summary }}",
+"details": "{{ .CommonAnnotations.description }}",
+"firing_alerts": {{ len .Alerts.Firing }},
+"resolved_alerts": {{ len .Alerts.Resolved }},
+"dashboard_url": "{{ .ExternalURL }}",
+"timestamp": "{{ .CommonLabels.timestamp }}"
 }
 ```
 
 **n8n Credential Setup:**
+
 ```markdown
 n8n → Credentials → Add Credential → HTTP Header Auth
 
@@ -93,6 +100,7 @@ Header Value: [aus secrets/grafana-webhook-token.enc]
 ```
 
 **Checklist:**
+
 - [ ] Grafana Contact Point "n8n Webhook Router" erstellt
 - [ ] Webhook URL korrekt (https://n8n.menschlichkeit-oesterreich.at/webhook/grafana-alert)
 - [ ] Authentication konfiguriert (Basic Auth + Header Token)
@@ -377,31 +385,32 @@ Header Value: [aus secrets/grafana-webhook-token.enc]
   ],
   "connections": {
     "Webhook - Grafana Alert": {
-      "main": [[{"node": "Switch - Alert Severity", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "Switch - Alert Severity", "type": "main", "index": 0 }]
+      ]
     },
     "Switch - Alert Severity": {
       "main": [
-        [{"node": "Slack - CRITICAL Alert", "type": "main", "index": 0}],
-        [{"node": "Slack - WARNING", "type": "main", "index": 0}],
-        [{"node": "Slack - INFO", "type": "main", "index": 0}]
+        [{ "node": "Slack - CRITICAL Alert", "type": "main", "index": 0 }],
+        [{ "node": "Slack - WARNING", "type": "main", "index": 0 }],
+        [{ "node": "Slack - INFO", "type": "main", "index": 0 }]
       ]
     },
     "Slack - CRITICAL Alert": {
-      "main": [[{"node": "Email - On-Call Team", "type": "main", "index": 0}]]
+      "main": [[{ "node": "Email - On-Call Team", "type": "main", "index": 0 }]]
     },
     "Slack - WARNING": {
-      "main": [[{"node": "IF - Alert Resolved", "type": "main", "index": 0}]]
+      "main": [[{ "node": "IF - Alert Resolved", "type": "main", "index": 0 }]]
     },
     "IF - Alert Resolved": {
-      "main": [
-        [{"node": "Slack - RESOLVED", "type": "main", "index": 0}]
-      ]
+      "main": [[{ "node": "Slack - RESOLVED", "type": "main", "index": 0 }]]
     }
   }
 }
 ```
 
 **Testing:**
+
 ```bash
 
 # Simulate Grafana CRITICAL Alert
@@ -412,7 +421,7 @@ curl -X POST https://n8n.menschlichkeit-oesterreich.at/webhook/grafana-alert \
   -d '{
     "alert_name": "High CPU Usage",
     "severity": "critical",
-    "service": "api.menschlichkeit-oesterreich.at",
+    "service": "api",
     "message": "CPU usage > 90% for 5 minutes",
     "details": "Current usage: 95%, Threshold: 90%",
     "firing_alerts": 1,
@@ -423,6 +432,7 @@ curl -X POST https://n8n.menschlichkeit-oesterreich.at/webhook/grafana-alert \
 ```
 
 **Checklist:**
+
 - [ ] Workflow importiert und aktiviert
 - [ ] Grafana Webhook sendet erfolgreich an n8n
 - [ ] CRITICAL Alerts gehen zu #emergencies + Email
@@ -458,7 +468,7 @@ curl -X POST https://n8n.menschlichkeit-oesterreich.at/webhook/grafana-alert \
     },
     {
       "parameters": {
-        "jsCode": "// List all services to monitor\nconst services = [\n  'menschlichkeit-oesterreich.at',\n  'www.menschlichkeit-oesterreich.at',\n  'api.menschlichkeit-oesterreich.at',\n  'crm.menschlichkeit-oesterreich.at',\n  'n8n.menschlichkeit-oesterreich.at',\n  'grafana.menschlichkeit-oesterreich.at',\n  'forum.menschlichkeit-oesterreich.at',\n  'events.menschlichkeit-oesterreich.at',\n  'spenden.menschlichkeit-oesterreich.at',\n  'volunteer.menschlichkeit-oesterreich.at',\n  // Add all 20+ subdomains\n];\n\nreturn services.map(service => ({\n  json: {\n    url: `https://${service}/health`,\n    service: service\n  }\n}));"
+        "jsCode": "// List all services to monitor\\nconst services = [\\n  { name: 'website', url: process.env.WEBSITE_HEALTH_URL },\\n  { name: 'api', url: process.env.API_HEALTH_URL },\\n  { name: 'crm', url: process.env.CRM_HEALTH_URL },\\n  { name: 'games', url: process.env.GAMES_HEALTH_URL },\\n  { name: 'n8n', url: process.env.N8N_HEALTH_URL },\\n];\\n\\nreturn services.map(service => ({\\n  json: {\\n    url: service.url,\\n    service: service.name\\n  }\\n}));"
       },
       "id": "code-services",
       "name": "Code - Generate Service List",
@@ -562,19 +572,37 @@ curl -X POST https://n8n.menschlichkeit-oesterreich.at/webhook/grafana-alert \
   ],
   "connections": {
     "Schedule - Every 5min": {
-      "main": [[{"node": "Code - Generate Service List", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "Code - Generate Service List", "type": "main", "index": 0 }]
+      ]
     },
     "Code - Generate Service List": {
-      "main": [[{"node": "HTTP Request - Health Endpoint", "type": "main", "index": 0}]]
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Health Endpoint",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "HTTP Request - Health Endpoint": {
-      "main": [[{"node": "IF - Service Down or Unhealthy", "type": "main", "index": 0}]]
+      "main": [
+        [
+          {
+            "node": "IF - Service Down or Unhealthy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "IF - Service Down or Unhealthy": {
       "main": [
         [
-          {"node": "Slack - Service Down Alert", "type": "main", "index": 0},
-          {"node": "Email - DevOps Alert", "type": "main", "index": 0}
+          { "node": "Slack - Service Down Alert", "type": "main", "index": 0 },
+          { "node": "Email - DevOps Alert", "type": "main", "index": 0 }
         ]
       ]
     }
@@ -583,11 +611,12 @@ curl -X POST https://n8n.menschlichkeit-oesterreich.at/webhook/grafana-alert \
 ```
 
 **Health Endpoint Standard:**
+
 ```json
 // Expected Response from /health endpoints
 {
   "status": "healthy",
-  "service": "api.menschlichkeit-oesterreich.at",
+  "service": "api",
   "timestamp": "2025-10-07T12:34:56Z",
   "checks": {
     "database": "ok",
@@ -598,6 +627,7 @@ curl -X POST https://n8n.menschlichkeit-oesterreich.at/webhook/grafana-alert \
 ```
 
 **Checklist:**
+
 - [ ] Alle Services haben /health Endpoint
 - [ ] Health Checks laufen alle 5min
 - [ ] Downtime Alerts funktionieren
@@ -725,19 +755,25 @@ curl -X POST https://n8n.menschlichkeit-oesterreich.at/webhook/grafana-alert \
   ],
   "connections": {
     "Schedule - Daily 00:00": {
-      "main": [[{"node": "Execute - Check SSL Cert", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "Execute - Check SSL Cert", "type": "main", "index": 0 }]
+      ]
     },
     "Execute - Check SSL Cert": {
-      "main": [[{"node": "Code - Parse SSL Expiry", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "Code - Parse SSL Expiry", "type": "main", "index": 0 }]
+      ]
     },
     "Code - Parse SSL Expiry": {
-      "main": [[{"node": "IF - Expires in < 30 Days", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "IF - Expires in < 30 Days", "type": "main", "index": 0 }]
+      ]
     },
     "IF - Expires in < 30 Days": {
       "main": [
         [
-          {"node": "Slack - SSL Expiry Warning", "type": "main", "index": 0},
-          {"node": "Email - Admin Alert", "type": "main", "index": 0}
+          { "node": "Slack - SSL Expiry Warning", "type": "main", "index": 0 },
+          { "node": "Email - Admin Alert", "type": "main", "index": 0 }
         ]
       ]
     }
@@ -746,16 +782,18 @@ curl -X POST https://n8n.menschlichkeit-oesterreich.at/webhook/grafana-alert \
 ```
 
 **SSL Check Thresholds:**
+
 ```markdown
-Days Until Expiry | Severity | Action
-------------------|----------|--------
-> 30 days         | OK       | Log only
-14-30 days        | WARNING  | Slack notification
-7-14 days         | WARNING  | Slack + Email
-< 7 days          | CRITICAL | Slack + Email + @channel mention
+| Days Until Expiry | Severity | Action                           |
+| ----------------- | -------- | -------------------------------- |
+| > 30 days         | OK       | Log only                         |
+| 14-30 days        | WARNING  | Slack notification               |
+| 7-14 days         | WARNING  | Slack + Email                    |
+| < 7 days          | CRITICAL | Slack + Email + @channel mention |
 ```
 
 **Checklist:**
+
 - [ ] openssl verfügbar in n8n Container
 - [ ] SSL Check täglich um 00:00
 - [ ] Wildcard-Cert und einzelne Certs geprüft
@@ -766,6 +804,7 @@ Days Until Expiry | Severity | Action
 ## ✅ Final Checklist
 
 ### Grafana Integration
+
 - [ ] Webhook Contact Point konfiguriert
 - [ ] Alert Router Workflow aktiv
 - [ ] CRITICAL → #emergencies + Email
@@ -773,18 +812,21 @@ Days Until Expiry | Severity | Action
 - [ ] Resolved Alerts gepostet
 
 ### Service Health Checks
+
 - [ ] HTTP Health Checks alle 5min
 - [ ] Alle 20+ Subdomains überwacht
 - [ ] /health Endpoints implementiert
 - [ ] Downtime Alerts funktionieren
 
 ### SSL Monitoring
+
 - [ ] SSL Expiry Check täglich
 - [ ] 30/14/7 Tage Warnings
 - [ ] Let's Encrypt Auto-Renewal überwacht
 - [ ] Manual Renewal Playbook vorhanden
 
 ### Slack Channels
+
 - [ ] #emergencies (CRITICAL Alerts)
 - [ ] #monitoring (WARNING/INFO)
 - [ ] #database-alerts (DB-spezifisch)

@@ -6,8 +6,11 @@
 > in `apps/api/` statt. Diese Kopie wird nicht mehr synchron gehalten und soll in einer
 > zukünftigen Version entfernt werden.
 >
-> **Migration:** Alle neuen Endpunkte, Bugfixes und Schema-Änderungen gehören nach `apps/api/`.
+> **Migration:** Alle neuen Endpunkte, Bugfixes, Tests und Schema-Änderungen gehören nach `apps/api/`.
 > Bestehende Deployments sollten auf `apps/api/` umgestellt werden.
+>
+> **OpenAPI-Vertrag:** `apps/api/openapi.yaml` ist die einzige aktiv gepflegte Spezifikation.
+> `api.menschlichkeit-oesterreich.at/openapi.yaml` bleibt nur Legacy-Snapshot.
 
 ---
 

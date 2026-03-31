@@ -1,18 +1,21 @@
 ---
-title: "05 N8Ndeploymentnotifications"
-description: "n8n Deployment-Benachrichtigungen"
+title: '05 N8Ndeploymentnotifications'
+description: 'n8n Deployment-Benachrichtigungen'
 lastUpdated: 2025-10-10
 status: ACTIVE
 category: automation
 tags: ['automation', 'n8n']
-version: "1.0.0"
+version: '1.0.0'
 language: de-AT
 audience: ['DevOps Team', 'Automation Engineers']
 ---
 
 ---
+
 description: 'n8n Deployment-Benachrichtigungen für CI/CD, Quality Gates und Rollback-Alerts'
-  - 03_MCPMultiServiceDeployment_DE
+
+- 03_MCPMultiServiceDeployment_DE
+
 ---
 
 # n8n Deployment-Benachrichtigungen
@@ -26,12 +29,14 @@ description: 'n8n Deployment-Benachrichtigungen für CI/CD, Quality Gates und Ro
 ### Deployment-Infrastruktur (aus 03_MCPMultiServiceDeployment)
 
 **Services:**
+
 - 20+ Subdomains (Website, API, CRM, n8n, Grafana, etc.)
 - CI/CD via GitHub Actions
 - Quality Gates (Codacy, Trivy, Playwright)
 - Deployment Targets: Plesk Staging + Production
 
 **Critical Flows:**
+
 1. Code Push → Build → Tests → Quality Gates → Deploy
 2. Quality Failure → GitHub Issue → Slack Alert
 3. Deployment Failure → Rollback → Admin Notification
@@ -45,7 +50,6 @@ description: 'n8n Deployment-Benachrichtigungen für CI/CD, Quality Gates und Ro
 **GitHub Webhook Setup:**
 
 ```yaml
-
 # .github/workflows/deploy-staging.yml
 
 name: Deploy to Staging
@@ -78,7 +82,7 @@ jobs:
       - uses: actions/checkout@v4
       - run: npm run build:all
       - run: npm run test:e2e
-      
+
   notify-result:
     needs: [build-and-test]
     if: always()
@@ -97,6 +101,7 @@ jobs:
 ```
 
 **Checklist:**
+
 - [ ] GitHub Actions Workflows aktualisiert
 - [ ] n8n Webhook URLs korrekt
 - [ ] Webhook Security Token konfiguriert
@@ -302,17 +307,23 @@ jobs:
   ],
   "connections": {
     "Webhook - Build Started": {
-      "main": [[{"node": "Slack - Build Started", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "Slack - Build Started", "type": "main", "index": 0 }]
+      ]
     },
     "Webhook - Build Result": {
-      "main": [[{"node": "IF - Success or Failure", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "IF - Success or Failure", "type": "main", "index": 0 }]
+      ]
     },
     "IF - Success or Failure": {
       "main": [
-        [{"node": "Slack - Success Notification", "type": "main", "index": 0}],
         [
-          {"node": "Slack - Failure Alert", "type": "main", "index": 0},
-          {"node": "Email - Critical Alert", "type": "main", "index": 0}
+          { "node": "Slack - Success Notification", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "Slack - Failure Alert", "type": "main", "index": 0 },
+          { "node": "Email - Critical Alert", "type": "main", "index": 0 }
         ]
       ]
     }
@@ -321,24 +332,25 @@ jobs:
 ```
 
 **Testing:**
+
 ```bash
 
 # Simulate Build Start
 curl -X POST https://n8n.menschlichkeit-oesterreich.at/webhook/deployment-started \
   -H "Content-Type: application/json" \
   -d '{
-    "service": "menschlichkeit-oesterreich/frontend",
+    "service": "Menschlichkeit-Osterreich/menschlichkeit-oesterreich",
     "branch": "main",
     "commit": "a1b2c3d",
     "actor": "max.mustermann",
-    "url": "https://github.com/menschlichkeit-oesterreich/frontend/actions/runs/12345"
+    "url": "https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/actions/runs/12345"
   }'
 
 # Simulate Build Success
 curl -X POST https://n8n.menschlichkeit-oesterreich.at/webhook/deployment-result \
   -H "Content-Type: application/json" \
   -d '{
-    "service": "menschlichkeit-oesterreich/frontend",
+    "service": "Menschlichkeit-Osterreich/menschlichkeit-oesterreich",
     "status": "success",
     "branch": "main",
     "duration": 180
@@ -348,7 +360,7 @@ curl -X POST https://n8n.menschlichkeit-oesterreich.at/webhook/deployment-result
 curl -X POST https://n8n.menschlichkeit-oesterreich.at/webhook/deployment-result \
   -H "Content-Type: application/json" \
   -d '{
-    "service": "menschlichkeit-oesterreich/frontend",
+    "service": "Menschlichkeit-Osterreich/menschlichkeit-oesterreich",
     "status": "failure",
     "branch": "main",
     "duration": 90
@@ -356,6 +368,7 @@ curl -X POST https://n8n.menschlichkeit-oesterreich.at/webhook/deployment-result
 ```
 
 **Checklist:**
+
 - [ ] Slack Channels #deployments und #emergencies existieren
 - [ ] Email devops@menschlichkeit-oesterreich.at konfiguriert
 - [ ] Test mit curl erfolgreich
@@ -406,11 +419,7 @@ curl -X POST https://n8n.menschlichkeit-oesterreich.at/webhook/deployment-result
         "repository": "={{ $json.repository }}",
         "title": "🚨 CRITICAL: {{ $json.tool }} Quality Gate Failed",
         "body": "=## Quality Gate Failure\n\n**Tool:** {{ $json.tool }}\n**Severity:** {{ $json.severity }}\n**Branch:** {{ $json.branch }}\n\n### Issues Found:\n\n{{ $json.issues.map(i => `- **${i.type}**: ${i.message} (${i.file}:${i.line})`).join('\\n') }}\n\n### Action Required:\n\n- [ ] Fix all CRITICAL issues\n- [ ] Re-run quality gates\n- [ ] Update this issue with resolution\n\n**Detected:** {{ $now.format('YYYY-MM-DD HH:mm:ss') }}\n**Workflow:** {{ $json.workflow_url }}",
-        "labels": [
-          "quality-gate",
-          "critical",
-          "automated"
-        ],
+        "labels": ["quality-gate", "critical", "automated"],
         "assignees": "={{ $json.author }}"
       },
       "id": "github-issue",
@@ -493,24 +502,28 @@ curl -X POST https://n8n.menschlichkeit-oesterreich.at/webhook/deployment-result
   ],
   "connections": {
     "Webhook - Codacy/Trivy Alert": {
-      "main": [[{"node": "IF - Critical Severity", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "IF - Critical Severity", "type": "main", "index": 0 }]
+      ]
     },
     "IF - Critical Severity": {
       "main": [
-        [{"node": "GitHub - Create Issue", "type": "main", "index": 0}],
-        [{"node": "Slack - Warning Only", "type": "main", "index": 0}]
+        [{ "node": "GitHub - Create Issue", "type": "main", "index": 0 }],
+        [{ "node": "Slack - Warning Only", "type": "main", "index": 0 }]
       ]
     },
     "GitHub - Create Issue": {
-      "main": [[{"node": "Slack - Quality Alert", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "Slack - Quality Alert", "type": "main", "index": 0 }]
+      ]
     }
   }
 }
 ```
 
 **Codacy Integration:**
-```yaml
 
+```yaml
 # .github/workflows/quality-gates.yml
 
 name: Quality Gates
@@ -525,7 +538,7 @@ jobs:
       - name: Codacy Analysis
         run: |
           RESULT=$(npx codacy-analysis-cli analyze --project-token ${{ secrets.CODACY_PROJECT_TOKEN }})
-          
+
           if echo "$RESULT" | grep -q "CRITICAL"; then
             curl -X POST https://n8n.menschlichkeit-oesterreich.at/webhook/quality-gate-failure \
               -H "Content-Type: application/json" \
@@ -542,6 +555,7 @@ jobs:
 ```
 
 **Checklist:**
+
 - [ ] GitHub API Token mit `repo` und `issues` Permissions
 - [ ] Codacy Webhook konfiguriert
 - [ ] Slack Channel #quality-alerts erstellt
@@ -711,21 +725,25 @@ jobs:
     "Webhook - Critical Error": {
       "main": [
         [
-          {"node": "Slack - EMERGENCY Alert", "type": "main", "index": 0},
-          {"node": "Email - DevOps + CTO", "type": "main", "index": 0}
+          { "node": "Slack - EMERGENCY Alert", "type": "main", "index": 0 },
+          { "node": "Email - DevOps + CTO", "type": "main", "index": 0 }
         ]
       ]
     },
     "Slack - EMERGENCY Alert": {
-      "main": [[{"node": "Execute - Rollback Script", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "Execute - Rollback Script", "type": "main", "index": 0 }]
+      ]
     },
     "Execute - Rollback Script": {
-      "main": [[{"node": "IF - Rollback Success", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "IF - Rollback Success", "type": "main", "index": 0 }]
+      ]
     },
     "IF - Rollback Success": {
       "main": [
-        [{"node": "Slack - Rollback Success", "type": "main", "index": 0}],
-        [{"node": "Slack - Rollback FAILED", "type": "main", "index": 0}]
+        [{ "node": "Slack - Rollback Success", "type": "main", "index": 0 }],
+        [{ "node": "Slack - Rollback FAILED", "type": "main", "index": 0 }]
       ]
     }
   }
@@ -733,6 +751,7 @@ jobs:
 ```
 
 **Rollback Script Integration:**
+
 ```bash
 
 # deployment-scripts/rollback-plesk.sh
@@ -745,10 +764,10 @@ MODE=${2:-normal}
 
 if [[ "$MODE" == "--emergency" ]]; then
   echo "🚨 EMERGENCY ROLLBACK für $SERVICE"
-  
+
   # Sofortiger Rollback ohne Bestätigung
   ./scripts/plesk-sync.sh rollback "$SERVICE" --force
-  
+
   # Health Check
   if curl -f "https://$SERVICE.menschlichkeit-oesterreich.at/health"; then
     echo "✅ Rollback erfolgreich"
@@ -761,6 +780,7 @@ fi
 ```
 
 **Trigger aus Monitoring (Grafana):**
+
 ```javascript
 // Grafana Alert Webhook (zu n8n)
 {
@@ -771,6 +791,7 @@ fi
 ```
 
 **Checklist:**
+
 - [ ] Rollback-Script getestet (dry-run)
 - [ ] Emergency-Workflow Manual Test durchgeführt
 - [ ] Grafana Webhook konfiguriert
@@ -782,23 +803,27 @@ fi
 ## ✅ Final Checklist
 
 ### Workflow Setup
+
 - [ ] CI/CD Notifications aktiv (Build Start + Result)
 - [ ] Quality Gate Failures → GitHub Issues
 - [ ] Emergency Rollback getestet (dry-run)
 
 ### Integrations
+
 - [ ] GitHub Actions Webhooks konfiguriert
 - [ ] Codacy Webhook funktioniert
 - [ ] Grafana Alert Webhook verbunden
 - [ ] Slack Channels: #deployments, #emergencies, #quality-alerts
 
 ### Testing
+
 - [ ] Build Success Notification erhalten
 - [ ] Build Failure Alert mit Email
 - [ ] Quality Gate Issue automatisch erstellt
 - [ ] Rollback Script ausführbar (dry-run)
 
 ### Security
+
 - [ ] Webhook Endpoints mit Token geschützt
 - [ ] GitHub API Token minimal permissions
 - [ ] Emergency Contacts aktuell

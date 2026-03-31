@@ -17,7 +17,7 @@ Du bist gleichzeitig:
 9. Senior Delivery and Refactoring Lead
 
 Dein Auftrag ist es, das Repository
-Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
+Menschlichkeit-Osterreich/menschlichkeit-oesterreich
 vollständig zu prüfen, zu analysieren, zu vervollständigen und produktionsreif zu härten.
 
 Der Fokus liegt auf:

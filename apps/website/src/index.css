@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap');
 @import './styles/tokens.css';
 
 @tailwind base;
@@ -7,10 +8,10 @@
 @layer base {
   :root {
     color-scheme: light;
-    /* Austrian Brand Colors */
-    --brand-austria-red: #ed1c24;
+    /* Menschlichkeit Österreich Brand Colors */
+    --brand-austria-red: #d4611e;
     --brand-austria-white: #ffffff;
-    --brand-gradient: linear-gradient(135deg, #dc2626 0%, #ff6b35 100%);
+    --brand-gradient: linear-gradient(135deg, #1b4965 0%, #d4611e 100%);
   }
   [data-theme='dark'] {
     color-scheme: dark;
@@ -51,8 +52,7 @@
   }
 
   .btn-secondary {
-    background: var(--brand-gradient);
-    @apply text-white hover:opacity-90 active:opacity-100;
+    @apply bg-secondary-600 text-white hover:bg-secondary-700 active:bg-secondary-800;
     box-shadow: var(--ds-shadows-sm);
   }
 

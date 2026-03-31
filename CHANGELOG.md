@@ -36,6 +36,12 @@ Alle relevanten Änderungen an diesem Repository werden in diesem Dokument festg
 
 - fix(routing): Doppelte Route `/Login` (case-variant) aus `App.tsx` entfernt
 - fix(routing): Redundante Route `/home` aus `App.tsx` und `AppRoutes.tsx` entfernt — Index-Route (`/`) ist kanonisch
+- fix(cron): PHP-Pfad in `setup-cron-jobs.sh` auf auto-detect geändert — bevorzugt `/opt/plesk/php/8.3/bin/php` oder `/opt/plesk/php/8.4/bin/php`, fallback auf `/usr/bin/php`; behebt "No such file or directory" Fehler für Cron-Jobs
+
+### Configuration
+
+- docs(php): PHP-Versionen in `plesk-deployment.instructions.md` aktualisiert — 8.4.11 als empfohlen markiert, Cron-Job-Pfad-Probleme dokumentiert
+- config(env): `PHP_VERSION=8.4.11` zu `.env.production.template` hinzugefügt
 
 ## [Unreleased] — 2026-03-15
 

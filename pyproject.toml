@@ -64,9 +64,7 @@ ignore_missing_imports = true
 minversion = "6.0"
 addopts = "-ra -q --strict-markers"
 testpaths = [
-    "servers",
-    "mcp-search",
-    "tests"
+    "apps/api/tests"
 ]
 python_files = "test_*.py *_test.py"
 python_functions = "test_*"

@@ -15,9 +15,9 @@ Du bist der Barrierefreiheits-Experte für das Menschlichkeit Österreich Projek
 
 ## Fokus-Bereiche
 
-- `menschlichkeit-oesterreich-development/apps/website/src/components/`
-- `menschlichkeit-oesterreich-development/apps/website/src/pages/`
-- `menschlichkeit-oesterreich-development/apps/game/web/`
+- `apps/website/src/components/`
+- `apps/website/src/pages/`
+- `apps/babylon-game/src/`
 
 ## WCAG 2.1 AA Prüfkriterien
 

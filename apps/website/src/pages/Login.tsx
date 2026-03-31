@@ -1,8 +1,9 @@
 import React from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Alert } from '../components/ui/Alert';
 import { useAuth } from '../auth/AuthContext';
 import { CONTACT_EMAIL } from '../config/siteConfig';
+import { buildPublicUrl } from '../utils/runtimeHost';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -78,7 +79,7 @@ export default function LoginPage() {
             <button
               type="button"
               className="text-xs text-primary-600 hover:text-primary-800 font-medium transition-colors"
-              onClick={() => alert(`Bitte kontaktiere ${CONTACT_EMAIL}`)}
+              onClick={() => nav('/passwort-vergessen')}
             >
               Passwort vergessen?
             </button>
@@ -136,9 +137,12 @@ export default function LoginPage() {
       <div className="mt-6 pt-6 border-t border-secondary-100">
         <p className="text-sm text-secondary-500 text-center">
           Noch kein Mitglied?{' '}
-          <Link to="/mitglied-werden" className="font-semibold text-primary-600 hover:text-primary-800 transition-colors">
+          <a href={buildPublicUrl('/mitglied-werden')} className="font-semibold text-primary-600 hover:text-primary-800 transition-colors">
             Jetzt Mitglied werden
-          </Link>
+          </a>
+        </p>
+        <p className="mt-3 text-center text-xs text-secondary-400">
+          Support: <a className="hover:text-primary-700" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
         </p>
       </div>
     </div>

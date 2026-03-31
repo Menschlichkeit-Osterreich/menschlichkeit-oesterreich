@@ -17,10 +17,10 @@ Du bist der Sicherheitsbeauftragter für das Menschlichkeit Österreich Projekt.
 **Nie PII-Logik neu implementieren!** Der PiiSanitizer ist die einzige Autorität:
 
 ```
-Primär:  menschlichkeit-oesterreich-development/apps/api/app/middleware/pii_middleware.py
-Lib:     menschlichkeit-oesterreich-development/apps/api/app/lib/pii_sanitizer.py
-Legacy:  menschlichkeit-oesterreich-development/api.menschlichkeit-oesterreich.at/app/middleware/pii_middleware.py
-Drupal:  menschlichkeit-oesterreich-development/apps/crm/web/modules/custom/pii_sanitizer/
+Primär:  apps/api/app/middleware/pii_middleware.py
+App-Code: apps/api/app/
+OpenAPI: apps/api/openapi.yaml
+Drupal:  apps/crm/web/modules/custom/
 ```
 
 **Verwendung:**

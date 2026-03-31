@@ -10,10 +10,12 @@
 ### 1. Numerierte Infrastructure Prompts (Execution Order System)
 
 #### 📧 01_EmailDNSSetup_DE.prompt.md (450+ Zeilen)
+
 **Status:** ✅ Complete
 **Purpose:** Foundation Email-Infrastruktur für alle Services
 
 **Inhalt:**
+
 - **8 Real Mailboxen:** peter.schuller@, info@, support@, civimail@, bounce@, logging@, dmarc@, tlsrpt@
 - **20+ Role Aliases:** abuse@, postmaster@, security@, privacy@, newsletter@, noreply@, etc.
 - **DNS Security Records:**
@@ -36,10 +38,12 @@
 ---
 
 #### 🗄️ 02_DatabaseRollout_DE.prompt.md (550+ Zeilen)
+
 **Status:** ✅ Complete
 **Purpose:** 17-Datenbank-Architektur Provisioning & Operations
 
 **Inhalt:**
+
 - **Database Topology:**
   - **Plesk MariaDB (5):** mo_main, mo_votes, mo_support, mo_newsletter, mo_forum
   - **External MariaDB (9):** mo_crm, mo_n8n, mo_hooks, mo_consent, mo_games, mo_analytics, mo_api_stg, mo_admin_stg, mo_nextcloud
@@ -67,13 +71,15 @@
 ---
 
 #### 🎯 03_MCPMultiServiceDeployment_DE.prompt.md (700+ Zeilen)
+
 **Status:** ✅ Complete
 **Purpose:** MCP-Enhanced Multi-Service Deployment mit Quality Gates
 
 **Inhalt:**
+
 - **20+ Subdomains:**
   - `menschlichkeit-oesterreich.at` (Main Website)
-  - `api.menschlichkeit-oesterreich.at` (FastAPI Backend)
+  - `apps/api` (FastAPI Backend)
   - `crm.menschlichkeit-oesterreich.at` (Drupal + CiviCRM)
   - `games.menschlichkeit-oesterreich.at` (Gaming Platform)
   - `votes.`, `support.`, `status.`, `s3.`, `newsletter.`, `n8n.`, `media.`, `logs.`, `idp.`, `hooks.`, `grafana.`, `forum.`, `docs.`, `consent.`, `api.stg.`, `analytics.`, `admin.stg.`, etc.
@@ -104,10 +110,12 @@
 ### 2. Specialized Chat Mode
 
 #### 🎭 deployment-operations.mode.md (400+ Zeilen)
+
 **Status:** ✅ Complete
 **Purpose:** Safety-First Deployment Chat Mode
 
 **Features:**
+
 - **Safety Principles:**
   - DRY-RUN ERST, dann Production
   - BACKUP BEFORE jeder destruktiven Aktion
@@ -135,10 +143,12 @@
 ### 3. Documentation & Tooling
 
 #### 📊 INDEX.md
+
 **Status:** ✅ Complete
 **Purpose:** Zentrales Verzeichnis aller Prompts/Instructions/Modes
 
 **Inhalt:**
+
 - **Execution Order Overview** (Mermaid Dependency Graph)
 - **28 Prompts** kategorisiert (Infrastructure, MCP Operations, Development, Documentation, Planning)
 - **7 Instructions** mit applyTo-Patterns
@@ -155,10 +165,12 @@
 ---
 
 #### 🔧 update-todo-from-prompt.sh
+
 **Status:** ✅ Complete
 **Purpose:** Automatisches TODO.md Update basierend auf Prompt-Execution
 
 **Features:**
+
 - **YAML Metadata Parsing** (execution_order, requires, updates_todo)
 - **Checkbox Extraction** (`- [x]` completed, `- [ ]` pending)
 - **Completion Percentage** Calculation
@@ -168,6 +180,7 @@
 - **Backup System** (`quality-reports/todo-backups/`)
 
 **Usage:**
+
 ```bash
 ./scripts/update-todo-from-prompt.sh 01_EmailDNSSetup_DE.prompt.md
 DRY_RUN=1 ./scripts/update-todo-from-prompt.sh 02_DatabaseRollout_DE.prompt.md
@@ -176,10 +189,12 @@ DRY_RUN=1 ./scripts/update-todo-from-prompt.sh 02_DatabaseRollout_DE.prompt.md
 ---
 
 #### 🏷️ add-prompt-metadata.sh
+
 **Status:** ✅ Complete
 **Purpose:** Bulk YAML Frontmatter Addition zu existierenden Prompts
 
 **Features:**
+
 - **Category Mapping** (infrastructure, database, security, development, etc.)
 - **Execution Order Assignment** (based on predefined mapping)
 - **Priority Detection** (critical, high, medium, low)
@@ -188,6 +203,7 @@ DRY_RUN=1 ./scripts/update-todo-from-prompt.sh 02_DatabaseRollout_DE.prompt.md
 - **Dry-Run Mode**
 
 **Usage:**
+
 ```bash
 ./scripts/add-prompt-metadata.sh          # Add metadata zu allen Prompts
 DRY_RUN=1 ./scripts/add-prompt-metadata.sh  # Preview only
@@ -196,10 +212,12 @@ DRY_RUN=1 ./scripts/add-prompt-metadata.sh  # Preview only
 ---
 
 #### 📋 AUDIT-REPORT.md
+
 **Status:** ✅ Complete
 **Purpose:** Vollständige Bestandsaufnahme aller .github Dokumentation
 
 **Metrics:**
+
 - **Overall Progress:** 94% ✅
 - **Metadata Coverage:** 100% ✅
 - **Execution Order Coverage:** 85% ⚠️ (24/28 Prompts)
@@ -208,6 +226,7 @@ DRY_RUN=1 ./scripts/add-prompt-metadata.sh  # Preview only
 - **Modes:** 100% (1/1) ✅
 
 **Action Items:**
+
 - HIGH: Assign execution_order zu 5 Prompts
 - MEDIUM: Create 3 additional Modes
 - LOW: Automation Enhancement (GitHub Actions)
@@ -265,15 +284,12 @@ Planned:
 ### Instructions (Priority-Based)
 
 ```yaml
-CRITICAL:
-  ✅ codacy.instructions.md
+CRITICAL: ✅ codacy.instructions.md
   ✅ quality-gates.instructions.md
 
-HIGHEST:
-  ✅ project-development.instructions.md
+HIGHEST: ✅ project-development.instructions.md
 
-HIGH:
-  ✅ database-operations-mcp.instructions.md
+HIGH: ✅ database-operations-mcp.instructions.md
   ✅ figma-mcp.instructions.md
   ✅ mcp-integration.instructions.md
   ✅ plesk-deployment.instructions.md
@@ -284,22 +300,26 @@ HIGH:
 ## 📊 Plesk Infrastructure Summary
 
 ### SSH Access
+
 - **User:** dmpl20230054
 - **Host:** dmpl20230054.kasserver.com
 - **Root Path:** `/www/htdocs/w01234567`
 - **Subdomains:** `/www/htdocs/w01234567/subdomains/{name}/httpdocs`
 
 ### Email Infrastructure (8 Mailboxen + 20+ Aliases)
+
 - **Real Mailboxen:** peter.schuller@, info@, support@, civimail@, bounce@, logging@, dmarc@, tlsrpt@
 - **Role Aliases:** abuse@, postmaster@, security@, privacy@, webmaster@, hostmaster@, admin@, newsletter@, noreply@, notifications@, alerts@, reports@, media@, press@, kontakt@, hilfe@, feedback@, datenschutz@, impressum@, sicherheit@
 - **DNS Security:** SPF (strict), DKIM (2048-bit, quarterly rotation), DMARC (quarantine→reject), TLS-RPT, BIMI
 
 ### Database Architecture (17 Total)
+
 - **Plesk MariaDB (5):** mo_main, mo_votes, mo_support, mo_newsletter, mo_forum
 - **External MariaDB (9):** mo_crm, mo_n8n, mo_hooks, mo_consent, mo_games, mo_analytics, mo_api_stg, mo_admin_stg, mo_nextcloud
 - **External PostgreSQL (3):** mo_idp (Keycloak), mo_grafana, mo_discourse
 
 ### Subdomain Structure (20+)
+
 - **Production:** menschlichkeit-oesterreich.at (main), api, crm, games, votes, support, newsletter, n8n, forum, grafana, idp
 - **Infrastructure:** status, s3, media, logs, hooks, docs, consent, analytics
 - **Staging:** api.stg, admin.stg
@@ -320,6 +340,7 @@ HIGH:
 8. ✅ **Documentation:** README/API Docs updated
 
 **Enforcement:**
+
 - Pre-Commit: Codacy MCP auto-analysis
 - Pre-Push: `npm run quality:gates`
 - Pre-PR: GitHub Actions (full validation)
@@ -341,16 +362,18 @@ graph LR
 ```
 
 **Manual Trigger:**
+
 ```bash
 ./scripts/update-todo-from-prompt.sh 01_EmailDNSSetup_DE.prompt.md
 ```
 
 **Automated (geplant):**
+
 ```yaml
 # .github/workflows/update-todo.yml
 on:
   workflow_run:
-    workflows: ["Deploy Staging"]
+    workflows: ['Deploy Staging']
     types: [completed]
 jobs:
   update-todo:
@@ -367,6 +390,7 @@ jobs:
 ### IMMEDIATE (diese Session)
 
 - [ ] **Fehlende execution_order hinzufügen** (5 Prompts)
+
   ```bash
   # Manuell in Prompts editieren:
   # - SicherheitsAudit_DE.prompt.md → execution_order: 11
@@ -377,6 +401,7 @@ jobs:
   ```
 
 - [ ] **Git Commit aller Änderungen**
+
   ```bash
   git add .github/prompts/01_EmailDNSSetup_DE.prompt.md
   git add .github/prompts/02_DatabaseRollout_DE.prompt.md
@@ -396,13 +421,14 @@ jobs:
   - Created AUDIT-REPORT.md (94% completion)
   - Added TODO auto-update script
   - Added metadata addition script
-  
+
   BREAKING CHANGE: Execution order system requires prompts to have frontmatter"
   ```
 
 ### SHORT-TERM (nächste Session)
 
 - [ ] **Metadata zu 5 Prompts hinzufügen**
+
   ```bash
   # Via VSCode oder:
   code .github/prompts/SicherheitsAudit_DE.prompt.md
@@ -443,16 +469,16 @@ jobs:
 
 ## 🎉 Success Metrics
 
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| Prompts mit Metadata | 100% | 100% | ✅ |
-| Infrastructure Prompts | 3 | 3 | ✅ |
-| Execution Order Coverage | 100% | 85% | ⚠️ |
-| Instructions Complete | 7 | 7 | ✅ |
-| Modes Available | 1 | 1 | ✅ |
-| TODO Auto-Update | Working | Working | ✅ |
-| Central INDEX | Yes | Yes | ✅ |
-| Audit Report | Yes | Yes | ✅ |
+| Metric                   | Target  | Actual  | Status |
+| ------------------------ | ------- | ------- | ------ |
+| Prompts mit Metadata     | 100%    | 100%    | ✅     |
+| Infrastructure Prompts   | 3       | 3       | ✅     |
+| Execution Order Coverage | 100%    | 85%     | ⚠️     |
+| Instructions Complete    | 7       | 7       | ✅     |
+| Modes Available          | 1       | 1       | ✅     |
+| TODO Auto-Update         | Working | Working | ✅     |
+| Central INDEX            | Yes     | Yes     | ✅     |
+| Audit Report             | Yes     | Yes     | ✅     |
 
 **Overall Completion: 94%** ✅
 
@@ -461,6 +487,7 @@ jobs:
 ## 📚 Documentation Links
 
 **Core Documents:**
+
 - [INDEX.md](.github/INDEX.md) - Central Navigation
 - [AUDIT-REPORT.md](.github/AUDIT-REPORT.md) - Detailed Inventory
 - [01_EmailDNSSetup_DE.prompt.md](.github/prompts/01_EmailDNSSetup_DE.prompt.md) - Email Infrastructure
@@ -469,10 +496,12 @@ jobs:
 - [deployment-operations.mode.md](.github/modes/deployment-operations.mode.md) - Deployment Chat Mode
 
 **Scripts:**
+
 - [update-todo-from-prompt.sh](scripts/update-todo-from-prompt.sh) - TODO Auto-Update
 - [add-prompt-metadata.sh](scripts/add-prompt-metadata.sh) - Metadata Addition
 
 **Instructions:**
+
 - [project-development.instructions.md](.github/instructions/project-development.instructions.md) - Dev Guidelines
 - [quality-gates.instructions.md](.github/instructions/quality-gates.instructions.md) - Quality Enforcement
 - [database-operations-mcp.instructions.md](.github/instructions/database-operations-mcp.instructions.md) - PostgreSQL MCP

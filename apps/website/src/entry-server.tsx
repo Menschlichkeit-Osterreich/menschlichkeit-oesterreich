@@ -10,7 +10,7 @@ import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom';
 import { HelmetProvider, HelmetServerState } from 'react-helmet-async';
 import { AuthProvider } from './auth/AuthContext';
-import AppRoutes from './AppRoutes';
+import App from './App';
 
 interface RenderResult {
   html: string;
@@ -22,10 +22,9 @@ export function render(url: string): RenderResult {
 
   const html = renderToString(
     <HelmetProvider context={helmetContext}>
-      {/* AuthProvider is safe in SSR: useEffect (sessionStorage) doesn't run in renderToString */}
       <AuthProvider>
         <StaticRouter location={url}>
-          <AppRoutes />
+          <App />
         </StaticRouter>
       </AuthProvider>
     </HelmetProvider>

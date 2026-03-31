@@ -8,6 +8,7 @@ priority: critical
 category: core
 applyTo: deployment-scripts/**,scripts/**,**/deploy*.sh
 ---
+
 # Plesk Deployment & Database Configuration
 
 ## 🔐 SSH Credentials
@@ -34,45 +35,48 @@ SSH_POST_DEPLOY_CMD="php artisan migrate --force"  # Optional
 ## 🌐 Domain & Subdomain Structure
 
 ### Hauptdomain
-| Domain                        | Website-Verzeichnis     | Deployment Target |
-|------------------------------|--------------------------|-------------------|
-| menschlichkeit-oesterreich.at | `httpdocs`              | `/var/www/vhosts/menschlichkeit-oesterreich.at/httpdocs` |
+
+| Domain                        | Website-Verzeichnis | Deployment Target                                        |
+| ----------------------------- | ------------------- | -------------------------------------------------------- |
+| menschlichkeit-oesterreich.at | `httpdocs`          | `/var/www/vhosts/menschlichkeit-oesterreich.at/httpdocs` |
 
 ### Subdomains (unter `subdomains/.../httpdocs`)
 
-| Subdomain                              | Website-Verzeichnis                  | Deployment Path |
-|----------------------------------------|--------------------------------------|-----------------|
-| **api.menschlichkeit-oesterreich.at** | `subdomains/api/httpdocs` | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/api/httpdocs` |
-| **crm.menschlichkeit-oesterreich.at** | `subdomains/crm/httpdocs` | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/crm/httpdocs` |
-| **games.menschlichkeit-oesterreich.at** | `subdomains/games/httpdocs` | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/games/httpdocs` |
-| **n8n.menschlichkeit-oesterreich.at** | `subdomains/n8n/httpdocs` | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/n8n/httpdocs` |
-| **admin.menschlichkeit-oesterreich.at** | `subdomains/admin/httpdocs` | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/admin/httpdocs` |
-| votes.menschlichkeit-oesterreich.at    | `subdomains/vote/httpdocs`          | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/vote/httpdocs` |
-| support.menschlichkeit-oesterreich.at  | `subdomains/support/httpdocs`       | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/support/httpdocs` |
-| status.menschlichkeit-oesterreich.at   | `subdomains/status/httpdocs`        | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/status/httpdocs` |
-| s3.menschlichkeit-oesterreich.at       | `subdomains/s3/httpdocs`            | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/s3/httpdocs` |
-| newsletter.menschlichkeit-oesterreich.at| `subdomains/newsletter/httpdocs`   | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/newsletter/httpdocs` |
-| media.menschlichkeit-oesterreich.at    | `subdomains/media/httpdocs`         | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/media/httpdocs` |
-| logs.menschlichkeit-oesterreich.at     | `subdomains/logs/httpdocs`          | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/logs/httpdocs` |
-| idp.menschlichkeit-oesterreich.at      | `subdomains/idp/httpdocs`           | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/idp/httpdocs` |
-| hooks.menschlichkeit-oesterreich.at    | `subdomains/hooks/httpdocs`         | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/hooks/httpdocs` |
-| grafana.menschlichkeit-oesterreich.at  | `subdomains/grafana/httpdocs`       | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/grafana/httpdocs` |
-| forum.menschlichkeit-oesterreich.at    | `subdomains/forum/httpdocs`         | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/forum/httpdocs` |
-| docs.menschlichkeit-oesterreich.at     | `subdomains/docs/httpdocs`          | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/docs/httpdocs` |
-| consent.menschlichkeit-oesterreich.at  | `subdomains/consent/httpdocs`       | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/consent/httpdocs` |
-| analytics.menschlichkeit-oesterreich.at| `subdomains/analytics/httpdocs`     | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/analytics/httpdocs` |
+| Subdomain                                | Website-Verzeichnis              | Deployment Path                                                                |
+| ---------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------ |
+| **api.<main-domain>**                    | `subdomains/api/httpdocs`        | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/api/httpdocs`        |
+| **crm.menschlichkeit-oesterreich.at**    | `subdomains/crm/httpdocs`        | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/crm/httpdocs`        |
+| **games.menschlichkeit-oesterreich.at**  | `subdomains/games/httpdocs`      | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/games/httpdocs`      |
+| **n8n.menschlichkeit-oesterreich.at**    | `subdomains/n8n/httpdocs`        | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/n8n/httpdocs`        |
+| **admin.menschlichkeit-oesterreich.at**  | `subdomains/admin/httpdocs`      | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/admin/httpdocs`      |
+| votes.menschlichkeit-oesterreich.at      | `subdomains/vote/httpdocs`       | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/vote/httpdocs`       |
+| support.menschlichkeit-oesterreich.at    | `subdomains/support/httpdocs`    | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/support/httpdocs`    |
+| status.menschlichkeit-oesterreich.at     | `subdomains/status/httpdocs`     | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/status/httpdocs`     |
+| s3.menschlichkeit-oesterreich.at         | `subdomains/s3/httpdocs`         | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/s3/httpdocs`         |
+| newsletter.menschlichkeit-oesterreich.at | `subdomains/newsletter/httpdocs` | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/newsletter/httpdocs` |
+| media.menschlichkeit-oesterreich.at      | `subdomains/media/httpdocs`      | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/media/httpdocs`      |
+| logs.menschlichkeit-oesterreich.at       | `subdomains/logs/httpdocs`       | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/logs/httpdocs`       |
+| idp.menschlichkeit-oesterreich.at        | `subdomains/idp/httpdocs`        | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/idp/httpdocs`        |
+| hooks.menschlichkeit-oesterreich.at      | `subdomains/hooks/httpdocs`      | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/hooks/httpdocs`      |
+| grafana.menschlichkeit-oesterreich.at    | `subdomains/grafana/httpdocs`    | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/grafana/httpdocs`    |
+| forum.menschlichkeit-oesterreich.at      | `subdomains/forum/httpdocs`      | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/forum/httpdocs`      |
+| docs.menschlichkeit-oesterreich.at       | `subdomains/docs/httpdocs`       | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/docs/httpdocs`       |
+| consent.menschlichkeit-oesterreich.at    | `subdomains/consent/httpdocs`    | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/consent/httpdocs`    |
+| analytics.menschlichkeit-oesterreich.at  | `subdomains/analytics/httpdocs`  | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/analytics/httpdocs`  |
 
 ### Staging Subdomains
-| Subdomain                              | Website-Verzeichnis                  | Deployment Path |
-|----------------------------------------|--------------------------------------|-----------------|
-| api.stg.menschlichkeit-oesterreich.at  | `subdomains/api.stg/httpdocs`       | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/api.stg/httpdocs` |
-| admin.stg.menschlichkeit-oesterreich.at| `subdomains/admin.stg/httpdocs`     | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/admin.stg/httpdocs` |
+
+| Subdomain                               | Website-Verzeichnis             | Deployment Path                                                               |
+| --------------------------------------- | ------------------------------- | ----------------------------------------------------------------------------- |
+| api.stg.menschlichkeit-oesterreich.at   | `subdomains/api.stg/httpdocs`   | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/api.stg/httpdocs`   |
+| admin.stg.menschlichkeit-oesterreich.at | `subdomains/admin.stg/httpdocs` | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/admin.stg/httpdocs` |
 
 ---
 
 ## 📬 E-Mail Konfiguration
 
 ### Aktive E-Mail-Adressen
+
 - `peter.schuller@menschlichkeit-oesterreich.at` (Hauptkontakt)
 - `logging@menschlichkeit-oesterreich.at` (System-Logs)
 - `info@menschlichkeit-oesterreich.at` (Öffentliche Anfragen)
@@ -80,6 +84,7 @@ SSH_POST_DEPLOY_CMD="php artisan migrate --force"  # Optional
 - `bounce@menschlichkeit-oesterreich.at` (Bounce-Handling)
 
 ### Aliases und Weiterleitungen
+
 - **Alias:** `schuller.peter@menschlichkeit-oesterreich.at` → `peter.schuller@menschlichkeit-oesterreich.at`
 - **Weiterleitung:** `schuller.peter@outlook.at` (Externe Weiterleitung)
 
@@ -88,6 +93,7 @@ SSH_POST_DEPLOY_CMD="php artisan migrate --force"  # Optional
 ## 🗄️ Datenbank-Architektur & Rollout-Plan
 
 ### Rahmenbedingungen
+
 - **Plesk Limit:** 5 MariaDB-Datenbanken pro Domain (bereits genutzt)
 - **Keine neuen Subdomains:** Anwendungen nutzen bestehende Hosts/Paths
 - **Externe DBs:** Zusätzliche MariaDB + alle PostgreSQL extern (VPS/Managed)
@@ -97,14 +103,15 @@ SSH_POST_DEPLOY_CMD="php artisan migrate --force"  # Optional
 ### 1. Bestehende Datenbanken (Plesk MariaDB - UNVERÄNDERT)
 
 | Zweck                 | Database        | User             | GitHub Secret Prefix |
-|-----------------------|-----------------|------------------|----------------------|
-| Hauptseite            | `mo_main`       | `svc_main`       | `MO_MAIN_DB_*`      |
-| Votes                 | `mo_votes`      | `svc_votes`      | `MO_VOTES_DB_*`     |
-| Support               | `mo_support`    | `svc_support`    | `MO_SUPPORT_DB_*`   |
-| Newsletter            | `mo_newsletter` | `svc_newsletter` | `MO_NEWSLETTER_DB_*`|
-| Forum (phpBB/Vanilla) | `mo_forum`      | `svc_forum`      | `MO_FORUM_DB_*`     |
+| --------------------- | --------------- | ---------------- | -------------------- |
+| Hauptseite            | `mo_main`       | `svc_main`       | `MO_MAIN_DB_*`       |
+| Votes                 | `mo_votes`      | `svc_votes`      | `MO_VOTES_DB_*`      |
+| Support               | `mo_support`    | `svc_support`    | `MO_SUPPORT_DB_*`    |
+| Newsletter            | `mo_newsletter` | `svc_newsletter` | `MO_NEWSLETTER_DB_*` |
+| Forum (phpBB/Vanilla) | `mo_forum`      | `svc_forum`      | `MO_FORUM_DB_*`      |
 
 **Connection String (Plesk-intern):**
+
 ```bash
 DB_HOST=localhost
 DB_PORT=3306
@@ -115,19 +122,20 @@ DB_PASSWORD=$MO_<SERVICE>_DB_PASS
 
 ### 2. Neue Datenbanken - Externe MariaDB
 
-| Zweck                    | Database        | User            | GitHub Secret Prefix |
-|--------------------------|-----------------|-----------------|----------------------|
-| CRM (CiviCRM + Drupal)   | `mo_crm`        | `svc_crm`       | `MO_CRM_DB_*`       |
-| n8n Automation           | `mo_n8n`        | `svc_n8n`       | `MO_N8N_DB_*`       |
-| Webhooks                 | `mo_hooks`      | `svc_hooks`     | `MO_HOOKS_DB_*`     |
-| Consent/DSGVO            | `mo_consent`    | `svc_consent`   | `MO_CONSENT_DB_*`   |
-| Gaming Platform          | `mo_games`      | `svc_games`     | `MO_GAMES_DB_*`     |
-| Analytics/ETL            | `mo_analytics`  | `svc_analytics` | `MO_ANALYTICS_DB_*` |
-| API Staging              | `mo_api_stg`    | `svc_api_stg`   | `MO_API_STG_DB_*`   |
-| Admin Staging            | `mo_admin_stg`  | `svc_admin_stg` | `MO_ADMIN_STG_DB_*` |
-| Nextcloud (File Storage) | `mo_nextcloud`  | `svc_nextcloud` | `MO_NEXTCLOUD_DB_*` |
+| Zweck                    | Database       | User            | GitHub Secret Prefix |
+| ------------------------ | -------------- | --------------- | -------------------- |
+| CRM (CiviCRM + Drupal)   | `mo_crm`       | `svc_crm`       | `MO_CRM_DB_*`        |
+| n8n Automation           | `mo_n8n`       | `svc_n8n`       | `MO_N8N_DB_*`        |
+| Webhooks                 | `mo_hooks`     | `svc_hooks`     | `MO_HOOKS_DB_*`      |
+| Consent/DSGVO            | `mo_consent`   | `svc_consent`   | `MO_CONSENT_DB_*`    |
+| Gaming Platform          | `mo_games`     | `svc_games`     | `MO_GAMES_DB_*`      |
+| Analytics/ETL            | `mo_analytics` | `svc_analytics` | `MO_ANALYTICS_DB_*`  |
+| API Staging              | `mo_api_stg`   | `svc_api_stg`   | `MO_API_STG_DB_*`    |
+| Admin Staging            | `mo_admin_stg` | `svc_admin_stg` | `MO_ADMIN_STG_DB_*`  |
+| Nextcloud (File Storage) | `mo_nextcloud` | `svc_nextcloud` | `MO_NEXTCLOUD_DB_*`  |
 
 **Connection String (extern):**
+
 ```bash
 MYSQL_HOST=$MYSQL_HOST  # External MariaDB Host
 MYSQL_PORT=3306
@@ -138,11 +146,12 @@ DB_SSL_MODE=REQUIRED  # TLS bevorzugt
 ```
 
 **SQL Template für Anlage (auf externem MariaDB Server):**
+
 ```sql
 -- Ersetze: <db>, <service>, <PLESK_SERVER_IP>, <STRONG_PASSWORD>
 CREATE DATABASE <db> CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER 'svc_<service>'@'<PLESK_SERVER_IP>' IDENTIFIED BY '<STRONG_PASSWORD>';
-GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,ALTER,INDEX,REFERENCES,LOCK TABLES 
+GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,ALTER,INDEX,REFERENCES,LOCK TABLES
   ON <db>.* TO 'svc_<service>'@'<PLESK_SERVER_IP>';
 FLUSH PRIVILEGES;
 ```
@@ -150,12 +159,13 @@ FLUSH PRIVILEGES;
 ### 3. Neue Datenbanken - Externe PostgreSQL
 
 | Zweck                        | Database       | User            | GitHub Secret Prefix |
-|------------------------------|----------------|-----------------|----------------------|
-| Identity Provider (Keycloak) | `mo_idp`       | `svc_idp`       | `PG_IDP_DB_*`       |
-| Grafana (Metadaten)          | `mo_grafana`   | `svc_grafana`   | `PG_GRAFANA_DB_*`   |
-| Discourse (optional)         | `mo_discourse` | `svc_discourse` | `PG_DISCOURSE_DB_*` |
+| ---------------------------- | -------------- | --------------- | -------------------- |
+| Identity Provider (Keycloak) | `mo_idp`       | `svc_idp`       | `PG_IDP_DB_*`        |
+| Grafana (Metadaten)          | `mo_grafana`   | `svc_grafana`   | `PG_GRAFANA_DB_*`    |
+| Discourse (optional)         | `mo_discourse` | `svc_discourse` | `PG_DISCOURSE_DB_*`  |
 
 **Connection String (extern):**
+
 ```bash
 PG_HOST=$PG_HOST  # External PostgreSQL Host
 PG_PORT=5432
@@ -166,6 +176,7 @@ PG_SSL_MODE=require  # TLS bevorzugt
 ```
 
 **SQL Template für Anlage (auf externem PostgreSQL Server):**
+
 ```sql
 -- Ersetze: <service>, <STRONG_PASSWORD>
 CREATE USER svc_<service> WITH ENCRYPTED PASSWORD '<STRONG_PASSWORD>';
@@ -177,9 +188,10 @@ GRANT ALL PRIVILEGES ON DATABASE mo_<service> TO svc_<service>;
 
 **Zweck:** File-Locking, Session-Cache, Queue-Backend  
 **Port:** `6379`  
-**Authentication:** Password-protected  
+**Authentication:** Password-protected
 
 **Connection String:**
+
 ```bash
 REDIS_HOST=$REDIS_HOST
 REDIS_PORT=6379
@@ -192,6 +204,7 @@ REDIS_DB=0  # Separate DBs per Service (0-15)
 ## 🔒 GitHub Secrets Matrix (Production Environment)
 
 ### SSH/Deploy
+
 ```bash
 SSH_HOST=<plesk-hostname>
 SSH_PORT=22
@@ -202,6 +215,7 @@ SSH_POST_DEPLOY_CMD="php artisan migrate --force"
 ```
 
 ### Database Hosts
+
 ```bash
 # Shared Hosts
 MYSQL_HOST=<external-mariadb-host>
@@ -214,6 +228,7 @@ REDIS_PASS=<redis-password>
 ```
 
 ### Plesk MariaDB (Bestehend - 5 DBs)
+
 ```bash
 # Hauptseite
 MO_MAIN_DB_USER=svc_main
@@ -237,6 +252,7 @@ MO_FORUM_DB_PASS=<secure-password>
 ```
 
 ### Externe MariaDB (Neue DBs)
+
 ```bash
 # CRM (CiviCRM + Drupal)
 MO_CRM_DB_USER=svc_crm
@@ -276,6 +292,7 @@ MO_NEXTCLOUD_DB_PASS=<secure-password>
 ```
 
 ### Externe PostgreSQL
+
 ```bash
 # Identity Provider (Keycloak)
 PG_IDP_DB_USER=svc_idp
@@ -295,6 +312,7 @@ PG_DISCOURSE_DB_PASS=<secure-password>
 ## 🚀 Deployment-Workflow mit MCP-Integration
 
 ### 1. Pre-Deployment Validation (GitHub MCP)
+
 ```bash
 Via GitHub MCP:
 "Check deployment readiness for current branch"
@@ -308,6 +326,7 @@ Validate:
 ```
 
 ### 2. Database Connection Test (PostgreSQL MCP)
+
 ```bash
 Via PostgreSQL MCP:
 "Test database connections for all services"
@@ -320,6 +339,7 @@ Check:
 ```
 
 ### 3. SSH Deployment (Filesystem MCP + Scripts)
+
 ```bash
 # deployment-scripts/deploy-to-plesk.sh
 #!/bin/bash
@@ -334,13 +354,13 @@ ssh -i "$SSH_PRIVATE_KEY" -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "echo 'SSH Connec
 # Deploy each service
 for SERVICE in api crm games admin; do
     echo "Deploying $SERVICE..."
-    
+
     # Sync files via rsync
     rsync -avz --delete \
         -e "ssh -i $SSH_PRIVATE_KEY -p $SSH_PORT" \
         "./dist/$SERVICE/" \
         "$SSH_USER@$SSH_HOST:/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/$SERVICE/httpdocs/"
-    
+
     # Run post-deploy commands
     ssh -i "$SSH_PRIVATE_KEY" -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
         "cd /var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/$SERVICE/httpdocs && $SSH_POST_DEPLOY_CMD"
@@ -348,12 +368,13 @@ done
 ```
 
 ### 4. Smoke Tests (Playwright MCP)
+
 ```bash
 Via Playwright MCP:
 "Run smoke tests for all deployed services"
 
 Test:
-□ https://api.menschlichkeit-oesterreich.at/health
+□ https://api.<main-domain>/health
 □ https://crm.menschlichkeit-oesterreich.at/
 □ https://games.menschlichkeit-oesterreich.at/
 □ https://admin.menschlichkeit-oesterreich.at/
@@ -361,6 +382,7 @@ Test:
 ```
 
 ### 5. Post-Deployment Monitoring
+
 ```bash
 ./deployment-scripts/deployment-monitoring.sh
 
@@ -377,6 +399,7 @@ Monitor:
 ## 🛡️ Sicherheit & Best Practices
 
 ### Firewall-Regeln (Externe DB-Server)
+
 ```bash
 # MariaDB
 ufw allow from <PLESK_SERVER_IP> to any port 3306 proto tcp
@@ -398,6 +421,7 @@ ufw enable
 ```
 
 ### TLS/SSL für Datenbank-Verbindungen
+
 ```bash
 # MariaDB
 [client]
@@ -410,6 +434,7 @@ sslrootcert=/etc/postgresql/root.crt
 ```
 
 ### Least Privilege Grants
+
 ```sql
 -- Nie GRANT ALL verwenden!
 -- Nur notwendige Rechte vergeben:
@@ -423,6 +448,7 @@ GRANT CREATE,ALTER,INDEX,REFERENCES,LOCK TABLES ON database.* TO 'user'@'host';
 ```
 
 ### Secret Rotation
+
 ```bash
 # Quartalsweise Passwort-Rotation
 # 1. Neues Passwort generieren
@@ -442,6 +468,7 @@ gh secret set MO_CRM_DB_PASS --body "$NEW_PASS" --env production
 ## 📊 Backup & Disaster Recovery
 
 ### Automatisierte Backups
+
 ```bash
 #!/bin/bash
 # /opt/backup/db-backup.sh
@@ -478,11 +505,13 @@ aws s3 sync "$BACKUP_DIR" s3://mo-backups/databases/ --storage-class GLACIER
 ```
 
 ### Cron-Job (täglich 3:00 UTC)
+
 ```bash
 0 3 * * * /opt/backup/db-backup.sh >> /var/log/db-backup.log 2>&1
 ```
 
 ### Restore-Test (monatlich)
+
 ```bash
 # Test-Restore auf separate Test-DB
 gunzip -c mo_crm_20251007_030000.sql.gz | mysql -h test-db-host mo_crm_test
@@ -493,6 +522,7 @@ gunzip -c mo_crm_20251007_030000.sql.gz | mysql -h test-db-host mo_crm_test
 ## 📋 Deployment-Checkliste
 
 ### Pre-Deployment
+
 - [ ] Alle Quality Gates passed (npm run quality:gates)
 - [ ] Security Scan erfolgreich (0 HIGH/CRITICAL)
 - [ ] Database Backups aktuell (< 24h)
@@ -501,6 +531,7 @@ gunzip -c mo_crm_20251007_030000.sql.gz | mysql -h test-db-host mo_crm_test
 - [ ] Staging-Deployment erfolgreich
 
 ### Deployment
+
 - [ ] Pre-Deployment Validation (deployment-readiness.sh)
 - [ ] Database Migrations getestet (dry-run)
 - [ ] Services einzeln deployen (CRM → API → Frontend → Games)
@@ -508,6 +539,7 @@ gunzip -c mo_crm_20251007_030000.sql.gz | mysql -h test-db-host mo_crm_test
 - [ ] Health Checks bestanden
 
 ### Post-Deployment
+
 - [ ] Monitoring aktiv (30min)
 - [ ] Error Rates < 1%
 - [ ] Response Times < 500ms
@@ -517,6 +549,7 @@ gunzip -c mo_crm_20251007_030000.sql.gz | mysql -h test-db-host mo_crm_test
 - [ ] Rollback-Plan bereit
 
 ### Bei Problemen
+
 - [ ] Automatischer Rollback bei Critical Errors
 - [ ] Incident-Report erstellen
 - [ ] Team informieren

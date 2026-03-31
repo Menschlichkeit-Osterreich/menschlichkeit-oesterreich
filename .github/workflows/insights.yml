@@ -17,12 +17,12 @@ jobs:
 
     steps:
       - name: 📥 Checkout Repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
 
       - name: 🔧 Setup Node.js
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af  # v4.2.0
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.2.0
         with:
           node-version: '22'
 
@@ -104,7 +104,7 @@ jobs:
           echo "## 🏗️ Multi-Service Architecture" >> insights-report.md
           echo "" >> insights-report.md
 
-          services=("frontend" "api.menschlichkeit-oesterreich.at" "crm.menschlichkeit-oesterreich.at" "website" "web" "automation/n8n")
+          services=("website" "api" "crm" "games" "automation/n8n")
 
           for service in "${services[@]}"; do
             if [ -d "$service" ]; then
@@ -175,7 +175,7 @@ jobs:
           echo "- **Issues Closed Last Week:** $RECENT_ISSUES" >> insights-report.md
 
       - name: 📤 Upload Insights Report
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: repository-insights
           path: insights-report.md

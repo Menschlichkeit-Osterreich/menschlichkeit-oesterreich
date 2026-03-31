@@ -11,7 +11,7 @@ docs/ENV-DEPLOYMENT-MAIL-STANDARD.md  @peschull @vorstand
 # Bereichsverantwortliche
 # =============================================================================
 # mcp-servers/* @peschull
-# frontend/*    @peschull
+# apps/website/* @peschull
 
 # Forum & Community
 /web/forum/**           @peschull

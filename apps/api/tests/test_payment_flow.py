@@ -51,6 +51,7 @@ class TestStripeWebhook:
             "metadata": {"email": "spender@example.at", "purpose": "Spende"},
         })
         with (
+            patch(f"{_MOCK_BASE}.db_fetchrow", new=AsyncMock(return_value=None)),
             patch("app.services.payment_service.payment_service.verify_stripe_signature", new=AsyncMock()),
             patch("app.services.payment_service.payment_service.record_webhook_event", new=AsyncMock(return_value=True)),
             patch("app.services.payment_service.payment_service.record_successful_donation", new=AsyncMock(return_value={"id": 1})) as mock_record,
@@ -76,6 +77,7 @@ class TestStripeWebhook:
             "last_payment_error": {"message": "Karte abgelehnt"},
         })
         with (
+            patch(f"{_MOCK_BASE}.db_fetchrow", new=AsyncMock(return_value=None)),
             patch("app.services.payment_service.payment_service.verify_stripe_signature", new=AsyncMock()),
             patch("app.services.payment_service.payment_service.record_webhook_event", new=AsyncMock(return_value=True)),
             patch(f"{_MOCK_BASE}.execute", new=AsyncMock()) as mock_exec,
@@ -97,6 +99,7 @@ class TestStripeWebhook:
     def test_webhook_payment_canceled_updates_status_no_mail(self, client):
         payload = _stripe_event("payment_intent.canceled", {"id": "pi_canceled123", "amount": 2000})
         with (
+            patch(f"{_MOCK_BASE}.db_fetchrow", new=AsyncMock(return_value=None)),
             patch("app.services.payment_service.payment_service.verify_stripe_signature", new=AsyncMock()),
             patch("app.services.payment_service.payment_service.record_webhook_event", new=AsyncMock(return_value=True)),
             patch(f"{_MOCK_BASE}.execute", new=AsyncMock()) as mock_exec,
@@ -115,8 +118,8 @@ class TestStripeWebhook:
     def test_webhook_duplicate_event_ignored(self, client):
         payload = _stripe_event("payment_intent.succeeded", {"id": "pi_dup", "amount_received": 1000})
         with (
+            patch(f"{_MOCK_BASE}.db_fetchrow", new=AsyncMock(return_value={"id": 1})),
             patch("app.services.payment_service.payment_service.verify_stripe_signature", new=AsyncMock()),
-            patch("app.services.payment_service.payment_service.record_webhook_event", new=AsyncMock(return_value=False)),
             patch("app.services.payment_service.payment_service.record_successful_donation", new=AsyncMock()) as mock_record,
         ):
             resp = client.post(
@@ -136,6 +139,7 @@ class TestStripeWebhook:
             "metadata": {},
         })
         with (
+            patch(f"{_MOCK_BASE}.db_fetchrow", new=AsyncMock(return_value=None)),
             patch("app.services.payment_service.payment_service.verify_stripe_signature", new=AsyncMock()),
             patch("app.services.payment_service.payment_service.record_webhook_event", new=AsyncMock(return_value=True)),
             patch(f"{_MOCK_BASE}.execute", new=AsyncMock()),

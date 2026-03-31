@@ -6,16 +6,16 @@ lastUpdated: 2025-10-10
 status: ACTIVE
 priority: high
 category: documentation
-applyTo: "**/*"
+applyTo: '**/*'
 # Betriebsparameter
 defaults:
-  dryRun: true            # true = nur planen/berichten, keine Änderungen schreiben
-  force: false            # true = destruktive Aktionen erlauben (löschen/überschreiben)
-  archiveDir: "archive"   # Zielordner für zu archivierendes Material
-  docsDir: "docs"         # Zentrales Doku-Verzeichnis
-  rootReadme: "README.md" # Ziel für Haupt-README
-  languages: ["de-AT","en"]
-  defaultLanguage: "de-AT"
+  dryRun: true # true = nur planen/berichten, keine Änderungen schreiben
+  force: false # true = destruktive Aktionen erlauben (löschen/überschreiben)
+  archiveDir: 'archive' # Zielordner für zu archivierendes Material
+  docsDir: 'docs' # Zentrales Doku-Verzeichnis
+  rootReadme: 'README.md' # Ziel für Haupt-README
+  languages: ['de-AT', 'en']
+  defaultLanguage: 'de-AT'
   preserve:
     - "(?i)^LICENSE(\\.|$)"
     - "(?i)^NOTICE(\\.|$)"
@@ -24,76 +24,90 @@ defaults:
     - "(?i)^CODE_OF_CONDUCT\\.md$"
     - "(?i)^CONTRIBUTING\\.md$"
   excludePaths:
-    - "node_modules/**"
-    - "vendor/**"
-    - "dist/**"
-    - "build/**"
-    - "__pycache__/**"
-    - ".cache/**"
-    - ".next/**"
-    - ".venv/**"
-    - ".vscode/**"
-    - "*.lock"
-    - "*.min.*"
+    - 'node_modules/**'
+    - 'vendor/**'
+    - 'dist/**'
+    - 'build/**'
+    - '__pycache__/**'
+    - '.cache/**'
+    - '.next/**'
+    - '.venv/**'
+    - '.vscode/**'
+    - '*.lock'
+    - '*.min.*'
   docGlobs:
-    - "**/*.md"
-    - "**/*.mdx"
-    - "**/*.markdown"
-    - "**/*.rst"
-    - "**/*.adoc"
-    - "**/*.txt"
-    - "**/*.pdf"
-    - "**/*.docx"
-    - "**/*.odt"
-    - "**/*.ipynb"
-    - "**/*README*"
-  normalizeTo: "markdown"  # Ziel-Format, wo möglich
+    - '**/*.md'
+    - '**/*.mdx'
+    - '**/*.markdown'
+    - '**/*.rst'
+    - '**/*.adoc'
+    - '**/*.txt'
+    - '**/*.pdf'
+    - '**/*.docx'
+    - '**/*.odt'
+    - '**/*.ipynb'
+    - '**/*README*'
+  normalizeTo: 'markdown' # Ziel-Format, wo möglich
   linkCheck: true
   spellCheck:
     enabled: true
-    dictionaries: ["de","en"]
+    dictionaries: ['de', 'en']
   lint:
     markdown: true
     maxLineLength: 120
   toc: true
   frontMatterSchema:
-    required: ["title","description","lastUpdated","status","owners","tags","version"]
-    optional: ["category","canonical","language","slug"]
+    required:
+      [
+        'title',
+        'description',
+        'lastUpdated',
+        'status',
+        'owners',
+        'tags',
+        'version',
+      ]
+    optional: ['category', 'canonical', 'language', 'slug']
   monorepo:
-    packageReadmes: true   # fehlende READMEs in Subprojekten erzeugen
-    structureDoc: true     # /docs/INDEX.md mit Navigationsbaum erzeugen
+    packageReadmes: true # fehlende READMEs in Subprojekten erzeugen
+    structureDoc: true # /docs/INDEX.md mit Navigationsbaum erzeugen
 outputs:
-  planReport: "DOCS_REPORT.md"
-  trashList: "TRASHLIST.csv"
-  moveList: "MOVES.csv"
-  normalizeRules: "NORMALIZATION_RULES.yml"
-  siteIndex: "docs/INDEX.md"
-  qgSummary: "docs/QUALITY_GATE_SUMMARY.md"
+  planReport: 'DOCS_REPORT.md'
+  trashList: 'TRASHLIST.csv'
+  moveList: 'MOVES.csv'
+  normalizeRules: 'NORMALIZATION_RULES.yml'
+  siteIndex: 'docs/INDEX.md'
+  qgSummary: 'docs/QUALITY_GATE_SUMMARY.md'
 ---
 
 # README+ & Dokumentations-Hygiene Modus
 
 ## Zweck
+
 Inventarisiere, bereinige und vereinheitliche **sämtliche** Dokumentation im Repository. Erzeuge eine **vollständige, aktuelle und ausführbare** `README.md` auf Root-Ebene sowie konsistente Teil-READMEs und eine gepflegte `/docs`-Struktur. Entferne Dubletten, widersprüchliche, veraltete und irrelevante Dateien **sicher** (Plan → Review → Apply).
 
 ## Ergebnisse (Definition of Done)
+
 - **`README.md` (Root)**: Präzise Einleitung, Quickstart, Installation, Nutzung, Architektur, Qualitäts-/CI-Hinweise, Beitragsregeln, Lizenz, Support.
 - **Konsolidierte `/docs`**: Thematisch sortiert, mit `docs/INDEX.md` (Sitemap), konsistenten Front-Matters, funktionierenden Relativ-Links und validierten Bildpfaden.
-- **Subprojekt-READMEs** (Monorepo): Für `api/`, `frontend/`, `crm/`, `games/`, etc., falls fehlend.
+- **Subprojekt-READMEs** (Monorepo): Für `apps/api/`, `apps/website/`, `apps/crm/`, `apps/babylon-game/`, `apps/forum/` etc., falls fehlend.
 - **Berichte/Artefakte**: `DOCS_REPORT.md`, `TRASHLIST.csv`, `MOVES.csv`, `NORMALIZATION_RULES.yml`, `docs/QUALITY_GATE_SUMMARY.md`.
 - **Qualitäts-Gates passiert**: Lint, Rechtschreibung, Linkcheck, konsistente Metadaten, keine toten Verweise.
 
 ## Betriebsarten
+
 1. **audit** (implizit bei `dryRun: true`): Nur Inventur, Bewertung, Berichte.
 2. **plan**: Konsolidierungs-, Move- und Löschvorschläge erzeugen (`TRASHLIST.csv`, `MOVES.csv`).
 3. **apply** (erfordert `dryRun:false` **und** `force:true`): Aktionen durchführen, Dateien schreiben/verschieben/löschen.
 
 ## Geltungsbereich
+
 - **Einbeziehen**: `docGlobs` (alle üblichen Doku-Formate inkl. PDF/DOCX/ODT/IPYNB).
 - **Ausschließen**: `excludePaths`, Build-Artefakte, Caches, Vendor-Verzeichnisse.
 - **Schützen**: `preserve` (Lizenz/Compliance-Dateien niemals löschen oder überschreiben).
 
 ## Arbeitsablauf (Pipeline)
+
 1. **Discovery**
    - Finde alle Dateien gemäß `docGlobs` (unter Beachtung von `excludePaths`).
    - Extrahiere Metadaten (Front-Matter, Titel, Abstract, Datum, Tags, Besitzer).
@@ -134,6 +148,7 @@ Inventarisiere, bereinige und vereinheitliche **sämtliche** Dokumentation im Re
    - Ausgabe der vollständigen **Diff-Vorschau** (bei Dry-Run).
 
 ## Struktur der Root-`README.md`
+
 - **Titel & Kurzbeschreibung** (ein Satz Nutzenversprechen)
 - **Badges** (optional): Build/CI, Lizenz, CodeQL, Coverage
 - **Voraussetzungen** (OS, Runtime, Tooling)
@@ -146,6 +161,7 @@ Inventarisiere, bereinige und vereinheitliche **sämtliche** Dokumentation im Re
 - **Lizenz & Support** (Lizenztext, Kontakt/Issues/Discussions)
 
 ## Heuristiken & Regeln
+
 - Bevorzuge **eine** kanonische Quelle pro Thema; übrige werden **vereinigt** oder **archiviert**.
 - **Konflikte** werden im Bericht mit Lösungsvorschlag dokumentiert (z. B. Abschnitte mergen).
 - Sprache: Standard **{defaultLanguage}**, mehrsprachige Seiten mit Suffix (`.de.md`, `.en.md`) und Sprach-Front-Matter.
@@ -153,11 +169,13 @@ Inventarisiere, bereinige und vereinheitliche **sämtliche** Dokumentation im Re
 - Keine Änderungen am **Produktiv-Code**; nur Dokumentation, Bilder, Links, Metadaten.
 
 ## Sicherheit & Schutzmaßnahmen
+
 - Destruktives nur mit `dryRun:false` **und** `force:true`.
 - `preserve`-Dateien sind stets **read-only** zu behandeln.
 - Bei Unsicherheit **archivieren statt löschen** und im Report kennzeichnen.
 
 ## Erwartete Ausgaben
+
 - Aktualisierte/erzeugte Dateien gemäß **Ergebnisse**.
 - `DOCS_REPORT.md` mit:
   - Zusammenfassung, Telemetrie (Anzahl Dateien, Diffs)
@@ -167,16 +185,19 @@ Inventarisiere, bereinige und vereinheitliche **sämtliche** Dokumentation im Re
 - Vollständiger Inhalt der neuen **`README.md`** im Antwortblock.
 
 ## Kontextaufnahme (schnell)
+
 - **codebase**: Sammle Startskripte, Env-Bezüge, zentrale Pfade, package-/workflow-Infos.
 - **githubRepo**: Bestehende Doku/Issues/PR-Vorlagen sichten.
 
 ## Ausgabemodus (Antwortformat)
-1) Vollständige **Root-`README.md`**.
-2) Abschnitt „**Bericht (Auszug)**“ mit den wichtigsten geplanten Aktionen.
-3) Tabellen **`TRASHLIST.csv`** und **`MOVES.csv`** als Codeblöcke.
-4) Hinweise, wie `dryRun/force` zu setzen sind, wenn die Änderungen akzeptiert werden.
+
+1. Vollständige **Root-`README.md`**.
+2. Abschnitt „**Bericht (Auszug)**“ mit den wichtigsten geplanten Aktionen.
+3. Tabellen **`TRASHLIST.csv`** und **`MOVES.csv`** als Codeblöcke.
+4. Hinweise, wie `dryRun/force` zu setzen sind, wenn die Änderungen akzeptiert werden.
 
 ## Qualitätskriterien
+
 - **First-Run funktioniert ohne Rückfragen.**
 - **Alle Links valide**, Front-Matter vollständig, konsistente Gliederung.
 - **Keine Dubletten**, eindeutige Kanonisierung, nachvollziehbare Gründe.

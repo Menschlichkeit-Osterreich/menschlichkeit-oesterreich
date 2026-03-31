@@ -8,13 +8,16 @@ priority: high
 category: core
 applyTo: **/*.md
 ---
+
 # Documentation Best Practices Instructions
 
 ## Dokumentations-Standards
 
 ### Zielgruppe & Sprache
+
 ```markdown
 IMMER beachten:
+
 - Technische Docs: **Englisch** (internationale Zusammenarbeit)
 - User-Facing Docs: **Deutsch (Österreich)** 🇦🇹
 - Legal/DSGVO Docs: **Deutsch** (rechtssicher)
@@ -22,6 +25,7 @@ IMMER beachten:
 ```
 
 ### Dokumentations-Hierarchie
+
 ```text
 README.md (Root)           → Projekt-Übersicht für Newcomer
 ├── docs/                  → Technische Deep-Dive Dokumentation
@@ -33,14 +37,15 @@ README.md (Root)           → Projekt-Übersicht für Newcomer
 ├── .github/
 │   ├── copilot-instructions.md → Copilot-Leitfaden
 │   ├── instructions/      → Kontext-spezifische Instructions
-│   ├── modes/             → Chat-Modes für verschiedene Workflows
+│   ├── chatmodes/         → Chat-Modes für verschiedene Workflows
 │   └── prompts/           → Wiederverwendbare Prompt-Templates
-└── <service>/README.md    → Service-spezifische Dokumentation
+└── apps/<service>/README.md → Service-spezifische Dokumentation
 ```
 
 ## README.md Best Practices
 
 ### 1. Root README.md Template
+
 ```markdown
 # Projekt-Name
 
@@ -59,43 +64,54 @@ README.md (Root)           → Projekt-Übersicht für Newcomer
 ## 🚀 Quick Start
 
 \`\`\`bash
+
 # 1. Prerequisites
-node -v  # >= 18.0.0
-docker --version  # >= 24.0.0
+
+node -v # >= 18.0.0
+docker --version # >= 24.0.0
 
 # 2. Installation
+
 npm run setup:dev
 
 # 3. Development Server starten
+
 npm run dev:all
 
 # 4. Zugriff
+
 # - CRM: http://localhost:8000
+
 # - API: http://localhost:8001
-# - Frontend: http://localhost:3000
+
+# - Website: http://localhost:5173
+
 \`\`\`
 
 ## 📁 Projekt-Struktur
 
 \`\`\`
 project-root/
-├── frontend/          # React + TypeScript
-├── api/               # FastAPI Backend
-├── crm/               # Drupal + CiviCRM
-└── docs/              # Dokumentation
+├── apps/website/ # React + Vite
+├── apps/api/ # FastAPI Backend
+├── apps/crm/ # Drupal + CiviCRM
+├── apps/babylon-game/ # Next.js + Babylon.js
+└── docs/ # Dokumentation
 \`\`\`
 
 ## 🛠️ Development
 
 ### Häufige Befehle
+
 \`\`\`bash
-npm run dev:all           # Alle Services starten
-npm run test:unit         # Unit Tests
-npm run quality:gates     # Quality Gates prüfen
-npm run build:all         # Production Build
+npm run dev:all # Alle Services starten
+npm run test:unit # Unit Tests
+npm run quality:gates # Quality Gates prüfen
+npm run build:all # Production Build
 \`\`\`
 
 ### Workflow
+
 1. Issue erstellen oder zuweisen
 2. Branch: \`feature/<issue-number>-<description>\`
 3. Development + Tests
@@ -118,7 +134,7 @@ npm run build:all         # Production Build
 
 ## 📚 Dokumentation
 
-- **API Docs:** [api.menschlichkeit-oesterreich.at/docs](url)
+- **API Docs:** `apps/api/openapi.yaml` und lokal `http://localhost:8001/docs`
 - **Architecture:** [docs/ARCHITECTURE.md](link)
 - **Deployment:** [docs/DEPLOYMENT.md](link)
 
@@ -138,6 +154,7 @@ Siehe [CONTRIBUTING.md](link) für Details.
 ```
 
 ### 2. Service-spezifische README.md
+
 ```markdown
 # Service Name (z.B. CRM)
 
@@ -153,12 +170,15 @@ Siehe [CONTRIBUTING.md](link) für Details.
 ## Local Development
 
 \`\`\`bash
+
 # Setup
-cd crm.menschlichkeit-oesterreich.at
+
+cd apps/crm
 composer install
 npm run dev:crm
 
 # Zugriff
+
 http://localhost:8000
 \`\`\`
 
@@ -171,8 +191,8 @@ http://localhost:8000
 ## Testing
 
 \`\`\`bash
-composer test           # PHPUnit
-phpstan analyse         # Static Analysis
+composer test # PHPUnit
+phpstan analyse # Static Analysis
 \`\`\`
 
 ## Deployment
@@ -192,7 +212,9 @@ phpstan analyse         # Static Analysis
 
 **Problem:** CRM startet nicht
 \`\`\`bash
+
 # Lösung:
+
 docker-compose restart drupal
 drush cache:rebuild
 \`\`\`
@@ -201,6 +223,7 @@ drush cache:rebuild
 ## Markdown Best Practices
 
 ### 1. Struktur & Hierarchie
+
 ```markdown
 # H1 - Nur EINMAL pro Dokument (Titel)
 
@@ -211,12 +234,14 @@ drush cache:rebuild
 #### H4 - Details (sparsam verwenden)
 
 NIEMALS:
+
 - H1 mehrfach verwenden
 - Hierarchie-Stufen überspringen (H2 → H4)
 - Mehr als 4 Ebenen verschachteln
 ```
 
 ### 2. Code-Blöcke
+
 ```markdown
 ✅ GOOD - Mit Syntax-Highlighting:
 \`\`\`bash
@@ -234,25 +259,32 @@ npm run dev
 ```
 
 ### 3. Listen
+
 ```markdown
 ✅ GOOD - Konsistente Aufzählungszeichen:
+
 - Item 1
 - Item 2
   - Sub-Item 2.1
   - Sub-Item 2.2
 
 ✅ GOOD - Nummerierte Listen:
+
 1. Erster Schritt
 2. Zweiter Schritt
 3. Dritter Schritt
 
 ❌ BAD - Gemischt:
+
 - Item 1
+
 * Item 2
-+ Item 3
+
+- Item 3
 ```
 
 ### 4. Links & Referenzen
+
 ```markdown
 ✅ GOOD - Beschreibender Text:
 Siehe [Deployment-Anleitung](docs/DEPLOYMENT.md) für Details.
@@ -265,13 +297,14 @@ Siehe https://example.com/very/long/url/that/breaks/formatting
 ```
 
 ### 5. Tabellen
+
 ```markdown
 ✅ GOOD - Formatiert & aligned:
-| Service | Port | Stack       |
+| Service | Port | Stack |
 |---------|------|-------------|
-| CRM     | 8000 | Drupal 10   |
-| API     | 8001 | FastAPI     |
-| Frontend| 3000 | React 18    |
+| CRM | 8000 | Drupal 10 |
+| API | 8001 | FastAPI |
+| Website | 5173 | React 19 |
 
 ❌ BAD - Unformatiert:
 |Service|Port|Stack|
@@ -280,6 +313,7 @@ Siehe https://example.com/very/long/url/that/breaks/formatting
 ```
 
 ### 6. Badges & Icons
+
 ```markdown
 ✅ GOOD - Shields.io Badges:
 ![Build](https://img.shields.io/github/workflow/status/...)
@@ -294,6 +328,7 @@ Siehe https://example.com/very/long/url/that/breaks/formatting
 ```
 
 ### 7. Warnungen & Hinweise
+
 ```markdown
 ✅ GOOD - Visuelle Hervorhebung:
 
@@ -307,6 +342,7 @@ Siehe https://example.com/very/long/url/that/breaks/formatting
 ```
 
 ### 8. Bilder & Diagramme
+
 ```markdown
 ✅ GOOD - Beschreibender Alt-Text:
 ![System Architecture Diagram](docs/images/architecture.png)
@@ -314,9 +350,9 @@ Siehe https://example.com/very/long/url/that/breaks/formatting
 ✅ GOOD - Mermaid für Diagramme:
 \`\`\`mermaid
 graph LR
-  A[User] --> B[Frontend]
-  B --> C[API]
-  C --> D[Database]
+A[User] --> B[Website]
+B --> C[API]
+C --> D[Database]
 \`\`\`
 
 ❌ BAD - Fehlender Alt-Text:
@@ -326,6 +362,7 @@ graph LR
 ## Automatische Validierung
 
 ### Markdown Linting
+
 ```bash
 # Via markdownlint:
 npm install -g markdownlint-cli
@@ -337,6 +374,7 @@ markdownlint-cli2 $(git diff --cached --name-only --diff-filter=ACM | grep '\.md
 ```
 
 ### Link-Validierung
+
 ```bash
 # Via markdown-link-check:
 npm install -g markdown-link-check
@@ -347,6 +385,7 @@ find . -name '*.md' -not -path './node_modules/*' -exec markdown-link-check {} \
 ```
 
 ### Spelling & Grammar
+
 ```bash
 # Via cspell (Code Spell Checker):
 npm install -g cspell
@@ -359,6 +398,7 @@ vale --config=.vale.ini docs/
 ## Dokumentations-Workflows
 
 ### 1. Neue Feature-Dokumentation
+
 ```markdown
 Bei jedem neuen Feature:
 
@@ -381,18 +421,21 @@ Bei jedem neuen Feature:
 5. **Quality Check:**
    \`\`\`bash
    npm run docs:validate
-   markdownlint '**/*.md'
+   markdownlint '\*_/_.md'
    \`\`\`
 ```
 
 ### 2. DSGVO-Dokumentation
+
 ```markdown
 Bei Datenverarbeitung IMMER dokumentieren:
 
 \`\`\`markdown
+
 ## DSGVO-Compliance
 
 ### Betroffene Daten
+
 - **Typ:** Kontaktdaten (Name, Email, Telefon)
 - **Rechtsgrundlage:** Art. 6 Abs. 1 lit. a DSGVO (Einwilligung)
 - **Zweck:** Newsletter-Versand
@@ -400,17 +443,20 @@ Bei Datenverarbeitung IMMER dokumentieren:
 - **Löschroutine:** \`npm run gdpr:cleanup\`
 
 ### Betroffenenrechte
+
 - **Auskunft:** Via CRM-Interface
 - **Löschung:** Via \`drush civicrm:gdpr-delete <contact_id>\`
 - **Widerruf:** Via Abmelde-Link in jeder Email
-\`\`\`
+  \`\`\`
 ```
 
 ### 3. Architecture Decision Records (ADR)
+
 ```markdown
 Für wichtige Architektur-Entscheidungen:
 
 \`\`\`markdown
+
 # ADR-001: Multi-Service Architecture
 
 **Status:** Accepted
@@ -418,10 +464,11 @@ Für wichtige Architektur-Entscheidungen:
 **Kontext:** Monolithic vs. Multi-Service
 **Entscheidung:** Multi-Service mit separaten Deployments
 **Konsequenzen:**
+
 - ✅ Bessere Skalierbarkeit
 - ✅ Unabhängige Deployments
 - ❌ Komplexere Orchestrierung
-\`\`\`
+  \`\`\`
 
 Speicherort: \`docs/adr/001-multi-service.md\`
 ```
@@ -429,6 +476,7 @@ Speicherort: \`docs/adr/001-multi-service.md\`
 ## MCP-Tools für Dokumentation
 
 ### 1. Filesystem MCP
+
 ```markdown
 "List all README.md files in the workspace"
 "Find documentation gaps - which services have no README?"
@@ -436,12 +484,14 @@ Speicherort: \`docs/adr/001-multi-service.md\`
 ```
 
 ### 2. GitHub MCP
+
 ```markdown
 "Create issue for missing API documentation"
 "Link documentation PRs to related issues"
 ```
 
 ### 3. Brave Search MCP
+
 ```markdown
 "Search for Markdown best practices 2025"
 "Find Austrian GDPR documentation templates"
@@ -449,6 +499,7 @@ Speicherort: \`docs/adr/001-multi-service.md\`
 ```
 
 ### 4. Memory MCP
+
 ```markdown
 "Store documentation standards for this project"
 "Remember preferred Markdown linting rules"
@@ -457,6 +508,7 @@ Speicherort: \`docs/adr/001-multi-service.md\`
 ## Template-Sammlung
 
 ### Issue Template
+
 ```markdown
 ---
 name: Feature Request
@@ -465,17 +517,21 @@ labels: enhancement
 ---
 
 ## Feature-Beschreibung
+
 Kurze Beschreibung (2-3 Sätze)
 
 ## Use Case
+
 Wer braucht das? Warum?
 
 ## Technische Details
-- **Betroffene Services:** CRM, API, Frontend
+
+- **Betroffene Services:** CRM, API, Website
 - **Datenbank-Änderungen:** Ja/Nein
 - **DSGVO-Impact:** Ja/Nein
 
 ## Acceptance Criteria
+
 - [ ] Kriterium 1
 - [ ] Kriterium 2
 - [ ] Tests geschrieben
@@ -483,6 +539,7 @@ Wer braucht das? Warum?
 ```
 
 ### PR Template
+
 ```markdown
 ---
 name: Pull Request
@@ -490,20 +547,24 @@ about: Submit code changes
 ---
 
 ## Änderungen
+
 - Ändere X
 - Füge Y hinzu
 - Entferne Z
 
 ## Related Issues
+
 Closes #123
 
 ## Quality Gates
+
 - [x] All tests passing
 - [x] Security scan clean
 - [x] DSGVO-compliant
 - [x] Documentation updated
 
 ## Screenshots (falls UI-Änderung)
+
 ![Before](url)
 ![After](url)
 ```
@@ -511,6 +572,7 @@ Closes #123
 ## Quality Checklist
 
 ### Vor PR-Submission
+
 ```markdown
 □ Alle README.md aktualisiert
 □ CHANGELOG.md Entry erstellt
@@ -524,6 +586,7 @@ Closes #123
 ```
 
 ### Jährliche Dokumentations-Review
+
 ```markdown
 Q1 Review (März):
 □ Veraltete Docs identifizieren
@@ -556,6 +619,6 @@ mmdc -i docs/architecture.mmd -o docs/architecture.png
 
 ---
 
-**Aktivierung:** Diese Instructions gelten für alle \`*.md\` Dateien
+**Aktivierung:** Diese Instructions gelten für alle \`\*.md\` Dateien
 **Updates:** Bei Standards-Änderungen diese Datei ZUERST aktualisieren
 **Referenz:** Siehe \`.github/copilot-instructions.md\` für Details

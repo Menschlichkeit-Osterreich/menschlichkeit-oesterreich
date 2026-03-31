@@ -1,12 +1,5 @@
-/**
- * Admin-Panel: OpenClaw Multi-Agent-System Monitoring
- * Zeigt Status aller Agenten, Tasks, Tool-Calls und Audit-Log
- */
-
-import React, { useState, useEffect, useCallback } from 'react';
-
+import React from 'react';
 import { OPENCLAW_BRIDGE_URL } from '@/constants/api';
-const BRIDGE_URL = OPENCLAW_BRIDGE_URL;
 
 interface AgentStatus {
   id: string;
@@ -37,373 +30,260 @@ interface SystemHealth {
 }
 
 const ROLE_COLORS: Record<string, string> = {
-  orchestrator: 'bg-purple-100 text-purple-800',
-  research:     'bg-blue-100 text-blue-800',
-  code:         'bg-green-100 text-green-800',
-  write:        'bg-yellow-100 text-yellow-800',
-  qa:           'bg-orange-100 text-orange-800',
-  memory:       'bg-pink-100 text-pink-800',
+  orchestrator: 'bg-secondary-100 text-secondary-800',
+  research: 'bg-primary-50 text-primary-700',
+  code: 'bg-success-100 text-success-700',
+  write: 'bg-warning-100 text-warning-700',
+  qa: 'bg-secondary-200 text-secondary-800',
+  memory: 'bg-primary-100 text-primary-700',
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  idle:    'text-gray-500',
-  running: 'text-green-600',
-  error:   'text-red-600',
-  PENDING: 'text-yellow-600',
-  RUNNING: 'text-blue-600',
-  DONE:    'text-green-600',
-  DEADLETTER: 'text-red-600',
+  idle: 'text-secondary-500',
+  running: 'text-success-700',
+  error: 'text-error-700',
+  PENDING: 'text-warning-700',
+  RUNNING: 'text-primary-700',
+  DONE: 'text-success-700',
+  DEADLETTER: 'text-error-700',
 };
 
 export default function AdminOpenClaw() {
-  const [health, setHealth] = useState<SystemHealth | null>(null);
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isOnline, setIsOnline] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'tasks' | 'tools' | 'github'>('overview');
-  const [newTask, setNewTask] = useState({ title: '', objective: '', role: 'research' });
-  const [submitting, setSubmitting] = useState(false);
+  const [health, setHealth] = React.useState<SystemHealth | null>(null);
+  const [tasks, setTasks] = React.useState<Task[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [isOnline, setIsOnline] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const [submitting, setSubmitting] = React.useState(false);
+  const [newTask, setNewTask] = React.useState({ title: '', objective: '', role: 'research' });
 
-  const fetchData = useCallback(async () => {
+  const fetchData = React.useCallback(async () => {
+    setError(null);
     try {
-      const [healthResp, tasksResp] = await Promise.all([
-        fetch(`${BRIDGE_URL}/agent/health`, { signal: AbortSignal.timeout(5000) }),
-        fetch(`${BRIDGE_URL}/agent/task/list?limit=20`, { signal: AbortSignal.timeout(5000) }),
+      const [healthResponse, tasksResponse] = await Promise.all([
+        fetch(`${OPENCLAW_BRIDGE_URL}/agent/health`, { signal: AbortSignal.timeout(5000) }),
+        fetch(`${OPENCLAW_BRIDGE_URL}/agent/task/list?limit=20`, { signal: AbortSignal.timeout(5000) }),
       ]);
 
-      if (healthResp.ok) {
-        const h = await healthResp.json();
-        setHealth(h);
-        setIsOnline(true);
+      if (!healthResponse.ok) {
+        throw new Error('Health-Endpunkt nicht erreichbar');
       }
-      if (tasksResp.ok) {
-        const t = await tasksResp.json();
-        setTasks(t.tasks || []);
-      }
+
+      const healthPayload = (await healthResponse.json()) as SystemHealth;
+      const tasksPayload = tasksResponse.ok ? await tasksResponse.json() : { tasks: [] };
+
+      setHealth(healthPayload);
+      setTasks(tasksPayload.tasks || []);
+      setIsOnline(true);
     } catch {
       setIsOnline(false);
-      // Demo-Daten wenn offline
-      setHealth({
-        status: 'offline',
-        services: { nats: 'offline', postgres: 'offline', redis: 'offline', qdrant: 'offline' },
-        agents: [
-          { id: 'oc-orchestrator-1', role: 'orchestrator', status: 'idle', tasks_completed: 0, tasks_failed: 0, uptime_seconds: 0 },
-          { id: 'oc-research-1', role: 'research', status: 'idle', tasks_completed: 0, tasks_failed: 0, uptime_seconds: 0 },
-          { id: 'oc-code-1', role: 'code', status: 'idle', tasks_completed: 0, tasks_failed: 0, uptime_seconds: 0 },
-          { id: 'oc-write-1', role: 'write', status: 'idle', tasks_completed: 0, tasks_failed: 0, uptime_seconds: 0 },
-          { id: 'oc-qa-1', role: 'qa', status: 'idle', tasks_completed: 0, tasks_failed: 0, uptime_seconds: 0 },
-          { id: 'oc-memory-1', role: 'memory', status: 'idle', tasks_completed: 0, tasks_failed: 0, uptime_seconds: 0 },
-        ],
-        queue_depth: 0,
-        tasks_today: 0,
-      });
+      setHealth(null);
+      setTasks([]);
+      setError('OpenClaw ist aktuell nicht erreichbar. Bitte starten Sie Gateway, Runtime und Windows-Bridge.');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 10000);
-    return () => clearInterval(interval);
+    const interval = window.setInterval(fetchData, 10000);
+    return () => window.clearInterval(interval);
   }, [fetchData]);
 
-  const submitTask = async () => {
-    if (!newTask.title || !newTask.objective) return;
+  async function submitTask() {
+    if (!newTask.title.trim() || !newTask.objective.trim()) {
+      return;
+    }
+
     setSubmitting(true);
+    setError(null);
     try {
-      const resp = await fetch(`${BRIDGE_URL}/agent/task/submit`, {
+      const response = await fetch(`${OPENCLAW_BRIDGE_URL}/agent/task/submit`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newTask),
       });
-      if (resp.ok) {
-        setNewTask({ title: '', objective: '', role: 'research' });
-        await fetchData();
+
+      if (!response.ok) {
+        throw new Error('Task konnte nicht eingereicht werden');
       }
-    } catch (_e) {
-      alert('Fehler beim Einreichen des Tasks. Ist der Stack gestartet?');
+
+      setNewTask({ title: '', objective: '', role: 'research' });
+      await fetchData();
+    } catch {
+      setError('Der Task konnte nicht eingereicht werden.');
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const formatUptime = (seconds: number) => {
-    if (seconds < 60) return `${seconds}s`;
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
-    return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin w-8 h-8 border-4 border-red-600 border-t-transparent rounded-full" />
-      </div>
-    );
   }
 
+  const activeAgents = health?.agents.filter(agent => agent.status === 'running').length ?? 0;
+  const onlineServices = Object.values(health?.services ?? {}).filter(service => service === 'ok').length;
+
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">OpenClaw Agent-System</h1>
-          <p className="text-gray-500 text-sm mt-1">Multi-Agent-Orchestrierung für Menschlichkeit Österreich</p>
+          <h1 className="text-2xl font-bold text-secondary-900">OpenClaw Operations</h1>
+          <p className="mt-1 text-sm text-secondary-500">
+            Live-Status für Agenten, Queue und Infrastruktur aus dem laufenden OpenClaw-Stack.
+          </p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium ${
-            isOnline ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-          }`}>
-            <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
-            {isOnline ? 'System Online' : 'System Offline'}
-          </div>
-          <button
-            onClick={fetchData}
-            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            title="Aktualisieren"
-          >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-          </button>
+        <div
+          className={[
+            'inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold',
+            isOnline ? 'bg-success-100 text-success-700' : 'bg-error-50 text-error-700',
+          ].join(' ')}
+        >
+          <span className={['h-2 w-2 rounded-full', isOnline ? 'bg-success-500' : 'bg-error-500'].join(' ')} />
+          {isOnline ? 'Online' : 'Offline'}
         </div>
       </div>
 
-      {/* KPI-Karten */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      {error && (
+        <div className="rounded-2xl border border-error-200 bg-error-50 px-4 py-3 text-sm text-error-700">
+          {error}
+        </div>
+      )}
+
+      <div className="grid gap-4 md:grid-cols-4">
         {[
-          { label: 'Aktive Agenten', value: health?.agents.filter(a => a.status === 'running').length ?? 0, icon: '🤖', color: 'blue' },
-          { label: 'Tasks heute', value: health?.tasks_today ?? 0, icon: '📋', color: 'green' },
-          { label: 'Queue-Tiefe', value: health?.queue_depth ?? 0, icon: '⏳', color: 'yellow' },
-          { label: 'Services', value: Object.values(health?.services ?? {}).filter(s => s === 'ok').length, icon: '🔧', color: 'purple' },
-        ].map(kpi => (
-          <div key={kpi.label} className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700">
-            <div className="text-2xl mb-1">{kpi.icon}</div>
-            <div className="text-2xl font-bold text-gray-900 dark:text-white">{kpi.value}</div>
-            <div className="text-xs text-gray-500">{kpi.label}</div>
+          { label: 'Aktive Agenten', value: activeAgents },
+          { label: 'Tasks heute', value: health?.tasks_today ?? 0 },
+          { label: 'Queue-Tiefe', value: health?.queue_depth ?? 0 },
+          { label: 'Services online', value: onlineServices },
+        ].map(item => (
+          <div key={item.label} className="rounded-3xl border border-secondary-200 bg-white p-5 shadow-sm">
+            <div className="text-sm font-medium text-secondary-500">{item.label}</div>
+            <div className="mt-2 text-2xl font-bold text-secondary-900">
+              {loading ? '…' : item.value}
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 mb-6 bg-gray-100 dark:bg-gray-800 p-1 rounded-xl w-fit">
-        {(['overview', 'tasks', 'tools', 'github'] as const).map(tab => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors capitalize ${
-              activeTab === tab
-                ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {tab === 'overview' ? 'Übersicht' : tab === 'tasks' ? 'Tasks' : tab === 'tools' ? 'Tools' : 'GitHub'}
-          </button>
-        ))}
+      <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+        <section className="rounded-3xl border border-secondary-200 bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-secondary-900">Task einreichen</h2>
+          <div className="mt-5 space-y-4">
+            <input
+              className="w-full rounded-2xl border border-secondary-200 px-4 py-3 text-sm"
+              placeholder="Kurzer Titel"
+              value={newTask.title}
+              onChange={event => setNewTask(prev => ({ ...prev, title: event.target.value }))}
+            />
+            <textarea
+              className="min-h-32 w-full rounded-2xl border border-secondary-200 px-4 py-3 text-sm"
+              placeholder="Ziel / Arbeitsauftrag"
+              value={newTask.objective}
+              onChange={event => setNewTask(prev => ({ ...prev, objective: event.target.value }))}
+            />
+            <div className="flex flex-wrap gap-3">
+              <select
+                className="rounded-2xl border border-secondary-200 px-4 py-3 text-sm"
+                value={newTask.role}
+                onChange={event => setNewTask(prev => ({ ...prev, role: event.target.value }))}
+              >
+                {['orchestrator', 'research', 'code', 'write', 'qa', 'memory'].map(role => (
+                  <option key={role} value={role}>
+                    {role}
+                  </option>
+                ))}
+              </select>
+              <button
+                className="rounded-full bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700 disabled:opacity-60"
+                disabled={!isOnline || submitting}
+                onClick={submitTask}
+              >
+                {submitting ? 'Sendet…' : 'Task einreichen'}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-3xl border border-secondary-200 bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-secondary-900">Stack-Hinweise</h2>
+          <div className="mt-5 space-y-4 text-sm text-secondary-600">
+            <p>
+              Erwartete lokale Services:
+              <code className="ml-2 rounded bg-secondary-100 px-2 py-1 text-xs">gateway:9101</code>
+              <code className="ml-2 rounded bg-secondary-100 px-2 py-1 text-xs">runtime:9100</code>
+              <code className="ml-2 rounded bg-secondary-100 px-2 py-1 text-xs">bridge:18790</code>
+            </p>
+            <div className="rounded-2xl bg-secondary-50 p-4">
+              <div className="font-semibold text-secondary-900">Startreihenfolge</div>
+              <p className="mt-2">
+                Claude Launch startet Gateway, Runtime und Windows-Bridge separat. Wenn einer der Dienste fehlt,
+                bleibt diese Ansicht bewusst im Offline-Zustand und zeigt keine Demo-Daten.
+              </p>
+            </div>
+          </div>
+        </section>
       </div>
 
-      {/* Tab: Übersicht */}
-      {activeTab === 'overview' && (
-        <div className="space-y-6">
-          {/* Agenten-Status */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
-              <h2 className="font-semibold text-gray-900 dark:text-white">Agenten-Status</h2>
-            </div>
-            <div className="divide-y divide-gray-50 dark:divide-gray-700">
-              {health?.agents.map(agent => (
-                <div key={agent.id} className="px-6 py-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-2 h-2 rounded-full ${
-                      agent.status === 'running' ? 'bg-green-500 animate-pulse' :
-                      agent.status === 'error' ? 'bg-red-500' : 'bg-gray-300'
-                    }`} />
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm text-gray-900 dark:text-white">{agent.id}</span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${ROLE_COLORS[agent.role] || 'bg-gray-100 text-gray-600'}`}>
-                          {agent.role}
-                        </span>
-                      </div>
-                      {agent.current_task && (
-                        <div className="text-xs text-gray-500 mt-0.5 truncate max-w-xs">{agent.current_task}</div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-6 text-sm text-gray-500">
-                    <div className="text-right">
-                      <div className="text-xs text-gray-400">Erledigt</div>
-                      <div className="font-medium text-gray-700 dark:text-gray-300">{agent.tasks_completed}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-xs text-gray-400">Fehler</div>
-                      <div className={`font-medium ${agent.tasks_failed > 0 ? 'text-red-600' : 'text-gray-700 dark:text-gray-300'}`}>{agent.tasks_failed}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-xs text-gray-400">Uptime</div>
-                      <div className="font-medium text-gray-700 dark:text-gray-300">{formatUptime(agent.uptime_seconds)}</div>
-                    </div>
-                    <span className={`text-xs font-medium ${STATUS_COLORS[agent.status]}`}>
-                      {agent.status.toUpperCase()}
+      <section className="rounded-3xl border border-secondary-200 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-secondary-900">Agentenstatus</h2>
+        {!health || health.agents.length === 0 ? (
+          <p className="mt-4 text-sm text-secondary-500">
+            Noch keine aktiven Agenten gemeldet.
+          </p>
+        ) : (
+          <div className="mt-5 space-y-3">
+            {health.agents.map(agent => (
+              <div key={agent.id} className="flex flex-col gap-3 rounded-2xl border border-secondary-200 px-4 py-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-semibold text-secondary-900">{agent.id}</span>
+                    <span className={['rounded-full px-2.5 py-1 text-xs font-semibold', ROLE_COLORS[agent.role] || 'bg-secondary-100 text-secondary-700'].join(' ')}>
+                      {agent.role}
                     </span>
                   </div>
+                  {agent.current_task && (
+                    <div className="mt-1 text-sm text-secondary-500">{agent.current_task}</div>
+                  )}
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Services-Status */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-            <h2 className="font-semibold text-gray-900 dark:text-white mb-4">Infrastruktur-Services</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {Object.entries(health?.services ?? {}).map(([name, status]) => (
-                <div key={name} className={`p-3 rounded-lg border ${
-                  status === 'ok' ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
-                }`}>
-                  <div className="text-xs font-medium uppercase tracking-wide text-gray-500">{name}</div>
-                  <div className={`text-sm font-semibold mt-1 ${status === 'ok' ? 'text-green-700' : 'text-red-700'}`}>
-                    {status === 'ok' ? '✓ Online' : '✗ Offline'}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Stack starten */}
-          {!isOnline && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">
-              <h3 className="font-semibold text-yellow-800 mb-2">Stack nicht gestartet</h3>
-              <p className="text-yellow-700 text-sm mb-4">
-                Der OpenClaw Docker-Stack läuft nicht. Starten Sie ihn mit einem der folgenden Befehle:
-              </p>
-              <div className="space-y-2">
-                <div className="bg-gray-900 text-green-400 rounded-lg p-3 font-mono text-sm">
-                  # Linux/WSL2:<br />
-                  bash openclaw-system/scripts/boot.sh
-                </div>
-                <div className="bg-gray-900 text-green-400 rounded-lg p-3 font-mono text-sm">
-                  # Windows PowerShell:<br />
-                  C:\openclawd-win-bridge\scripts\Start-Stack.ps1
+                <div className="flex flex-wrap gap-4 text-sm text-secondary-500">
+                  <span>Erledigt: {agent.tasks_completed}</span>
+                  <span>Fehler: {agent.tasks_failed}</span>
+                  <span className={STATUS_COLORS[agent.status]}>{agent.status}</span>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Tab: Tasks */}
-      {activeTab === 'tasks' && (
-        <div className="space-y-6">
-          {/* Neuer Task */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-            <h2 className="font-semibold text-gray-900 dark:text-white mb-4">Neuen Task einreichen</h2>
-            <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="Task-Titel"
-                value={newTask.title}
-                onChange={e => setNewTask(p => ({ ...p, title: e.target.value }))}
-                className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              />
-              <textarea
-                placeholder="Aufgabenbeschreibung / Ziel"
-                value={newTask.objective}
-                onChange={e => setNewTask(p => ({ ...p, objective: e.target.value }))}
-                rows={3}
-                className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              />
-              <div className="flex gap-3">
-                <select
-                  value={newTask.role}
-                  onChange={e => setNewTask(p => ({ ...p, role: e.target.value }))}
-                  className="border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                >
-                  {['orchestrator', 'research', 'code', 'write', 'qa', 'memory'].map(r => (
-                    <option key={r} value={r}>{r}</option>
-                  ))}
-                </select>
-                <button
-                  onClick={submitTask}
-                  disabled={submitting || !newTask.title || !newTask.objective || !isOnline}
-                  className="px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-gray-300 text-white rounded-lg text-sm font-medium transition-colors"
-                >
-                  {submitting ? 'Wird eingereicht...' : 'Task einreichen'}
-                </button>
-              </div>
-            </div>
+            ))}
           </div>
+        )}
+      </section>
 
-          {/* Task-Liste */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700">
-              <h2 className="font-semibold text-gray-900 dark:text-white">Letzte Tasks</h2>
-            </div>
-            {tasks.length === 0 ? (
-              <div className="p-12 text-center text-gray-400">
-                <div className="text-4xl mb-3">📋</div>
-                <div>Noch keine Tasks vorhanden</div>
-              </div>
-            ) : (
-              <div className="divide-y divide-gray-50 dark:divide-gray-700">
-                {tasks.map(task => (
-                  <div key={task.task_id} className="px-6 py-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium text-sm text-gray-900 dark:text-white truncate">{task.title}</span>
-                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${ROLE_COLORS[task.role] || 'bg-gray-100 text-gray-600'}`}>
-                            {task.role}
-                          </span>
-                        </div>
-                        {task.result_summary && (
-                          <div className="text-xs text-gray-500 mt-1 line-clamp-2">{task.result_summary}</div>
-                        )}
-                        {task.error_message && (
-                          <div className="text-xs text-red-500 mt-1">{task.error_message}</div>
-                        )}
-                      </div>
-                      <div className="flex flex-col items-end gap-1 shrink-0">
-                        <span className={`text-xs font-semibold ${STATUS_COLORS[task.status]}`}>{task.status}</span>
-                        <span className="text-xs text-gray-400">{new Date(task.created_at).toLocaleString('de-AT')}</span>
-                      </div>
+      <section className="rounded-3xl border border-secondary-200 bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-semibold text-secondary-900">Letzte Tasks</h2>
+        {tasks.length === 0 ? (
+          <p className="mt-4 text-sm text-secondary-500">Noch keine Tasks gemeldet.</p>
+        ) : (
+          <div className="mt-5 space-y-3">
+            {tasks.map(task => (
+              <div key={task.task_id} className="rounded-2xl border border-secondary-200 px-4 py-4">
+                <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <div className="font-semibold text-secondary-900">{task.title}</div>
+                    <div className="mt-1 text-sm text-secondary-500">
+                      {task.role} · {new Date(task.created_at).toLocaleString('de-AT')}
                     </div>
                   </div>
-                ))}
+                  <span className={['text-sm font-semibold', STATUS_COLORS[task.status]].join(' ')}>
+                    {task.status}
+                  </span>
+                </div>
+                {task.result_summary && (
+                  <p className="mt-3 text-sm text-secondary-600">{task.result_summary}</p>
+                )}
+                {task.error_message && (
+                  <p className="mt-3 text-sm text-error-700">{task.error_message}</p>
+                )}
               </div>
-            )}
+            ))}
           </div>
-        </div>
-      )}
-
-      {/* Tab: GitHub */}
-      {activeTab === 'github' && (
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
-          <h2 className="font-semibold text-gray-900 dark:text-white mb-4">GitHub-Integration</h2>
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
-                <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Personal Account</div>
-                <div className="text-xs text-gray-500">Token: Serverseitig verwaltet</div>
-                <div className="text-xs text-gray-500 mt-1">Berechtigungen: repo, read:org</div>
-              </div>
-              <div className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
-                <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Organisation</div>
-                <div className="text-xs text-gray-500">Menschlichkeit-Osterreich</div>
-                <div className="text-xs text-gray-500 mt-1">Repo: menschlichkeit-oesterreich-development</div>
-              </div>
-            </div>
-            <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-              <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Setup-Anleitung</div>
-              <ol className="text-xs text-gray-600 dark:text-gray-400 space-y-1 list-decimal list-inside">
-                <li>GitHub PAT erstellen: Settings → Developer settings → Personal access tokens → Fine-grained</li>
-                <li>Berechtigungen: <code className="bg-gray-200 dark:bg-gray-600 px-1 rounded">repo</code>, <code className="bg-gray-200 dark:bg-gray-600 px-1 rounded">workflow</code>, <code className="bg-gray-200 dark:bg-gray-600 px-1 rounded">read:org</code></li>
-                <li>Token in <code className="bg-gray-200 dark:bg-gray-600 px-1 rounded">~/.openclaw/.env</code> als <code className="bg-gray-200 dark:bg-gray-600 px-1 rounded">GITHUB_TOKEN</code> eintragen</li>
-                <li>Stack neu starten: <code className="bg-gray-200 dark:bg-gray-600 px-1 rounded">bash openclaw-system/scripts/boot.sh</code></li>
-              </ol>
-            </div>
-          </div>
-        </div>
-      )}
+        )}
+      </section>
     </div>
   );
 }

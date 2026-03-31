@@ -3,64 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM - Menschlichkeit Österreich</title>
+    <title>CRM Runtime – Menschlichkeit Österreich</title>
+    <meta name="theme-color" content="#D4611E">
     <style>
+        :root {
+            --brand-orange: #D4611E;
+            --brand-orange-dark: #B54A0F;
+            --brand-blue: #1B4965;
+            --brand-cream: #F6F1EB;
+            --brand-border: #D9C9B8;
+            --brand-text: #24313D;
+        }
+
+        * { box-sizing: border-box; }
+
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #f8f9fa;
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Source Sans 3", Arial, sans-serif;
+            color: var(--brand-text);
+            background:
+                radial-gradient(circle at top left, rgba(212, 97, 30, 0.16), transparent 32%),
+                radial-gradient(circle at bottom right, rgba(27, 73, 101, 0.16), transparent 30%),
+                linear-gradient(180deg, #fcfbf9 0%, var(--brand-cream) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 20px;
         }
-        .crm-info {
+
+        .shell {
+            width: min(920px, 100%);
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--brand-border);
+            border-radius: 28px;
+            box-shadow: 0 24px 60px rgba(27, 73, 101, 0.14);
+            overflow: hidden;
+        }
+
+        .hero {
+            padding: 32px;
+            background: linear-gradient(135deg, var(--brand-blue) 0%, #255d81 52%, var(--brand-orange) 100%);
+            color: white;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.14);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        h1 {
+            margin: 18px 0 10px;
+            font-family: "Nunito Sans", Arial, sans-serif;
+            font-size: clamp(2rem, 4vw, 3.3rem);
+            line-height: 1.05;
+        }
+
+        .hero p {
+            margin: 0;
+            max-width: 60ch;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .content {
+            padding: 30px 32px 34px;
+            display: grid;
+            gap: 24px;
+        }
+
+        .panel {
+            border: 1px solid var(--brand-border);
+            border-radius: 22px;
+            background: #fffdfb;
+            padding: 22px;
+        }
+
+        .panel h2 {
+            margin: 0 0 10px;
+            font-family: "Nunito Sans", Arial, sans-serif;
+            color: var(--brand-blue);
+            font-size: 1.25rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            border: 1px solid rgba(27, 73, 101, 0.12);
+            border-radius: 18px;
+            padding: 18px;
+            background: #ffffff;
+        }
+
+        .card strong {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--brand-blue);
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            padding: 0 18px;
+            border-radius: 999px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+        }
+
+        .button.primary {
+            background: var(--brand-orange);
+            color: white;
+            box-shadow: 0 12px 24px rgba(212, 97, 30, 0.24);
+        }
+
+        .button.secondary {
             background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            color: var(--brand-blue);
+            border: 1px solid rgba(27, 73, 101, 0.18);
         }
-        h1 { color: #dc3545; }
-        .feature { 
-            background: #e7f3ff; 
-            padding: 15px; 
-            border-radius: 5px; 
-            margin: 10px 0; 
-            border-left: 4px solid #007bff;
+
+        .button:hover {
+            transform: translateY(-1px);
+        }
+
+        .hint {
+            font-size: 0.95rem;
+            color: #4a5b6a;
+        }
+
+        code {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 0.93em;
+            background: rgba(27, 73, 101, 0.08);
+            padding: 0.1rem 0.35rem;
+            border-radius: 0.4rem;
         }
     </style>
 </head>
 <body>
-    <div class="crm-info">
-        <h1>📊 CRM Subdomain</h1>
-        <h2>Menschlichkeit Österreich</h2>
-        
-        <p>Diese CRM-Subdomain ist für das Customer Relationship Management System reserviert.</p>
-        
-        <h3>Geplante Funktionen:</h3>
-        <div class="feature">
-            <strong>Mitgliederverwaltung</strong><br>
-            Zentrale Verwaltung aller Vereinsmitglieder
-        </div>
-        <div class="feature">
-            <strong>Spendenverwaltung</strong><br>
-            Tracking und Management von Spenden
-        </div>
-        <div class="feature">
-            <strong>Event-Management</strong><br>
-            Organisation von Veranstaltungen und Events
-        </div>
-        <div class="feature">
-            <strong>Newsletter-System</strong><br>
-            Automatisierte Kommunikation mit Mitgliedern
-        </div>
-        
-        <p><strong>Status:</strong> In Vorbereitung</p>
-        <p><strong>System:</strong> CiviCRM (geplant)</p>
-        
-        <hr>
-        <small>
-            Für Hauptwebsite: <a href="https://menschlichkeit-oesterreich.at">menschlichkeit-oesterreich.at</a><br>
-            Für API: <a href="https://api.menschlichkeit-oesterreich.at">api.menschlichkeit-oesterreich.at</a>
-        </small>
-    </div>
+    <main class="shell">
+        <section class="hero">
+            <span class="eyebrow">CRM Runtime</span>
+            <h1>Hybrid-Portal und Native-Backoffice sind getrennt ausgerollt.</h1>
+            <p>Diese Datei ist nur die Repo-Fallback-Seite. Produktiv liegt das Mitglieder- und Staff-Portal auf <code>crm.menschlichkeit-oesterreich.at</code>, der native Drupal/CiviCRM-Einstieg unter <code>/native/</code>.</p>
+        </section>
+
+        <section class="content">
+            <div class="panel">
+                <h2>Produktive Einstiege</h2>
+                <div class="actions">
+                    <a class="button primary" href="https://crm.menschlichkeit-oesterreich.at/login">Portal öffnen</a>
+                    <a class="button secondary" href="https://crm.menschlichkeit-oesterreich.at/native/">Native CRM öffnen</a>
+                    <a class="button secondary" href="https://www.menschlichkeit-oesterreich.at/">Zur Website</a>
+                </div>
+            </div>
+
+            <div class="grid">
+                <article class="card">
+                    <strong>Portal-Root</strong>
+                    Mitglieder-Self-Service, Login, Rechnungen, Datenschutz, Newsletter, Staff-Backoffice und Community-Redaktion laufen im React-/FastAPI-Portal.
+                </article>
+                <article class="card">
+                    <strong>Native `/native/`</strong>
+                    Drupal/CiviCRM bleibt fuer Deep-Operations, Konfiguration, SearchKit, Webforms und CiviRules erhalten.
+                </article>
+                <article class="card">
+                    <strong>Deploymodell</strong>
+                    Die produktive Auslieferung kommt aus dem Website-Build plus separatem Native-Drupal-Sync. Dieses HTML ist absichtlich kein Placeholder mehr.
+                </article>
+            </div>
+
+            <div class="panel hint">
+                Wenn Sie diese Seite in Produktion sehen, ist der CRM-Root falsch gemappt oder ein alter Deploy-Pfad aktiv. In diesem Fall den Workflow <code>.github/workflows/deploy-plesk.yml</code> mit dem CRM-Portal-/Native-Split prüfen.
+            </div>
+        </section>
+    </main>
 </body>
 </html>

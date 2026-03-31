@@ -1,34 +1,26 @@
----
----
+# Prompt-Artefakte im Repository
 
-**⚠️ DEPRECATED - NICHT VERWENDEN**
+`.github/prompts/` enthaelt ergaenzende Prompt-Artefakte fuer Copilot, Claude-nahe Workflows und dokumentierte Arbeitsmuster.
 
-Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
+## Aktiv vs. Legacy
 
-- **Status:** DEPRECATED
-- **Datum:** 2025-10-08
-- **Migration:** .github/chatmodes/README_DE.chatmode.md
-- **Grund:** Legacy Prompt-Format - ersetzt durch einheitliches Chatmode/Instructions-System
+- **Aktive Arbeitsmodi:** `.github/chatmodes/**/*.chatmode.md`
+- **Ergaenzende Task-Prompts:** `.github/prompts/*.prompt.md`
+- **Legacy:** `.github/prompts/chatmodes/*.yaml`
 
-**Aktuelle Version verwenden:** .github/chatmodes/README_DE.chatmode.md
+Die YAML-Chatmodes bleiben nur als historische oder migrationsbezogene Artefakte bestehen. Sie sind nicht die fuehrende Governance-Ebene.
 
----
+## Reihenfolge
 
-# Prompt- und Chatmode-Repository (vereinheitlicht)
+1. `AGENTS.md`
+2. `CLAUDE.md`
+3. `.github/copilot-instructions.md`
+4. `.github/chatmodes/**/*.chatmode.md`
+5. `.github/prompts/*.prompt.md`
 
-Diese Struktur konsolidiert alle Prompt-/Instruktionsdateien des Repos unter `.github/prompts/`.
+## Regeln
 
-- Globale Leitlinien: `.github/prompts/global/` (Glossar, Stil, Guardrails)
-- Chatmodes: `.github/prompts/chatmodes/` (YAML pro Modus, Beispiele, Tests)
-- CI-Validierung: `.github/workflows/prompt-ci.yml` prüft Schema-Compliance und SemVer
-
-Wichtige Regeln:
-- YAML-Schlüssel auf Englisch; Inhalte (Texte) auf Deutsch.
-- Versionierung nach SemVer (MAJOR.MINOR.PATCH).
-- Jedes Chatmode-YAML hat eine passende `_examples.md`.
-- Tests als Assertions im YAML; CI führt Schema-Checks aus (keine inhaltliche Ausführung).
-
-Siehe auch:
-- `global/00_glossary.md`
-- `global/01_style_guide.md`
-- `global/02_guardrails.md`
+- Neue aktive Arbeitsmodi entstehen unter `.github/chatmodes/`
+- Neue Prompt-Vorlagen unter `.github/prompts/`
+- Legacy-YAMLs nicht reaktivieren
+- Keine neuen Repo- oder Rollenwahrheiten hier duplizieren; immer auf `AGENTS.md` und die Core-Instructions referenzieren

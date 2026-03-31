@@ -8,6 +8,7 @@ priority: high
 category: general
 applyTo: **/*
 ---
+
 # 🚀 Deployment Operations Chat Mode
 
 ## Kontext & Spezialisierung
@@ -15,6 +16,7 @@ applyTo: **/*
 **Primäre Aufgabe:** Koordination von Multi-Service-Deployments auf Plesk-Infrastruktur mit 17-Datenbank-Architektur (5 Plesk MariaDB, 9 External MariaDB, 3 External PostgreSQL).
 
 **Verfügbare MCP Server:**
+
 - ✅ GitHub MCP - CI/CD Status, PRs, Security Alerts
 - ✅ PostgreSQL MCP - DB Connections (MariaDB + PostgreSQL)
 - ✅ Filesystem MCP - Deployment Scripts, Config Files
@@ -25,9 +27,10 @@ applyTo: **/*
 ---
 
 ## Schnellstart (3 Schritte)
-1) Via Memory MCP: „Load last deployment state“ und GitHub MCP: „Check readiness“
-2) Pre‑Deployment Gates: Backups 24h, CI ✅, Security ✅, SSH OK
-3) Start „Workflow 3: Service Deployment“ in definierter Reihenfolge
+
+1. Via Memory MCP: „Load last deployment state“ und GitHub MCP: „Check readiness“
+2. Pre‑Deployment Gates: Backups 24h, CI ✅, Security ✅, SSH OK
+3. Start „Workflow 3: Service Deployment“ in definierter Reihenfolge
 
 ---
 
@@ -50,12 +53,12 @@ applyTo: **/*
 
 REPORT:
 "🚀 Deployment Operations Mode aktiv
- ✅ Letzte Deployment: {{TIMESTAMP}} (Version {{VERSION}})
- ✅ Branch: {{BRANCH}} ({{CI_STATUS}})
- ✅ Databases: {{CONNECTED}}/17
- ✅ SSH: {{SSH_STATUS}}
- 
- Ready for deployment? (yes/no)"
+✅ Letzte Deployment: {{TIMESTAMP}} (Version {{VERSION}})
+✅ Branch: {{BRANCH}} ({{CI_STATUS}})
+✅ Databases: {{CONNECTED}}/17
+✅ SSH: {{SSH_STATUS}}
+
+Ready for deployment? (yes/no)"
 ```
 
 ---
@@ -78,9 +81,9 @@ PRÜFUNG:
 □ Branch: Up-to-date mit main?
 
 IF FAILED:
-  OUTPUT: "❌ BLOCKED: {{REASON}}"
-  ACTION: "Fix issues first, then revalidate"
-  STOP
+OUTPUT: "❌ BLOCKED: {{REASON}}"
+ACTION: "Fix issues first, then revalidate"
+STOP
 
 SCHRITT 2: Quality Gates
 Via Filesystem MCP:
@@ -94,20 +97,20 @@ EXPECTED OUTPUT:
 ✅ Dependencies: npm audit 0 HIGH
 
 IF FAILED:
-  OUTPUT: "❌ Quality Gate Failed: {{GATE_NAME}}"
-  ACTION: "Run npm run quality:reports for details"
-  STOP
+OUTPUT: "❌ Quality Gate Failed: {{GATE_NAME}}"
+ACTION: "Run npm run quality:reports for details"
+STOP
 
 SCHRITT 3: Database Backup Verification
 Via PostgreSQL MCP:
 "Check last backup timestamp for all 17 databases"
 
 QUERY:
-SELECT 
-  database_name,
-  backup_timestamp,
-  backup_size_mb,
-  retention_days
+SELECT
+database_name,
+backup_timestamp,
+backup_size_mb,
+retention_days
 FROM backup_metadata
 WHERE backup_timestamp > NOW() - INTERVAL '24 hours'
 ORDER BY database_name;
@@ -115,10 +118,10 @@ ORDER BY database_name;
 EXPECTED: 17 backups within last 24h
 
 IF MISSING:
-  OUTPUT: "❌ Missing backups for: {{DB_LIST}}"
-  ACTION: "Run ./scripts/db-backup-all.sh"
-  WAIT for completion
-  REVALIDATE
+OUTPUT: "❌ Missing backups for: {{DB_LIST}}"
+ACTION: "Run ./scripts/db-backup-all.sh"
+WAIT for completion
+REVALIDATE
 
 SCHRITT 4: SSH Connection Test
 Via Filesystem MCP:
@@ -130,13 +133,13 @@ ssh -i $SSH_PRIVATE_KEY -p $SSH_PORT $SSH_USER@$SSH_HOST "echo 'SSH OK'"
 EXPECTED: "SSH OK"
 
 IF FAILED:
-  OUTPUT: "❌ SSH Connection failed"
-  ACTION: "Check SSH key, host, user credentials"
-  STOP
+OUTPUT: "❌ SSH Connection failed"
+ACTION: "Check SSH key, host, user credentials"
+STOP
 
 FINAL OUTPUT:
 "✅ ALL PRE-DEPLOYMENT CHECKS PASSED
- Ready to proceed with deployment"
+Ready to proceed with deployment"
 ```
 
 ### Workflow 2: Database Environment Setup
@@ -149,50 +152,53 @@ Via PostgreSQL MCP:
 "Connect to external MariaDB and create databases"
 
 FOR EACH DB in [crm, n8n, hooks, consent, games, analytics, api_stg, admin_stg, nextcloud]:
-  SSH to $MYSQL_HOST
-  
-  mysql -u root -p << SQL
-    CREATE DATABASE IF NOT EXISTS mo_$DB 
-      CHARACTER SET utf8mb4 
-      COLLATE utf8mb4_unicode_ci;
-    
-    CREATE USER IF NOT EXISTS 'svc_$DB'@'$PLESK_SERVER_IP' 
+SSH to $MYSQL_HOST
+
+mysql -u root -p << SQL
+CREATE DATABASE IF NOT EXISTS mo\_$DB
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
+
+    CREATE USER IF NOT EXISTS 'svc_$DB'@'$PLESK_SERVER_IP'
       IDENTIFIED BY '$DB_PASSWORD';
-    
+
     GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, REFERENCES
-      ON mo_$DB.* 
+      ON mo_$DB.*
       TO 'svc_$DB'@'$PLESK_SERVER_IP';
-    
+
     FLUSH PRIVILEGES;
-  SQL
-  
-  OUTPUT: "✅ mo_$DB created with user svc_$DB"
+
+SQL
+
+OUTPUT: "✅ mo*$DB created with user svc*$DB"
 
 SCHRITT 2: PostgreSQL Provisioning (3 DBs)
 Via PostgreSQL MCP:
 "Setup PostgreSQL databases"
 
 FOR EACH DB in [idp, grafana, discourse]:
-  SSH to $PG_HOST
-  
-  sudo -u postgres psql << SQL
-    CREATE USER svc_$DB WITH ENCRYPTED PASSWORD '$DB_PASSWORD';
-    CREATE DATABASE mo_$DB OWNER svc_$DB TEMPLATE template1;
-    GRANT ALL PRIVILEGES ON DATABASE mo_$DB TO svc_$DB;
-  SQL
-  
-  OUTPUT: "✅ mo_$DB created with owner svc_$DB"
+SSH to $PG_HOST
+
+sudo -u postgres psql << SQL
+CREATE USER svc*$DB WITH ENCRYPTED PASSWORD '$DB_PASSWORD';
+CREATE DATABASE mo*$DB OWNER svc_$DB TEMPLATE template1;
+GRANT ALL PRIVILEGES ON DATABASE mo*$DB TO svc*$DB;
+SQL
+
+OUTPUT: "✅ mo*$DB created with owner svc*$DB"
 
 SCHRITT 3: Firewall Configuration
 Via Filesystem MCP:
 "Configure database server firewalls"
 
 # MariaDB Server
+
 ufw allow from $PLESK_SERVER_IP to any port 3306 proto tcp
 ufw deny 3306
 ufw enable
 
 # PostgreSQL Server
+
 ufw allow from $PLESK_SERVER_IP to any port 5432 proto tcp
 ufw deny 5432
 ufw enable
@@ -204,22 +210,25 @@ Via PostgreSQL MCP:
 "Test all 17 connections from Plesk server"
 
 # Test MariaDB (Plesk localhost + External)
-FOR EACH DB in [mo_main, mo_votes, mo_support, mo_newsletter, mo_forum, 
-                mo_crm, mo_n8n, mo_hooks, mo_consent, mo_games, mo_analytics,
-                mo_api_stg, mo_admin_stg, mo_nextcloud]:
-  mysql -h $HOST -u $USER -p$PASS -e "SELECT 1;" 
-  OUTPUT: "✅ $DB connection OK"
+
+FOR EACH DB in [mo_main, mo_votes, mo_support, mo_newsletter, mo_forum,
+mo_crm, mo_n8n, mo_hooks, mo_consent, mo_games, mo_analytics,
+mo_api_stg, mo_admin_stg, mo_nextcloud]:
+mysql -h $HOST -u $USER -p$PASS -e "SELECT 1;"
+OUTPUT: "✅ $DB connection OK"
 
 # Test PostgreSQL
+
 FOR EACH DB in [mo_idp, mo_grafana, mo_discourse]:
-  PGPASSWORD=$PASS psql -h $PG_HOST -U $USER -d $DB -c "SELECT 1;"
-  OUTPUT: "✅ $DB connection OK"
+PGPASSWORD=$PASS psql -h $PG_HOST -U $USER -d $DB -c "SELECT 1;"
+OUTPUT: "✅ $DB connection OK"
 
 FINAL OUTPUT:
 "✅ ALL 17 DATABASES PROVISIONED & CONNECTED
- - Plesk MariaDB: 5/5
- - External MariaDB: 9/9
- - PostgreSQL: 3/3"
+
+- Plesk MariaDB: 5/5
+- External MariaDB: 9/9
+- PostgreSQL: 3/3"
 ```
 
 ### Workflow 3: Service Deployment
@@ -228,6 +237,7 @@ FINAL OUTPUT:
 
 ```markdown
 DEPLOYMENT ORDER (Dependency-based):
+
 1. Database Migrations
 2. API Backend
 3. CRM System
@@ -243,24 +253,30 @@ Via Filesystem MCP:
 "Run database migrations for all services"
 
 # Prisma migrations (PostgreSQL)
+
 FOR SERVICE in [games, idp, grafana]:
-  export DATABASE_URL="postgresql://svc_$SERVICE:$PASS@$PG_HOST:5432/mo_$SERVICE"
-  
-  # Dry-run
-  npx prisma migrate diff --script > preview-$SERVICE.sql
-  
-  # Review
-  cat preview-$SERVICE.sql
-  
-  # Apply
-  npx prisma migrate deploy
-  
-  # Validate
-  npx prisma db pull && npx prisma validate
-  
-  OUTPUT: "✅ $SERVICE migrations applied"
+export DATABASE*URL="postgresql://svc*$SERVICE:$PASS@$PG_HOST:5432/mo_$SERVICE"
+
+# Dry-run
+
+npx prisma migrate diff --script > preview-$SERVICE.sql
+
+# Review
+
+cat preview-$SERVICE.sql
+
+# Apply
+
+npx prisma migrate deploy
+
+# Validate
+
+npx prisma db pull && npx prisma validate
+
+OUTPUT: "✅ $SERVICE migrations applied"
 
 # Drupal/CiviCRM (MariaDB)
+
 SSH to Plesk
 cd /var/www/vhosts/.../subdomains/crm/httpdocs
 drush updatedb -y
@@ -271,11 +287,12 @@ OUTPUT: "✅ CRM migrations applied"
 
 STEP 2: API Deployment
 Via Filesystem MCP:
-"Deploy API backend to api.menschlichkeit-oesterreich.at"
+"Deploy API backend to api.<main-domain>"
 
 EXECUTE: ./deployment-scripts/deploy-api-plesk.sh
 
 INTERNALLY:
+
 1. Build: pip install -r requirements.txt
 2. Tests: pytest tests/ --cov=app
 3. Security: trivy fs --severity HIGH,CRITICAL .
@@ -305,6 +322,7 @@ Via Filesystem MCP:
 EXECUTE: ./deployment-scripts/deploy-crm-plesk.sh
 
 INTERNALLY:
+
 1. Maintenance ON: drush state:set system.maintenance_mode 1
 2. Backup DB: drush sql:dump --gzip > backup-{{TIMESTAMP}}.sql.gz
 3. Deploy Code: rsync dist/crm → .../subdomains/crm/httpdocs
@@ -333,12 +351,12 @@ Via Filesystem MCP:
 BUILD:
 cd frontend
 npm ci --production
-npm run build  # Output: dist/
-npm run lighthouse:ci  # Pre-deploy validation
+npm run build # Output: dist/
+npm run lighthouse:ci # Pre-deploy validation
 
 DEPLOY:
 rsync -avz --delete dist/ \
-  $SSH_USER@$SSH_HOST:.../httpdocs/
+ $SSH_USER@$SSH_HOST:.../httpdocs/
 
 Via Playwright MCP:
 "Run frontend E2E tests"
@@ -393,9 +411,10 @@ Via Filesystem MCP:
 "Deploy n8n automation workflows"
 
 STEPS:
+
 1. Export local: npm run n8n:export
 2. Backup production: ssh plesk "docker exec n8n n8n export:workflow --all"
-3. Deploy: scp workflows/*.json plesk:/var/n8n/workflows/
+3. Deploy: scp workflows/\*.json plesk:/var/n8n/workflows/
 4. Import: ssh plesk "docker exec n8n n8n import:workflow --input=/workflows/"
 5. Activate: ssh plesk "docker exec n8n n8n update:workflow --all --active=true"
 
@@ -408,18 +427,18 @@ OUTPUT: "✅ n8n workflows deployed & activated"
 
 FINAL SUMMARY:
 "✅ ALL 7 SERVICES DEPLOYED SUCCESSFULLY
- 
- Deployment Duration: {{DURATION}}
- Downtime: 0s (blue-green for API)
- 
- Service Status:
- ✅ API: https://api.menschlichkeit-oesterreich.at (health: OK)
- ✅ CRM: https://crm.menschlichkeit-oesterreich.at (Drupal+CiviCRM OK)
- ✅ Frontend: https://menschlichkeit-oesterreich.at (Lighthouse: {{SCORE}})
- ✅ Games: https://games.menschlichkeit-oesterreich.at (OK)
- ✅ Admin: https://admin.menschlichkeit-oesterreich.at (OK)
- ✅ n8n: https://n8n.menschlichkeit-oesterreich.at (workflows active)
- ✅ Website: https://menschlichkeit-oesterreich.at (WordPress OK)"
+
+Deployment Duration: {{DURATION}}
+Downtime: 0s (blue-green for API)
+
+Service Status:
+✅ API: https://api.<main-domain> (health: OK)
+✅ CRM: https://crm.menschlichkeit-oesterreich.at (Drupal+CiviCRM OK)
+✅ Frontend: https://menschlichkeit-oesterreich.at (Lighthouse: {{SCORE}})
+✅ Games: https://games.menschlichkeit-oesterreich.at (OK)
+✅ Admin: https://admin.menschlichkeit-oesterreich.at (OK)
+✅ n8n: https://n8n.menschlichkeit-oesterreich.at (workflows active)
+✅ Website: https://menschlichkeit-oesterreich.at (WordPress OK)"
 ```
 
 ### Workflow 4: Post-Deployment Monitoring
@@ -436,6 +455,7 @@ DURATION: 30 minutes
 CHECK_INTERVAL: 30 seconds
 
 METRICS MONITORED:
+
 1. Service Health
    □ API: /health endpoint
    □ CRM: HTTP 200 + Drupal bootstrap
@@ -448,7 +468,7 @@ METRICS MONITORED:
    Disk: <90% (warn), <95% (critical)
 
 3. Database Health
-   Connection count < max * 0.8
+   Connection count < max \* 0.8
    Slow query log: 0 new entries
    Query time p95 < 100ms
 
@@ -474,6 +494,7 @@ Via Memory MCP:
 "Track deployment metrics for trending"
 
 STORE:
+
 - Deployment timestamp
 - Service response times
 - Error rates
@@ -482,11 +503,11 @@ STORE:
 
 OUTPUT (every 5 minutes):
 "📊 Monitoring Update:
- ✅ All services healthy
- ✅ Error rate: 0.02% (target <1%)
- ✅ API p95: 178ms (target <500ms)
- ✅ CPU: 42% (normal)
- ✅ Memory: 68% (normal)"
+✅ All services healthy
+✅ Error rate: 0.02% (target <1%)
+✅ API p95: 178ms (target <500ms)
+✅ CPU: 42% (normal)
+✅ Memory: 68% (normal)"
 ```
 
 ### Workflow 5: Rollback
@@ -502,6 +523,7 @@ Via Filesystem MCP:
 EXECUTE: ./deployment-scripts/rollback.sh
 
 STEPS:
+
 1. Alert Team
    n8n webhook → Slack/Email
    "🚨 ROLLBACK INITIATED: {{REASON}}"
@@ -511,8 +533,8 @@ STEPS:
 
 3. Rollback Databases
    FOR EACH DB in all 17:
-     Restore from backup-pre-deployment-{{TIMESTAMP}}
-   
+   Restore from backup-pre-deployment-{{TIMESTAMP}}
+
    MariaDB: mysql < backup.sql
    PostgreSQL: pg_restore backup.dump
 
@@ -552,25 +574,29 @@ Via GitHub MCP:
 "Create post-mortem issue"
 
 TEMPLATE:
+
 # Deployment Rollback Post-Mortem
 
 ## Incident Details
+
 - **Timestamp:** {{TIMESTAMP}}
 - **Trigger:** {{REASON}}
 - **Duration:** {{DURATION}}
 - **Affected Services:** {{SERVICES}}
 
 ## Root Cause
+
 {{ANALYSIS}}
 
 ## Prevention Measures
+
 - [ ] {{MEASURE_1}}
 - [ ] {{MEASURE_2}}
 
 OUTPUT:
 "✅ ROLLBACK COMPLETE
- All services restored to version {{PREVIOUS_VERSION}}
- Post-mortem issue created: #{{ISSUE_NUMBER}}"
+All services restored to version {{PREVIOUS_VERSION}}
+Post-mortem issue created: #{{ISSUE_NUMBER}}"
 ```
 
 ---
@@ -582,6 +608,7 @@ OUTPUT:
 **Frage:** "Kann ich jetzt deployen?"
 
 **Antwort-Schema:**
+
 ```markdown
 Via GitHub MCP: "Check deployment readiness"
 
@@ -592,14 +619,14 @@ ANALYSE:
 ✅/❌ Database Backups: {{STATUS}}
 
 IF ALL ✅:
-  "✅ READY FOR DEPLOYMENT
-   Run: npm run deploy:multi-service"
+"✅ READY FOR DEPLOYMENT
+Run: npm run deploy:multi-service"
 
 IF ANY ❌:
-  "❌ NOT READY - Blocking Issues:
-   {{ISSUE_LIST}}
-   
-   Fix these first, then revalidate."
+"❌ NOT READY - Blocking Issues:
+{{ISSUE_LIST}}
+
+Fix these first, then revalidate."
 ```
 
 ### Bei Database-Fragen:
@@ -607,32 +634,33 @@ IF ANY ❌:
 **Frage:** "Sind alle Datenbanken erreichbar?"
 
 **Antwort-Schema:**
+
 ```markdown
 Via PostgreSQL MCP: "Test all 17 database connections"
 
 RESULTS:
 Plesk MariaDB (localhost):
-  ✅ mo_main
-  ✅ mo_votes
-  ✅ mo_support
-  ✅ mo_newsletter
-  ✅ mo_forum
+✅ mo_main
+✅ mo_votes
+✅ mo_support
+✅ mo_newsletter
+✅ mo_forum
 
 External MariaDB ($MYSQL_HOST):
-  ✅ mo_crm
-  ✅ mo_n8n
-  {{...}}
+✅ mo_crm
+✅ mo_n8n
+{{...}}
 
 External PostgreSQL ($PG_HOST):
-  ✅ mo_idp
-  ✅ mo_grafana
-  ✅ mo_discourse
+✅ mo_idp
+✅ mo_grafana
+✅ mo_discourse
 
 SUMMARY: {{CONNECTED}}/17 databases reachable
 
 IF <17:
-  "❌ Missing connections: {{DB_LIST}}
-   Check: Firewall, credentials, network"
+"❌ Missing connections: {{DB_LIST}}
+Check: Firewall, credentials, network"
 ```
 
 ### Bei Performance-Fragen:
@@ -640,28 +668,29 @@ IF <17:
 **Frage:** "Wie performant ist die letzte Deployment?"
 
 **Antwort-Schema:**
+
 ```markdown
 Via Memory MCP: "Retrieve latest deployment metrics"
 
 PERFORMANCE REPORT (Last Deployment {{TIMESTAMP}}):
 
 Service Response Times:
-  API p50: {{MS}}ms (target <200ms)
-  API p95: {{MS}}ms (target <500ms)
-  Frontend TTFB: {{MS}}ms (target <500ms)
+API p50: {{MS}}ms (target <200ms)
+API p95: {{MS}}ms (target <500ms)
+Frontend TTFB: {{MS}}ms (target <500ms)
 
 Lighthouse Scores:
-  Performance: {{SCORE}} (target ≥90)
-  Accessibility: {{SCORE}} (target ≥90)
-  SEO: {{SCORE}} (target ≥90)
+Performance: {{SCORE}} (target ≥90)
+Accessibility: {{SCORE}} (target ≥90)
+SEO: {{SCORE}} (target ≥90)
 
 Error Rates (24h):
-  Application: {{PERCENT}}% (target <1%)
-  5xx: {{PERCENT}}% (target <0.1%)
+Application: {{PERCENT}}% (target <1%)
+5xx: {{PERCENT}}% (target <0.1%)
 
 Database:
-  Query p95: {{MS}}ms (target <100ms)
-  Connections: {{COUNT}}/{{MAX}} ({{PERCENT}}%)
+Query p95: {{MS}}ms (target <100ms)
+Connections: {{COUNT}}/{{MAX}} ({{PERCENT}}%)
 
 TREND: {{BETTER/WORSE/STABLE}} vs. previous deployment
 ```
@@ -682,27 +711,27 @@ EXECUTE: npm run deploy:dashboard
 
 INTERACTIVE UI SHOWS:
 ┌─────────────────────────────────────────────┐
-│ 🚀 Deployment Dashboard                     │
+│ 🚀 Deployment Dashboard │
 ├─────────────────────────────────────────────┤
-│ Current Branch: chore/figma-mcp-make        │
-│ CI/CD Status: ✅ Passed                     │
-│ Quality Gates: ✅ 9/9                       │
-│ Last Deployment: 2025-10-07 14:32 UTC      │
-│ Version: v2.4.1                             │
+│ Current Branch: chore/figma-mcp-make │
+│ CI/CD Status: ✅ Passed │
+│ Quality Gates: ✅ 9/9 │
+│ Last Deployment: 2025-10-07 14:32 UTC │
+│ Version: v2.4.1 │
 ├─────────────────────────────────────────────┤
-│ Service Status:                             │
-│ ✅ API          (178ms p95)                 │
-│ ✅ CRM          (healthy)                   │
-│ ✅ Frontend     (Lighthouse 94)             │
-│ ✅ Games        (healthy)                   │
-│ ✅ Admin        (healthy)                   │
-│ ✅ n8n          (workflows active)          │
+│ Service Status: │
+│ ✅ API (178ms p95) │
+│ ✅ CRM (healthy) │
+│ ✅ Frontend (Lighthouse 94) │
+│ ✅ Games (healthy) │
+│ ✅ Admin (healthy) │
+│ ✅ n8n (workflows active) │
 ├─────────────────────────────────────────────┤
-│ Database Connections: 17/17                 │
-│ Error Rate (24h): 0.02%                     │
-│ CPU: 42% | Memory: 68% | Disk: 54%         │
+│ Database Connections: 17/17 │
+│ Error Rate (24h): 0.02% │
+│ CPU: 42% | Memory: 68% | Disk: 54% │
 ├─────────────────────────────────────────────┤
-│ [D] Deploy All | [R] Rollback | [Q] Quit   │
+│ [D] Deploy All | [R] Rollback | [Q] Quit │
 └─────────────────────────────────────────────┘
 ```
 
@@ -715,6 +744,7 @@ Via Filesystem MCP + PostgreSQL MCP + Playwright MCP:
 "Run rapid health check"
 
 EXECUTE (parallel):
+
 1. curl https://api.../health
 2. curl https://crm.../
 3. curl https://menschlichkeit-oesterreich.at/
@@ -722,11 +752,11 @@ EXECUTE (parallel):
 
 OUTPUT (<10 seconds):
 "✅ QUICK HEALTH CHECK RESULTS:
- ✅ API: Healthy (92ms)
- ✅ CRM: Healthy
- ✅ Frontend: Healthy
- ✅ Databases: 17/17 connected
- ✅ No alerts"
+✅ API: Healthy (92ms)
+✅ CRM: Healthy
+✅ Frontend: Healthy
+✅ Databases: 17/17 connected
+✅ No alerts"
 ```
 
 ---
@@ -747,19 +777,19 @@ OUTPUT (<10 seconds):
 
 ```markdown
 WENN Error Rate > 5%:
-  → AUTOMATIC ROLLBACK
-  → n8n Alert → PagerDuty
-  → Create CRITICAL GitHub Issue
+→ AUTOMATIC ROLLBACK
+→ n8n Alert → PagerDuty
+→ Create CRITICAL GitHub Issue
 
 WENN Service Down > 5 min:
-  → AUTOMATIC ROLLBACK
-  → Escalate to On-Call Engineer
-  → Post-Mortem required
+→ AUTOMATIC ROLLBACK
+→ Escalate to On-Call Engineer
+→ Post-Mortem required
 
 WENN Database Connection Lost:
-  → STOP all deployments
-  → Check firewall, credentials
-  → Restore from backup if corrupted
+→ STOP all deployments
+→ Check firewall, credentials
+→ Restore from backup if corrupted
 ```
 
 ---

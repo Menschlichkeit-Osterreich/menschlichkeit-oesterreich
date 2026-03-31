@@ -1,11 +1,11 @@
 ---
-title: "Mcpdsgvocomplianceaudit"
-description: "DSGVO Compliance Audit"
+title: 'Mcpdsgvocomplianceaudit'
+description: 'DSGVO Compliance Audit'
 lastUpdated: 2025-10-10
 status: ACTIVE
 category: compliance
 tags: ['compliance', 'mcp', 'dsgvo']
-version: "1.0.0"
+version: '1.0.0'
 language: de-AT
 audience: ['Compliance Officers', 'Legal Team']
 ---
@@ -28,25 +28,26 @@ category: compliance
 ## Phase 1: PII-Identifikation (PostgreSQL MCP)
 
 ```
+
 Via PostgreSQL MCP:
 "Identify all tables containing personal identifiable information (PII)"
 
 Query:
-SELECT 
-  table_schema,
-  table_name,
-  column_name,
-  data_type
+SELECT
+table_schema,
+table_name,
+column_name,
+data_type
 FROM information_schema.columns
 WHERE column_name ILIKE ANY(ARRAY[
-  '%email%',
-  '%name%',
-  '%phone%',
-  '%address%',
-  '%birth%',
-  '%ssn%',
-  '%iban%',
-  '%passport%'
+'%email%',
+'%name%',
+'%phone%',
+'%address%',
+'%birth%',
+'%ssn%',
+'%iban%',
+'%passport%'
 ])
 ORDER BY table_schema, table_name;
 
@@ -56,20 +57,22 @@ OUTPUT PII INVENTORY:
 | public | users | email | varchar | ❌ | Art. 6(1)(b) DSGVO |
 | public | donations | donor_email | varchar | ❌ | Art. 6(1)(a) DSGVO |
 | civicrm | contact | email | varchar | ❌ | Art. 6(1)(b) DSGVO |
+
 ```text
 
 ## Phase 2: Verschlüsselungs-Check (PostgreSQL MCP)
 
 ```
+
 Via PostgreSQL MCP:
 "Check for encryption of PII fields"
 
 Query für unverschlüsselte PII:
-SELECT 
-  'users' as table_name,
-  email as unencrypted_pii
+SELECT
+'users' as table_name,
+email as unencrypted_pii
 FROM users
-WHERE email NOT LIKE 'enc:%'  -- Verschlüsselte haben Präfix
+WHERE email NOT LIKE 'enc:%' -- Verschlüsselte haben Präfix
 LIMIT 5;
 
 FINDINGS:
@@ -78,24 +81,27 @@ FINDINGS:
 ❌ HIGH: 89 IBAN-Nummern im Klartext in payment_methods
 
 REMEDIATION REQUIRED:
+
 1. Implementiere pgcrypto für Column-Level Encryption
 2. Migriere bestehende Daten
 3. Update Application Code für De/Encryption
+
 ```text
 
 ## Phase 3: Consent-Management (PostgreSQL MCP + Filesystem MCP)
 
 ```
+
 Via PostgreSQL MCP:
 "Check consent records for all users"
 
-SELECT 
-  u.id,
-  u.email_encrypted,
-  c.consent_type,
-  c.granted_at,
-  c.withdrawn_at,
-  c.legal_basis
+SELECT
+u.id,
+u.email_encrypted,
+c.consent_type,
+c.granted_at,
+c.withdrawn_at,
+c.legal_basis
 FROM users u
 LEFT JOIN user_consents c ON u.id = c.user_id
 WHERE c.consent_type IN ('newsletter', 'data_processing', 'marketing');
@@ -108,7 +114,7 @@ FINDINGS:
 Via Filesystem MCP:
 "Check consent form implementation"
 
-FILE: frontend/src/components/ConsentForm.tsx
+FILE: apps/website/src/components/ConsentForm.tsx
 
 VALIDATE:
 □ Double Opt-In implementiert?
@@ -116,50 +122,55 @@ VALIDATE:
 □ Widerruf-Möglichkeit prominent?
 □ Datenschutzerklärung verlinkt?
 □ Log der Consent-Änderungen?
+
 ```text
 
 ## Phase 4: Datensparsamkeit (PostgreSQL MCP)
 
 ```
+
 Via PostgreSQL MCP:
 "Identify unnecessary data collection"
 
-SELECT 
-  table_name,
-  column_name
+SELECT
+table_name,
+column_name
 FROM information_schema.columns
 WHERE table_schema = 'public'
-  AND column_name ILIKE ANY(ARRAY[
-    '%gender%',
-    '%race%',
-    '%religion%',
-    '%political%',
-    '%health%'
-  ]);
+AND column_name ILIKE ANY(ARRAY[
+'%gender%',
+'%race%',
+'%religion%',
+'%political%',
+'%health%'
+]);
 
 FINDINGS (Art. 9 DSGVO - Besondere Kategorien):
 ⚠️ HIGH: Spalte "health_status" in volunteers Tabelle
-  → Rechtsgrundlage prüfen! (Art. 9(2) DSGVO erforderlich)
+→ Rechtsgrundlage prüfen! (Art. 9(2) DSGVO erforderlich)
 
 RECOMMENDATION:
+
 - health_status entfernen ODER
 - Explizite Einwilligung (Art. 9(2)(a)) ODER
 - Pseudonymisierung + Trennung von Identität
+
 ```text
 
 ## Phase 5: Speicherdauer & Löschroutinen (PostgreSQL MCP)
 
 ```
+
 Via PostgreSQL MCP:
 "Check data retention compliance"
 
 -- Finde alte, zu löschende Datensätze
-SELECT 
-  'users' as table_name,
-  COUNT(*) as records_to_delete
+SELECT
+'users' as table_name,
+COUNT(\*) as records_to_delete
 FROM users
 WHERE last_login < NOW() - INTERVAL '3 years'
-  AND deletion_scheduled IS NULL;
+AND deletion_scheduled IS NULL;
 
 FINDINGS:
 ❌ CRITICAL: 234 inaktive Accounts älter als 3 Jahre (noch nicht gelöscht)
@@ -182,17 +193,19 @@ IMPLEMENT:
 CREATE OR REPLACE FUNCTION auto_delete_old_users()
 RETURNS void AS $$
 BEGIN
-  -- Mark for deletion (30 days notice)
-  UPDATE users
-  SET deletion_scheduled = NOW() + INTERVAL '30 days'
-  WHERE last_login < NOW() - INTERVAL '3 years'
-    AND deletion_scheduled IS NULL;
-  
-  -- Actual deletion after notice period
-  DELETE FROM users
-  WHERE deletion_scheduled < NOW();
+-- Mark for deletion (30 days notice)
+UPDATE users
+SET deletion_scheduled = NOW() + INTERVAL '30 days'
+WHERE last_login < NOW() - INTERVAL '3 years'
+AND deletion_scheduled IS NULL;
+
+-- Actual deletion after notice period
+DELETE FROM users
+WHERE deletion_scheduled < NOW();
 END;
-$$ LANGUAGE plpgsql;
+
+$$
+LANGUAGE plpgsql;
 
 -- Schedule via pg_cron
 SELECT cron.schedule('delete-inactive-users', '0 2 * * *', 'SELECT auto_delete_old_users()');
@@ -212,7 +225,7 @@ REQUIRED ENDPOINTS:
 □ POST /api/v1/gdpr/object-processing (Art. 21 - Widerspruch)
 
 Via Filesystem MCP:
-"Read api.menschlichkeit-oesterreich.at/app/routers/gdpr.py"
+"Read apps/api/app/routers/privacy.py"
 
 VALIDATE IMPLEMENTATION:
 ✅ Data Export generiert JSON mit allen Nutzerdaten
@@ -233,7 +246,7 @@ async def export_data_portable(
         "game_progress": get_game_sessions(user_id),
         "consents": get_user_consents(user_id)
     }
-    
+
     if format == "json":
         return JSONResponse(user_data)
     elif format == "csv":
@@ -247,8 +260,8 @@ Via Filesystem MCP:
 "Check for third-party integrations"
 
 FILES:
-- frontend/package.json → Analytics, Tracking?
-- api.menschlichkeit-oesterreich.at/requirements.txt → Cloud Services?
+- apps/website/package.json → Analytics, Tracking?
+- apps/api/requirements.txt → Cloud Services?
 - automation/n8n/workflows/*.json → External APIs?
 
 FINDINGS:
@@ -274,7 +287,7 @@ Via Filesystem MCP:
 "Search for PII in log files"
 
 grep -r "email\|phone\|address" \
-  api.menschlichkeit-oesterreich.at/logs/ \
+  apps/api/logs/ \
   crm.menschlichkeit-oesterreich.at/logs/
 
 FINDINGS:
@@ -285,24 +298,24 @@ FINDINGS:
 Via Filesystem MCP:
 "Update logging configuration"
 
-FILE: api.menschlichkeit-oesterreich.at/app/logging_config.py
+FILE: apps/api/app/logging_config.py
 
 FIX:
-from api.menschlichkeit-oesterreich.at.verify_privacy_api import sanitize_pii
+from app.middleware.pii_middleware import PiiSanitizer
 
 class PIISafeFormatter(logging.Formatter):
     def format(self, record):
         # Sanitize message
         record.msg = sanitize_pii(record.msg)
-        
+
         # Remove sensitive fields from extra data
         if hasattr(record, 'request_body'):
             record.request_body = sanitize_pii(record.request_body)
-        
+
         return super().format(record)
 
 VERIFY:
-python api.menschlichkeit-oesterreich.at/verify_privacy_api.py
+python -m pytest apps/api/tests/test_consent_flow.py
 ```text
 
 ## Phase 9: Verzeichnis von Verarbeitungstätigkeiten (VVT)
@@ -338,11 +351,11 @@ TEMPLATE:
 - Spendenbetrag
 - IBAN (optional für SEPA)
 
-**Empfänger:** 
+**Empfänger:**
 - CiviCRM (intern)
 - Stripe (Zahlungsabwicklung, USA, adequacy + DPA)
 
-**Speicherdauer:** 
+**Speicherdauer:**
 - 7 Jahre (steuerliche Aufbewahrungspflicht)
 - Danach Löschung innerhalb 30 Tage
 
@@ -422,7 +435,7 @@ Via GitHub MCP:
 Via Filesystem MCP:
 "Check access control configuration"
 
-FILE: api.menschlichkeit-oesterreich.at/app/auth.py
+FILE: apps/api/app/internal_auth.py
 
 VALIDATE ROLE-BASED ACCESS:
 □ Admin → Full access
@@ -433,7 +446,7 @@ VALIDATE ROLE-BASED ACCESS:
 Via PostgreSQL MCP:
 "Audit database user permissions"
 
-SELECT 
+SELECT
   grantee,
   table_schema,
   table_name,
@@ -478,13 +491,13 @@ labels: security, dsgvo, critical
 ---
 
 ## Vorfall-Details
-- **Datum/Uhrzeit:** 
-- **Entdeckt durch:** 
-- **Betroffene Systeme:** 
+- **Datum/Uhrzeit:**
+- **Entdeckt durch:**
+- **Betroffene Systeme:**
 
 ## Betroffene Daten
 - **Art der Daten:** (email, name, payment info, etc.)
-- **Anzahl Betroffene:** 
+- **Anzahl Betroffene:**
 - **Sensibilität:** (niedrig/mittel/hoch)
 
 ## Maßnahmen
@@ -517,11 +530,11 @@ RECOMMENDATIONS:
    - Aktuelle Consents anzeigen
    - Datenexport mit 1 Klick
    - Löschantrag stellen
-   
+
 2. Privacy-First Feature Development
    - DSGVO-Impact bei jedem Feature-Request
    - Privacy Review in PR-Template
-   
+
 3. Datensparsamkeit by Default
    - Keine optionale Datensammlung pre-checked
    - Minimale Pflichtfelder
@@ -598,3 +611,4 @@ Via Filesystem MCP:
 - Management-Approval für Remediation Budget
 - Schrittweise Umsetzung nach Roadmap
 - Follow-up Audit in 3 Monaten
+$$

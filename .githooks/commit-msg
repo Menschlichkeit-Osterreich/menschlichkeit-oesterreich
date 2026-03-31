@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
-commit="${1}"
+commit_msg_file="${1}"
 
-# Prüft, ob commit signiert ist (nur lokal, best effort)
-if ! git verify-commit "$commit" >/dev/null 2>&1; then
-  echo "❌ Commit nicht GPG-signiert!"
-  echo "Bitte mit 'git commit -S' oder aktiviere commit.gpgsign:"
-  echo "  git config --global commit.gpgsign true"
+if [ ! -f "${commit_msg_file}" ]; then
+  echo "❌ Commit-Message-Datei nicht gefunden: ${commit_msg_file}"
   exit 1
 fi
+
+npx --no -- commitlint --edit "${commit_msg_file}"

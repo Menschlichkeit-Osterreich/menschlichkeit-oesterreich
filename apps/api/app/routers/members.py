@@ -7,6 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from ..db import execute, fetch, fetchrow, fetchval
 from ..rbac import Role, require_auth, require_role
 from ..schemas.members import MemberListResponse, MemberResponse, MemberUpdate
+from ..services.crm_sync_service import crm_sync_service
 from ..services.member_service import member_service, member_to_user
 from ..services.privacy_service import privacy_service
 
@@ -75,6 +76,53 @@ async def get_my_profile(user: dict = Depends(require_auth)):
     return {"success": True, "data": member_to_user(member)}
 
 
+@router.get("/members/me/overview")
+async def get_my_overview(user: dict = Depends(require_auth)):
+    member = await member_service.get_member_by_id(user["uid"])
+    if not member:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profil nicht gefunden")
+
+    profile = member_to_user(member)
+    contact_id = int(member.get("civicrm_contact_id") or 0)
+    email = str(member.get("email") or "")
+
+    invoices = await member_service.list_member_invoices(member)
+    donations = await member_service.list_member_donations(member)
+    consents = await privacy_service.list_consents(member_id=user["uid"], email=email)
+    newsletter = await crm_sync_service.get_newsletter_state(contact_id=contact_id, email=email)
+    events = await crm_sync_service.get_local_events(member_id=str(member["id"]))
+    sepa_row = await fetchrow(
+        """
+        SELECT id, mandate_reference, mandate_type, iban, bic, account_holder,
+               signed_date::text AS signed_date, is_active
+        FROM sepa_mandates
+        WHERE civicrm_contact_id = $1
+        ORDER BY signed_date DESC NULLS LAST
+        LIMIT 1
+        """,
+        contact_id,
+    ) if contact_id else None
+
+    return {
+        "success": True,
+        "data": {
+            "profile": profile,
+            "newsletter": newsletter
+            or {
+                "status": "not_subscribed",
+                "confirmedAt": None,
+                "unsubscribedAt": None,
+                "updatedAt": None,
+            },
+            "sepa": dict(sepa_row) if sepa_row else None,
+            "consents": consents,
+            "events": events,
+            "invoices": invoices,
+            "donations": donations,
+        },
+    }
+
+
 @router.put("/members/me/profile")
 async def update_my_profile(payload: dict, user: dict = Depends(require_auth)):
     updated = await member_service.update_profile(user["uid"], payload)
@@ -95,6 +143,79 @@ async def get_my_donations(user: dict = Depends(require_auth)):
     if not member:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profil nicht gefunden")
     return await member_service.list_member_donations(member)
+
+
+@router.get("/members/me/newsletter")
+async def get_my_newsletter(user: dict = Depends(require_auth)):
+    member = await member_service.get_member_by_id(user["uid"])
+    if not member:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profil nicht gefunden")
+
+    contact_id = int(member.get("civicrm_contact_id") or 0)
+    email = str(member.get("email") or "")
+    state = await crm_sync_service.get_newsletter_state(contact_id=contact_id, email=email)
+    return {
+        "success": True,
+        "data": state
+        or {
+            "status": "not_subscribed",
+            "confirmedAt": None,
+            "unsubscribedAt": None,
+            "updatedAt": None,
+        },
+    }
+
+
+@router.put("/members/me/newsletter")
+async def update_my_newsletter(payload: dict, user: dict = Depends(require_auth)):
+    member = await member_service.get_member_by_id(user["uid"])
+    if not member:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profil nicht gefunden")
+
+    subscribe = bool(payload.get("subscribe"))
+    contact_id = int(member.get("civicrm_contact_id") or 0)
+    if not contact_id:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Kein verknüpfter CiviCRM-Kontakt vorhanden",
+        )
+
+    await crm_sync_service.persist_newsletter_state(
+        contact_id=contact_id,
+        email=str(member.get("email") or ""),
+        first_name=member.get("vorname"),
+        last_name=member.get("nachname"),
+        newsletter_status="confirmed" if subscribe else "unsubscribed",
+    )
+    state = await crm_sync_service.get_newsletter_state(
+        contact_id=contact_id,
+        email=str(member.get("email") or ""),
+    )
+    return {"success": True, "data": state}
+
+
+@router.get("/members/me/sepa")
+async def get_my_sepa(user: dict = Depends(require_auth)):
+    member = await member_service.get_member_by_id(user["uid"])
+    if not member:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profil nicht gefunden")
+
+    contact_id = int(member.get("civicrm_contact_id") or 0)
+    if not contact_id:
+        return {"success": True, "data": None}
+
+    mandate = await fetchrow(
+        """
+        SELECT id, mandate_reference, mandate_type, iban, bic, account_holder,
+               signed_date::text AS signed_date, is_active
+        FROM sepa_mandates
+        WHERE civicrm_contact_id = $1
+        ORDER BY signed_date DESC NULLS LAST
+        LIMIT 1
+        """,
+        contact_id,
+    )
+    return {"success": True, "data": dict(mandate) if mandate else None}
 
 
 @router.post("/members/me/data-export")

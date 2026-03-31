@@ -2,139 +2,68 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "🚀 Debug: Frontend (Vite)",
-      "type": "node",
+      "name": "Dev: Frontend (Vite)",
+      "type": "pwa-node",
       "request": "launch",
-      "program": "${workspaceFolder}/frontend/node_modules/.bin/vite",
-      "args": ["--mode", "development"],
-      "cwd": "${workspaceFolder}/frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:frontend"],
+      "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
-      "env": {
-        "NODE_ENV": "development",
-        "VITE_API_BASE_URL": "http://localhost:8001"
-      },
-      "skipFiles": ["<node_internals>/**"],
-      "presentation": {
-        "group": "frontend",
-        "order": 1
-      }
+      "skipFiles": ["<node_internals>/**"]
     },
     {
-      "name": "🐍 Debug: API (FastAPI)",
+      "name": "Debug: API (FastAPI)",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/api.menschlichkeit-oesterreich.at/app/main.py",
       "module": "uvicorn",
-      "args": ["app.main:app", "--host", "0.0.0.0", "--port", "8001", "--reload"],
-      "cwd": "${workspaceFolder}/api.menschlichkeit-oesterreich.at",
+      "args": ["app.main:app", "--env-file", ".env", "--host", "0.0.0.0", "--port", "8001", "--reload"],
+      "cwd": "${workspaceFolder}/apps/api",
       "env": {
-        "PYTHONPATH": "${workspaceFolder}/api.menschlichkeit-oesterreich.at",
-        "DATABASE_URL": "postgresql://localhost/moe_development",
+        "PYTHONPATH": "${workspaceFolder}/apps/api",
         "ENVIRONMENT": "development"
       },
+      "envFile": "${workspaceFolder}/apps/api/.env",
       "console": "integratedTerminal",
-      "justMyCode": false,
-      "presentation": {
-        "group": "backend",
-        "order": 1
-      }
+      "justMyCode": false
     },
     {
-      "name": "🏗️ Debug: Build Pipeline",
-      "type": "node",
+      "name": "Dev: Games (Next.js)",
+      "type": "pwa-node",
       "request": "launch",
-      "program": "${workspaceFolder}/build-pipeline.sh",
-      "args": ["development", "--verbose"],
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:games"],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
-      "env": {
-        "DEBUG": "true",
-        "VERBOSE": "true"
-      },
-      "presentation": {
-        "group": "tools",
-        "order": 1
-      }
+      "skipFiles": ["<node_internals>/**"]
     },
     {
-      "name": "🔄 Debug: n8n Workflow",
-      "type": "node",
+      "name": "Dev: CRM (Drupal)",
+      "type": "node-terminal",
       "request": "launch",
-      "program": "${workspaceFolder}/automation/n8n/webhook-client.js",
-      "args": ["development"],
-      "cwd": "${workspaceFolder}/automation/n8n",
-      "console": "integratedTerminal",
-      "env": {
-        "N8N_HOST": "localhost",
-        "N8N_PORT": "5678",
-        "DEBUG": "n8n:*"
-      },
-      "presentation": {
-        "group": "automation",
-        "order": 1
-      }
+      "command": "php -S localhost:8000 -t apps/crm/web",
+      "cwd": "${workspaceFolder}"
     },
     {
-      "name": "🧪 Debug: Playwright Tests",
-      "type": "node",
+      "name": "Dev: Forum (phpBB)",
+      "type": "pwa-node",
       "request": "launch",
-      "program": "${workspaceFolder}/node_modules/.bin/playwright",
-      "args": ["test", "--debug", "--headed"],
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:forum"],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
-      "env": {
-        "PLAYWRIGHT_BROWSERS_PATH": "${workspaceFolder}/.playwright",
-        "DEBUG": "pw:*"
-      },
-      "presentation": {
-        "group": "testing",
-        "order": 1
-      }
-    },
-    {
-      "name": "🔍 Debug: Quality Gates",
-      "type": "node",
-      "request": "launch",
-      "program": "${workspaceFolder}/scripts/generate-quality-report.js",
-      "cwd": "${workspaceFolder}",
-      "console": "integratedTerminal",
-      "env": {
-        "DEBUG": "true",
-        "NODE_ENV": "development"
-      },
-      "presentation": {
-        "group": "quality",
-        "order": 1
-      }
+      "skipFiles": ["<node_internals>/**"]
     }
   ],
   "compounds": [
     {
-      "name": "🚀 Debug: Full Stack (Frontend + API)",
-      "configurations": ["🚀 Debug: Frontend (Vite)", "🐍 Debug: API (FastAPI)"],
-      "stopAll": true,
-      "presentation": {
-        "group": "compound",
-        "order": 1
-      }
+      "name": "Dev: Website + API",
+      "configurations": ["Dev: Frontend (Vite)", "Debug: API (FastAPI)"],
+      "stopAll": true
     },
     {
-      "name": "🔧 Debug: Development Environment",
-      "configurations": ["🚀 Debug: Frontend (Vite)", "🐍 Debug: API (FastAPI)", "🔄 Debug: n8n Workflow"],
-      "stopAll": true,
-      "presentation": {
-        "group": "compound",
-        "order": 2
-      }
-    },
-    {
-      "name": "🧪 Debug: Testing Suite",
-      "configurations": ["🧪 Debug: Playwright Tests", "🔍 Debug: Quality Gates"],
-      "stopAll": true,
-      "presentation": {
-        "group": "compound",
-        "order": 3
-      }
+      "name": "Dev: Public Stack",
+      "configurations": ["Dev: Frontend (Vite)", "Debug: API (FastAPI)", "Dev: CRM (Drupal)", "Dev: Games (Next.js)"],
+      "stopAll": true
     }
   ]
 }

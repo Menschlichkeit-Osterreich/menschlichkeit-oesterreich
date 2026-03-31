@@ -14,23 +14,25 @@ jobs:
   ssl-check:
     name: TLS-Zertifikate prüfen
     runs-on: ubuntu-latest
+    env:
+      MAIN_DOMAIN: ${{ vars.MAIN_DOMAIN || 'menschlichkeit-oesterreich.at' }}
 
     steps:
       - name: Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: TLS-Prüfung – alle Domains
         id: ssl_check
         run: |
           DOMAINS=(
-            "menschlichkeit-oesterreich.at"
-            "www.menschlichkeit-oesterreich.at"
-            "api.menschlichkeit-oesterreich.at"
-            "crm.menschlichkeit-oesterreich.at"
-            "cloud.menschlichkeit-oesterreich.at"
-            "n8n.menschlichkeit-oesterreich.at"
-            "forum.menschlichkeit-oesterreich.at"
-            "mail.menschlichkeit-oesterreich.at"
+            "${MAIN_DOMAIN}"
+            "www.${MAIN_DOMAIN}"
+            "api.${MAIN_DOMAIN}"
+            "crm.${MAIN_DOMAIN}"
+            "cloud.${MAIN_DOMAIN}"
+            "n8n.${MAIN_DOMAIN}"
+            "forum.${MAIN_DOMAIN}"
+            "mail.${MAIN_DOMAIN}"
           )
 
           WARN_DAYS=14
@@ -73,7 +75,7 @@ jobs:
 
       - name: GitHub Issue erstellen bei kritischen Zertifikaten
         if: steps.ssl_check.outputs.failed == '1'
-        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea  # v7.0.1
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
         with:
           script: |
             const criticals = `${{ steps.ssl_check.outputs.criticals }}`;
