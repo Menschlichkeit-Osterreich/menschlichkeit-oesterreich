@@ -83,7 +83,7 @@ jobs:
           (github.event_name == 'workflow_dispatch' || steps.changes.outputs.js != '[]') &&
           (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) &&
           hashFiles('eslint.sarif') != ''
-        uses: github/codeql-action/upload-sarif@45775bd8235c68ba998cffa5171334d58593da47 # v3.28.1
+        uses: github/codeql-action/upload-sarif@c10b8064de6f491fea524254123dbe5e09572f13 # v3.28.1
         with:
           sarif_file: eslint.sarif
           category: eslint
