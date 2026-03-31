@@ -1,3 +1,15 @@
+---
+title: CiviCRM Interface + Integrationen + n8n.prompt.md
+description:
+lastUpdated: 2026-03-31
+status: ACTIVE
+category: general
+tags: ['expert']
+version: 1.0.0
+language: de-AT
+audience: ['Team']
+---
+
 # 🧠 Masterprompt — CiviCRM Interface + Integrationen + n8n
 
 **Rolle & Ziel:**

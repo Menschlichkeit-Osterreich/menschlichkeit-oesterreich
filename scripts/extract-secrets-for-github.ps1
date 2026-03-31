@@ -112,7 +112,7 @@ switch ($OutputFormat) {
             metadata = @{
                 generated = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
                 source = ".env file extraction"
-                repository = "menschlichkeit-oesterreich-development"
+                repository = "menschlichkeit-oesterreich"
             }
         }
         

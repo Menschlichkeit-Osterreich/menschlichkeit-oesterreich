@@ -1,5 +1,5 @@
 #!/bin/bash
-# SFTP Sync Script für Menschlichkeit Österreich Development
+# SFTP Sync Script für Menschlichkeit Österreich
 set -euo pipefail
 
 if [ "${ALLOW_LEGACY_SFTP_SYNC:-false}" != "true" ]; then
@@ -30,7 +30,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}🚀 SFTP Sync für Menschlichkeit Österreich Development${NC}"
+echo -e "${BLUE}🚀 SFTP Sync für Menschlichkeit Österreich${NC}"
 echo "========================================================"
 
 # Funktion für SFTP Upload
@@ -111,10 +111,10 @@ else
 fi
 
 # CRM Subdomain (crm.menschlichkeit-oesterreich.at)
-if [ -d "$LOCAL_BASE/crm.menschlichkeit-oesterreich.at" ]; then
+if [ -d "$LOCAL_BASE/apps/crm" ]; then
     sync_directory \
-        "$LOCAL_BASE/crm.menschlichkeit-oesterreich.at" \
-        "/crm.menschlichkeit-oesterreich.at/httpdocs" \
+        "$LOCAL_BASE/apps/crm" \
+        "/subdomains/crm/httpdocs" \
         "CRM Subdomain"
 else
     echo -e "${YELLOW}⚠️  CRM directory not found - will be created during CRM integration${NC}"

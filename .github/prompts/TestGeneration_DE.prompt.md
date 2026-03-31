@@ -1,14 +1,17 @@
 ---
 title: 'Testgeneration'
 description: 'Ziel'
-lastUpdated: 2025-10-10
-status: ACTIVE
+lastUpdated: 2026-03-31
+status: DEPRECATED
+deprecatedDate: 2025-10-08
 category: testing
 tags: ['testing']
 version: '1.0.0'
 language: de-AT
 audience: ['QA Team', 'Developers']
 ---
+
+> **DEPRECATED** — Migriert nach `.github/chatmodes/TestGeneration_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
 
 ---
 
@@ -29,7 +32,7 @@ Analysieren Sie den Quellcode des Projekts (#codebase) und generieren Sie eine v
 - **Gateway & Persistenz:** Game- und Persistenzlogik unter `apps/api/app/routers/game.py` und angrenzenden Services.
 - **Automation & n8n:** Python- und JS-Utility-Skripte unter `automation/**`.
 - **Playwright E2E:** Spezifikationen in `tests/e2e/**`.
-- **PHP/Drupal:** Composer-Setup (`composer.json`) + Drupal-Custom-Module unter `crm.menschlichkeit-oesterreich.at/httpdocs/web/modules/custom/**`.
+- **PHP/Drupal:** Composer-Setup (`composer.json`) + Drupal-Custom-Module unter `apps/crm/web/modules/custom/**`.
 
 ## Test-Frameworks & Befehle
 
@@ -39,7 +42,7 @@ Analysieren Sie den Quellcode des Projekts (#codebase) und generieren Sie eine v
 | FastAPI             | `apps/api/app/**`, `tests/test_*.py`                                   | pytest + httpx AsyncClient, pytest-mock/monkeypatch | `python -m pytest tests/`                          |
 | API/Game Persistenz | `apps/api/app/routers/game.py`                                         | pytest (DB Fixtures mit Test-DB)                    | `python -m pytest tests/`                          |
 | Playwright          | `tests/e2e/**`, `playwright.config.js`                                 | Playwright Test (Chromium focus)                    | `npm run test:e2e`                                 |
-| PHP/Drupal          | `crm.menschlichkeit-oesterreich.at/**`, `composer.json`                | PHPUnit + Drupal Kernel Tests                       | `composer test`                                    |
+| PHP/Drupal          | `apps/crm/**`, `composer.json`                                         | PHPUnit + Drupal Kernel Tests                       | `composer test`                                    |
 | Skripte             | `automation/**/*.py`, `scripts/**/*.mjs`                               | pytest bzw. Vitest/Jest (je nach Sprache)           | passend zum Framework                              |
 
 ## Arbeitsauftrag

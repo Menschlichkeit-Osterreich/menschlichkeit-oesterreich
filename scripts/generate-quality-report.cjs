@@ -21,7 +21,7 @@ const report = {
   metadata: {
     generated_at: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
-    repository: 'menschlichkeit-oesterreich-development',
+    repository: 'menschlichkeit-oesterreich',
     branch: process.env.GITHUB_REF_NAME || 'development',
     commit: process.env.GITHUB_SHA?.substring(0, 7) || 'unknown',
   },

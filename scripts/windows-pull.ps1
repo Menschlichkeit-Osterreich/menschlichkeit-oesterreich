@@ -10,7 +10,7 @@
 #   - PostgreSQL läuft (via Docker oder lokal)
 #
 # Verwendung (PowerShell als normaler User):
-#   cd E:\openclawd-win-bridge\repos\Menschlichkeit-Osterreich\menschlichkeit-oesterreich-development
+#   cd E:\openclawd-win-bridge\repos\Menschlichkeit-Osterreich\menschlichkeit-oesterreich
 #   .\scripts\windows-pull.ps1
 # ============================================================
 

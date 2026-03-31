@@ -270,7 +270,7 @@ function New-RootReadme {
 
 > Umfassende digitale Plattform für demokratische Teilhabe, Bildung und Community-Engagement in Österreich
 
-[![Quality Gate](https://img.shields.io/badge/Quality%20Gate-Passing-brightgreen)](https://app.codacy.com/gh/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development)
+[![Quality Gate](https://img.shields.io/badge/Quality%20Gate-Passing-brightgreen)](https://app.codacy.com/gh/Menschlichkeit-Osterreich/menschlichkeit-oesterreich)
 [![Security](https://img.shields.io/badge/Security-DSGVO%20Compliant-blue)](docs/compliance/)
 [![WCAG AA](https://img.shields.io/badge/Accessibility-WCAG%20AA-success)](docs/legal/WCAG-AA-COMPLIANCE-BLUEPRINT.md)
 [![PowerShell](https://img.shields.io/badge/PowerShell-7.5.3-blue)](https://github.com/PowerShell/PowerShell)
@@ -306,8 +306,8 @@ Diese Plattform vereint spezialisierte Dienste für eine österreichische NGO:
 
 ``````powershell
 # 1. Repository klonen
-git clone https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development.git
-cd menschlichkeit-oesterreich-development
+git clone https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich.git
+cd menschlichkeit-oesterreich
 
 # 2. Dependencies installieren
 npm install
@@ -417,7 +417,7 @@ pwsh scripts/optimize-prompts.ps1
 ## 📁 Projektstruktur
 
 ``````
-menschlichkeit-oesterreich-development/
+menschlichkeit-oesterreich/
 ├── 📂 api.menschlichkeit-oesterreich.at/  # FastAPI Backend
 ├── 📂 crm.menschlichkeit-oesterreich.at/  # Drupal + CiviCRM
 ├── 📂 frontend/                           # React Frontend
@@ -478,9 +478,9 @@ Wir verwenden **Conventional Commits** und **Branch Protection**:
 
 ## 🆘 Support
 
-- 🐛 **Bugs**: [GitHub Issues](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues/new?template=bug_report.md)
-- ✨ **Features**: [Feature Request](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues/new?template=feature_request.md)
-- 🔒 **Security**: [Security Vulnerability](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues/new?template=security_vulnerability.md)
+- 🐛 **Bugs**: [GitHub Issues](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/issues/new?template=bug_report.md)
+- ✨ **Features**: [Feature Request](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/issues/new?template=feature_request.md)
+- 🔒 **Security**: [Security Vulnerability](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/issues/new?template=security_vulnerability.md)
 - 📚 **Doku**: [DOCS-INDEX.md](DOCS-INDEX.md)
 
 ---

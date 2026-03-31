@@ -63,6 +63,12 @@ Hooks einmalig aktivieren:
 npm run git:hooks:enable
 ```
 
+GitHub-Login fuer HTTPS-Remote und Credential Manager:
+
+```bash
+npm run git:auth:github
+```
+
 Status und sicherer Sync:
 
 ```bash

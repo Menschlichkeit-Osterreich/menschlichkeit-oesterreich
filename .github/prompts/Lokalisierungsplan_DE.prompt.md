@@ -1,18 +1,23 @@
 ---
-title: "Lokalisierungsplan"
-description: "Prompt für Lokalisierungsplan im Menschlichkeit Österreich Projekt"
-lastUpdated: 2025-10-10
-status: ACTIVE
+title: 'Lokalisierungsplan'
+description: 'Prompt für Lokalisierungsplan im Menschlichkeit Österreich Projekt'
+lastUpdated: 2026-03-31
+status: DEPRECATED
+deprecatedDate: 2025-10-08
 category: localization
 tags: ['localization']
-version: "1.0.0"
+version: '1.0.0'
 language: de-AT
 audience: ['Frontend Team', 'Content Team']
 ---
 
+> **DEPRECATED** — Migriert nach `.github/chatmodes/Lokalisierungsplan_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+
 ---
+
 description: 'Erarbeitet einen Lokalisierungs- und Übersetzungsplan auf Deutsch für das Projekt'
 mode: 'ask'
+
 ---
 
 Erstellen Sie einen Plan für die Lokalisierung des Projekts `${workspaceFolderBasename}` in andere Sprachen. Der Plan sollte folgende Aspekte berücksichtigen:

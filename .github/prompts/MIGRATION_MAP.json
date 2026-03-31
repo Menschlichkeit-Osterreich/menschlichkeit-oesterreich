@@ -1,5 +1,7 @@
 {
   "generated": "2025-10-08T18:58:12.398815",
+  "updated": "2026-03-31T00:00:00.000000",
+  "status": "COMPLETE",
   "deprecated_count": 137,
   "mappings": {
     "prompts/04_n8nEmailAutomation_DE.prompt.md": ".github/instructions/04-n8nemailautomation.instructions.md",

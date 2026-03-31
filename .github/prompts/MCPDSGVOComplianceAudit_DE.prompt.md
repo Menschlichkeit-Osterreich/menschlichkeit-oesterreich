@@ -1,14 +1,17 @@
 ---
 title: 'Mcpdsgvocomplianceaudit'
 description: 'DSGVO Compliance Audit'
-lastUpdated: 2025-10-10
-status: ACTIVE
+lastUpdated: 2026-03-31
+status: DEPRECATED
+deprecatedDate: 2025-10-08
 category: compliance
 tags: ['compliance', 'mcp', 'dsgvo']
 version: '1.0.0'
 language: de-AT
 audience: ['Compliance Officers', 'Legal Team']
 ---
+
+> **DEPRECATED** — Migriert nach `.github/chatmodes/MCPDSGVOComplianceAudit_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
 
 ```prompt
 ---

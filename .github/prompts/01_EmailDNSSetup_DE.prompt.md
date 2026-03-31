@@ -1,23 +1,17 @@
 ---
-title: "01 Emaildnssetup"
-description: "E-Mail & DNS Infrastructure Setup"
-lastUpdated: 2025-10-10
-status: ACTIVE
+title: '01 Emaildnssetup'
+description: 'E-Mail & DNS Infrastructure Setup'
+lastUpdated: 2026-03-31
+status: DEPRECATED
+deprecatedDate: 2025-10-08
 category: infrastructure
 tags: ['infrastructure', 'dsgvo']
-version: "1.0.0"
+version: '1.0.0'
 language: de-AT
 audience: ['DevOps Team', 'System Administrators']
 ---
 
----
-description: E-Mail-Setup mit SPF/DKIM/DMARC/TLSRPT für Plesk-basierte Multi-Domain-Architektur
-priority: high
-category: email-infrastructure
-execution_order: 1
-requires: []
-updates_todo: true
----
+> **DEPRECATED** — Migriert nach `.github/chatmodes/01_EmailDNSSetup_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
 
 # E-Mail & DNS Infrastructure Setup
 
@@ -33,17 +27,18 @@ updates_todo: true
 
 ```yaml
 mailboxes:
-  - peter.schuller@menschlichkeit-oesterreich.at  # bestehend, Admin
-  - info@menschlichkeit-oesterreich.at            # bestehend, Allgemein
-  - support@menschlichkeit-oesterreich.at         # NEU: Primärer Reply-To/Tickets
-  - civimail@menschlichkeit-oesterreich.at        # bestehend, CiviMail System
-  - bounce@menschlichkeit-oesterreich.at          # bestehend, VERP/Bounces
-  - logging@menschlichkeit-oesterreich.at         # bestehend, Logs/Alerts
-  - dmarc@menschlichkeit-oesterreich.at           # NEU: DMARC Reports (RUA/RUF)
-  - tlsrpt@menschlichkeit-oesterreich.at          # NEU: TLS Reports
+  - peter.schuller@menschlichkeit-oesterreich.at # bestehend, Admin
+  - info@menschlichkeit-oesterreich.at # bestehend, Allgemein
+  - support@menschlichkeit-oesterreich.at # NEU: Primärer Reply-To/Tickets
+  - civimail@menschlichkeit-oesterreich.at # bestehend, CiviMail System
+  - bounce@menschlichkeit-oesterreich.at # bestehend, VERP/Bounces
+  - logging@menschlichkeit-oesterreich.at # bestehend, Logs/Alerts
+  - dmarc@menschlichkeit-oesterreich.at # NEU: DMARC Reports (RUA/RUF)
+  - tlsrpt@menschlichkeit-oesterreich.at # NEU: TLS Reports
 ```
 
 **Action Items:**
+
 - [ ] Plesk → Mail → Create Mailbox: `support@` (Quota: 10 GB)
 - [ ] Plesk → Mail → Create Mailbox: `dmarc@` (Quota: 20 GB, hoher Traffic)
 - [ ] Plesk → Mail → Create Mailbox: `tlsrpt@` (Quota: 5 GB)
@@ -60,44 +55,46 @@ domain: menschlichkeit-oesterreich.at
 
 aliases:
   # Pflicht/Tech (Provider-Requirements)
-  abuse@:           [logging@, peter.schuller@]
-  postmaster@:      [logging@, peter.schuller@]
-  hostmaster@:      [logging@, peter.schuller@]
-  webmaster@:       [logging@, peter.schuller@]
-  admin@:           [logging@, peter.schuller@]
-  administrator@:   [logging@, peter.schuller@]
-  
+  abuse@: [logging@, peter.schuller@]
+  postmaster@: [logging@, peter.schuller@]
+  hostmaster@: [logging@, peter.schuller@]
+  webmaster@: [logging@, peter.schuller@]
+  admin@: [logging@, peter.schuller@]
+  administrator@: [logging@, peter.schuller@]
+
   # Security & Compliance
-  security@:        [peter.schuller@, logging@]  # VDP/Responsible Disclosure
-  privacy@:         [peter.schuller@]            # DSGVO-Anfragen
-  datenschutz@:     [peter.schuller@]            # Deutsche Variante
-  legal@:           [peter.schuller@]            # Rechtliches
-  
+  security@: [peter.schuller@, logging@] # VDP/Responsible Disclosure
+  privacy@: [peter.schuller@] # DSGVO-Anfragen
+  datenschutz@: [peter.schuller@] # Deutsche Variante
+  legal@: [peter.schuller@] # Rechtliches
+
   # Operations (alle → support@ für Ticketing)
-  newsletter@:      [support@]                   # Newsletter-Replies
-  spenden@:         [support@]                   # Donation Inquiries
-  mitgliedschaft@:  [support@]                   # Membership
-  events@:          [support@]                   # Event-Anfragen
-  presse@:          [support@]                   # Press Relations
-  partners@:        [support@]                   # Partnerschaften
-  volunteers@:      [support@]                   # Freiwillige
-  
+  newsletter@: [support@] # Newsletter-Replies
+  spenden@: [support@] # Donation Inquiries
+  mitgliedschaft@: [support@] # Membership
+  events@: [support@] # Event-Anfragen
+  presse@: [support@] # Press Relations
+  partners@: [support@] # Partnerschaften
+  volunteers@: [support@] # Freiwillige
+
   # Finance/Backoffice
-  finance@:         [support@]
-  buchhaltung@:     [support@]
-  receipts@:        [support@]
-  quittungen@:      [support@]
-  
+  finance@: [support@]
+  buchhaltung@: [support@]
+  receipts@: [support@]
+  quittungen@: [support@]
+
   # No-Reply
-  noreply@:         []  # Autoreply only, kein Forward
+  noreply@: [] # Autoreply only, kein Forward
 ```
 
 **Action Items:**
+
 - [ ] Via Filesystem MCP: Speichern als `config-templates/email-aliases.yaml`
 - [ ] Plesk → Mail → Email Aliases: Alle Aliasse gemäß YAML anlegen
 - [ ] Test: E-Mail an jeden Alias senden, Zustellung prüfen
 
 **MCP Command:**
+
 ```bash
 
 # Via Filesystem MCP
@@ -111,26 +108,31 @@ aliases:
 ### Hauptdomain: menschlichkeit-oesterreich.at
 
 **SPF Record:**
+
 ```dns
 @     IN TXT "v=spf1 a mx ip4:IP_TX -all"
 ```
 
 **DKIM Record (Transactional):**
+
 ```dns
 tx2025q4._domainkey   IN TXT "v=DKIM1; k=rsa; p=PASTE_2048BIT_PUBKEY"
 ```
 
 **DMARC Record (Phase 1: quarantine):**
+
 ```dns
 _dmarc IN TXT "v=DMARC1; p=quarantine; rua=mailto:dmarc@menschlichkeit-oesterreich.at; ruf=mailto:dmarc@menschlichkeit-oesterreich.at; fo=1; pct=100; adkim=s; aspf=s"
 ```
 
 **TLS Reporting:**
+
 ```dns
 _smtp._tls IN TXT "v=TLSRPTv1; rua=mailto:tlsrpt@menschlichkeit-oesterreich.at"
 ```
 
 **BIMI (Optional, nach DMARC=reject):**
+
 ```dns
 default._bimi IN TXT "v=BIMI1; l=https://media.menschlichkeit-oesterreich.at/brand/bimi.svg; a=https://media.menschlichkeit-oesterreich.at/brand/vmc.pem"
 ```
@@ -138,21 +140,25 @@ default._bimi IN TXT "v=BIMI1; l=https://media.menschlichkeit-oesterreich.at/bra
 ### Subdomain: newsletter.menschlichkeit-oesterreich.at
 
 **SPF Record:**
+
 ```dns
 newsletter IN TXT "v=spf1 a:newsletter.menschlichkeit-oesterreich.at ip4:IP_NEWS -all"
 ```
 
 **DKIM Record (Bulk/CiviMail):**
+
 ```dns
 news2025q4._domainkey.newsletter IN TXT "v=DKIM1; k=rsa; p=PASTE_2048BIT_PUBKEY"
 ```
 
 **DMARC Record:**
+
 ```dns
 _dmarc.newsletter IN TXT "v=DMARC1; p=quarantine; rua=mailto:dmarc@menschlichkeit-oesterreich.at; fo=1; pct=100; adkim=s; aspf=s"
 ```
 
 **Action Items:**
+
 - [ ] DKIM Keypair generieren (2048-bit RSA): `openssl genrsa -out tx2025q4.pem 2048`
 - [ ] Public Key extrahieren: `openssl rsa -in tx2025q4.pem -pubout -outform der | base64 -w0`
 - [ ] Plesk → DNS → Add TXT Records (alle obigen Records)
@@ -160,6 +166,7 @@ _dmarc.newsletter IN TXT "v=DMARC1; p=quarantine; rua=mailto:dmarc@menschlichkei
 - [ ] Validation: `dig TXT _dmarc.menschlichkeit-oesterreich.at`, `dig TXT tx2025q4._domainkey.menschlichkeit-oesterreich.at`
 
 **MCP Commands:**
+
 ```bash
 
 # Via GitHub MCP
@@ -203,6 +210,7 @@ Catch-all: bounce@ akzeptiert alle VERP-Varianten
 ```
 
 **Action Items:**
+
 - [ ] CiviCRM → Administer → CiviMail → From Email Addresses: `newsletter@newsletter.menschlichkeit-oesterreich.at`
 - [ ] CiviCRM → Administer → CiviMail → Bounce Processing: Return-Path = `bounce@menschlichkeit-oesterreich.at`
 - [ ] CiviCRM → Administer → CiviMail → VERP aktivieren
@@ -220,7 +228,7 @@ Betreff: Re: Ihre Meldung an {alias}@menschlichkeit-oesterreich.at
 
 Sehr geehrte Damen und Herren,
 
-vielen Dank für Ihre Meldung. Wir prüfen Ihr Anliegen innerhalb von 24 Stunden 
+vielen Dank für Ihre Meldung. Wir prüfen Ihr Anliegen innerhalb von 24 Stunden
 und melden uns umgehend bei Ihnen.
 
 Mit freundlichen Grüßen
@@ -240,7 +248,7 @@ Sehr geehrte/r Sicherheitsforscher/in,
 vielen Dank für Ihre verantwortungsvolle Meldung (Responsible Disclosure).
 Unser Security-Team bestätigt den Eingang innerhalb von 24 Stunden.
 
-Bitte veröffentlichen Sie keine Details (CVE/Public Disclosure) vor unserer 
+Bitte veröffentlichen Sie keine Details (CVE/Public Disclosure) vor unserer
 ausdrücklichen Freigabe.
 
 Mit bestem Dank
@@ -260,6 +268,7 @@ Menschlichkeit Österreich
 ```
 
 **Action Items:**
+
 - [ ] Plesk → Mail → abuse@ → Autoresponder: Text einfügen, aktivieren
 - [ ] Plesk → Mail → postmaster@ → Autoresponder: Text einfügen, aktivieren
 - [ ] Plesk → Mail → security@ → Autoresponder: VDP-Text einfügen
@@ -289,6 +298,7 @@ Menschlichkeit Österreich
 ```
 
 **Action Items:**
+
 - [ ] Testmail an test@mail-tester.com senden, Score prüfen
 - [ ] Testmail an Gmail/Outlook/GMX, Spam-Ordner prüfen
 - [ ] Authentication-Results Header in empfangenen Mails validieren
@@ -307,6 +317,7 @@ Menschlichkeit Österreich
 ```
 
 **Action Items:**
+
 - [ ] Tag 2: DMARC RUA bei dmarc@ prüfen
 - [ ] Tag 7: DMARC RUF (Failure Reports) analysieren
 - [ ] Tag 30: Wenn 100% Pass → DMARC auf `p=reject` umstellen
@@ -329,6 +340,7 @@ Menschlichkeit Österreich
 ```
 
 **Action Items:**
+
 - [ ] Q1 2025: Neue DKIM Keys generieren und rotieren
 - [ ] Q3 2025: Neue DKIM Keys generieren und rotieren
 - [ ] GitHub Secrets: Alte Keys nach 90 Tagen löschen
@@ -337,25 +349,27 @@ Menschlichkeit Österreich
 
 ## 📊 Metriken & SLAs
 
-| Metrik | Ziel | Messung |
-|--------|------|---------|
-| DMARC Pass Rate | ≥ 99% | dmarcian.com |
-| Mail-Tester Score | ≥ 9/10 | mail-tester.com |
-| Spam-Beschwerderate | < 0.1% | CiviMail Reports |
-| Bounce Rate | < 2% | CiviMail Reports |
-| Autoreply SLA | < 1 Min | Plesk Logs |
-| Security Response | < 24h | Manual Tracking |
-| DSGVO Response | < 30 Tage | CRM Ticketing |
+| Metrik              | Ziel      | Messung          |
+| ------------------- | --------- | ---------------- |
+| DMARC Pass Rate     | ≥ 99%     | dmarcian.com     |
+| Mail-Tester Score   | ≥ 9/10    | mail-tester.com  |
+| Spam-Beschwerderate | < 0.1%    | CiviMail Reports |
+| Bounce Rate         | < 2%      | CiviMail Reports |
+| Autoreply SLA       | < 1 Min   | Plesk Logs       |
+| Security Response   | < 24h     | Manual Tracking  |
+| DSGVO Response      | < 30 Tage | CRM Ticketing    |
 
 ---
 
 ## 🔗 Abhängigkeiten
 
 **Benötigt von:**
+
 - `02_DatabaseRollout_DE.prompt.md` (CiviCRM DB für Bounce-Handling)
 - `03_DeploymentPipeline_DE.prompt.md` (Secrets Management)
 
 **Triggert:**
+
 - TODO.md Update: "E-Mail Infrastructure Setup abgeschlossen"
 - Quality Gates: DSGVO Compliance Check
 
@@ -364,6 +378,7 @@ Menschlichkeit Österreich
 ## 📝 TODO Updates
 
 Bei erfolgreicher Ausführung dieser Prompt wird automatisch TODO.md aktualisiert:
+
 - [ ] E-Mail-Postfächer angelegt (support@, dmarc@, tlsrpt@)
 - [ ] Aliasse konfiguriert (alle rollenbasierten Adressen)
 - [ ] DNS Records publiziert (SPF, DKIM, DMARC, TLSRPT)

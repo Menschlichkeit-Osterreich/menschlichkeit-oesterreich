@@ -1,19 +1,17 @@
 ---
-title: "Fehlerberichtvorlage"
-description: "Prompt für Fehlerberichtvorlage im Menschlichkeit Österreich Projekt"
-lastUpdated: 2025-10-10
-status: ACTIVE
+title: 'Fehlerberichtvorlage'
+description: 'Prompt für Fehlerberichtvorlage im Menschlichkeit Österreich Projekt'
+lastUpdated: 2026-03-31
+status: DEPRECATED
+deprecatedDate: 2025-10-08
 category: quality-assurance
 tags: ['quality-assurance']
-version: "1.0.0"
+version: '1.0.0'
 language: de-AT
 audience: ['QA Team', 'Developers']
 ---
 
----
-description: 'Erstellt eine Vorlage für Fehlermeldungen und Bug-Reports auf Deutsch'
-mode: 'ask'
----
+> **DEPRECATED** — Migriert nach `.github/chatmodes/FehlerberichtVorlage_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
 
 Entwerfen Sie eine standardisierte Vorlage für Fehlermeldungen (Bug Reports) für das Projekt `${workspaceFolderBasename}`. Die Vorlage soll Nutzerinnen und Entwicklern helfen, Fehler klar zu beschreiben und erleichtert die Reproduktion. Sie sollte folgende Abschnitte enthalten:
 

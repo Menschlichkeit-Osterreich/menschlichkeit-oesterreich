@@ -1,8 +1,9 @@
 ---
 title: '24 Readmemodernization'
 description: 'README Modernisierung & Best Practices'
-lastUpdated: 2025-10-10
-status: ACTIVE
+lastUpdated: 2026-03-31
+status: DEPRECATED
+deprecatedDate: 2025-10-08
 category: documentation
 tags: ['documentation', 'dsgvo']
 version: '1.0.0'
@@ -10,9 +11,7 @@ language: de-AT
 audience: ['Technical Writers', 'All Teams']
 ---
 
----
-
-## description: 'Nutze installierte MCP-Server und erstelle oder aktualisiere README.md nach Industry Best Practices'
+> **DEPRECATED** — Migriert nach `.github/chatmodes/24_READMEModernization_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
 
 # README Modernisierung & Best Practices
 

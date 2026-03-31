@@ -55,17 +55,17 @@ function Deploy-CRM {
     Write-Host "🏛️ Deploying CRM System (Drupal+CiviCRM)..." -ForegroundColor Green
     
     if (-not $DryRun) {
-        # Deploy CRM files
-        scp -r "crm.menschlichkeit-oesterreich.at/httpdocs/*" "${Server}:subdomains/crm/httpdocs/"
+        # Deploy CRM source into the canonical CRM portal root
+        scp -r "apps/crm/*" "${Server}:subdomains/crm/httpdocs/"
         
         # Deploy .env file
-        if (Test-Path "crm.menschlichkeit-oesterreich.at/.env") {
-            scp "crm.menschlichkeit-oesterreich.at/.env" "${Server}:subdomains/crm/httpdocs/"
+        if (Test-Path "apps/crm/.env") {
+            scp "apps/crm/.env" "${Server}:subdomains/crm/httpdocs/"
         }
         
         Write-Host "  ✅ CRM files deployed"
     } else {
-        Write-Host "  🔍 [DRY RUN] Would deploy: crm.menschlichkeit-oesterreich.at/httpdocs/* -> subdomains/crm/httpdocs/"
+        Write-Host "  🔍 [DRY RUN] Would deploy: apps/crm/* -> subdomains/crm/httpdocs/"
     }
 }
 

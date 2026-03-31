@@ -1,6 +1,13 @@
 ---
-mode: 'agent'
+title: babylon-package-installer.prompt.md
 description: 'Install Babylon Toolkit Project Files'
+lastUpdated: 2026-03-31
+status: ACTIVE
+category: general
+tags: ['expert']
+version: 1.0.0
+language: de-AT
+audience: ['Team']
 ---
 
 Your goal is setup and install babylon.js workspace projects

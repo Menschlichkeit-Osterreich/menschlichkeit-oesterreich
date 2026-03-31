@@ -7,7 +7,7 @@ param(
     [string]$SecretName,
 
     [Parameter(Mandatory = $false)]
-    [string]$SourceRepo = "Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development",
+    [string]$SourceRepo = "Menschlichkeit-Osterreich/menschlichkeit-oesterreich",
 
     [Parameter(Mandatory = $true)]
     [string]$TargetRepo

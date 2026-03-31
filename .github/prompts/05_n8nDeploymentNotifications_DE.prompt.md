@@ -1,8 +1,9 @@
 ---
 title: '05 N8Ndeploymentnotifications'
 description: 'n8n Deployment-Benachrichtigungen'
-lastUpdated: 2025-10-10
-status: ACTIVE
+lastUpdated: 2026-03-31
+status: DEPRECATED
+deprecatedDate: 2025-10-08
 category: automation
 tags: ['automation', 'n8n']
 version: '1.0.0'
@@ -10,13 +11,7 @@ language: de-AT
 audience: ['DevOps Team', 'Automation Engineers']
 ---
 
----
-
-description: 'n8n Deployment-Benachrichtigungen für CI/CD, Quality Gates und Rollback-Alerts'
-
-- 03_MCPMultiServiceDeployment_DE
-
----
+> **DEPRECATED** — Migriert nach `.github/instructions/05-n8ndeploymentnotifications.instructions.md`. Diese Datei wird als Referenz beibehalten.
 
 # n8n Deployment-Benachrichtigungen
 

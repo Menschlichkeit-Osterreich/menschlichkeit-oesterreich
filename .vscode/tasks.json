@@ -176,6 +176,18 @@
       "problemMatcher": []
     },
     {
+      "label": "GitHub: Login HTTPS",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "git:auth:github"],
+      "group": "none",
+      "presentation": {
+        "panel": "shared",
+        "group": "ops"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Git: Hooks Enable",
       "type": "shell",
       "command": "npm",

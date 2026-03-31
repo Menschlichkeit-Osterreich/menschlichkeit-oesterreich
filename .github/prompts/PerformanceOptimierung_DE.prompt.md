@@ -1,19 +1,24 @@
 ---
-title: "Performanceoptimierung"
-description: "Prompt für Performanceoptimierung im Menschlichkeit Österreich Projekt"
-lastUpdated: 2025-10-10
-status: ACTIVE
+title: 'Performanceoptimierung'
+description: 'Prompt für Performanceoptimierung im Menschlichkeit Österreich Projekt'
+lastUpdated: 2026-03-31
+status: DEPRECATED
+deprecatedDate: 2025-10-08
 category: performance
 tags: ['performance']
-version: "1.0.0"
+version: '1.0.0'
 language: de-AT
 audience: ['Backend Team', 'DevOps']
 ---
 
+> **DEPRECATED** — Migriert nach `.github/chatmodes/PerformanceOptimierung_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+
 ---
+
 description: 'Analysiert den Code und schlägt Performance-Optimierungen auf Deutsch vor'
 mode: 'agent'
 tools: ['githubRepo', 'codebase']
+
 ---
 
 Analysieren Sie den Code des Projekts `${workspaceFolderBasename}` und identifizieren Sie Bereiche, in denen die Leistung verbessert werden kann. Erstellen Sie einen deutschsprachigen Bericht mit:

@@ -1,14 +1,17 @@
 ---
 title: 'Mcpdatabasemigration'
 description: 'PostgreSQL MCP Database Migration Flow'
-lastUpdated: 2025-10-10
-status: ACTIVE
+lastUpdated: 2026-03-31
+status: DEPRECATED
+deprecatedDate: 2025-10-08
 category: database
 tags: ['database', 'mcp', 'dsgvo']
 version: '1.0.0'
 language: de-AT
 audience: ['Backend Team', 'Database Administrators']
 ---
+
+> **DEPRECATED** — Migriert nach `.github/chatmodes/MCPDatabaseMigration_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
 
 ```prompt
 ---

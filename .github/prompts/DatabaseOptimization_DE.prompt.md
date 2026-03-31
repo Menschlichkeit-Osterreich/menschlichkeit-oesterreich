@@ -1,7 +1,7 @@
 ---
 title: 'Datenbank-Optimierung'
 description: 'Systematische PostgreSQL Performance-Optimierung für Menschlichkeit Österreich'
-lastUpdated: 2025-01-10
+lastUpdated: 2026-03-31
 status: ACTIVE
 category: database
 tags: [postgresql, performance, optimization, indexing]

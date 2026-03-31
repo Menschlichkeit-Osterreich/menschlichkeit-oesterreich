@@ -1,42 +1,40 @@
 ---
+status: DEPRECATED
+deprecatedDate: 2025-10-08
+lastUpdated: 2026-03-31
+migration: .github/chatmodes/MIGRATION_MAP_DE.chatmode.md
 ---
 
-**⚠️ DEPRECATED - NICHT VERWENDEN**
+# Prompt/Chatmode Migration Map (DEPRECATED)
 
-Diese Datei ist veraltet und wird in einer zukünftigen Version entfernt.
-
-- **Status:** DEPRECATED
-- **Datum:** 2025-10-08
-- **Migration:** .github/chatmodes/MIGRATION_MAP_DE.chatmode.md
-- **Grund:** Legacy Prompt-Format - ersetzt durch einheitliches Chatmode/Instructions-System
-
-**Aktuelle Version verwenden:** .github/chatmodes/MIGRATION_MAP_DE.chatmode.md
+> **DEPRECATED** — Migriert nach `.github/chatmodes/MIGRATION_MAP_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
 
 ---
 
-# Prompt/Chatmode Migration Map (alt → neu)
+## Zuordnungstabelle (alt → neu)
 
 Diese Tabelle dokumentiert die Migration der Legacy-Dateien in das einheitliche YAML-Chatmode-Format unter `.github/prompts/chatmodes/`.
 
 Legende:
+
 - Aktion: migrate = in neuen Chatmode überführt; merge = Inhalte zusammengeführt; deprecate = wird ersetzt/entfallen; keep = bleibt als Dokumentation
 - Status: done / pending
 
-| Alt (Pfad) | Neuer Chatmode (ID) | Neuer Pfad | Aktion | Notizen | Status |
-|---|---|---|---|---|---|
-| .github/chatmodes/APIDesign_DE.chatmode.md | api-design | .github/prompts/chatmodes/api-design.yaml | migrate | Konsolidiert, YAML v0.1.0 vorhanden | done |
-| .github/chatmodes/SicherheitsAudit_DE.chatmode.md | security-audit | .github/prompts/chatmodes/security-audit.yaml | migrate | MCP-Variante wird zusammengeführt | done |
-| .github/chatmodes/MCPSicherheitsAudit_DE.chatmode.md | security-audit | .github/prompts/chatmodes/security-audit.yaml | merge | Zusammenführung in einen Modus (tools erweitern) | done |
-| .github/chatmodes/CodeReview_DE.chatmode.md | code-review | .github/prompts/chatmodes/code-review.yaml | migrate | Standardisierter Review-Modus | done |
-| .github/chatmodes/DeploymentGuide_DE.chatmode.md | deployment-operations | .github/prompts/chatmodes/deployment-operations.yaml | migrate | Vereinheitlicht mit `.github/modes/deployment-operations.mode.md` | done |
-| .github/modes/deployment-operations.mode.md | deployment-operations | .github/prompts/chatmodes/deployment-operations.yaml | merge | Inhalte in Chatmode integriert | done |
-| .github/chatmodes/PerformanceOptimierung_DE.chatmode.md | performance-optimization | .github/prompts/chatmodes/performance-optimization.yaml | migrate | Lighthouse/DB Hinweise einbinden | done |
-| .github/chatmodes/BarrierefreiheitAudit_DE.chatmode.md | accessibility-audit | .github/prompts/chatmodes/accessibility-audit.yaml | migrate | Axe/WCAG AA Anforderungen | done |
-| .github/chatmodes/MCPDesignSystemSync_DE.chatmode.md | design-system-sync | .github/prompts/chatmodes/design-system-sync.yaml | migrate | Figma/MCP integriert | pending |
-| .github/chatmodes/README_DE.chatmode.md | readme-modernization | .github/prompts/chatmodes/readme-modernization.yaml | migrate | Dokumentationsprüfung/Modernisierung | done |
-| .github/prompts/MCPDSGVOComplianceAudit_DE.prompt.md | dsgvo-compliance-audit | .github/prompts/chatmodes/dsgvo-compliance-audit.yaml | migrate | Bereits als YAML v0.1.0 erstellt | done |
-| .github/modes/civicrm-vereinsbuchhaltung.mode.md | civicrm-vereinsbuchhaltung | .github/prompts/chatmodes/civicrm-vereinsbuchhaltung.yaml | migrate | Spezifischer Vereinsbuchhaltungsmodus | done |
-| .github/modes/civicrm-n8n-automation.mode.md | civicrm-n8n-automation | .github/prompts/chatmodes/civicrm-n8n-automation.yaml | migrate | Automationsleitfaden als Modus | done |
+| Alt (Pfad)                                              | Neuer Chatmode (ID)        | Neuer Pfad                                                | Aktion  | Notizen                                                           | Status  |
+| ------------------------------------------------------- | -------------------------- | --------------------------------------------------------- | ------- | ----------------------------------------------------------------- | ------- |
+| .github/chatmodes/APIDesign_DE.chatmode.md              | api-design                 | .github/prompts/chatmodes/api-design.yaml                 | migrate | Konsolidiert, YAML v0.1.0 vorhanden                               | done    |
+| .github/chatmodes/SicherheitsAudit_DE.chatmode.md       | security-audit             | .github/prompts/chatmodes/security-audit.yaml             | migrate | MCP-Variante wird zusammengeführt                                 | done    |
+| .github/chatmodes/MCPSicherheitsAudit_DE.chatmode.md    | security-audit             | .github/prompts/chatmodes/security-audit.yaml             | merge   | Zusammenführung in einen Modus (tools erweitern)                  | done    |
+| .github/chatmodes/CodeReview_DE.chatmode.md             | code-review                | .github/prompts/chatmodes/code-review.yaml                | migrate | Standardisierter Review-Modus                                     | done    |
+| .github/chatmodes/DeploymentGuide_DE.chatmode.md        | deployment-operations      | .github/prompts/chatmodes/deployment-operations.yaml      | migrate | Vereinheitlicht mit `.github/modes/deployment-operations.mode.md` | done    |
+| .github/modes/deployment-operations.mode.md             | deployment-operations      | .github/prompts/chatmodes/deployment-operations.yaml      | merge   | Inhalte in Chatmode integriert                                    | done    |
+| .github/chatmodes/PerformanceOptimierung_DE.chatmode.md | performance-optimization   | .github/prompts/chatmodes/performance-optimization.yaml   | migrate | Lighthouse/DB Hinweise einbinden                                  | done    |
+| .github/chatmodes/BarrierefreiheitAudit_DE.chatmode.md  | accessibility-audit        | .github/prompts/chatmodes/accessibility-audit.yaml        | migrate | Axe/WCAG AA Anforderungen                                         | done    |
+| .github/chatmodes/MCPDesignSystemSync_DE.chatmode.md    | design-system-sync         | .github/prompts/chatmodes/design-system-sync.yaml         | migrate | Figma/MCP integriert                                              | pending |
+| .github/chatmodes/README_DE.chatmode.md                 | readme-modernization       | .github/prompts/chatmodes/readme-modernization.yaml       | migrate | Dokumentationsprüfung/Modernisierung                              | done    |
+| .github/prompts/MCPDSGVOComplianceAudit_DE.prompt.md    | dsgvo-compliance-audit     | .github/prompts/chatmodes/dsgvo-compliance-audit.yaml     | migrate | Bereits als YAML v0.1.0 erstellt                                  | done    |
+| .github/modes/civicrm-vereinsbuchhaltung.mode.md        | civicrm-vereinsbuchhaltung | .github/prompts/chatmodes/civicrm-vereinsbuchhaltung.yaml | migrate | Spezifischer Vereinsbuchhaltungsmodus                             | done    |
+| .github/modes/civicrm-n8n-automation.mode.md            | civicrm-n8n-automation     | .github/prompts/chatmodes/civicrm-n8n-automation.yaml     | migrate | Automationsleitfaden als Modus                                    | done    |
 
 | .github/chatmodes/Architekturplan_DE.chatmode.md | architecture-plan | .github/prompts/chatmodes/architecture-plan.yaml | migrate | Architekturplanung/ADRs standardisiert | done |
 | .github/chatmodes/Beitragsrichtlinien_DE.chatmode.md | contribution-guidelines | .github/prompts/chatmodes/contribution-guidelines.yaml | migrate | Richtlinien konsolidiert mit PR-Template | done |
@@ -97,6 +95,6 @@ Legende:
 
 | .github/copilot-instructions.md | global/01_style_guide.md | .github/prompts/global/01_style_guide.md | merge | Stilregeln integriert/vereinheitlicht | done |
 
-Hinweis: Legacy-Dateien bleiben vorerst bestehen (read-only) bis vollständige Kommunikation im Team erfolgt; neue Chatmodes sind führend. Weitere MCP*-Varianten werden schrittweise in bestehende IDs konsolidiert.
+Hinweis: Legacy-Dateien bleiben vorerst bestehen (read-only) bis vollständige Kommunikation im Team erfolgt; neue Chatmodes sind führend. Weitere MCP\*-Varianten werden schrittweise in bestehende IDs konsolidiert.
 
-Hinweis: Duplikate (z. B. MCP*-Varianten) werden in einen Modus konsolidiert; die `tools`-Sektion enthält dann die benötigten Integrationen (z. B. figma, github, filesystem, codacy).
+Hinweis: Duplikate (z. B. MCP\*-Varianten) werden in einen Modus konsolidiert; die `tools`-Sektion enthält dann die benötigten Integrationen (z. B. figma, github, filesystem, codacy).

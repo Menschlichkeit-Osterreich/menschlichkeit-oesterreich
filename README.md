@@ -28,8 +28,8 @@ Monorepo fuer Website, FastAPI-Backend, Drupal/CiviCRM, Babylon-Game, MCP-Server
 ## Schnellstart
 
 ```bash
-git clone https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development.git
-cd menschlichkeit-oesterreich-development
+git clone https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich.git
+cd menschlichkeit-oesterreich
 
 npm ci
 python -m pip install -r apps/api/requirements-dev.txt

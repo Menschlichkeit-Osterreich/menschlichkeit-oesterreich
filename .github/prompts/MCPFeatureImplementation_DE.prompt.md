@@ -1,14 +1,17 @@
 ---
 title: 'Mcpfeatureimplementation'
 description: 'MCP-gestützte Feature Implementation'
-lastUpdated: 2025-10-10
-status: ACTIVE
+lastUpdated: 2026-03-31
+status: DEPRECATED
+deprecatedDate: 2025-10-08
 category: development
 tags: ['development', 'mcp', 'dsgvo']
 version: '1.0.0'
 language: de-AT
 audience: ['Backend Team', 'Frontend Team']
 ---
+
+> **DEPRECATED** — Migriert nach `.github/chatmodes/MCPFeatureImplementation_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
 
 ```prompt
 ---
@@ -113,6 +116,7 @@ body: JSON.stringify({ email, consent_given: consent })
 };
 
 return (
+
 <form onSubmit={handleSubmit}>
 <input
 type="email"

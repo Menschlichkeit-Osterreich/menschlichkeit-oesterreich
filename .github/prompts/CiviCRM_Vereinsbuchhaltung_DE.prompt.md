@@ -1,19 +1,24 @@
 ---
-title: "Civicrm Vereinsbuchhaltung"
-description: "Prompt für Civicrm Vereinsbuchhaltung im Menschlichkeit Österreich Projekt"
-lastUpdated: 2025-10-10
-status: ACTIVE
+title: 'Civicrm Vereinsbuchhaltung'
+description: 'Prompt für Civicrm Vereinsbuchhaltung im Menschlichkeit Österreich Projekt'
+lastUpdated: 2026-03-31
+status: DEPRECATED
+deprecatedDate: 2025-10-08
 category: crm
 tags: ['crm']
-version: "1.0.0"
+version: '1.0.0'
 language: de-AT
 audience: ['CRM Administrators', 'Vereinsmanagement']
 ---
 
+> **DEPRECATED** — Migriert nach `.github/instructions/civicrm-vereinsbuchhaltung.instructions.md`. Diese Datei wird als Referenz beibehalten.
+
 ---
+
 description: 'Planung & Umsetzung der CiviCRM Vereinsbuchhaltung inkl. SEPA, Beiträge & Spenden'
 mode: 'agent'
 tools: ['githubRepo', 'codebase']
+
 ---
 
 Erstelle einen detaillierten Aktionsplan zur Einrichtung und Pflege der Vereinsbuchhaltung in CiviCRM (Drupal 10) für `crm.menschlichkeit-oesterreich.at`. Berücksichtige folgende Aspekte:
@@ -27,6 +32,7 @@ Erstelle einen detaillierten Aktionsplan zur Einrichtung und Pflege der Vereinsb
 7. **Verifikation** – Tests (Drush, SEPA-Datei, Rechnungen, CiviRules), Monitoring der Logs und Backups.
 
 **Ausgabeform:**
+
 - Strukturierter Aktionsplan (Abschnitte + nummerierte Schritte)
 - Verweise auf relevante Dateien/Skripte (`#file:` Syntax, z. B. `#file:scripts/setup-civicrm.sh`)
 - Konkrete Befehle in Codeblöcken

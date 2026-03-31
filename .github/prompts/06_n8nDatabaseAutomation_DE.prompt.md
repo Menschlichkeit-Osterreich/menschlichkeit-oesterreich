@@ -1,19 +1,17 @@
 ---
-title: "06 N8Ndatabaseautomation"
-description: "n8n Datenbank-Automatisierung"
-lastUpdated: 2025-10-10
-status: ACTIVE
+title: '06 N8Ndatabaseautomation'
+description: 'n8n Datenbank-Automatisierung'
+lastUpdated: 2026-03-31
+status: DEPRECATED
+deprecatedDate: 2025-10-08
 category: automation
 tags: ['automation', 'n8n']
-version: "1.0.0"
+version: '1.0.0'
 language: de-AT
 audience: ['DevOps Team', 'Automation Engineers']
 ---
 
----
-description: 'n8n Datenbank-Automatisierung für Backups, Health Checks und Migration-Tracking'
-  - 02_DatabaseRollout_DE
----
+> **DEPRECATED** — Migriert nach `.github/instructions/06-n8ndatabaseautomation.instructions.md`. Diese Datei wird als Referenz beibehalten.
 
 # n8n Datenbank-Automatisierung
 
@@ -28,6 +26,7 @@ description: 'n8n Datenbank-Automatisierung für Backups, Health Checks und Migr
 **17 Datenbanken:**
 
 **Plesk MariaDB (5):**
+
 - d04159e2 (Main Website)
 - d04159f9 (CRM/CiviCRM)
 - d04159fc (Analytics)
@@ -35,6 +34,7 @@ description: 'n8n Datenbank-Automatisierung für Backups, Health Checks und Migr
 - d0415a0e (n8n Workflows - mo_n8n)
 
 **External MariaDB (9):**
+
 - humanityaustria_main
 - humanityaustria_crm
 - humanityaustria_analytics
@@ -46,6 +46,7 @@ description: 'n8n Datenbank-Automatisierung für Backups, Health Checks und Migr
 - humanityaustria_archive
 
 **External PostgreSQL (3):**
+
 - humanityaustria_api
 - humanityaustria_gaming
 - humanityaustria_events
@@ -105,6 +106,7 @@ Wiederholen für humanityaustria_gaming, humanityaustria_events
 ```
 
 **Checklist:**
+
 - [ ] Alle 17 Database Credentials in n8n erstellt
 - [ ] Connection Test für jede DB erfolgreich
 - [ ] SSL Certificates korrekt (External DBs)
@@ -259,34 +261,57 @@ Wiederholen für humanityaustria_gaming, humanityaustria_events
   ],
   "connections": {
     "Schedule - Daily 2 AM": {
-      "main": [[{"node": "Code - Generate DB List", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "Code - Generate DB List", "type": "main", "index": 0 }]
+      ]
     },
     "Code - Generate DB List": {
-      "main": [[{"node": "Switch - DB Type", "type": "main", "index": 0}]]
+      "main": [[{ "node": "Switch - DB Type", "type": "main", "index": 0 }]]
     },
     "Switch - DB Type": {
       "main": [
-        [{"node": "Execute - MariaDB Dump", "type": "main", "index": 0}],
-        [{"node": "Execute - PostgreSQL Dump", "type": "main", "index": 0}]
+        [{ "node": "Execute - MariaDB Dump", "type": "main", "index": 0 }],
+        [{ "node": "Execute - PostgreSQL Dump", "type": "main", "index": 0 }]
       ]
     },
     "Execute - MariaDB Dump": {
-      "main": [[{"node": "Aggregate - All Backup Results", "type": "main", "index": 0}]]
+      "main": [
+        [
+          {
+            "node": "Aggregate - All Backup Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Execute - PostgreSQL Dump": {
-      "main": [[{"node": "Aggregate - All Backup Results", "type": "main", "index": 0}]]
+      "main": [
+        [
+          {
+            "node": "Aggregate - All Backup Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Aggregate - All Backup Results": {
-      "main": [[{"node": "Email - Backup Report", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "Email - Backup Report", "type": "main", "index": 0 }]
+      ]
     },
     "Error Handler": {
-      "main": [[{"node": "Slack - Backup Failure", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "Slack - Backup Failure", "type": "main", "index": 0 }]
+      ]
     }
   }
 }
 ```
 
 **Backup Rotation Script:**
+
 ```bash
 #!/bin/bash
 
@@ -309,6 +334,7 @@ echo "Backup rotation completed: $(date)"
 ```
 
 **Checklist:**
+
 - [ ] mysqldump und pg_dump verfügbar in n8n Container
 - [ ] /backups Directory existiert mit korrekten Permissions
 - [ ] Backup Rotation Script als Cronjob konfiguriert
@@ -482,51 +508,58 @@ echo "Backup rotation completed: $(date)"
     "Schedule - Every 15min": {
       "main": [
         [
-          {"node": "MariaDB - Health Metrics", "type": "main", "index": 0},
-          {"node": "PostgreSQL - Health Metrics", "type": "main", "index": 0}
+          { "node": "MariaDB - Health Metrics", "type": "main", "index": 0 },
+          { "node": "PostgreSQL - Health Metrics", "type": "main", "index": 0 }
         ]
       ]
     },
     "MariaDB - Health Metrics": {
-      "main": [[{"node": "IF - High Connection Count", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "IF - High Connection Count", "type": "main", "index": 0 }]
+      ]
     },
     "PostgreSQL - Health Metrics": {
-      "main": [[{"node": "IF - High Connection Count", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "IF - High Connection Count", "type": "main", "index": 0 }]
+      ]
     },
     "IF - High Connection Count": {
       "main": [
-        [{"node": "Slack - Connection Alert", "type": "main", "index": 0}],
-        [{"node": "IF - Database Size > 5GB", "type": "main", "index": 0}]
+        [{ "node": "Slack - Connection Alert", "type": "main", "index": 0 }],
+        [{ "node": "IF - Database Size > 5GB", "type": "main", "index": 0 }]
       ]
     },
     "IF - Database Size > 5GB": {
-      "main": [
-        [{"node": "Slack - Size Alert", "type": "main", "index": 0}]
-      ]
+      "main": [[{ "node": "Slack - Size Alert", "type": "main", "index": 0 }]]
     }
   }
 }
 ```
 
 **Health Check Thresholds:**
+
 ```markdown
 CRITICAL (Immediate Alert):
+
 - Active Connections > 200
 - Database Size > 10 GB
 - Idle Connections > 500
 - Replication Lag > 60 seconds
 
 WARNING (Slack Notification):
+
 - Active Connections > 100
 - Database Size > 5 GB
 - Idle Connections > 200
 - Replication Lag > 30 seconds
 
 OK (Log Only):
+
 - All metrics within normal range
 ```
 
 **Checklist:**
+
 - [ ] Health Checks laufen alle 15min
 - [ ] Thresholds korrekt konfiguriert
 - [ ] Slack Channel #database-alerts erstellt
@@ -559,11 +592,7 @@ OK (Log Only):
         "repository": "{{ $json.repository }}",
         "title": "📊 Database Migration: {{ $json.migration_name }}",
         "body": "=## Database Migration\n\n**Migration:** {{ $json.migration_name }}\n**Database:** {{ $json.database }}\n**Type:** {{ $json.type }}\n**Applied:** {{ $now.format('YYYY-MM-DD HH:mm:ss') }}\n\n### Changes:\n\n{{ $json.changes }}\n\n### Rollback Plan:\n\n{{ $json.rollback_plan }}\n\n### Checklist:\n\n- [ ] Migration erfolgreich angewendet\n- [ ] Tests durchgeführt\n- [ ] Performance Impact geprüft\n- [ ] Dokumentation aktualisiert\n\n**Triggered by:** {{ $json.author }}",
-        "labels": [
-          "database",
-          "migration",
-          "automated"
-        ]
+        "labels": ["database", "migration", "automated"]
       },
       "id": "github-migration-issue",
       "name": "GitHub - Migration Issue",
@@ -623,19 +652,30 @@ OK (Log Only):
   ],
   "connections": {
     "Webhook - Migration Event": {
-      "main": [[{"node": "GitHub - Migration Issue", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "GitHub - Migration Issue", "type": "main", "index": 0 }]
+      ]
     },
     "GitHub - Migration Issue": {
-      "main": [[{"node": "Slack - Migration Notification", "type": "main", "index": 0}]]
+      "main": [
+        [
+          {
+            "node": "Slack - Migration Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Slack - Migration Notification": {
-      "main": [[{"node": "Email - Dev Team", "type": "main", "index": 0}]]
+      "main": [[{ "node": "Email - Dev Team", "type": "main", "index": 0 }]]
     }
   }
 }
 ```
 
 **Prisma Migration Hook:**
+
 ```typescript
 // web/prisma/hooks/migration-webhook.ts
 
@@ -649,14 +689,18 @@ export async function notifyMigration(migrationName: string) {
     repository: 'menschlichkeit-oesterreich/web',
     author: process.env.USER,
     changes: await getMigrationSQL(migrationName),
-    rollback_plan: 'Run: npx prisma migrate resolve --rolled-back ' + migrationName
+    rollback_plan:
+      'Run: npx prisma migrate resolve --rolled-back ' + migrationName,
   };
-  
-  await fetch('https://n8n.menschlichkeit-oesterreich.at/webhook/db-migration', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
+
+  await fetch(
+    'https://n8n.menschlichkeit-oesterreich.at/webhook/db-migration',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }
+  );
 }
 
 // In package.json:
@@ -667,6 +711,7 @@ export async function notifyMigration(migrationName: string) {
 ```
 
 **Checklist:**
+
 - [ ] Prisma Migration Webhook konfiguriert
 - [ ] GitHub Issue Template für Migrations
 - [ ] Slack Notifications funktionieren
@@ -677,24 +722,28 @@ export async function notifyMigration(migrationName: string) {
 ## ✅ Final Checklist
 
 ### Backup System
+
 - [ ] Daily Backups um 2 AM laufen automatisch
 - [ ] Alle 17 Datenbanken werden gesichert
 - [ ] Backup Rotation funktioniert (7/28/365 Tage)
 - [ ] Email Report kommt täglich
 
 ### Health Monitoring
+
 - [ ] Health Checks alle 15min aktiv
 - [ ] Thresholds korrekt (Connection, Size, Replication)
 - [ ] Alerts in Slack #database-alerts
 - [ ] Grafana Dashboard verbunden (optional)
 
 ### Migration Tracking
+
 - [ ] Migration Webhook in Prisma konfiguriert
 - [ ] GitHub Issues werden automatisch erstellt
 - [ ] Dev Team erhält Notifications
 - [ ] Rollback Plan dokumentiert
 
 ### Recovery Testing
+
 - [ ] Backup Restore getestet (1 DB)
 - [ ] Recovery Time Objective (RTO) < 1 Stunde
 - [ ] Recovery Point Objective (RPO) < 24 Stunden

@@ -392,10 +392,13 @@ jobs:
                 echo '⚠️ Drupal bootstrap nicht erfolgreich; updb/cim/cr wurden uebersprungen.'
               fi
             fi
-            mkdir -p '${{ env.CRM_NATIVE_REMOTE_PATH }}' '${{ env.CRM_REMOTE_PATH }}/config' '${{ env.CRM_REMOTE_PATH }}/private'
+            mkdir -p '${{ env.CRM_NATIVE_REMOTE_PATH }}' '${{ env.CRM_REMOTE_PATH }}/config' '${{ env.CRM_REMOTE_PATH }}/private/cron' '${{ env.CRM_REMOTE_PATH }}/private/logs'
             if command -v rsync >/dev/null; then
               rsync -a --delete --exclude 'sites/default/files/***' '${{ env.CRM_NATIVE_BUILD_PATH }}/web/' '${{ env.CRM_NATIVE_REMOTE_PATH }}/'
               rsync -a --delete '${{ env.CRM_NATIVE_BUILD_PATH }}/config/' '${{ env.CRM_REMOTE_PATH }}/config/'
+              if [ -d '${{ env.CRM_NATIVE_BUILD_PATH }}/private/cron' ]; then
+                rsync -a --delete '${{ env.CRM_NATIVE_BUILD_PATH }}/private/cron/' '${{ env.CRM_REMOTE_PATH }}/private/cron/'
+              fi
             else
               find '${{ env.CRM_NATIVE_REMOTE_PATH }}' -mindepth 1 -maxdepth 1 ! -name sites -exec rm -rf {} +
               mkdir -p '${{ env.CRM_NATIVE_REMOTE_PATH }}/sites/default/files'
@@ -403,6 +406,11 @@ jobs:
               rm -rf '${{ env.CRM_REMOTE_PATH }}/config'
               mkdir -p '${{ env.CRM_REMOTE_PATH }}/config'
               tar -C '${{ env.CRM_NATIVE_BUILD_PATH }}' -cf - config | tar -C '${{ env.CRM_REMOTE_PATH }}' -xf -
+              if [ -d '${{ env.CRM_NATIVE_BUILD_PATH }}/private/cron' ]; then
+                rm -rf '${{ env.CRM_REMOTE_PATH }}/private/cron'
+                mkdir -p '${{ env.CRM_REMOTE_PATH }}/private/cron'
+                tar -C '${{ env.CRM_NATIVE_BUILD_PATH }}/private' -cf - cron | tar -C '${{ env.CRM_REMOTE_PATH }}/private' -xf -
+              fi
             fi
             chmod -R 775 '${{ env.CRM_NATIVE_REMOTE_PATH }}/sites/default/files' || true
             chmod -R 750 '${{ env.CRM_REMOTE_PATH }}/private' || true

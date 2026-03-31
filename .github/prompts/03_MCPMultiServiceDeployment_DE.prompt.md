@@ -1,8 +1,9 @@
 ---
 title: '03 Mcpmultiservicedeployment'
 description: 'MCP Multi-Service Deployment Pipeline'
-lastUpdated: 2025-10-10
-status: ACTIVE
+lastUpdated: 2026-03-31
+status: DEPRECATED
+deprecatedDate: 2025-10-08
 category: deployment
 tags: ['deployment', 'mcp', 'dsgvo']
 version: '1.0.0'
@@ -10,16 +11,7 @@ language: de-AT
 audience: ['DevOps Team', 'Release Managers']
 ---
 
----
-
-description: MCP-Enhanced Multi-Service Deployment für 20+ Subdomains mit Quality Gates
-priority: critical
-category: deployment-automation
-execution_order: 3
-requires: ["01_EmailDNSSetup_DE.prompt.md", "02_DatabaseRollout_DE.prompt.md"]
-updates_todo: true
-
----
+> **DEPRECATED** — Migriert nach `.github/chatmodes/03_MCPMultiServiceDeployment_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
 
 # MCP Multi-Service Deployment Pipeline
 

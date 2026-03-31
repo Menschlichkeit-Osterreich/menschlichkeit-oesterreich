@@ -1,29 +1,35 @@
 ---
-title: "Mitgliederaufnahme"
-description: "Mitgliederaufnahme - Automatisierter Workflow"
-lastUpdated: 2025-10-10
-status: ACTIVE
+title: 'Mitgliederaufnahme'
+description: 'Mitgliederaufnahme - Automatisierter Workflow'
+lastUpdated: 2026-03-31
+status: DEPRECATED
+deprecatedDate: 2025-10-08
 category: verein
 tags: ['verein', 'dsgvo']
-version: "1.0.0"
+version: '1.0.0'
 language: de-AT
 audience: ['Vereinsvorstand', 'Mitgliederverwaltung']
 ---
 
+> **DEPRECATED** — Migriert nach `.github/chatmodes/mitgliederaufnahme.prompt_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+
 # Mitgliederaufnahme - Automatisierter Workflow
 
 ## 🎯 Ziel
+
 Rechtskonforme Aufnahme neuer Mitglieder in den Verein "Menschlichkeit Österreich" gemäß Statuten § 5 und Beitragsordnung 2025.
 
 ## 📋 Voraussetzungen
 
 ### Rechtliche Grundlagen
+
 - **Statuten § 5:** Mitgliedschaft (ordentlich/außerordentlich/ehren)
 - **Statuten § 6:** Rechte und Pflichten
 - **Statuten § 16:** Datenschutz (DSGVO-konform)
 - **Beitragsordnung 2025:** Gültig ab 01.07.2025
 
 ### Technische Infrastruktur
+
 - CRM-System (Drupal 10 + CiviCRM) verfügbar
 - API-Backend (FastAPI) für Validierungen
 - E-Mail-System konfiguriert (DKIM/SPF/DMARC)
@@ -36,7 +42,9 @@ Rechtskonforme Aufnahme neuer Mitglieder in den Verein "Menschlichkeit Österrei
 **Input:** Neuer Beitrittsantrag (digital oder physisch)
 
 **Prüfschritte:**
+
 1. **Vollständigkeit prüfen:**
+
    ```markdown
    Pflichtfelder:
    ✓ Vor- und Nachname
@@ -50,6 +58,7 @@ Rechtskonforme Aufnahme neuer Mitglieder in den Verein "Menschlichkeit Österrei
    ```
 
 2. **Formale Validierung:**
+
    ```bash
    # Via API-Backend (FastAPI):
    POST /api/v1/members/validate
@@ -64,7 +73,7 @@ Rechtskonforme Aufnahme neuer Mitglieder in den Verein "Menschlichkeit Österrei
      "membership_type": "ordentlich",
      "fee_category": "standard"
    }
-   
+
    # Expected Response:
    {
      "valid": true,
@@ -79,14 +88,15 @@ Rechtskonforme Aufnahme neuer Mitglieder in den Verein "Menschlichkeit Österrei
    ```
 
 3. **Duplikate ausschließen:**
+
    ```sql
    -- Via PostgreSQL MCP (CRM-Datenbank):
-   SELECT id, display_name, email 
-   FROM civicrm_contact 
+   SELECT id, display_name, email
+   FROM civicrm_contact
    WHERE email = 'max.mustermann@example.at'
       OR (first_name = 'Max' AND last_name = 'Mustermann' AND birth_date = '1990-05-15')
    LIMIT 1;
-   
+
    -- Bei Treffer: Kontaktaufnahme mit Antragsteller
    ```
 
@@ -95,36 +105,42 @@ Rechtskonforme Aufnahme neuer Mitglieder in den Verein "Menschlichkeit Österrei
 **Rechtliche Basis:** Statuten § 5 Abs. 2 - "Entscheidung durch Vorstand in einfacher Mehrheit"
 
 **Vorbereitung:**
+
 1. **Antragsliste erstellen:**
+
    ```markdown
    # Neuzugänge zur Vorstandssitzung vom [DATUM]
-   
+
    ## Anträge ordentliche Mitgliedschaft:
-   1. Max Mustermann (*15.05.1990) - Standard (36€/Jahr)
-   2. Anna Schmidt (*22.11.1985) - Ermäßigt (18€/Jahr, Studentin)
-   
+
+   1. Max Mustermann (\*15.05.1990) - Standard (36€/Jahr)
+   2. Anna Schmidt (\*22.11.1985) - Ermäßigt (18€/Jahr, Studentin)
+
    ## Anträge außerordentliche Mitgliedschaft:
+
    1. Firma XY GmbH - Standard (36€/Jahr)
-   
+
    ## Empfehlung: ANNAHME ALLER ANTRÄGE
+
    (Keine rechtlichen/satzungsmäßigen Hinderungsgründe)
    ```
 
 2. **Vorstandsbeschluss dokumentieren:**
+
    ```markdown
    BESCHLUSS NR. [YYYY-MM-DD-001]
-   
+
    Datum: [DATUM]
-   Anwesend: Obperson, Stellvertreter*in, Kassier*in, Schriftführer*in
-   
+   Anwesend: Obperson, Stellvertreter*in, Kassier*in, Schriftführer\*in
+
    BESCHLOSSEN:
    ✓ Aufnahme folgender Personen als ordentliche Mitglieder: [Namen]
    ✓ Aufnahme folgender Personen als außerordentliche Mitglieder: [Namen]
    ✓ Beitrittsdatum: [DATUM] (rückwirkend zum Antragseingang)
    ✓ Erste Beitragszahlung fällig: [DATUM] (31. März bzw. 5. des Monats)
-   
+
    Abstimmungsergebnis: [X:Y] (einstimmig/mehrheitlich)
-   
+
    Unterschriften:
    [Obperson] [Schriftführer*in]
    ```
@@ -134,7 +150,9 @@ Rechtskonforme Aufnahme neuer Mitglieder in den Verein "Menschlichkeit Österrei
 **System:** Drupal 10 + CiviCRM
 
 **Schritte:**
+
 1. **Kontakt anlegen:**
+
    ```php
    // Via CiviCRM API:
    POST /civicrm/ajax/api4/Contact/create
@@ -152,6 +170,7 @@ Rechtskonforme Aufnahme neuer Mitglieder in den Verein "Menschlichkeit Österrei
    ```
 
 2. **Mitgliedschaft zuweisen:**
+
    ```php
    POST /civicrm/ajax/api4/Membership/create
    {
@@ -165,6 +184,7 @@ Rechtskonforme Aufnahme neuer Mitglieder in den Verein "Menschlichkeit Österrei
    ```
 
 3. **Beitragskategorie setzen:**
+
    ```php
    POST /civicrm/ajax/api4/CustomValue/create
    {
@@ -193,16 +213,18 @@ Rechtskonforme Aufnahme neuer Mitglieder in den Verein "Menschlichkeit Österrei
 **Automatischer Versand via n8n Workflow:**
 
 **E-Mail-Template:**
+
 ```markdown
 Betreff: Willkommen bei Menschlichkeit Österreich! 🎉
 
-Liebe*r [VORNAME],
+Liebe\*r [VORNAME],
 
 herzlich willkommen im Verein Menschlichkeit Österreich!
 
 Deine Mitgliedschaft wurde durch den Vorstand am [DATUM] bestätigt.
 
 **Deine Mitgliedsdaten:**
+
 - Name: [VOLLSTÄNDIGER NAME]
 - Mitgliedsnummer: [MEMBER_ID]
 - Mitgliedsart: [ordentlich/außerordentlich]
@@ -212,26 +234,27 @@ Deine Mitgliedschaft wurde durch den Vorstand am [DATUM] bestätigt.
 **Wichtige Informationen:**
 
 📋 Statuten & Beitragsordnung:
-   https://menschlichkeit-oesterreich.at/verein/dokumente
+https://menschlichkeit-oesterreich.at/verein/dokumente
 
 💰 Beitragszahlung:
-   IBAN: [IBAN wird individuell übermittelt]
-   Verwendungszweck: Mitgliedsbeitrag [YEAR] - [MEMBER_ID]
-   Fälligkeit: [DATUM]
+IBAN: [IBAN wird individuell übermittelt]
+Verwendungszweck: Mitgliedsbeitrag [YEAR] - [MEMBER_ID]
+Fälligkeit: [DATUM]
 
 🔐 CRM-Zugang:
-   https://crm.menschlichkeit-oesterreich.at
-   Benutzername: [EMAIL]
-   Passwort: [wird separat gesendet]
+https://crm.menschlichkeit-oesterreich.at
+Benutzername: [EMAIL]
+Passwort: [wird separat gesendet]
 
 🎮 Gaming Platform:
-   https://web.menschlichkeit-oesterreich.at
-   Sammle XP durch Engagement!
+https://web.menschlichkeit-oesterreich.at
+Sammle XP durch Engagement!
 
 📅 Nächste Termine:
-   - Mitgliederversammlung: [DATUM]
-   - Stammtisch: [DATUM]
-   - Workshop: [DATUM]
+
+- Mitgliederversammlung: [DATUM]
+- Stammtisch: [DATUM]
+- Workshop: [DATUM]
 
 Bei Fragen: info@menschlichkeit-oesterreich.at
 
@@ -239,12 +262,14 @@ Solidarische Grüße,
 Der Vorstand von Menschlichkeit Österreich
 
 ---
+
 Menschlichkeit Österreich
 ZVR-Zahl: 1182213083
 www.menschlichkeit-oesterreich.at
 ```
 
 **Beilage-Dokumente (PDF):**
+
 - [ ] Statuten (Stand 21.05.2025)
 - [ ] Beitragsordnung (Stand 01.07.2025)
 - [ ] Datenschutzerklärung (DSGVO)
@@ -253,6 +278,7 @@ www.menschlichkeit-oesterreich.at
 ### Phase 5: Gaming Platform Integration
 
 **XP-Belohnung für Beitritt:**
+
 ```typescript
 // Via Gaming API:
 POST /api/v1/users/achievements
@@ -276,10 +302,11 @@ POST /api/v1/users/achievements
 ```
 
 **Profil verknüpfen:**
+
 ```sql
 -- Via PostgreSQL MCP (Gaming DB):
 UPDATE "User"
-SET 
+SET
   email = 'max.mustermann@example.at',
   "displayName" = 'Max Mustermann',
   "totalXP" = 100,
@@ -293,6 +320,7 @@ WHERE id = [USER_ID];
 ### Phase 6: Monitoring & Nachverfolgung
 
 **KPIs tracken:**
+
 ```json
 {
   "new_members_this_month": 5,
@@ -312,6 +340,7 @@ WHERE id = [USER_ID];
 ```
 
 **Offene Beiträge überwachen:**
+
 ```bash
 
 # Via n8n Workflow (täglich 9:00 UTC):
@@ -328,6 +357,7 @@ WHERE id = [USER_ID];
 ## 🛡️ Qualitätssicherung
 
 ### DSGVO-Compliance prüfen:
+
 - [ ] Einwilligung dokumentiert (IP + Timestamp)
 - [ ] Zweckbindung eingehalten
 - [ ] Betroffenenrechte (Art. 15-21) informiert
@@ -335,12 +365,14 @@ WHERE id = [USER_ID];
 - [ ] Zugriffskontrolle aktiv (rollenbasiert)
 
 ### Statutenkonformität:
+
 - [ ] Vorstandsbeschluss dokumentiert
 - [ ] Beitragskategorie korrekt zugeordnet
 - [ ] Mitgliedsart gemäß Statuten § 5
 - [ ] Rechte & Pflichten kommuniziert
 
 ### Technische Qualität:
+
 - [ ] CRM-Eintrag vollständig
 - [ ] E-Mail-Versand erfolgreich
 - [ ] Gaming-Profil verknüpft
@@ -353,6 +385,7 @@ WHERE id = [USER_ID];
 **Trigger:** Webhook bei neuem Beitrittsantrag
 
 **Nodes:**
+
 1. **Webhook Receive** → Antragsdaten empfangen
 2. **API Validation** → FastAPI /members/validate
 3. **Duplicate Check** → PostgreSQL Query
@@ -367,31 +400,37 @@ WHERE id = [USER_ID];
 ## 🔍 Troubleshooting
 
 ### Fehler: E-Mail-Duplikat
+
 ```markdown
 SYMPTOM: CRM meldet "Email already exists"
 
 LÖSUNG:
+
 1. Prüfen ob bereits Mitglied
 2. Falls inaktiv/ausgetreten: Reaktivieren statt neu anlegen
 3. Falls Tippfehler: Korrektur anfordern
 ```
 
 ### Fehler: DSGVO-Einwilligung fehlt
+
 ```markdown
 SYMPTOM: Checkbox nicht gesetzt
 
 LÖSUNG:
+
 1. Antrag NICHT verarbeiten
-2. Rückmeldung an Antragsteller*in
+2. Rückmeldung an Antragsteller\*in
 3. Erneute Einreichung mit Einwilligung
 ```
 
 ### Fehler: Beitragskategorie unklar
+
 ```markdown
 SYMPTOM: Ermäßigung beantragt ohne Nachweis
 
 LÖSUNG:
-1. Nachfrage bei Antragsteller*in
+
+1. Nachfrage bei Antragsteller\*in
 2. Nachweis einfordern (z.B. Studienbestätigung, AMS-Bescheid)
 3. Vorstandsentscheidung bei Härtefall
 ```

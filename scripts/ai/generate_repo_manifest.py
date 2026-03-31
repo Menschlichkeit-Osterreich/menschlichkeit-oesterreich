@@ -39,7 +39,7 @@ def main() -> None:
     }
 
     manifest = {
-        "repo_name": Path(run_git(["rev-parse", "--show-toplevel"], default="menschlichkeit-oesterreich-development")).name,
+        "repo_name": Path(run_git(["rev-parse", "--show-toplevel"], default="menschlichkeit-oesterreich")).name,
         "default_branch": run_git(["symbolic-ref", "--short", "refs/remotes/origin/HEAD"], default="origin/main").replace("origin/", ""),
         "generated_at": run_git(["show", "-s", "--format=%cI", "HEAD^"], default=utc_now_iso()),
         "commit_sha": run_git(["rev-parse", "HEAD^"], default=run_git(["rev-parse", "HEAD"], default="unknown")),

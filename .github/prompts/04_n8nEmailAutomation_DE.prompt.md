@@ -1,25 +1,17 @@
 ---
-title: "04 N8Nemailautomation"
-description: "n8n Email-Automatisierung"
-lastUpdated: 2025-10-10
-status: ACTIVE
+title: '04 N8Nemailautomation'
+description: 'n8n Email-Automatisierung'
+lastUpdated: 2026-03-31
+status: DEPRECATED
+deprecatedDate: 2025-10-08
 category: automation
 tags: ['automation', 'n8n', 'dsgvo']
-version: "1.0.0"
+version: '1.0.0'
 language: de-AT
 audience: ['DevOps Team', 'Automation Engineers']
 ---
 
----
-description: 'n8n Email-Automatisierung für CiviMail, Newsletter und DSGVO-konforme Kommunikation'
-priority: critical
-category: automation
-execution_order: 4
-requires:
-  - 01_EmailDNSSetup_DE
-  - 02_DatabaseRollout_DE
-updates_todo: true
----
+> **DEPRECATED** — Migriert nach `.github/instructions/04-n8nemailautomation.instructions.md`. Diese Datei wird als Referenz beibehalten.
 
 # n8n Email-Automatisierung
 
@@ -32,6 +24,7 @@ updates_todo: true
 ### Email-Infrastruktur (aus 01_EmailDNSSetup)
 
 **Mailboxes (8):**
+
 - newsletter@menschlichkeit-oesterreich.at (Primär)
 - info@menschlichkeit-oesterreich.at
 - kontakt@menschlichkeit-oesterreich.at
@@ -42,6 +35,7 @@ updates_todo: true
 - noreply@menschlichkeit-oesterreich.at
 
 **DNS-Sicherheit:**
+
 - SPF: `v=spf1 include:_spf.kasserver.com ~all`
 - DKIM: `s20230710._domainkey.menschlichkeit-oesterreich.at`
 - DMARC: `p=quarantine;rua=mailto:admin@menschlichkeit-oesterreich.at`
@@ -61,6 +55,7 @@ Credentials → Add Credential → SMTP
 Für jede Mailbox:
 
 **newsletter@** (Primär):
+
 - Host: dmpl20230054.kasserver.com
 - Port: 465 (SSL) oder 587 (STARTTLS)
 - User: newsletter@menschlichkeit-oesterreich.at
@@ -69,6 +64,7 @@ Für jede Mailbox:
 - Name: "SMTP Newsletter"
 
 **spenden@** (Donation Confirmations):
+
 - Host: dmpl20230054.kasserver.com
 - Port: 465
 - User: spenden@menschlichkeit-oesterreich.at
@@ -76,6 +72,7 @@ Für jede Mailbox:
 - Name: "SMTP Spenden"
 
 **noreply@** (Auto-Responder):
+
 - Host: dmpl20230054.kasserver.com
 - Port: 465
 - User: noreply@menschlichkeit-oesterreich.at
@@ -84,6 +81,7 @@ Für jede Mailbox:
 ```
 
 **Checklist:**
+
 - [ ] Alle 8 SMTP-Credentials in n8n erstellt
 - [ ] Connection Test erfolgreich (Send Test Email)
 - [ ] Credentials verschlüsselt gespeichert
@@ -98,6 +96,7 @@ Für jede Mailbox:
 n8n → Credentials → Add Credential → HTTP Header Auth
 
 **CiviCRM API:**
+
 - Name: "CiviCRM API"
 - Header Name: X-Civi-Auth
 - Header Value: [API Key aus CRM]
@@ -105,6 +104,7 @@ n8n → Credentials → Add Credential → HTTP Header Auth
 ```
 
 **API Endpoints (CiviCRM v4):**
+
 ```bash
 
 # Contact erstellen
@@ -133,6 +133,7 @@ POST /GroupContact
 ```
 
 **Checklist:**
+
 - [ ] CiviCRM API Key generiert (CRM Admin Panel)
 - [ ] n8n HTTP Credentials konfiguriert
 - [ ] Test API Call erfolgreich (GET /Contact)
@@ -311,25 +312,35 @@ POST /GroupContact
   ],
   "connections": {
     "Webhook - Form Submit": {
-      "main": [[{"node": "DSGVO Consent Check", "type": "main", "index": 0}]]
+      "main": [[{ "node": "DSGVO Consent Check", "type": "main", "index": 0 }]]
     },
     "DSGVO Consent Check": {
       "main": [
-        [{"node": "CiviCRM - Create Contact", "type": "main", "index": 0}],
-        [{"node": "Response - No Consent", "type": "main", "index": 0}]
+        [{ "node": "CiviCRM - Create Contact", "type": "main", "index": 0 }],
+        [{ "node": "Response - No Consent", "type": "main", "index": 0 }]
       ]
     },
     "CiviCRM - Create Contact": {
-      "main": [[{"node": "CiviCRM - Add to Newsletter Group", "type": "main", "index": 0}]]
+      "main": [
+        [
+          {
+            "node": "CiviCRM - Add to Newsletter Group",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "CiviCRM - Add to Newsletter Group": {
-      "main": [[{"node": "Email - Welcome Message", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "Email - Welcome Message", "type": "main", "index": 0 }]
+      ]
     },
     "Email - Welcome Message": {
-      "main": [[{"node": "Response - Success", "type": "main", "index": 0}]]
+      "main": [[{ "node": "Response - Success", "type": "main", "index": 0 }]]
     },
     "Error Handler": {
-      "main": [[{"node": "Slack - Error Alert", "type": "main", "index": 0}]]
+      "main": [[{ "node": "Slack - Error Alert", "type": "main", "index": 0 }]]
     }
   },
   "settings": {
@@ -339,6 +350,7 @@ POST /GroupContact
 ```
 
 **Testing:**
+
 ```bash
 curl -X POST https://n8n.menschlichkeit-oesterreich.at/webhook/newsletter-signup \
   -H "Content-Type: application/json" \
@@ -352,6 +364,7 @@ curl -X POST https://n8n.menschlichkeit-oesterreich.at/webhook/newsletter-signup
 ```
 
 **Expected Response:**
+
 ```json
 {
   "status": "success",
@@ -361,6 +374,7 @@ curl -X POST https://n8n.menschlichkeit-oesterreich.at/webhook/newsletter-signup
 ```
 
 **Checklist:**
+
 - [ ] Workflow importiert in n8n
 - [ ] CiviCRM Group ID korrekt (5 = Newsletter)
 - [ ] Welcome Email Template angepasst (Corporate Design)
@@ -469,22 +483,37 @@ curl -X POST https://n8n.menschlichkeit-oesterreich.at/webhook/newsletter-signup
   ],
   "connections": {
     "Webhook - CiviCRM Donation": {
-      "main": [[{"node": "CiviCRM - Get Contact", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "CiviCRM - Get Contact", "type": "main", "index": 0 }]
+      ]
     },
     "CiviCRM - Get Contact": {
-      "main": [[{"node": "Code - Generate PDF Quittung", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "Code - Generate PDF Quittung", "type": "main", "index": 0 }]
+      ]
     },
     "Code - Generate PDF Quittung": {
-      "main": [[{"node": "Email - Donation Thanks + Quittung", "type": "main", "index": 0}]]
+      "main": [
+        [
+          {
+            "node": "Email - Donation Thanks + Quittung",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Email - Donation Thanks + Quittung": {
-      "main": [[{"node": "Slack - Admin Notification", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "Slack - Admin Notification", "type": "main", "index": 0 }]
+      ]
     }
   }
 }
 ```
 
 **CiviCRM Webhook Setup:**
+
 ```php
 // In CiviCRM: Administer → System Settings → Scheduled Jobs
 // Create new job: "n8n Donation Webhook"
@@ -493,7 +522,7 @@ function civicrm_api3_job_n8n_donation_webhook($params) {
   $contributions = civicrm_api3('Contribution', 'get', [
     'created_date' => ['>' => date('Y-m-d H:i:s', strtotime('-5 minutes'))],
   ]);
-  
+
   foreach ($contributions['values'] as $contribution) {
     $ch = curl_init('https://n8n.menschlichkeit-oesterreich.at/webhook/donation-confirmation');
     curl_setopt($ch, CURLOPT_POST, 1);
@@ -509,6 +538,7 @@ function civicrm_api3_job_n8n_donation_webhook($params) {
 ```
 
 **Checklist:**
+
 - [ ] PDF-Generierung funktioniert (pdfkit installiert in n8n)
 - [ ] Quittung entspricht Steuerrecht (Österreich)
 - [ ] CiviCRM Webhook konfiguriert (Scheduled Job)
@@ -570,16 +600,21 @@ function civicrm_api3_job_n8n_donation_webhook($params) {
   ],
   "connections": {
     "Schedule - Monthly (1st of month)": {
-      "main": [[{"node": "Execute - Generate DKIM Keys", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "Execute - Generate DKIM Keys", "type": "main", "index": 0 }]
+      ]
     },
     "Execute - Generate DKIM Keys": {
-      "main": [[{"node": "Email - DKIM Rotation Alert", "type": "main", "index": 0}]]
+      "main": [
+        [{ "node": "Email - DKIM Rotation Alert", "type": "main", "index": 0 }]
+      ]
     }
   }
 }
 ```
 
 **Checklist:**
+
 - [ ] Cron-Schedule korrekt (1. des Monats, 00:00)
 - [ ] openssl verfügbar in n8n Container
 - [ ] Email an Admin geht raus
@@ -590,24 +625,28 @@ function civicrm_api3_job_n8n_donation_webhook($params) {
 ## ✅ Final Checklist
 
 ### n8n Setup
+
 - [ ] n8n läuft auf n8n.menschlichkeit-oesterreich.at
 - [ ] mo_n8n Database verbunden (MariaDB)
 - [ ] n8n Login mit 2FA aktiviert
 - [ ] Alle Credentials verschlüsselt gespeichert
 
 ### Email Workflows
+
 - [ ] Newsletter Signup DSGVO-compliant
 - [ ] Spenden-Bestätigung mit PDF-Quittung
 - [ ] DKIM Rotation automatisiert
 - [ ] Error Handling in allen Workflows
 
 ### CiviCRM Integration
+
 - [ ] API Credentials konfiguriert
 - [ ] Webhook Scheduled Job aktiv
 - [ ] Newsletter Group ID korrekt
 - [ ] Donation Tracking funktioniert
 
 ### Testing
+
 - [ ] Manual Execution aller Workflows erfolgreich
 - [ ] Webhook-Tests mit curl durchgeführt
 - [ ] Emails kommen an (Inbox-Test)

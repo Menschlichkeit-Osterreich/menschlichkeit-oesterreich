@@ -1,19 +1,17 @@
 ---
-title: "Benutzerdokumentation"
-description: "Prompt für Benutzerdokumentation im Menschlichkeit Österreich Projekt"
-lastUpdated: 2025-10-10
-status: ACTIVE
+title: 'Benutzerdokumentation'
+description: 'Prompt für Benutzerdokumentation im Menschlichkeit Österreich Projekt'
+lastUpdated: 2026-03-31
+status: DEPRECATED
+deprecatedDate: 2025-10-08
 category: documentation
 tags: ['documentation']
-version: "1.0.0"
+version: '1.0.0'
 language: de-AT
 audience: ['Technical Writers', 'All Teams']
 ---
 
----
-description: 'Erstellt eine verständliche Benutzer- und Bedienungsanleitung auf Deutsch'
-mode: 'ask'
----
+> **DEPRECATED** — Migriert nach `.github/chatmodes/BenutzerDokumentation_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
 
 Erstellen Sie eine Benutzer- bzw. Bedienungsanleitung für das Projekt `${workspaceFolderBasename}` in deutscher Sprache. Diese Dokumentation soll Endnutzer unterstützen und folgende Abschnitte umfassen:
 

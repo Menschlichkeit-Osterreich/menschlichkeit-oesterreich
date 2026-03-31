@@ -6,8 +6,8 @@ param(
 )
 
 # Configuration
-$ORG = "peschull"
-$REPO = "menschlichkeit-oesterreich-development"
+$ORG = "Menschlichkeit-Osterreich"
+$REPO = "menschlichkeit-oesterreich"
 
 # Functions
 function Write-Info {

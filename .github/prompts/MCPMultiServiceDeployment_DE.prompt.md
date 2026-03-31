@@ -1,8 +1,9 @@
 ---
 title: 'Mcpmultiservicedeployment'
 description: 'Multi-Service Deployment'
-lastUpdated: 2025-10-10
-status: ACTIVE
+lastUpdated: 2026-03-31
+status: DEPRECATED
+deprecatedDate: 2025-10-08
 category: deployment
 tags: ['deployment', 'mcp', 'dsgvo']
 version: '1.0.0'
@@ -10,13 +11,9 @@ language: de-AT
 audience: ['DevOps Team', 'Release Managers']
 ---
 
-```prompt
----
-description: Multi-Service Deployment Pipeline mit GitHub, Filesystem & Playwright MCP
-priority: high
-category: deployment
----
+> **DEPRECATED** — Migriert nach `.github/chatmodes/MCPMultiServiceDeployment_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
 
+```prompt
 # Multi-Service Deployment
 
 ## 🚀 Deployment Pipeline für Austrian NGO Platform

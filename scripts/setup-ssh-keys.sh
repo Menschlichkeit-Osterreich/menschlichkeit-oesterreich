@@ -14,7 +14,7 @@ echo ""
 SSH_PRIVATE_KEY="$HOME/.ssh/id_ed25519"
 SSH_PUBLIC_KEY="$HOME/.ssh/id_ed25519.pub"
 GITHUB_TOKEN="${GH_TOKEN:-${GITHUB_TOKEN:-}}"
-GITHUB_REPO="Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development"
+GITHUB_REPO="Menschlichkeit-Osterreich/menschlichkeit-oesterreich"
 PLESK_HOST="dmpl20230054@5.183.217.146"
 
 if [[ -z "$GITHUB_TOKEN" ]]; then

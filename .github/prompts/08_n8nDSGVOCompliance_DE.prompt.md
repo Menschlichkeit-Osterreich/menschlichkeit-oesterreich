@@ -1,19 +1,17 @@
 ---
-title: "08 N8Ndsgvocompliance"
-description: "n8n DSGVO-Compliance Automatisierung"
-lastUpdated: 2025-10-10
-status: ACTIVE
+title: '08 N8Ndsgvocompliance'
+description: 'n8n DSGVO-Compliance Automatisierung'
+lastUpdated: 2026-03-31
+status: DEPRECATED
+deprecatedDate: 2025-10-08
 category: compliance
 tags: ['compliance', 'n8n', 'dsgvo']
-version: "1.0.0"
+version: '1.0.0'
 language: de-AT
 audience: ['Compliance Officers', 'Legal Team']
 ---
 
----
-description: 'n8n DSGVO-Compliance Workflows für Auskunft, Löschung, Consent & Audit'
-  - 02_DatabaseRollout_DE
----
+> **DEPRECATED** — Migriert nach `.github/instructions/08-n8ndsgvocompliance.instructions.md`. Diese Datei wird als Referenz beibehalten.
 
 # n8n DSGVO-Compliance Automatisierung
 
@@ -24,6 +22,7 @@ description: 'n8n DSGVO-Compliance Workflows für Auskunft, Löschung, Consent &
 ## 📋 Kontext & Rahmenbedingungen
 
 ### Datenschutz-Verantwortlichkeiten
+
 - **Datenschutzbeauftragte:** datenschutz@menschlichkeit-oesterreich.at (zuständig für Freigaben & Incident-Response)
 - **Rechtsgrundlage:** DSGVO Art. 5, 6, 12-23 (Betroffenenrechte), Art. 30 (Verzeichnis), Art. 32 (Sicherheit)
 - **Bearbeitungsfristen:**
@@ -32,15 +31,17 @@ description: 'n8n DSGVO-Compliance Workflows für Auskunft, Löschung, Consent &
   - Consent-Änderungen: **sofortige Verarbeitung**
 
 ### Datenquellen (aus 02_DatabaseRollout)
-| System | Datenbank | Zweck | Betroffene Daten |
-|--------|-----------|-------|------------------|
-| CiviCRM | `mo_civicrm` (PostgreSQL) | Mitglieds- & Spender:innenverwaltung | Name, Adresse, Email, Spendenhistorie |
-| WordPress | `mo_wordpress_main` (MariaDB) | Webseiten-Konten & Formulare | Name, Email, Kommentare |
-| Newsletter | `mo_mailings` (MariaDB) | Mailinglisten, Campaigns | Email, Subscription-Status |
-| Analytics | `mo_analytics` (PostgreSQL) | Tracking (anonymisiert) | Pseudonymisierte IDs |
-| Support Tickets | `mo_support` (MariaDB) | Support-Anfragen | Name, Email, Ticket-Inhalt |
+
+| System          | Datenbank                     | Zweck                                | Betroffene Daten                      |
+| --------------- | ----------------------------- | ------------------------------------ | ------------------------------------- |
+| CiviCRM         | `mo_civicrm` (PostgreSQL)     | Mitglieds- & Spender:innenverwaltung | Name, Adresse, Email, Spendenhistorie |
+| WordPress       | `mo_wordpress_main` (MariaDB) | Webseiten-Konten & Formulare         | Name, Email, Kommentare               |
+| Newsletter      | `mo_mailings` (MariaDB)       | Mailinglisten, Campaigns             | Email, Subscription-Status            |
+| Analytics       | `mo_analytics` (PostgreSQL)   | Tracking (anonymisiert)              | Pseudonymisierte IDs                  |
+| Support Tickets | `mo_support` (MariaDB)        | Support-Anfragen                     | Name, Email, Ticket-Inhalt            |
 
 ### Sicherheitsanforderungen
+
 - **Transport:** TLS 1.2+ (HTTPS, SFTP)
 - **Speicherung:** AES-256-Encryption für Export-Pakete
 - **Authentifizierung:**
@@ -49,6 +50,7 @@ description: 'n8n DSGVO-Compliance Workflows für Auskunft, Löschung, Consent &
 - **Logging:** Lückenloses Audit-Log in `mo_n8n` (Tabelle `gdpr_audit_log`)
 
 ### Vorbereitungen
+
 1. **PGP/AGE Schlüsselverwaltung:**
    - Service-Account `gdpr-export@menschlichkeit-oesterreich.at`
    - Öffentlicher Schlüssel im Secrets-Tresor (`secrets/gdpr/gdpr-export-pub.key`)
@@ -63,6 +65,7 @@ description: 'n8n DSGVO-Compliance Workflows für Auskunft, Löschung, Consent &
    - `POST https://n8n.menschlichkeit-oesterreich.at/webhook/gdpr-request`
    - Erwartet HMAC-Signatur im Header `x-signature`
 5. **Audit-Log Tabelle (mo_n8n):**
+
 ```sql
 CREATE TABLE IF NOT EXISTS gdpr_audit_log (
   id SERIAL PRIMARY KEY,
@@ -81,6 +84,7 @@ CREATE TABLE IF NOT EXISTS gdpr_audit_log (
 ## 🎯 Execution Phasen
 
 ### Phase 1 – Credentials & Infrastruktur prüfen
+
 - [ ] PostgreSQL Credentials: `mo_civicrm`, `mo_analytics`
 - [ ] MariaDB Credentials: `mo_mailings`, `mo_support`, `mo_wordpress_main`
 - [ ] SFTP Credential: `SFTP GDPR Storage`
@@ -89,14 +93,17 @@ CREATE TABLE IF NOT EXISTS gdpr_audit_log (
 - [ ] Encryption Function Node: nutzt `libsodium` (bereitgestellt in n8n Container)
 
 ### Phase 2 – Audit-Log aktivieren
+
 ```markdown
 Workflow Template → Node "Log Audit Entry"
+
 - Datenbank: mo_n8n
 - Tabelle: gdpr_audit_log
 - Pflichtfelder: request_id, workflow, action, actor, status, details
 ```
 
 ### Phase 3 – Workflows importieren & testen
+
 - [ ] JSON-Templates (unten) in n8n importieren
 - [ ] Dry-Run mit Testdaten durchführen
 - [ ] Audit-Log prüfen
@@ -109,17 +116,19 @@ Workflow Template → Node "Log Audit Entry"
 **Zweck:** Automatisierte Bereitstellung aller personenbezogenen Daten für betroffene Personen mit Ende-zu-Ende Verschlüsselung.
 
 ### Trigger & Ablauf
-| Schritt | Beschreibung | System |
-|---------|--------------|--------|
-| 1 | DSGVO-Webformular löst Webhook aus | Website → n8n |
-| 2 | Validierung (HMAC, Pflichtfelder, Identitätsnachweis) | n8n |
-| 3 | Aggregation aller relevanten Datensätze | PostgreSQL & MariaDB |
-| 4 | Zusammenstellung als JSON + CSV + PDF Cover Letter | n8n (Function + PDF Node) |
-| 5 | Verschlüsselung & Upload zu SFTP | n8n |
-| 6 | Benachrichtigung & Link an Antragsteller:in | Email (`datenschutz@`) |
-| 7 | Audit-Log & Ticket-Erstellung | PostgreSQL & GitHub Issue |
+
+| Schritt | Beschreibung                                          | System                    |
+| ------- | ----------------------------------------------------- | ------------------------- |
+| 1       | DSGVO-Webformular löst Webhook aus                    | Website → n8n             |
+| 2       | Validierung (HMAC, Pflichtfelder, Identitätsnachweis) | n8n                       |
+| 3       | Aggregation aller relevanten Datensätze               | PostgreSQL & MariaDB      |
+| 4       | Zusammenstellung als JSON + CSV + PDF Cover Letter    | n8n (Function + PDF Node) |
+| 5       | Verschlüsselung & Upload zu SFTP                      | n8n                       |
+| 6       | Benachrichtigung & Link an Antragsteller:in           | Email (`datenschutz@`)    |
+| 7       | Audit-Log & Ticket-Erstellung                         | PostgreSQL & GitHub Issue |
 
 ### Eingabefelder (Webhook JSON)
+
 ```json
 {
   "request_id": "DSAR-2025-10-0012",
@@ -132,6 +141,7 @@ Workflow Template → Node "Log Audit Entry"
 ```
 
 ### Workflow-JSON (Template)
+
 ```json
 {
   "name": "GDPR - Data Subject Access Request",
@@ -164,8 +174,21 @@ Workflow Template → Node "Log Audit Entry"
         "options": {
           "rules": [
             {
-              "conditions": { "boolean": [ { "value1": "={{$json.valid}}", "operation": "isFalse" } ] },
-              "value": [ { "setValue": { "data": { "error": "={{$json.error}}", "request": "={{$json.request}}" } } } ]
+              "conditions": {
+                "boolean": [
+                  { "value1": "={{$json.valid}}", "operation": "isFalse" }
+                ]
+              },
+              "value": [
+                {
+                  "setValue": {
+                    "data": {
+                      "error": "={{$json.error}}",
+                      "request": "={{$json.request}}"
+                    }
+                  }
+                }
+              ]
             }
           ],
           "fallbackOutput": "main"
@@ -180,7 +203,14 @@ Workflow Template → Node "Log Audit Entry"
       "parameters": {
         "operation": "insert",
         "table": "gdpr_audit_log",
-        "columns": ["request_id","workflow","action","actor","status","details"],
+        "columns": [
+          "request_id",
+          "workflow",
+          "action",
+          "actor",
+          "status",
+          "details"
+        ],
         "values": "={{[[$json.request.request_id, 'GDPR - DSAR', 'validation', 'n8n', $json.valid ? 'accepted' : 'rejected', JSON.stringify($json)]]}}"
       },
       "name": "Log Validation",
@@ -291,7 +321,14 @@ Workflow Template → Node "Log Audit Entry"
       "parameters": {
         "operation": "insert",
         "table": "gdpr_audit_log",
-        "columns": ["request_id","workflow","action","actor","status","details"],
+        "columns": [
+          "request_id",
+          "workflow",
+          "action",
+          "actor",
+          "status",
+          "details"
+        ],
         "values": "={{[[$json.request.request_id, 'GDPR - DSAR', 'delivery', 'n8n', 'completed', JSON.stringify($json.summary)]]}}"
       },
       "name": "Log Completion",
@@ -308,7 +345,7 @@ Workflow Template → Node "Log Audit Entry"
         "operation": "create",
         "title": "DSAR abgeschlossen {{ $json.request.request_id }}",
         "body": "## DSGVO Auskunft\n- Request: {{ $json.request.request_id }}\n- Email: {{ $json.request.email }}\n- Status: completed\n- Export Ort: sftp://...\n- Bearbeitet am: {{ $now }}",
-        "labels": ["gdpr","dsar"]
+        "labels": ["gdpr", "dsar"]
       },
       "name": "Create Audit Issue",
       "type": "n8n-nodes-base.github",
@@ -321,46 +358,52 @@ Workflow Template → Node "Log Audit Entry"
   ],
   "connections": {
     "Trigger: DSAR Webhook": {
-      "main": [ [ { "node": "Validate Request", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Validate Request", "type": "main", "index": 0 }]]
     },
     "Validate Request": {
-      "main": [ [ { "node": "IF Valid", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "IF Valid", "type": "main", "index": 0 }]]
     },
     "IF Valid": {
       "main": [
-        [ { "node": "Log Validation", "type": "main", "index": 0 } ],
-        [ { "node": "Fetch CiviCRM Data", "type": "main", "index": 0 } ]
+        [{ "node": "Log Validation", "type": "main", "index": 0 }],
+        [{ "node": "Fetch CiviCRM Data", "type": "main", "index": 0 }]
       ]
     },
     "Fetch CiviCRM Data": {
-      "main": [ [ { "node": "Fetch WordPress Data", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Fetch WordPress Data", "type": "main", "index": 0 }]]
     },
     "Fetch WordPress Data": {
-      "main": [ [ { "node": "Aggregate Data", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Aggregate Data", "type": "main", "index": 0 }]]
     },
     "Aggregate Data": {
-      "main": [ [ { "node": "Build Summary", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Build Summary", "type": "main", "index": 0 }]]
     },
     "Build Summary": {
-      "main": [ [ { "node": "Create JSON Export", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Create JSON Export", "type": "main", "index": 0 }]]
     },
     "Create JSON Export": {
-      "main": [ [ { "node": "Encrypt Export", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Encrypt Export", "type": "main", "index": 0 }]]
     },
     "Encrypt Export": {
-      "main": [ [ { "node": "Upload to SFTP", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Upload to SFTP", "type": "main", "index": 0 }]]
     },
     "Upload to SFTP": {
-      "main": [ [ { "node": "Send Email", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Send Email", "type": "main", "index": 0 }]]
     },
     "Send Email": {
-      "main": [ [ { "node": "Log Completion", "type": "main", "index": 0 }, { "node": "Create Audit Issue", "type": "main", "index": 0 } ] ]
+      "main": [
+        [
+          { "node": "Log Completion", "type": "main", "index": 0 },
+          { "node": "Create Audit Issue", "type": "main", "index": 0 }
+        ]
+      ]
     }
   }
 }
 ```
 
 ### Tests & Checks
+
 - [ ] Webhook HMAC mit gültigem & ungültigem Secret testen
 - [ ] Fake-DSAR (Testdaten) → Prüfen ob Export erstellt & verschlüsselt
 - [ ] Download-Link & Passwort getrennt kommunizieren (SMS manuell)
@@ -374,6 +417,7 @@ Workflow Template → Node "Log Audit Entry"
 **Zweck:** Synchronisierung von Einwilligungen, Newsletter-Opt-Ins und Opt-Outs über alle Systeme hinweg.
 
 ### Trigger & Ablauf
+
 1. **Webhook:** Consent-Formular/CRM-Update sendet Event `consent.update`
 2. **Validierung:** Prüft Signatur & Pflichtfelder (contact_id, consent_status)
 3. **Update-Kette:**
@@ -384,6 +428,7 @@ Workflow Template → Node "Log Audit Entry"
 5. **Audit:** Eintrag in `gdpr_audit_log`
 
 ### Workflow-JSON (Template)
+
 ```json
 {
   "name": "GDPR - Consent Sync",
@@ -413,7 +458,7 @@ Workflow Template → Node "Log Audit Entry"
     {
       "parameters": {
         "conditions": {
-          "boolean": [ { "value1": "={{$json.valid}}", "operation": "isFalse" } ]
+          "boolean": [{ "value1": "={{$json.valid}}", "operation": "isFalse" }]
         }
       },
       "name": "IF Invalid",
@@ -425,7 +470,14 @@ Workflow Template → Node "Log Audit Entry"
       "parameters": {
         "operation": "insert",
         "table": "gdpr_audit_log",
-        "columns": ["request_id","workflow","action","actor","status","details"],
+        "columns": [
+          "request_id",
+          "workflow",
+          "action",
+          "actor",
+          "status",
+          "details"
+        ],
         "values": "={{[[`CONSENT-${Date.now()}`, 'GDPR - Consent Sync', 'validation', 'n8n', $json.valid ? 'accepted' : 'rejected', JSON.stringify($json)]]}}"
       },
       "name": "Log Validation",
@@ -525,7 +577,14 @@ Workflow Template → Node "Log Audit Entry"
       "parameters": {
         "operation": "insert",
         "table": "gdpr_audit_log",
-        "columns": ["request_id","workflow","action","actor","status","details"],
+        "columns": [
+          "request_id",
+          "workflow",
+          "action",
+          "actor",
+          "status",
+          "details"
+        ],
         "values": "={{[[$json.payload.request_id || `CONSENT-${Date.now()}`, 'GDPR - Consent Sync', 'consent_update', 'n8n', 'completed', JSON.stringify($json.payload)]]}}"
       },
       "name": "Log Completion",
@@ -539,34 +598,44 @@ Workflow Template → Node "Log Audit Entry"
   ],
   "connections": {
     "Trigger: Consent Webhook": {
-      "main": [ [ { "node": "Validate Consent", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Validate Consent", "type": "main", "index": 0 }]]
     },
     "Validate Consent": {
       "main": [
-        [ { "node": "IF Invalid", "type": "main", "index": 0 } ],
-        [ { "node": "Update CiviCRM Consent", "type": "main", "index": 0 } ]
+        [{ "node": "IF Invalid", "type": "main", "index": 0 }],
+        [{ "node": "Update CiviCRM Consent", "type": "main", "index": 0 }]
       ]
     },
     "IF Invalid": {
-      "main": [ [ { "node": "Log Validation", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Log Validation", "type": "main", "index": 0 }]]
     },
     "Update CiviCRM Consent": {
-      "main": [ [ { "node": "Update Newsletter Consent", "type": "main", "index": 0 } ] ]
+      "main": [
+        [{ "node": "Update Newsletter Consent", "type": "main", "index": 0 }]
+      ]
     },
     "Update Newsletter Consent": {
-      "main": [ [ { "node": "Update WordPress Meta", "type": "main", "index": 0 } ] ]
+      "main": [
+        [{ "node": "Update WordPress Meta", "type": "main", "index": 0 }]
+      ]
     },
     "Update WordPress Meta": {
-      "main": [ [ { "node": "Send Confirmation", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Send Confirmation", "type": "main", "index": 0 }]]
     },
     "Send Confirmation": {
-      "main": [ [ { "node": "Notify Support", "type": "main", "index": 0 }, { "node": "Log Completion", "type": "main", "index": 0 } ] ]
+      "main": [
+        [
+          { "node": "Notify Support", "type": "main", "index": 0 },
+          { "node": "Log Completion", "type": "main", "index": 0 }
+        ]
+      ]
     }
   }
 }
 ```
 
 ### Tests & Checks
+
 - [ ] Validierung mit gültigem & ungültigem Payload
 - [ ] Aktualisierung in allen drei Systemen prüfen (SQL Queries siehe Anhang)
 - [ ] Email- & Slack-Notifications kontrollieren
@@ -580,6 +649,7 @@ Workflow Template → Node "Log Audit Entry"
 **Zweck:** Automatisierte Erstellung eines Audit-Reports (Art. 30/32 DSGVO) inklusive Zugriffshistorie, Löschvorgänge und Consent-Änderungen.
 
 ### Ablauf
+
 1. **Schedule:** Jeden 1. des Monats, 06:00 CET
 2. **Datenquellen:**
    - Audit-Log `gdpr_audit_log`
@@ -594,6 +664,7 @@ Workflow Template → Node "Log Audit Entry"
 5. **Verteilung:** Email an `datenschutz@`, `vorstand@` + Archivierung in SharePoint/SFTP
 
 ### Workflow-JSON (Template)
+
 ```json
 {
   "name": "GDPR - Monthly Audit Report",
@@ -732,7 +803,14 @@ Workflow Template → Node "Log Audit Entry"
       "parameters": {
         "operation": "insert",
         "table": "gdpr_audit_log",
-        "columns": ["request_id","workflow","action","actor","status","details"],
+        "columns": [
+          "request_id",
+          "workflow",
+          "action",
+          "actor",
+          "status",
+          "details"
+        ],
         "values": "={{[[`AUDIT-${$now.toFormat('yyyy-MM')}`, 'GDPR - Monthly Audit Report', 'report_generation', 'n8n', 'completed', JSON.stringify($json.report)]]}}"
       },
       "name": "Log Audit",
@@ -746,37 +824,43 @@ Workflow Template → Node "Log Audit Entry"
   ],
   "connections": {
     "Schedule: Monthly": {
-      "main": [ [ { "node": "Fetch Audit Stats", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Fetch Audit Stats", "type": "main", "index": 0 }]]
     },
     "Fetch Audit Stats": {
-      "main": [ [ { "node": "Fetch Open DSAR", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Fetch Open DSAR", "type": "main", "index": 0 }]]
     },
     "Fetch Open DSAR": {
-      "main": [ [ { "node": "Fetch Deletions", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Fetch Deletions", "type": "main", "index": 0 }]]
     },
     "Fetch Deletions": {
-      "main": [ [ { "node": "Build Report Data", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Build Report Data", "type": "main", "index": 0 }]]
     },
     "Build Report Data": {
-      "main": [ [ { "node": "Render Markdown", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Render Markdown", "type": "main", "index": 0 }]]
     },
     "Render Markdown": {
-      "main": [ [ { "node": "Create Markdown File", "type": "main", "index": 0 }, { "node": "Convert to PDF", "type": "main", "index": 0 } ] ]
+      "main": [
+        [
+          { "node": "Create Markdown File", "type": "main", "index": 0 },
+          { "node": "Convert to PDF", "type": "main", "index": 0 }
+        ]
+      ]
     },
     "Convert to PDF": {
-      "main": [ [ { "node": "Upload Report", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Upload Report", "type": "main", "index": 0 }]]
     },
     "Upload Report": {
-      "main": [ [ { "node": "Send Report", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Send Report", "type": "main", "index": 0 }]]
     },
     "Send Report": {
-      "main": [ [ { "node": "Log Audit", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Log Audit", "type": "main", "index": 0 }]]
     }
   }
 }
 ```
 
 ### Validierung
+
 - [ ] Cron-Trigger testweise auf `*/5 * * * *` stellen & Lauf beobachten
 - [ ] Datenkonsistenz prüfen (Summen = Einzeldaten)
 - [ ] PDF-Inhalt öffnen & Format kontrollieren
@@ -790,22 +874,24 @@ Workflow Template → Node "Log Audit Entry"
 **Zweck:** Durchsetzung von Lösch- & Anonymisierungsregeln gemäß Art. 17 & 25 DSGVO (Privacy by Design).
 
 ### Retention-Policies
-| Datenkategorie | Quelle | Aufbewahrungsfrist | Aktion |
-|----------------|--------|--------------------|--------|
-| Newsletter-Abmeldungen | `mo_mailings.contacts` | 24 Monate nach Abmeldung | Anonymisieren (Email → Hash) |
-| Support-Tickets | `mo_support.tickets` | 36 Monate nach Abschluss | Inhalt pseudonymisieren |
-| Spenden-Transaktionen | `mo_civicrm.contribution` | 10 Jahre (Abgabenordnung) | Markierung `locked` statt Löschung |
-| Website-Logs | `mo_analytics.events` | 6 Monate | Vollständige Löschung |
-| DSAR-Exporte | SFTP `/exports/gdpr/` | 60 Tage | Löschung |
+
+| Datenkategorie         | Quelle                    | Aufbewahrungsfrist        | Aktion                             |
+| ---------------------- | ------------------------- | ------------------------- | ---------------------------------- |
+| Newsletter-Abmeldungen | `mo_mailings.contacts`    | 24 Monate nach Abmeldung  | Anonymisieren (Email → Hash)       |
+| Support-Tickets        | `mo_support.tickets`      | 36 Monate nach Abschluss  | Inhalt pseudonymisieren            |
+| Spenden-Transaktionen  | `mo_civicrm.contribution` | 10 Jahre (Abgabenordnung) | Markierung `locked` statt Löschung |
+| Website-Logs           | `mo_analytics.events`     | 6 Monate                  | Vollständige Löschung              |
+| DSAR-Exporte           | SFTP `/exports/gdpr/`     | 60 Tage                   | Löschung                           |
 
 ### Workflow-JSON (Template)
+
 ```json
 {
   "name": "GDPR - Data Retention Enforcement",
   "nodes": [
     {
       "parameters": {
-        "triggerTimes": [ { "cronExpression": "0 3 * * *" } ]
+        "triggerTimes": [{ "cronExpression": "0 3 * * *" }]
       },
       "name": "Schedule: Nightly",
       "type": "n8n-nodes-base.cron",
@@ -907,7 +993,14 @@ Workflow Template → Node "Log Audit Entry"
       "parameters": {
         "operation": "insert",
         "table": "gdpr_audit_log",
-        "columns": ["request_id","workflow","action","actor","status","details"],
+        "columns": [
+          "request_id",
+          "workflow",
+          "action",
+          "actor",
+          "status",
+          "details"
+        ],
         "values": "={{[[`RETENTION-${Date.now()}`, 'GDPR - Data Retention Enforcement', 'retention_delete', 'n8n', 'completed', JSON.stringify($json.summary)]]}}"
       },
       "name": "Log Retention",
@@ -936,34 +1029,48 @@ Workflow Template → Node "Log Audit Entry"
   ],
   "connections": {
     "Schedule: Nightly": {
-      "main": [ [ { "node": "Find Old Unsubscribed", "type": "main", "index": 0 } ] ]
+      "main": [
+        [{ "node": "Find Old Unsubscribed", "type": "main", "index": 0 }]
+      ]
     },
     "Find Old Unsubscribed": {
-      "main": [ [ { "node": "Hash Emails", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Hash Emails", "type": "main", "index": 0 }]]
     },
     "Hash Emails": {
-      "main": [ [ { "node": "Anonymize Newsletter", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Anonymize Newsletter", "type": "main", "index": 0 }]]
     },
     "Anonymize Newsletter": {
-      "main": [ [ { "node": "Pseudonymize Support", "type": "main", "index": 0 }, { "node": "Delete Analytics", "type": "main", "index": 0 }, { "node": "Cleanup SFTP", "type": "main", "index": 0 } ] ]
+      "main": [
+        [
+          { "node": "Pseudonymize Support", "type": "main", "index": 0 },
+          { "node": "Delete Analytics", "type": "main", "index": 0 },
+          { "node": "Cleanup SFTP", "type": "main", "index": 0 }
+        ]
+      ]
     },
     "Cleanup SFTP": {
-      "main": [ [ { "node": "Build Summary", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Build Summary", "type": "main", "index": 0 }]]
     },
     "Pseudonymize Support": {
-      "main": [ [ { "node": "Build Summary", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Build Summary", "type": "main", "index": 0 }]]
     },
     "Delete Analytics": {
-      "main": [ [ { "node": "Build Summary", "type": "main", "index": 0 } ] ]
+      "main": [[{ "node": "Build Summary", "type": "main", "index": 0 }]]
     },
     "Build Summary": {
-      "main": [ [ { "node": "Log Retention", "type": "main", "index": 0 }, { "node": "Notify DPO", "type": "main", "index": 0 } ] ]
+      "main": [
+        [
+          { "node": "Log Retention", "type": "main", "index": 0 },
+          { "node": "Notify DPO", "type": "main", "index": 0 }
+        ]
+      ]
     }
   }
 }
 ```
 
 ### Validierung
+
 - [ ] Dry-Run mit Testumgebung (Datenbank-Kopien) – niemals direkt auf Produktion testen
 - [ ] Sicherstellen, dass steuerrelevante Datensätze **nicht gelöscht** werden (nur Flag)
 - [ ] Audit-Logs prüfen & archivieren
@@ -975,17 +1082,20 @@ Workflow Template → Node "Log Audit Entry"
 ## 🔐 Sicherheit & Audit
 
 ### Audit Logging Richtlinien
+
 - Alle Workflows loggen in `gdpr_audit_log`
 - Pflichtfelder: `request_id`, `workflow`, `action`, `status`, `details`
 - Keine PII im `details` speichern → nur hashes/IDs
 - Monatliches Backup der Audit-Tabelle (`pg_dump mo_n8n --table=gdpr_audit_log`)
 
 ### Incident Handling
+
 - Bei Fehlern (Status ≠ 2xx) → automatischer Slack-Alert #security
 - Kritische Fehler (z.B. Encryption Failure) → PagerDuty On-Call
 - Incident wird als GitHub Issue mit Label `incident-gdpr` erstellt
 
 ### Zugriffskontrolle
+
 - n8n-Workflow-Berechtigungen: nur Rolle "DPO" & "DevOps"
 - SFTP-Zugriff via SSH-Key, passwortlos; Keys in Secrets Tresor
 - Encryption Keys rotieren alle 12 Monate (`scripts/gdpr/rotate-keys.sh`)
@@ -993,6 +1103,7 @@ Workflow Template → Node "Log Audit Entry"
 ---
 
 ## ✅ DSGVO-Checkliste
+
 - [ ] Webhook-Sicherheit implementiert (HMAC + HTTPS)
 - [ ] Export-Dateien verschlüsselt (AGE/PGP)
 - [ ] Getrennte Kommunikation von Dateilink & Passwort
@@ -1007,17 +1118,20 @@ Workflow Template → Node "Log Audit Entry"
 ## 🧪 Testplan (Manuell + Automatisiert)
 
 ### Manuelle Tests
+
 1. **DSAR-Flow:** Dummy-Person anlegen → DSAR-Formular ausfüllen → Export prüfen
 2. **Consent-Flow:** Opt-In & Opt-Out durchspielen → Synchronität (CRM, Newsletter, WP)
 3. **Audit-Report:** Cron auf minütlich, PDF inhaltlich prüfen
 4. **Retention:** Testdaten > Grenzwerte → Anonymisierung validieren
 
 ### Automatisierte Tests (n8n CLI)
+
 ```bash
 n8n execute --workflow-id="GDPR - Data Subject Access Request" --rawInput='{"body": {"request_id":"TEST","email":"test@example.com","first_name":"Test","last_name":"Person","identity_proof_url":"https://example.com/id.pdf"}}'
 ```
 
 ### QA-Protokoll
+
 - Testdaten dokumentieren (`docs/gdpr/tests/<date>.md`)
 - Ergebnis + Screenshots im QA-Ordner
 - Abnahme-Protokoll vom DPO unterschreiben lassen
@@ -1027,6 +1141,7 @@ n8n execute --workflow-id="GDPR - Data Subject Access Request" --rawInput='{"bod
 ## 📎 Anhang – SQL Snippets
 
 ### Consent-Validierung
+
 ```sql
 SELECT email, consent_status, consent_updated_at
 FROM contacts
@@ -1034,6 +1149,7 @@ WHERE email = 'betroffene.person@example.com';
 ```
 
 ### Audit-Log Übersicht
+
 ```sql
 SELECT request_id, workflow, action, status, created_at
 FROM gdpr_audit_log
@@ -1042,6 +1158,7 @@ LIMIT 20;
 ```
 
 ### WordPress Consent Prüfen
+
 ```sql
 SELECT u.user_email, m.meta_value AS gdpr_consent
 FROM wp_users u
@@ -1052,6 +1169,7 @@ WHERE u.user_email = 'betroffene.person@example.com';
 ---
 
 ## 🔄 Integration in Gesamt-Automation
+
 - Execution Order `8` (nach Email, Deployment, Datenbank, Monitoring)
 - Abhängigkeiten: Datenbank-Zugriff (02), Secrets (SFTP/PGP), GitHub Token (Audit Issues)
 - Monitoring: Dashboard Widget "GDPR Status" (n8n-Analytics)
@@ -1060,6 +1178,7 @@ WHERE u.user_email = 'betroffene.person@example.com';
 ---
 
 **Nächste Schritte nach Import:**
+
 1. Workflows importieren → Credentials zuweisen → Testlauf
 2. DPO-Abnahme einholen → Issues dokumentieren (`gdpr-audit` Repo)
 3. Cron-Trigger aktivieren → Monitoring prüfen → Alerts testen

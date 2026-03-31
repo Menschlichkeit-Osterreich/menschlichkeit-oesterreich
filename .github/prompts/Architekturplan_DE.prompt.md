@@ -1,20 +1,17 @@
 ---
-title: "Architekturplan"
-description: "Prompt für Architekturplan im Menschlichkeit Österreich Projekt"
-lastUpdated: 2025-10-10
-status: ACTIVE
+title: 'Architekturplan'
+description: 'Prompt für Architekturplan im Menschlichkeit Österreich Projekt'
+lastUpdated: 2026-03-31
+status: DEPRECATED
+deprecatedDate: 2025-10-08
 category: architecture
 tags: ['architecture']
-version: "1.0.0"
+version: '1.0.0'
 language: de-AT
 audience: ['Software Architects', 'Tech Lead']
 ---
 
----
-description: 'Erstellt einen detaillierten Architekturplan für das Projekt auf Deutsch'
-mode: 'agent'
-tools: ['runCommands', 'runTasks', 'edit', 'runNotebooks', 'search', 'new', 'extensions', 'runTests', 'usages', 'vscodeAPI', 'think', 'problems', 'changes', 'testFailure', 'openSimpleBrowser', 'fetch', 'githubRepo', 'pylance mcp server', 'copilotCodingAgent', 'activePullRequest', 'openPullRequest', 'getPythonEnvironmentInfo', 'getPythonExecutableCommand', 'installPythonPackage', 'configurePythonEnvironment']
----
+> **DEPRECATED** — Migriert nach `.github/chatmodes/Architekturplan_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
 
 Ziel ist es, einen technischen Architekturplan für das Projekt `${workspaceFolderBasename}` in deutscher Sprache zu erstellen. Nutzen Sie den vorhandenen Code und die Struktur des Repositories (#githubRepo), um folgende Punkte zu dokumentieren:
 

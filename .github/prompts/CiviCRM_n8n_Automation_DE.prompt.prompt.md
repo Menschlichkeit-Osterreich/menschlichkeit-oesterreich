@@ -1,19 +1,21 @@
 ---
-title: "Civicrm N8N Automation"
-description: "Prompt für Civicrm N8N Automation im Menschlichkeit Österreich Projekt"
-lastUpdated: 2025-10-10
+title: 'Civicrm N8N Automation'
+description: 'Prompt für Civicrm N8N Automation im Menschlichkeit Österreich Projekt'
+lastUpdated: 2026-03-31
 status: ACTIVE
 category: automation
 tags: ['automation', 'n8n']
-version: "1.0.0"
+version: '1.0.0'
 language: de-AT
 audience: ['DevOps Team', 'Automation Engineers']
 ---
 
 ---
+
 description: 'Konzipiert einen vollständigen Automationsplan (CiviCRM + n8n + Plesk + Monitoring) für Beiträge & Spenden'
 mode: 'agent'
 tools: ['githubRepo', 'codebase']
+
 ---
 
 Analyse den aktuellen Stand der Vereinsbuchhaltung (CiviCRM) und entwirf einen Automationsplan, der folgende Bereiche abdeckt:
@@ -27,6 +29,7 @@ Analyse den aktuellen Stand der Vereinsbuchhaltung (CiviCRM) und entwirf einen A
 7. **Zuwendungsbestätigungen** – Schwellenwerte, Jahreszusammenfassung, PDF-Archivierung.
 
 **Output-Anforderungen:**
+
 - Detaillierter Aktionsplan (Abschnitte + nummerierte Schritte)
 - Verweise auf relevante Dateien/Skripte (`#file:` Syntax)
 - Konkrete Befehle/Workflows in Code- oder JSON-Blöcken

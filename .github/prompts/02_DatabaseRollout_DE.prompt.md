@@ -1,23 +1,17 @@
 ---
-title: "02 Databaserollout"
-description: "Database Rollout & Operations"
-lastUpdated: 2025-10-10
-status: ACTIVE
+title: '02 Databaserollout'
+description: 'Database Rollout & Operations'
+lastUpdated: 2026-03-31
+status: DEPRECATED
+deprecatedDate: 2025-10-08
 category: database
 tags: ['database', 'dsgvo']
-version: "1.0.0"
+version: '1.0.0'
 language: de-AT
 audience: ['Backend Team', 'Database Administrators']
 ---
 
----
-description: Vollständiger Datenbank-Rollout mit 17-DB-Architektur (5 Plesk + 12 extern) inkl. PostgreSQL MCP
-priority: critical
-category: database-infrastructure
-execution_order: 2
-requires: ["01_EmailDNSSetup_DE.prompt.md"]
-updates_todo: true
----
+> **DEPRECATED** — Migriert nach `.github/chatmodes/02_DatabaseRollout_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
 
 # Database Rollout & Operations
 
@@ -37,22 +31,22 @@ plesk_databases:
     user: svc_main
     purpose: Hauptseite (WordPress/HTML)
     host: localhost
-    
+
   mo_votes:
     user: svc_votes
     purpose: Voting-System
     host: localhost
-    
+
   mo_support:
     user: svc_support
     purpose: Support-Ticketing
     host: localhost
-    
+
   mo_newsletter:
     user: svc_newsletter
     purpose: Newsletter-Verwaltung
     host: localhost
-    
+
   mo_forum:
     user: svc_forum
     purpose: Forum (phpBB/Vanilla)
@@ -60,6 +54,7 @@ plesk_databases:
 ```
 
 **Action Items:**
+
 - [ ] Keine Änderungen an Plesk-DBs (Limit: 5/5 erreicht)
 - [ ] Connection Strings dokumentieren via Filesystem MCP
 - [ ] Backup-Status prüfen
@@ -70,58 +65,58 @@ plesk_databases:
 
 ```yaml
 external_mariadb:
-  host: EXTERNAL_MARIADB_HOST  # z.B. db-mariadb.provider.com
+  host: EXTERNAL_MARIADB_HOST # z.B. db-mariadb.provider.com
   port: 3306
-  
+
   databases:
     mo_crm:
       user: svc_crm
       purpose: CRM (Drupal 10 + CiviCRM)
       charset: utf8mb4
       collation: utf8mb4_unicode_ci
-      
+
     mo_n8n:
       user: svc_n8n
       purpose: n8n Workflow Automation
       charset: utf8mb4
       collation: utf8mb4_unicode_ci
-      
+
     mo_hooks:
       user: svc_hooks
       purpose: Webhook-Management
       charset: utf8mb4
       collation: utf8mb4_unicode_ci
-      
+
     mo_consent:
       user: svc_consent
       purpose: DSGVO Consent Management
       charset: utf8mb4
       collation: utf8mb4_unicode_ci
-      
+
     mo_games:
       user: svc_games
       purpose: Educational Gaming Platform
       charset: utf8mb4
       collation: utf8mb4_unicode_ci
-      
+
     mo_analytics:
       user: svc_analytics
       purpose: Analytics/ETL (optional)
       charset: utf8mb4
       collation: utf8mb4_unicode_ci
-      
+
     mo_api_stg:
       user: svc_api_stg
       purpose: API Staging Environment
       charset: utf8mb4
       collation: utf8mb4_unicode_ci
-      
+
     mo_admin_stg:
       user: svc_admin_stg
       purpose: Admin Staging Environment
       charset: utf8mb4
       collation: utf8mb4_unicode_ci
-      
+
     mo_nextcloud:
       user: svc_nextcloud
       purpose: Nextcloud File Storage DB
@@ -135,9 +130,9 @@ external_mariadb:
 
 ```yaml
 external_postgresql:
-  host: EXTERNAL_POSTGRESQL_HOST  # z.B. db-postgres.provider.com
+  host: EXTERNAL_POSTGRESQL_HOST # z.B. db-postgres.provider.com
   port: 5432
-  
+
   databases:
     mo_idp:
       user: svc_idp
@@ -145,14 +140,14 @@ external_postgresql:
       encoding: UTF8
       lc_collate: de_AT.UTF-8
       lc_ctype: de_AT.UTF-8
-      
+
     mo_grafana:
       user: svc_grafana
       purpose: Grafana App-Metadata
       encoding: UTF8
       lc_collate: en_US.UTF-8
       lc_ctype: en_US.UTF-8
-      
+
     mo_discourse:
       user: svc_discourse
       purpose: Discourse Forum (optional)
@@ -187,12 +182,14 @@ Deny from: all
 ```
 
 **Action Items:**
+
 - [ ] VPS/Cloud Firewall konfigurieren (Security Groups/iptables)
 - [ ] Plesk Server IP dokumentieren: `PLESK_SERVER_IP=xxx.xxx.xxx.xxx`
 - [ ] Test: Port-Scan von externer IP → Ports sollten closed sein
 - [ ] Test: Connection von Plesk IP → Ports sollten open sein
 
 **MCP Commands:**
+
 ```bash
 
 # Via Filesystem MCP
@@ -209,19 +206,20 @@ Deny from: all
 ```yaml
 mariadb_tls:
   enabled: true
-  require_ssl: REQUIRE  # Enforce TLS
+  require_ssl: REQUIRE # Enforce TLS
   ca_cert: /path/to/ca-cert.pem
   client_cert: /path/to/client-cert.pem
   client_key: /path/to/client-key.pem
 
 postgresql_ssl:
-  sslmode: require  # oder verify-full
+  sslmode: require # oder verify-full
   sslrootcert: /path/to/root.crt
   sslcert: /path/to/postgresql.crt
   sslkey: /path/to/postgresql.key
 ```
 
 **Action Items:**
+
 - [ ] TLS-Zertifikate vom Provider generieren/downloaden
 - [ ] Via Filesystem MCP: Certs in `secrets/db-certs/` speichern
 - [ ] Connection Strings mit SSL-Parametern erweitern
@@ -239,21 +237,23 @@ postgresql_ssl:
 -- Für mo_crm
 CREATE DATABASE mo_crm CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER 'svc_crm'@'PLESK_SERVER_IP' IDENTIFIED BY 'STRONG_RANDOM_PASSWORD';
-GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, REFERENCES, DROP, CREATE VIEW 
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, INDEX, REFERENCES, DROP, CREATE VIEW
   ON mo_crm.* TO 'svc_crm'@'PLESK_SERVER_IP';
 FLUSH PRIVILEGES;
 
--- Wiederholen für: mo_n8n, mo_hooks, mo_consent, mo_games, mo_analytics, 
+-- Wiederholen für: mo_n8n, mo_hooks, mo_consent, mo_games, mo_analytics,
 -- mo_api_stg, mo_admin_stg, mo_nextcloud
 ```
 
 **Action Items:**
+
 - [ ] Passwörter generieren: `openssl rand -base64 32` (für jeden User)
 - [ ] Via GitHub MCP: Secrets anlegen (siehe Phase 4)
 - [ ] SQL-Statements ausführen (via MySQL CLI oder Adminer)
 - [ ] Smoke Test: `mysql -h HOST -u svc_crm -p mo_crm -e "SELECT 1;"`
 
 **MCP Commands:**
+
 ```bash
 
 # Via Terminal (Password Generation)
@@ -274,10 +274,10 @@ done
 ```sql
 -- Für mo_idp
 CREATE USER svc_idp WITH ENCRYPTED PASSWORD 'STRONG_RANDOM_PASSWORD';
-CREATE DATABASE mo_idp 
-  OWNER svc_idp 
-  ENCODING 'UTF8' 
-  LC_COLLATE 'de_AT.UTF-8' 
+CREATE DATABASE mo_idp
+  OWNER svc_idp
+  ENCODING 'UTF8'
+  LC_COLLATE 'de_AT.UTF-8'
   LC_CTYPE 'de_AT.UTF-8'
   TEMPLATE template0;
 
@@ -290,12 +290,14 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 ```
 
 **Action Items:**
+
 - [ ] Passwörter generieren: `openssl rand -base64 32`
 - [ ] Via GitHub MCP: Secrets anlegen (`PG_IDP_DB_PASS`, etc.)
 - [ ] SQL via PostgreSQL MCP oder psql ausführen
 - [ ] Smoke Test: `psql -h HOST -U svc_idp -d mo_idp -c "SELECT 1;"`
 
 **MCP Commands:**
+
 ```bash
 
 # Via PostgreSQL MCP
@@ -321,66 +323,68 @@ environments:
     SSH_USER: dmpl20230054
     SSH_PRIVATE_KEY: "-----BEGIN OPENSSH PRIVATE KEY-----\n..."
     SSH_TARGET_DIR: /www/htdocs/w01234567
-    
+
     # DB Hosts
     MYSQL_HOST: external-mariadb.provider.com
     MYSQL_PORT: 3306
     PG_HOST: external-postgres.provider.com
     PG_PORT: 5432
-    REDIS_HOST: external-redis.provider.com  # optional
+    REDIS_HOST: external-redis.provider.com # optional
     REDIS_PORT: 6379
-    
+
     # Plesk MariaDB (bestehend)
     MO_MAIN_DB_USER: svc_main
-    MO_MAIN_DB_PASS: "xxx"
+    MO_MAIN_DB_PASS: 'xxx'
     MO_VOTES_DB_USER: svc_votes
-    MO_VOTES_DB_PASS: "xxx"
+    MO_VOTES_DB_PASS: 'xxx'
     MO_SUPPORT_DB_USER: svc_support
-    MO_SUPPORT_DB_PASS: "xxx"
+    MO_SUPPORT_DB_PASS: 'xxx'
     MO_NEWSLETTER_DB_USER: svc_newsletter
-    MO_NEWSLETTER_DB_PASS: "xxx"
+    MO_NEWSLETTER_DB_PASS: 'xxx'
     MO_FORUM_DB_USER: svc_forum
-    MO_FORUM_DB_PASS: "xxx"
-    
+    MO_FORUM_DB_PASS: 'xxx'
+
     # Externe MariaDB
     MO_CRM_DB_USER: svc_crm
-    MO_CRM_DB_PASS: "xxx"
+    MO_CRM_DB_PASS: 'xxx'
     MO_N8N_DB_USER: svc_n8n
-    MO_N8N_DB_PASS: "xxx"
+    MO_N8N_DB_PASS: 'xxx'
     MO_HOOKS_DB_USER: svc_hooks
-    MO_HOOKS_DB_PASS: "xxx"
+    MO_HOOKS_DB_PASS: 'xxx'
     MO_CONSENT_DB_USER: svc_consent
-    MO_CONSENT_DB_PASS: "xxx"
+    MO_CONSENT_DB_PASS: 'xxx'
     MO_GAMES_DB_USER: svc_games
-    MO_GAMES_DB_PASS: "xxx"
+    MO_GAMES_DB_PASS: 'xxx'
     MO_ANALYTICS_DB_USER: svc_analytics
-    MO_ANALYTICS_DB_PASS: "xxx"
+    MO_ANALYTICS_DB_PASS: 'xxx'
     MO_API_STG_DB_USER: svc_api_stg
-    MO_API_STG_DB_PASS: "xxx"
+    MO_API_STG_DB_PASS: 'xxx'
     MO_ADMIN_STG_DB_USER: svc_admin_stg
-    MO_ADMIN_STG_DB_PASS: "xxx"
+    MO_ADMIN_STG_DB_PASS: 'xxx'
     MO_NEXTCLOUD_DB_USER: svc_nextcloud
-    MO_NEXTCLOUD_DB_PASS: "xxx"
-    
+    MO_NEXTCLOUD_DB_PASS: 'xxx'
+
     # PostgreSQL
     PG_IDP_DB_USER: svc_idp
-    PG_IDP_DB_PASS: "xxx"
+    PG_IDP_DB_PASS: 'xxx'
     PG_GRAFANA_DB_USER: svc_grafana
-    PG_GRAFANA_DB_PASS: "xxx"
-    PG_DISCOURSE_DB_USER: svc_discourse  # optional
-    PG_DISCOURSE_DB_PASS: "xxx"
-    
+    PG_GRAFANA_DB_PASS: 'xxx'
+    PG_DISCOURSE_DB_USER: svc_discourse # optional
+    PG_DISCOURSE_DB_PASS: 'xxx'
+
   staging:
     # Staging-spezifische Secrets (analog)
 ```
 
 **Action Items:**
+
 - [ ] Via GitHub MCP: Environment `production` anlegen mit Review-Gate
 - [ ] Via GitHub MCP: Environment `staging` anlegen
 - [ ] Alle Secrets in jeweiligem Environment anlegen
 - [ ] Test: GitHub Actions Workflow mit Secret-Zugriff ausführen
 
 **MCP Commands:**
+
 ```bash
 
 # Via GitHub MCP
@@ -399,16 +403,17 @@ environments:
 
 ```yaml
 direct_external:
-  - mo_crm          # CiviCRM neu auf extern
-  - mo_n8n          # n8n neu auf extern
-  - mo_hooks        # Hooks neu auf extern
-  - mo_consent      # Consent neu auf extern
-  - mo_games        # Games nutzt bereits Prisma → extern
-  - mo_idp          # Keycloak neu auf extern (PostgreSQL)
-  - mo_grafana      # Grafana neu auf extern (PostgreSQL)
+  - mo_crm # CiviCRM neu auf extern
+  - mo_n8n # n8n neu auf extern
+  - mo_hooks # Hooks neu auf extern
+  - mo_consent # Consent neu auf extern
+  - mo_games # Games nutzt bereits Prisma → extern
+  - mo_idp # Keycloak neu auf extern (PostgreSQL)
+  - mo_grafana # Grafana neu auf extern (PostgreSQL)
 ```
 
 **Action Items:**
+
 - [ ] Application Config aktualisieren (Connection Strings)
 - [ ] Via Filesystem MCP: `.env.production` mit externen DB-Hosts erstellen
 - [ ] Deployment durchführen
@@ -442,6 +447,7 @@ pg_restore -d mo_new -h EXTERNAL_PG_HOST -U svc_new mo_old_$(date +%F).dump
 ```
 
 **Action Items:**
+
 - [ ] Backup vor Migration: Vollständiger Dump aller zu migrierenden DBs
 - [ ] Migration in Maintenance Window (Downtime minimieren)
 - [ ] Connection Strings in Apps umstellen
@@ -457,17 +463,17 @@ pg_restore -d mo_new -h EXTERNAL_PG_HOST -U svc_new mo_old_$(date +%F).dump
 ```yaml
 backup_schedule:
   daily:
-    time: "02:00 UTC"
+    time: '02:00 UTC'
     retention: 7 days
     type: full_dump
-    
+
   weekly:
-    time: "Sunday 03:00 UTC"
+    time: 'Sunday 03:00 UTC'
     retention: 4 weeks
     type: full_dump
-    
+
   monthly:
-    time: "1st of month 04:00 UTC"
+    time: '1st of month 04:00 UTC'
     retention: 12 months
     type: full_dump + offsite_copy
 ```
@@ -521,6 +527,7 @@ find "$BACKUP_DIR" -name "*.dump" -mtime +7 -delete
 ```
 
 **Action Items:**
+
 - [ ] Via Filesystem MCP: Backup-Scripts in `scripts/backup/` erstellen
 - [ ] Cron Jobs auf DB-Server einrichten (täglich/wöchentlich/monatlich)
 - [ ] Test: Backup-Script manuell ausführen, Output prüfen
@@ -528,6 +535,7 @@ find "$BACKUP_DIR" -name "*.dump" -mtime +7 -delete
 - [ ] Offsite-Backup: S3/Cloud-Storage konfigurieren
 
 **MCP Commands:**
+
 ```bash
 
 # Via Filesystem MCP
@@ -554,19 +562,19 @@ database_metrics:
     - Connection success rate
     - Response time (SELECT 1)
     - Error rate
-    
+
   performance:
     - Query execution time (slow query log)
     - Connection pool usage
     - Disk I/O
     - CPU/Memory usage
-    
+
   capacity:
     - Disk space used/free
     - Table sizes
     - Index sizes
     - Connection count
-    
+
   security:
     - Failed login attempts
     - Unauthorized access attempts
@@ -581,24 +589,26 @@ alerts:
     - Connection failure (immediate)
     - Disk space < 10% (immediate)
     - Response time > 5s (immediate)
-    
+
   warning:
     - Disk space < 20% (1h)
     - Connection pool > 80% (30min)
     - Slow queries > 100/min (15min)
-    
+
   info:
     - Backup completion (daily)
     - Failed login > 10/hour (1h)
 ```
 
 **Action Items:**
+
 - [ ] Grafana Dashboard für DB-Metriken erstellen
 - [ ] n8n Workflow für Alerts (Slack/E-Mail) konfigurieren
 - [ ] Via PostgreSQL MCP: Monitoring-Queries für Health-Checks erstellen
 - [ ] Test: Alert bei simuliertem Ausfall (DB stoppen)
 
 **MCP Commands:**
+
 ```bash
 
 # Via PostgreSQL MCP
@@ -653,6 +663,7 @@ USE mo_n8n;  -- Sollte FAIL sein (keine Rechte)
 ```
 
 **Action Items:**
+
 - [ ] Alle Connection Tests bestanden (0 Failures)
 - [ ] Latency < 100ms für alle DBs
 - [ ] Grant Tests: User isoliert (kein Cross-DB-Access)
@@ -667,18 +678,18 @@ tag_1_vormittag:
   - Externe DB-Hosts provisionieren (VPS/Managed)
   - Firewall-Regeln konfigurieren
   - Smoke Test: SSH + Port-Access
-  
+
 tag_1_nachmittag:
   - Alle 12 externen DBs + Users anlegen
   - GitHub Secrets für alle DB-Credentials
   - Connection Smoke Tests
-  
+
 tag_2:
   - Application Configs aktualisieren
   - Deployment mit neuen Connection Strings
   - Integration Tests
   - Backup-Scripts einrichten
-  
+
 tag_3:
   - Monitoring Dashboard aktivieren
   - Alerting konfigurieren
@@ -691,9 +702,11 @@ tag_3:
 ## 🔗 Abhängigkeiten
 
 **Benötigt:**
+
 - `01_EmailDNSSetup_DE.prompt.md` (abgeschlossen)
 
 **Triggert:**
+
 - `03_MCPMultiServiceDeployment_DE.prompt.md` (Multi-Service Deployment mit DB-Credentials)
 - TODO.md Update: "Database Rollout abgeschlossen"
 
@@ -702,6 +715,7 @@ tag_3:
 ## 📝 TODO Updates
 
 Bei erfolgreicher Ausführung dieser Prompt:
+
 - [x] Externe MariaDB-Host provisioniert (9 DBs)
 - [x] Externe PostgreSQL-Host provisioniert (3 DBs)
 - [x] Firewall-Regeln konfiguriert (nur Plesk-IP)

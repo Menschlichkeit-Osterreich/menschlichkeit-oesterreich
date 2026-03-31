@@ -1,14 +1,17 @@
 ---
 title: 'Mcpsecurityincident'
 description: 'Security Incident Response Flow (MCP-Enhanced)'
-lastUpdated: 2025-10-10
-status: ACTIVE
+lastUpdated: 2026-03-31
+status: DEPRECATED
+deprecatedDate: 2025-10-08
 category: security
 tags: ['security', 'mcp', 'dsgvo']
 version: '1.0.0'
 language: de-AT
 audience: ['Security Team', 'DevOps']
 ---
+
+> **DEPRECATED** — Migriert nach `.github/chatmodes/MCPSecurityIncident_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
 
 ```prompt
 ---
@@ -46,12 +49,12 @@ Via PostgreSQL MCP:
 SELECT
 query,
 usename,
-client_addr,
-COUNT(_) as frequency
-FROM pg_stat_activity
+client*addr,
+COUNT(*) as frequency
+FROM pg*stat_activity
 WHERE state = 'active'
 GROUP BY query, usename, client_addr
-HAVING COUNT(_) > 100; -- Potential SQL injection
+HAVING COUNT(*) > 100; -- Potential SQL injection
 
 CLASSIFICATION:
 □ Security Incident Type:
