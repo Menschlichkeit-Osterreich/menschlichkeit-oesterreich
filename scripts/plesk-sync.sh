@@ -10,11 +10,15 @@ fi
 ACTION="${1:-help}"
 APPLY="${2:-}"
 
-REMOTE="${PLESK_HOST:-plesk}:${PLESK_REMOTE_PATH:-/var/www/vhosts/menschlichkeit-oesterreich.at/httpdocs}"
+PLESK_HOST="${PLESK_HOST:-plesk}"
+PLESK_PORT="${PLESK_PORT:-${SSH_PORT:-22}}"
+PLESK_BASE_PATH="${PLESK_BASE_PATH:-/var/www/vhosts/menschlichkeit-oesterreich.at/httpdocs}"
+
+REMOTE="${PLESK_HOST}:${PLESK_BASE_PATH}"
 LOCAL="${LOCAL_WEBROOT:-$ROOT_DIR}"
 
 SSH_OPTS=()
-[[ -n "${SSH_PORT:-}" ]] && SSH_OPTS+=( -p "$SSH_PORT" )
+[[ -n "${PLESK_PORT:-}" ]] && SSH_OPTS+=( -p "$PLESK_PORT" )
 [[ -n "${SSH_KEY:-}" ]] && SSH_OPTS+=( -i "$SSH_KEY" )
 
 EXCLUDES=(

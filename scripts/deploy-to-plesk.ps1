@@ -1,148 +1,174 @@
 #!/usr/bin/env pwsh
-# 🚀 PLESK SFTP DEPLOYMENT SCRIPT
-# Synchronisiert lokale Dateien mit Plesk-Server und entfernt Altlasten
 
+[CmdletBinding()]
 param(
-    [Parameter(Mandatory=$false)]
-    [ValidateSet("api", "crm", "games", "frontend", "all")]
+    [Parameter(Mandatory = $false)]
+    [ValidateSet("api", "crm", "frontend", "all")]
     [string]$Target = "all",
-    
-    [Parameter(Mandatory=$false)]
+
+    [Parameter(Mandatory = $false)]
     [switch]$DryRun = $false,
-    
-    [Parameter(Mandatory=$false)]
+
+    [Parameter(Mandatory = $false)]
     [switch]$Force = $false
 )
 
-$Server = "dmpl20230054@5.183.217.146"
-$ServerPath = "/home/dmpl20230054"
+$ErrorActionPreference = "Stop"
+$RepoRoot = Split-Path -Parent $PSScriptRoot
 
-Write-Host "🚀 PLESK DEPLOYMENT SCRIPT" -ForegroundColor Cyan
+function Get-EnvValue {
+    param(
+        [Parameter(Mandatory = $true)][string]$Name,
+        [Parameter(Mandatory = $false)][string]$DefaultValue = ""
+    )
+
+    $value = [Environment]::GetEnvironmentVariable($Name)
+    if ([string]::IsNullOrWhiteSpace($value)) {
+        return $DefaultValue
+    }
+
+    return $value
+}
+
+function Resolve-RemoteHost {
+    $hostValue = Get-EnvValue -Name "PLESK_HOST"
+    $userValue = Get-EnvValue -Name "PLESK_USER"
+
+    if ([string]::IsNullOrWhiteSpace($hostValue)) {
+        throw "PLESK_HOST fehlt. Fuer produktive Deploys bleibt .github/workflows/deploy-plesk.yml die Source of Truth."
+    }
+
+    if ($hostValue -match "@") {
+        return $hostValue
+    }
+
+    if ([string]::IsNullOrWhiteSpace($userValue)) {
+        throw "PLESK_HOST enthaelt keinen Benutzer und PLESK_USER fehlt."
+    }
+
+    return "$userValue@$hostValue"
+}
+
+function Get-RemoteDisplay {
+    $hostValue = Get-EnvValue -Name "PLESK_HOST"
+    $userValue = Get-EnvValue -Name "PLESK_USER"
+
+    if (-not [string]::IsNullOrWhiteSpace($hostValue) -and $hostValue -match "@") {
+        return $hostValue
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($hostValue) -and -not [string]::IsNullOrWhiteSpace($userValue)) {
+        return "$userValue@$hostValue"
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($hostValue)) {
+        return $hostValue
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($userValue)) {
+        return "$userValue@<PLESK_HOST>"
+    }
+
+    return "<PLESK_USER>@<PLESK_HOST>"
+}
+
+function Get-TargetSpec {
+    param([Parameter(Mandatory = $true)][string]$Name)
+
+    $frontendDist = Join-Path $RepoRoot "apps/website/dist"
+    $frontendProject = Join-Path $RepoRoot "apps/website"
+
+    $specs = @{
+        "frontend" = @{
+            Description = "Website / CRM Portal Build"
+            LocalPath = $frontendDist
+            RemotePath = (Get-EnvValue -Name "PLESK_FRONTEND_PATH" -DefaultValue "httpdocs")
+            Prepare = {
+                Push-Location $frontendProject
+                try {
+                    npm run build:prerender
+                } finally {
+                    Pop-Location
+                }
+            }
+        }
+        "api" = @{
+            Description = "FastAPI Source Tree"
+            LocalPath = (Join-Path $RepoRoot "apps/api")
+            RemotePath = (Get-EnvValue -Name "PLESK_API_PATH" -DefaultValue "subdomains/api/httpdocs")
+        }
+        "crm" = @{
+            Description = "Drupal / CiviCRM Source Tree"
+            LocalPath = (Join-Path $RepoRoot "apps/crm")
+            RemotePath = (Get-EnvValue -Name "PLESK_CRM_PATH" -DefaultValue "subdomains/crm/httpdocs")
+        }
+    }
+
+    return $specs[$Name]
+}
+
+function Ensure-LocalSource {
+    param([Parameter(Mandatory = $true)][hashtable]$Spec)
+
+    if (Test-Path $Spec.LocalPath) {
+        return
+    }
+
+    if ($Spec.ContainsKey("Prepare")) {
+        Write-Host "  -> Baue fehlende Artefakte lokal..." -ForegroundColor Yellow
+        & $Spec.Prepare
+    }
+
+    if (-not (Test-Path $Spec.LocalPath)) {
+        throw "Lokaler Pfad fehlt weiterhin: $($Spec.LocalPath)"
+    }
+}
+
+function Invoke-TargetDeploy {
+    param(
+        [Parameter(Mandatory = $true)][string]$Name,
+        [Parameter(Mandatory = $true)][string]$RemoteHost,
+        [Parameter(Mandatory = $true)][string]$Port
+    )
+
+    $spec = Get-TargetSpec -Name $Name
+    Write-Host "==> $Name : $($spec.Description)" -ForegroundColor Cyan
+    Write-Host "    Lokal : $($spec.LocalPath)"
+    Write-Host "    Remote: ${RemoteHost}:$($spec.RemotePath)"
+
+    if ($DryRun) {
+        if (-not (Test-Path $spec.LocalPath) -and $spec.ContainsKey("Prepare")) {
+            Write-Host "    Dry-Run: Build-Artefakt fehlt noch und wuerde vor echtem Fallback-Deploy gebaut." -ForegroundColor Yellow
+        }
+        return
+    }
+
+    if (-not $Force) {
+        throw "Echter manueller Deploy nur mit -Force. Kanonischer Produktionsweg bleibt .github/workflows/deploy-plesk.yml."
+    }
+
+    Ensure-LocalSource -Spec $spec
+
+    ssh -p $Port $RemoteHost "mkdir -p '$($spec.RemotePath)'"
+    scp -P $Port -r "$($spec.LocalPath)/*" "${RemoteHost}:$($spec.RemotePath)/"
+}
+
+$remoteHost = if ($DryRun) { Get-RemoteDisplay } else { Resolve-RemoteHost }
+$port = Get-EnvValue -Name "PLESK_PORT" -DefaultValue "22"
+
+Write-Host "Plesk Fallback Deploy Helper" -ForegroundColor Green
 Write-Host "Target: $Target | DryRun: $DryRun | Force: $Force" -ForegroundColor Yellow
-Write-Host "=" * 60 -ForegroundColor Gray
+Write-Host "Source of Truth: .github/workflows/deploy-plesk.yml" -ForegroundColor DarkGray
 
-function Deploy-API {
-    Write-Host "📡 Deploying API Backend (FastAPI)..." -ForegroundColor Green
-    
-    if (-not $DryRun) {
-        # Build requirements.txt if not exists
-        if (Test-Path "api.menschlichkeit-oesterreich.at/requirements.txt") {
-            Write-Host "  ✅ requirements.txt found"
-        } else {
-            Write-Host "  ⚠️  Creating requirements.txt..."
-            Set-Content -Path "api.menschlichkeit-oesterreich.at/requirements.txt" -Value @"
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
-python-multipart==0.0.6
-python-dotenv==1.0.0
-sqlalchemy==2.0.23
-pymysql==1.1.0
-cryptography==41.0.7
-pydantic==2.5.0
-pydantic-settings==2.1.0
-"@
-        }
-        
-        # Deploy API files
-        scp -r "api.menschlichkeit-oesterreich.at/*" "${Server}:subdomains/api/httpdocs/"
-        Write-Host "  ✅ API files deployed"
-    } else {
-        Write-Host "  🔍 [DRY RUN] Would deploy: api.menschlichkeit-oesterreich.at/* -> subdomains/api/httpdocs/"
-    }
-}
+$targets = if ($Target -eq "all") { @("frontend", "api", "crm") } else { @($Target) }
 
-function Deploy-CRM {
-    Write-Host "🏛️ Deploying CRM System (Drupal+CiviCRM)..." -ForegroundColor Green
-    
-    if (-not $DryRun) {
-        # Deploy CRM source into the canonical CRM portal root
-        scp -r "apps/crm/*" "${Server}:subdomains/crm/httpdocs/"
-        
-        # Deploy .env file
-        if (Test-Path "apps/crm/.env") {
-            scp "apps/crm/.env" "${Server}:subdomains/crm/httpdocs/"
-        }
-        
-        Write-Host "  ✅ CRM files deployed"
-    } else {
-        Write-Host "  🔍 [DRY RUN] Would deploy: apps/crm/* -> subdomains/crm/httpdocs/"
-    }
-}
-
-function Deploy-Games {
-    Write-Host "🎮 Deploying Gaming Platform..." -ForegroundColor Green
-    
-    if (-not $DryRun) {
-        # Deploy game files
-        scp -r "web/*" "${Server}:subdomains/games/httpdocs/"
-        Write-Host "  ✅ Games files deployed"
-    } else {
-        Write-Host "  🔍 [DRY RUN] Would deploy: web/* -> subdomains/games/httpdocs/"
-    }
-}
-
-function Deploy-Frontend {
-    Write-Host "🌐 Deploying Frontend (Next.js)..." -ForegroundColor Green
-    
-    if (-not $DryRun) {
-        # Build frontend first
-        Write-Host "  📦 Building Next.js application..."
-        Set-Location "frontend"
-        npm run build
-        Set-Location ".."
-        
-        # Deploy built files
-        if (Test-Path "frontend/out") {
-            scp -r "frontend/out/*" "${Server}:httpdocs/"
-            Write-Host "  ✅ Frontend deployed (Static Export)"
-        } elseif (Test-Path "frontend/.next") {
-            scp -r "frontend/.next/*" "${Server}:httpdocs/"
-            Write-Host "  ✅ Frontend deployed (Server Build)"
-        } else {
-            Write-Host "  ❌ No build output found!"
-        }
-    } else {
-        Write-Host "  🔍 [DRY RUN] Would build and deploy frontend to httpdocs/"
-    }
-}
-
-function Set-Permissions {
-    Write-Host "🔐 Setting correct permissions..." -ForegroundColor Cyan
-    
-    if (-not $DryRun) {
-        ssh $Server @"
-chmod -R 755 httpdocs/
-chmod -R 755 subdomains/*/httpdocs/
-find httpdocs/ -name "*.php" -exec chmod 644 {} \;
-find subdomains/*/httpdocs/ -name "*.php" -exec chmod 644 {} \;
-find httpdocs/ -name "*.html" -exec chmod 644 {} \;
-find subdomains/*/httpdocs/ -name "*.html" -exec chmod 644 {} \;
-"@
-        Write-Host "  ✅ Permissions set correctly"
-    } else {
-        Write-Host "  🔍 [DRY RUN] Would set permissions on all deployed files"
-    }
-}
-
-# Main deployment logic
-switch ($Target) {
-    "api" { Deploy-API }
-    "crm" { Deploy-CRM }
-    "games" { Deploy-Games }
-    "frontend" { Deploy-Frontend }
-    "all" {
-        Deploy-API
-        Deploy-CRM
-        Deploy-Games
-        Deploy-Frontend
-        Set-Permissions
-    }
+foreach ($item in $targets) {
+    Invoke-TargetDeploy -Name $item -RemoteHost $remoteHost -Port $port
 }
 
 Write-Host ""
-Write-Host "✅ DEPLOYMENT COMPLETED!" -ForegroundColor Green
-Write-Host "🌐 Check your sites:" -ForegroundColor Cyan
-Write-Host "  • Main: https://menschlichkeit-oesterreich.at"
-Write-Host "  • API:  https://api.menschlichkeit-oesterreich.at"
-Write-Host "  • CRM:  https://crm.menschlichkeit-oesterreich.at"
-Write-Host "  • Games: https://games.menschlichkeit-oesterreich.at"
+if ($DryRun) {
+    Write-Host "Dry-Run abgeschlossen. Kein Schreiben auf Produktion." -ForegroundColor Green
+} else {
+    Write-Host "Manueller Fallback-Deploy abgeschlossen." -ForegroundColor Green
+}

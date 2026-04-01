@@ -16,11 +16,13 @@ set -euo pipefail
 SERVICE="${SERVICE:-all}"
 MAIN_DOMAIN="${MAIN_DOMAIN:-menschlichkeit-oesterreich.at}"
 VERIFY_JSON="${VERIFY_JSON:-false}"
-PLSK_PORT="${PLSK_PORT:-22}"
+PLESK_HOST="${PLESK_HOST:-${PLSK_HOST:-}}"
+PLESK_USER="${PLESK_USER:-${PLSK_USER:-}}"
+PLESK_PORT="${PLESK_PORT:-${PLSK_PORT:-22}}"
 TIMEOUT="${VERIFY_TIMEOUT:-15}"
-PLSK_DEPLOY_PATH="${PLSK_DEPLOY_PATH:-httpdocs}"
+PLESK_BASE_PATH="${PLESK_BASE_PATH:-${PLSK_DEPLOY_PATH:-httpdocs}}"
 SSH_CONFIG_FILE="${SSH_CONFIG_FILE:-${HOME}/.ssh/config}"
-PLSK_SSH_ALIAS="${PLSK_SSH_ALIAS:-}"
+PLESK_SSH_ALIAS="${PLESK_SSH_ALIAS:-${PLSK_SSH_ALIAS:-}}"
 
 PASS=0
 FAIL=0
@@ -36,20 +38,20 @@ fail() { echo "  ✗ $*"; RESULTS+=("{\"check\":\"$1\",\"status\":\"fail\",\"det
 warn() { echo "  ⚠ $*"; RESULTS+=("{\"check\":\"$1\",\"status\":\"warn\",\"detail\":\"$2\"}"); ((WARN++)) || true; }
 
 remote_ssh() {
-  if [[ -n "${PLSK_SSH_ALIAS}" && -f "${SSH_CONFIG_FILE}" ]]; then
-    ssh -F "${SSH_CONFIG_FILE}" "${PLSK_SSH_ALIAS}" "$@"
+  if [[ -n "${PLESK_SSH_ALIAS}" && -f "${SSH_CONFIG_FILE}" ]]; then
+    ssh -F "${SSH_CONFIG_FILE}" "${PLESK_SSH_ALIAS}" "$@"
   else
-    ssh -p "${PLSK_PORT}" "${PLSK_USER}@${PLSK_HOST}" "$@"
+    ssh -p "${PLESK_PORT}" "${PLESK_USER}@${PLESK_HOST}" "$@"
   fi
 }
 
 # ── SSH-Erreichbarkeit ────────────────────────────────────────────────────────
 check_ssh_reachable() {
-  log "Prüfe SSH-Verbindung zu ${PLSK_HOST}:${PLSK_PORT}..."
-  if timeout "${TIMEOUT}" bash -c "cat /dev/null > /dev/tcp/${PLSK_HOST}/${PLSK_PORT}" 2>/dev/null; then
-    ok "SSH-Port erreichbar" "SSH-Port ${PLSK_PORT} auf ${PLSK_HOST} antwortet."
+  log "Pruefe SSH-Verbindung zu ${PLESK_HOST}:${PLESK_PORT}..."
+  if timeout "${TIMEOUT}" bash -c "cat /dev/null > /dev/tcp/${PLESK_HOST}/${PLESK_PORT}" 2>/dev/null; then
+    ok "SSH-Port erreichbar" "SSH-Port ${PLESK_PORT} auf ${PLESK_HOST} antwortet."
   else
-    fail "SSH-Port erreichbar" "Port ${PLSK_PORT} auf ${PLSK_HOST} nicht erreichbar."
+    fail "SSH-Port erreichbar" "Port ${PLESK_PORT} auf ${PLESK_HOST} nicht erreichbar."
   fi
 }
 
@@ -111,7 +113,7 @@ echo "╚═══════════════════════�
 echo ""
 
 # Pflicht-Variablen
-for var in PLSK_HOST PLSK_USER PLSK_DEPLOY_PATH; do
+for var in PLESK_HOST PLESK_USER PLESK_BASE_PATH; do
   [[ -n "${!var:-}" ]] || { echo "✗ \$${var} fehlt – Abbruch."; exit 1; }
 done
 
@@ -122,9 +124,9 @@ check_ssh_reachable
 if [[ "${SERVICE}" == "all" || "${SERVICE}" == "frontend" ]]; then
   echo ""
   echo "── Frontend ──────────────────────────────────────────────"
-  check_release_marker "${PLSK_DEPLOY_PATH}" "Frontend"
-  check_remote_file    "${PLSK_DEPLOY_PATH}" "index.html" "Frontend"
-  check_remote_file    "${PLSK_DEPLOY_PATH}" "assets" "Frontend assets/"
+  check_release_marker "${PLESK_BASE_PATH}" "Frontend"
+  check_remote_file    "${PLESK_BASE_PATH}" "index.html" "Frontend"
+  check_remote_file    "${PLESK_BASE_PATH}" "assets" "Frontend assets/"
   check_http           "https://${MAIN_DOMAIN}/" "Frontend"
 fi
 
@@ -132,17 +134,17 @@ fi
 if [[ "${SERVICE}" == "all" || "${SERVICE}" == "api" ]]; then
   echo ""
   echo "── API ───────────────────────────────────────────────────"
-  API_PATH="${PLSK_API_PATH:-subdomains/api/httpdocs}"
+  API_PATH="${PLESK_API_PATH:-${PLSK_API_PATH:-subdomains/api/httpdocs}}"
   check_release_marker "${API_PATH}" "API"
   check_remote_file    "${API_PATH}" "requirements.txt" "API"
-  check_http           "https://api.${MAIN_DOMAIN}/health" "API"
+  check_http           "https://api.${MAIN_DOMAIN}/healthz" "API"
 fi
 
 # 4. CRM
 if [[ "${SERVICE}" == "all" || "${SERVICE}" == "crm" ]]; then
   echo ""
   echo "── CRM ───────────────────────────────────────────────────"
-  CRM_PATH="${PLSK_CRM_PATH:-subdomains/crm/httpdocs}"
+  CRM_PATH="${PLESK_CRM_PATH:-${PLSK_CRM_PATH:-subdomains/crm/httpdocs}}"
   check_release_marker "${CRM_PATH}" "CRM"
   check_remote_file    "${CRM_PATH}" "vendor/autoload.php" "CRM (composer)"
   check_http           "https://crm.${MAIN_DOMAIN}/" "CRM"
@@ -152,7 +154,7 @@ fi
 if [[ "${SERVICE}" == "all" || "${SERVICE}" == "games" ]]; then
   echo ""
   echo "── Games ─────────────────────────────────────────────────"
-  GAMES_PATH="${PLSK_GAMES_PATH:-subdomains/games/httpdocs}"
+  GAMES_PATH="${PLESK_GAMES_PATH:-${PLSK_GAMES_PATH:-subdomains/games/httpdocs}}"
   check_release_marker "${GAMES_PATH}" "Games"
   check_http           "https://games.${MAIN_DOMAIN}/" "Games"
 fi

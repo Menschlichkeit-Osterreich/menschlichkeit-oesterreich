@@ -463,7 +463,7 @@ jobs:
           )
         run: |
           HTTP=$(curl --silent --max-time 15 --output /dev/null --write-out "%{http_code}" \
-            "https://api.${{ env.MAIN_DOMAIN }}/health" || echo "000")
+            "https://api.${{ env.MAIN_DOMAIN }}/healthz" || echo "000")
           echo "API HTTP: ${HTTP}"
           [[ "${HTTP}" =~ ^[23] ]] || echo "⚠️ API Healthcheck: ${HTTP} (API benötigt ggf. Neustart via Plesk)"
 

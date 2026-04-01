@@ -9,17 +9,18 @@
 # Branch:   Prüft, dass nur von 'main' deployt wird (Override: ALLOW_BRANCH=any)
 # Lock:     Verhindert parallele Deploys via /tmp/moe_deploy.lock
 #
-# Pflicht-Variablen (via Replit Secrets):
-#   PLSK_HOST          – Plesk-Server-IP oder Hostname
-#   PLSK_USER          – SSH-Benutzername
-#   PLSK_PORT          – SSH-Port (default: 22)
-#   PLSK_SSH_KEY       – Private Key (Inhalt)
-#   PLSK_KNOWN_HOSTS   – known_hosts-Eintrag für den Server
-#   PLSK_DEPLOY_PATH   – Zielpfad Frontend (z.B. /var/www/vhosts/.../httpdocs)
+# Pflicht-Variablen:
+#   PLESK_HOST         – Plesk-Server-IP oder Hostname
+#   PLESK_USER         – SSH-Benutzername
+#   PLESK_PORT         – SSH-Port (default: 22)
+#   PLESK_SSH_KEY      – Private Key (Inhalt)
+#   PLESK_KNOWN_HOSTS  – known_hosts-Eintrag fuer den Server
+#   PLESK_BASE_PATH    – Zielpfad Frontend (z.B. /var/www/vhosts/.../httpdocs)
 #
 # Optionale Variablen:
-#   PLSK_API_PATH      – Zielpfad API (Standard: PLSK_DEPLOY_PATH/../subdomains/api/httpdocs)
-#   PLSK_CRM_PATH      – Zielpfad CRM
+#   PLESK_API_PATH     – Zielpfad API
+#   PLESK_CRM_PATH     – Zielpfad CRM
+#   PLESK_GAMES_PATH   – Zielpfad Games
 #   DRY_RUN            – "true" = kein Schreiben auf Server
 #   ALLOW_BRANCH       – "any" = kein Branch-Check
 #   SERVICE            – "frontend|api|crm|games|all" (default: all)
@@ -34,9 +35,15 @@ LOCK_FILE="/tmp/moe_deploy.lock"
 LOG_DIR="${HOME}/.moe_deploy_logs"
 TIMESTAMP="$(date -u '+%Y%m%dT%H%M%SZ')"
 COMMIT_SHA="${COMMIT_SHA:-$(git rev-parse --short HEAD 2>/dev/null || echo 'unknown')}"
-PLSK_PORT="${PLSK_PORT:-22}"
-PLSK_API_PATH="${PLSK_API_PATH:-}"
-PLSK_CRM_PATH="${PLSK_CRM_PATH:-}"
+PLESK_HOST="${PLESK_HOST:-${PLSK_HOST:-}}"
+PLESK_USER="${PLESK_USER:-${PLSK_USER:-}}"
+PLESK_PORT="${PLESK_PORT:-${PLSK_PORT:-22}}"
+PLESK_SSH_KEY="${PLESK_SSH_KEY:-${PLSK_SSH_KEY:-}}"
+PLESK_KNOWN_HOSTS="${PLESK_KNOWN_HOSTS:-${PLSK_KNOWN_HOSTS:-}}"
+PLESK_BASE_PATH="${PLESK_BASE_PATH:-${PLSK_DEPLOY_PATH:-}}"
+PLESK_API_PATH="${PLESK_API_PATH:-${PLSK_API_PATH:-}}"
+PLESK_CRM_PATH="${PLESK_CRM_PATH:-${PLSK_CRM_PATH:-}}"
+PLESK_GAMES_PATH="${PLESK_GAMES_PATH:-${PLSK_GAMES_PATH:-}}"
 
 # ── Hilfsfunktionen ───────────────────────────────────────────────────────────
 log()    { echo "[deploy ${TIMESTAMP}] $*"; }
@@ -96,7 +103,7 @@ fi
 
 # ── SSH-Basiskommando ──────────────────────────────────────────────────────────
 SSH_CMD="ssh -F ${HOME}/.ssh/config plesk-deploy"
-RSYNC_SSH="ssh -F ${HOME}/.ssh/config -p ${PLSK_PORT}"
+RSYNC_SSH="ssh -F ${HOME}/.ssh/config -p ${PLESK_PORT}"
 
 # ── Hilfsfunktion: rsync (mit Dry-Run-Support) ───────────────────────────────
 run_rsync() {
@@ -113,7 +120,7 @@ run_rsync() {
     "${extra_args[@]}"
     -e "${RSYNC_SSH}"
     "${src}"
-    "${PLSK_USER}@${PLSK_HOST}:${dst}"
+    "${PLESK_USER}@${PLESK_HOST}:${dst}"
   )
 
   if [[ "${DRY_RUN}" == "true" ]]; then
@@ -168,16 +175,16 @@ deploy_frontend() {
   fi
 
   # Zielpfad validieren
-  [[ -n "${PLSK_DEPLOY_PATH:-}" ]] || fail "\$PLSK_DEPLOY_PATH nicht gesetzt."
+  [[ -n "${PLESK_BASE_PATH:-}" ]] || fail "\$PLESK_BASE_PATH nicht gesetzt."
 
-  log "Frontend rsync → ${PLSK_HOST}:${PLSK_DEPLOY_PATH}"
-  run_rsync "apps/website/dist/" "${PLSK_DEPLOY_PATH}/" \
+  log "Frontend rsync → ${PLESK_HOST}:${PLESK_BASE_PATH}"
+  run_rsync "apps/website/dist/" "${PLESK_BASE_PATH}/" \
     --exclude=".git" \
     --exclude="*.map"
 
   # Release-Marker auf Server schreiben
   run_remote "Release-Marker setzen" \
-    bash -c "echo '${RELEASE_MARKER_CONTENT}' > '${PLSK_DEPLOY_PATH}/.deploy_release' && chmod 644 '${PLSK_DEPLOY_PATH}/.deploy_release'"
+    bash -c "echo '${RELEASE_MARKER_CONTENT}' > '${PLESK_BASE_PATH}/.deploy_release' && chmod 644 '${PLESK_BASE_PATH}/.deploy_release'"
 
   ok "Frontend Deploy abgeschlossen."
 }
@@ -193,14 +200,13 @@ deploy_api() {
   fi
 
   # Zielpfad bestimmen
-  local api_path="${PLSK_API_PATH:-}"
+  local api_path="${PLESK_API_PATH:-}"
   if [[ -z "${api_path}" ]]; then
-    # Ableiten aus PLSK_DEPLOY_PATH
-    api_path="$(dirname "${PLSK_DEPLOY_PATH}")/subdomains/api/httpdocs"
-    warn "PLSK_API_PATH nicht gesetzt, leite ab: ${api_path}"
+    api_path="$(dirname "${PLESK_BASE_PATH}")/subdomains/api/httpdocs"
+    warn "PLESK_API_PATH nicht gesetzt, leite ab: ${api_path}"
   fi
 
-  log "API rsync → ${PLSK_HOST}:${api_path}"
+  log "API rsync → ${PLESK_HOST}:${api_path}"
   run_rsync "apps/api/" "${api_path}/" \
     --exclude=".git" \
     --exclude="__pycache__" \
@@ -231,13 +237,13 @@ deploy_crm() {
     return
   fi
 
-  local crm_path="${PLSK_CRM_PATH:-}"
+  local crm_path="${PLESK_CRM_PATH:-}"
   if [[ -z "${crm_path}" ]]; then
-    crm_path="$(dirname "${PLSK_DEPLOY_PATH}")/subdomains/crm/httpdocs"
-    warn "PLSK_CRM_PATH nicht gesetzt, leite ab: ${crm_path}"
+    crm_path="$(dirname "${PLESK_BASE_PATH}")/subdomains/crm/httpdocs"
+    warn "PLESK_CRM_PATH nicht gesetzt, leite ab: ${crm_path}"
   fi
 
-  log "CRM rsync → ${PLSK_HOST}:${crm_path}"
+  log "CRM rsync → ${PLESK_HOST}:${crm_path}"
   run_rsync "apps/crm/" "${crm_path}/" \
     --exclude=".git" \
     --exclude="node_modules" \
@@ -264,15 +270,15 @@ deploy_crm() {
 deploy_games() {
   log "=== Games Deploy ==="
 
-  if [[ ! -d "apps/game" ]]; then
-    warn "apps/game/ nicht gefunden – Games-Deploy übersprungen."
+  if [[ ! -d "apps/babylon-game" ]]; then
+    warn "apps/babylon-game/ nicht gefunden – Games-Deploy uebersprungen."
     return
   fi
 
-  local games_path="$(dirname "${PLSK_DEPLOY_PATH}")/subdomains/games/httpdocs"
+  local games_path="${PLESK_GAMES_PATH:-$(dirname "${PLESK_BASE_PATH}")/subdomains/games/httpdocs}"
 
-  log "Games rsync → ${PLSK_HOST}:${games_path}"
-  run_rsync "apps/game/" "${games_path}/" \
+  log "Games rsync → ${PLESK_HOST}:${games_path}"
+  run_rsync "apps/babylon-game/" "${games_path}/" \
     --exclude=".git" \
     --exclude="node_modules" \
     --exclude=".env"

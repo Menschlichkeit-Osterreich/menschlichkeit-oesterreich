@@ -116,19 +116,28 @@ echo ""
 
 # ── Pflicht-Variablen ─────────────────────────────────────────────────────────
 echo "▶ SSH / Plesk Zugangsdaten"
-check_required PLSK_HOST   "Plesk-Server Hostname oder IP"
-check_host     PLSK_HOST
-check_required PLSK_USER   "SSH-Benutzername auf Plesk"
-check_port     PLSK_PORT
+PLESK_HOST="${PLESK_HOST:-${PLSK_HOST:-}}"
+PLESK_USER="${PLESK_USER:-${PLSK_USER:-}}"
+PLESK_PORT="${PLESK_PORT:-${PLSK_PORT:-}}"
+PLESK_SSH_KEY="${PLESK_SSH_KEY:-${PLSK_SSH_KEY:-}}"
+PLESK_KNOWN_HOSTS="${PLESK_KNOWN_HOSTS:-${PLSK_KNOWN_HOSTS:-}}"
+PLESK_BASE_PATH="${PLESK_BASE_PATH:-${PLSK_DEPLOY_PATH:-}}"
+PLESK_API_PATH="${PLESK_API_PATH:-${PLSK_API_PATH:-}}"
+PLESK_CRM_PATH="${PLESK_CRM_PATH:-${PLSK_CRM_PATH:-}}"
+
+check_required PLESK_HOST   "Plesk-Server Hostname oder IP"
+check_host     PLESK_HOST
+check_required PLESK_USER   "SSH-Benutzername auf Plesk"
+check_port     PLESK_PORT
 
 echo ""
 echo "▶ SSH-Schlüssel"
-check_ssh_key  PLSK_SSH_KEY
-check_known_hosts PLSK_KNOWN_HOSTS
+check_ssh_key  PLESK_SSH_KEY
+check_known_hosts PLESK_KNOWN_HOSTS
 
 echo ""
 echo "▶ Deploy-Pfade"
-check_path     PLSK_DEPLOY_PATH
+check_path     PLESK_BASE_PATH
 
 echo ""
 echo "▶ Optionale Variablen"
@@ -139,18 +148,18 @@ else
   warn "GITHUB_SSH_KEY nicht gesetzt (optional für Git-Operationen auf Plesk)."
 fi
 
-if [[ -n "${PLSK_API_PATH:-}" ]]; then
-  check_path PLSK_API_PATH
-  ok "PLSK_API_PATH gesetzt."
+if [[ -n "${PLESK_API_PATH:-}" ]]; then
+  check_path PLESK_API_PATH
+  ok "PLESK_API_PATH gesetzt."
 else
-  warn "PLSK_API_PATH nicht gesetzt – API-Deploy wird übersprungen."
+  warn "PLESK_API_PATH nicht gesetzt – API-Deploy wird uebersprungen."
 fi
 
-if [[ -n "${PLSK_CRM_PATH:-}" ]]; then
-  check_path PLSK_CRM_PATH
-  ok "PLSK_CRM_PATH gesetzt."
+if [[ -n "${PLESK_CRM_PATH:-}" ]]; then
+  check_path PLESK_CRM_PATH
+  ok "PLESK_CRM_PATH gesetzt."
 else
-  warn "PLSK_CRM_PATH nicht gesetzt – CRM-Deploy wird übersprungen."
+  warn "PLESK_CRM_PATH nicht gesetzt – CRM-Deploy wird uebersprungen."
 fi
 
 # ── Ergebnis ──────────────────────────────────────────────────────────────────

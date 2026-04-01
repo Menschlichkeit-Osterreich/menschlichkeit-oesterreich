@@ -6,7 +6,7 @@
 #   - Idempotent ausführbar
 #   - Kein Loggen von Secret-Werten
 #   - StrictHostKeyChecking + IdentitiesOnly
-#   - Host-Key-Verifikation über PLESK_KNOWN_HOSTS Secret
+#   - Host-Key-Verifikation ueber PLESK_KNOWN_HOSTS Secret
 #   - Optional: GitHub SSH Key (GITHUB_SSH_KEY)
 # =============================================================================
 set -euo pipefail
@@ -17,8 +17,15 @@ ok()     { echo "[bootstrap_ssh] ✓ $*" >&2; }
 warn()   { echo "[bootstrap_ssh] ⚠ $*" >&2; }
 fail()   { echo "[bootstrap_ssh] ✗ $*" >&2; exit 1; }
 
+# ── PLESK_* ist kanonisch, PLSK_* bleibt nur Legacy-Fallback ────────────────
+PLESK_HOST="${PLESK_HOST:-${PLSK_HOST:-}}"
+PLESK_USER="${PLESK_USER:-${PLSK_USER:-}}"
+PLESK_PORT="${PLESK_PORT:-${PLSK_PORT:-22}}"
+PLESK_SSH_KEY="${PLESK_SSH_KEY:-${PLSK_SSH_KEY:-}}"
+PLESK_KNOWN_HOSTS="${PLESK_KNOWN_HOSTS:-${PLSK_KNOWN_HOSTS:-}}"
+
 # ── Pflicht-Variablen prüfen (Existenz, kein Inhalt ausgeben) ────────────────
-for var in PLSK_HOST PLSK_USER PLSK_PORT PLSK_SSH_KEY PLSK_KNOWN_HOSTS; do
+for var in PLESK_HOST PLESK_USER PLESK_PORT PLESK_SSH_KEY PLESK_KNOWN_HOSTS; do
   [[ -n "${!var:-}" ]] || fail "Pflicht-Variable \$${var} ist nicht gesetzt."
 done
 ok "Alle Pflicht-Variablen vorhanden."
@@ -35,7 +42,7 @@ if [[ -f "${DEPLOY_KEY_FILE}" ]]; then
   warn "Deploy-Key existiert bereits – wird überschrieben."
 fi
 # Schreiben über printf (kein echo, kein set -x)
-printf '%s\n' "${PLSK_SSH_KEY}" > "${DEPLOY_KEY_FILE}"
+printf '%s\n' "${PLESK_SSH_KEY}" > "${DEPLOY_KEY_FILE}"
 chmod 600 "${DEPLOY_KEY_FILE}"
 ok "Deploy-Key gesetzt: ${DEPLOY_KEY_FILE} (Inhalt maskiert)"
 
@@ -53,11 +60,11 @@ fi
 KNOWN_HOSTS_FILE="${SSH_DIR}/known_hosts"
 # Bestehenden Eintrag für diesen Host entfernen (idempotent)
 if command -v ssh-keygen &>/dev/null; then
-  ssh-keygen -R "[${PLSK_HOST}]:${PLSK_PORT}" -f "${KNOWN_HOSTS_FILE}" 2>/dev/null || true
-  ssh-keygen -R "${PLSK_HOST}" -f "${KNOWN_HOSTS_FILE}" 2>/dev/null || true
+  ssh-keygen -R "[${PLESK_HOST}]:${PLESK_PORT}" -f "${KNOWN_HOSTS_FILE}" 2>/dev/null || true
+  ssh-keygen -R "${PLESK_HOST}" -f "${KNOWN_HOSTS_FILE}" 2>/dev/null || true
 fi
 # Host-Key aus Secret eintragen
-printf '%s\n' "${PLSK_KNOWN_HOSTS}" >> "${KNOWN_HOSTS_FILE}"
+printf '%s\n' "${PLESK_KNOWN_HOSTS}" >> "${KNOWN_HOSTS_FILE}"
 chmod 600 "${KNOWN_HOSTS_FILE}"
 ok "known_hosts aktualisiert: ${KNOWN_HOSTS_FILE}"
 
@@ -78,9 +85,9 @@ cat >> "${SSH_CONFIG_FILE}" <<EOF
 # ---- Menschlichkeit Österreich: Plesk Deploy ----
 # Generiert von scripts/bootstrap_ssh.sh am $(date -u '+%Y-%m-%dT%H:%M:%SZ')
 Host plesk-deploy
-  HostName ${PLSK_HOST}
-  Port ${PLSK_PORT}
-  User ${PLSK_USER}
+  HostName ${PLESK_HOST}
+  Port ${PLESK_PORT}
+  User ${PLESK_USER}
   IdentityFile ${DEPLOY_KEY_FILE}
   IdentitiesOnly yes
   StrictHostKeyChecking yes
@@ -108,10 +115,10 @@ fi
 
 # ── Verbindungstest (ohne Authentifizierung) ──────────────────────────────────
 log "Teste SSH-Erreichbarkeit (nur TCP, kein Login)..."
-if timeout 10 bash -c "cat /dev/null > /dev/tcp/${PLSK_HOST}/${PLSK_PORT}" 2>/dev/null; then
-  ok "SSH-Port ${PLSK_PORT} auf ${PLSK_HOST} erreichbar."
+if timeout 10 bash -c "cat /dev/null > /dev/tcp/${PLESK_HOST}/${PLESK_PORT}" 2>/dev/null; then
+  ok "SSH-Port ${PLESK_PORT} auf ${PLESK_HOST} erreichbar."
 else
-  warn "SSH-Port ${PLSK_PORT} auf ${PLSK_HOST} nicht per TCP erreichbar – evtl. Firewall."
+  warn "SSH-Port ${PLESK_PORT} auf ${PLESK_HOST} nicht per TCP erreichbar – evtl. Firewall."
 fi
 
 ok "SSH Bootstrap abgeschlossen. Verwende 'ssh plesk-deploy' für Verbindung."
