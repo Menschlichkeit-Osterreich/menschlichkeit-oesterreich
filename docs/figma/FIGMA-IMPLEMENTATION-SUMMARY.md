@@ -87,7 +87,7 @@ npm run build
 ## 📁 File Structure
 
 ```
-menschlichkeit-oesterreich-development/
+menschlichkeit-oesterreich/
 │
 ├── .github/
 │   └── workflows/

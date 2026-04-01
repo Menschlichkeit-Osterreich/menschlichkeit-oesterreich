@@ -1,4 +1,4 @@
-Project: menschlichkeit-oesterreich-development
+Project: menschlichkeit-oesterreich
 Summary: Monorepo for NGO civic-tech platform with FastAPI APIs, Drupal/CiviCRM, n8n automation, and containerized operations.
 
 Primary services:

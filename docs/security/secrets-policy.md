@@ -4,7 +4,7 @@
 
 ## Geltungsbereich
 
-Diese Policy gilt verbindlich für alle Entwickler:innen, CI/CD-Pipelines, Deployment-Skripte und Automatisierungen, die mit dem Repository `menschlichkeit-oesterreich-development` arbeiten.
+Diese Policy gilt verbindlich für alle Entwickler:innen, CI/CD-Pipelines, Deployment-Skripte und Automatisierungen, die mit dem Repository `menschlichkeit-oesterreich` arbeiten.
 
 ---
 
@@ -14,38 +14,38 @@ Diese Policy gilt verbindlich für alle Entwickler:innen, CI/CD-Pipelines, Deplo
 
 Darf direkt in Git committet werden:
 
-| Artefakt | Bedingung |
-|----------|-----------|
-| `.env.example` | Nur Platzhalter: `REPLACE_WITH_...`, `YOUR_KEY_HERE` |
-| `config-templates/*.env` | Nur Platzhalter, keine echten Werte |
-| `mcp-hosts.json` | Keine echten Tokens enthalten |
-| `.gitleaks.toml` | Allowlist-Konfiguration, keine Secrets |
-| CI/CD Workflow-Dateien | Nur `${{ secrets.VARNAME }}` Referenzen |
-| `gitleaks.toml` | Konfiguration ohne Secrets |
+| Artefakt                 | Bedingung                                            |
+| ------------------------ | ---------------------------------------------------- |
+| `.env.example`           | Nur Platzhalter: `REPLACE_WITH_...`, `YOUR_KEY_HERE` |
+| `config-templates/*.env` | Nur Platzhalter, keine echten Werte                  |
+| `mcp-hosts.json`         | Keine echten Tokens enthalten                        |
+| `.gitleaks.toml`         | Allowlist-Konfiguration, keine Secrets               |
+| CI/CD Workflow-Dateien   | Nur `${{ secrets.VARNAME }}` Referenzen              |
+| `gitleaks.toml`          | Konfiguration ohne Secrets                           |
 
 ### Klasse B — Nur verschlüsselt erlaubt
 
 Darf nur in verschlüsselter Form committet werden:
 
-| Artefakt | Mechanismus |
-|----------|-------------|
-| `.env.vault` | dotenv-vault (AES-256) |
+| Artefakt                     | Mechanismus                        |
+| ---------------------------- | ---------------------------------- |
+| `.env.vault`                 | dotenv-vault (AES-256)             |
 | Zertifikate (`.pem`, `.crt`) | Nur wenn selbstsigniert/öffentlich |
-| SOPS-verschlüsselte Dateien | `*.sops.yaml` |
+| SOPS-verschlüsselte Dateien  | `*.sops.yaml`                      |
 
 ### Klasse C — Niemals committen
 
 Unter keinen Umständen in Git:
 
-| Artefakt | Beispiele |
-|----------|-----------|
-| Echte `.env`-Dateien | `.env`, `.env.production`, `.env.staging` |
-| Private Keys | `*.key`, `id_rsa`, `*.pem` (privat) |
-| Service-Account-JSON | `*-key.json`, `credentials.json` |
-| Datenbankdumps | `*.sql`, `*.dump`, `*.backup` |
-| Passwort-Listen | Keine Zugangsdaten in Markdown/CSV |
-| Browser-Cookies/Sessions | Exportierte Session-Files |
-| Produktions-API-Keys | Egal welches Format |
+| Artefakt                 | Beispiele                                 |
+| ------------------------ | ----------------------------------------- |
+| Echte `.env`-Dateien     | `.env`, `.env.production`, `.env.staging` |
+| Private Keys             | `*.key`, `id_rsa`, `*.pem` (privat)       |
+| Service-Account-JSON     | `*-key.json`, `credentials.json`          |
+| Datenbankdumps           | `*.sql`, `*.dump`, `*.backup`             |
+| Passwort-Listen          | Keine Zugangsdaten in Markdown/CSV        |
+| Browser-Cookies/Sessions | Exportierte Session-Files                 |
+| Produktions-API-Keys     | Egal welches Format                       |
 
 **Prüfung:** Das `.gitignore` blockt alle Klasse-C-Artefakte. Zusätzlich scannt `gitleaks` bei jedem Push.
 
@@ -93,14 +93,14 @@ npx dotenv-vault pull
 
 ## 3. Rotation und Lebenszyklus
 
-| Secret-Typ | Rotationsintervall | Verantwortlich |
-|-----------|-------------------|----------------|
-| GitHub PATs | 90 Tage | Maintainer |
-| Deployment SSH Keys | 180 Tage | DevOps |
-| API Keys (Extern) | 90 Tage | Service-Owner |
-| JWT Secrets | 180 Tage | Backend-Team |
-| DB Passwörter | 180 Tage | DevOps |
-| n8n Admin-Passwort | 90 Tage | Ops |
+| Secret-Typ          | Rotationsintervall | Verantwortlich |
+| ------------------- | ------------------ | -------------- |
+| GitHub PATs         | 90 Tage            | Maintainer     |
+| Deployment SSH Keys | 180 Tage           | DevOps         |
+| API Keys (Extern)   | 90 Tage            | Service-Owner  |
+| JWT Secrets         | 180 Tage           | Backend-Team   |
+| DB Passwörter       | 180 Tage           | DevOps         |
+| n8n Admin-Passwort  | 90 Tage            | Ops            |
 
 ---
 
@@ -128,6 +128,7 @@ Wenn ein Secret versehentlich committet wurde:
 Falsch-Positive in `.gitleaks.toml` als Allowlist eintragen — nicht Secrets abschwächen.
 
 Format:
+
 ```toml
 [[rules.allowlist]]
 description = "Begründung für Ausnahme"
@@ -138,13 +139,13 @@ regexes = ['^REPLACE_WITH_']
 
 ## 6. Verantwortlichkeiten
 
-| Rolle | Verantwortung |
-|-------|--------------|
-| Maintainer | Policy-Pflege, Secret-Audit quartalsweise |
-| Entwickler:innen | Klasse-C-Daten niemals committen |
-| CI/CD | Automatischer Scan bei jedem Push |
-| DevOps | Infrastruktur-Secrets auf Plesk verwalten |
+| Rolle            | Verantwortung                             |
+| ---------------- | ----------------------------------------- |
+| Maintainer       | Policy-Pflege, Secret-Audit quartalsweise |
+| Entwickler:innen | Klasse-C-Daten niemals committen          |
+| CI/CD            | Automatischer Scan bei jedem Push         |
+| DevOps           | Infrastruktur-Secrets auf Plesk verwalten |
 
 ---
 
-*Verwandt: `SECURITY.md`, `docs/security/secrets-catalog.md`, `.env.example`, `.gitleaks.toml`*
+_Verwandt: `SECURITY.md`, `docs/security/secrets-catalog.md`, `.env.example`, `.gitleaks.toml`_

@@ -2,7 +2,7 @@
 
 **Status:** P0-CRITICAL  
 **Quota:** 197 MB / 250 MB (79% voll)  
-**Risiko:** Überlauf in ~2-3 Wochen bei normaler Nutzung  
+**Risiko:** Überlauf in ~2-3 Wochen bei normaler Nutzung
 
 ---
 
@@ -51,7 +51,7 @@
 
 ```bash
 # Terminal (PowerShell)
-cd D:\Arbeitsverzeichniss\menschlichkeit-oesterreich-development
+cd D:\Arbeitsverzeichniss\menschlichkeit-oesterreich
 npm run n8n:start
 
 # Browser: http://localhost:5678
@@ -111,6 +111,7 @@ automation/n8n/data/
 ### Quota überwachen (manuell)
 
 **Plesk:**
+
 1. **Mail** → **Mailboxen**
 2. **logging@…** → Quota-Balken (visuell)
 3. **Details** → Exakte MB-Angabe
@@ -136,6 +137,7 @@ POST https://n8n.menschlichkeit-oesterreich.at/webhook/mail-archive-report
 ```
 
 **Einbindung in Monitoring:**
+
 - ELK-Stack: Webhook-Logs nach Elasticsearch indexieren
 - Alert: Bei `archived_count > 500` → Slack/E-Mail-Benachrichtigung
 

@@ -26,7 +26,7 @@ open http://localhost:5678
 1. **Klicke auf** "**+**" (Neuer Workflow)
 2. **Klicke auf** "**⋮**" (Drei Punkte oben rechts)
 3. **Wähle** "**Import from File**"
-4. **Datei auswählen:** `/workspaces/menschlichkeit-oesterreich-development/automation/n8n/workflows/right-to-erasure.json`
+4. **Datei auswählen:** `/workspaces/menschlichkeit-oesterreich/automation/n8n/workflows/right-to-erasure.json`
 5. **Klicke** "**Import**"
 
 **Alternativ (Copy-Paste):**
@@ -200,7 +200,7 @@ async def _trigger_n8n_user_deletion_workflow(user_id: int, email: str):
 docker ps | grep n8n
 
 # Starte neu falls nötig
-cd /workspaces/menschlichkeit-oesterreich-development
+cd /workspaces/menschlichkeit-oesterreich
 docker-compose -f automation/n8n/docker-compose.yml restart
 ```
 

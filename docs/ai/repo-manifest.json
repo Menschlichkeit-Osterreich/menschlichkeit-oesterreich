@@ -111,24 +111,9 @@
     }
   ],
   "default_branch": "main",
-  "docs": [
-    "README.md",
-    "docs/QUICKSTART.md",
-    "docs/compliance/DSGVO-COMPLIANCE-BLUEPRINT.md"
-  ],
+  "docs": ["README.md", "docs/QUICKSTART.md", "docs/compliance/DSGVO-COMPLIANCE-BLUEPRINT.md"],
   "generated_at": "2026-03-14T19:14:10+00:00",
-  "repo_name": "menschlichkeit-oesterreich-development",
-  "security_tooling": [
-    "CodeQL",
-    "Dependabot",
-    "Gitleaks",
-    "SBOM",
-    "Trivy"
-  ],
-  "services": [
-    "api.menschlichkeit-oesterreich.at",
-    "apps/api",
-    "openclaw-system/api",
-    "openclaw-system/core"
-  ]
+  "repo_name": "menschlichkeit-oesterreich",
+  "security_tooling": ["CodeQL", "Dependabot", "Gitleaks", "SBOM", "Trivy"],
+  "services": ["api.menschlichkeit-oesterreich.at", "apps/api", "openclaw-system/api", "openclaw-system/core"]
 }

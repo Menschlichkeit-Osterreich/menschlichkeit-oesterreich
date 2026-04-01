@@ -9,7 +9,7 @@
 
 ## Übersicht
 
-Dieses Dokument definiert verbindliche Governance-Regeln für das Git-Repository `menschlichkeit-oesterreich-development`, um Codequalität, Sicherheit und Nachvollziehbarkeit zu gewährleisten.
+Dieses Dokument definiert verbindliche Governance-Regeln für das Git-Repository `menschlichkeit-oesterreich`, um Codequalität, Sicherheit und Nachvollziehbarkeit zu gewährleisten.
 
 ---
 
@@ -108,7 +108,7 @@ protection:
 curl -X PUT \
   -H "Authorization: Bearer $GITHUB_TOKEN" \
   -H "Accept: application/vnd.github+json" \
-  https://api.github.com/repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/branches/chore%2Ffigma-mcp-make/protection \
+  https://api.github.com/repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/branches/chore%2Ffigma-mcp-make/protection \
   -d @- <<EOF
 {
   "required_pull_request_reviews": {

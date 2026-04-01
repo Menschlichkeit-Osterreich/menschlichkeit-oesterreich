@@ -2,20 +2,22 @@
 
 ## 📋 Issue Summary
 
-**Pull Request:** [#69](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/69)  
+**Pull Request:** [#69](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/pull/69)  
 **Title:** chore(deps): bump pyjwt from 2.8.0 to 2.10.1 in /api.menschlichkeit-oesterreich.at  
 **Type:** Dependabot dependency update  
-**Status:** ⚠️ Has conflicts with main branch  
+**Status:** ⚠️ Has conflicts with main branch
 
 ## 🔍 Problem Analysis
 
 The PR has merge conflicts because:
+
 - The PR branch and main branch have **unrelated histories**
 - Dependabot created the PR based on an older commit
 - The main branch has moved forward with new commits
 - Dependabot reported: "Dependabot couldn't find a api.menschlichkeit-oesterreich.at"
 
 ### Current State
+
 ```bash
 # PR branch (dependabot/pip/api.menschlichkeit-oesterreich.at/pyjwt-2.10.1)
 bcb7ce65 - chore(deps): bump pyjwt in /api.menschlichkeit-oesterreich.at
@@ -29,6 +31,7 @@ bcb7ce65 - chore(deps): bump pyjwt in /api.menschlichkeit-oesterreich.at
 ## ✅ Solution: Dependabot Rebase
 
 The simplest and safest solution is to ask Dependabot to rebase the PR. This will:
+
 1. Rebase the dependency update on top of the latest main branch
 2. Resolve any conflicts automatically
 3. Update the PR with the rebased commits
@@ -37,7 +40,7 @@ The simplest and safest solution is to ask Dependabot to rebase the PR. This wil
 
 ### Method 1: Manual Comment (Recommended for humans)
 
-1. Go to the PR: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/69
+1. Go to the PR: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/pull/69
 2. Add a comment with **exactly** this text:
    ```
    @dependabot rebase
@@ -62,6 +65,7 @@ export GITHUB_TOKEN="your-github-personal-access-token"
 ```
 
 The script will:
+
 - Validate the token
 - Post the `@dependabot rebase` comment
 - Confirm successful posting
@@ -123,11 +127,13 @@ For future reference, other useful Dependabot commands:
 ## 🛡️ Security Considerations
 
 The pyjwt update from 2.8.0 to 2.10.1 is important because:
+
 - **Security patches** may be included
 - **Bug fixes** that improve stability
 - Keeping dependencies up-to-date reduces security vulnerabilities
 
 After merging, verify:
+
 ```bash
 # Check the updated version
 cat api.menschlichkeit-oesterreich.at/requirements.txt | grep pyjwt
@@ -137,7 +143,7 @@ cat api.menschlichkeit-oesterreich.at/requirements.txt | grep pyjwt
 
 ## 📚 References
 
-- [Dependabot PR #69](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pull/69)
+- [Dependabot PR #69](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/pull/69)
 - [Dependabot Commands Documentation](https://docs.github.com/en/code-security/dependabot/working-with-dependabot/managing-pull-requests-for-dependency-updates#managing-dependabot-pull-requests-with-comment-commands)
 - [PyJWT Changelog](https://github.com/jpadilla/pyjwt/blob/master/CHANGELOG.md)
 

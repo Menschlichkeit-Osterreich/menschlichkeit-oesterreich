@@ -1,86 +1,62 @@
-# Deployment-Anleitung – Menschlichkeit Österreich
+# Deployment-Anleitung
 
-## Voraussetzungen
+Diese Datei beschreibt nur den **aktiven** Produktionsvertrag fuer `Menschlichkeit-Osterreich/menschlichkeit-oesterreich`.
 
-- Node.js >= 18
-- Python >= 3.11
-- SSH-Zugang zum Plesk-Server
-- Umgebungsvariablen konfiguriert (siehe `.env.example`)
+## Source of Truth
 
-## Umgebungsvariablen
+- Produktionsdeploy: `.github/workflows/deploy-plesk.yml`
+- Aktiver Branch: `main`
+- Produktive Zielpfade:
+  - Frontend: `httpdocs`
+  - API: `subdomains/api/httpdocs`
+  - CRM Portal: `subdomains/crm/httpdocs`
+  - CRM Native: `subdomains/crm/httpdocs/native`
+  - Games: `subdomains/games/httpdocs`
 
-Siehe `scripts/validate_env.sh` für alle benötigten Variablen.
+Lokale oder historische Skripte sind nur Fallbacks und duerfen den Workflowvertrag nicht uebersteuern.
 
-### Kritische Variablen
+## Kanonische Secrets und Variablen
 
-| Variable | Beschreibung |
-|----------|-------------|
-| `PLSK_HOST` | Plesk-Server-IP oder Hostname |
-| `PLSK_USER` | SSH-Benutzername |
-| `PLSK_SSH_KEY` | SSH Private Key (Inhalt) |
-| `PLSK_DEPLOY_PATH` | Zielpfad Frontend |
-| `JWT_SECRET_KEY` | JWT-Signierungsschlüssel |
-| `DATABASE_URL` | PostgreSQL Connection String |
-| `ADMIN_EMAILS` | Komma-getrennte Admin-E-Mails |
+### Secrets
 
-## Frontend-Build
+- `PLESK_HOST`
+- `PLESK_PORT`
+- `PLESK_USER`
+- `PLESK_SSH_PRIVATE_KEY`
+- `PLESK_KNOWN_HOSTS`
 
-```bash
-cd apps/website
-npm ci
-npm run build
+### Optionale Repository-/Environment-Variablen
+
+- `PLESK_BASE_PATH`
+- `PLESK_FRONTEND_PATH`
+- `PLESK_API_PATH`
+- `PLESK_CRM_PATH`
+- `PLESK_CRM_NATIVE_PATH`
+- `PLESK_CRM_NATIVE_BUILD_PATH`
+- `PLESK_GAMES_PATH`
+- `MAIN_DOMAIN`
+
+`PLSK_*` und `PLESK_REMOTE_PATH` gelten nicht mehr als aktive Betriebswahrheit.
+
+## Standardablauf
+
+1. `main` aktuell halten
+2. Quality Gates laufen lassen
+3. `workflow_dispatch` oder Push auf `main` fuer `.github/workflows/deploy-plesk.yml`
+4. Post-Deploy-Smokes und Healthchecks verifizieren
+
+## Health-Vertrag
+
+- API Liveness: `https://api.menschlichkeit-oesterreich.at/healthz`
+- API Readiness: `https://api.menschlichkeit-oesterreich.at/readyz`
+- `https://api.menschlichkeit-oesterreich.at/health` bleibt nur Legacy-Alias
+
+## Lokaler Fallback
+
+Fuer lokale Vorbereitung oder Dry-Runs steht nur dieser Fallback bereit:
+
+```powershell
+pwsh -File scripts/deploy-to-plesk.ps1 -Target frontend -DryRun
 ```
 
-Output: `apps/website/dist/`
-
-## API starten
-
-```bash
-cd apps/api
-pip install -r requirements.txt
-uvicorn app.main:app --host 0.0.0.0 --port 8000
-```
-
-## Deployment ausführen
-
-```bash
-# Vollständiges Deployment (Frontend + API)
-./scripts/deploy.sh
-
-# Nur Frontend
-SERVICE=frontend ./scripts/deploy.sh
-
-# Dry-Run (kein Schreiben)
-DRY_RUN=true ./scripts/deploy.sh
-```
-
-## Validierung
-
-```bash
-# Umgebungsvariablen prüfen
-./scripts/validate_env.sh
-
-# Post-Deploy-Verifizierung
-./scripts/post_deploy_verify.sh
-```
-
-## Health-Checks
-
-| Endpunkt | Beschreibung |
-|----------|-------------|
-| `GET /healthz` | Liveness-Check |
-| `GET /readyz` | Readiness-Check (inkl. DB) |
-| `GET /api/version` | API-Version und Features |
-
-## Rollback
-
-Bei fehlerhaftem Deployment:
-1. Git-Tag des letzten stabilen Releases identifizieren
-2. `git checkout <tag>`
-3. Erneut deployen
-
-## Monitoring
-
-- Uptime Kuma: `docker compose -f docker-compose.monitoring.yml up -d uptime-kuma`
-- API-Logs: Structured Logging via `menschlichkeit.api` Logger
-- Audit-Trail: PostgreSQL `audit_trail` Tabelle
+Echte Produktionsdeploys sollen weiterhin ueber GitHub Actions laufen.

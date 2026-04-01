@@ -77,17 +77,17 @@ Secrets sind nach **Scope** kategorisiert:
 
 ### Design & Integration
 
-| Secret Name          | Beschreibung             | Benötigte Repos                        | Rotation | Status   |
-| -------------------- | ------------------------ | -------------------------------------- | -------- | -------- |
-| `FIGMA_ACCESS_TOKEN` | Figma Design System Sync | menschlichkeit-oesterreich-development | 180 Tage | ✅ Aktiv |
-| `FIGMA_FILE_ID`      | Figma File Identifier    | menschlichkeit-oesterreich-development | Nie (ID) | ✅ Aktiv |
+| Secret Name          | Beschreibung             | Benötigte Repos            | Rotation | Status   |
+| -------------------- | ------------------------ | -------------------------- | -------- | -------- |
+| `FIGMA_ACCESS_TOKEN` | Figma Design System Sync | menschlichkeit-oesterreich | 180 Tage | ✅ Aktiv |
+| `FIGMA_FILE_ID`      | Figma File Identifier    | menschlichkeit-oesterreich | Nie (ID) | ✅ Aktiv |
 
 ### Monitoring (Optional)
 
-| Secret Name  | Beschreibung   | Benötigte Repos                        | Rotation  | Status      |
-| ------------ | -------------- | -------------------------------------- | --------- | ----------- |
-| `SENTRY_DSN` | Error Tracking | Alle Services                          | Nie (DSN) | ⚠️ Optional |
-| `LHCI_TOKEN` | Lighthouse CI  | menschlichkeit-oesterreich-development | 90 Tage   | ⚠️ Optional |
+| Secret Name  | Beschreibung   | Benötigte Repos            | Rotation  | Status      |
+| ------------ | -------------- | -------------------------- | --------- | ----------- |
+| `SENTRY_DSN` | Error Tracking | Alle Services              | Nie (DSN) | ⚠️ Optional |
+| `LHCI_TOKEN` | Lighthouse CI  | menschlichkeit-oesterreich | 90 Tage   | ⚠️ Optional |
 
 ---
 
@@ -408,7 +408,7 @@ gh secret set N8N_ENCRYPTION_KEY --body "$N8N_KEY"
 
 # Organization Secrets (requires --org flag)
 gh secret set FIGMA_ACCESS_TOKEN --org peschull \
-  --repos menschlichkeit-oesterreich-development \
+  --repos menschlichkeit-oesterreich \
   --body "$(cat ~/.figma-token)"
 
 echo "✅ Secrets bootstrapped successfully"

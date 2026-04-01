@@ -8,16 +8,16 @@
 
 ## 📋 Übersicht: Fehlende Mailboxen
 
-| # | E-Mail-Adresse | Zweck | Quota | Weiterleitung |
-|---|----------------|-------|-------|---------------|
-| 1 | `newsletter@menschlichkeit-oesterreich.at` | Newsletter-Versand (n8n Double-Opt-In) | 250 MB | n8n Webhook |
-| 2 | `support@menschlichkeit-oesterreich.at` | Mitglieder-Support, Anfragen | 250 MB | board@ (CC) |
-| 3 | `no-reply@menschlichkeit-oesterreich.at` | System-Mails (keine Antworten erwartet) | 100 MB | /dev/null |
-| 4 | `admin@menschlichkeit-oesterreich.at` | Technische Admin-Mails (Server-Alerts) | 250 MB | devops@ |
-| 5 | `devops@menschlichkeit-oesterreich.at` | CI/CD-Pipelines, Deployment-Logs | 500 MB | - |
-| 6 | `board@menschlichkeit-oesterreich.at` | Vorstand-Kommunikation (intern) | 250 MB | - |
-| 7 | `kassier@menschlichkeit-oesterreich.at` | Finanz-/Buchhaltungs-Mails (Stripe, Rechnungen) | 250 MB | - |
-| 8 | `fundraising@menschlichkeit-oesterreich.at` | Spendenaktionen, Kampagnen | 250 MB | board@ (BCC) |
+| #   | E-Mail-Adresse                              | Zweck                                           | Quota  | Weiterleitung |
+| --- | ------------------------------------------- | ----------------------------------------------- | ------ | ------------- |
+| 1   | `newsletter@menschlichkeit-oesterreich.at`  | Newsletter-Versand (n8n Double-Opt-In)          | 250 MB | n8n Webhook   |
+| 2   | `support@menschlichkeit-oesterreich.at`     | Mitglieder-Support, Anfragen                    | 250 MB | board@ (CC)   |
+| 3   | `no-reply@menschlichkeit-oesterreich.at`    | System-Mails (keine Antworten erwartet)         | 100 MB | /dev/null     |
+| 4   | `admin@menschlichkeit-oesterreich.at`       | Technische Admin-Mails (Server-Alerts)          | 250 MB | devops@       |
+| 5   | `devops@menschlichkeit-oesterreich.at`      | CI/CD-Pipelines, Deployment-Logs                | 500 MB | -             |
+| 6   | `board@menschlichkeit-oesterreich.at`       | Vorstand-Kommunikation (intern)                 | 250 MB | -             |
+| 7   | `kassier@menschlichkeit-oesterreich.at`     | Finanz-/Buchhaltungs-Mails (Stripe, Rechnungen) | 250 MB | -             |
+| 8   | `fundraising@menschlichkeit-oesterreich.at` | Spendenaktionen, Kampagnen                      | 250 MB | board@ (BCC)  |
 
 **Gesamt-Quota:** 2.350 MB (≈2,3 GB)
 
@@ -37,7 +37,7 @@
 
 ```powershell
 # Terminal öffnen (PowerShell)
-cd D:\Arbeitsverzeichniss\menschlichkeit-oesterreich-development
+cd D:\Arbeitsverzeichniss\menschlichkeit-oesterreich
 
 # .env laden (dotenv-vault)
 npx dotenv-vault@latest pull
@@ -99,7 +99,7 @@ ssh -L 8443:localhost:8443 $env:REMOTE_USER_plesk_prod@5.183.217.146 -i $env:SSH
 
 ```powershell
 # .env öffnen (VS Code)
-code D:\Arbeitsverzeichniss\menschlichkeit-oesterreich-development\.env
+code D:\Arbeitsverzeichniss\menschlichkeit-oesterreich\.env
 
 # Eintrag hinzufügen (Beispiel):
 SMTP_HOST_NEWSLETTER=menschlichkeit-oesterreich.at
@@ -244,7 +244,7 @@ GET https://5.183.217.146:8443/api/v2/mail
 ## ✅ Definition of Done (DoD)
 
 - [ ] **Alle 8 Mailboxen in Plesk erstellt**
-- [ ] **Credentials in `.env` gespeichert** (SMTP_* + IMAP_*)
+- [ ] **Credentials in `.env` gespeichert** (SMTP*\* + IMAP*\*)
 - [ ] **dotenv-vault aktualisiert** (`npx dotenv-vault push`)
 - [ ] **Funktionstest SMTP** (swaks) → Erfolgreich
 - [ ] **Funktionstest IMAP** (Thunderbird) → Erfolgreich

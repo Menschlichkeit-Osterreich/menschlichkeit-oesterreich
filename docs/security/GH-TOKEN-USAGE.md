@@ -1,6 +1,6 @@
 # GitHub Token (GH_TOKEN) – Quick-Start-Guide
 
-**Zielgruppe:** Entwickler*innen, DevOps Engineers
+**Zielgruppe:** Entwickler\*innen, DevOps Engineers
 **Zweck:** Schneller Einstieg in die Nutzung des GitHub Personal Access Token (PAT)
 **Update:** 2025-10-18
 
@@ -9,12 +9,12 @@
 ## 🎯 TL;DR (Was du wissen musst)
 
 ```yaml
-Token-Typ:        GitHub Personal Access Token (Fine-grained)
-Variable:         GH_TOKEN
-Ablauf:           2026-10-18 (1 Jahr)
-Scope:            repo, workflow, admin:org, codespace, attestations
-Speicherort:      .env.local (lokal) + GitHub Secrets (CI/CD)
-NIE committen:    ❌ .env, ❌ Git-History, ❌ Logs, ❌ Chat
+Token-Typ: GitHub Personal Access Token (Fine-grained)
+Variable: GH_TOKEN
+Ablauf: 2026-10-18 (1 Jahr)
+Scope: repo, workflow, admin:org, codespace, attestations
+Speicherort: .env.local (lokal) + GitHub Secrets (CI/CD)
+NIE committen: ❌ .env, ❌ Git-History, ❌ Logs, ❌ Chat
 ```
 
 ---
@@ -42,7 +42,7 @@ grep "^GH_TOKEN=" .env.local
 
 ### GitHub Actions (CI/CD)
 
-**Repository Secrets:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/settings/secrets/actions
+**Repository Secrets:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/settings/secrets/actions
 
 **Zugriff in Workflows:**
 
@@ -74,7 +74,7 @@ gh pr view 123
 
 ```bash
 # Clone (Token wird automatisch genutzt, wenn gh auth aktiv)
-gh repo clone Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
+gh repo clone Menschlichkeit-Osterreich/menschlichkeit-oesterreich
 
 # Push (bevorzugt SSH, aber HTTPS funktioniert auch)
 git push origin main
@@ -88,7 +88,7 @@ curl -H "Authorization: Bearer $GH_TOKEN" https://api.github.com/user
 
 # Repository-Info
 curl -H "Authorization: Bearer $GH_TOKEN" \
-  https://api.github.com/repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
+  https://api.github.com/repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich
 ```
 
 ### GitHub Actions (Workflows)
@@ -97,7 +97,7 @@ curl -H "Authorization: Bearer $GH_TOKEN" \
 # Bevorzugt: GITHUB_TOKEN für Operationen im gleichen Repo
 - run: gh issue list
   env:
-    GH_TOKEN: ${{ github.token }}  # NICHT secrets.GH_TOKEN
+    GH_TOKEN: ${{ github.token }} # NICHT secrets.GH_TOKEN
 
 # Nur bei Cross-Repo-Operationen: PAT verwenden
 - uses: actions/checkout@v4
@@ -275,7 +275,7 @@ echo "NEW_VALUE" | gh secret set MY_SECRET
 ### Repo klonen (mit Submodules)
 
 ```bash
-gh repo clone Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development -- --recurse-submodules
+gh repo clone Menschlichkeit-Osterreich/menschlichkeit-oesterreich -- --recurse-submodules
 ```
 
 ---
@@ -283,18 +283,20 @@ gh repo clone Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development -
 ## 📚 Weiterführende Links
 
 **Interne Dokumentation:**
+
 - **Masterprompt:** `.github/instructions/gh-pat-integration.instructions.md`
 - **Rotation-Guide:** `docs/security/GH-PAT-ROTATION.md`
 - **Admin-Skripte:** `scripts/gh/`
 
 **Externe Ressourcen:**
+
 - [gh CLI Manual](https://cli.github.com/manual/)
 - [GitHub REST API](https://docs.github.com/en/rest)
 - [PAT Best Practices](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
 
 ---
 
-## ✅ Checkliste (für neue Entwickler*innen)
+## ✅ Checkliste (für neue Entwickler\*innen)
 
 ```markdown
 - [ ] `.env.local` erstellt (nicht `.env`!)

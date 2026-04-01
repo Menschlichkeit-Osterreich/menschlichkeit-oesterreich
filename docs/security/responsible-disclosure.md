@@ -4,7 +4,7 @@
 
 Der bevorzugte Meldeweg ist **GitHub Private Vulnerability Reporting**:
 
-→ [Security Advisory erstellen](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/security/advisories/new)
+→ [Security Advisory erstellen](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/security/advisories/new)
 
 Alternativ: **security@menschlichkeit-oesterreich.at** (PGP-Key: `menschlichkeit-oesterreich.at/.well-known/pgp-key.asc`)
 

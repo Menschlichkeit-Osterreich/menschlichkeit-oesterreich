@@ -1,7 +1,7 @@
 # Repository Rulesets & Branch Protection
 
 **Organisation:** Menschlichkeit Österreich  
-**Repository:** Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development  
+**Repository:** Menschlichkeit-Osterreich/menschlichkeit-oesterreich  
 **Stand:** 2025-10-12
 
 ---
@@ -9,12 +9,14 @@
 ## Übersicht
 
 GitHub Rulesets bieten granulare Kontrolle über Repository-Schutzmaßnahmen:
+
 - **Branch Protection:** Erzwingt Reviews, Status Checks, Signierte Commits
 - **Tag Protection:** Verhindert unautorisierten Tag-Push
 - **Workflow Protection:** Schützt `.github/workflows/**` vor unbefugten Änderungen
 - **Push Protection:** Blockt Secret-Pushes (GitHub Secret Scanning)
 
 **Dokumentation:**
+
 - [GitHub Rulesets](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets)
 - [Push Protection](https://docs.github.com/en/code-security/secret-scanning/push-protection-for-repositories-and-organizations)
 
@@ -45,6 +47,7 @@ required_pull_request_reviews:
 ```
 
 **Rationale:**
+
 - Mindestens 1 Approval (Vier-Augen-Prinzip)
 - Alte Reviews ungültig bei neuem Push
 - CODEOWNERS müssen reviewen (Security, API, CRM)
@@ -53,34 +56,35 @@ required_pull_request_reviews:
 
 ```yaml
 required_status_checks:
-  strict: true  # Branch muss up-to-date mit Base sein
+  strict: true # Branch muss up-to-date mit Base sein
   contexts:
     # Security Scans
-    - "CodeQL (javascript)"
-    - "CodeQL (python)"
-    - "Semgrep / Scan"
-    - "Trivy / Scan"
-    - "OSV Scanner / Scan"
-    - "OpenSSF Scorecard / Analysis"
-    
+    - 'CodeQL (javascript)'
+    - 'CodeQL (python)'
+    - 'Semgrep / Scan'
+    - 'Trivy / Scan'
+    - 'OSV Scanner / Scan'
+    - 'OpenSSF Scorecard / Analysis'
+
     # Quality Gates
-    - "Quality Gates / Codacy"
-    - "Quality Gates / DSGVO Compliance"
-    
+    - 'Quality Gates / Codacy'
+    - 'Quality Gates / DSGVO Compliance'
+
     # Tests
-    - "Tests / Unit Tests"
-    - "Tests / E2E Tests (chromium)"
-    - "Tests / E2E Tests (firefox)"
-    
+    - 'Tests / Unit Tests'
+    - 'Tests / E2E Tests (chromium)'
+    - 'Tests / E2E Tests (firefox)'
+
     # Build & SBOM
-    - "Build / Production Build"
-    - "SBOM / Generate CycloneDX"
-    
+    - 'Build / Production Build'
+    - 'SBOM / Generate CycloneDX'
+
     # Secret Validation
-    - "Secrets / Validate Required Secrets"
+    - 'Secrets / Validate Required Secrets'
 ```
 
 **Rationale:**
+
 - Alle Security Scans müssen grün sein
 - Quality Gates blocken Merge bei Regression
 - Tests MÜSSEN passen (keine Ausnahmen)
@@ -93,6 +97,7 @@ required_signatures: true
 ```
 
 **Rationale:**
+
 - Verhindert Commit-Spoofing
 - Authentifiziert Autoren via GPG/SSH
 - Compliance-Anforderung
@@ -104,6 +109,7 @@ required_linear_history: true
 ```
 
 **Rationale:**
+
 - Keine Merge-Commits (nur Squash/Rebase)
 - Saubere, nachvollziehbare Git-History
 - Einfacheres Revert bei Issues
@@ -115,6 +121,7 @@ required_conversation_resolution: true
 ```
 
 **Rationale:**
+
 - Alle Review-Kommentare müssen resolved sein
 - Verhindert "Übersehen" von Feedback
 
@@ -130,6 +137,7 @@ restrictions:
 ```
 
 **Rationale:**
+
 - Nur bestimmte Teams können ohne Review mergen
 - Emergency Hotfixes durch Security/DevOps
 
@@ -141,6 +149,7 @@ include_administrators: true
 ```
 
 **Rationale:**
+
 - Admins unterliegen GLEICHEN Regeln
 - Keine Umgehung für Admins
 
@@ -152,10 +161,10 @@ include_administrators: true
 
 ```yaml
 protected_paths:
-  - ".github/workflows/**"
-  - ".github/actions/**"
-  - "scripts/secrets-*.sh"
-  - "scripts/secrets-*.ps1"
+  - '.github/workflows/**'
+  - '.github/actions/**'
+  - 'scripts/secrets-*.sh'
+  - 'scripts/secrets-*.ps1'
 ```
 
 ### 2.2 Required Approvals
@@ -164,10 +173,11 @@ protected_paths:
 workflow_protection:
   required_reviewers:
     - security-team
-  required_approvals: 2  # Bei Workflow-Änderungen
+  required_approvals: 2 # Bei Workflow-Änderungen
 ```
 
 **Rationale:**
+
 - Workflows haben Zugriff auf Secrets
 - Änderungen könnten Secrets exfiltrieren
 - 2 Approvals bei kritischen Änderungen
@@ -179,14 +189,15 @@ allowed_actions:
   github_owned_allowed: true
   verified_allowed: true
   patterns_allowed:
-    - "actions/*"
-    - "github/*"
-    - "azure/*"
-    - "aws-actions/*"
-    - "google-github-actions/*"
+    - 'actions/*'
+    - 'github/*'
+    - 'azure/*'
+    - 'aws-actions/*'
+    - 'google-github-actions/*'
 ```
 
 **Rationale:**
+
 - Nur verifizierte Actions (Marketplace Badge)
 - Verhindert Supply Chain Attacks via Third-Party Actions
 
@@ -198,8 +209,8 @@ allowed_actions:
 
 ```yaml
 protected_tags:
-  - "v*.*.*"
-  - "release-*"
+  - 'v*.*.*'
+  - 'release-*'
 ```
 
 ### 3.2 Rules
@@ -212,6 +223,7 @@ tag_protection:
 ```
 
 **Rationale:**
+
 - Release-Tags unveränderlich
 - Signiert für Authentizität
 - Verhindert versehentliches Löschen
@@ -223,6 +235,7 @@ tag_protection:
 ### 4.1 Aktivierung
 
 **Organisation-Level:**
+
 ```bash
 # Via GitHub UI
 Settings → Code security → Secret scanning
@@ -232,6 +245,7 @@ Settings → Code security → Secret scanning
 ```
 
 **Repository-Level:**
+
 ```bash
 Settings → Code security → Secret scanning
   ✓ Push protection
@@ -243,14 +257,14 @@ Settings → Code security → Secret scanning
 ```yaml
 bypass_policy:
   allowed_reasons:
-    - "False positive (test data)"
-    - "Public documentation (not secret)"
-    - "Legacy migration (temporary)"
-  
+    - 'False positive (test data)'
+    - 'Public documentation (not secret)'
+    - 'Legacy migration (temporary)'
+
   approval_required: true
   approvers:
     - security-team
-  
+
   documentation_required: true
   documentation_template: |
     **Reason:** <reason>
@@ -260,6 +274,7 @@ bypass_policy:
 ```
 
 **Bypass Tracking:**
+
 - Alle Bypässe im Security Tab geloggt
 - Automatische Issue-Erstellung
 - Eskalation nach 24h ohne Remediation
@@ -269,14 +284,14 @@ bypass_policy:
 ```yaml
 delegated_bypass:
   enabled: true
-  request_flow:
-    1. Developer pusht → Secret detected → Blocked
+  request_flow: 1. Developer pusht → Secret detected → Blocked
     2. Developer requests bypass (with reason)
     3. Security Team reviews (via Slack notification)
     4. Approval/Rejection innerhalb 1h (Business Hours)
 ```
 
 **Implementierung:**
+
 ```bash
 # GitHub API: Request Bypass
 curl -X POST \
@@ -299,6 +314,7 @@ GitHub Actions → OIDC Token → Cloud Provider IAM → Kurzlebiges Access Toke
 ```
 
 **Vorteile:**
+
 - ✅ Keine Langzeit-Secrets
 - ✅ Automatische Rotation (1h Lebensdauer)
 - ✅ Granulare Berechtigungen (per Job)
@@ -311,7 +327,7 @@ GitHub Actions → OIDC Token → Cloud Provider IAM → Kurzlebiges Access Toke
 ```yaml
 # .github/workflows/deploy-azure.yml
 permissions:
-  id-token: write  # OIDC Token
+  id-token: write # OIDC Token
   contents: read
 
 jobs:
@@ -327,6 +343,7 @@ jobs:
 ```
 
 **Azure Setup:**
+
 ```bash
 # Federated Credential erstellen
 az ad app federated-credential create \
@@ -334,7 +351,7 @@ az ad app federated-credential create \
   --parameters '{
     "name": "github-actions",
     "issuer": "https://token.actions.githubusercontent.com",
-    "subject": "repo:Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development:ref:refs/heads/main",
+    "subject": "repo:Menschlichkeit-Osterreich/menschlichkeit-oesterreich:ref:refs/heads/main",
     "audiences": ["api://AzureADTokenExchange"]
   }'
 ```
@@ -357,6 +374,7 @@ jobs:
 ```
 
 **AWS Setup:**
+
 ```bash
 # Trust Policy für GitHub Actions
 {
@@ -370,7 +388,7 @@ jobs:
       "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
         "StringEquals": {
-          "token.actions.githubusercontent.com:sub": "repo:Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development:ref:refs/heads/main"
+          "token.actions.githubusercontent.com:sub": "repo:Menschlichkeit-Osterreich/menschlichkeit-oesterreich:ref:refs/heads/main"
         }
       }
     }
@@ -380,13 +398,13 @@ jobs:
 
 ### 5.3 Benefits Over Secrets
 
-| Aspekt | Secrets | OIDC |
-|--------|---------|------|
-| **Lebensdauer** | Unbegrenzt (bis Rotation) | 1 Stunde (per Job) |
-| **Rotation** | Manuell (90 Tage) | Automatisch (jeder Job) |
-| **Kompromittierung** | Bleibt gültig | Ungültig nach Job-Ende |
-| **Audit** | GitHub Audit Log | Cloud IAM Audit + GitHub |
-| **Granularität** | Repo/Environment | Per Job + Repo + Branch |
+| Aspekt               | Secrets                   | OIDC                     |
+| -------------------- | ------------------------- | ------------------------ |
+| **Lebensdauer**      | Unbegrenzt (bis Rotation) | 1 Stunde (per Job)       |
+| **Rotation**         | Manuell (90 Tage)         | Automatisch (jeder Job)  |
+| **Kompromittierung** | Bleibt gültig             | Ungültig nach Job-Ende   |
+| **Audit**            | GitHub Audit Log          | Cloud IAM Audit + GitHub |
+| **Granularität**     | Repo/Environment          | Per Job + Repo + Branch  |
 
 ---
 
@@ -440,6 +458,7 @@ Tracked Metrics:
 ### 7.2 Alerting
 
 **Slack/Matrix Notifications:**
+
 ```yaml
 Triggers:
   - Push Protection Bypass Request → #security-team (Immediate)
@@ -449,6 +468,7 @@ Triggers:
 ```
 
 **GitHub Issues:**
+
 ```yaml
 Auto-Create Issue:
   - Push Protection Bypass (with details)
@@ -476,6 +496,7 @@ Review Checklist:
 **Problem:** Legitimer Push wird geblockt
 
 **Lösung:**
+
 ```bash
 # 1. Verify False Positive
 git diff HEAD~1 HEAD | grep -i "secret"
@@ -500,10 +521,11 @@ git filter-branch --force --index-filter \
 **Problem:** "Error: Unable to get ACTIONS_ID_TOKEN_REQUEST_URL"
 
 **Lösung:**
+
 ```yaml
 # Fehlt: permissions.id-token: write
 permissions:
-  id-token: write  # <-- WICHTIG
+  id-token: write # <-- WICHTIG
   contents: read
 ```
 
@@ -512,6 +534,7 @@ permissions:
 **Problem:** PR geblockt durch Failed Check
 
 **Lösung:**
+
 ```bash
 # 1. Identify Failed Check
 gh pr checks --repo $ORG/$REPO $PR_NUMBER
@@ -528,11 +551,13 @@ gh run view $RUN_ID --log-failed
 ## 9. References
 
 ### Internal Docs
+
 - [Security Policy](../../SECURITY.md)
 - [Secrets Catalog](../security/secrets-catalog.md)
 - [Quality Gates](../../.github/instructions/core/quality-gates.instructions.md)
 
 ### External Docs
+
 - [GitHub Rulesets](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets)
 - [Push Protection](https://docs.github.com/en/code-security/secret-scanning/push-protection)
 - [OIDC with GitHub Actions](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect)

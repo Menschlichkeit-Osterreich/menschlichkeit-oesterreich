@@ -1,6 +1,6 @@
 # GitHub Security Audit — März 2026
 
-**Repository:** Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
+**Repository:** Menschlichkeit-Osterreich/menschlichkeit-oesterreich
 **Audit-Datum:** 2026-03-25
 **Auditor:** DevOps/Security-Engineer (automatisiert + manuell)
 **Nächster Review:** 2026-06-25 (quartalsweise)

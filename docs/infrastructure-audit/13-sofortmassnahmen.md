@@ -163,7 +163,7 @@ _dmarc.menschlichkeit-oesterreich.at IN TXT "v=DMARC1; p=none; rua=mailto:dmarc-
 ### P1-4: .nvmrc anlegen
 
 ```bash
-echo "22" > /home/user/menschlichkeit-oesterreich-development/.nvmrc
+echo "22" > /home/user/menschlichkeit-oesterreich/.nvmrc
 ```
 
 **Zeitschätzung**: 5 Minuten
@@ -188,33 +188,33 @@ DATABASE_URL=mysql+pymysql://api_user:password@localhost/moe_main alembic upgrad
 
 ## P2 – Mittel (≤1 Monat)
 
-| Nr. | Maßnahme | Zeitschätzung |
-|-----|----------|--------------|
-| P2-1 | Plesk Security-Header für alle Domains konfigurieren | 2h |
-| P2-2 | Fail2ban: SSH + Plesk + Mail aktivieren | 1h |
-| P2-3 | MariaDB: Backup-User + Backup-Script deployen | 2h |
-| P2-4 | MariaDB: Service-isolierte Datenbanken anlegen (moe_n8n zuerst) | 2h |
-| P2-5 | Plesk Panel: 2FA für alle Admin-Accounts aktivieren | 30min |
-| P2-6 | Plesk Panel: Port 8443 auf Admin-IPs beschränken | 30min |
-| P2-7 | ModSecurity CRS in Detection-Mode aktivieren | 1h |
-| P2-8 | Prometheus + Grafana deployen (nach Uptime Kuma) | 4h |
-| P2-9 | FastAPI: prometheus-fastapi-instrumentator einbauen | 1h |
-| P2-10 | DMARC Reports analysieren → Phase 2 vorbereiten | 30min/Woche |
-| P2-11 | Nextcloud: Deployment planen und starten | 1 Tag |
+| Nr.   | Maßnahme                                                        | Zeitschätzung |
+| ----- | --------------------------------------------------------------- | ------------- |
+| P2-1  | Plesk Security-Header für alle Domains konfigurieren            | 2h            |
+| P2-2  | Fail2ban: SSH + Plesk + Mail aktivieren                         | 1h            |
+| P2-3  | MariaDB: Backup-User + Backup-Script deployen                   | 2h            |
+| P2-4  | MariaDB: Service-isolierte Datenbanken anlegen (moe_n8n zuerst) | 2h            |
+| P2-5  | Plesk Panel: 2FA für alle Admin-Accounts aktivieren             | 30min         |
+| P2-6  | Plesk Panel: Port 8443 auf Admin-IPs beschränken                | 30min         |
+| P2-7  | ModSecurity CRS in Detection-Mode aktivieren                    | 1h            |
+| P2-8  | Prometheus + Grafana deployen (nach Uptime Kuma)                | 4h            |
+| P2-9  | FastAPI: prometheus-fastapi-instrumentator einbauen             | 1h            |
+| P2-10 | DMARC Reports analysieren → Phase 2 vorbereiten                 | 30min/Woche   |
+| P2-11 | Nextcloud: Deployment planen und starten                        | 1 Tag         |
 
 ---
 
 ## P3 – Niedrig (nächstes Quartal)
 
-| Nr. | Maßnahme |
-|-----|----------|
-| P3-1 | SBOM-Gate im Releaseprozess einbauen |
-| P3-2 | OpenAPI-Drift-Test in CI |
-| P3-3 | Zero-Downtime-Deployment (Symlink-Swap) |
-| P3-4 | Legacy-Verzeichnisse archivieren |
-| P3-5 | ADRs für offene Entscheidungen schreiben |
-| P3-6 | OpenClaw Produktions-Deployment evaluieren |
-| P3-7 | ELK-Stack aktivieren oder durch Grafana Loki ersetzen |
+| Nr.  | Maßnahme                                               |
+| ---- | ------------------------------------------------------ |
+| P3-1 | SBOM-Gate im Releaseprozess einbauen                   |
+| P3-2 | OpenAPI-Drift-Test in CI                               |
+| P3-3 | Zero-Downtime-Deployment (Symlink-Swap)                |
+| P3-4 | Legacy-Verzeichnisse archivieren                       |
+| P3-5 | ADRs für offene Entscheidungen schreiben               |
+| P3-6 | OpenClaw Produktions-Deployment evaluieren             |
+| P3-7 | ELK-Stack aktivieren oder durch Grafana Loki ersetzen  |
 | P3-8 | Forum, Support, Voting-Systeme evaluieren und deployen |
 
 ---
@@ -243,9 +243,9 @@ Monat 3+:
 
 ## Verantwortlichkeiten
 
-| Rolle | Person | Verantwortlich für |
-|-------|--------|--------------------|
-| System-Administrator | peter.schuller@ | P0-Credentials, Mailboxen, Plesk |
-| DevOps | (zu benennen) | Monitoring, Deployment, Backup |
-| Security | peter.schuller@ (interim) | security@, Audit-Review |
-| Datenschutz | (zu benennen) | DSGVO-Compliance |
+| Rolle                | Person                    | Verantwortlich für               |
+| -------------------- | ------------------------- | -------------------------------- |
+| System-Administrator | peter.schuller@           | P0-Credentials, Mailboxen, Plesk |
+| DevOps               | (zu benennen)             | Monitoring, Deployment, Backup   |
+| Security             | peter.schuller@ (interim) | security@, Audit-Review          |
+| Datenschutz          | (zu benennen)             | DSGVO-Compliance                 |

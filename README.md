@@ -25,6 +25,15 @@ Monorepo fuer Website, FastAPI-Backend, Drupal/CiviCRM, Babylon-Game, MCP-Server
 | Hidden Toolkits             | `.browser-pilot/`, `.blender-toolkit/` | separat klassifiziert, kein Root-Lint-Blocker |
 | Incident-/Qualitaetsreports | `quality-reports/`, `reports/`         | erzeugte Evidenz                              |
 
+## Root-Klassifikation
+
+- `aktiv`: `apps/`, `openclaw-system/`, `mcp-servers/`, aktive Root-Doku wie `README.md`, `README_DEPLOY.md`, `SECURITY.md`
+- `legacy/mirror`: `api.menschlichkeit-oesterreich.at/`, `crm.menschlichkeit-oesterreich.at/`, `new/`, `web/`, `services/`, `templates/`, `tools/`
+- `generated/evidence`: `quality-reports/`, `reports/`, `analysis/`, `generated/`
+- `vendor/spezial`: `.browser-pilot/`, `.blender-toolkit/`, `codacy-analysis-cli-master/`
+
+Neue Produktarbeit gehoert nur in aktive Pfade. Legacy-/Mirror-Baeume bleiben vorerst read-only Referenz.
+
 ## Schnellstart
 
 ```bash
@@ -106,6 +115,7 @@ Website-Integrationen verwenden `VITE_OPENCLAW_BRIDGE_URL`, standardmaessig `htt
 
 - `CONTRIBUTING.md`
 - `CLAUDE.md`
+- `reports/repository-live-stabilization-assessment-2026-03-31.md`
 - `apps/api/README.md`
 - `api.menschlichkeit-oesterreich.at/README.md`
 - `openclaw-system/ARCHITECTURE.md`

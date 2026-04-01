@@ -9,7 +9,7 @@
 
 ## Übersicht
 
-Dieser Blueprint definiert checkbare DSGVO-Compliance-Anforderungen für das Projekt `menschlichkeit-oesterreich-development`. Alle Checkboxen müssen für Production-Release erfüllt sein.
+Dieser Blueprint definiert checkbare DSGVO-Compliance-Anforderungen für das Projekt `menschlichkeit-oesterreich`. Alle Checkboxen müssen für Production-Release erfüllt sein.
 
 ---
 

@@ -21,7 +21,7 @@ priority: high
 
 **Erstellungsdatum:** 2025-10-10  
 **Modus:** Dry-Run Analysis  
-**Repository:** Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
+**Repository:** Menschlichkeit-Osterreich/menschlichkeit-oesterreich
 
 ---
 

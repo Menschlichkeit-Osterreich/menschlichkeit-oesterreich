@@ -31,13 +31,13 @@
 
 ### Issue Matrix
 
-| # | Issue | Impact | CVSS | Timeline | Status |
-|---|-------|--------|------|----------|--------|
-| 1 | **n8n over HTTP** | Credential theft, MITM | 9.1 | 24h | 📝 Guide Ready |
-| 2 | **PII in Logs** | DSGVO violation | 9.0 | 72h | 📝 Code Ready |
-| 3 | **No Audit Logs** | Compliance failure | 8.5 | 14d | 📝 Code Ready |
-| 4 | **MCP No Sandbox** | Privilege escalation | 8.0 | 7d | 📝 Guide Ready |
-| 5 | **No Git Signing** | Supply chain attack | 7.8 | 14d | 📝 Guide Ready |
+| #   | Issue              | Impact                 | CVSS | Timeline | Status         |
+| --- | ------------------ | ---------------------- | ---- | -------- | -------------- |
+| 1   | **n8n over HTTP**  | Credential theft, MITM | 9.1  | 24h      | 📝 Guide Ready |
+| 2   | **PII in Logs**    | DSGVO violation        | 9.0  | 72h      | 📝 Code Ready  |
+| 3   | **No Audit Logs**  | Compliance failure     | 8.5  | 14d      | 📝 Code Ready  |
+| 4   | **MCP No Sandbox** | Privilege escalation   | 8.0  | 7d       | 📝 Guide Ready |
+| 5   | **No Git Signing** | Supply chain attack    | 7.8  | 14d      | 📝 Guide Ready |
 
 ### Impact Visualization
 
@@ -76,6 +76,7 @@ SecurityMonitor()
 ```
 
 **Features:**
+
 - ✅ Detects brute force attacks (≥5 failed attempts)
 - ✅ Scans logs for PII (email, IBAN, phone)
 - ✅ Identifies unusual access patterns
@@ -120,15 +121,15 @@ Fixed Issues:
 
 ### Before vs After
 
-| Metric | Before | After Implementation |
-|--------|--------|---------------------|
-| **Code Vulnerabilities** | 2 HIGH | 0 |
-| **ESLint Warnings** | 1 | 0 |
-| **Security Monitoring** | ❌ None | ✅ Real-time |
-| **PII Detection** | ❌ Manual | ✅ Automated |
-| **Alert Management** | ❌ None | ✅ Dashboard |
-| **API Integration** | ❌ None | ✅ Complete |
-| **Documentation** | 🟡 Partial | ✅ Comprehensive |
+| Metric                   | Before     | After Implementation |
+| ------------------------ | ---------- | -------------------- |
+| **Code Vulnerabilities** | 2 HIGH     | 0                    |
+| **ESLint Warnings**      | 1          | 0                    |
+| **Security Monitoring**  | ❌ None    | ✅ Real-time         |
+| **PII Detection**        | ❌ Manual  | ✅ Automated         |
+| **Alert Management**     | ❌ None    | ✅ Dashboard         |
+| **API Integration**      | ❌ None    | ✅ Complete          |
+| **Documentation**        | 🟡 Partial | ✅ Comprehensive     |
 
 ### Alert Detection Test Results
 
@@ -136,7 +137,7 @@ Fixed Issues:
 {
   "test_results": {
     "brute_force_detection": "✅ PASS",
-    "pii_leak_detection": "✅ PASS", 
+    "pii_leak_detection": "✅ PASS",
     "unusual_access_detection": "✅ PASS",
     "alert_persistence": "✅ PASS",
     "metrics_aggregation": "✅ PASS"
@@ -256,13 +257,13 @@ Target Status:  ✅ FULLY COMPLIANT (after implementation)
 
 ### Compliance Actions
 
-| Requirement | Current | Target | Action |
-|-------------|---------|--------|--------|
-| **PII Protection** | ❌ Exposed | ✅ Sanitized | Implement PII middleware |
-| **Audit Trail** | ❌ Missing | ✅ Complete | Deploy audit logging |
-| **Breach Response** | 🟡 Manual | ✅ Automated | Activate alert system |
-| **Data Minimization** | 🟡 Partial | ✅ Complete | Review data retention |
-| **DPIA** | ❌ Missing | ✅ Complete | Conduct assessment |
+| Requirement           | Current    | Target       | Action                   |
+| --------------------- | ---------- | ------------ | ------------------------ |
+| **PII Protection**    | ❌ Exposed | ✅ Sanitized | Implement PII middleware |
+| **Audit Trail**       | ❌ Missing | ✅ Complete  | Deploy audit logging     |
+| **Breach Response**   | 🟡 Manual  | ✅ Automated | Activate alert system    |
+| **Data Minimization** | 🟡 Partial | ✅ Complete  | Review data retention    |
+| **DPIA**              | ❌ Missing | ✅ Complete  | Conduct assessment       |
 
 ---
 
@@ -354,7 +355,7 @@ uvicorn app.main:app --reload
 ### Reporting Security Issues
 
 - **Method:** GitHub Private Vulnerability Reporting
-- **Link:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/security/advisories/new
+- **Link:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/security/advisories/new
 - **Alternative:** security@menschlichkeit-oesterreich.at (with PGP)
 
 ### Datenschutzbeauftragte:r (DPO)

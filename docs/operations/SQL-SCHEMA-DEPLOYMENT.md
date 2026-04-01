@@ -67,7 +67,7 @@ $env:DATABASE_URL
 
 ```powershell
 # Terminal (PowerShell)
-cd D:\Arbeitsverzeichniss\menschlichkeit-oesterreich-development
+cd D:\Arbeitsverzeichniss\menschlichkeit-oesterreich
 
 # Schema deployen
 psql $env:DATABASE_URL -f database/schema/dashboard-analytics.sql
@@ -124,7 +124,7 @@ psql $env:DATABASE_URL -f database/schema/dashboard-analytics.sql
 
 ```powershell
 # Terminal (PowerShell)
-cd D:\Arbeitsverzeichniss\menschlichkeit-oesterreich-development
+cd D:\Arbeitsverzeichniss\menschlichkeit-oesterreich
 
 # Python Virtual Environment aktivieren
 .venv\Scripts\Activate.ps1
@@ -272,6 +272,7 @@ SELECT * FROM cron.job;
 ### Option B: n8n Workflow
 
 **Workflow:**
+
 1. **Trigger:** Cron (täglich 02:00 Uhr)
 2. **Node:** PostgreSQL Execute Query
 3. **Query:** `SELECT refresh_dashboard_kpis();`

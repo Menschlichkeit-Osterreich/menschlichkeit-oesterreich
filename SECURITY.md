@@ -6,18 +6,18 @@ Wir nehmen Sicherheit ernst und danken Ihnen für Ihr Engagement, unsere Plattfo
 
 Wir bieten Sicherheitsupdates für folgende Versionen:
 
-| Version | Unterstützt | Status |
-|---------|------------|--------|
-| main (latest) | ✅ | Aktive Entwicklung |
-| v2.x | ✅ | Security Patches |
-| v1.x | ⚠️ | Kritische Patches nur |
-| < 1.0 | ❌ | Nicht unterstützt |
+| Version       | Unterstützt | Status                |
+| ------------- | ----------- | --------------------- |
+| main (latest) | ✅          | Aktive Entwicklung    |
+| v2.x          | ✅          | Security Patches      |
+| v1.x          | ⚠️          | Kritische Patches nur |
+| < 1.0         | ❌          | Nicht unterstützt     |
 
 ## 🛡️ Private Vulnerability Reporting (Empfohlen)
 
 GitHub bietet **Private Vulnerability Reporting** für vertrauliche Sicherheitsmeldungen an:
 
-1. **Navigieren Sie zu**: [Security → Advisories → New draft security advisory](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/security/advisories/new)
+1. **Navigieren Sie zu**: [Security → Advisories → New draft security advisory](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/security/advisories/new)
 2. **Beschreiben Sie** die Schwachstelle mit ausreichend Details zur Reproduktion
 3. **Vermeiden Sie** die Preisgabe sensibler Daten (Credentials, PII)
 4. **Wir bestätigen** den Eingang innerhalb von **72 Stunden**
@@ -25,6 +25,7 @@ GitHub bietet **Private Vulnerability Reporting** für vertrauliche Sicherheitsm
 6. **Koordinierte Veröffentlichung** nach Behebung (CVE-ID wird zugewiesen)
 
 ### Vorteile von Private Vulnerability Reporting:
+
 - ✅ Vertrauliche Diskussionen vor der Veröffentlichung
 - ✅ Automatische CVE-Zuweisung durch GitHub
 - ✅ Sicherer Patch-Entwicklungsprozess
@@ -41,14 +42,14 @@ Falls Private Vulnerability Reporting nicht verfügbar ist:
 
 ### ✅ In Scope
 
-| System | Komponenten | Kritikalität |
-|--------|-------------|--------------|
-| **API Backend** | FastAPI, Auth-Flows, OAuth/JWT | HOCH |
-| **CRM System** | Drupal 10, CiviCRM, PII-Verarbeitung | KRITISCH |
-| **Frontend** | React, XSS, CSRF, Clickjacking | MITTEL |
-| **Gaming Platform** | User XP, Achievements, Sessions | NIEDRIG |
-| **Automation** | n8n Workflows, Webhook Handling | MITTEL |
-| **CI/CD Pipeline** | GitHub Actions, Secrets, Deploy-Skripte | HOCH |
+| System              | Komponenten                             | Kritikalität |
+| ------------------- | --------------------------------------- | ------------ |
+| **API Backend**     | FastAPI, Auth-Flows, OAuth/JWT          | HOCH         |
+| **CRM System**      | Drupal 10, CiviCRM, PII-Verarbeitung    | KRITISCH     |
+| **Frontend**        | React, XSS, CSRF, Clickjacking          | MITTEL       |
+| **Gaming Platform** | User XP, Achievements, Sessions         | NIEDRIG      |
+| **Automation**      | n8n Workflows, Webhook Handling         | MITTEL       |
+| **CI/CD Pipeline**  | GitHub Actions, Secrets, Deploy-Skripte | HOCH         |
 
 ### ❌ Nicht im Scope
 
@@ -62,12 +63,12 @@ Falls Private Vulnerability Reporting nicht verfügbar ist:
 
 Wir verwenden **CVSS 3.1** zur Bewertung:
 
-| Severity | CVSS Score | Response Time | Patch Timeline |
-|----------|-----------|--------------|----------------|
-| **CRITICAL** | 9.0 - 10.0 | < 24h | < 48h |
-| **HIGH** | 7.0 - 8.9 | < 72h | < 7 Tage |
-| **MEDIUM** | 4.0 - 6.9 | < 7 Tage | < 30 Tage |
-| **LOW** | 0.1 - 3.9 | < 30 Tage | Nächstes Release |
+| Severity     | CVSS Score | Response Time | Patch Timeline   |
+| ------------ | ---------- | ------------- | ---------------- |
+| **CRITICAL** | 9.0 - 10.0 | < 24h         | < 48h            |
+| **HIGH**     | 7.0 - 8.9  | < 72h         | < 7 Tage         |
+| **MEDIUM**   | 4.0 - 6.9  | < 7 Tage      | < 30 Tage        |
+| **LOW**      | 0.1 - 3.9  | < 30 Tage     | Nächstes Release |
 
 ## 🏆 Responsible Disclosure Prozess
 
@@ -99,6 +100,7 @@ Dieses Projekt befolgt **Privacy-by-Design** Prinzipien:
 - **Encryption**: Sensible Daten werden verschlüsselt (at rest & in transit)
 
 **Dokumentation**:
+
 - Vollständige DSGVO-Dokumentation: `docs/privacy/`
 - PII-Sanitizer Tests: `tests/test_pii_sanitizer.py`
 - Privacy Policy: `docs/PRIVACY.md`
@@ -117,15 +119,15 @@ Im Falle eines Sicherheitsvorfalls:
 
 Automatische Sicherheitschecks:
 
-| Tool | Zweck | Frequenz | SARIF Upload |
-|------|-------|----------|--------------|
-| **CodeQL** | SAST für JavaScript/Python | Bei jedem Push | ✅ |
-| **Semgrep** | Pattern-basierte Analyse | Bei jedem Push | ✅ |
-| **Trivy** | Container & Dependency Scan | Täglich | ✅ |
-| **OSV Scanner** | Vulnerability Database | Bei jedem Push | ✅ |
-| **Gitleaks** | Secret Scanning | Bei jedem Push | ❌ |
-| **Dependabot** | Dependency Updates | Täglich | ✅ |
-| **OpenSSF Scorecard** | Best Practices | Wöchentlich | ✅ |
+| Tool                  | Zweck                       | Frequenz       | SARIF Upload |
+| --------------------- | --------------------------- | -------------- | ------------ |
+| **CodeQL**            | SAST für JavaScript/Python  | Bei jedem Push | ✅           |
+| **Semgrep**           | Pattern-basierte Analyse    | Bei jedem Push | ✅           |
+| **Trivy**             | Container & Dependency Scan | Täglich        | ✅           |
+| **OSV Scanner**       | Vulnerability Database      | Bei jedem Push | ✅           |
+| **Gitleaks**          | Secret Scanning             | Bei jedem Push | ❌           |
+| **Dependabot**        | Dependency Updates          | Täglich        | ✅           |
+| **OpenSSF Scorecard** | Best Practices              | Wöchentlich    | ✅           |
 
 ## 🔑 Secret Management
 
@@ -138,22 +140,26 @@ Automatische Sicherheitschecks:
 ## 📞 Kontakt & Verantwortliche
 
 ### Security Team
+
 - **E-Mail**: security@menschlichkeit-oesterreich.at
 - **PGP Key**: [Download](https://menschlichkeit-oesterreich.at/.well-known/pgp-key.asc)
 - **Response Time**: < 72 Stunden Erstantwort garantiert
 
 ### Datenschutzbeauftragte:r (DPO)
+
 - **Name**: Datenschutzbeauftragte:r Menschlichkeit Österreich
 - **E-Mail**: datenschutz@menschlichkeit-oesterreich.at
 - **Scope**: DSGVO-Compliance, Datenschutzvorfälle, Art. 33/34 Meldepflichten
 
 ### On-Call Eskalation
+
 - **Pager**: [INCIDENT_PAGER - Matrix/Slack Channel]
 - **Nur für**: CRITICAL Severity Incidents
 
 ## 🌐 Weiterführende Ressourcen
 
 ### Security Documentation (Internal)
+
 - [Security Status Report](docs/SECURITY-STATUS-REPORT.md) - Current security posture and issues
 - [Security Implementation Guide](docs/SECURITY-IMPLEMENTATION-GUIDE.md) - Step-by-step remediation instructions
 - [Security Check Summary](docs/SECURITY-CHECK-SUMMARY.md) - Visual overview and roadmap
@@ -162,6 +168,7 @@ Automatische Sicherheitschecks:
 - [Security API Endpoints](api.menschlichkeit-oesterreich.at/app/routers/security.py) - Dashboard integration
 
 ### External Resources
+
 - [GitHub Security Best Practices](https://docs.github.com/en/code-security)
 - [OWASP Top 10](https://owasp.org/www-project-top-ten/)
 - [CWE/SANS Top 25](https://cwe.mitre.org/top25/)

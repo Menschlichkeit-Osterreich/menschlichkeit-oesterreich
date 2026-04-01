@@ -36,15 +36,16 @@
 
 ### 4. Token-Konfiguration
 
-| Feld | Wert |
-|------|------|
-| **Token name** | `GH_TOKEN 2026-2027` |
-| **Expiration** | **Custom:** 2027-10-18 (1 Jahr) |
-| **Repository access** | **All repositories** (oder spezifisch: `Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development`) |
+| Feld                  | Wert                                                                                           |
+| --------------------- | ---------------------------------------------------------------------------------------------- |
+| **Token name**        | `GH_TOKEN 2026-2027`                                                                           |
+| **Expiration**        | **Custom:** 2027-10-18 (1 Jahr)                                                                |
+| **Repository access** | **All repositories** (oder spezifisch: `Menschlichkeit-Osterreich/menschlichkeit-oesterreich`) |
 
 ### 5. Scopes auswählen (Minimum)
 
 **Repository Permissions:**
+
 - ✅ **Contents:** Read and write (für Checkout + Push)
 - ✅ **Actions:** Read and write (für Workflow-Trigger)
 - ✅ **Secrets:** Read and write (für Secret-Management)
@@ -53,10 +54,12 @@
 - ✅ **Issues:** Read and write (für Issue-Management)
 
 **Organization Permissions (falls nötig):**
+
 - ✅ **Administration:** Read and write (für Org-Settings)
 - ✅ **Members:** Read (für Team-Zugriff)
 
 **Account Permissions:**
+
 - ✅ **Codespaces:** Read and write (für Devcontainer-Secrets)
 - ✅ **GPG Keys:** Read and write (für Commit-Signing-Config)
 
@@ -74,7 +77,7 @@
 
 **Methode A: GitHub UI**
 
-1. Navigiere zu: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/settings/secrets/actions
+1. Navigiere zu: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/settings/secrets/actions
 2. `GH_TOKEN` → **Update**
 3. Neuen Token einfügen → **Update secret**
 
@@ -83,10 +86,10 @@
 ```bash
 # Token aus Passwort-Manager kopieren und eingeben
 echo "github_pat_11A43OH4Y0..." | gh secret set GH_TOKEN \
-  --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
+  --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich
 
 # Bestätigung
-gh secret list --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development | grep GH_TOKEN
+gh secret list --repo Menschlichkeit-Osterreich/menschlichkeit-oesterreich | grep GH_TOKEN
 ```
 
 ### 8. Lokale .env.local aktualisieren
@@ -112,7 +115,7 @@ Wenn Token in VS Code Settings referenziert:
 // .vscode/settings.json
 {
   "terminal.integrated.env.windows": {
-    "GH_TOKEN": "${env:GH_TOKEN}"  // Lädt automatisch aus .env.local
+    "GH_TOKEN": "${env:GH_TOKEN}" // Lädt automatisch aus .env.local
   }
 }
 ```
@@ -150,7 +153,7 @@ gh run view <RUN_ID> --log
   ```
 - [ ] **Secret-Scanning:** Funktioniert weiterhin
   ```bash
-  gh api repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/secret-scanning/alerts
+  gh api repos/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/secret-scanning/alerts
   ```
 
 ### 12. Externe Integrationen testen
@@ -238,12 +241,14 @@ gh issue close <ISSUE_NUMBER> --comment "✅ PAT erfolgreich rotiert (2026-10-18
 1. **Alten PAT NICHT widerrufen** (24h Wartezeit einhalten!)
 
 2. **Secret zurücksetzen:**
+
    ```bash
    # Alten Token aus Passwort-Manager holen
    echo "github_pat_OLD..." | gh secret set GH_TOKEN
    ```
 
 3. **Workflows neu starten:**
+
    ```bash
    gh run rerun <FAILED_RUN_ID>
    ```
@@ -259,10 +264,12 @@ gh issue close <ISSUE_NUMBER> --comment "✅ PAT erfolgreich rotiert (2026-10-18
 
 ```markdown
 ### Vor Rotation (T-7 Tage)
+
 - [ ] Reminder-Issue prüfen
 - [ ] Workflows & Abhängigkeiten dokumentieren
 
 ### Rotation (T-0)
+
 - [ ] Neuen PAT erstellen (2027-10-18)
 - [ ] Scopes korrekt setzen
 - [ ] GitHub Secret aktualisieren
@@ -270,12 +277,14 @@ gh issue close <ISSUE_NUMBER> --comment "✅ PAT erfolgreich rotiert (2026-10-18
 - [ ] gh auth status → ✅
 
 ### Tests (T+0)
+
 - [ ] CI-Workflow (3 erfolgreiche Runs)
 - [ ] Deployment-Workflow (Staging)
 - [ ] Release-Workflow (Testrelease)
 - [ ] Externe Integrationen (n8n, Plesk)
 
 ### Cleanup (T+24h)
+
 - [ ] 24h Wartezeit abwarten
 - [ ] Alten PAT widerrufen
 - [ ] Dokumentation aktualisieren
@@ -283,6 +292,7 @@ gh issue close <ISSUE_NUMBER> --comment "✅ PAT erfolgreich rotiert (2026-10-18
 - [ ] Audit-Log prüfen
 
 ### Rollback-Plan (falls nötig)
+
 - [ ] Alten Token NICHT widerrufen
 - [ ] Secret zurücksetzen
 - [ ] Workflows neu starten
@@ -294,12 +304,14 @@ gh issue close <ISSUE_NUMBER> --comment "✅ PAT erfolgreich rotiert (2026-10-18
 ## 🔗 Referenzen
 
 **Interne Dokumentation:**
+
 - `.github/instructions/gh-pat-integration.instructions.md` (Masterprompt)
 - `docs/security/GH-TOKEN-USAGE.md` (Quick-Start-Guide)
 - `.github/workflows/pat-expiry-reminder.yml` (Auto-Reminder)
 - `scripts/gh/` (Admin-Skripte)
 
 **Externe Ressourcen:**
+
 - [GitHub PAT Best Practices](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)
 - [Fine-grained PATs](https://github.blog/2022-10-18-introducing-fine-grained-personal-access-tokens-for-github/)
 - [Token Security](https://docs.github.com/en/code-security/secret-scanning/about-secret-scanning)

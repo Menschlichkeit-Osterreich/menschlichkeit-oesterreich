@@ -12,29 +12,32 @@ This report provides a comprehensive overview of the current security status of 
 
 ### Overall Status
 
-| Category | Status | Details |
-|----------|--------|---------|
-| **Code Security** | ✅ PASS | Critical vulnerabilities fixed |
-| **Infrastructure** | 🔴 CRITICAL | n8n HTTP, Missing TLS |
-| **DSGVO Compliance** | 🔴 CRITICAL | PII in logs, No audit trail |
-| **Access Control** | 🟡 ATTENTION | Git signing, MCP sandboxing needed |
-| **Monitoring** | 🔴 CRITICAL | No centralized logging/alerting |
+| Category             | Status       | Details                            |
+| -------------------- | ------------ | ---------------------------------- |
+| **Code Security**    | ✅ PASS      | Critical vulnerabilities fixed     |
+| **Infrastructure**   | 🔴 CRITICAL  | n8n HTTP, Missing TLS              |
+| **DSGVO Compliance** | 🔴 CRITICAL  | PII in logs, No audit trail        |
+| **Access Control**   | 🟡 ATTENTION | Git signing, MCP sandboxing needed |
+| **Monitoring**       | 🔴 CRITICAL  | No centralized logging/alerting    |
 
 ---
 
 ## 🔴 Critical Security Issues (IMMEDIATE ACTION REQUIRED)
 
 ### 1. n8n Running Over HTTP (CRITICAL)
+
 **Risk Level:** CRITICAL  
 **CVSS Score:** 9.1 (Critical)  
 **Impact:** Man-in-the-middle attacks, credential theft, data interception
 
 **Current State:**
+
 - n8n automation platform running over unencrypted HTTP
 - Credentials and sensitive data transmitted in plaintext
 - No TLS/SSL protection
 
 **Required Fix:**
+
 ```yaml
 # docker-compose.yml
 services:
@@ -54,9 +57,11 @@ services:
 ---
 
 ### 2. PII in Logs (CRITICAL - DSGVO Violation)
+
 **Risk Level:** CRITICAL  
 **Legal Impact:** DSGVO Art. 32 violation, potential fines up to 4% of revenue  
 **Current State:**
+
 - Email addresses, IBANs, and other PII logged in plaintext
 - No automatic sanitization middleware
 - Logs retained without proper data minimization
@@ -83,9 +88,11 @@ async def sanitize_logs(request: Request, call_next):
 ---
 
 ### 3. No Audit Logging (CRITICAL)
+
 **Risk Level:** CRITICAL  
 **Compliance Impact:** DSGVO Art. 30, NIS2 requirements  
 **Current State:**
+
 - No centralized audit trail for security events
 - No SIEM integration
 - Missing evidence for compliance audits
@@ -111,14 +118,17 @@ async def create_donation(donation: DonationCreate):
 ---
 
 ### 4. MCP Servers Without Sandboxing (CRITICAL)
+
 **Risk Level:** CRITICAL  
 **Impact:** Potential privilege escalation, resource exhaustion  
 **Current State:**
+
 - MCP servers running without resource limits
 - No container isolation
 - Unrestricted file system access
 
 **Required Fix:**
+
 ```yaml
 # mcp-servers/docker-compose.yml
 services:
@@ -140,14 +150,17 @@ services:
 ---
 
 ### 5. Git Commits Not Signed (CRITICAL)
+
 **Risk Level:** CRITICAL  
 **Supply Chain Impact:** Potential for malicious code injection  
 **Current State:**
+
 - Commits not cryptographically signed
 - No verification of commit authenticity
 - Supply chain attack vector
 
 **Required Fix:**
+
 1. Set up GPG key signing for all developers
 2. Enable commit signature verification in branch protection
 3. Require signed commits for all protected branches
@@ -167,9 +180,11 @@ git config --global commit.gpgsign true
 ## 🟠 High Priority Issues
 
 ### 1. JWT Using HS256 (Should Use RS256)
+
 **Risk Level:** HIGH  
 **Impact:** Weaker cryptographic security  
 **Required Fix:**
+
 ```python
 from jose import jwt
 
@@ -179,14 +194,17 @@ token = jwt.encode(
     algorithm="RS256"  # Asymmetric algorithm
 )
 ```
+
 **Timeline:** 30 days
 
 ---
 
 ### 2. No Rate Limiting (DoS Vulnerability)
+
 **Risk Level:** HIGH  
 **Impact:** Service availability, resource exhaustion  
 **Required Fix:**
+
 ```python
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -199,6 +217,7 @@ app.state.limiter = limiter
 async def get_donations():
     pass
 ```
+
 **Timeline:** 30 days
 
 ---
@@ -207,13 +226,14 @@ async def get_donations():
 
 ### Code-Level Vulnerabilities (FIXED ✅)
 
-| Issue | Severity | Status | Fix Date |
-|-------|----------|--------|----------|
-| Command Injection (B602) | HIGH | ✅ FIXED | 2025-10-12 |
-| Bare Exception Handler (B110) | MEDIUM | ✅ FIXED | 2025-10-12 |
-| Frontend ESLint Warning | LOW | ✅ FIXED | 2025-10-13 |
+| Issue                         | Severity | Status   | Fix Date   |
+| ----------------------------- | -------- | -------- | ---------- |
+| Command Injection (B602)      | HIGH     | ✅ FIXED | 2025-10-12 |
+| Bare Exception Handler (B110) | MEDIUM   | ✅ FIXED | 2025-10-12 |
+| Frontend ESLint Warning       | LOW      | ✅ FIXED | 2025-10-13 |
 
 **Details:**
+
 - All subprocess calls migrated from `shell=True` to `shell=False`
 - Exception handlers made specific (ValueError, IndexError)
 - Unused variable `setSecurityLogs` removed from SecurityDashboard
@@ -224,16 +244,16 @@ async def get_donations():
 
 ### Automated Security Scans
 
-| Tool | Status | Last Run | Findings |
-|------|--------|----------|----------|
-| **CodeQL** | ✅ Active | Every push | 0 critical |
-| **Semgrep** | ✅ Active | Every push | 0 critical |
-| **Trivy** | ✅ Active | Daily | 0 critical |
-| **OSV Scanner** | ✅ Active | Every push | 0 critical |
-| **Gitleaks** | ✅ Active | Every push | 0 secrets |
-| **Dependabot** | ✅ Active | Daily | 0 vulnerabilities |
-| **npm audit** | ✅ Active | On install | 0 vulnerabilities |
-| **Bandit** | 🟡 Manual | 2025-10-12 | 33 low (accepted) |
+| Tool            | Status    | Last Run   | Findings          |
+| --------------- | --------- | ---------- | ----------------- |
+| **CodeQL**      | ✅ Active | Every push | 0 critical        |
+| **Semgrep**     | ✅ Active | Every push | 0 critical        |
+| **Trivy**       | ✅ Active | Daily      | 0 critical        |
+| **OSV Scanner** | ✅ Active | Every push | 0 critical        |
+| **Gitleaks**    | ✅ Active | Every push | 0 secrets         |
+| **Dependabot**  | ✅ Active | Daily      | 0 vulnerabilities |
+| **npm audit**   | ✅ Active | On install | 0 vulnerabilities |
+| **Bandit**      | 🟡 Manual | 2025-10-12 | 33 low (accepted) |
 
 ---
 
@@ -242,12 +262,14 @@ async def get_donations():
 ### Real-Time Security Monitoring (MISSING ❌)
 
 **Current Gaps:**
+
 - ❌ No centralized log aggregation (ELK/Grafana)
 - ❌ No real-time security alerting
 - ❌ No automated incident response
 - ❌ No security dashboard with live data
 
 **Recommended Implementation:**
+
 1. **ELK Stack**: Elasticsearch, Logstash, Kibana for log aggregation
 2. **Grafana**: Real-time security metrics and dashboards
 3. **PagerDuty/Slack**: Automated alerting for security incidents
@@ -258,23 +280,27 @@ async def get_donations():
 ## 📝 Action Items & Timeline
 
 ### Immediate (0-7 Days) - CRITICAL
+
 - [ ] Deploy n8n with HTTPS/TLS configuration
 - [ ] Implement PII sanitization middleware
 - [ ] Set up basic audit logging
 
 ### Short-term (7-30 Days) - HIGH
+
 - [ ] Implement rate limiting on all API endpoints
 - [ ] Migrate JWT to RS256
 - [ ] Configure MCP server sandboxing
 - [ ] Enable Git commit signing
 
 ### Medium-term (30-90 Days) - MEDIUM
+
 - [ ] Deploy centralized logging (ELK Stack)
 - [ ] Implement real-time security monitoring
 - [ ] Create automated incident response playbooks
 - [ ] Complete DPIA (Data Protection Impact Assessment)
 
 ### Long-term (90+ Days) - LOW
+
 - [ ] Achieve WCAG AA accessibility compliance
 - [ ] Implement encryption-at-rest for CiviCRM database
 - [ ] Deploy CDN/caching layer with DDoS protection
@@ -286,14 +312,15 @@ async def get_donations():
 
 ### DSGVO Compliance
 
-| Requirement | Status | Notes |
-|------------|--------|-------|
-| Art. 30 (Record of Processing) | 🟡 Partial | Needs audit trail |
-| Art. 32 (Security Measures) | 🔴 Non-compliant | PII in logs |
-| Art. 33 (Breach Notification) | 🟡 Partial | Playbook exists, not tested |
-| Art. 35 (DPIA) | 🔴 Missing | Must complete within 30 days |
+| Requirement                    | Status           | Notes                        |
+| ------------------------------ | ---------------- | ---------------------------- |
+| Art. 30 (Record of Processing) | 🟡 Partial       | Needs audit trail            |
+| Art. 32 (Security Measures)    | 🔴 Non-compliant | PII in logs                  |
+| Art. 33 (Breach Notification)  | 🟡 Partial       | Playbook exists, not tested  |
+| Art. 35 (DPIA)                 | 🔴 Missing       | Must complete within 30 days |
 
 ### Austrian Data Protection Law
+
 - ✅ Datenschutzerklärung vorhanden
 - ✅ Betroffenenrechte dokumentiert
 - 🔴 Technische Maßnahmen unvollständig (TLS, Audit-Logs)
@@ -303,15 +330,18 @@ async def get_donations():
 ## 📞 Security Contacts
 
 ### Incident Response
+
 - **Email:** security@menschlichkeit-oesterreich.at
 - **Response Time:** < 72 hours
 - **Escalation:** [INCIDENT_PAGER]
 
 ### Responsible Disclosure
+
 - **Method:** GitHub Private Vulnerability Reporting
-- **Link:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/security/advisories/new
+- **Link:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/security/advisories/new
 
 ### Datenschutzbeauftragte:r (DPO)
+
 - **Email:** [DPO_EMAIL]
 - **Scope:** DSGVO compliance, data breach response
 

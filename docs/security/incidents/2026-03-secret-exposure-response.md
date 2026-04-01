@@ -4,7 +4,7 @@ Status: `SEV-1 / suspected credential exposure`
 
 ## Ziel
 
-Reproduzierbare Bearbeitung eines Responsible-Disclosure-Hinweises zu moeglich exponierten Credentials im oeffentlichen Repository `Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development`.
+Reproduzierbare Bearbeitung eines Responsible-Disclosure-Hinweises zu moeglich exponierten Credentials im oeffentlichen Repository `Menschlichkeit-Osterreich/menschlichkeit-oesterreich`.
 
 ## Bestaetigte Repo-Fakten
 
