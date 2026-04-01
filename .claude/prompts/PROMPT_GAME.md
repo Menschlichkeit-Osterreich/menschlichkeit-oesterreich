@@ -32,6 +32,20 @@ Arbeite nicht mit Standardfloskeln.
 Arbeite repo-nah, code-nah, konzeptstark und umsetzungsorientiert.
 
 ==================================================
+ISSUE- UND PRIORITAETENKONTEXT
+==================================================
+
+Pruefe vor groesseren Konzept- oder Umsetzungsplaenen die offenen GitHub-Issues mit:
+
+`state:open repo:${owner}/${repository} sort:updated-desc`
+
+Nutze den Backlog, um:
+
+1. Produktionsblocker und bekannte Spielluecken mitzuberuecksichtigen
+2. laufende oder bereits geplante Game-Arbeit nicht zu duplizieren
+3. Zielbild, Scope und Reihenfolge mit dem realen Repo-Stand abzugleichen
+
+==================================================
 ZIEL
 ==================================================
 

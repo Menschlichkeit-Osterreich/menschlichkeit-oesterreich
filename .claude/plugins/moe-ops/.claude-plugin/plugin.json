@@ -10,5 +10,10 @@
   "keywords": ["deployment", "ops", "n8n", "healthcheck", "quality-gate", "rollback"],
   "agent": "ops-engineer",
   "skills": ["deploy-verify", "n8n-trigger", "n8n-security-audit", "quality-gate"],
-  "hooks": "hooks/hooks.json"
+  "exposesAgents": ["ops-engineer"],
+  "exposesSkills": ["deploy-verify", "n8n-trigger", "n8n-security-audit", "quality-gate"],
+  "mapsToRoles": ["devops"],
+  "analysisCapable": true,
+  "hooks": "hooks/hooks.json",
+  "sourceOfTruth": ".github/ai-registry.json"
 }

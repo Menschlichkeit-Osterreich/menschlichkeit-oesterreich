@@ -155,12 +155,20 @@ export const GAME_SCENARIOS: ScenarioDefinition[] = [
   },
 ];
 
+function requireFirstItem<T>(items: T[], label: string): T {
+  const first = items[0];
+  if (!first) {
+    throw new Error(`${label} ist leer und kann nicht als Fallback verwendet werden.`);
+  }
+  return first;
+}
+
 export function getRoleById(roleId: string): RoleDefinition {
-  return GAME_ROLES.find((role) => role.id === roleId) ?? GAME_ROLES[0];
+  return GAME_ROLES.find((role) => role.id === roleId) ?? requireFirstItem(GAME_ROLES, 'GAME_ROLES');
 }
 
 export function getWorldById(worldId: string): WorldDefinition {
-  return GAME_WORLDS.find((world) => world.id === worldId) ?? GAME_WORLDS[0];
+  return GAME_WORLDS.find((world) => world.id === worldId) ?? requireFirstItem(GAME_WORLDS, 'GAME_WORLDS');
 }
 
 export function getScenarioById(scenarioId: string): ScenarioDefinition | null {

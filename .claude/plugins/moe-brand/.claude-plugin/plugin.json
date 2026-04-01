@@ -8,5 +8,21 @@
   },
   "homepage": "https://www.menschlichkeit-oesterreich.at",
   "license": "MIT",
-  "keywords": ["brand", "nonprofit", "austria", "design-system", "accessibility", "wcag", "canva", "cowork"]
+  "keywords": ["brand", "nonprofit", "austria", "design-system", "accessibility", "wcag", "canva", "cowork"],
+  "exposesAgents": ["brand-designer", "brand-reviewer"],
+  "exposesSkills": [
+    "brand-check",
+    "social-media",
+    "text-voice",
+    "email-signatur",
+    "briefpapier",
+    "praesentation",
+    "flyer-poster",
+    "infografik",
+    "logo-export",
+    "farb-kontrast"
+  ],
+  "mapsToRoles": ["brand"],
+  "analysisCapable": false,
+  "sourceOfTruth": ".github/ai-registry.json"
 }

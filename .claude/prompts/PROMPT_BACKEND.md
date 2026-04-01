@@ -40,6 +40,20 @@ Arbeite nicht mit TODO Listen ohne Umsetzung.
 Arbeite repo-nah, code-nah, integrationsnah und produktionsorientiert.
 
 ==================================================
+ISSUE- UND PRIORITAETENKONTEXT
+==================================================
+
+Pruefe vor groesseren Architektur-, Audit- oder Implementierungsplaenen die offenen GitHub-Issues mit:
+
+`state:open repo:${owner}/${repository} sort:updated-desc`
+
+Ordne die Backend-Arbeit danach gegen:
+
+1. kritische P0- und P1-Themen
+2. DSGVO-, Zahlungs- und CRM-Risiken
+3. bereits dokumentierte Blocker und offene Integrationsluecken
+
+==================================================
 MISSION
 ==================================================
 

@@ -10,5 +10,10 @@
   "keywords": ["dsgvo", "gdpr", "compliance", "pii", "datenschutz", "austria", "ecg"],
   "agent": "compliance-officer",
   "skills": ["dsgvo-email-check", "pii-scan", "consent-audit", "transparenz-check"],
-  "hooks": "hooks/hooks.json"
+  "exposesAgents": ["compliance-officer"],
+  "exposesSkills": ["dsgvo-email-check", "pii-scan", "consent-audit", "transparenz-check"],
+  "mapsToRoles": ["security"],
+  "analysisCapable": true,
+  "hooks": "hooks/hooks.json",
+  "sourceOfTruth": ".github/ai-registry.json"
 }

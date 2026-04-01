@@ -23,6 +23,9 @@ function main() {
   // Check .env existence
   const envPath = path.join(projectRoot, '.env');
   const envExists = fs.existsSync(envPath);
+  const registryPath = path.join(projectRoot, '.github', 'ai-registry.json');
+  const agentsPath = path.join(projectRoot, 'AGENTS.md');
+  const claudePath = path.join(projectRoot, 'CLAUDE.md');
 
   lines.push(`Repo-Root: ${projectRoot}`);
 
@@ -121,6 +124,44 @@ function main() {
     if (!fs.existsSync(path.join(projectRoot, doc))) {
       lines.push(`⚠ Governance-Datei fehlt: ${doc}`);
     }
+  }
+
+  if (!fs.existsSync(registryPath)) {
+    lines.push('⚠ AI-Registry fehlt: .github/ai-registry.json');
+  } else {
+    try {
+      const registry = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
+      const analysisPath = registry?.analysisEntry?.path;
+      const analysisChatmode = registry?.chatmodes?.find((item) =>
+        item.path === '.github/chatmodes/general/AnalysePlanung_DE.chatmode.md'
+      );
+
+      if (analysisPath) {
+        lines.push(`Analyse-Einstieg: ${analysisPath}`);
+      } else {
+        lines.push('⚠ Kein aktiver Analyse-Einstieg in .github/ai-registry.json');
+      }
+
+      if (analysisChatmode) {
+        lines.push(`Analyse-Chatmode: ${analysisChatmode.path}`);
+      }
+
+      lines.push('Rollenrouting: architect | developer | devops | security | qa');
+    } catch {
+      lines.push('⚠ .github/ai-registry.json konnte nicht gelesen werden');
+    }
+  }
+
+  try {
+    const agentsContent = fs.existsSync(agentsPath) ? fs.readFileSync(agentsPath, 'utf8') : '';
+    const claudeContent = fs.existsSync(claudePath) ? fs.readFileSync(claudePath, 'utf8') : '';
+    const expectedAnalysisPath = '.github/instructions/core/analysis-planning.instructions.md';
+
+    if (!agentsContent.includes(expectedAnalysisPath) || !claudeContent.includes(expectedAnalysisPath)) {
+      lines.push(`⚠ Analyse-Drift erkannt: ${expectedAnalysisPath} fehlt in AGENTS.md oder CLAUDE.md`);
+    }
+  } catch {
+    lines.push('⚠ Governance-Dateien konnten nicht auf Analyse-Drift geprüft werden');
   }
 
   if (lines.length > 0) {

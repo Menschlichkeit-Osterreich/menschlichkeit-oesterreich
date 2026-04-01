@@ -2,6 +2,14 @@ import { GAME_SCENARIOS, TOTAL_PLAYABLE_SCENARIOS } from '@/game/content';
 
 const SCENARIO_SEQUENCE = GAME_SCENARIOS.map((scenario) => scenario.id);
 
+function requireLastScenarioId(): string {
+  const lastScenarioId = SCENARIO_SEQUENCE[SCENARIO_SEQUENCE.length - 1];
+  if (!lastScenarioId) {
+    throw new Error('SCENARIO_SEQUENCE ist leer und kann nicht als Fallback verwendet werden.');
+  }
+  return lastScenarioId;
+}
+
 export function calculatePlayerLevelFromXp(xp: number): number {
   return Math.max(1, 1 + Math.floor((xp ?? 0) / 140));
 }
@@ -24,7 +32,7 @@ export function resolveResumeScenarioId(resumeScenarioId: string | null, complet
   if (resumeScenarioId && SCENARIO_SEQUENCE.includes(resumeScenarioId)) {
     return resumeScenarioId;
   }
-  return getNextScenarioId(completedScenarioIds) ?? SCENARIO_SEQUENCE[SCENARIO_SEQUENCE.length - 1];
+  return getNextScenarioId(completedScenarioIds) ?? requireLastScenarioId();
 }
 
 export function calculateProgressPercent(completedCount: number): number {

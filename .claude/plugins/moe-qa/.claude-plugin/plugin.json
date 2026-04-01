@@ -10,5 +10,10 @@
   "keywords": ["testing", "qa", "accessibility", "wcag", "playwright", "pytest", "payments"],
   "agent": "qa-engineer",
   "skills": ["payment-test-gen", "a11y-audit", "api-test-gen", "e2e-playwright"],
-  "hooks": "hooks/hooks.json"
+  "exposesAgents": ["qa-engineer"],
+  "exposesSkills": ["payment-test-gen", "a11y-audit", "api-test-gen", "e2e-playwright"],
+  "mapsToRoles": ["qa"],
+  "analysisCapable": true,
+  "hooks": "hooks/hooks.json",
+  "sourceOfTruth": ".github/ai-registry.json"
 }

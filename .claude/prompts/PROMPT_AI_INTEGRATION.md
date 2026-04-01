@@ -6,6 +6,12 @@ description: 'Claude AI Integration: Architektur-Review, Security-Audit und Code
 
 Nutze diesen Prompt in 3 Modi — wähle per Kontext oder Anweisung.
 
+## Pflicht vor jeder Analyse
+
+1. Lies `AGENTS.md`, `CLAUDE.md` und `.github/instructions/core/analysis-planning.instructions.md`.
+2. Prüfe vor grösseren Architektur- oder Integrationsplänen die offenen GitHub-Issues mit `state:open repo:${owner}/${repository} sort:updated-desc`.
+3. Gleiche Priorisierung und Roadmap gegen echte Repo-Artefakte, offene P0/P1-Themen und aktive Workflows ab.
+
 ## Modus 1 — Architektur-Review
 
 **Rolle:** Senior AI Systems Architect mit Expertise in Python (FastAPI), Node.js, CI/CD und LLM-Integrationen.
