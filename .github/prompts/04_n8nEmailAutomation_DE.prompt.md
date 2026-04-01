@@ -4,6 +4,7 @@ description: 'n8n Email-Automatisierung'
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/instructions/core/n8n-automation.instructions.md
 category: automation
 tags: ['automation', 'n8n', 'dsgvo']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['DevOps Team', 'Automation Engineers']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/instructions/04-n8nemailautomation.instructions.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/instructions/core/n8n-automation.instructions.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 # n8n Email-Automatisierung
 

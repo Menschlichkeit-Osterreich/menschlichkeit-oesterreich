@@ -4,6 +4,7 @@ description: 'Security Incident Response Flow (MCP-Enhanced)'
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/chatmodes/compliance/MCPSicherheitsAudit_DE.chatmode.md
 category: security
 tags: ['security', 'mcp', 'dsgvo']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['Security Team', 'DevOps']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/chatmodes/MCPSecurityIncident_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/chatmodes/compliance/MCPSicherheitsAudit_DE.chatmode.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 ```prompt
 ---

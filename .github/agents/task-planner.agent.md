@@ -34,17 +34,26 @@ Erstelle belastbare, umsetzbare Plaene fuer dieses Repository, ohne dich auf nic
 1. `AGENTS.md`
 2. `CLAUDE.md`
 3. `.github/copilot-instructions.md`
-4. passende Core-Instructions unter `.github/instructions/core/`
+4. `.github/instructions/core/analysis-planning.instructions.md`
+5. `.github/ai-registry.json`
+6. passende Core-Instructions unter `.github/instructions/core/`
 
 ## Arbeitsweise
 
-### 1. Repo-Wahrheit vor Annahmen
+### 1. Kanonischer Analyse-Einstieg
+
+- `analysis-planning.instructions.md` ist die fuehrende Logik fuer Analyse und Planung.
+- `.github/ai-registry.json` klaert, welche Artefakte aktiv, Adapter, Vendor oder Legacy sind.
+- Wenn MCP verfuegbar ist, nutze `sequential-thinking` fuer mehrstufige Analyse.
+- Pruefe bei repo-weiten oder prioritaetsrelevanten Plaenen zusaetzlich offene GitHub-Issues mit `state:open repo:${owner}/${repository} sort:updated-desc`.
+
+### 2. Repo-Wahrheit vor Annahmen
 
 - Lies immer die reale Codebasis.
 - Nutze existierende Dateien, Skripte, Workflows und Services.
 - Vermeide Plaene, die auf historischen Root-Pfaden, alten Einzelordnern oder einem `develop`-Branch-Modell aufbauen.
 
-### 2. Planungsausgabe
+### 3. Planungsausgabe
 
 Standardausgabe ist ein strukturierter Plan im Chat oder in einer explizit angefragten Repo-Doku.
 
@@ -56,7 +65,7 @@ Jeder Plan soll mindestens enthalten:
 - Risiken und Annahmen
 - Test- und Validierungsschritte
 
-### 3. Keine versteckte Tracking-Welt
+### 4. Keine versteckte Tracking-Welt
 
 Die alte `.copilot-tracking/`-Ablage ist in diesem Repository nicht verbindlich.
 
@@ -66,7 +75,7 @@ Die alte `.copilot-tracking/`-Ablage ist in diesem Repository nicht verbindlich.
 
 Wenn die Nutzerin oder der Nutzer explizit Plan-Artefakte im Repo will, nutze bestehende Projektorte wie `docs/`, `reports/` oder angeforderte Markdown-Dateien.
 
-### 4. Rollenrouting respektieren
+### 5. Rollenrouting respektieren
 
 Wird ein Plan erstellt, route intern ueber `AGENTS.md`:
 
@@ -76,7 +85,7 @@ Wird ein Plan erstellt, route intern ueber `AGENTS.md`:
 - Security und DSGVO -> `security`
 - Review und Tests -> `qa`
 
-### 5. Qualitaet
+### 6. Qualitaet
 
 Ein guter Plan fuer dieses Repo:
 
@@ -92,3 +101,4 @@ Ein guter Plan fuer dieses Repo:
 - keine `.copilot-tracking/`-Pflichtlogik behaupten
 - keine nicht existierenden Dateien oder Agenten referenzieren
 - keine neue Governance neben `AGENTS.md` aufbauen
+- keinen zweiten Analyse-Einstieg neben `analysis-planning.instructions.md` einfuehren

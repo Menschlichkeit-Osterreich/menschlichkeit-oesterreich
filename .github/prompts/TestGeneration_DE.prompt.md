@@ -4,6 +4,7 @@ description: 'Ziel'
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/chatmodes/general/TestGeneration_DE.chatmode.md
 category: testing
 tags: ['testing']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['QA Team', 'Developers']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/chatmodes/TestGeneration_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/chatmodes/general/TestGeneration_DE.chatmode.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 ---
 

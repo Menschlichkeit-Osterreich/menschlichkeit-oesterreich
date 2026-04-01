@@ -4,6 +4,7 @@ description: 'Prompt für Architekturplan im Menschlichkeit Österreich Projekt'
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/chatmodes/general/Architekturplan_DE.chatmode.md
 category: architecture
 tags: ['architecture']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['Software Architects', 'Tech Lead']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/chatmodes/Architekturplan_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/chatmodes/general/Architekturplan_DE.chatmode.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 Ziel ist es, einen technischen Architekturplan für das Projekt `${workspaceFolderBasename}` in deutscher Sprache zu erstellen. Nutzen Sie den vorhandenen Code und die Struktur des Repositories (#githubRepo), um folgende Punkte zu dokumentieren:
 

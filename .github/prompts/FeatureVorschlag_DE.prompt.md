@@ -4,6 +4,7 @@ description: 'Prompt für Featurevorschlag im Menschlichkeit Österreich Projekt
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/chatmodes/general/FeatureVorschlag_DE.chatmode.md
 category: development
 tags: ['development']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['Backend Team', 'Frontend Team']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/chatmodes/FeatureVorschlag_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/chatmodes/general/FeatureVorschlag_DE.chatmode.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 Formulieren Sie einen detaillierten Vorschlag für ein neues Feature für das Projekt `${workspaceFolderBasename}`. Berücksichtigen Sie bestehende Funktionen und identifizieren Sie einen sinnvollen Erweiterungspunkt. Der Vorschlag sollte folgende Elemente enthalten:
 

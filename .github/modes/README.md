@@ -13,6 +13,7 @@ applyTo: '**'
 Diese Dateien sind archiviert und werden nicht mehr aktiv gepflegt.
 
 - Neuer Speicherort für aktive Chatmodes: `.github/chatmodes/`
+- Statusmodell und Ersatzpfade: `.github/ai-registry.json`
 - Bitte neue Inhalte ausschließlich unter `.github/chatmodes/` anlegen.
 - Verlinkungen schrittweise auf die neuen Pfade aktualisieren.
 

@@ -2,13 +2,14 @@
 
 Generated: 2025-10-08 19:23 UTC
 Updated: 2026-03-31
-Status: COMPLETE — Alle Prompts wurden nach Chatmodes/Instructions migriert.
+Status: COMPLETE — Fuehrende Arbeitsmodi wurden migriert; aktive Rest-Prompts werden ueber `.github/ai-registry.json` klassifiziert.
 
 ## Zusammenfassung
 
 - Gesamt-Mappings: 137
 - Migriert: 137
 - Offen (TBD): 0
+- Kanonische Klassifikation: `.github/ai-registry.json`
 
 ## Mapping-Tabelle
 

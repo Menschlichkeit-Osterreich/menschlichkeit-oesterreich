@@ -4,6 +4,7 @@ description: 'Prompt für Marketingcontent im Menschlichkeit Österreich Projekt
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/chatmodes/general/MarketingContent_DE.chatmode.md
 category: marketing
 tags: ['marketing']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['Marketing Team', 'Content Creators']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/chatmodes/MarketingContent_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/chatmodes/general/MarketingContent_DE.chatmode.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 ---
 

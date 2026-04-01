@@ -4,6 +4,7 @@ description: 'Multi-Service Deployment'
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/chatmodes/general/MCPDeploymentOps_DE.chatmode.md
 category: deployment
 tags: ['deployment', 'mcp', 'dsgvo']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['DevOps Team', 'Release Managers']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/chatmodes/MCPMultiServiceDeployment_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/chatmodes/general/MCPDeploymentOps_DE.chatmode.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 ```prompt
 # Multi-Service Deployment

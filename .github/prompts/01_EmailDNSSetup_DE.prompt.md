@@ -4,6 +4,7 @@ description: 'E-Mail & DNS Infrastructure Setup'
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/chatmodes/general/DeploymentGuide_DE.chatmode.md
 category: infrastructure
 tags: ['infrastructure', 'dsgvo']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['DevOps Team', 'System Administrators']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/chatmodes/01_EmailDNSSetup_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/chatmodes/general/DeploymentGuide_DE.chatmode.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 # E-Mail & DNS Infrastructure Setup
 

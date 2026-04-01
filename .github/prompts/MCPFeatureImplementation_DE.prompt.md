@@ -4,6 +4,7 @@ description: 'MCP-gestützte Feature Implementation'
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/chatmodes/development/MCPAPIDesign_DE.chatmode.md
 category: development
 tags: ['development', 'mcp', 'dsgvo']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['Backend Team', 'Frontend Team']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/chatmodes/MCPFeatureImplementation_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/chatmodes/development/MCPAPIDesign_DE.chatmode.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 ```prompt
 ---

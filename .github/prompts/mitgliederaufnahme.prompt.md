@@ -4,6 +4,7 @@ description: 'Mitgliederaufnahme - Automatisierter Workflow'
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/prompts/Mitgliederantrag & Spenden.prompt.md
 category: verein
 tags: ['verein', 'dsgvo']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['Vereinsvorstand', 'Mitgliederverwaltung']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/chatmodes/mitgliederaufnahme.prompt_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/prompts/Mitgliederantrag & Spenden.prompt.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 # Mitgliederaufnahme - Automatisierter Workflow
 

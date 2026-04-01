@@ -12,13 +12,17 @@ Copilot soll im Repo aktiv dieselbe Governance nutzen wie Codex und Claude Code,
 1. `AGENTS.md`
 2. `CLAUDE.md`
 3. `.github/copilot-instructions.md`
-4. `.github/instructions/core/*.instructions.md`
+4. `.github/instructions/core/analysis-planning.instructions.md`
+5. `.github/ai-registry.json`
+6. `.github/instructions/core/*.instructions.md`
 
 ## Arbeitsmodell
 
 - Copilot arbeitet repo-first und liest zuerst die aktive Monorepo-Struktur.
 - Rollen werden ueber `AGENTS.md` gewaehlt.
+- Analyse und Planung laufen immer ueber `.github/instructions/core/analysis-planning.instructions.md`.
 - Aktive Arbeitsmodi kommen aus `.github/chatmodes/**/*.chatmode.md`.
+- Der bevorzugte Analyse-Chatmode ist `.github/chatmodes/general/AnalysePlanung_DE.chatmode.md`.
 - `.github/prompts/*.prompt.md` sind Zusatzwerkzeuge fuer konkrete Aufgaben.
 - `.github/prompts/chatmodes/*.yaml` sind Legacy und nicht mehr fuehrend.
 
@@ -36,6 +40,7 @@ Wenn Copilot Vorschlaege fuer Rollen, Prompts, Chatmodes, VS Code oder Repo-Work
 - `AGENTS.md`
 - `CLAUDE.md`
 - `.github/copilot-instructions.md`
+- `.github/ai-registry.json`
 - `.github/agents/*.agent.md`
 - `.github/chatmodes/**/*.chatmode.md`
 - `.github/prompts/README.md`
@@ -44,6 +49,7 @@ Wenn Copilot Vorschlaege fuer Rollen, Prompts, Chatmodes, VS Code oder Repo-Work
 
 - aktive Referenzen zeigen nur auf existierende Dateien
 - alte Repo-Namen und tote Pfade sind entfernt
+- der Analyse-Einstieg ist eindeutig und verweist auf `analysis-planning.instructions.md`
 - Chatmodes sind die aktive Mode-Ebene
 - Prompt-Artefakte sind als supplementaer eingeordnet
 - `npm run governance:check` bleibt gruen

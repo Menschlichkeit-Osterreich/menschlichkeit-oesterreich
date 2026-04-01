@@ -4,6 +4,7 @@ description: 'Database Rollout & Operations'
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/instructions/core/database-operations-mcp.instructions.md
 category: database
 tags: ['database', 'dsgvo']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['Backend Team', 'Database Administrators']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/chatmodes/02_DatabaseRollout_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/instructions/core/database-operations-mcp.instructions.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 # Database Rollout & Operations
 

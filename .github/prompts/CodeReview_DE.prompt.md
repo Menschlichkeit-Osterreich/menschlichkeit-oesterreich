@@ -4,6 +4,7 @@ description: 'Prompt für Codereview im Menschlichkeit Österreich Projekt'
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/chatmodes/general/CodeReview_DE.chatmode.md
 category: quality-assurance
 tags: ['quality-assurance']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['QA Team', 'Developers']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/chatmodes/CodeReview_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/chatmodes/general/CodeReview_DE.chatmode.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 Überprüfen Sie den gesamten Quellcode des Projekts (#githubRepo) und erstellen Sie einen Bericht auf Deutsch. Identifizieren Sie Probleme in Bezug auf Codequalität, Wartbarkeit, Performance und Sicherheit. Der Bericht sollte folgende Abschnitte enthalten:
 

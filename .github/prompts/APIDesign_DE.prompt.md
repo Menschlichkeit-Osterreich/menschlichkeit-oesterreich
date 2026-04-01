@@ -4,6 +4,7 @@ description: 'Prompt für Apidesign im Menschlichkeit Österreich Projekt'
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/chatmodes/general/APIDesign_DE.chatmode.md
 category: development
 tags: ['development']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['Backend Team', 'Frontend Team']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/chatmodes/APIDesign_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/chatmodes/general/APIDesign_DE.chatmode.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 Entwerfen Sie eine API-Spezifikation auf Deutsch für eine neue oder bestehende Schnittstelle im Projekt `${workspaceFolderBasename}`. Die Spezifikation sollte enthalten:
 

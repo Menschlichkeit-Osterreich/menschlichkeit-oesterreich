@@ -52,9 +52,12 @@ npm run governance:check
 ## Agentenauswahl im Repo
 
 1. Lies zuerst `AGENTS.md`.
-2. Waehle dann die passende Rolle: `architect`, `developer`, `devops`, `security` oder `qa`.
-3. Ziehe nur die zugehoerigen Chatmodes, Prompt-Dateien und Agenten hinzu.
-4. Vermische Repo-Contributor-Agents nie mit OpenClaw-Runtime-Rollen.
+2. Lies fuer Analyse und Planung danach `.github/instructions/core/analysis-planning.instructions.md`.
+3. Nutze `.github/ai-registry.json`, wenn du den Status von Agents, Skills, Prompts, Plugins oder Legacy-Artefakten klaeren musst.
+4. Pruefe bei groesseren Plaenen den offenen Backlog mit `state:open repo:${owner}/${repository} sort:updated-desc`.
+5. Waehle dann die passende Rolle: `architect`, `developer`, `devops`, `security` oder `qa`.
+6. Ziehe nur die zugehoerigen Chatmodes, Prompt-Dateien und Agenten hinzu.
+7. Vermische Repo-Contributor-Agents nie mit OpenClaw-Runtime-Rollen.
 
 Kurzregel:
 
@@ -77,9 +80,13 @@ Kurzregel:
 ## Prompt- und Policy-Stack
 
 - Kanonische Agenten-Governance: `AGENTS.md`
+- Kanonischer Analyse-Einstieg: `.github/instructions/core/analysis-planning.instructions.md`
+- Machine-readable Registry: `.github/ai-registry.json`
 - Copilot-Adapter: `.github/copilot-instructions.md`
 - Gemeinsame Policies: `.github/instructions/core/*.instructions.md`
 - Aktive Chatmodes: `.github/chatmodes/**/*.chatmode.md`
+- Aktiver Analyse-Chatmode: `.github/chatmodes/general/AnalysePlanung_DE.chatmode.md`
+- Kanonische Skill-Schicht: `.github/skills/*/SKILL.md`
 - Ergaenzende Prompts: `.github/prompts/*.prompt.md`
 - Legacy-YAML-Chatmodes: `.github/prompts/chatmodes/*.yaml` nur als Archiv
 
@@ -121,4 +128,5 @@ Produkt-Runtime-Agenten:
 
 - korrigiere aktive Dateien zuerst
 - markiere historische Artefakte explizit als Legacy
+- synchronisiere Klassifikationen in `.github/ai-registry.json`
 - fuehre keine neue Parallel-Governance ein

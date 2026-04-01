@@ -4,6 +4,7 @@ description: 'Prompt für Civicrm Vereinsbuchhaltung im Menschlichkeit Österrei
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/instructions/core/civicrm-vereinsbuchhaltung.instructions.md
 category: crm
 tags: ['crm']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['CRM Administrators', 'Vereinsmanagement']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/instructions/civicrm-vereinsbuchhaltung.instructions.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/instructions/core/civicrm-vereinsbuchhaltung.instructions.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 ---
 

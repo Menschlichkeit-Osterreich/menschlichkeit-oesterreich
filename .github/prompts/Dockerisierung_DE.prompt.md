@@ -4,6 +4,7 @@ description: 'Prompt für Dockerisierung im Menschlichkeit Österreich Projekt'
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/chatmodes/general/Dockerisierung_DE.chatmode.md
 category: infrastructure
 tags: ['infrastructure']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['DevOps Team', 'System Administrators']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/chatmodes/Dockerisierung_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/chatmodes/general/Dockerisierung_DE.chatmode.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 Erarbeiten Sie eine Docker-Konfiguration, um das Projekt `${workspaceFolderBasename}` in einem Container auszuführen. Ihre Aufgabe umfasst:
 

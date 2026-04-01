@@ -4,6 +4,7 @@ description: 'Prompt für Beitragsrichtlinien im Menschlichkeit Österreich Proj
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/chatmodes/general/Beitragsrichtlinien_DE.chatmode.md
 category: governance
 tags: ['governance']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['Vereinsvorstand', 'Compliance']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/chatmodes/Beitragsrichtlinien_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/chatmodes/general/Beitragsrichtlinien_DE.chatmode.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 Generieren Sie ein Dokument `CONTRIBUTING.md` in deutscher Sprache, das die Beitragsrichtlinien für das Projekt `${workspaceFolderBasename}` definiert. Es sollte folgende Punkte umfassen:
 

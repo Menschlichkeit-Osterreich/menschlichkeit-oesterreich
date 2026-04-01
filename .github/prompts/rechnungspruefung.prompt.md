@@ -4,6 +4,7 @@ description: 'Rechnungsprüfung - Jahresabschluss-Workflow'
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/instructions/core/civicrm-vereinsbuchhaltung.instructions.md
 category: verein
 tags: ['verein']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['Vereinsvorstand', 'Mitgliederverwaltung']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/chatmodes/rechnungspruefung.prompt_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/instructions/core/civicrm-vereinsbuchhaltung.instructions.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 # Rechnungsprüfung - Jahresabschluss-Workflow
 

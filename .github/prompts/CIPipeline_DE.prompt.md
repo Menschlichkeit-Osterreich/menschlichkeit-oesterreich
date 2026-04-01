@@ -4,6 +4,7 @@ description: 'Prompt für Cipipeline im Menschlichkeit Österreich Projekt'
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/chatmodes/general/CIPipeline_DE.chatmode.md
 category: devops
 tags: ['devops']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['DevOps Team']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/chatmodes/CIPipeline_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/chatmodes/general/CIPipeline_DE.chatmode.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 Entwerfen Sie eine CI-Pipeline für das Projekt `${workspaceFolderBasename}`. Die Pipeline sollte in einem gängigen CI-System umgesetzt werden können (z. B. GitHub Actions, GitLab CI, Jenkins). Beschreiben Sie auf Deutsch:
 

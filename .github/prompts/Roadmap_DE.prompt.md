@@ -4,6 +4,7 @@ description: 'Prompt für Roadmap im Menschlichkeit Österreich Projekt'
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/chatmodes/general/Roadmap_DE.chatmode.md
 category: planning
 tags: ['planning']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['Product Owners', 'Management']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/chatmodes/Roadmap_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/chatmodes/general/Roadmap_DE.chatmode.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 ---
 

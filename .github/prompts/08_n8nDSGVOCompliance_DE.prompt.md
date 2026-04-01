@@ -4,6 +4,7 @@ description: 'n8n DSGVO-Compliance Automatisierung'
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/instructions/core/dsgvo-compliance.instructions.md
 category: compliance
 tags: ['compliance', 'n8n', 'dsgvo']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['Compliance Officers', 'Legal Team']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/instructions/08-n8ndsgvocompliance.instructions.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/instructions/core/dsgvo-compliance.instructions.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 # n8n DSGVO-Compliance Automatisierung
 

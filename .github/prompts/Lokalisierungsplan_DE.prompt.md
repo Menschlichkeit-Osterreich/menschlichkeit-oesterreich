@@ -4,6 +4,7 @@ description: 'Prompt für Lokalisierungsplan im Menschlichkeit Österreich Proje
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/chatmodes/general/Lokalisierungsplan_DE.chatmode.md
 category: localization
 tags: ['localization']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['Frontend Team', 'Content Team']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/chatmodes/Lokalisierungsplan_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/chatmodes/general/Lokalisierungsplan_DE.chatmode.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 ---
 

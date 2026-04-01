@@ -4,6 +4,7 @@ description: 'Prompt für Barrierefreiheitaudit im Menschlichkeit Österreich Pr
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/chatmodes/general/BarrierefreiheitAudit_DE.chatmode.md
 category: compliance
 tags: ['compliance']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['Compliance Officers', 'Legal Team']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/chatmodes/BarrierefreiheitAudit_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/chatmodes/general/BarrierefreiheitAudit_DE.chatmode.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 Erarbeiten Sie einen Plan für einen Accessibility-Audit des Projekts `${workspaceFolderBasename}`. Der Plan soll auf Deutsch verfasst sein und folgende Punkte enthalten:
 

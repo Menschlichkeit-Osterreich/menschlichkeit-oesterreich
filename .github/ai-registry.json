@@ -1,0 +1,2483 @@
+{
+  "meta": {
+    "version": 1,
+    "updated": "2026-03-31",
+    "repository": "Menschlichkeit-Osterreich/menschlichkeit-oesterreich"
+  },
+  "analysisEntry": {
+    "id": "analysis-planning-core",
+    "kind": "instruction",
+    "status": "active",
+    "owner": "shared",
+    "path": ".github/instructions/core/analysis-planning.instructions.md",
+    "role": "architect",
+    "sourceOfTruth": ".github/instructions/core/analysis-planning.instructions.md",
+    "replacement": null
+  },
+  "agents": [
+    {
+      "id": "devops-expert.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/devops-expert.agent.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/agents/devops-expert.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "janitor.agent",
+      "kind": "agent",
+      "status": "deprecated",
+      "owner": "copilot",
+      "path": ".github/agents/janitor.agent.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/agents/janitor.agent.md",
+      "replacement": ".github/agents/task-planner.agent.md"
+    },
+    {
+      "id": "laravel-expert-agent.agent",
+      "kind": "agent",
+      "status": "deprecated",
+      "owner": "copilot",
+      "path": ".github/agents/laravel-expert-agent.agent.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/agents/laravel-expert-agent.agent.md",
+      "replacement": ".github/agents/task-planner.agent.md"
+    },
+    {
+      "id": "mentor.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/mentor.agent.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/agents/mentor.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "php-mcp-expert.agent",
+      "kind": "agent",
+      "status": "vendor",
+      "owner": "copilot",
+      "path": ".github/agents/php-mcp-expert.agent.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/agents/php-mcp-expert.agent.md",
+      "replacement": ".github/agents/task-planner.agent.md"
+    },
+    {
+      "id": "postgresql-dba.agent",
+      "kind": "agent",
+      "status": "vendor",
+      "owner": "copilot",
+      "path": ".github/agents/postgresql-dba.agent.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/agents/postgresql-dba.agent.md",
+      "replacement": ".github/agents/devops-expert.agent.md"
+    },
+    {
+      "id": "python-mcp-expert.agent",
+      "kind": "agent",
+      "status": "vendor",
+      "owner": "copilot",
+      "path": ".github/agents/python-mcp-expert.agent.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/agents/python-mcp-expert.agent.md",
+      "replacement": ".github/agents/task-planner.agent.md"
+    },
+    {
+      "id": "task-planner.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/task-planner.agent.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/agents/task-planner.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "typescript-mcp-expert.agent",
+      "kind": "agent",
+      "status": "vendor",
+      "owner": "copilot",
+      "path": ".github/agents/typescript-mcp-expert.agent.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/agents/typescript-mcp-expert.agent.md",
+      "replacement": ".github/agents/task-planner.agent.md"
+    },
+    {
+      "id": "claude-ai-integration-architect",
+      "kind": "agent",
+      "status": "active",
+      "owner": "claude",
+      "path": ".claude/agents/ai-integration-architect.md",
+      "role": "architect",
+      "sourceOfTruth": ".claude/agents/ai-integration-architect.md",
+      "replacement": null
+    },
+    {
+      "id": "claude-github-auditor",
+      "kind": "agent",
+      "status": "active",
+      "owner": "claude",
+      "path": ".claude/agents/github-auditor.md",
+      "role": "github-audit",
+      "sourceOfTruth": ".claude/agents/github-auditor.md",
+      "replacement": null
+    },
+    {
+      "id": "claude-infrastructure-hardener",
+      "kind": "agent",
+      "status": "active",
+      "owner": "claude",
+      "path": ".claude/agents/infrastructure-hardener.md",
+      "role": "devops",
+      "sourceOfTruth": ".claude/agents/infrastructure-hardener.md",
+      "replacement": null
+    },
+    {
+      "id": "claude-security-reviewer",
+      "kind": "agent",
+      "status": "active",
+      "owner": "claude",
+      "path": ".claude/agents/security-reviewer.md",
+      "role": "security",
+      "sourceOfTruth": ".claude/agents/security-reviewer.md",
+      "replacement": null
+    },
+    {
+      "id": "plugin-menschlichkeit-dev-suite-accessibility-expert",
+      "kind": "agent",
+      "status": "active",
+      "owner": "claude",
+      "path": ".claude/plugins/menschlichkeit-dev-suite/agents/accessibility-expert.md",
+      "role": "qa",
+      "sourceOfTruth": ".claude/plugins/menschlichkeit-dev-suite/agents/accessibility-expert.md",
+      "replacement": null
+    },
+    {
+      "id": "plugin-menschlichkeit-dev-suite-editorial-bot",
+      "kind": "agent",
+      "status": "active",
+      "owner": "claude",
+      "path": ".claude/plugins/menschlichkeit-dev-suite/agents/editorial-bot.md",
+      "role": "developer",
+      "sourceOfTruth": ".claude/plugins/menschlichkeit-dev-suite/agents/editorial-bot.md",
+      "replacement": null
+    },
+    {
+      "id": "plugin-menschlichkeit-dev-suite-menschlichkeit-architect",
+      "kind": "agent",
+      "status": "active",
+      "owner": "claude",
+      "path": ".claude/plugins/menschlichkeit-dev-suite/agents/menschlichkeit-architect.md",
+      "role": "architect",
+      "sourceOfTruth": ".claude/plugins/menschlichkeit-dev-suite/agents/menschlichkeit-architect.md",
+      "replacement": null
+    },
+    {
+      "id": "plugin-menschlichkeit-dev-suite-security-officer",
+      "kind": "agent",
+      "status": "active",
+      "owner": "claude",
+      "path": ".claude/plugins/menschlichkeit-dev-suite/agents/security-officer.md",
+      "role": "security",
+      "sourceOfTruth": ".claude/plugins/menschlichkeit-dev-suite/agents/security-officer.md",
+      "replacement": null
+    },
+    {
+      "id": "plugin-moe-brand-brand-designer",
+      "kind": "agent",
+      "status": "active",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-brand/agents/brand-designer.md",
+      "role": "brand",
+      "sourceOfTruth": ".claude/plugins/moe-brand/agents/brand-designer.md",
+      "replacement": null
+    },
+    {
+      "id": "plugin-moe-brand-brand-reviewer",
+      "kind": "agent",
+      "status": "active",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-brand/agents/brand-reviewer.md",
+      "role": "brand",
+      "sourceOfTruth": ".claude/plugins/moe-brand/agents/brand-reviewer.md",
+      "replacement": null
+    },
+    {
+      "id": "plugin-moe-compliance-compliance-officer",
+      "kind": "agent",
+      "status": "active",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-compliance/agents/compliance-officer.md",
+      "role": "security",
+      "sourceOfTruth": ".claude/plugins/moe-compliance/agents/compliance-officer.md",
+      "replacement": null
+    },
+    {
+      "id": "plugin-moe-ops-ops-engineer",
+      "kind": "agent",
+      "status": "active",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-ops/agents/ops-engineer.md",
+      "role": "devops",
+      "sourceOfTruth": ".claude/plugins/moe-ops/agents/ops-engineer.md",
+      "replacement": null
+    },
+    {
+      "id": "plugin-moe-qa-qa-engineer",
+      "kind": "agent",
+      "status": "active",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-qa/agents/qa-engineer.md",
+      "role": "qa",
+      "sourceOfTruth": ".claude/plugins/moe-qa/agents/qa-engineer.md",
+      "replacement": null
+    }
+  ],
+  "chatmodes": [
+    {
+      "id": "MCPSicherheitsAudit_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/compliance/MCPSicherheitsAudit_DE.chatmode.md",
+      "role": "security",
+      "sourceOfTruth": ".github/chatmodes/compliance/MCPSicherheitsAudit_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "MCPAPIDesign_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/development/MCPAPIDesign_DE.chatmode.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/chatmodes/development/MCPAPIDesign_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "MCPCodeReview_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/development/MCPCodeReview_DE.chatmode.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/chatmodes/development/MCPCodeReview_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "AnalysePlanung_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/AnalysePlanung_DE.chatmode.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/chatmodes/general/AnalysePlanung_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "APIDesign_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/APIDesign_DE.chatmode.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/chatmodes/general/APIDesign_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "Architekturplan_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/Architekturplan_DE.chatmode.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/chatmodes/general/Architekturplan_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "BarrierefreiheitAudit_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/BarrierefreiheitAudit_DE.chatmode.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/chatmodes/general/BarrierefreiheitAudit_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "Beitragsrichtlinien_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/Beitragsrichtlinien_DE.chatmode.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/chatmodes/general/Beitragsrichtlinien_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "BenutzerDokumentation_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/BenutzerDokumentation_DE.chatmode.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/chatmodes/general/BenutzerDokumentation_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "CIPipeline_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/CIPipeline_DE.chatmode.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/chatmodes/general/CIPipeline_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "CodeReview_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/CodeReview_DE.chatmode.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/chatmodes/general/CodeReview_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "DatenbankSchema_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/DatenbankSchema_DE.chatmode.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/chatmodes/general/DatenbankSchema_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "DeploymentGuide_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/DeploymentGuide_DE.chatmode.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/chatmodes/general/DeploymentGuide_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "Dockerisierung_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/Dockerisierung_DE.chatmode.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/chatmodes/general/Dockerisierung_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "FeatureVorschlag_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/FeatureVorschlag_DE.chatmode.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/chatmodes/general/FeatureVorschlag_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "FehlerberichtVorlage_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/FehlerberichtVorlage_DE.chatmode.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/chatmodes/general/FehlerberichtVorlage_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "Lokalisierungsplan_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/Lokalisierungsplan_DE.chatmode.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/chatmodes/general/Lokalisierungsplan_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "MarketingContent_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/MarketingContent_DE.chatmode.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/chatmodes/general/MarketingContent_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "MCPDeploymentOps_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/MCPDeploymentOps_DE.chatmode.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/chatmodes/general/MCPDeploymentOps_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "MCPDesignSystemSync_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/MCPDesignSystemSync_DE.chatmode.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/chatmodes/general/MCPDesignSystemSync_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "Onboarding_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/Onboarding_DE.chatmode.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/chatmodes/general/Onboarding_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "PerformanceOptimierung_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/PerformanceOptimierung_DE.chatmode.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/chatmodes/general/PerformanceOptimierung_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "README_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/README_DE.chatmode.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/chatmodes/general/README_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "Roadmap_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/Roadmap_DE.chatmode.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/chatmodes/general/Roadmap_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "SicherheitsAudit_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/SicherheitsAudit_DE.chatmode.md",
+      "role": "security",
+      "sourceOfTruth": ".github/chatmodes/general/SicherheitsAudit_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "TestGeneration_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/general/TestGeneration_DE.chatmode.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/chatmodes/general/TestGeneration_DE.chatmode.md",
+      "replacement": null
+    },
+    {
+      "id": "MCPPerformanceOptimierung_DE.chatmode",
+      "kind": "chatmode",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/chatmodes/operations/MCPPerformanceOptimierung_DE.chatmode.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/chatmodes/operations/MCPPerformanceOptimierung_DE.chatmode.md",
+      "replacement": null
+    }
+  ],
+  "instructions": [
+    {
+      "id": "analysis-planning.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/core/analysis-planning.instructions.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/instructions/core/analysis-planning.instructions.md",
+      "replacement": null
+    },
+    {
+      "id": "civicrm-n8n-automation.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/core/civicrm-n8n-automation.instructions.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/instructions/core/civicrm-n8n-automation.instructions.md",
+      "replacement": null
+    },
+    {
+      "id": "civicrm-vereinsbuchhaltung.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/core/civicrm-vereinsbuchhaltung.instructions.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/instructions/core/civicrm-vereinsbuchhaltung.instructions.md",
+      "replacement": null
+    },
+    {
+      "id": "codacy.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/core/codacy.instructions.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/instructions/core/codacy.instructions.md",
+      "replacement": null
+    },
+    {
+      "id": "database-operations-mcp.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/core/database-operations-mcp.instructions.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/instructions/core/database-operations-mcp.instructions.md",
+      "replacement": null
+    },
+    {
+      "id": "documentation.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/core/documentation.instructions.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/instructions/core/documentation.instructions.md",
+      "replacement": null
+    },
+    {
+      "id": "dsgvo-compliance.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/core/dsgvo-compliance.instructions.md",
+      "role": "security",
+      "sourceOfTruth": ".github/instructions/core/dsgvo-compliance.instructions.md",
+      "replacement": null
+    },
+    {
+      "id": "figma-mcp.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/core/figma-mcp.instructions.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/instructions/core/figma-mcp.instructions.md",
+      "replacement": null
+    },
+    {
+      "id": "github-pat-management.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/core/github-pat-management.instructions.md",
+      "role": "security",
+      "sourceOfTruth": ".github/instructions/core/github-pat-management.instructions.md",
+      "replacement": null
+    },
+    {
+      "id": "glossary.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/core/glossary.instructions.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/instructions/core/glossary.instructions.md",
+      "replacement": null
+    },
+    {
+      "id": "guardrails.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/core/guardrails.instructions.md",
+      "role": "security",
+      "sourceOfTruth": ".github/instructions/core/guardrails.instructions.md",
+      "replacement": null
+    },
+    {
+      "id": "markdown-best-practices.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/core/markdown-best-practices.instructions.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/instructions/core/markdown-best-practices.instructions.md",
+      "replacement": null
+    },
+    {
+      "id": "markdown-documentation.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/core/markdown-documentation.instructions.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/instructions/core/markdown-documentation.instructions.md",
+      "replacement": null
+    },
+    {
+      "id": "mcp-integration.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/core/mcp-integration.instructions.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/instructions/core/mcp-integration.instructions.md",
+      "replacement": null
+    },
+    {
+      "id": "mitgliedsbeitraege.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/core/mitgliedsbeitraege.instructions.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/instructions/core/mitgliedsbeitraege.instructions.md",
+      "replacement": null
+    },
+    {
+      "id": "n8n-automation.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/core/n8n-automation.instructions.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/instructions/core/n8n-automation.instructions.md",
+      "replacement": null
+    },
+    {
+      "id": "plesk-deployment.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/core/plesk-deployment.instructions.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/instructions/core/plesk-deployment.instructions.md",
+      "replacement": null
+    },
+    {
+      "id": "project-development.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/core/project-development.instructions.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/instructions/core/project-development.instructions.md",
+      "replacement": null
+    },
+    {
+      "id": "quality-gates.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/core/quality-gates.instructions.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/instructions/core/quality-gates.instructions.md",
+      "replacement": null
+    },
+    {
+      "id": "style-guide.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/core/style-guide.instructions.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/instructions/core/style-guide.instructions.md",
+      "replacement": null
+    },
+    {
+      "id": "verein-statuten.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/core/verein-statuten.instructions.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/instructions/core/verein-statuten.instructions.md",
+      "replacement": null
+    }
+  ],
+  "skills": [
+    {
+      "id": "create-readme",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".github/skills/create-readme/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/skills/create-readme/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "create-specification",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".github/skills/create-specification/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/skills/create-specification/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "deploy-checklist",
+      "kind": "skill",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/skills/deploy-checklist/SKILL.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/skills/deploy-checklist/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "devops-rollout-plan",
+      "kind": "skill",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/skills/devops-rollout-plan/SKILL.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/skills/devops-rollout-plan/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "dotnet-upgrade",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".github/skills/dotnet-upgrade/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/skills/dotnet-upgrade/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "dsgvo-audit",
+      "kind": "skill",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/skills/dsgvo-audit/SKILL.md",
+      "role": "security",
+      "sourceOfTruth": ".github/skills/dsgvo-audit/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "git-commit",
+      "kind": "skill",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/skills/git-commit/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/skills/git-commit/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "javascript-typescript-jest",
+      "kind": "skill",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/skills/javascript-typescript-jest/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/skills/javascript-typescript-jest/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "moe-brand-governance",
+      "kind": "skill",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/skills/moe-brand-governance/SKILL.md",
+      "role": "brand",
+      "sourceOfTruth": ".github/skills/moe-brand-governance/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "moe-compliance-governance",
+      "kind": "skill",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/skills/moe-compliance-governance/SKILL.md",
+      "role": "security",
+      "sourceOfTruth": ".github/skills/moe-compliance-governance/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "moe-dev-suite",
+      "kind": "skill",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/skills/moe-dev-suite/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/skills/moe-dev-suite/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "moe-ops-governance",
+      "kind": "skill",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/skills/moe-ops-governance/SKILL.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/skills/moe-ops-governance/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "moe-qa-governance",
+      "kind": "skill",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/skills/moe-qa-governance/SKILL.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/skills/moe-qa-governance/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "multi-stage-dockerfile",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".github/skills/multi-stage-dockerfile/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/skills/multi-stage-dockerfile/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "php-mcp-server-generator",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".github/skills/php-mcp-server-generator/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/skills/php-mcp-server-generator/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "postgresql-optimization",
+      "kind": "skill",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/skills/postgresql-optimization/SKILL.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/skills/postgresql-optimization/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "pytest-coverage",
+      "kind": "skill",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/skills/pytest-coverage/SKILL.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/skills/pytest-coverage/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "python-mcp-server-generator",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".github/skills/python-mcp-server-generator/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/skills/python-mcp-server-generator/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "refactor",
+      "kind": "skill",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/skills/refactor/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/skills/refactor/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "sql-optimization",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".github/skills/sql-optimization/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/skills/sql-optimization/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "typescript-mcp-server-generator",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".github/skills/typescript-mcp-server-generator/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/skills/typescript-mcp-server-generator/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "web-coder",
+      "kind": "skill",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/skills/web-coder/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/skills/web-coder/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "plugin-skills-democracy-game-dev",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/menschlichkeit-dev-suite/skills/democracy-game-dev/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/skills/moe-dev-suite/SKILL.md",
+      "replacement": ".github/skills/moe-dev-suite/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-migration-guide",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/menschlichkeit-dev-suite/skills/migration-guide/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/skills/moe-dev-suite/SKILL.md",
+      "replacement": ".github/skills/moe-dev-suite/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-openclaw-status",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/menschlichkeit-dev-suite/skills/openclaw-status/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/skills/moe-dev-suite/SKILL.md",
+      "replacement": ".github/skills/moe-dev-suite/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-openclaw-task",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/menschlichkeit-dev-suite/skills/openclaw-task/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/skills/moe-dev-suite/SKILL.md",
+      "replacement": ".github/skills/moe-dev-suite/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-transparency-audit",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/menschlichkeit-dev-suite/skills/transparency-audit/SKILL.md",
+      "role": "security",
+      "sourceOfTruth": ".github/skills/moe-dev-suite/SKILL.md",
+      "replacement": ".github/skills/moe-dev-suite/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-brand-check",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-brand/skills/brand-check/SKILL.md",
+      "role": "brand",
+      "sourceOfTruth": ".github/skills/moe-brand-governance/SKILL.md",
+      "replacement": ".github/skills/moe-brand-governance/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-briefpapier",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-brand/skills/briefpapier/SKILL.md",
+      "role": "brand",
+      "sourceOfTruth": ".github/skills/moe-brand-governance/SKILL.md",
+      "replacement": ".github/skills/moe-brand-governance/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-email-signatur",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-brand/skills/email-signatur/SKILL.md",
+      "role": "brand",
+      "sourceOfTruth": ".github/skills/moe-brand-governance/SKILL.md",
+      "replacement": ".github/skills/moe-brand-governance/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-farb-kontrast",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-brand/skills/farb-kontrast/SKILL.md",
+      "role": "brand",
+      "sourceOfTruth": ".github/skills/moe-brand-governance/SKILL.md",
+      "replacement": ".github/skills/moe-brand-governance/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-flyer-poster",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-brand/skills/flyer-poster/SKILL.md",
+      "role": "brand",
+      "sourceOfTruth": ".github/skills/moe-brand-governance/SKILL.md",
+      "replacement": ".github/skills/moe-brand-governance/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-infografik",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-brand/skills/infografik/SKILL.md",
+      "role": "brand",
+      "sourceOfTruth": ".github/skills/moe-brand-governance/SKILL.md",
+      "replacement": ".github/skills/moe-brand-governance/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-logo-export",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-brand/skills/logo-export/SKILL.md",
+      "role": "brand",
+      "sourceOfTruth": ".github/skills/moe-brand-governance/SKILL.md",
+      "replacement": ".github/skills/moe-brand-governance/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-praesentation",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-brand/skills/praesentation/SKILL.md",
+      "role": "brand",
+      "sourceOfTruth": ".github/skills/moe-brand-governance/SKILL.md",
+      "replacement": ".github/skills/moe-brand-governance/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-social-media",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-brand/skills/social-media/SKILL.md",
+      "role": "brand",
+      "sourceOfTruth": ".github/skills/moe-brand-governance/SKILL.md",
+      "replacement": ".github/skills/moe-brand-governance/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-text-voice",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-brand/skills/text-voice/SKILL.md",
+      "role": "brand",
+      "sourceOfTruth": ".github/skills/moe-brand-governance/SKILL.md",
+      "replacement": ".github/skills/moe-brand-governance/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-consent-audit",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-compliance/skills/consent-audit/SKILL.md",
+      "role": "security",
+      "sourceOfTruth": ".github/skills/moe-compliance-governance/SKILL.md",
+      "replacement": ".github/skills/moe-compliance-governance/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-dsgvo-email-check",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-compliance/skills/dsgvo-email-check/SKILL.md",
+      "role": "security",
+      "sourceOfTruth": ".github/skills/moe-compliance-governance/SKILL.md",
+      "replacement": ".github/skills/moe-compliance-governance/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-pii-scan",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-compliance/skills/pii-scan/SKILL.md",
+      "role": "security",
+      "sourceOfTruth": ".github/skills/moe-compliance-governance/SKILL.md",
+      "replacement": ".github/skills/moe-compliance-governance/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-transparenz-check",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-compliance/skills/transparenz-check/SKILL.md",
+      "role": "security",
+      "sourceOfTruth": ".github/skills/moe-compliance-governance/SKILL.md",
+      "replacement": ".github/skills/moe-compliance-governance/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-deploy-verify",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-ops/skills/deploy-verify/SKILL.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/skills/moe-ops-governance/SKILL.md",
+      "replacement": ".github/skills/moe-ops-governance/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-n8n-security-audit",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-ops/skills/n8n-security-audit/SKILL.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/skills/moe-ops-governance/SKILL.md",
+      "replacement": ".github/skills/moe-ops-governance/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-n8n-trigger",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-ops/skills/n8n-trigger/SKILL.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/skills/moe-ops-governance/SKILL.md",
+      "replacement": ".github/skills/moe-ops-governance/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-quality-gate",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-ops/skills/quality-gate/SKILL.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/skills/moe-ops-governance/SKILL.md",
+      "replacement": ".github/skills/moe-ops-governance/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-a11y-audit",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-qa/skills/a11y-audit/SKILL.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/skills/moe-qa-governance/SKILL.md",
+      "replacement": ".github/skills/moe-qa-governance/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-api-test-gen",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-qa/skills/api-test-gen/SKILL.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/skills/moe-qa-governance/SKILL.md",
+      "replacement": ".github/skills/moe-qa-governance/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-e2e-playwright",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-qa/skills/e2e-playwright/SKILL.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/skills/moe-qa-governance/SKILL.md",
+      "replacement": ".github/skills/moe-qa-governance/SKILL.md"
+    },
+    {
+      "id": "plugin-skills-payment-test-gen",
+      "kind": "skill",
+      "status": "adapter",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-qa/skills/payment-test-gen/SKILL.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/skills/moe-qa-governance/SKILL.md",
+      "replacement": ".github/skills/moe-qa-governance/SKILL.md"
+    },
+    {
+      "id": "vendor-agent-tools",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/agent-tools/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-audit-website",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/audit-website/SKILL.md",
+      "role": "qa",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-better-auth-best-practices",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/better-auth-best-practices/SKILL.md",
+      "role": "security",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-brainstorming",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/brainstorming/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-browser-use",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/browser-use/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-canvas-design",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/canvas-design/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-content-strategy",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/content-strategy/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-copywriting",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/copywriting/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-docx",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/docx/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-find-skills",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/find-skills/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-frontend-design",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/frontend-design/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-mcp-builder",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/mcp-builder/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-next-best-practices",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/next-best-practices/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-pdf",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/pdf/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-pptx",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/pptx/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-pricing-strategy",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/pricing-strategy/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-product-marketing-context",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/product-marketing-context/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-programmatic-seo",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/programmatic-seo/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-remotion-best-practices",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/remotion-best-practices/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-seo-audit",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/seo-audit/SKILL.md",
+      "role": "qa",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-skill-creator",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/skill-creator/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-social-content",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/social-content/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-ui-ux-pro-max",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/ui-ux-pro-max/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-vercel-react-best-practices",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/vercel-react-best-practices/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-web-design-guidelines",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/web-design-guidelines/SKILL.md",
+      "role": "brand",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "vendor-xlsx",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".agents/skills/xlsx/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    }
+  ],
+  "plugins": [
+    {
+      "id": "menschlichkeit-dev-suite",
+      "kind": "plugin",
+      "status": "active",
+      "owner": "claude",
+      "path": ".claude/plugins/menschlichkeit-dev-suite/.claude-plugin/plugin.json",
+      "role": "architect",
+      "sourceOfTruth": ".claude/plugins/menschlichkeit-dev-suite/.claude-plugin/plugin.json",
+      "replacement": null
+    },
+    {
+      "id": "moe-brand",
+      "kind": "plugin",
+      "status": "active",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-brand/.claude-plugin/plugin.json",
+      "role": "brand",
+      "sourceOfTruth": ".claude/plugins/moe-brand/.claude-plugin/plugin.json",
+      "replacement": null
+    },
+    {
+      "id": "moe-compliance",
+      "kind": "plugin",
+      "status": "active",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-compliance/.claude-plugin/plugin.json",
+      "role": "security",
+      "sourceOfTruth": ".claude/plugins/moe-compliance/.claude-plugin/plugin.json",
+      "replacement": null
+    },
+    {
+      "id": "moe-ops",
+      "kind": "plugin",
+      "status": "active",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-ops/.claude-plugin/plugin.json",
+      "role": "devops",
+      "sourceOfTruth": ".claude/plugins/moe-ops/.claude-plugin/plugin.json",
+      "replacement": null
+    },
+    {
+      "id": "moe-qa",
+      "kind": "plugin",
+      "status": "active",
+      "owner": "claude",
+      "path": ".claude/plugins/moe-qa/.claude-plugin/plugin.json",
+      "role": "qa",
+      "sourceOfTruth": ".claude/plugins/moe-qa/.claude-plugin/plugin.json",
+      "replacement": null
+    }
+  ],
+  "prompts": [
+    {
+      "id": "01_EmailDNSSetup_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/01_EmailDNSSetup_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/DeploymentGuide_DE.chatmode.md"
+    },
+    {
+      "id": "02_DatabaseRollout_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/02_DatabaseRollout_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/instructions/core/database-operations-mcp.instructions.md"
+    },
+    {
+      "id": "03_MCPMultiServiceDeployment_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/03_MCPMultiServiceDeployment_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/MCPDeploymentOps_DE.chatmode.md"
+    },
+    {
+      "id": "04_n8nEmailAutomation_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/04_n8nEmailAutomation_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/instructions/core/n8n-automation.instructions.md"
+    },
+    {
+      "id": "05_n8nDeploymentNotifications_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/05_n8nDeploymentNotifications_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/instructions/core/n8n-automation.instructions.md"
+    },
+    {
+      "id": "06_n8nDatabaseAutomation_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/06_n8nDatabaseAutomation_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/instructions/core/n8n-automation.instructions.md"
+    },
+    {
+      "id": "07_n8nMonitoringAlerts_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/07_n8nMonitoringAlerts_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/instructions/core/n8n-automation.instructions.md"
+    },
+    {
+      "id": "08_n8nDSGVOCompliance_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/08_n8nDSGVOCompliance_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/instructions/core/dsgvo-compliance.instructions.md"
+    },
+    {
+      "id": "24_READMEModernization_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/24_READMEModernization_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/README_DE.chatmode.md"
+    },
+    {
+      "id": "APIDesign_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/APIDesign_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/APIDesign_DE.chatmode.md"
+    },
+    {
+      "id": "Architekturplan_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/Architekturplan_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/Architekturplan_DE.chatmode.md"
+    },
+    {
+      "id": "babylon-convert-selection.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/babylon-convert-selection.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/prompts/babylon-convert-selection.prompt.md",
+      "replacement": null
+    },
+    {
+      "id": "babylon-package-installer.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/babylon-package-installer.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/prompts/babylon-package-installer.prompt.md",
+      "replacement": null
+    },
+    {
+      "id": "BarrierefreiheitAudit_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/BarrierefreiheitAudit_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/BarrierefreiheitAudit_DE.chatmode.md"
+    },
+    {
+      "id": "Beitragsrichtlinien_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/Beitragsrichtlinien_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/Beitragsrichtlinien_DE.chatmode.md"
+    },
+    {
+      "id": "BenutzerDokumentation_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/BenutzerDokumentation_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/BenutzerDokumentation_DE.chatmode.md"
+    },
+    {
+      "id": "CIPipeline_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/CIPipeline_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/CIPipeline_DE.chatmode.md"
+    },
+    {
+      "id": "CiviCRM Interface + Integrationen + n8n.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/CiviCRM Interface + Integrationen + n8n.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/prompts/CiviCRM Interface + Integrationen + n8n.prompt.md",
+      "replacement": null
+    },
+    {
+      "id": "CiviCRM_n8n_Automation_DE.prompt.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/CiviCRM_n8n_Automation_DE.prompt.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/prompts/CiviCRM_n8n_Automation_DE.prompt.prompt.md",
+      "replacement": null
+    },
+    {
+      "id": "CiviCRM_Vereinsbuchhaltung_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/CiviCRM_Vereinsbuchhaltung_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/instructions/core/civicrm-vereinsbuchhaltung.instructions.md"
+    },
+    {
+      "id": "CodeReview_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/CodeReview_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/CodeReview_DE.chatmode.md"
+    },
+    {
+      "id": "DatabaseOptimization_DE.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/DatabaseOptimization_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/prompts/DatabaseOptimization_DE.prompt.md",
+      "replacement": null
+    },
+    {
+      "id": "DatenbankSchema_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/DatenbankSchema_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/DatenbankSchema_DE.chatmode.md"
+    },
+    {
+      "id": "DeploymentGuide_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/DeploymentGuide_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/DeploymentGuide_DE.chatmode.md"
+    },
+    {
+      "id": "Dockerisierung_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/Dockerisierung_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/Dockerisierung_DE.chatmode.md"
+    },
+    {
+      "id": "FeatureVorschlag_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/FeatureVorschlag_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/FeatureVorschlag_DE.chatmode.md"
+    },
+    {
+      "id": "FehlerberichtVorlage_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/FehlerberichtVorlage_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/FehlerberichtVorlage_DE.chatmode.md"
+    },
+    {
+      "id": "Lokalisierungsplan_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/Lokalisierungsplan_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/Lokalisierungsplan_DE.chatmode.md"
+    },
+    {
+      "id": "MarketingContent_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/MarketingContent_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/MarketingContent_DE.chatmode.md"
+    },
+    {
+      "id": "MCPDatabaseMigration_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/MCPDatabaseMigration_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/instructions/core/database-operations-mcp.instructions.md"
+    },
+    {
+      "id": "MCPDSGVOComplianceAudit_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/MCPDSGVOComplianceAudit_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/compliance/MCPSicherheitsAudit_DE.chatmode.md"
+    },
+    {
+      "id": "MCPFeatureImplementation_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/MCPFeatureImplementation_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/development/MCPAPIDesign_DE.chatmode.md"
+    },
+    {
+      "id": "MCPMultiServiceDeployment_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/MCPMultiServiceDeployment_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/MCPDeploymentOps_DE.chatmode.md"
+    },
+    {
+      "id": "MCPSecurityIncident_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/MCPSecurityIncident_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/compliance/MCPSicherheitsAudit_DE.chatmode.md"
+    },
+    {
+      "id": "Mitgliederantrag & Spenden.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/Mitgliederantrag & Spenden.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/prompts/Mitgliederantrag & Spenden.prompt.md",
+      "replacement": null
+    },
+    {
+      "id": "mitgliederaufnahme.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/mitgliederaufnahme.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/prompts/Mitgliederantrag & Spenden.prompt.md"
+    },
+    {
+      "id": "mitgliederversammlung.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/mitgliederversammlung.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/prompts/Vereinsplattform.prompt.md"
+    },
+    {
+      "id": "Onboarding_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/Onboarding_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/Onboarding_DE.chatmode.md"
+    },
+    {
+      "id": "PerformanceOptimierung_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/PerformanceOptimierung_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/PerformanceOptimierung_DE.chatmode.md"
+    },
+    {
+      "id": "README_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/README_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/README_DE.chatmode.md"
+    },
+    {
+      "id": "rechnungspruefung.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/rechnungspruefung.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/instructions/core/civicrm-vereinsbuchhaltung.instructions.md"
+    },
+    {
+      "id": "Roadmap_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/Roadmap_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/Roadmap_DE.chatmode.md"
+    },
+    {
+      "id": "SicherheitsAudit_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/SicherheitsAudit_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/SicherheitsAudit_DE.chatmode.md"
+    },
+    {
+      "id": "TestGeneration_DE.prompt",
+      "kind": "prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/TestGeneration_DE.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/TestGeneration_DE.chatmode.md"
+    },
+    {
+      "id": "Vereinsplattform.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/Vereinsplattform.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/prompts/Vereinsplattform.prompt.md",
+      "replacement": null
+    }
+  ],
+  "legacy": [
+    {
+      "id": "civicrm-n8n-automation.mode",
+      "kind": "mode",
+      "status": "legacy",
+      "owner": "shared",
+      "path": ".github/modes/civicrm-n8n-automation.mode.md",
+      "role": "legacy",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/instructions/core/civicrm-n8n-automation.instructions.md"
+    },
+    {
+      "id": "civicrm-vereinsbuchhaltung.mode",
+      "kind": "mode",
+      "status": "legacy",
+      "owner": "shared",
+      "path": ".github/modes/civicrm-vereinsbuchhaltung.mode.md",
+      "role": "legacy",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/instructions/core/civicrm-vereinsbuchhaltung.instructions.md"
+    },
+    {
+      "id": "deployment-operations.mode",
+      "kind": "mode",
+      "status": "legacy",
+      "owner": "shared",
+      "path": ".github/modes/deployment-operations.mode.md",
+      "role": "legacy",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/MCPDeploymentOps_DE.chatmode.md"
+    },
+    {
+      "id": "documentation.mode",
+      "kind": "mode",
+      "status": "legacy",
+      "owner": "shared",
+      "path": ".github/modes/documentation.mode.md",
+      "role": "legacy",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/chatmodes/general/BenutzerDokumentation_DE.chatmode.md"
+    },
+    {
+      "id": "n8n-automation.mode",
+      "kind": "mode",
+      "status": "legacy",
+      "owner": "shared",
+      "path": ".github/modes/n8n-automation.mode.md",
+      "role": "legacy",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/instructions/core/n8n-automation.instructions.md"
+    },
+    {
+      "id": "n8n-workflows.mode",
+      "kind": "mode",
+      "status": "legacy",
+      "owner": "shared",
+      "path": ".github/modes/n8n-workflows.mode.md",
+      "role": "legacy",
+      "sourceOfTruth": ".github/ai-registry.json",
+      "replacement": ".github/instructions/core/n8n-automation.instructions.md"
+    },
+    {
+      "id": "accessibility-audit",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/accessibility-audit.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/chatmodes/general/BarrierefreiheitAudit_DE.chatmode.md"
+    },
+    {
+      "id": "api-design",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/api-design.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/chatmodes/general/APIDesign_DE.chatmode.md"
+    },
+    {
+      "id": "architecture-plan",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/architecture-plan.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/chatmodes/general/Architekturplan_DE.chatmode.md"
+    },
+    {
+      "id": "bug-report",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/bug-report.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/chatmodes/general/FehlerberichtVorlage_DE.chatmode.md"
+    },
+    {
+      "id": "ci-pipeline",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/ci-pipeline.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/chatmodes/general/CIPipeline_DE.chatmode.md"
+    },
+    {
+      "id": "civicrm-n8n-automation",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/civicrm-n8n-automation.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/instructions/core/civicrm-n8n-automation.instructions.md"
+    },
+    {
+      "id": "civicrm-vereinsbuchhaltung",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/civicrm-vereinsbuchhaltung.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/instructions/core/civicrm-vereinsbuchhaltung.instructions.md"
+    },
+    {
+      "id": "code-review",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/code-review.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/chatmodes/general/CodeReview_DE.chatmode.md"
+    },
+    {
+      "id": "contribution-guidelines",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/contribution-guidelines.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/chatmodes/general/Beitragsrichtlinien_DE.chatmode.md"
+    },
+    {
+      "id": "database-schema",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/database-schema.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/chatmodes/general/DatenbankSchema_DE.chatmode.md"
+    },
+    {
+      "id": "deployment-operations",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/deployment-operations.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/chatmodes/general/MCPDeploymentOps_DE.chatmode.md"
+    },
+    {
+      "id": "dockerization",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/dockerization.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/chatmodes/general/Dockerisierung_DE.chatmode.md"
+    },
+    {
+      "id": "dsgvo-compliance-audit",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/dsgvo-compliance-audit.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/chatmodes/general/SicherheitsAudit_DE.chatmode.md"
+    },
+    {
+      "id": "feature-proposal",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/feature-proposal.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/chatmodes/general/FeatureVorschlag_DE.chatmode.md"
+    },
+    {
+      "id": "localization-plan",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/localization-plan.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/chatmodes/general/Lokalisierungsplan_DE.chatmode.md"
+    },
+    {
+      "id": "marketing-content",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/marketing-content.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/chatmodes/general/MarketingContent_DE.chatmode.md"
+    },
+    {
+      "id": "n8n-automation",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/n8n-automation.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/instructions/core/n8n-automation.instructions.md"
+    },
+    {
+      "id": "n8n-workflows",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/n8n-workflows.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/instructions/core/n8n-automation.instructions.md"
+    },
+    {
+      "id": "onboarding",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/onboarding.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/chatmodes/general/Onboarding_DE.chatmode.md"
+    },
+    {
+      "id": "performance-optimization",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/performance-optimization.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/chatmodes/general/PerformanceOptimierung_DE.chatmode.md"
+    },
+    {
+      "id": "quality-gates-audit",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/quality-gates-audit.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/instructions/core/quality-gates.instructions.md"
+    },
+    {
+      "id": "readme-modernization",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/readme-modernization.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/chatmodes/general/README_DE.chatmode.md"
+    },
+    {
+      "id": "repository-prompt-architect",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/repository-prompt-architect.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/chatmodes/general/AnalysePlanung_DE.chatmode.md"
+    },
+    {
+      "id": "roadmap",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/roadmap.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/chatmodes/general/Roadmap_DE.chatmode.md"
+    },
+    {
+      "id": "security-audit",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/security-audit.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/chatmodes/general/SicherheitsAudit_DE.chatmode.md"
+    },
+    {
+      "id": "test-generation",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/test-generation.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/chatmodes/general/TestGeneration_DE.chatmode.md"
+    },
+    {
+      "id": "user-documentation",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/user-documentation.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/chatmodes/general/BenutzerDokumentation_DE.chatmode.md"
+    },
+    {
+      "id": "verein-mitgliederaufnahme",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/verein-mitgliederaufnahme.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/prompts/Mitgliederantrag & Spenden.prompt.md"
+    },
+    {
+      "id": "verein-mitgliederversammlung",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/verein-mitgliederversammlung.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/prompts/Vereinsplattform.prompt.md"
+    },
+    {
+      "id": "verein-rechnungspruefung",
+      "kind": "legacy-chatmode",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/chatmodes/verein-rechnungspruefung.yaml",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/instructions/core/civicrm-vereinsbuchhaltung.instructions.md"
+    },
+    {
+      "id": "00_glossary",
+      "kind": "legacy-prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/global/00_glossary.md",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/instructions/core/glossary.instructions.md"
+    },
+    {
+      "id": "01_style_guide",
+      "kind": "legacy-prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/global/01_style_guide.md",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/instructions/core/style-guide.instructions.md"
+    },
+    {
+      "id": "02_guardrails",
+      "kind": "legacy-prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/global/02_guardrails.md",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/instructions/core/guardrails.instructions.md"
+    },
+    {
+      "id": "06-quality-reporting",
+      "kind": "legacy-prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/n8n/06-quality-reporting.md",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/instructions/core/n8n-automation.instructions.md"
+    },
+    {
+      "id": "07-monitoring",
+      "kind": "legacy-prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/n8n/07-monitoring.md",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/instructions/core/n8n-automation.instructions.md"
+    },
+    {
+      "id": "08-backup-automation",
+      "kind": "legacy-prompt",
+      "status": "deprecated",
+      "owner": "shared",
+      "path": ".github/prompts/n8n/08-backup-automation.md",
+      "role": "legacy",
+      "sourceOfTruth": ".github/prompts/MIGRATION_MAP.json",
+      "replacement": ".github/instructions/core/n8n-automation.instructions.md"
+    }
+  ],
+  "pluginConfigs": [
+    {
+      "id": "ai-pair-programming",
+      "kind": "plugin-config",
+      "status": "active",
+      "owner": "shared",
+      "path": ".plugin-config/ai-pair-programming.json",
+      "role": "developer",
+      "sourceOfTruth": ".plugin-config/ai-pair-programming.json",
+      "replacement": null
+    },
+    {
+      "id": "claude-dev-helper",
+      "kind": "plugin-config",
+      "status": "active",
+      "owner": "shared",
+      "path": ".plugin-config/claude-dev-helper.json",
+      "role": "architect",
+      "sourceOfTruth": ".plugin-config/claude-dev-helper.json",
+      "replacement": null
+    },
+    {
+      "id": "hook-auto-docs",
+      "kind": "plugin-config",
+      "status": "active",
+      "owner": "shared",
+      "path": ".plugin-config/hook-auto-docs.json",
+      "role": "qa",
+      "sourceOfTruth": ".plugin-config/hook-auto-docs.json",
+      "replacement": null
+    },
+    {
+      "id": "hook-complexity-monitor",
+      "kind": "plugin-config",
+      "status": "active",
+      "owner": "shared",
+      "path": ".plugin-config/hook-complexity-monitor.json",
+      "role": "developer",
+      "sourceOfTruth": ".plugin-config/hook-complexity-monitor.json",
+      "replacement": null
+    },
+    {
+      "id": "hook-git-auto-backup",
+      "kind": "plugin-config",
+      "status": "active",
+      "owner": "shared",
+      "path": ".plugin-config/hook-git-auto-backup.json",
+      "role": "devops",
+      "sourceOfTruth": ".plugin-config/hook-git-auto-backup.json",
+      "replacement": null
+    },
+    {
+      "id": "hook-session-summary",
+      "kind": "plugin-config",
+      "status": "active",
+      "owner": "shared",
+      "path": ".plugin-config/hook-session-summary.json",
+      "role": "qa",
+      "sourceOfTruth": ".plugin-config/hook-session-summary.json",
+      "replacement": null
+    },
+    {
+      "id": "hook-sound-notifications",
+      "kind": "plugin-config",
+      "status": "active",
+      "owner": "shared",
+      "path": ".plugin-config/hook-sound-notifications.json",
+      "role": "devops",
+      "sourceOfTruth": ".plugin-config/hook-sound-notifications.json",
+      "replacement": null
+    },
+    {
+      "id": "hook-todo-collector",
+      "kind": "plugin-config",
+      "status": "active",
+      "owner": "shared",
+      "path": ".plugin-config/hook-todo-collector.json",
+      "role": "developer",
+      "sourceOfTruth": ".plugin-config/hook-todo-collector.json",
+      "replacement": null
+    }
+  ]
+}

@@ -6,7 +6,9 @@ GitHub Copilot arbeitet in diesem Repository nicht frei schwebend, sondern entla
 
 1. `AGENTS.md` fuer Rollen, Routing und aktive Artefakte
 2. `CLAUDE.md` fuer Repo-Betrieb, Services und Guardrails
-3. `.github/instructions/core/*.instructions.md` fuer gemeinsame Policies
+3. `.github/instructions/core/analysis-planning.instructions.md` fuer Analyse und Planung
+4. `.github/ai-registry.json` fuer die Artefakt-Klassifikation
+5. `.github/instructions/core/*.instructions.md` fuer gemeinsame Policies
 
 ## Repo-Identitaet
 
@@ -33,6 +35,13 @@ Copilot-spezifische Einstiegspunkte:
 - `.github/agents/devops-expert.agent.md`
 - `.github/agents/mentor.agent.md`
 
+Kanonischer Analyse-Einstieg:
+
+- `.github/instructions/core/analysis-planning.instructions.md`
+- `.github/chatmodes/general/AnalysePlanung_DE.chatmode.md`
+- `.github/ai-registry.json`
+- GitHub-Backlog-Abfrage: `state:open repo:${owner}/${repository} sort:updated-desc`
+
 Aktive Chatmodes:
 
 - `.github/chatmodes/**/*.chatmode.md`
@@ -40,6 +49,10 @@ Aktive Chatmodes:
 Ergaenzende Prompt-Artefakte:
 
 - `.github/prompts/*.prompt.md`
+
+Kanonische Skill-Schicht:
+
+- `.github/skills/*/SKILL.md`
 
 Nicht aktiv:
 
@@ -77,6 +90,7 @@ Wenn eine Aenderung aktive Ablaeufe, Rollen, Pfade oder Tooling betrifft, muesse
 - `AGENTS.md`
 - `CLAUDE.md`
 - `.github/copilot-instructions.md`
+- `.github/ai-registry.json`
 - `.github/instructions/copilot-workflow.md`
 - `.github/chatmodes/README.md`
 - `.github/prompts/README.md`

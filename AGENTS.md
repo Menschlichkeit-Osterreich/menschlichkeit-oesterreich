@@ -32,13 +32,30 @@ Sie steuert nicht die Produkt-Runtime-Agenten von OpenClaw. Diese leben separat 
 1. `AGENTS.md`
 2. `CLAUDE.md`
 3. `.github/copilot-instructions.md`
-4. passende Policies unter `.github/instructions/core/*.instructions.md`
+4. `.github/instructions/core/analysis-planning.instructions.md`
+5. `.github/ai-registry.json`
+6. passende Policies unter `.github/instructions/core/*.instructions.md`
+
+## Kanonischer Analyse-Einstieg
+
+Analyse und Planung laufen in diesem Repository immer ueber genau eine fuehrende Quelle:
+
+- Core-Instruction: `.github/instructions/core/analysis-planning.instructions.md`
+- aktiver Chatmode: `.github/chatmodes/general/AnalysePlanung_DE.chatmode.md`
+- Copilot-Adapter: `.github/agents/task-planner.agent.md`
+- Claude-Adapter: `.claude/prompts/PROMPT_ANALYSE.md`
+- machine-readable Registry: `.github/ai-registry.json`
+- Issue-Kontext: GitHub-Abfrage `state:open repo:${owner}/${repository} sort:updated-desc`
+
+Wenn mehrere Clients beteiligt sind, bleibt diese Kette die einzige fuehrende Wahrheit.
 
 ## Aktive Artefakte
 
+- Machine-readable Registry: `.github/ai-registry.json`
 - Copilot-Agents: `.github/agents/*.agent.md`
 - Claude-Agents: `.claude/agents/*.md` und `.claude/plugins/*/agents/*.md`
 - Aktive Chatmodes: `.github/chatmodes/**/*.chatmode.md`
+- Kanonische Skill-Schicht: `.github/skills/*/SKILL.md`
 - Ergaenzende Task-Prompts: `.github/prompts/*.prompt.md`
 - Legacy-Archiv fuer alte YAML-Chatmodes: `.github/prompts/chatmodes/*.yaml`
 
@@ -56,9 +73,10 @@ Trigger:
 
 Primaere Quellen:
 
+- `.github/instructions/core/analysis-planning.instructions.md`
+- `.github/chatmodes/general/AnalysePlanung_DE.chatmode.md`
 - `CLAUDE.md`
 - `.github/chatmodes/general/Architekturplan_DE.chatmode.md`
-- `.github/prompts/Architekturplan_DE.prompt.md`
 - relevante Core-Instructions
 
 Erwarteter Output:
@@ -79,8 +97,9 @@ Trigger:
 
 Primaere Quellen:
 
+- `.github/skills/*/SKILL.md`
 - `.github/chatmodes/development/*.chatmode.md`
-- `.github/prompts/MCPFeatureImplementation_DE.prompt.md`
+- aktive `.github/prompts/*.prompt.md` laut `.github/ai-registry.json`
 - betroffene App unter `apps/`
 
 Erwarteter Output:
@@ -101,6 +120,7 @@ Trigger:
 
 Primaere Quellen:
 
+- `.github/instructions/core/analysis-planning.instructions.md`
 - `.github/agents/task-planner.agent.md`
 - `.github/agents/devops-expert.agent.md`
 - `.claude/plugins/moe-ops/agents/ops-engineer.md`
@@ -126,7 +146,6 @@ Trigger:
 Primaere Quellen:
 
 - `.github/chatmodes/general/SicherheitsAudit_DE.chatmode.md`
-- `.github/prompts/SicherheitsAudit_DE.prompt.md`
 - `.github/instructions/core/dsgvo-compliance.instructions.md`
 - `.claude/agents/security-reviewer.md`
 
@@ -150,7 +169,7 @@ Primaere Quellen:
 - `.github/chatmodes/general/CodeReview_DE.chatmode.md`
 - `.github/chatmodes/general/BarrierefreiheitAudit_DE.chatmode.md`
 - `.github/chatmodes/general/PerformanceOptimierung_DE.chatmode.md`
-- `.github/prompts/TestGeneration_DE.prompt.md`
+- aktive QA-Templates unter `.github/prompts/*.prompt.md` laut `.github/ai-registry.json`
 
 Erwarteter Output:
 
@@ -175,6 +194,7 @@ Spezialrollen duerfen keine parallele Repo-Governance einfuehren.
 3. Nur zusaetzliche Spezialisierungen hinzuziehen, wenn der Scope sie wirklich braucht.
 4. Repo-Contributor-Agents niemals mit OpenClaw-Runtime-Agenten vermischen.
 5. Neue Guidance muss sich an reale `apps/`-Pfade, aktuelle Services und das Main-first-Modell halten.
+6. Skill-, Prompt- und Plugin-Klassifikation folgt immer `.github/ai-registry.json`.
 
 ## Output-Regeln
 
@@ -187,6 +207,8 @@ Spezialrollen duerfen keine parallele Repo-Governance einfuehren.
 ## Definition of Done fuer Governance-nahe Aenderungen
 
 - `AGENTS.md`, `CLAUDE.md` und `.github/copilot-instructions.md` bleiben konsistent.
+- der einzige aktive Analyse-Einstieg bleibt `.github/instructions/core/analysis-planning.instructions.md`.
+- `.github/ai-registry.json` klassifiziert aktive, Adapter-, Vendor- und Legacy-Artefakte vollstaendig.
 - `.github/agents/*.agent.md`, `.github/chatmodes/**/*.chatmode.md` und relevante `.claude`-Agents zeigen auf reale Pfade.
 - `.github/prompts/chatmodes/*.yaml` bleiben explizit als Legacy markiert.
 - `.vscode/*`, `.claude/launch.json`, `mcp.json` und die Workspace-Datei passen zum aktiven Repo-Root.

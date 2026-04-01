@@ -4,6 +4,7 @@ description: 'Prompt für Benutzerdokumentation im Menschlichkeit Österreich Pr
 lastUpdated: 2026-03-31
 status: DEPRECATED
 deprecatedDate: 2025-10-08
+migrationTarget: .github/chatmodes/general/BenutzerDokumentation_DE.chatmode.md
 category: documentation
 tags: ['documentation']
 version: '1.0.0'
@@ -11,7 +12,7 @@ language: de-AT
 audience: ['Technical Writers', 'All Teams']
 ---
 
-> **DEPRECATED** — Migriert nach `.github/chatmodes/BenutzerDokumentation_DE.chatmode.md`. Diese Datei wird als Referenz beibehalten.
+> **DEPRECATED** — Migriert nach `.github/chatmodes/general/BenutzerDokumentation_DE.chatmode.md`. Diese Datei bleibt nur als Referenz erhalten.
 
 Erstellen Sie eine Benutzer- bzw. Bedienungsanleitung für das Projekt `${workspaceFolderBasename}` in deutscher Sprache. Diese Dokumentation soll Endnutzer unterstützen und folgende Abschnitte umfassen:
 
