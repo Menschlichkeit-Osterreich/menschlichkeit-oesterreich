@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Environment (z. B. stage|prod)"
+        description: 'Environment (z. B. stage|prod)'
         required: true
-        default: "prod"
+        default: 'prod'
 
 permissions:
   contents: read
@@ -23,9 +23,12 @@ jobs:
       DB_NAME: ${{ secrets.DB_NAME }}
       DB_USER: ${{ secrets.DB_USER }}
       DB_PASS: ${{ secrets.DB_PASS }}
+      # Untrusted workflow_dispatch inputs MUST NOT be interpolated directly in
+      # run: scripts. Assigning them to env vars prevents template injection.
+      INPUT_ENVIRONMENT: ${{ inputs.environment }}
     steps:
       - name: Start ssh-agent
-        uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd  # v0.9.1
+        uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
         with:
           ssh-private-key: ${{ secrets.PLESK_SSH_KEY }}
 
@@ -41,14 +44,14 @@ jobs:
       - name: Stream mysqldump → gzip
         run: |
           TS=$(date -u +'%Y%m%d-%H%M%S')
-          OUT="db-${{ inputs.environment }}-${TS}.sql.gz"
+          OUT="db-${INPUT_ENVIRONMENT}-${TS}.sql.gz"
           ssh -p "${{ env.SSH_PORT }}" "${{ env.SSH_USER }}@${{ env.SSH_HOST }}" \
             "MYSQL_PWD='${{ env.DB_PASS }}' mysqldump -h '${{ env.DB_HOST }}' -u '${{ env.DB_USER }}' --single-transaction --quick --routines --triggers --events '${{ env.DB_NAME }}' | gzip -c" \
             > "$OUT"
           echo "OUT=$OUT" >> $GITHUB_ENV
 
       - name: Upload artifact
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: ${{ env.OUT }}
           path: ${{ env.OUT }}

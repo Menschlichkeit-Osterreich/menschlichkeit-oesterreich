@@ -4,16 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Environment (z. B. stage|prod)"
+        description: 'Environment (z. B. stage|prod)'
         required: true
-        default: "stage"
+        default: 'stage'
       dump_url:
-        description: "Presigned URL zu dump.sql.gz"
+        description: 'Presigned URL zu dump.sql.gz'
         required: true
       confirm:
         description: "Gib 'PROD' ein, um auf prod zu schreiben (sonst Abbruch)."
         required: false
-        default: ""
+        default: ''
 
 permissions:
   contents: read
@@ -30,17 +30,21 @@ jobs:
       DB_NAME: ${{ secrets.DB_NAME }}
       DB_USER: ${{ secrets.DB_USER }}
       DB_PASS: ${{ secrets.DB_PASS }}
+      # Untrusted workflow_dispatch inputs MUST NOT be interpolated directly in
+      # run: scripts. Assigning them to env vars prevents template injection.
+      INPUT_CONFIRM: ${{ inputs.confirm }}
+      INPUT_DUMP_URL: ${{ inputs.dump_url }}
     steps:
       - name: Safeguard (prod)
         if: ${{ inputs.environment == 'prod' }}
         run: |
-          if [[ "${{ inputs.confirm }}" != "PROD" ]]; then
+          if [[ "$INPUT_CONFIRM" != "PROD" ]]; then
             echo "Abbruch: PROD nicht bestätigt." >&2
             exit 1
           fi
 
       - name: Start ssh-agent
-        uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd  # v0.9.1
+        uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
         with:
           ssh-private-key: ${{ secrets.PLESK_SSH_KEY }}
 
@@ -54,6 +58,6 @@ jobs:
 
       - name: Restore DB from URL
         run: |
-          curl -fsSL "${{ inputs.dump_url }}" -o dump.sql.gz
+          curl -fsSL "$INPUT_DUMP_URL" -o dump.sql.gz
           gunzip -c dump.sql.gz | ssh -p "${{ env.SSH_PORT }}" "${{ env.SSH_USER }}@${{ env.SSH_HOST }}" \
             "MYSQL_PWD='${{ env.DB_PASS }}' mysql -h '${{ env.DB_HOST }}' -u '${{ env.DB_USER }}' '${{ env.DB_NAME }}'"
