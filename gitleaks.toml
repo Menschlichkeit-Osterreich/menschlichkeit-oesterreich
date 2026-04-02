@@ -1,4 +1,4 @@
-# Gitleaks Configuration für menschlichkeit-oesterreich-development
+# Gitleaks Configuration für menschlichkeit-oesterreich
 # Filtere False Positives aus Vendor-Code und Test-Fixtures
 
 title = "Gitleaks Config - Menschlichkeit Österreich"

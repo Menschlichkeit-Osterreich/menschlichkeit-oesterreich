@@ -465,7 +465,7 @@ jobs:
           HTTP=$(curl --silent --max-time 15 --output /dev/null --write-out "%{http_code}" \
             "https://api.${{ env.MAIN_DOMAIN }}/healthz" || echo "000")
           echo "API HTTP: ${HTTP}"
-          [[ "${HTTP}" =~ ^[23] ]] || echo "⚠️ API Healthcheck: ${HTTP} (API benötigt ggf. Neustart via Plesk)"
+          [[ "${HTTP}" =~ ^[23] ]] || { echo "✗ API Healthcheck fehlgeschlagen (${HTTP}). Ggf. manuellen Neustart via Plesk-Panel durchführen."; exit 1; }
 
       - name: Healthcheck — CRM-Portal
         if: >
