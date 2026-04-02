@@ -12,7 +12,7 @@ from typing import Any
 
 _SMTP_MAX_RETRIES = 3
 
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+from jinja2 import Environment, FileSystemLoader
 
 from ..db import execute
 from ..secrets_provider import get_secret
@@ -41,7 +41,7 @@ class MailService:
     def __init__(self) -> None:
         self.env = Environment(
             loader=FileSystemLoader(str(TEMPLATE_DIR)),
-            autoescape=select_autoescape(["html", "xml"]),
+            autoescape=True,
         )
         self.smtp_user = get_secret("MAIL_USERNAME", bsm_key="api/MAIL_USERNAME").strip()
         self.smtp_password = get_secret("MAIL_PASSWORD", bsm_key="api/MAIL_PASSWORD").strip()

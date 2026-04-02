@@ -26,7 +26,7 @@ OUTPUT_DIR   = os.getenv("PDF_STORAGE_PATH", "/tmp/pdfs")
 
 JINJA_ENV = jinja2.Environment(
     loader=jinja2.FileSystemLoader(TEMPLATE_DIR),
-    autoescape=jinja2.select_autoescape(["html", "xml"])
+    autoescape=True,
 )
 
 # ── Hilfsfunktionen ────────────────────────────────────────────────────────────
