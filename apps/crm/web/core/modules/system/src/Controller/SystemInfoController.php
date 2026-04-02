@@ -57,10 +57,23 @@ class SystemInfoController implements ContainerInjectionInterface {
   /**
    * Returns the contents of phpinfo().
    *
+   * Disabled by default. To enable only in non-production environments,
+   * add the following to settings.php:
+   * @code
+   *   $settings['phpinfo_enabled'] = TRUE;
+   * @endcode
+   *
    * @return \Symfony\Component\HttpFoundation\Response
    *   A response object to be sent to the client.
    */
   public function php() {
+    // phpinfo() must never be exposed in production. It reveals server paths,
+    // PHP configuration, loaded extensions, and environment details that aid
+    // attackers. Require explicit opt-in via settings.php.
+    if (!Settings::get('phpinfo_enabled', FALSE)) {
+      return new Response($this->t('phpinfo() output is disabled. Set $settings[\'phpinfo_enabled\'] = TRUE in settings.php to enable it in non-production environments.'), 403);
+    }
+
     if (function_exists('phpinfo')) {
       ob_start();
       $phpinfo_flags = Settings::get('sa_core_2023_004_phpinfo_flags', ~ (INFO_VARIABLES | INFO_ENVIRONMENT));
