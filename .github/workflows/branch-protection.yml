@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       branches:
-        description: "Kommagetrennte Branches (z. B. main,chore/figma-mcp-make)"
+        description: 'Kommagetrennte Branches (z. B. main,chore/figma-mcp-make)'
         required: true
-        default: "main"
+        default: 'main'
   schedule:
     - cron: '17 3 * * *' # täglich 03:17 UTC
 
@@ -55,7 +55,10 @@ jobs:
           OWNER_REPO: ${{ steps.vars.outputs.owner_repo }}
           BRANCHES: ${{ steps.vars.outputs.branches }}
           EVENT_NAME: ${{ github.event_name }}
-          # Secret token with repo admin scope; set one of these in repository secrets
+          # Kanonischer Admin-Token: GH_ADMIN_TOKEN (repo + admin:org Scope).
+          # TOKEN_2 (ADMIN_GITHUB_TOKEN) und TOKEN_3 (REPO_ADMIN_TOKEN) sind
+          # veraltete Aliase und koennen nach vollstaendiger Konsolidierung aus
+          # den GitHub-Secrets geloescht werden. Nur GH_ADMIN_TOKEN neu befuellen.
           TOKEN_1: ${{ secrets.GH_ADMIN_TOKEN }}
           TOKEN_2: ${{ secrets.ADMIN_GITHUB_TOKEN }}
           TOKEN_3: ${{ secrets.REPO_ADMIN_TOKEN }}
