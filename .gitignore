@@ -308,6 +308,10 @@ logs/*.txt
 logs/*.log
 logs/**/*.txt
 logs/**/*.log
+
+# OpenWolf pm2-Logs (nur .gitkeep behalten)
+apps/openwolf/logs/*.log
+apps/openwolf/logs/*.txt
 # Operative Security-Alerts — nicht im Repository versionieren
 # Schema-Dokumentation: logs/security-alerts.example.json (getrackt)
 logs/security-alerts.json
