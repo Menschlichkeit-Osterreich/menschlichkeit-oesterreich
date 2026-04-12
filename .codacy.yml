@@ -6,14 +6,21 @@ engines:
   stylelint:
     enabled: false
   trivy:
-    enabled: false
+    enabled: true
   pmd:
     enabled: false
 
 exclude_paths:
-  - "crm.menschlichkeit-oesterreich.at/web/core/tests/**"
-  - "docs/archive/**"
-  - "figma-design-system/components/**"
+  - '.agents/**'
+  - '.claude/**'
+  - '.gemini/**'
+  - 'attached_assets/**'
+  - 'analysis/archive/**'
+  - 'crm.menschlichkeit-oesterreich.at/web/core/tests/**'
+  - 'docs/archive/**'
+  - 'figma-design-system/components/**'
+  - 'quality-reports/**'
+  - 'reports/**'
 
 categories:
   CodeStyle:

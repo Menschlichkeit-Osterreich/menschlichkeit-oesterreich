@@ -1,20 +1,28 @@
 exclude_paths:
-    - node_modules/**
-    - '**/vendor/**'
-    - '**/dist/**'
-    - '**/build/**'
-    - '**/.cache/**'
-    - crm.menschlichkeit-oesterreich.at/web/core/**
-    - crm.menschlichkeit-oesterreich.at/web/modules/contrib/**
-    - crm.menschlichkeit-oesterreich.at/web/themes/contrib/**
-    - crm.menschlichkeit-oesterreich.at/vendor/**
-    - web/**
-    - website/**
-    - assets/**
+  - .agents/**
+  - .claude/**
+  - .gemini/**
+  - attached_assets/**
+  - analysis/archive/**
+  - node_modules/**
+  - '**/vendor/**'
+  - '**/dist/**'
+  - '**/build/**'
+  - '**/.cache/**'
+  - crm.menschlichkeit-oesterreich.at/web/core/**
+  - crm.menschlichkeit-oesterreich.at/web/modules/contrib/**
+  - crm.menschlichkeit-oesterreich.at/web/themes/contrib/**
+  - crm.menschlichkeit-oesterreich.at/vendor/**
+  - web/**
+  - website/**
+  - assets/**
+  - docs/archive/**
+  - quality-reports/**
+  - reports/**
 runtimes:
-    - node@22.2.0
-    - python@3.11.11
+  - node@22.2.0
+  - python@3.11.11
 tools:
-    - eslint@8.57.0
-    - pylint@3.3.6
-    - semgrep@1.78.0
+  - eslint@8.57.0
+  - pylint@3.3.6
+  - semgrep@1.78.0

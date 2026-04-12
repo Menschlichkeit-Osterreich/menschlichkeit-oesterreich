@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const REPORTS_DIR = resolve(process.cwd(), 'quality-reports');
 const OUTPUT_SARIF = resolve(REPORTS_DIR, 'codacy-analysis.sarif');
+const LOCAL_CODACY_JAR = resolve(process.cwd(), '.codacy', 'codacy-analysis-cli-assembly.jar');
 
 function run(cmd, args = []) {
   return new Promise((resolveOk, reject) => {
@@ -26,15 +27,30 @@ function writeEmptySarif() {
 
 async function main() {
   try {
-    await run('codacy-analysis-cli', [
+    const analyzeArgs = [
       'analyze',
       '--format',
       'sarif',
       '--output',
       OUTPUT_SARIF,
-      '--project-directory',
+      '--directory',
       '.',
-    ]);
+      '--skip-uncommitted-files-check',
+      'true',
+    ];
+
+    try {
+      await run('codacy-analysis-cli', analyzeArgs);
+      process.exit(0);
+      return;
+    } catch (pathError) {
+      if (!existsSync(LOCAL_CODACY_JAR)) {
+        throw pathError;
+      }
+
+      await run('java', ['-jar', LOCAL_CODACY_JAR, ...analyzeArgs]);
+    }
+
     process.exit(0);
   } catch (e) {
     console.warn(
