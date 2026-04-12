@@ -4,9 +4,9 @@ import SeoHead from '../components/seo/SeoHead';
 import { GAMES_SITE_URL } from '../config/siteConfig';
 
 const SPIEL_KENNZAHLEN = [
-  { value: '100', label: 'Levels mit Fortschrittssystem' },
-  { value: '10', label: 'Themenwelten von Gemeinde bis Zukunft' },
-  { value: '6', label: 'Rollen mit eigener Perspektive' },
+  { value: '2', label: 'Aktuell live spielbare 3D-Level' },
+  { value: '100', label: 'Zielpfad im Ausbau (10 Welten × 10 Levels)' },
+  { value: '2', label: 'Live-Rollen mit eigenem Spielstil' },
   { value: '3D', label: 'Babylon.js-Erlebnis auf eigener Subdomain' },
 ];
 
@@ -14,17 +14,17 @@ const SPIEL_BAUSTEINE = [
   {
     title: 'Rolle wählen',
     description:
-      'Du startest als engagierte Bürgerin, Lokalpolitiker, Journalistin, Aktivist, Verwaltungsbeamter oder Richterin.',
+      'Du startest derzeit als Aktivist*in oder Moderator*in mit unterschiedlichen Spielvorteilen.',
   },
   {
-    title: 'Welt öffnen',
+    title: 'Mission lösen',
     description:
-      'Jede Welt bündelt zehn Levels zu Demokratie, Menschenrechten, Medien, Digitalität, Umwelt oder sozialer Gerechtigkeit.',
+      'Jede Runde folgt der Logik zuhören, verbinden, handeln und trainiert demokratische Teilhabe.',
   },
   {
-    title: 'Entscheidung treffen',
+    title: 'Roadmap wachsen lassen',
     description:
-      'Jede Antwort verändert dein Demokratie-Profil in den Bereichen Empathie, Rechte, Teilhabe und Zivilcourage.',
+      'Die Plattform wird schrittweise auf 100 Levels ausgebaut, mit klaren Themenwelten von Gemeinde bis Zukunft.',
   },
 ];
 
@@ -76,8 +76,8 @@ export default function SpielPage() {
               <p className="mt-5 max-w-2xl text-lg leading-8 text-white/90 md:text-xl">
                 <strong>Brücken Bauen in 3D</strong> läuft als eigenständiges Spiel auf{' '}
                 <span className="font-semibold">games.menschlichkeit-oesterreich.at</span>.
-                Auf dieser Seite findest du den Einstieg, die Themenwelten und die Verbindung zu
-                Bildung, Mitmachen und zivilgesellschaftlicher Teilhabe.
+                Aktuell ist ein fokussierter 3D-Kern live. Parallel bauen wir den langfristigen
+                100-Level-Pfad aus und verknüpfen ihn mit Bildung, Mitmachen und zivilgesellschaftlicher Teilhabe.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:justify-center md:justify-start">
@@ -124,11 +124,12 @@ export default function SpielPage() {
       <section className="bg-slate-50 py-16 md:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="max-w-3xl">
-            <h2 className="text-3xl font-black text-slate-900 md:text-4xl">So funktioniert der neue Spielfluss.</h2>
+            <h2 className="text-3xl font-black text-slate-900 md:text-4xl">So funktioniert der aktuelle Spielfluss.</h2>
             <p className="mt-4 text-lg leading-8 text-slate-600">
               Das Spiel ist bewusst von der Hauptwebsite entkoppelt. Dadurch bleibt die Website
               schnell, indexierbar und klar strukturiert, während das Spiel auf der Games-Subdomain
-              als 3D-Erlebnis eigenständig wachsen kann.
+              als 3D-Erlebnis eigenständig wachsen kann. Die Live-Version bildet den Kern,
+              die 100-Level-Roadmap wird in Etappen erweitert.
             </p>
           </div>
 
@@ -150,19 +151,18 @@ export default function SpielPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr]">
             <div>
-              <h2 className="text-3xl font-black text-slate-900 md:text-4xl">Themenwelten statt einzelner Demo-Szenen.</h2>
+              <h2 className="text-3xl font-black text-slate-900 md:text-4xl">Roadmap: 10 Welten, 100 Levels.</h2>
               <p className="mt-4 text-lg leading-8 text-slate-600">
-                Das bisherige Spiel mit wenigen Einzel-Szenarien wurde zu einer größeren Lernstruktur
-                weiterentwickelt. Die neue Plattform verbindet lokale, soziale und politische
-                Konflikte zu einem konsistenten Pfad, der auch in Bildungsarbeit eingesetzt werden
-                kann.
+                Die Plattform wächst schrittweise: von einer stabilen Live-Basis hin zu einem
+                vollständigen Lernpfad über 10 Themenwelten mit jeweils 10 Levels. So bleiben
+                Qualität, Verständlichkeit und Produktwahrheit erhalten.
               </p>
               <div className="mt-8 rounded-3xl border border-red-100 bg-red-50 p-6">
-                <h3 className="text-lg font-bold text-red-900">Warum die Trennung wichtig ist</h3>
+                <h3 className="text-lg font-bold text-red-900">Live jetzt, Ausbau geplant</h3>
                 <p className="mt-3 text-sm leading-7 text-red-800">
-                  Die Hauptdomain bleibt Suchmaschinen-, Inhalts- und Vertrauenshub. Das Spiel
-                  selbst läuft separat auf der Games-Subdomain, damit 3D-Runtime, Service Worker,
-                  Assets und Updates nicht die redaktionellen Kernseiten der Website destabilisieren.
+                  Die Hauptdomain bleibt Suchmaschinen-, Inhalts- und Vertrauenshub. Das Spiel läuft
+                  separat auf der Games-Subdomain. Dadurch können wir neue Levelwellen ausrollen,
+                  ohne die redaktionellen Kernseiten zu destabilisieren.
                 </p>
               </div>
             </div>
@@ -175,7 +175,7 @@ export default function SpielPage() {
                 >
                   <h3 className="text-base font-bold text-slate-900">{welt}</h3>
                   <p className="mt-2 text-sm leading-7 text-slate-600">
-                    Jede Themenwelt bündelt zehn Levels und legt den Fokus auf reale Spannungsfelder
+                    Jede Themenwelt ist Teil der 100-Level-Roadmap und fokussiert reale Spannungsfelder
                     zwischen Rechten, Beteiligung, Fairness und demokratischer Verantwortung.
                   </p>
                 </article>
@@ -208,8 +208,8 @@ export default function SpielPage() {
           <div className="mt-12 rounded-[32px] bg-gradient-to-r from-red-600 to-orange-500 p-8 text-center shadow-2xl md:p-12">
             <h2 className="text-3xl font-black">Bereit für das Babylon-Spiel?</h2>
             <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-white/90">
-              Starte jetzt auf der Games-Subdomain oder nutze zuerst unsere Bildungs- und Mitmachangebote,
-              wenn du die Themen vertiefen möchtest.
+              Starte jetzt die Live-Version auf der Games-Subdomain. Der Ausbau auf 100 Levels
+              läuft in klaren Etappen, eng verknüpft mit unseren Bildungs- und Mitmachangeboten.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
               <a

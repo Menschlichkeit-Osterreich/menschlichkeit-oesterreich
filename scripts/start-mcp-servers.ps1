@@ -25,7 +25,7 @@ function Stop-McpServers {
     
     # Stop by process name
     Get-Process -Name "node" -ErrorAction SilentlyContinue | Where-Object {
-        $_.CommandLine -like "*mcp-stub*" -or $_.CommandLine -like "*figma-mcp-server*"
+        $_.CommandLine -like "*mcp-stub*" -or $_.CommandLine -like "*mcp-servers*"
     } | Stop-Process -Force
     
     Write-Host "All MCP servers stopped." -ForegroundColor Red
@@ -41,10 +41,7 @@ if ($Restart) {
     Start-Sleep -Seconds 3
 }
 
-# Start Figma HTTP MCP Server
-Write-Host "Starting Figma MCP Server..." -ForegroundColor Cyan
-Start-Process -FilePath "node" -ArgumentList "$PSScriptRoot\..\servers\src\figma-mcp-server.js" -WindowStyle Hidden
-
-Write-Host ""
-Write-Host "All MCP servers started successfully!" -ForegroundColor Green
-Write-Host "Use 'scripts\start-mcp-servers.ps1 -Stop' to stop all servers" -ForegroundColor Gray
+Write-Host "No standalone Figma HTTP MCP server is configured anymore." -ForegroundColor Cyan
+Write-Host "Active MCP integrations are loaded directly from mcp.json and .vscode/mcp.json." -ForegroundColor Green
+Write-Host "Current baseline: GitHub, filesystem, memory, sequential-thinking, playwright, context7, plus repo-local helpers." -ForegroundColor Gray
+Write-Host "Use 'npm run mcp:check' to verify the active stack." -ForegroundColor Gray

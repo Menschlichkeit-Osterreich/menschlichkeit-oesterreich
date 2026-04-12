@@ -2,7 +2,12 @@ import React from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useAuth } from './auth/AuthContext';
 import CrossHostRedirect from './components/CrossHostRedirect';
-import { buildPortalUrl, buildPublicUrl, getRuntimeHostVariant, mapLegacyPortalPath } from './utils/runtimeHost';
+import {
+  buildPortalUrl,
+  buildPublicUrl,
+  getRuntimeHostVariant,
+  mapLegacyPortalPath,
+} from './utils/runtimeHost';
 import ProtectedRoute from './routes/ProtectedRoute';
 import AdminRoute from './routes/AdminRoute';
 import PublicLayout from './layouts/PublicLayout';
@@ -23,6 +28,7 @@ import SuccessPage from './pages/Success';
 import KontaktPage from './pages/Kontakt';
 import ImpressumPage from './pages/Impressum';
 import DatenschutzPage from './pages/Datenschutz';
+import BarrierefreiheitPage from './pages/Barrierefreiheit';
 import SpielPage from './pages/Spiel';
 import ForumPage from './pages/ForumPage';
 import ForumThread from './pages/ForumThread';
@@ -31,7 +37,6 @@ import BlogArticle from './pages/BlogArticle';
 import MitmachenPage from './pages/Mitmachen';
 import NotFoundPage from './pages/NotFound';
 import Login from './pages/Login';
-import Register from './pages/Register';
 import PasswordReset from './pages/PasswordReset';
 import TeamPage from './pages/Team';
 import TransparenzPage from './pages/Transparenz';
@@ -116,13 +121,15 @@ function buildPublicRoutes() {
         <Route path="/kontakt" element={<KontaktPage />} />
         <Route path="/impressum" element={<ImpressumPage />} />
         <Route path="/datenschutz" element={<DatenschutzPage />} />
+        <Route path="/barrierefreiheit" element={<BarrierefreiheitPage />} />
         <Route path="/forum" element={<ForumPage />} />
         <Route path="/forum/:threadId" element={<ForumThread />} />
         <Route path="/blog" element={<BlogPage />} />
         <Route path="/blog/:articleId" element={<BlogArticle />} />
       </Route>
 
-      <Route path="/registrieren" element={<Register />} />
+      <Route path="/registrieren" element={<Navigate replace to="/mitglied-werden" />} />
+      <Route path="/agb" element={<Navigate replace to="/statuten" />} />
       <Route path="/login" element={<RedirectCurrentPathToPortal />} />
       <Route path="/passwort-vergessen" element={<RedirectCurrentPathToPortal />} />
       <Route path="/passwort-reset" element={<RedirectCurrentPathToPortal />} />
@@ -146,11 +153,11 @@ function buildPortalRoutes() {
       </Route>
 
       <Route
-        element={(
+        element={
           <ProtectedRoute>
             <DashboardLayout />
           </ProtectedRoute>
-        )}
+        }
       >
         <Route path="/member" element={<MemberArea />} />
         <Route path="/member/profil" element={<MemberArea />} />
@@ -163,11 +170,11 @@ function buildPortalRoutes() {
       </Route>
 
       <Route
-        element={(
+        element={
           <AdminRoute>
             <DashboardLayout />
           </AdminRoute>
-        )}
+        }
       >
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
@@ -190,7 +197,10 @@ function buildPortalRoutes() {
       <Route path="/account/sepa" element={<Navigate replace to="/member/sepa" />} />
       <Route path="/account/receipts" element={<Navigate replace to="/member/rechnungen" />} />
       <Route path="/account/newsletter" element={<Navigate replace to="/member/newsletter" />} />
-      <Route path="/registrieren" element={<CrossHostRedirect to={buildPublicUrl('/mitglied-werden')} />} />
+      <Route
+        path="/registrieren"
+        element={<CrossHostRedirect to={buildPublicUrl('/mitglied-werden')} />}
+      />
       <Route path="/native/*" element={<RedirectCurrentPathToPortal />} />
       <Route path="*" element={<RedirectCurrentPathToPublic />} />
     </Routes>

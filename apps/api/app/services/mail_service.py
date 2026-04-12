@@ -27,7 +27,9 @@ from ..email_config import (
 
 logger = logging.getLogger("menschlichkeit.mail")
 
-TEMPLATE_DIR = Path(__file__).resolve().parents[2] / "src" / "notifications" / "templates"
+TEMPLATE_DIR = (
+    Path(__file__).resolve().parents[2] / "src" / "notifications" / "templates"
+)
 
 
 @dataclass(frozen=True)
@@ -43,31 +45,107 @@ class MailService:
             loader=FileSystemLoader(str(TEMPLATE_DIR)),
             autoescape=True,
         )
-        self.smtp_user = get_secret("MAIL_USERNAME", bsm_key="api/MAIL_USERNAME").strip()
-        self.smtp_password = get_secret("MAIL_PASSWORD", bsm_key="api/MAIL_PASSWORD").strip()
+        self.smtp_user = get_secret(
+            "MAIL_USERNAME", bsm_key="api/MAIL_USERNAME"
+        ).strip()
+        self.smtp_password = get_secret(
+            "MAIL_PASSWORD", bsm_key="api/MAIL_PASSWORD"
+        ).strip()
         self.templates: dict[str, MailTemplate] = {
-            "welcome": MailTemplate("welcome_email.html", "Willkommen bei Menschlichkeit Österreich", "Danke für Ihre Registrierung bei Menschlichkeit Österreich."),
-            "verify_email": MailTemplate("verify_email.html", "Bitte E-Mail-Adresse bestätigen", "Bestätigen Sie bitte Ihre E-Mail-Adresse."),
-            "newsletter_doi": MailTemplate("newsletter_doi.html", "Bitte Newsletter-Anmeldung bestätigen", "Ein Klick fehlt noch für Ihren Newsletter."),
-            "newsletter_confirmed": MailTemplate("newsletter_confirmed.html", "Newsletter-Anmeldung bestätigt", "Danke, Ihre Anmeldung ist bestätigt."),
-            "newsletter_unsubscribed": MailTemplate("newsletter_unsubscribed.html", "Newsletter-Abmeldung bestätigt", "Sie wurden erfolgreich abgemeldet."),
-            "donation_success": MailTemplate("donation_thank_you_email.html", "Vielen Dank für Ihre Unterstützung", "Ihre Unterstützung ist erfolgreich eingegangen."),
-            "membership_received": MailTemplate("membership_received.html", "Ihr Mitgliedsantrag ist eingegangen", "Danke für Ihren Mitgliedsantrag."),
-            "password_reset": MailTemplate("password_reset_email.html", "Passwort zurücksetzen", "Hier finden Sie Ihren Link zur Passwortwiederherstellung."),
-            "contact_confirmation": MailTemplate("contact_confirmation.html", "Ihre Nachricht ist bei uns eingegangen", "Danke für Ihre Nachricht."),
-            "admin_alert": MailTemplate("admin_alert.html", "Interne Benachrichtigung", "Es liegt ein neuer Vorgang vor."),
-            "invoice": MailTemplate("invoice_email.html", "Ihre Rechnung von Menschlichkeit Österreich", "Bitte überweisen Sie den fälligen Mitgliedsbeitrag."),
-            "dunning": MailTemplate("dunning_email.html", "Zahlungserinnerung – Menschlichkeit Österreich", "Es besteht noch ein offener Betrag."),
-            "donation_failed": MailTemplate("donation_failed.html", "Ihre Zahlung konnte nicht verarbeitet werden", "Bitte versuchen Sie die Zahlung erneut."),
-            "admin_new_donation": MailTemplate("admin_new_donation.html", "Neue Spende eingegangen", "Eine neue Spende wurde verarbeitet."),
-            "admin_new_registration": MailTemplate("admin_new_registration.html", "Neue Registrierung", "Ein neues Konto wurde angelegt."),
-            "opt_out_confirmed": MailTemplate("opt_out_confirmed.html", "Ihre Abmeldung wurde bestätigt", "Ihre Abmeldung wurde erfolgreich verarbeitet."),
-            "recurring_donation_problem": MailTemplate("recurring_donation_problem.html", "Problem mit Ihrer Dauerspende", "Bei Ihrer Dauerspende ist ein Problem aufgetreten."),
+            "welcome": MailTemplate(
+                "welcome_email.html",
+                "Willkommen bei Menschlichkeit Österreich",
+                "Danke für Ihre Registrierung bei Menschlichkeit Österreich.",
+            ),
+            "verify_email": MailTemplate(
+                "verify_email.html",
+                "Bitte E-Mail-Adresse bestätigen",
+                "Bestätigen Sie bitte Ihre E-Mail-Adresse.",
+            ),
+            "newsletter_doi": MailTemplate(
+                "newsletter_doi.html",
+                "Bitte Newsletter-Anmeldung bestätigen",
+                "Ein Klick fehlt noch für Ihren Newsletter.",
+            ),
+            "newsletter_confirmed": MailTemplate(
+                "newsletter_confirmed.html",
+                "Newsletter-Anmeldung bestätigt",
+                "Danke, Ihre Anmeldung ist bestätigt.",
+            ),
+            "newsletter_unsubscribed": MailTemplate(
+                "newsletter_unsubscribed.html",
+                "Newsletter-Abmeldung bestätigt",
+                "Sie wurden erfolgreich abgemeldet.",
+            ),
+            "donation_success": MailTemplate(
+                "donation_thank_you_email.html",
+                "Vielen Dank für Ihre Unterstützung",
+                "Ihre Unterstützung ist erfolgreich eingegangen.",
+            ),
+            "membership_received": MailTemplate(
+                "membership_received.html",
+                "Ihr Mitgliedsantrag ist eingegangen",
+                "Danke für Ihren Mitgliedsantrag.",
+            ),
+            "password_reset": MailTemplate(
+                "password_reset_email.html",
+                "Passwort zurücksetzen",
+                "Hier finden Sie Ihren Link zur Passwortwiederherstellung.",
+            ),
+            "contact_confirmation": MailTemplate(
+                "contact_confirmation.html",
+                "Ihre Nachricht ist bei uns eingegangen",
+                "Danke für Ihre Nachricht.",
+            ),
+            "admin_alert": MailTemplate(
+                "admin_alert.html",
+                "Interne Benachrichtigung",
+                "Es liegt ein neuer Vorgang vor.",
+            ),
+            "invoice": MailTemplate(
+                "invoice_email.html",
+                "Ihre Rechnung von Menschlichkeit Österreich",
+                "Bitte überweisen Sie den fälligen Mitgliedsbeitrag.",
+            ),
+            "dunning": MailTemplate(
+                "dunning_email.html",
+                "Zahlungserinnerung – Menschlichkeit Österreich",
+                "Es besteht noch ein offener Betrag.",
+            ),
+            "donation_failed": MailTemplate(
+                "donation_failed.html",
+                "Ihre Zahlung konnte nicht verarbeitet werden",
+                "Bitte versuchen Sie die Zahlung erneut.",
+            ),
+            "admin_new_donation": MailTemplate(
+                "admin_new_donation.html",
+                "Neue Spende eingegangen",
+                "Eine neue Spende wurde verarbeitet.",
+            ),
+            "admin_new_registration": MailTemplate(
+                "admin_new_registration.html",
+                "Neue Registrierung",
+                "Ein neues Konto wurde angelegt.",
+            ),
+            "opt_out_confirmed": MailTemplate(
+                "opt_out_confirmed.html",
+                "Ihre Abmeldung wurde bestätigt",
+                "Ihre Abmeldung wurde erfolgreich verarbeitet.",
+            ),
+            "recurring_donation_problem": MailTemplate(
+                "recurring_donation_problem.html",
+                "Problem mit Ihrer Dauerspende",
+                "Bei Ihrer Dauerspende ist ein Problem aufgetreten.",
+            ),
         }
 
-    def _render(self, template_id: str, context: dict[str, Any]) -> tuple[str, str, str]:
+    def _render(
+        self, template_id: str, context: dict[str, Any]
+    ) -> tuple[str, str, str]:
         config = self.templates[template_id]
-        html = self.env.get_template(config.template_name).render(**context, preheader=config.preheader)
+        html = self.env.get_template(config.template_name).render(
+            **context, preheader=config.preheader
+        )
         text = re.sub(r"<[^>]+>", " ", html)
         text = re.sub(r"\s+", " ", text).strip()
         return config.subject, html, text
@@ -107,7 +185,9 @@ class MailService:
                 error_message,
             )
         except Exception as exc:
-            logger.warning("email_log_failed | recipient=%s | error=%s", recipient_email, exc)
+            logger.warning(
+                "email_log_failed | recipient=%s | error=%s", recipient_email, exc
+            )
 
     async def send_template(
         self,
@@ -142,6 +222,10 @@ class MailService:
         message["From"] = f"{MAIL_FROM_NAME} <{MAIL_FROM_ADDRESS}>"
         message["To"] = recipient_email
         message["Reply-To"] = MAIL_REPLY_TO_ADDRESS
+        unsubscribe_url = context.get("unsubscribe_url")
+        if unsubscribe_url and template_id.startswith("newsletter"):
+            message["List-Unsubscribe"] = f"<{unsubscribe_url}>"
+            message["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
         message.set_content(text)
         message.add_alternative(html, subtype="html")
 
@@ -174,14 +258,20 @@ class MailService:
                 last_exc = exc
                 logger.warning(
                     "email_send_attempt_failed | template=%s | recipient=%s | attempt=%d/%d | error=%s",
-                    template_id, recipient_email, attempt + 1, _SMTP_MAX_RETRIES, exc,
+                    template_id,
+                    recipient_email,
+                    attempt + 1,
+                    _SMTP_MAX_RETRIES,
+                    exc,
                 )
                 if attempt < _SMTP_MAX_RETRIES - 1:
-                    await asyncio.sleep(2 ** attempt)
+                    await asyncio.sleep(2**attempt)
 
         logger.error(
             "email_send_failed_all_retries | template=%s | recipient=%s | error=%s",
-            template_id, recipient_email, last_exc,
+            template_id,
+            recipient_email,
+            last_exc,
         )
         await self.log_email(
             recipient_email=recipient_email,

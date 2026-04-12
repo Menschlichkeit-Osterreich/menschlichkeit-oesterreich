@@ -1,7 +1,8 @@
 // Authentication & Security System
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { authService } from '../../services/api';
+import { useAccessibleDialog } from '../../hooks/useAccessibleDialog';
 
 interface LoginCredentials {
   email: string;
@@ -88,7 +89,11 @@ const LoginForm: React.FC<{
         </div>
 
         {error && (
-          <div className="mb-4 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+          <div
+            className="mb-4 p-4 bg-destructive/10 border border-destructive/20 rounded-lg"
+            role="alert"
+            aria-live="assertive"
+          >
             <div className="flex items-center gap-2">
               <i className="bi bi-exclamation-triangle text-destructive" aria-hidden="true"></i>
               <p className="text-sm text-destructive font-medium">{error}</p>
@@ -179,7 +184,12 @@ const LoginForm: React.FC<{
             </button>
           </div>
 
-          <button type="submit" className="btn btn-primary w-full" disabled={isLoading}>
+          <button
+            type="submit"
+            className="btn btn-primary w-full"
+            disabled={isLoading}
+            aria-busy={isLoading}
+          >
             {isLoading ? (
               <>
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
@@ -252,7 +262,9 @@ const RegisterForm: React.FC<{
     }
 
     if (!formData.agreeToTerms || !formData.agreeToPrivacy) {
-      setError('Sie müssen den AGB und Datenschutzerklärung zustimmen');
+      setError(
+        'Sie müssen den Statuten, der Beitragsordnung und der Datenschutzerklärung zustimmen'
+      );
       setIsLoading(false);
       return;
     }
@@ -286,7 +298,11 @@ const RegisterForm: React.FC<{
         </div>
 
         {error && (
-          <div className="mb-4 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+          <div
+            className="mb-4 p-4 bg-destructive/10 border border-destructive/20 rounded-lg"
+            role="alert"
+            aria-live="assertive"
+          >
             <div className="flex items-center gap-2">
               <i className="bi bi-exclamation-triangle text-destructive" aria-hidden="true"></i>
               <p className="text-sm text-destructive font-medium">{error}</p>
@@ -364,7 +380,7 @@ const RegisterForm: React.FC<{
             />
 
             {formData.password && (
-              <div className="mt-2 space-y-1">
+              <div className="mt-2 space-y-1" aria-live="polite">
                 {passwordStrength.map((req, index) => (
                   <div key={index} className="flex items-center gap-2 text-xs">
                     <i
@@ -410,8 +426,22 @@ const RegisterForm: React.FC<{
               />
               <span className="text-sm text-text">
                 Ich stimme den{' '}
-                <a href="/agb" target="_blank" className="text-primary-500 hover:underline">
-                  Allgemeinen Geschäftsbedingungen
+                <a
+                  href="/statuten"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary-500 hover:underline"
+                >
+                  Statuten
+                </a>{' '}
+                und der{' '}
+                <a
+                  href="/beitragsordnung"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary-500 hover:underline"
+                >
+                  Beitragsordnung
                 </a>{' '}
                 zu. *
               </span>
@@ -428,7 +458,12 @@ const RegisterForm: React.FC<{
               />
               <span className="text-sm text-text">
                 Ich habe die{' '}
-                <a href="/datenschutz" target="_blank" className="text-primary-500 hover:underline">
+                <a
+                  href="/datenschutz"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary-500 hover:underline"
+                >
                   Datenschutzerklärung
                 </a>{' '}
                 gelesen und stimme der Verarbeitung meiner Daten zu. *
@@ -453,6 +488,7 @@ const RegisterForm: React.FC<{
             type="submit"
             className="btn btn-primary w-full"
             disabled={isLoading || !formData.agreeToTerms || !formData.agreeToPrivacy}
+            aria-busy={isLoading}
           >
             {isLoading ? (
               <>
@@ -520,7 +556,7 @@ const ForgotPasswordForm: React.FC<{
       <h2 className="text-xl font-bold text-text mb-4">Passwort zurücksetzen</h2>
 
       {isSuccess ? (
-        <>
+        <div role="status" aria-live="polite">
           <p className="text-muted mb-6">
             Falls ein Konto mit dieser E-Mail-Adresse existiert, haben wir Ihnen einen Link zum
             Zurücksetzen Ihres Passworts gesendet.
@@ -528,16 +564,20 @@ const ForgotPasswordForm: React.FC<{
           <button onClick={onBack} className="btn btn-primary w-full">
             Zur Anmeldung
           </button>
-        </>
+        </div>
       ) : (
         <>
           <p className="text-muted mb-6">
-            Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen
-            Ihres Passworts.
+            Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen Ihres
+            Passworts.
           </p>
 
           {error && (
-            <div className="mb-4 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+            <div
+              className="mb-4 p-4 bg-destructive/10 border border-destructive/20 rounded-lg"
+              role="alert"
+              aria-live="assertive"
+            >
               <div className="flex items-center gap-2">
                 <i className="bi bi-exclamation-triangle text-destructive" aria-hidden="true"></i>
                 <p className="text-sm text-destructive font-medium">{error}</p>
@@ -546,8 +586,12 @@ const ForgotPasswordForm: React.FC<{
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <label htmlFor="forgotPasswordEmail" className="block text-sm font-semibold text-text">
+              E-Mail-Adresse *
+            </label>
             <input
               type="email"
+              id="forgotPasswordEmail"
               className="input w-full"
               placeholder="Ihre E-Mail-Adresse"
               value={email}
@@ -555,7 +599,12 @@ const ForgotPasswordForm: React.FC<{
               disabled={isLoading}
               required
             />
-            <button type="submit" className="btn btn-primary w-full" disabled={isLoading || !email}>
+            <button
+              type="submit"
+              className="btn btn-primary w-full"
+              disabled={isLoading || !email}
+              aria-busy={isLoading}
+            >
               {isLoading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
@@ -584,6 +633,48 @@ export const AuthSystem: React.FC<{
   const [mode, setMode] = useState<'login' | 'register' | 'forgot-password' | 'verify-email'>(
     initialMode
   );
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  const dialogMeta = useMemo(() => {
+    if (mode === 'register') {
+      return {
+        title: 'Registrierung für das Vereinskonto',
+        description:
+          'Registrieren Sie sich mit Ihren persönlichen Daten, bestätigen Sie Statuten, Beitragsordnung und Datenschutz und erstellen Sie danach Ihr Konto.',
+      };
+    }
+
+    if (mode === 'forgot-password') {
+      return {
+        title: 'Passwort zurücksetzen',
+        description:
+          'Geben Sie Ihre E-Mail-Adresse ein. Sie erhalten einen Link zum Zurücksetzen Ihres Passworts, sofern ein Konto vorhanden ist.',
+      };
+    }
+
+    if (mode === 'verify-email') {
+      return {
+        title: 'E-Mail-Bestätigung',
+        description:
+          'Nach erfolgreicher Registrierung wurde ein Bestätigungslink an Ihre E-Mail-Adresse gesendet.',
+      };
+    }
+
+    return {
+      title: 'Anmeldung zum Vereinskonto',
+      description:
+        'Melden Sie sich mit Ihrer E-Mail-Adresse und Ihrem Passwort an, um geschützte Vereinsbereiche zu verwenden.',
+    };
+  }, [mode]);
+
+  useAccessibleDialog({
+    isOpen,
+    containerRef: dialogRef,
+    initialFocusRef: closeButtonRef,
+    onClose,
+  });
+
   const handleLogin = async (credentials: LoginCredentials): Promise<void> => {
     const response = await authService.login({
       email: credentials.email,
@@ -638,14 +729,27 @@ export const AuthSystem: React.FC<{
           transition={{ duration: 0.2 }}
           className="w-full max-w-lg"
           onClick={e => e.stopPropagation()}
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="auth-dialog-title"
+          aria-describedby="auth-dialog-description"
+          tabIndex={-1}
         >
           <button
+            ref={closeButtonRef}
             onClick={onClose}
             className="absolute top-4 right-4 z-10 w-8 h-8 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors"
             aria-label="Schließen"
+            type="button"
           >
             <i className="bi bi-x text-lg"></i>
           </button>
+
+          <div className="sr-only">
+            <h2 id="auth-dialog-title">{dialogMeta.title}</h2>
+            <p id="auth-dialog-description">{dialogMeta.description}</p>
+          </div>
 
           {mode === 'login' && (
             <LoginForm
@@ -660,7 +764,7 @@ export const AuthSystem: React.FC<{
           )}
 
           {mode === 'verify-email' && (
-            <div className="card-modern p-8 text-center">
+            <div className="card-modern p-8 text-center" role="status" aria-live="polite">
               <div className="w-12 h-12 bg-success rounded-full mx-auto mb-4 flex items-center justify-center">
                 <i className="bi bi-envelope-check text-white text-xl"></i>
               </div>
@@ -675,12 +779,9 @@ export const AuthSystem: React.FC<{
             </div>
           )}
 
-          {mode === 'forgot-password' && (
-            <ForgotPasswordForm onBack={() => setMode('login')} />
-          )}
+          {mode === 'forgot-password' && <ForgotPasswordForm onBack={() => setMode('login')} />}
         </motion.div>
       </motion.div>
     </AnimatePresence>
   );
 };
-

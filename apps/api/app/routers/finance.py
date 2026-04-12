@@ -18,7 +18,8 @@ router = APIRouter()
 
 
 async def _ensure_finance_tables() -> None:
-    await fetch("""
+    await fetch(
+        """
         CREATE TABLE IF NOT EXISTS payments (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             amount_cents INTEGER NOT NULL,
@@ -28,15 +29,21 @@ async def _ensure_finance_tables() -> None:
             is_recurring BOOLEAN NOT NULL DEFAULT FALSE,
             created_at TIMESTAMPTZ DEFAULT NOW()
         );
-    """)
+    """
+    )
     # Fehlende Spalten nachrüsten falls Tabelle bereits existiert
-    await fetch("""
+    await fetch(
+        """
         ALTER TABLE payments ADD COLUMN IF NOT EXISTS payer_type TEXT NOT NULL DEFAULT 'member';
-    """)
-    await fetch("""
+    """
+    )
+    await fetch(
+        """
         ALTER TABLE payments ADD COLUMN IF NOT EXISTS is_recurring BOOLEAN NOT NULL DEFAULT FALSE;
-    """)
-    await fetch("""
+    """
+    )
+    await fetch(
+        """
         CREATE TABLE IF NOT EXISTS expenses (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             amount_cents INTEGER NOT NULL,
@@ -45,11 +52,15 @@ async def _ensure_finance_tables() -> None:
             project TEXT,
             created_at TIMESTAMPTZ DEFAULT NOW()
         );
-    """)
-    await fetch("""
+    """
+    )
+    await fetch(
+        """
         ALTER TABLE expenses ADD COLUMN IF NOT EXISTS project TEXT;
-    """)
-    await fetch("""
+    """
+    )
+    await fetch(
+        """
         CREATE TABLE IF NOT EXISTS invoices (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             mitglied_id UUID,
@@ -59,8 +70,10 @@ async def _ensure_finance_tables() -> None:
             erstellt_am TIMESTAMPTZ DEFAULT NOW(),
             beschreibung TEXT
         );
-    """)
-    await fetch("""
+    """
+    )
+    await fetch(
+        """
         CREATE TABLE IF NOT EXISTS projects (
             id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             code TEXT UNIQUE NOT NULL,
@@ -69,29 +82,45 @@ async def _ensure_finance_tables() -> None:
             status TEXT NOT NULL DEFAULT 'active',
             created_at TIMESTAMPTZ DEFAULT NOW()
         );
-    """)
+    """
+    )
 
 
 @router.get("/finance/overview", response_model=FinanceOverviewResponse)
 async def finance_overview(user: dict = require_role(Role.ADMIN)):
-    einnahmen_monat = await fetchval(
-        "SELECT COALESCE(SUM(amount_cents),0) FROM payments WHERE booked_at >= date_trunc('month', CURRENT_DATE)"
-    ) or 0
-    ausgaben_monat = await fetchval(
-        "SELECT COALESCE(SUM(amount_cents),0) FROM expenses WHERE booked_at >= date_trunc('month', CURRENT_DATE)"
-    ) or 0
-    einnahmen_jahr = await fetchval(
-        "SELECT COALESCE(SUM(amount_cents),0) FROM payments WHERE booked_at >= date_trunc('year', CURRENT_DATE)"
-    ) or 0
-    ausgaben_jahr = await fetchval(
-        "SELECT COALESCE(SUM(amount_cents),0) FROM expenses WHERE booked_at >= date_trunc('year', CURRENT_DATE)"
-    ) or 0
-    offene = await fetchval(
-        "SELECT COUNT(*) FROM invoices WHERE status = 'offen'"
-    ) or 0
-    ueberfaellige = await fetchval(
-        "SELECT COUNT(*) FROM invoices WHERE status = 'offen' AND faellig_am < NOW()"
-    ) or 0
+    await _ensure_finance_tables()
+
+    einnahmen_monat = (
+        await fetchval(
+            "SELECT COALESCE(SUM(amount_cents),0) FROM payments WHERE booked_at >= date_trunc('month', CURRENT_DATE)"
+        )
+        or 0
+    )
+    ausgaben_monat = (
+        await fetchval(
+            "SELECT COALESCE(SUM(amount_cents),0) FROM expenses WHERE booked_at >= date_trunc('month', CURRENT_DATE)"
+        )
+        or 0
+    )
+    einnahmen_jahr = (
+        await fetchval(
+            "SELECT COALESCE(SUM(amount_cents),0) FROM payments WHERE booked_at >= date_trunc('year', CURRENT_DATE)"
+        )
+        or 0
+    )
+    ausgaben_jahr = (
+        await fetchval(
+            "SELECT COALESCE(SUM(amount_cents),0) FROM expenses WHERE booked_at >= date_trunc('year', CURRENT_DATE)"
+        )
+        or 0
+    )
+    offene = await fetchval("SELECT COUNT(*) FROM invoices WHERE status = 'offen'") or 0
+    ueberfaellige = (
+        await fetchval(
+            "SELECT COUNT(*) FROM invoices WHERE status = 'offen' AND faellig_am < NOW()"
+        )
+        or 0
+    )
 
     overview = FinanceOverview(
         einnahmen_monat_cents=int(einnahmen_monat),
@@ -126,25 +155,33 @@ async def list_invoices(
 
     where = " AND ".join(conditions)
 
-    total = await fetchval(f"SELECT COUNT(*) FROM invoices i WHERE {where}", *params) or 0
+    total = (
+        await fetchval(f"SELECT COUNT(*) FROM invoices i WHERE {where}", *params) or 0
+    )
 
     params.append(page_size)
     params.append((page - 1) * page_size)
-    rows = await fetch(f"""
+    rows = await fetch(
+        f"""
         SELECT i.*, m.vorname || ' ' || m.nachname AS mitglied_name
         FROM invoices i
         LEFT JOIN members m ON i.mitglied_id = m.id
         WHERE {where}
         ORDER BY i.erstellt_am DESC
         LIMIT ${idx} OFFSET ${idx+1}
-    """, *params)
+    """,
+        *params,
+    )
 
     invoices = [
         InvoiceResponse(
-            id=str(r["id"]), mitglied_id=str(r["mitglied_id"]),
+            id=str(r["id"]),
+            mitglied_id=str(r["mitglied_id"]),
             mitglied_name=r.get("mitglied_name", "Unbekannt"),
-            betrag_cents=int(r["betrag_cents"]), status=r["status"],
-            faellig_am=str(r["faellig_am"]), erstellt_am=str(r["erstellt_am"]),
+            betrag_cents=int(r["betrag_cents"]),
+            status=r["status"],
+            faellig_am=str(r["faellig_am"]),
+            erstellt_am=str(r["erstellt_am"]),
             beschreibung=r.get("beschreibung"),
         )
         for r in rows

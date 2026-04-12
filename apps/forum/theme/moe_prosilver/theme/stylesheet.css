@@ -141,9 +141,9 @@ a.button1,
   font-size: 14px;
   cursor: pointer;
   transition: background-color 0.2s ease;
-  /* WCAG: min. Touch-Target 24×24px */
-  min-height: 36px;
-  min-width: 36px;
+  /* WCAG: komfortable Touch-Targets */
+  min-height: 44px;
+  min-width: 44px;
 }
 
 input[type='submit']:hover,
@@ -170,7 +170,7 @@ a.button2,
   border-radius: var(--moe-radius);
   padding: 10px 20px;
   font-weight: 600;
-  min-height: 36px;
+  min-height: 44px;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
@@ -288,7 +288,7 @@ select {
   color: var(--moe-neutral-900);
   background-color: #ffffff;
   transition: border-color 0.2s ease;
-  min-height: 36px;
+  min-height: 44px;
 }
 
 input[type='text']:focus,
@@ -405,7 +405,7 @@ select:focus {
   padding: 8px 24px;
   font-weight: 700;
   cursor: pointer;
-  min-height: 36px;
+  min-height: 44px;
 }
 
 .moe-cookie-banner__reject {

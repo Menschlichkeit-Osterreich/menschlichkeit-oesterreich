@@ -6,6 +6,25 @@
 
 ---
 
+## ⚡ Kanonischer Local-Flow (bevor du manuell editierst)
+
+```powershell
+# 1. Templates anlegen
+.\scripts\setup-environments.ps1 -Frontend -Api
+
+# 2. Bitwarden Access Token einmalig bereitstellen
+$env:BW_TOKEN_FILE = "$env:USERPROFILE\OneDrive - Menschlichkeit Österreich\Desktop\BW_ACCESS_TOKEN.txt"
+
+# 3. Service-Env direkt aus BSM ziehen
+.\scripts\bsm-fetch-env.ps1 -Environment development -Service website -OutputFile apps/website/.env.local
+.\scripts\bsm-fetch-env.ps1 -Environment development -Service api -OutputFile apps/api/.env
+
+# 4. Nur fuer Payment-spezifische Nachpflege / Abgleich
+.\scripts\sync-payment-env-from-bw.ps1 -Environment development -StripeMode test
+```
+
+> Die manuellen Schritte unten bleiben als Fallback bestehen, aber der bevorzugte Weg ist jetzt der BSM-Flow oben.
+
 ## ⚡ Die wichtigsten 3 Schritte (SOFORT)
 
 ### 1️⃣ PostgreSQL starten (5 Minuten)
@@ -29,6 +48,7 @@ alembic upgrade head
 ```
 
 **Alternativ (lokale Installation):**
+
 ```powershell
 # PostgreSQL 15 installieren
 winget install PostgreSQL.PostgreSQL.15
@@ -147,8 +167,8 @@ start https://dashboard.stripe.com/test/apikeys
 # 2. "Publishable key" & "Secret key" kopieren
 
 # 3. .env aktualisieren
-STRIPE_PUBLISHABLE_KEY=pk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-STRIPE_SECRET_KEY=sk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+STRIPE_PUBLISHABLE_KEY=CHANGE_ME_STRIPE_PUBLISHABLE_KEY
+STRIPE_SECRET_KEY=CHANGE_ME_STRIPE_SECRET_KEY
 
 # ⚠️ NIEMALS Live-Keys in .env committen!
 ```
@@ -218,6 +238,7 @@ start https://github.com/settings/gpg/new
 ## 🚨 Troubleshooting
 
 ### PostgreSQL startet nicht
+
 ```powershell
 # Logs prüfen
 docker-compose logs postgres
@@ -231,6 +252,7 @@ docker-compose up -d postgres
 ```
 
 ### GitHub Token funktioniert nicht
+
 ```bash
 # Test via API
 curl -H "Authorization: token ghp_XXXX..." https://api.github.com/user
@@ -240,6 +262,7 @@ curl -H "Authorization: token ghp_XXXX..." https://api.github.com/user
 ```
 
 ### Mailhog empfängt keine Mails
+
 ```powershell
 # Test-Mail senden
 python -c "import smtplib; smtplib.SMTP('localhost', 1025).sendmail('test@local', ['test@local'], 'Subject: Test\n\nBody')"

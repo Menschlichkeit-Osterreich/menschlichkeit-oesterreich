@@ -196,6 +196,8 @@ export default function ForumPage() {
                 <button
                   className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-secondary-950 transition-colors hover:bg-secondary-50"
                   onClick={() => setShowCreate(open => !open)}
+                  aria-expanded={showCreate}
+                  aria-controls="forum-create-thread-panel"
                 >
                   Neues Thema
                 </button>
@@ -286,7 +288,10 @@ export default function ForumPage() {
                 </div>
 
                 {createError && (
-                  <div className="mt-5 rounded-2xl border border-error-200 bg-error-50 px-4 py-3 text-sm text-error-700">
+                  <div
+                    className="mt-5 rounded-2xl border border-error-200 bg-error-50 px-4 py-3 text-sm text-error-700"
+                    role="alert"
+                  >
                     {createError}
                   </div>
                 )}
@@ -297,11 +302,22 @@ export default function ForumPage() {
                     Kategorien freigeschaltet sind, kann hier direkt publiziert werden.
                   </div>
                 ) : (
-                  <form className="mt-5 space-y-4" onSubmit={handleCreateThread}>
+                  <form
+                    id="forum-create-thread-panel"
+                    className="mt-5 space-y-4"
+                    onSubmit={handleCreateThread}
+                  >
                     {writableCategories.length > 0 && (
                       <div>
-                        <label className="mb-1 block text-sm font-medium text-secondary-800">Kategorie</label>
+                        <label
+                          className="mb-1 block text-sm font-medium text-secondary-800"
+                          htmlFor="forum-create-category"
+                        >
+                          Kategorie
+                        </label>
                         <select
+                          id="forum-create-category"
+                          name="category"
                           className="w-full rounded-2xl border border-secondary-200 bg-white px-4 py-3 text-secondary-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
                           onChange={event =>
                             setNewThread(current => ({ ...current, category_id: event.target.value }))
@@ -318,8 +334,15 @@ export default function ForumPage() {
                     )}
 
                     <div>
-                      <label className="mb-1 block text-sm font-medium text-secondary-800">Titel</label>
+                      <label
+                        className="mb-1 block text-sm font-medium text-secondary-800"
+                        htmlFor="forum-create-title"
+                      >
+                        Titel
+                      </label>
                       <input
+                        id="forum-create-title"
+                        name="title"
                         className="w-full rounded-2xl border border-secondary-200 bg-white px-4 py-3 text-secondary-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
                         onChange={event => setNewThread(current => ({ ...current, titel: event.target.value }))}
                         required
@@ -329,8 +352,15 @@ export default function ForumPage() {
                     </div>
 
                     <div>
-                      <label className="mb-1 block text-sm font-medium text-secondary-800">Inhalt</label>
+                      <label
+                        className="mb-1 block text-sm font-medium text-secondary-800"
+                        htmlFor="forum-create-content"
+                      >
+                        Inhalt
+                      </label>
                       <textarea
+                        id="forum-create-content"
+                        name="content"
                         className="w-full rounded-2xl border border-secondary-200 bg-white px-4 py-3 text-secondary-900 outline-none transition focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
                         onChange={event => setNewThread(current => ({ ...current, inhalt: event.target.value }))}
                         required

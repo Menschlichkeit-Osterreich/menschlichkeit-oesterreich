@@ -1,5 +1,11 @@
 {
   "version": "2.0.0",
+  "options": {
+    "shell": {
+      "executable": "pwsh.exe",
+      "args": ["-NoLogo", "-NoProfile", "-Command"]
+    }
+  },
   "tasks": [
     {
       "label": "Dev: All Services",
@@ -94,8 +100,11 @@
     {
       "label": "Test: API",
       "type": "shell",
-      "command": "python",
-      "args": ["-m", "pytest", "apps/api/tests", "-q"],
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "args": ["-m", "pytest", "tests", "-q"],
+      "options": {
+        "cwd": "${workspaceFolder}/apps/api"
+      },
       "group": "test",
       "presentation": {
         "panel": "shared",
@@ -241,6 +250,140 @@
         "group": "ops"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "Bitwarden: Projects Check",
+      "type": "shell",
+      "command": "pwsh",
+      "args": ["-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "scripts/check-bws.ps1"],
+      "isBackground": false,
+      "group": "none"
+    },
+    {
+      "label": "Bitwarden: Python SDK Check",
+      "type": "shell",
+      "command": "e:\\Dev\\menschlichkeit-oesterreich\\menschlichkeit-oesterreich\\.venv\\Scripts\\python.exe",
+      "args": ["-c", "import bitwarden_sdk; print('OK', bitwarden_sdk.__file__)"],
+      "isBackground": false,
+      "group": "none"
+    },
+    {
+      "label": "Bitwarden: Python SDK Check 2",
+      "type": "shell",
+      "command": "e:\\Dev\\menschlichkeit-oesterreich\\menschlichkeit-oesterreich\\.venv\\Scripts\\python.exe",
+      "args": ["-c", "import bitwarden_sdk; print(\"OK\", bitwarden_sdk.__file__)"],
+      "isBackground": false,
+      "group": "none"
+    },
+    {
+      "label": "Bitwarden: Inspect Python SDK",
+      "type": "shell",
+      "command": "e:\\Dev\\menschlichkeit-oesterreich\\menschlichkeit-oesterreich\\.venv\\Scripts\\python.exe",
+      "args": ["quality-reports/inspect_bitwarden_sdk.py"],
+      "isBackground": false,
+      "group": "none"
+    },
+    {
+      "label": "Bitwarden: Inspect Python SDK Signatures",
+      "type": "shell",
+      "command": "e:\\Dev\\menschlichkeit-oesterreich\\menschlichkeit-oesterreich\\.venv\\Scripts\\python.exe",
+      "args": ["quality-reports/inspect_bitwarden_sdk.py"],
+      "isBackground": false,
+      "group": "none"
+    },
+    {
+      "label": "Bitwarden: Discover Org Access",
+      "type": "shell",
+      "command": "e:\\Dev\\menschlichkeit-oesterreich\\menschlichkeit-oesterreich\\.venv\\Scripts\\python.exe",
+      "args": ["quality-reports/inspect_bitwarden_sdk.py"],
+      "isBackground": false,
+      "group": "none"
+    },
+    {
+      "label": "Bitwarden: Inspect Auth Response",
+      "type": "shell",
+      "command": "e:\\Dev\\menschlichkeit-oesterreich\\menschlichkeit-oesterreich\\.venv\\Scripts\\python.exe",
+      "args": ["quality-reports/inspect_bitwarden_sdk.py"],
+      "isBackground": false,
+      "group": "none"
+    },
+    {
+      "label": "Bitwarden: Inspect Sync Signature",
+      "type": "shell",
+      "command": "e:\\Dev\\menschlichkeit-oesterreich\\menschlichkeit-oesterreich\\.venv\\Scripts\\python.exe",
+      "args": ["quality-reports/inspect_bitwarden_sdk.py"],
+      "isBackground": false,
+      "group": "none"
+    },
+    {
+      "label": "Pytest: Payment Regression",
+      "type": "shell",
+      "command": "e:\\Dev\\menschlichkeit-oesterreich\\menschlichkeit-oesterreich\\.venv\\Scripts\\python.exe",
+      "args": [
+        "-m",
+        "pytest",
+        "apps/api/tests/test_donation_service.py",
+        "apps/api/tests/test_payment_flow.py",
+        "apps/api/tests/test_paypal_flow.py",
+        "apps/api/tests/test_newsletter_flow.py",
+        "-q"
+      ],
+      "isBackground": false,
+      "group": "test"
+    },
+    {
+      "label": "Verify: Payment Secret Wiring",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "scripts/verify-payment-secret-wiring.ps1"
+      ],
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "Verify: BW Payment Env Sync",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "scripts/sync-payment-env-from-bw.ps1",
+        "-DryRun",
+        "-StripeMode",
+        "test"
+      ],
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "Verify: BW Payment Env Sync",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "scripts/sync-payment-env-from-bw.ps1",
+        "-DryRun",
+        "-StripeMode",
+        "test"
+      ],
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": "test"
     }
   ],
   "inputs": [

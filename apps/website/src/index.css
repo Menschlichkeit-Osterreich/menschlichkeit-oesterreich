@@ -25,10 +25,19 @@
   }
   body {
     @apply bg-semantic-background text-semantic-text-primary;
-    font-family: var(--ds-typography-font-family-primary);
+    font-family: var(--ds-typography-font-family-secondary);
     font-feature-settings:
       'rlig' 1,
       'calt' 1;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--ds-typography-font-family-primary);
   }
 }
 

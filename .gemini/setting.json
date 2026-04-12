@@ -6,12 +6,6 @@
 
   "inputs": [
     {
-      "id": "figma-api-token",
-      "type": "promptString",
-      "password": true,
-      "description": "Figma Personal Access Token für die Synchronisation von Design-Tokens und die Code-Generierung."
-    },
-    {
       "id": "ado_org",
       "type": "promptString",
       "description": "Name der Azure DevOps Organisation (z.B. 'contoso')."
@@ -45,16 +39,6 @@
         "args": ["@microsoft/clarity-mcp-server@latest", "--clarity_api_token", "${input:clarity_api_token}"],
         "description": "Integriert Microsoft Clarity zur Analyse von Benutzerverhaltensdaten und Heatmaps."
       },
-      "figma": {
-        "name": "Figma",
-        "type": "http",
-        "url": "http://127.0.0.1:3845/mcp",
-        "env": {
-          "FIGMA_API_TOKEN": "${input:figma-api-token}",
-          "FIGMA_FILE_KEY": "mTlUSy9BQk4326cvwNa8zQ"
-        },
-        "description": "Ermöglicht den Zugriff auf Figma-Designs, um Design-Tokens zu extrahieren und UI-Komponenten zu generieren."
-      },
       "filesystem": {
         "name": "Filesystem",
         "type": "stdio",
@@ -67,7 +51,7 @@
         "type": "http",
         "url": "https://api.githubcopilot.com/mcp/",
         "metadata": {
-          "repository": "peschull/menschlichkeit-oesterreich-development",
+          "repository": "Menschlichkeit-Osterreich/menschlichkeit-oesterreich",
           "branch": "main"
         },
         "description": "Bietet Zugriff auf die GitHub-API zur Verwaltung von Repositories, Issues, Pull Requests und Security Alerts."
@@ -79,12 +63,26 @@
         "args": ["markitdown-mcp==0.0.1a4"],
         "description": "Konvertiert verschiedene Dateiformate (PDF, DOCX, Bilder) in Markdown."
       },
+      "context7": {
+        "name": "Context7",
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "@upstash/context7-mcp@latest"],
+        "description": "Liefert aktuelle Bibliotheks- und Framework-Dokumentation fuer Code- und Architekturfragen."
+      },
       "memory": {
         "name": "Memory",
         "type": "stdio",
         "command": "npx",
         "args": ["-y", "@modelcontextprotocol/server-memory"],
         "description": "Dient als Kurzzeitgedächtnis für den Agenten, um den Kontext während einer Sitzung zu behalten."
+      },
+      "sequential-thinking": {
+        "name": "Sequential Thinking",
+        "type": "stdio",
+        "command": "npx",
+        "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+        "description": "Unterstuetzt strukturierte Mehrschritt-Analyse fuer komplexe Aufgaben und Repo-Planung."
       },
       "playwright": {
         "name": "Playwright",

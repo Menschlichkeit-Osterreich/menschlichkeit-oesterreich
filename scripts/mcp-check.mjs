@@ -38,7 +38,7 @@ async function main() {
     workspace: workspaceRoot,
     config: mcpConfigPath,
     results: {},
-    notes: []
+    notes: [],
   };
 
   try {
@@ -55,7 +55,7 @@ async function main() {
         const res = await httpGet(srv.url);
         Object.assign(result, res);
         if (!res.ok) {
-          result.hint = `HTTP endpoint not reachable. If this is a local MCP server, start it (e.g., npm run figma:mcp:server).`;
+          result.hint = `HTTP endpoint not reachable. Start the matching local MCP server if it is still needed, or remove the stale entry from .vscode/mcp.json.`;
         }
       } else if (type === 'http') {
         result.ok = null;
@@ -64,7 +64,8 @@ async function main() {
       } else {
         result.ok = null;
         result.skipped = true;
-        result.reason = 'STDIO server command presence not verified to avoid side-effects (npx/uvx installs).';
+        result.reason =
+          'STDIO server command presence not verified to avoid side-effects (npx/uvx installs).';
       }
       report.results[name] = result;
       // Tiny pause to avoid hammering anything

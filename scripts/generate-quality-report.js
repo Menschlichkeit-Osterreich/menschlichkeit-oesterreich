@@ -199,14 +199,18 @@ if (eslintReport && eslintReport.runs) {
 // Lighthouse Report (from frontend workspace)
 // Try multiple locations: frontend/.lighthouse and quality-reports fallback copy
 const lighthouseCandidates = [
-  path.join('frontend', '.lighthouse', 'report.report.json'),
+  path.join('apps', 'website', '.lighthouse', 'report.report.json'),
   path.join('quality-reports', 'lighthouse-report.json'),
 ];
 let lighthouseJson = null;
 let lighthouseUsedPath = null;
 for (const p of lighthouseCandidates) {
   const j = readJsonReport(p);
-  if (j) { lighthouseJson = j; lighthouseUsedPath = p; break; }
+  if (j) {
+    lighthouseJson = j;
+    lighthouseUsedPath = p;
+    break;
+  }
 }
 if (lighthouseJson) {
   const perf = lighthouseJson.categories?.performance?.score ?? 0;
@@ -250,9 +254,13 @@ if (designDocs) {
   report.reports.design_docs = designDocs;
   // Optionally: consider docs presence in maintainability gate (informative)
   if (designDocs.total_files > 0) {
-    report.summary.recommendations.push('📚 Design-Dokumentation gefunden (figmadocs) – in Reports aufgenommen');
+    report.summary.recommendations.push(
+      '📚 Design-Dokumentation gefunden (figmadocs) – in Reports aufgenommen'
+    );
   } else {
-    report.summary.recommendations.push('📝 figmadocs ist leer – bitte Design-Dokumentation ergänzen');
+    report.summary.recommendations.push(
+      '📝 figmadocs ist leer – bitte Design-Dokumentation ergänzen'
+    );
   }
 }
 
@@ -333,7 +341,9 @@ console.log(`⚖️ Compliance Score: ${report.summary.compliance_score}%`);
 console.log(`🚨 Critical Issues: ${report.summary.critical_issues}`);
 console.log(`📝 Total Issues: ${report.summary.total_issues}`);
 if (report.reports.design_docs) {
-  console.log(`📚 Design Docs: ${report.reports.design_docs.total_files} Dateien in ${report.reports.design_docs.categories.length} Kategorien`);
+  console.log(
+    `📚 Design Docs: ${report.reports.design_docs.total_files} Dateien in ${report.reports.design_docs.categories.length} Kategorien`
+  );
 }
 
 console.log('\n🚪 Quality Gates:');

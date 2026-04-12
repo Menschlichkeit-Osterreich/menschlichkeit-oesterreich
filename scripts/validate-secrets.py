@@ -47,7 +47,6 @@ REAL_SECRET_PATTERNS = {
     "STRIPE_SECRET_KEY": r"^sk_(test|live)_[A-Za-z0-9]{16,}$",
     "STRIPE_WEBHOOK_SECRET": r"^whsec_[A-Za-z0-9]{16,}$",
     "MAIL_PASSWORD": r"^.{12,}$",
-    "PAYPAL_CLIENT_SECRET": r"^.{12,}$",
 }
 
 FORMAT_PATTERNS = {
@@ -201,9 +200,6 @@ PROFILES: dict[str, TemplateProfile] = {
             "N8N_WEBHOOK_BASE_URL",
             "STRIPE_SECRET_KEY",
             "STRIPE_WEBHOOK_SECRET",
-            "PAYPAL_CLIENT_ID",
-            "PAYPAL_CLIENT_SECRET",
-            "PAYPAL_BASE_URL",
             "SEPA_CREDITOR_NAME",
             "SEPA_CREDITOR_ID",
             "SEPA_CREDITOR_IBAN",
@@ -222,7 +218,6 @@ PROFILES: dict[str, TemplateProfile] = {
             "VITE_CIVICRM_BASE_URL",
             "VITE_CIVICRM_API_ENDPOINT",
             "VITE_STRIPE_PUBLISHABLE_KEY",
-            "VITE_PAYPAL_CLIENT_ID",
             "VITE_OPENCLAW_BRIDGE_URL",
         },
         forbidden_keys={"JWT_SECRET", "JWT_SECRET_KEY", "DATABASE_URL", "N8N_USER"},

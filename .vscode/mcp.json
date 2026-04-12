@@ -2,14 +2,6 @@
   "$schema": "https://raw.githubusercontent.com/modelcontextprotocol/servers/main/schema/mcp.schema.json",
   "version": "2.0",
   "description": "Repo-approved MCP overlay fuer VS Code und GitHub Copilot",
-  "inputs": [
-    {
-      "id": "figma-api-token",
-      "type": "promptString",
-      "password": true,
-      "description": "Figma Personal Access Token fuer lokale Design-Abfragen"
-    }
-  ],
   "servers": {
     "github": {
       "name": "GitHub",
@@ -21,21 +13,6 @@
       "metadata": {
         "repository": "Menschlichkeit-Osterreich/menschlichkeit-oesterreich",
         "branch": "main"
-      }
-    },
-    "figma": {
-      "name": "Figma",
-      "type": "http",
-      "url": "http://127.0.0.1:3845/mcp",
-      "version": "1.0.0",
-      "description": "Lokaler Figma-MCP-Server fuer Designsystem und Assets",
-      "env": {
-        "FIGMA_API_TOKEN": "${input:figma-api-token}",
-        "FIGMA_FILE_KEY": "mTlUSy9BQk4326cvwNa8zQ"
-      },
-      "metadata": {
-        "designTokens": "figma-design-system/00_design-tokens.json",
-        "defaultAssetDir": "apps/website/public/figma-assets"
       }
     },
     "filesystem": {

@@ -43,18 +43,18 @@ export default function LoginPage() {
       </div>
 
       {redirected && (
-        <Alert variant="info" title="Sitzung erforderlich" className="mb-5">
+        <Alert variant="info" title="Sitzung erforderlich" className="mb-5" role="status">
           Bitte melde dich an, um auf diesen Bereich zuzugreifen.
         </Alert>
       )}
 
       {error && (
-        <Alert variant="error" title="Anmeldefehler" className="mb-5">
+        <Alert variant="error" title="Anmeldefehler" className="mb-5" role="alert">
           {error}
         </Alert>
       )}
 
-      <form onSubmit={onSubmit} noValidate className="space-y-4">
+      <form onSubmit={onSubmit} className="space-y-4" aria-busy={loading}>
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-secondary-700 mb-1.5">
             E-Mail-Adresse
@@ -66,6 +66,7 @@ export default function LoginPage() {
             onChange={(e) => setEmail(e.target.value)}
             required
             autoComplete="email"
+            spellCheck={false}
             placeholder="name@example.at"
             className="w-full px-3.5 py-2.5 rounded-xl border border-secondary-200 bg-white text-secondary-900 text-sm placeholder:text-secondary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-shadow"
           />
@@ -100,6 +101,7 @@ export default function LoginPage() {
               onClick={() => setShowPassword((v) => !v)}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary-400 hover:text-secondary-600 transition-colors"
               aria-label={showPassword ? 'Passwort verstecken' : 'Passwort anzeigen'}
+              aria-pressed={showPassword}
             >
               {showPassword ? (
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -118,6 +120,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading || !email || !password}
+          aria-busy={loading}
           className="w-full py-3 px-4 rounded-xl bg-primary-600 text-white font-bold text-sm hover:bg-primary-700 active:bg-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500 flex items-center justify-center gap-2"
         >
           {loading ? (

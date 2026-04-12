@@ -24,6 +24,7 @@
       },
       "envFile": "${workspaceFolder}/apps/api/.env",
       "console": "integratedTerminal",
+      "subProcess": true,
       "justMyCode": false
     },
     {

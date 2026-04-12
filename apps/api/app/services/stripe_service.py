@@ -6,6 +6,7 @@ import json
 import logging
 import os
 import secrets
+import time
 from typing import Any
 
 import httpx
@@ -19,8 +20,12 @@ logger = logging.getLogger("menschlichkeit.payments.stripe")
 
 class StripeService:
     def __init__(self) -> None:
-        self.stripe_secret = get_secret("STRIPE_SECRET_KEY", bsm_key="api/STRIPE_SECRET_KEY").strip()
-        self.stripe_webhook_secret = get_secret("STRIPE_WEBHOOK_SECRET", bsm_key="api/STRIPE_WEBHOOK_SECRET").strip()
+        self.stripe_secret = get_secret(
+            "STRIPE_SECRET_KEY", bsm_key="api/STRIPE_SECRET_KEY"
+        ).strip()
+        self.stripe_webhook_secret = get_secret(
+            "STRIPE_WEBHOOK_SECRET", bsm_key="api/STRIPE_WEBHOOK_SECRET"
+        ).strip()
 
     async def create_stripe_intent(
         self,
@@ -31,6 +36,7 @@ class StripeService:
         purpose: str | None,
         method: str | None,
         financial_type: str,
+        interval: str = "once",
         civicrm_contact_id: int | None = None,
     ) -> dict[str, Any]:
         amount_cents = _to_cents(amount)
@@ -48,6 +54,9 @@ class StripeService:
             "metadata[purpose]": purpose or "",
             "metadata[financial_type]": financial_type,
             "metadata[email]": email or "",
+            "metadata[interval]": interval,
+            "description": (purpose or "Unterstützung Menschlichkeit Österreich")
+            + (f" ({interval})" if interval != "once" else ""),
         }
         if provider_method == "sepa":
             payload["payment_method_types[]"] = "sepa_debit"
@@ -56,9 +65,15 @@ class StripeService:
         else:
             payload["automatic_payment_methods[enabled]"] = "true"
 
+        if interval != "once" and provider_method not in {"eps", "sofort"}:
+            payload["setup_future_usage"] = "off_session"
+
         intent_id = f"pi_mock_{secrets.token_hex(8)}"
         client_secret = f"{intent_id}_secret_{secrets.token_hex(16)}"
-        gateway_response: dict[str, Any] = {"mock": True, "client_secret": client_secret}
+        gateway_response: dict[str, Any] = {
+            "mock": True,
+            "client_secret": client_secret,
+        }
 
         if self.stripe_secret:
             async with httpx.AsyncClient(timeout=30) as client:
@@ -95,14 +110,29 @@ class StripeService:
             "status": "pending",
         }
 
-    async def verify_stripe_signature(self, *, raw_body: bytes, signature_header: str) -> None:
+    async def verify_stripe_signature(
+        self, *, raw_body: bytes, signature_header: str
+    ) -> None:
         if not self.stripe_webhook_secret:
             raise ValueError("STRIPE_WEBHOOK_SECRET nicht konfiguriert")
-        parts = dict(part.split("=", 1) for part in signature_header.split(",") if "=" in part)
+        parts = dict(
+            part.split("=", 1) for part in signature_header.split(",") if "=" in part
+        )
         timestamp = parts.get("t")
         signature = parts.get("v1")
         if not timestamp or not signature:
             raise ValueError("Ungültiger Stripe-Signatur-Header")
+        try:
+            timestamp_int = int(timestamp)
+        except ValueError as exc:
+            raise ValueError("Ungültiger Stripe-Timestamp") from exc
+
+        tolerance_seconds = int(
+            os.environ.get("STRIPE_WEBHOOK_TOLERANCE_SECONDS", "300")
+        )
+        if abs(int(time.time()) - timestamp_int) > tolerance_seconds:
+            raise ValueError("Stripe-Signatur-Timestamp zu alt oder ungültig")
+
         signed_payload = f"{timestamp}.{raw_body.decode('utf-8')}"
         expected = hmac.new(
             self.stripe_webhook_secret.encode("utf-8"),

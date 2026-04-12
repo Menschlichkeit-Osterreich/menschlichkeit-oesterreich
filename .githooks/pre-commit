@@ -21,4 +21,13 @@ if [ -n "$blocked" ]; then
 fi
 
 echo "✅ Keine echten .env-Dateien im Commit (Secrets-Check passed)"
+
+if command -v npx >/dev/null 2>&1; then
+  echo "▶️ lint-staged läuft…"
+  npx --no -- lint-staged
+else
+  echo "⚠️ npx nicht gefunden – lint-staged übersprungen."
+fi
+
+echo "✅ Pre-Commit erfolgreich"
 exit 0

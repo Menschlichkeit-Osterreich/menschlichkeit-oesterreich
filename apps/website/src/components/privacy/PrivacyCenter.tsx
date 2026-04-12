@@ -1,7 +1,8 @@
 // DSGVO Privacy Center - Sprint 1 Critical Component
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { privacyService } from '../../services/api';
+import { useAccessibleDialog } from '../../hooks/useAccessibleDialog';
 
 // TypeScript Interfaces for DSGVO Compliance
 interface UserConsent {
@@ -177,6 +178,17 @@ const CookieConsentBanner: React.FC<{
   onCustomize: () => void;
   isVisible: boolean;
 }> = ({ onAcceptAll, onRejectAll, onCustomize, isVisible }) => {
+  const acceptButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!isVisible) {
+      return;
+    }
+
+    const frame = window.requestAnimationFrame(() => acceptButtonRef.current?.focus());
+    return () => window.cancelAnimationFrame(frame);
+  }, [isVisible]);
+
   if (!isVisible) return null;
 
   return (
@@ -186,26 +198,37 @@ const CookieConsentBanner: React.FC<{
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 100, opacity: 0 }}
         className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-surface border-t border-border shadow-lg"
+        role="region"
+        aria-labelledby="privacy-cookie-banner-title"
+        aria-describedby="privacy-cookie-banner-description"
+        aria-live="polite"
       >
         <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-4 items-start lg:items-center">
           <div className="flex-1">
-            <h3 className="font-semibold text-text mb-2">🍪 Cookie-Einstellungen</h3>
-            <p className="text-sm text-muted">
-              Wir verwenden Cookies, um Ihnen die bestmögliche Erfahrung auf unserer Website zu
-              bieten. Einige Cookies sind technisch notwendig, andere helfen uns, die Website zu
-              verbessern und Ihnen relevante Inhalte zu zeigen. Sie können Ihre Einstellungen
-              jederzeit anpassen.
+            <h3 id="privacy-cookie-banner-title" className="font-semibold text-text mb-2">
+              Cookie-Einstellungen
+            </h3>
+            <p id="privacy-cookie-banner-description" className="text-sm text-muted">
+              Derzeit setzen wir nur technisch notwendige Cookies für Sicherheit und
+              Sitzungsverwaltung ein. Optionale Kategorien bleiben standardmäßig deaktiviert und
+              werden erst genutzt, wenn dafür echte Funktionen bereitstehen und Sie ausdrücklich
+              einwilligen.
             </p>
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <button onClick={onRejectAll} className="btn btn-ghost btn-sm">
+            <button type="button" onClick={onRejectAll} className="btn btn-ghost btn-sm">
               Nur Erforderliche
             </button>
-            <button onClick={onCustomize} className="btn btn-ghost btn-sm">
+            <button type="button" onClick={onCustomize} className="btn btn-ghost btn-sm">
               Anpassen
             </button>
-            <button onClick={onAcceptAll} className="btn btn-primary btn-sm">
+            <button
+              ref={acceptButtonRef}
+              type="button"
+              onClick={onAcceptAll}
+              className="btn btn-primary btn-sm"
+            >
               Alle akzeptieren
             </button>
           </div>
@@ -227,8 +250,10 @@ const CookieSettings: React.FC<{
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-bold">Cookie-Einstellungen verwalten</h2>
         <button
+          type="button"
           onClick={onClose}
           className="w-8 h-8 rounded-full hover:bg-surface-elevated flex items-center justify-center"
+          aria-label="Cookie-Einstellungen schliessen"
         >
           <i className="bi bi-x-lg text-muted" aria-hidden="true"></i>
         </button>
@@ -302,10 +327,10 @@ const CookieSettings: React.FC<{
       </div>
 
       <div className="flex gap-3 pt-4 border-t">
-        <button onClick={onClose} className="btn btn-ghost flex-1">
+        <button type="button" onClick={onClose} className="btn btn-ghost flex-1">
           Abbrechen
         </button>
-        <button onClick={onSave} className="btn btn-primary flex-1">
+        <button type="button" onClick={onSave} className="btn btn-primary flex-1">
           Einstellungen speichern
         </button>
       </div>
@@ -405,6 +430,7 @@ const DataRequestForm: React.FC<{
           type="button"
           onClick={onClose}
           className="w-8 h-8 rounded-full hover:bg-surface-elevated flex items-center justify-center"
+          aria-label="Datenschutz-Anfrage schliessen"
         >
           <i className="bi bi-x-lg text-muted" aria-hidden="true"></i>
         </button>
@@ -451,10 +477,11 @@ const DataRequestForm: React.FC<{
       </div>
 
       <div>
-        <label className="block text-sm font-semibold mb-2">
+        <label htmlFor="privacy-request-description" className="block text-sm font-semibold mb-2">
           Zusätzliche Informationen (optional)
         </label>
         <textarea
+          id="privacy-request-description"
           value={description}
           onChange={e => setDescription(e.target.value)}
           className="input w-full min-h-[100px] resize-y"
@@ -632,18 +659,38 @@ const PrivacySettingsPanel: React.FC = () => {
     {
       title: 'Datenverarbeitung',
       items: [
-        { key: 'personalData' as const, label: 'Verarbeitung personenbezogener Daten', group: 'dataProcessing' as const },
-        { key: 'marketingCommunication' as const, label: 'Marketingkommunikation', group: 'dataProcessing' as const },
-        { key: 'analytics' as const, label: 'Analyse und Statistik', group: 'dataProcessing' as const },
+        {
+          key: 'personalData' as const,
+          label: 'Verarbeitung personenbezogener Daten',
+          group: 'dataProcessing' as const,
+        },
+        {
+          key: 'marketingCommunication' as const,
+          label: 'Marketingkommunikation',
+          group: 'dataProcessing' as const,
+        },
+        {
+          key: 'analytics' as const,
+          label: 'Analyse und Statistik',
+          group: 'dataProcessing' as const,
+        },
         { key: 'profiling' as const, label: 'Profiling', group: 'dataProcessing' as const },
       ],
     },
     {
       title: 'Kommunikation',
       items: [
-        { key: 'email' as const, label: 'E-Mail-Benachrichtigungen', group: 'communication' as const },
+        {
+          key: 'email' as const,
+          label: 'E-Mail-Benachrichtigungen',
+          group: 'communication' as const,
+        },
         { key: 'sms' as const, label: 'SMS-Benachrichtigungen', group: 'communication' as const },
-        { key: 'phone' as const, label: 'Telefonische Kontaktaufnahme', group: 'communication' as const },
+        {
+          key: 'phone' as const,
+          label: 'Telefonische Kontaktaufnahme',
+          group: 'communication' as const,
+        },
         { key: 'newsletter' as const, label: 'Newsletter', group: 'communication' as const },
       ],
     },
@@ -669,9 +716,7 @@ const PrivacySettingsPanel: React.FC = () => {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold mb-2">Datenschutz-Einstellungen</h2>
-        <p className="text-muted">
-          Steuern Sie, wie Ihre Daten verarbeitet und geteilt werden.
-        </p>
+        <p className="text-muted">Steuern Sie, wie Ihre Daten verarbeitet und geteilt werden.</p>
       </div>
 
       {settingSections.map(section => (
@@ -718,6 +763,17 @@ export const PrivacyCenter: React.FC<{
   const [consents, setConsents] = useState<UserConsent[]>(DEFAULT_CONSENTS);
   const [showCookieBanner, setShowCookieBanner] = useState(false);
   const [_requests, setRequests] = useState<PrivacyRequest[]>([]);
+  const [announcement, setAnnouncement] = useState('');
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const closePrivacyCenter = onClose ?? (() => undefined);
+
+  useAccessibleDialog({
+    isOpen,
+    containerRef: dialogRef,
+    initialFocusRef: closeButtonRef,
+    onClose,
+  });
 
   // Check if user has made cookie choices
   useEffect(() => {
@@ -735,17 +791,18 @@ export const PrivacyCenter: React.FC<{
     );
   };
 
-  const handleSaveCookieSettings = useCallback(() => {
+  const persistCookieSettings = useCallback((nextConsents: UserConsent[]) => {
     const preferences: CookiePreferences = {
-      essential: consents.find(c => c.id === 'essential')?.isConsented || true,
-      analytics: consents.find(c => c.id === 'analytics')?.isConsented || false,
-      marketing: consents.find(c => c.id === 'marketing')?.isConsented || false,
-      personalization: consents.find(c => c.id === 'personalization')?.isConsented || false,
-      socialMedia: consents.find(c => c.id === 'social-media')?.isConsented || false,
+      essential: nextConsents.find(c => c.id === 'essential')?.isConsented || true,
+      analytics: nextConsents.find(c => c.id === 'analytics')?.isConsented || false,
+      marketing: nextConsents.find(c => c.id === 'marketing')?.isConsented || false,
+      personalization: nextConsents.find(c => c.id === 'personalization')?.isConsented || false,
+      socialMedia: nextConsents.find(c => c.id === 'social-media')?.isConsented || false,
     };
 
     localStorage.setItem('cookie-preferences', JSON.stringify(preferences));
     setShowCookieBanner(false);
+    setAnnouncement('Cookie-Einstellungen wurden gespeichert.');
 
     // Sync to backend API (best-effort — localStorage is the primary source)
     privacyService
@@ -759,18 +816,24 @@ export const PrivacyCenter: React.FC<{
       .catch(() => {
         // API-Sync fehlgeschlagen — localStorage bleibt Quelle der Wahrheit
       });
-  }, [consents]);
+  }, []);
+
+  const handleSaveCookieSettings = useCallback(() => {
+    persistCookieSettings(consents);
+  }, [consents, persistCookieSettings]);
 
   const handleAcceptAllCookies = () => {
-    setConsents(prev => prev.map(consent => ({ ...consent, isConsented: true })));
-    handleSaveCookieSettings();
+    const nextConsents = consents.map(consent => ({ ...consent, isConsented: true }));
+    setConsents(nextConsents);
+    persistCookieSettings(nextConsents);
   };
 
   const handleRejectAllCookies = () => {
-    setConsents(prev =>
-      prev.map(consent => (consent.isRequired ? consent : { ...consent, isConsented: false }))
+    const nextConsents = consents.map(consent =>
+      consent.isRequired ? consent : { ...consent, isConsented: false }
     );
-    handleSaveCookieSettings();
+    setConsents(nextConsents);
+    persistCookieSettings(nextConsents);
   };
 
   const handleSubmitRequest = (request: Omit<PrivacyRequest, 'id' | 'status' | 'requestDate'>) => {
@@ -782,7 +845,7 @@ export const PrivacyCenter: React.FC<{
     };
 
     setRequests(prev => [newRequest, ...prev]);
-    alert('Ihre Datenschutz-Anfrage wurde erfolgreich eingereicht!');
+    setAnnouncement('Ihre Datenschutz-Anfrage wurde erfolgreich eingereicht.');
   };
 
   const tabs = [
@@ -813,19 +876,30 @@ export const PrivacyCenter: React.FC<{
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
         className="w-full max-w-4xl bg-surface rounded-lg shadow-xl max-h-[90vh] overflow-hidden"
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="privacy-center-title"
+        aria-describedby="privacy-center-description"
+        tabIndex={-1}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border">
           <div>
-            <h1 className="text-2xl font-bold">Datenschutz-Center</h1>
-            <p className="text-sm text-muted">
+            <h1 id="privacy-center-title" className="text-2xl font-bold">
+              Datenschutz-Center
+            </h1>
+            <p id="privacy-center-description" className="text-sm text-muted">
               Verwalten Sie Ihre Datenschutz-Einstellungen und -Rechte
             </p>
           </div>
           {onClose && (
             <button
+              ref={closeButtonRef}
+              type="button"
               onClick={onClose}
               className="w-8 h-8 rounded-full hover:bg-surface-elevated flex items-center justify-center"
+              aria-label="Datenschutz-Center schliessen"
             >
               <i className="bi bi-x-lg text-muted" aria-hidden="true"></i>
             </button>
@@ -855,17 +929,26 @@ export const PrivacyCenter: React.FC<{
 
         {/* Content */}
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+          {announcement && (
+            <div
+              className="mb-4 rounded-lg border border-success-200 bg-success-50 px-4 py-3 text-sm text-success-800"
+              role="status"
+              aria-live="polite"
+            >
+              {announcement}
+            </div>
+          )}
           {activeTab === 'overview' && <DataOverview />}
           {activeTab === 'cookies' && (
             <CookieSettings
               consents={consents}
               onUpdateConsent={handleUpdateConsent}
               onSave={handleSaveCookieSettings}
-              onClose={onClose!}
+              onClose={closePrivacyCenter}
             />
           )}
           {activeTab === 'requests' && (
-            <DataRequestForm onSubmit={handleSubmitRequest} onClose={onClose!} />
+            <DataRequestForm onSubmit={handleSubmitRequest} onClose={closePrivacyCenter} />
           )}
           {activeTab === 'settings' && <PrivacySettingsPanel />}
         </div>

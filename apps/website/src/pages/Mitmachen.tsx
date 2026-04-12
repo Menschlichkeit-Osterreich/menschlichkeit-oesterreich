@@ -205,6 +205,60 @@ export default function Mitmachen() {
         </div>
       </section>
 
+      {/* Schnellstart */}
+      <section className="max-w-6xl mx-auto px-4 py-10" aria-label="Schnell starten">
+        <div className="rounded-2xl border border-primary-200 bg-primary-50 p-5 md:p-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-secondary-900">Schnell starten</h2>
+              <p className="mt-2 text-sm text-secondary-700 max-w-2xl">
+                Wenn Sie direkt aktiv werden möchten, wählen Sie den Weg, der am besten zu Ihrer
+                aktuellen Situation passt.
+              </p>
+            </div>
+            <div className="text-xs text-secondary-600">
+              ZVR 1182213083 • transparente Vereinsarbeit • datenschutzkonform
+            </div>
+          </div>
+
+          <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
+            <Link
+              to="/mitglied-werden"
+              className="rounded-xl border border-primary-300 bg-white p-4 hover:shadow-sm transition-all"
+            >
+              <div className="font-semibold text-secondary-900">Mitglied werden</div>
+              <p className="mt-1 text-sm text-secondary-600">Regelmäßig mittragen und mitgestalten.</p>
+            </Link>
+            <Link
+              to="/spenden"
+              className="rounded-xl border border-primary-300 bg-white p-4 hover:shadow-sm transition-all"
+            >
+              <div className="font-semibold text-secondary-900">Jetzt spenden</div>
+              <p className="mt-1 text-sm text-secondary-600">Projekte sofort und konkret unterstützen.</p>
+            </Link>
+            <Link
+              to="/veranstaltungen"
+              className="rounded-xl border border-primary-300 bg-white p-4 hover:shadow-sm transition-all"
+            >
+              <div className="font-semibold text-secondary-900">Veranstaltung besuchen</div>
+              <p className="mt-1 text-sm text-secondary-600">Unverbindlich kennenlernen und austauschen.</p>
+            </Link>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-4 text-sm">
+            <Link to="/transparenz" className="font-medium text-primary-700 hover:underline">
+              Transparenz
+            </Link>
+            <Link to="/datenschutz" className="font-medium text-primary-700 hover:underline">
+              Datenschutz
+            </Link>
+            <Link to="/statuten" className="font-medium text-primary-700 hover:underline">
+              Statuten
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Aktuelle Projekte */}
       <section className="max-w-6xl mx-auto px-4 py-16">
         <div className="text-center mb-10">

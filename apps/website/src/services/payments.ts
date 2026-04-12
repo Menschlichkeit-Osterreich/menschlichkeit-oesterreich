@@ -1,7 +1,7 @@
 import { loadStripe, Stripe } from '@stripe/stripe-js';
-import { http } from './http';
-import { config } from './config';
 import type { ApiResponse } from './api';
+import { config } from './config';
+import { http } from './http';
 
 let stripePromise: Promise<Stripe | null> | null = null;
 export function getStripe() {
@@ -11,24 +11,22 @@ export function getStripe() {
   return stripePromise;
 }
 
-export async function createStripeIntent(payload: {
-  amount: number;
-  currency?: string;
-  email?: string;
-  purpose?: string;
-  method?: 'card' | 'sepa' | 'eps' | 'sofort';
-  financial_type?: 'donation' | 'membership_fee';
-}, token?: string) {
-  const res = await http.post<ApiResponse>('/api/payments/stripe/intent', payload, token ? { token } : {});
-  return res;
-}
-
-export async function createPayPalOrder(payload: { amount: number; currency?: string; email?: string; purpose?: string }, token?: string) {
-  const res = await http.post<ApiResponse>('/api/payments/paypal/order', payload, token ? { token } : {});
-  return res;
-}
-
-export async function capturePayPalOrder(payload: { order_id: string; email?: string; contact_id?: number; purpose?: string }, token?: string) {
-  const res = await http.post<ApiResponse>('/api/payments/paypal/capture', payload, token ? { token } : {});
+export async function createStripeIntent(
+  payload: {
+    amount: number;
+    currency?: string;
+    email?: string;
+    purpose?: string;
+    method?: 'card' | 'sepa' | 'eps' | 'sofort';
+    financial_type?: 'donation' | 'membership_fee';
+    interval?: 'once' | 'monthly' | 'quarterly' | 'yearly';
+  },
+  token?: string
+) {
+  const res = await http.post<ApiResponse>(
+    '/api/payments/stripe/intent',
+    payload,
+    token ? { token } : {}
+  );
   return res;
 }

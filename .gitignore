@@ -103,6 +103,20 @@ tokens.txt
 credentials.json
 service-account*.json
 
+# Bitwarden / lokale Vault-Artefakte
+BW_ACCESS_TOKEN.txt
+BW_ACCESS_TOKEN*.txt
+master.txt
+master*.txt
+.bw-session
+.bw_session
+.bw/
+.bitwarden/
+bitwarden-export*.json
+bitwarden-export*.csv
+mcp-servers/bitwarden-cli/.env
+mcp-servers/bitwarden-cli/.env.local
+
 # ========================================
 # Node.js / NPM
 # ========================================
@@ -507,6 +521,7 @@ backups/
 .claude/settings.local.json
 .claude/secrets.env
 .claude/plans/
+.claude/skills/
 .claude_pr_body.md
 
 # Babylon.js Editor

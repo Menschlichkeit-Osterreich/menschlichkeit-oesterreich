@@ -84,6 +84,17 @@ function BrandLink({ href, label }: { href: string; label: string }) {
 
 function PublicNavBar() {
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const mobileMenuId = React.useId();
+  const mobileToggleRef = React.useRef<HTMLButtonElement | null>(null);
+  const firstMobileLinkRef = React.useRef<HTMLAnchorElement | null>(null);
+
+  React.useEffect(() => {
+    if (mobileOpen) {
+      firstMobileLinkRef.current?.focus();
+      return;
+    }
+    mobileToggleRef.current?.focus();
+  }, [mobileOpen]);
 
   return (
     <header className="sticky top-0 z-20 border-b border-secondary-100 bg-white/95 backdrop-blur">
@@ -108,8 +119,11 @@ function PublicNavBar() {
         </div>
 
         <button
+          ref={mobileToggleRef}
+          type="button"
           className="rounded-lg p-2 text-secondary-700 hover:bg-secondary-50 md:hidden"
           onClick={() => setMobileOpen(value => !value)}
+          aria-controls={mobileMenuId}
           aria-expanded={mobileOpen}
           aria-label={mobileOpen ? 'Navigation schließen' : 'Navigation öffnen'}
         >
@@ -124,9 +138,20 @@ function PublicNavBar() {
       </div>
 
       {mobileOpen && (
-        <nav className="border-t border-secondary-100 bg-white px-4 py-3 md:hidden" aria-label="Mobile Navigation">
+        <nav
+          id={mobileMenuId}
+          className="border-t border-secondary-100 bg-white px-4 py-3 md:hidden"
+          aria-label="Mobile Navigation"
+        >
           <div className="flex flex-col gap-1">
-            <LocalNavLink onClick={() => setMobileOpen(false)} to="/">Start</LocalNavLink>
+            <Link
+              ref={firstMobileLinkRef}
+              className="rounded-full px-3 py-2 text-sm font-medium text-secondary-700 hover:bg-secondary-50 hover:text-secondary-900"
+              to="/"
+              onClick={() => setMobileOpen(false)}
+            >
+              Start
+            </Link>
             <LocalNavLink onClick={() => setMobileOpen(false)} to="/themen">Themen</LocalNavLink>
             <LocalNavLink onClick={() => setMobileOpen(false)} to="/veranstaltungen">Veranstaltungen</LocalNavLink>
             <LocalNavLink onClick={() => setMobileOpen(false)} to="/blog">Blog</LocalNavLink>
@@ -149,6 +174,17 @@ function PublicNavBar() {
 function PortalNavBar() {
   const { token, logout, hasBackofficeAccess } = useAuth();
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const mobileMenuId = React.useId();
+  const mobileToggleRef = React.useRef<HTMLButtonElement | null>(null);
+  const firstMobileLinkRef = React.useRef<HTMLAnchorElement | null>(null);
+
+  React.useEffect(() => {
+    if (mobileOpen) {
+      firstMobileLinkRef.current?.focus();
+      return;
+    }
+    mobileToggleRef.current?.focus();
+  }, [mobileOpen]);
 
   function handleLogout() {
     logout();
@@ -187,8 +223,11 @@ function PortalNavBar() {
         </div>
 
         <button
+          ref={mobileToggleRef}
+          type="button"
           className="rounded-lg p-2 text-secondary-700 hover:bg-secondary-50 md:hidden"
           onClick={() => setMobileOpen(value => !value)}
+          aria-controls={mobileMenuId}
           aria-expanded={mobileOpen}
           aria-label={mobileOpen ? 'Navigation schließen' : 'Navigation öffnen'}
         >
@@ -203,9 +242,20 @@ function PortalNavBar() {
       </div>
 
       {mobileOpen && (
-        <nav className="border-t border-secondary-100 bg-white px-4 py-3 md:hidden" aria-label="Mobile Portalnavigation">
+        <nav
+          id={mobileMenuId}
+          className="border-t border-secondary-100 bg-white px-4 py-3 md:hidden"
+          aria-label="Mobile Portalnavigation"
+        >
           <div className="flex flex-col gap-1">
-            <LocalNavLink onClick={() => setMobileOpen(false)} to="/member">Profil</LocalNavLink>
+            <Link
+              ref={firstMobileLinkRef}
+              className="rounded-full px-3 py-2 text-sm font-medium text-secondary-700 hover:bg-secondary-50 hover:text-secondary-900"
+              to="/member"
+              onClick={() => setMobileOpen(false)}
+            >
+              Profil
+            </Link>
             <LocalNavLink onClick={() => setMobileOpen(false)} to="/member/dashboard">Übersicht</LocalNavLink>
             <LocalNavLink onClick={() => setMobileOpen(false)} to="/member/rechnungen">Rechnungen</LocalNavLink>
             <LocalNavLink onClick={() => setMobileOpen(false)} to="/member/newsletter">Newsletter</LocalNavLink>

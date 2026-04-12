@@ -8,9 +8,9 @@ const OUTPUT_SARIF = resolve(REPORTS_DIR, 'codacy-analysis.sarif');
 
 function run(cmd, args = []) {
   return new Promise((resolveOk, reject) => {
-    const p = spawn(cmd, args, { stdio: 'inherit', shell: process.platform === 'win32' });
+    const p = spawn(cmd, args, { stdio: 'inherit', shell: false });
     p.on('error', reject);
-    p.on('exit', (code) => (code === 0 ? resolveOk(0) : reject(new Error(`${cmd} exited ${code}`))));
+    p.on('exit', code => (code === 0 ? resolveOk(0) : reject(new Error(`${cmd} exited ${code}`))));
   });
 }
 
@@ -26,10 +26,21 @@ function writeEmptySarif() {
 
 async function main() {
   try {
-    await run('npx', ['codacy-analysis-cli', 'analyze', '--format', 'sarif', '--output', OUTPUT_SARIF, '--project-directory', '.']);
+    await run('codacy-analysis-cli', [
+      'analyze',
+      '--format',
+      'sarif',
+      '--output',
+      OUTPUT_SARIF,
+      '--project-directory',
+      '.',
+    ]);
     process.exit(0);
   } catch (e) {
-    console.warn('Codacy CLI nicht verfügbar oder fehlgeschlagen, schreibe leeren SARIF:', e.message);
+    console.warn(
+      'Codacy CLI nicht verfügbar oder fehlgeschlagen, schreibe leeren SARIF:',
+      e.message
+    );
     writeEmptySarif();
     process.exit(0);
   }

@@ -173,7 +173,7 @@ export const OpenClawChat: React.FC<OpenClawChatProps> = ({
       return 'Das Demokratiespiel "Brücken Bauen" können Sie direkt [hier spielen](/spiel). Es hat 100 Level mit verschiedenen demokratischen Szenarien!';
     }
     if (q.includes('spende') || q.includes('unterstützen')) {
-      return 'Vielen Dank für Ihr Interesse! Sie können uns via Banküberweisung, PayPal oder Kreditkarte unterstützen. Details auf unserer [Spenden-Seite](/spenden).';
+      return 'Vielen Dank für Ihr Interesse! Sie können uns via Banküberweisung, SEPA oder Kreditkarte unterstützen. Details auf unserer [Spenden-Seite](/spenden).';
     }
     return `Vielen Dank für Ihre Anfrage. Unser KI-Assistent ist gerade nicht verfügbar. Bitte kontaktieren Sie uns direkt unter ${CONTACT_EMAIL}.`;
   };

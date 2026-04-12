@@ -16,25 +16,34 @@ param(
     [string]$Environment = "development",
 
     [Parameter(Mandatory = $false)]
+    [string]$TokenFile = $env:BW_TOKEN_FILE,
+
+    [Parameter(Mandatory = $false)]
     [switch]$DryRun = $false
 )
 
 $ErrorActionPreference = "Stop"
 
+$wingetLinks = Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Links"
+if ((Test-Path $wingetLinks) -and ($env:Path -notlike "*$wingetLinks*")) {
+    $env:Path += ";$wingetLinks"
+}
+
+. (Join-Path $PSScriptRoot "bitwarden-common.ps1")
+
 # ── Voraussetzungen ─────────────────────────────────────────
+
+$null = Resolve-BitwardenAccessToken -TokenFile $TokenFile -ExportToProcess
+$null = Resolve-BitwardenOrganizationId -ExportToProcess
 
 if (-not $env:BSM_ACCESS_TOKEN) {
     Write-Host "[ERROR] BSM_ACCESS_TOKEN ist nicht gesetzt." -ForegroundColor Red
+    Write-Host "Setze BSM_ACCESS_TOKEN/BW_ACCESS_TOKEN oder verweise mit BW_TOKEN_FILE auf deine gitignored Token-Datei." -ForegroundColor Yellow
     exit 1
 }
 
 if (-not $env:BSM_ORGANIZATION_ID) {
     Write-Host "[ERROR] BSM_ORGANIZATION_ID ist nicht gesetzt." -ForegroundColor Red
-    exit 1
-}
-
-if (-not (Get-Command bws -ErrorAction SilentlyContinue)) {
-    Write-Host "[ERROR] bws CLI nicht gefunden." -ForegroundColor Red
     exit 1
 }
 
@@ -51,8 +60,9 @@ $projectName = $projectMap[$Environment]
 $envSources = @(
     @{ File = ".env";                                Prefix = "" },
     @{ File = "apps/api/.env";                       Prefix = "api" },
-    @{ File = "automation/n8n/.env";                  Prefix = "n8n" },
-    @{ File = "automation/openclaw/config/.env";      Prefix = "openclaw" }
+    @{ File = "apps/website/.env.local";             Prefix = "website" },
+    @{ File = "automation/n8n/.env";                 Prefix = "n8n" },
+    @{ File = "automation/openclaw/config/.env";     Prefix = "openclaw" }
 )
 
 # Mapping: env_var → bsm_key (aus secrets.manifest.json)
@@ -68,23 +78,33 @@ Write-Host "[INFO] Manifest geladen: $($manifest.secrets.Count) Secret-Definitio
 
 # ── Projekt-ID ermitteln ────────────────────────────────────
 
-$projectsJson = & bws project list --output json 2>&1
+$projectsJson = Invoke-BwsCommand -Arguments @("project", "list", "--output", "json") -TokenFile $TokenFile
 if ($LASTEXITCODE -ne 0) {
     Write-Host "[ERROR] bws project list fehlgeschlagen" -ForegroundColor Red
     exit 1
 }
 
 $projects = $projectsJson | ConvertFrom-Json
-$targetProject = $projects | Where-Object { $_.name -eq $projectName }
+$targetProject = $projects | Where-Object { $_.name -eq $projectName } | Select-Object -First 1
+
+if (-not $targetProject -and $env:BSM_PROJECT_NAME) {
+    $targetProject = $projects | Where-Object { $_.name -eq $env:BSM_PROJECT_NAME } | Select-Object -First 1
+}
+
+if (-not $targetProject -and @($projects).Count -eq 1) {
+    $targetProject = @($projects)[0]
+    Write-Host "[WARN] Erwartetes Projekt '$projectName' nicht gefunden – verwende einzig verfuegbares Projekt '$($targetProject.name)'." -ForegroundColor Yellow
+}
 
 if (-not $targetProject) {
-    Write-Host "[ERROR] BSM-Projekt '$projectName' nicht gefunden." -ForegroundColor Red
-    Write-Host "Erstelle es zuerst in der BSM-Web-Oberflaeche." -ForegroundColor Yellow
+    Write-Host "[ERROR] Kein passendes BSM-Projekt gefunden." -ForegroundColor Red
+    Write-Host "Setze optional BSM_PROJECT_NAME auf den vorhandenen Projektnamen." -ForegroundColor Yellow
+    $projects | ForEach-Object { Write-Host "  - $($_.name)" -ForegroundColor Yellow }
     exit 1
 }
 
 $projectId = $targetProject.id
-Write-Host "[INFO] Projekt: $projectName (ID: $projectId)" -ForegroundColor Green
+Write-Host "[INFO] Projekt: $($targetProject.name) (ID: $projectId)" -ForegroundColor Green
 
 # ── .env-Dateien einlesen und Secrets erstellen ─────────────
 
@@ -115,7 +135,7 @@ foreach ($source in $envSources) {
             $envValue = $Matches[2]
 
             # Placeholder-Werte ueberspringen
-            if ($envValue -match "^(CHANGE_ME|PLACEHOLDER|sk_test_PLACEHOLDER|whsec_PLACEHOLDER)") {
+            if ($envValue -match "^(CHANGE_ME|PLACEHOLDER|(?:[ps]k)_(?:test|live)_PLACEHOLDER|whsec_PLACEHOLDER|PAYPAL_CLIENT_ID_PLACEHOLDER)") {
                 Write-Host "  [SKIP] $envVar (Placeholder-Wert)" -ForegroundColor Gray
                 $skippedCount++
                 continue

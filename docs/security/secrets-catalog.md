@@ -11,16 +11,18 @@
 
 **Seit März 2026** werden CI/CD-Secrets primär über Bitwarden Secrets Manager (EU-Vault: `vault.bitwarden.eu`) verwaltet und in GitHub Actions injiziert.
 
-| Eigenschaft               | Wert                                                                                        |
-| ------------------------- | ------------------------------------------------------------------------------------------- |
-| **Provider**              | Bitwarden Secrets Manager (EU)                                                              |
-| **Vault URL**             | `https://vault.bitwarden.eu`                                                                |
-| **Projekte**              | `moe-development`, `moe-staging`, `moe-production`                                          |
-| **Service Accounts**      | 10 (sa-api-dev/stg/prod, sa-openclaw-dev/prod, sa-n8n-dev/prod, sa-cicd, sa-infra-dev/prod) |
-| **Verwaltete Secrets**    | 44 (definiert in `secrets.manifest.json`)                                                   |
-| **GitHub Integration**    | `.github/workflows/reusable-bsm-secrets.yml`                                                |
-| **UUID-Mapping**          | `.github/bsm-secret-ids.json`                                                               |
-| **Migrations-Checkliste** | `docs/security/BSM-MIGRATION-CHECKLIST.md`                                                  |
+> **Kanonischer Ablauf:** `secrets.manifest.json` ist das vollständige Inventar. `.github/bsm-secret-ids.json` enthält nur den GitHub-/Workflow-Subset mit UUIDs. Für lokale Laufzeitdateien sind `scripts/bsm-fetch-env.ps1` bzw. `scripts/sync-payment-env-from-bw.ps1` zuständig. Zugriff bitte über `BSM_ACCESS_TOKEN`/`BW_ACCESS_TOKEN` oder `BW_TOKEN_FILE` — nicht über verstreute Desktop-Pfad-Hardcodings.
+
+| Eigenschaft               | Wert                                                                                           |
+| ------------------------- | ---------------------------------------------------------------------------------------------- |
+| **Provider**              | Bitwarden Secrets Manager (EU)                                                                 |
+| **Vault URL**             | `https://vault.bitwarden.eu`                                                                   |
+| **Projekte**              | Gemeinsames Projekt `Menschlichkeit Österreich Secrets` (env-Scope via Key-Präfixe / MA-Scope) |
+| **Service Accounts**      | 10 (sa-api-dev/stg/prod, sa-openclaw-dev/prod, sa-n8n-dev/prod, sa-cicd, sa-infra-dev/prod)    |
+| **Verwaltete Secrets**    | 44 (definiert in `secrets.manifest.json`)                                                      |
+| **GitHub Integration**    | `.github/workflows/reusable-bsm-secrets.yml`                                                   |
+| **UUID-Mapping**          | `.github/bsm-secret-ids.json`                                                                  |
+| **Migrations-Checkliste** | `docs/security/BSM-MIGRATION-CHECKLIST.md`                                                     |
 
 ### BSM Access Token
 

@@ -36,7 +36,11 @@ def _init_bsm_client():
 
     _bsm_init_attempted = True
 
-    access_token = os.environ.get("BSM_ACCESS_TOKEN")
+    access_token = (
+        os.environ.get("BSM_ACCESS_TOKEN")
+        or os.environ.get("BWS_ACCESS_TOKEN")
+        or os.environ.get("BW_ACCESS_TOKEN")
+    )
     if not access_token:
         logger.info("bsm_provider=disabled reason=BSM_ACCESS_TOKEN_not_set")
         return None
@@ -50,9 +54,7 @@ def _init_bsm_client():
 
         settings = client_settings_from_dict(
             {
-                "apiUrl": os.environ.get(
-                    "BSM_API_URL", "https://api.bitwarden.eu"
-                ),
+                "apiUrl": os.environ.get("BSM_API_URL", "https://api.bitwarden.eu"),
                 "identityUrl": os.environ.get(
                     "BSM_IDENTITY_URL", "https://identity.bitwarden.eu"
                 ),
@@ -62,7 +64,9 @@ def _init_bsm_client():
         )
         _bsm_client = BitwardenClient(settings)
 
-        state_file = os.environ.get("BSM_STATE_FILE")
+        state_file = (
+            os.environ.get("BSM_STATE_FILE") or os.environ.get("BWS_STATE_FILE") or ""
+        )
         _bsm_client.auth().login_access_token(access_token, state_file)
         logger.info("bsm_provider=active")
         return _bsm_client
@@ -78,7 +82,11 @@ def _fetch_from_bsm(bsm_key: str) -> Optional[str]:
     if client is None:
         return None
 
-    org_id = os.environ.get("BSM_ORGANIZATION_ID")
+    org_id = (
+        os.environ.get("BSM_ORGANIZATION_ID")
+        or os.environ.get("BWS_ORGANIZATION_ID")
+        or os.environ.get("BW_ORGANIZATION_ID")
+    )
     if not org_id:
         logger.warning("bsm_fetch_skipped reason=BSM_ORGANIZATION_ID_not_set")
         return None
@@ -98,7 +106,7 @@ def _fetch_from_bsm(bsm_key: str) -> Optional[str]:
             logger.debug("bsm_miss key=%s", bsm_key)
             return None
 
-        secret_response = client.secrets().get(target_id)
+        secret_response = client.secrets().get(str(target_id))
         if secret_response and secret_response.data:
             logger.debug("bsm_hit key=%s", bsm_key)
             return secret_response.data.value

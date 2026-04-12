@@ -10,7 +10,11 @@ from fastapi import APIRouter, HTTPException, Request, status
 from ..secrets_provider import get_secret
 
 from ..db import execute, fetch, fetchrow
-from ..schemas.internal import InternalMailSendRequest, InternalPaymentConfirmedRequest, InternalSyncMemberRequest
+from ..schemas.internal import (
+    InternalMailSendRequest,
+    InternalPaymentConfirmedRequest,
+    InternalSyncMemberRequest,
+)
 from ..services.crm_service import crm_service
 from ..services.mail_service import mail_service
 from ..services.member_service import member_service
@@ -21,7 +25,9 @@ router = APIRouter()
 
 async def _require_internal_signature(request: Request) -> None:
     raw_body = await request.body()
-    bearer_token = request.headers.get("authorization", "").removeprefix("Bearer ").strip()
+    bearer_token = (
+        request.headers.get("authorization", "").removeprefix("Bearer ").strip()
+    )
     api_key = request.headers.get("x-api-key", "").strip()
     shared_token = (
         get_secret("MOE_API_TOKEN", bsm_key="api/MOE_API_TOKEN").strip()
@@ -31,15 +37,29 @@ async def _require_internal_signature(request: Request) -> None:
     if shared_token and (bearer_token == shared_token or api_key == shared_token):
         return
 
-    shared_secret = get_secret("N8N_WEBHOOK_SECRET", bsm_key="api/N8N_WEBHOOK_SECRET").strip() or get_secret("INTERNAL_API_SECRET", bsm_key="api/INTERNAL_API_SECRET").strip()
+    shared_secret = (
+        get_secret("N8N_WEBHOOK_SECRET", bsm_key="api/N8N_WEBHOOK_SECRET").strip()
+        or get_secret("INTERNAL_API_SECRET", bsm_key="api/INTERNAL_API_SECRET").strip()
+    )
     if not shared_secret:
-        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Interne Signaturprüfung nicht konfiguriert")
-    incoming = request.headers.get("x-webhook-signature") or request.headers.get("x-internal-signature")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Interne Signaturprüfung nicht konfiguriert",
+        )
+    incoming = request.headers.get("x-webhook-signature") or request.headers.get(
+        "x-internal-signature"
+    )
     if not incoming:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Signatur fehlt")
-    expected = hmac.new(shared_secret.encode("utf-8"), raw_body, hashlib.sha256).hexdigest()
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Signatur fehlt"
+        )
+    expected = hmac.new(
+        shared_secret.encode("utf-8"), raw_body, hashlib.sha256
+    ).hexdigest()
     if not hmac.compare_digest(expected, incoming):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Ungültige Signatur")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Ungültige Signatur"
+        )
 
 
 @router.post("/internal/crm/sync-member")
@@ -47,7 +67,9 @@ async def sync_member(body: InternalSyncMemberRequest, request: Request):
     await _require_internal_signature(request)
     member = await member_service.get_member_by_id(body.member_id)
     if not member:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Mitglied nicht gefunden")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Mitglied nicht gefunden"
+        )
     contact = await crm_service.upsert_contact(
         email=member["email"],
         first_name=member.get("vorname") or "",
@@ -62,12 +84,16 @@ async def sync_member(body: InternalSyncMemberRequest, request: Request):
             body.member_id,
         )
         if body.membership_key:
-            await crm_service.ensure_membership(contact_id=int(contact["id"]), membership_key=body.membership_key)
+            await crm_service.ensure_membership(
+                contact_id=int(contact["id"]), membership_key=body.membership_key
+            )
     return {"success": True, "data": {"contact": contact}}
 
 
 @router.post("/internal/finance/payment-confirmed")
-async def internal_payment_confirmed(body: InternalPaymentConfirmedRequest, request: Request):
+async def internal_payment_confirmed(
+    body: InternalPaymentConfirmedRequest, request: Request
+):
     await _require_internal_signature(request)
     donation = await payment_service.record_successful_donation(
         donor_email=str(body.donor_email),
@@ -83,7 +109,9 @@ async def internal_payment_confirmed(body: InternalPaymentConfirmedRequest, requ
 
 
 @router.post("/internal/finance/donation-received")
-async def internal_donation_received(body: InternalPaymentConfirmedRequest, request: Request):
+async def internal_donation_received(
+    body: InternalPaymentConfirmedRequest, request: Request
+):
     return await internal_payment_confirmed(body, request)
 
 
@@ -115,11 +143,19 @@ async def internal_mail_send(body: InternalMailSendRequest, request: Request):
 
 @router.post("/contacts/create")
 async def compat_create_contact(payload: dict):
-    email = payload.get("email")
-    first_name = payload.get("first_name") or payload.get("vorname") or ""
-    last_name = payload.get("last_name") or payload.get("nachname") or ""
+    if (payload.get("company") or payload.get("website") or "").strip():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Ungültige Anfrage"
+        )
+
+    email = str(payload.get("email") or "").strip().lower()
+    first_name = str(payload.get("first_name") or payload.get("vorname") or "").strip()
+    last_name = str(payload.get("last_name") or payload.get("nachname") or "").strip()
     if not email or not first_name or not last_name:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="E-Mail, Vorname und Nachname sind erforderlich")
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="E-Mail, Vorname und Nachname sind erforderlich",
+        )
     contact = await crm_service.upsert_contact(
         email=email,
         first_name=first_name,
@@ -142,16 +178,26 @@ async def compat_search_contact(email: str):
 async def compat_create_membership(payload: dict):
     contact_id = payload.get("contact_id")
     if not contact_id:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="contact_id fehlt")
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="contact_id fehlt"
+        )
     membership_map = {1: "ordentlich", 2: "ausserordentlich", 3: "foerdernd"}
-    membership_key = membership_map.get(int(payload.get("membership_type_id") or 1), "ordentlich")
-    membership = await crm_service.ensure_membership(contact_id=int(contact_id), membership_key=membership_key)
+    membership_key = membership_map.get(
+        int(payload.get("membership_type_id") or 1), "ordentlich"
+    )
+    membership = await crm_service.ensure_membership(
+        contact_id=int(contact_id), membership_key=membership_key
+    )
     return {"success": True, "data": {"membership": membership}}
 
 
 @router.post("/contributions/create")
 async def compat_create_contribution(payload: dict):
-    status_value = "pending" if payload.get("payment_instrument") in {"bank_transfer", "cash", "pos", "sepa"} else "paid"
+    status_value = (
+        "pending"
+        if payload.get("payment_instrument") in {"bank_transfer", "cash", "pos", "sepa"}
+        else "paid"
+    )
     row = await fetchrow(
         """
         INSERT INTO donations (
@@ -166,7 +212,11 @@ async def compat_create_contribution(payload: dict):
         payload.get("email"),
         payload.get("amount"),
         (payload.get("currency") or "EUR").upper(),
-        "recurring" if payload.get("financial_type") == "membership_fee" else "one_time",
+        (
+            "recurring"
+            if payload.get("financial_type") == "membership_fee"
+            else "one_time"
+        ),
         False,
         status_value,
         payload.get("purpose") or "Website",
@@ -212,13 +262,18 @@ async def compat_process_sepa(payload: dict, request: Request):
             detail="memberId und amount sind erforderlich",
         )
     try:
+        normalized_amount = float(str(amount))
         result = await payment_service.process_sepa_membership_payment(
             member_id=str(member_id),
-            amount=float(amount),
+            amount=normalized_amount,
             crm_payment_id=payload.get("crmPaymentId") or payload.get("crm_payment_id"),
         )
     except ValueError as exc:
-        status_code = status.HTTP_404_NOT_FOUND if "nicht gefunden" in str(exc).lower() else status.HTTP_422_UNPROCESSABLE_ENTITY
+        status_code = (
+            status.HTTP_404_NOT_FOUND
+            if "nicht gefunden" in str(exc).lower()
+            else status.HTTP_422_UNPROCESSABLE_ENTITY
+        )
         raise HTTPException(status_code=status_code, detail=str(exc)) from exc
     return result
 
@@ -238,11 +293,16 @@ async def compat_log_payment(payload: dict, request: Request):
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="stripe_event_id/provider_event_id und amount sind erforderlich",
         )
+    normalized_amount = float(str(amount))
     logged = await payment_service.log_external_payment(
         provider_event_id=str(provider_event_id),
-        donor_email=payload.get("payer_email") or payload.get("donor_email") or payload.get("email"),
-        donor_name=payload.get("payer_name") or payload.get("donor_name") or payload.get("name"),
-        amount=float(amount),
+        donor_email=payload.get("payer_email")
+        or payload.get("donor_email")
+        or payload.get("email"),
+        donor_name=payload.get("payer_name")
+        or payload.get("donor_name")
+        or payload.get("name"),
+        amount=normalized_amount,
         currency=(payload.get("currency") or "EUR").upper(),
         status=str(payload.get("status") or "completed"),
         civicrm_contribution_id=payload.get("civicrm_contribution_id"),
@@ -255,13 +315,21 @@ async def compat_finance_donations(payload: dict, request: Request):
     await _require_internal_signature(request)
     donor = payload.get("donor") or {}
     donation = await payment_service.record_successful_donation(
-        donor_email=payload.get("donor_email") or donor.get("email") or payload.get("email") or "",
-        donor_name=payload.get("donor_name") or donor.get("name") or donor.get("display_name") or payload.get("name") or "Unterstützer/in",
+        donor_email=payload.get("donor_email")
+        or donor.get("email")
+        or payload.get("email")
+        or "",
+        donor_name=payload.get("donor_name")
+        or donor.get("name")
+        or donor.get("display_name")
+        or payload.get("name")
+        or "Unterstützer/in",
         amount=float(payload.get("amount") or 0),
         currency=(payload.get("currency") or "EUR").upper(),
         donation_type=payload.get("donation_type") or "one_time",
         source=payload.get("source") or "n8n",
-        gateway_charge_id=payload.get("gateway_charge_id") or payload.get("civicrm_contribution_id"),
+        gateway_charge_id=payload.get("gateway_charge_id")
+        or payload.get("civicrm_contribution_id"),
         civicrm_contact_id=payload.get("civicrm_contact_id") or donor.get("civicrm_id"),
     )
     donation["receipt_eligible"] = payload.get("receipt_eligible", True)
@@ -288,7 +356,9 @@ async def compat_create_invoice(payload: dict, request: Request):
             created_by="n8n_membership_invoicing",
         )
     except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
+        ) from exc
     return invoice
 
 
@@ -315,14 +385,18 @@ async def compat_export_sepa_batch(payload: dict, request: Request):
             collection_date=str(collection_date),
         )
     except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
+        ) from exc
     return batch
 
 
 @router.post("/finance/receipts/generate-pdf")
 async def compat_generate_receipt(payload: dict, request: Request):
     await _require_internal_signature(request)
-    receipt_number = payload.get("receipt_number") or f"SPQ-{payload.get('id', 'pending')}"
+    receipt_number = (
+        payload.get("receipt_number") or f"SPQ-{payload.get('id', 'pending')}"
+    )
     return {
         "pdf_path": f"/generated/receipts/{receipt_number}.pdf",
         "receipt_number": receipt_number,
@@ -352,9 +426,15 @@ async def compat_mark_invoice_paid(invoice_id: int, payload: dict, request: Requ
         invoice_id,
     )
     if not invoice:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Rechnung nicht gefunden")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Rechnung nicht gefunden"
+        )
     invoice_data = dict(invoice)
-    invoice_data["paid_amount"] = payload.get("amount") or payload.get("paid_amount") or invoice_data.get("total_amount")
+    invoice_data["paid_amount"] = (
+        payload.get("amount")
+        or payload.get("paid_amount")
+        or invoice_data.get("total_amount")
+    )
     return invoice_data
 
 
@@ -380,17 +460,21 @@ async def compat_dunning_run(payload: dict, request: Request):
     for invoice in invoices:
         if isinstance(invoice, dict) and "invoices" in invoice:
             for nested in invoice["invoices"]:
-                notices.append({
-                    "email": nested.get("recipient_email"),
-                    "invoice_data": nested,
-                    "level": 1,
-                })
+                notices.append(
+                    {
+                        "email": nested.get("recipient_email"),
+                        "invoice_data": nested,
+                        "level": 1,
+                    }
+                )
         elif isinstance(invoice, dict):
-            notices.append({
-                "email": invoice.get("recipient_email"),
-                "invoice_data": invoice,
-                "level": 1,
-            })
+            notices.append(
+                {
+                    "email": invoice.get("recipient_email"),
+                    "invoice_data": invoice,
+                    "level": 1,
+                }
+            )
     return {"notices": notices, "status": "queued"}
 
 
@@ -404,7 +488,9 @@ async def compat_dunning_pdf(payload: dict, request: Request):
 @router.post("/receipt/trigger")
 async def compat_receipt_trigger(payload: dict, request: Request):
     await _require_internal_signature(request)
-    receipt_number = payload.get("receipt_number") or f"SPQ-{payload.get('id', 'pending')}"
+    receipt_number = (
+        payload.get("receipt_number") or f"SPQ-{payload.get('id', 'pending')}"
+    )
     return {"pdf_path": f"/generated/receipts/{receipt_number}.pdf", **payload}
 
 

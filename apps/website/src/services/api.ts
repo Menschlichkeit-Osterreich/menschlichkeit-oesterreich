@@ -123,7 +123,7 @@ export const api = {
         purpose?: string | null;
         anonymous?: boolean;
         tribute_name?: string | null;
-        payment_instrument: 'bank_transfer' | 'sepa' | 'visa' | 'mastercard' | 'amex' | 'paypal' | 'apple_pay' | 'google_pay' | 'eps' | 'sofort' | 'revolut' | 'wise' | 'pos' | 'cash';
+        payment_instrument: 'bank_transfer' | 'sepa' | 'visa' | 'mastercard' | 'amex' | 'apple_pay' | 'google_pay' | 'eps' | 'sofort' | 'revolut' | 'wise' | 'pos' | 'cash';
       },
       token?: string
     ) => http.post<ApiResponse>(apiPaths.contributions.create, payload, token ? { token } : {}),
@@ -136,7 +136,7 @@ export const api = {
         interval: 'monthly' | 'quarterly' | 'yearly';
         financial_type?: 'donation' | 'membership_fee';
         purpose?: string | null;
-        payment_instrument: 'sepa' | 'visa' | 'mastercard' | 'amex' | 'paypal';
+        payment_instrument: 'bank_transfer' | 'sepa' | 'visa' | 'mastercard' | 'amex';
       },
       token?: string
     ) => http.post<ApiResponse>(apiPaths.contributions.recur, payload, token ? { token } : {}),
@@ -157,7 +157,7 @@ export const api = {
       http.get<ApiResponse<{ requests: DeletionRequestItem[] }>>(`/api/privacy/data-deletion`, { token }),
   },
   newsletter: {
-    subscribe: (payload: { email: string; first_name?: string; last_name?: string; consent: boolean }) =>
+    subscribe: (payload: { email: string; first_name?: string; last_name?: string; consent: boolean; company?: string }) =>
       http.post<ApiResponse>('/api/newsletter/subscribe', payload),
   },
 
