@@ -1,6 +1,8 @@
 import { CRM_SITE_URL, SITE_URL } from '@/config/siteConfig';
 
 export type HostVariant = 'public' | 'crm';
+export const PUBLIC_PORTAL_ENTRY_PATH = '/login';
+export const PORTAL_PROBE_PATH = '/favicon.svg';
 
 function normalizePath(path = '/'): string {
   if (!path) {
@@ -44,6 +46,10 @@ export function buildPublicUrl(path = '/'): string {
 }
 
 export function buildPortalUrl(path = '/'): string {
+  return new URL(normalizePath(path), CRM_SITE_URL).toString();
+}
+
+export function buildPortalProbeUrl(path = PORTAL_PROBE_PATH): string {
   return new URL(normalizePath(path), CRM_SITE_URL).toString();
 }
 

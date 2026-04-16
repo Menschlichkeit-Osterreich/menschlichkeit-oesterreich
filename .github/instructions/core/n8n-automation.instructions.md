@@ -8,11 +8,13 @@ priority: critical
 category: core
 applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 ---
+
 # n8n Automation Instructions
 
 ## Projekt-Integration
 
 **n8n Infrastruktur (bereits deployed):**
+
 - **Subdomain:** n8n.menschlichkeit-oesterreich.at
 - **Database:** mo_n8n (MariaDB, Plesk External)
 - **Purpose:** Zentrale Automatisierungs-Plattform für alle Services
@@ -24,6 +26,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 ### 1. Email Workflows
 
 **Use Cases:**
+
 - CiviMail Kampagnen-Trigger (Drupal → n8n → Email)
 - Auto-Responder (Form Submit → n8n → Welcome Email)
 - DKIM Rotation Alerts (Cron → n8n → Admin Notification)
@@ -31,6 +34,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 - Spam Detection Alerts (Email Server → n8n → Slack)
 
 **Nodes:**
+
 - **Email Trigger** (IMAP/POP3)
 - **Email Send** (SMTP/Mailgun/SendGrid)
 - **Webhook** (Form Submissions)
@@ -39,6 +43,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 - **Set** (Data Transformation)
 
 **Beispiel-Workflow:**
+
 ```json
 {
   "name": "CiviMail Campaign Trigger",
@@ -72,6 +77,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 ```
 
 **DSGVO-Compliance:**
+
 - Consent-Check vor Email-Versand
 - Unsubscribe-Link in jeder Email
 - Logging mit Retention Policy (90 Tage)
@@ -81,6 +87,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 ### 2. Deployment Notifications
 
 **Use Cases:**
+
 - CI/CD Pipeline Status (GitHub Actions → n8n → Slack/Email)
 - Quality Gate Failures (Codacy → n8n → GitHub Issue)
 - Build Completion Alerts (Build-Pipeline → n8n → Multi-Channel)
@@ -88,6 +95,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 - Deployment Approvals (Slack → n8n → Approval Workflow)
 
 **Nodes:**
+
 - **Webhook** (GitHub Webhooks)
 - **HTTP Request** (Codacy API, GitHub API)
 - **Slack** (Notifications)
@@ -96,6 +104,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 - **If** (Conditional Branching)
 
 **Beispiel-Workflow:**
+
 ```json
 {
   "name": "CI/CD Notification",
@@ -154,6 +163,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 ```
 
 **Integration mit Quality Gates:**
+
 - Bei Codacy-Findings: n8n → GitHub Issue mit "quality" Label
 - Bei Security-Scan-Failure: n8n → Email an Security Team
 - Bei Performance-Degradation: n8n → Rollback-Trigger
@@ -163,6 +173,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 ### 3. Database Automation
 
 **Use Cases:**
+
 - Scheduled Backups (Cron → n8n → pg_dump → S3)
 - Health Checks (Cron → n8n → PostgreSQL Query → Alert)
 - Migration Notifications (Prisma Migrate → n8n → Slack)
@@ -170,6 +181,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 - Data Export Requests (DSGVO → n8n → Generate Export → Email)
 
 **Nodes:**
+
 - **Schedule Trigger** (Cron Jobs)
 - **PostgreSQL** (DB Operations)
 - **MySQL/MariaDB** (CRM Database)
@@ -178,6 +190,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 - **Merge** (Data Combination)
 
 **Beispiel-Workflow:**
+
 ```json
 {
   "name": "Daily Database Backup",
@@ -226,6 +239,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 ```
 
 **Database-Credentials (alle 17 Datenbanken):**
+
 - In n8n Credentials speichern (verschlüsselt)
 - Niemals in Workflows hardcoden
 - Rotation alle 90 Tage via Secret Management
@@ -235,6 +249,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 ### 4. Monitoring & Alerting
 
 **Use Cases:**
+
 - Service Health Checks (HTTP Monitoring)
 - Grafana Alert Routing (Grafana → n8n → Multi-Channel)
 - Uptime Monitoring (Cron → n8n → HTTP Request → Alert)
@@ -242,6 +257,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 - Performance Degradation (Lighthouse → n8n → Slack)
 
 **Nodes:**
+
 - **Webhook** (Grafana Alerts)
 - **HTTP Request** (Health Endpoints)
 - **Switch** (Alert Severity Routing)
@@ -249,6 +265,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 - **Set** (Alert Enrichment)
 
 **Beispiel-Workflow:**
+
 ```json
 {
   "name": "Grafana Alert Router",
@@ -267,9 +284,9 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
         "dataPropertyName": "severity",
         "rules": {
           "values": [
-            {"value": "critical", "output": 0},
-            {"value": "warning", "output": 1},
-            {"value": "info", "output": 2}
+            { "value": "critical", "output": 0 },
+            { "value": "warning", "output": 1 },
+            { "value": "info", "output": 2 }
           ]
         }
       }
@@ -303,6 +320,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 ```
 
 **Alert-Kategorien:**
+
 - **Critical:** PagerDuty + SMS + Email + Slack
 - **Warning:** Slack + Email
 - **Info:** Email only
@@ -312,6 +330,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 ### 5. DSGVO Compliance Automation
 
 **Use Cases:**
+
 - Data Export Requests (User Request → n8n → Generate Export → Email)
 - Consent Updates (CiviCRM → n8n → Update All Services)
 - Data Deletion Requests (DSGVO Right to be Forgotten)
@@ -319,6 +338,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 - Cookie Consent Sync (Website → n8n → CRM Update)
 
 **Nodes:**
+
 - **Webhook** (Data Subject Requests)
 - **PostgreSQL** (User Data Queries)
 - **HTTP Request** (CiviCRM API)
@@ -326,6 +346,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 - **Email Send** (Export Delivery)
 
 **Beispiel-Workflow:**
+
 ```json
 {
   "name": "DSGVO Data Export",
@@ -378,6 +399,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 ```
 
 **DSGVO-Critical:**
+
 - **Logging:** Audit-Trail für alle Requests (Who? What? When?)
 - **Retention:** Workflow-Logs max. 90 Tage
 - **Encryption:** Alle PII in n8n verschlüsselt
@@ -388,6 +410,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 ### 6. Quality Gate Triggers
 
 **Use Cases:**
+
 - Codacy → n8n → GitHub Issue (bei Quality-Regression)
 - Lighthouse → n8n → Slack (Performance-Alerts)
 - Security Scan → n8n → Block Deployment
@@ -395,6 +418,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 - Dependency Vulnerabilities → n8n → Auto-Fix PR
 
 **Nodes:**
+
 - **Webhook** (Quality Tools)
 - **HTTP Request** (GitHub API)
 - **If** (Threshold Checks)
@@ -402,6 +426,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 - **Merge** (Data Aggregation)
 
 **Beispiel-Workflow:**
+
 ```json
 {
   "name": "Quality Gate Enforcement",
@@ -458,6 +483,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 ```
 
 **Gate-Thresholds (aus quality-gates.instructions.md):**
+
 - Maintainability: <85% → BLOCK
 - Security: HIGH/CRITICAL → BLOCK
 - Performance: Lighthouse <90 → BLOCK
@@ -468,18 +494,21 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 ### 7. TODO Automation
 
 **Use Cases:**
+
 - Prompt Completion → n8n → TODO.md Update
 - GitHub Issue Closed → n8n → Mark TODO Done
 - Sprint Planning → n8n → Generate TODO Items
 - Dependency Updates → n8n → Create TODO Tasks
 
 **Nodes:**
+
 - **Webhook** (GitHub Events)
 - **HTTP Request** (GitHub API)
 - **Code** (TODO.md Parsing)
 - **Filesystem** (Write TODO.md)
 
 **Beispiel-Workflow:**
+
 ```json
 {
   "name": "Auto-Update TODO",
@@ -515,6 +544,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 ```
 
 **Integration mit update-todo-from-prompt.sh:**
+
 - n8n kann Shell-Scripts triggern (Execute Command Node)
 - Alternative: n8n implementiert Logik direkt (Code Node)
 
@@ -525,6 +555,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 ### 1. Error Handling
 
 **IMMER implementieren:**
+
 ```json
 {
   "nodes": [
@@ -549,6 +580,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 ```
 
 **Error-Kategorien:**
+
 - **Retryable:** HTTP Timeouts, DB Connection Errors
 - **Non-Retryable:** Invalid Credentials, Missing Data
 - **Critical:** Security-relevante Fehler
@@ -556,6 +588,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 ### 2. Retry Logic
 
 **Konfiguration:**
+
 ```json
 {
   "retryOnFail": true,
@@ -565,6 +598,7 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 ```
 
 **Use Cases:**
+
 - API Rate Limits
 - Temporary Network Issues
 - Database Deadlocks
@@ -572,18 +606,22 @@ applyTo: n8n-workflows/**,automation/**,deployment-scripts/**,monitoring/**
 ### 3. Logging
 
 **Strukturiertes Logging:**
+
 ```javascript
 // Code Node
-console.log(JSON.stringify({
-  timestamp: new Date().toISOString(),
-  workflow: 'workflow-name',
-  execution_id: $executionId,
-  event: 'processing_start',
-  data: $json
-}));
+console.log(
+  JSON.stringify({
+    timestamp: new Date().toISOString(),
+    workflow: 'workflow-name',
+    execution_id: $executionId,
+    event: 'processing_start',
+    data: $json,
+  })
+);
 ```
 
 **Log-Retention:**
+
 - Production: 90 Tage (DSGVO)
 - Staging: 30 Tage
 - Development: 7 Tage
@@ -591,12 +629,14 @@ console.log(JSON.stringify({
 ### 4. Credential Management
 
 **Security-Prinzipien:**
+
 - Niemals Credentials in Workflows hardcoden
 - n8n Credential Store verwenden (verschlüsselt)
 - Rotation alle 90 Tage
 - Audit-Trail für Credential-Zugriffe
 
 **Credentials Liste:**
+
 ```markdown
 - PostgreSQL (3 External Datenbanken)
 - MariaDB (5 Plesk + 9 External)
@@ -611,12 +651,14 @@ console.log(JSON.stringify({
 ### 5. Testing
 
 **Test-Strategie:**
+
 - **Manual Execution:** Vor Aktivierung testen
 - **Dry-Run Mode:** Workflow ohne Side-Effects
 - **Test Webhooks:** Postman/curl Requests
 - **Staging Environment:** Separate n8n Instance
 
 **Test-Checklist:**
+
 - [ ] Workflow erfolgreich ausgeführt
 - [ ] Error Handling getestet (forciere Fehler)
 - [ ] Credentials validiert
@@ -631,11 +673,13 @@ console.log(JSON.stringify({
 ### Filesystem MCP
 
 **Verwendung:**
+
 - Workflow Export/Import (JSON Files)
 - Configuration Management
 - Backup Workflows
 
 **Beispiel:**
+
 ```markdown
 "Export all n8n workflows to n8n-workflows/ directory"
 "Read workflow JSON from n8n-workflows/civimail-campaign.json"
@@ -645,11 +689,13 @@ console.log(JSON.stringify({
 ### GitHub MCP
 
 **Verwendung:**
+
 - Workflow Versioning (Commit Workflows zu Git)
 - Issue Creation (via Workflows)
 - PR Status Updates
 
 **Beispiel:**
+
 ```markdown
 "Commit all n8n workflows to GitHub"
 "Create GitHub issue from n8n error notification"
@@ -659,11 +705,13 @@ console.log(JSON.stringify({
 ### PostgreSQL MCP
 
 **Verwendung:**
+
 - Schema Queries (für Workflow-Design)
 - Database Health Checks
 - Migration Notifications
 
 **Beispiel:**
+
 ```markdown
 "Query PostgreSQL schema for user table structure"
 "Check database connection for n8n workflow"
@@ -673,11 +721,13 @@ console.log(JSON.stringify({
 ### Brave Search MCP
 
 **Verwendung:**
+
 - n8n Best Practices recherchieren
 - Node-Dokumentation finden
 - Error-Troubleshooting
 
 **Beispiel:**
+
 ```markdown
 "Search for n8n PostgreSQL node best practices"
 "Find n8n error handling examples"
@@ -692,6 +742,7 @@ console.log(JSON.stringify({
 
 ```markdown
 IMMER triggern:
+
 1. Deployment Success → n8n → Slack Notification
 2. Deployment Failure → n8n → Create GitHub Issue
 3. Rollback → n8n → Alert All Channels
@@ -701,6 +752,7 @@ IMMER triggern:
 
 ```markdown
 IMMER triggern:
+
 1. Codacy Grade < B → n8n → Block Deployment
 2. Security Scan HIGH/CRITICAL → n8n → PagerDuty
 3. Performance < 90 → n8n → Create Issue
@@ -710,6 +762,7 @@ IMMER triggern:
 
 ```markdown
 IMMER triggern:
+
 1. Data Export Request → n8n → Generate & Email PDF
 2. Deletion Request → n8n → Multi-DB Cascade Delete
 3. Consent Update → n8n → Sync All Services
@@ -723,12 +776,14 @@ IMMER triggern:
 
 ```markdown
 Kategorie: Mission-Critical
+
 - Email Automation
 - Monitoring Alerts
 - DSGVO Compliance
 - Database Backups
 
 Requirements:
+
 - Error Handling: MANDATORY
 - Retry Logic: 3 Attempts
 - Logging: Detailed
@@ -739,12 +794,14 @@ Requirements:
 
 ```markdown
 Kategorie: Maintenance
+
 - Daily Database Backups (3 AM)
 - Weekly Quality Reports (Montag 9 AM)
 - Monthly DSGVO Audits (1. des Monats)
 - Hourly Health Checks
 
 Requirements:
+
 - Cron Schedule: Documented
 - Execution Time: <5 min
 - Failure Recovery: Automatic Retry
@@ -754,12 +811,14 @@ Requirements:
 
 ```markdown
 Kategorie: Manual Triggers
+
 - Deployment Approvals
 - Emergency Rollbacks
 - Ad-hoc Reports
 - Test Data Generation
 
 Requirements:
+
 - Manual Trigger Only
 - Confirmation Step
 - Audit Logging
@@ -772,11 +831,13 @@ Requirements:
 ### Workflow-Performance
 
 **Targets:**
+
 - Execution Time: <5s (Standard), <30s (Complex)
 - Memory: <256MB per Execution
 - CPU: <50% Peak
 
 **Optimization:**
+
 ```javascript
 // ❌ BAD: Sequential HTTP Requests
 await httpRequest1();
@@ -784,16 +845,13 @@ await httpRequest2();
 await httpRequest3();
 
 // ✅ GOOD: Parallel Requests
-await Promise.all([
-  httpRequest1(),
-  httpRequest2(),
-  httpRequest3()
-]);
+await Promise.all([httpRequest1(), httpRequest2(), httpRequest3()]);
 ```
 
 ### Database Queries
 
 **Best Practices:**
+
 ```sql
 -- ❌ BAD: SELECT *
 SELECT * FROM users WHERE email = 'user@example.com';
@@ -806,15 +864,17 @@ CREATE INDEX idx_users_email ON users(email);
 ### Webhook Response Time
 
 **Targets:**
+
 - Webhook Acknowledge: <200ms
 - Processing: Asynchronous
 
 **Pattern:**
+
 ```javascript
 // Webhook Node: Immediate Response
 return {
   status: 'accepted',
-  message: 'Processing started'
+  message: 'Processing started',
 };
 
 // Actual Processing: In Background
@@ -828,12 +888,14 @@ return {
 ### Webhook Security
 
 **Mandatory:**
+
 - HTTPS only (TLS 1.3)
 - Webhook Secrets (HMAC Validation)
 - IP Whitelisting (wenn möglich)
 - Rate Limiting (100 req/min)
 
 **Beispiel:**
+
 ```javascript
 // Code Node: Webhook Signature Validation
 const crypto = require('crypto');
@@ -852,11 +914,13 @@ if (signature !== expected) {
 ### Credential Rotation
 
 **Schedule:**
+
 - API Tokens: 90 Tage
 - Database Passwords: 90 Tage
 - Webhook Secrets: 180 Tage
 
 **Automation via n8n:**
+
 ```json
 {
   "name": "Credential Rotation Alert",
@@ -872,6 +936,7 @@ if (signature !== expected) {
 ### PII Handling
 
 **DSGVO-Compliant:**
+
 - Niemals PII in Workflow-Namen
 - Niemals PII in Error Messages
 - Niemals PII in Logs (außer Audit-Log mit Retention)
@@ -887,38 +952,47 @@ if (signature !== expected) {
 # Workflow: [Name]
 
 ## Purpose
+
 [Was macht dieser Workflow?]
 
 ## Trigger
+
 [Wie wird er gestartet?]
 
 ## Inputs
+
 - **Field 1:** Description
 - **Field 2:** Description
 
 ## Outputs
+
 - **Success:** Description
 - **Error:** Description
 
 ## Nodes
+
 1. **Node 1:** Function
 2. **Node 2:** Function
 
 ## Error Handling
+
 [Wie werden Fehler behandelt?]
 
 ## Dependencies
+
 - Credentials: [Liste]
 - External Services: [Liste]
 
 ## Testing
+
 \`\`\`bash
 curl -X POST https://n8n.menschlichkeit-oesterreich.at/webhook/test \
-  -H "Content-Type: application/json" \
-  -d '{"test": "data"}'
+ -H "Content-Type: application/json" \
+ -d '{"test": "data"}'
 \`\`\`
 
 ## Maintenance
+
 - Owner: [Team/Person]
 - Last Updated: [Datum]
 - Review Schedule: [Frequency]
@@ -971,6 +1045,7 @@ User Request → CiviCRM Form → n8n Webhook → Process Request → Email Resp
 ### Workflow Updates
 
 **Process:**
+
 1. Export aktuelle Workflows (Backup)
 2. Änderungen in Staging testen
 3. Git Commit (Workflow JSON)
@@ -978,6 +1053,7 @@ User Request → CiviCRM Form → n8n Webhook → Process Request → Email Resp
 5. Smoke Test (Manual Trigger)
 
 **Via Filesystem MCP:**
+
 ```markdown
 "Backup all n8n workflows before update"
 "Commit updated workflows to git"
@@ -986,6 +1062,7 @@ User Request → CiviCRM Form → n8n Webhook → Process Request → Email Resp
 ### n8n Version Updates
 
 **Process:**
+
 1. Check Release Notes (Breaking Changes?)
 2. Staging Update & Test
 3. Production Update (Maintenance Window)
@@ -997,5 +1074,42 @@ User Request → CiviCRM Form → n8n Webhook → Process Request → Email Resp
 
 **Instructions erstellt:** 2025-10-07  
 **Kategorie:** Automation  
-**Priority:** CRITICAL  
-**MCP Tools:** Filesystem, GitHub, PostgreSQL, Brave Search
+**Priority:** CRITICAL
+
+---
+
+### 8. ERPNext Finance Flows
+
+**Bereitgestellte Workflows (`automation/n8n/workflows/`):**
+
+| Workflow-Datei                               | Trigger          | Ziel-Endpunkt                                             |
+| -------------------------------------------- | ---------------- | --------------------------------------------------------- |
+| `finance-erpnext-sync-processor.json`        | Cron alle 10 min | `POST /api/internal/finance/erpnext/process?limit=25`     |
+| `finance-erpnext-payment-entry.json`         | Webhook          | `POST /api/internal/finance/erpnext/payment`              |
+| `finance-erpnext-reconciliation-report.json` | Montag 07:30 UTC | `GET /api/internal/finance/erpnext/health` + Alert-E-Mail |
+
+**Trigger-Endpunkte (intern, Signature-Guard):**
+
+- `POST /internal/finance/erpnext/process` — Verarbeitet bis zu `limit` ausstehende Sync-Eintraege
+- `GET  /internal/finance/erpnext/health` — Health-Check; liefert Fehleranzahl je Status
+
+**Sicherheit:**
+
+- Signierung: HMAC-SHA256 mit `N8N_WEBHOOK_SECRET`
+- Idempotenz: SHA256(`source_system:entity_type:entity_id:operation`)
+- Nur HTTPS (TLS 1.3), Rate Limiting ueber API-Gateway
+
+**Konten-Mapping (AT-Standard):**
+
+- `4000 - Mitgliedsbeitraege - MOE` — Mitgliedsbeitraege
+- `4100 - Spenden - MOE` — Spenden
+- `4200 - Veranstaltungserloese - MOE` — Veranstaltungen
+- `1360 - Stripe Clearing - MOE` / `1370 - SEPA Clearing - MOE` — Zahlungsabwicklung
+- `1000 - Kassa - MOE` / `1100 - Bank - MOE` — Liquiditaet
+
+**Fehlerbehandlung:**
+
+- Exponential Backoff: 2^n × 60 s, max 3 Retries
+- Dead Letter: `finance_external_sync.status = 'failed'` nach Erschoepfung aller Retries
+- Alert-E-Mail an `finanzen@menschlichkeit-oesterreich.at` bei Reconciliation-Failures
+  **MCP Tools:** Filesystem, GitHub, PostgreSQL, Brave Search

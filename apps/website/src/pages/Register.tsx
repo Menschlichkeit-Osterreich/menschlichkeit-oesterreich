@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '@/constants/api';
 import { STORAGE_KEYS } from '@/constants/storage';
-import { buildPortalUrl } from '../utils/runtimeHost';
+import { PUBLIC_PORTAL_ENTRY_PATH } from '../utils/runtimeHost';
 export default function Register() {
   const _navigate = useNavigate();
   const [form, setForm] = useState({
@@ -57,7 +57,7 @@ export default function Register() {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.detail || 'Registrierung fehlgeschlagen');
       sessionStorage.removeItem(STORAGE_KEYS.authToken);
-      window.location.href = buildPortalUrl('/login');
+      window.location.href = PUBLIC_PORTAL_ENTRY_PATH;
     } catch (err: any) {
       setError(err.message || 'Registrierung fehlgeschlagen');
     } finally {

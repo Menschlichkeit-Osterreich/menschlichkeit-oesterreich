@@ -40,6 +40,7 @@ Legacy- und Mirror-Pfade wie `api.menschlichkeit-oesterreich.at/` oder `crm.mens
 
 - `README.md`
 - `README_DEPLOY.md`
+- `docs/README.md`
 - `SECURITY.md`
 - `apps/crm/README.md`
 - `reports/repository-live-stabilization-assessment-2026-03-31.md`

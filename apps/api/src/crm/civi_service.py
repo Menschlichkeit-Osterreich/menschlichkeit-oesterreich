@@ -283,6 +283,14 @@ class CiviCRMService:
         })
         return result.get("values", [{}])[0]
 
+    async def update_contribution(self, contribution_id: int, values: Dict[str, Any]) -> bool:
+        """Aktualisiert eine bestehende Contribution."""
+        await self._request("Contribution", "update", {
+            "where": [["id", "=", contribution_id]],
+            "values": values,
+        })
+        return True
+
     async def get_total_donations_by_contact(self, contact_id: int) -> float:
         """Berechnet die Gesamtspenden eines Kontakts."""
         result = await self._request("Contribution", "get", {

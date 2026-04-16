@@ -25,6 +25,7 @@ export interface GameHudState {
   activeScenario: GameScenario;
   availableRoles: PlayerRole[];
   activeRole: PlayerRole;
+  audioMuted: boolean;
   completedMissionIds: string[];
   completedScenarioIds: string[];
   lastScenarioResult: ScenarioResultRecord | null;
@@ -44,6 +45,7 @@ export interface GameRuntime {
   reset(): void;
   setActiveRole(roleId: string): void;
   setActiveScenario(scenarioId: string): void;
+  setAudioMuted(audioMuted: boolean): void;
   dispose(): void;
 }
 
@@ -69,6 +71,7 @@ export const DEFAULT_HUD_STATE: GameHudState = {
   activeScenario: DEFAULT_ACTIVE_SCENARIO,
   availableRoles: DEFAULT_PLAYER_ROLES,
   activeRole: DEFAULT_ACTIVE_ROLE,
+  audioMuted: false,
   completedMissionIds: [],
   completedScenarioIds: [],
   lastScenarioResult: null,

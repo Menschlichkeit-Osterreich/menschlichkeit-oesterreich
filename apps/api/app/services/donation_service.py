@@ -7,6 +7,7 @@ from typing import Any
 
 from ..db import execute, fetchrow
 from .crm_service import crm_service
+from .finance_sync_service import finance_sync_service
 from .mail_service import mail_service
 from ._payment_helpers import _money, _resolve_contact_id
 
@@ -92,6 +93,10 @@ class DonationService:
                     int(contribution["id"]),
                     donation["id"],
                 )
+        try:
+            await finance_sync_service.enqueue_donation(donation)
+        except Exception as exc:
+            logger.warning("erpnext_donation_enqueue_failed | donation_id=%s | error=%s", donation.get("id"), exc)
         if donor_email and send_receipt_email:
             first_name, _, last_name = (donor_name or "").partition(" ")
             await mail_service.send_template(

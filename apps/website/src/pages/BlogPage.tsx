@@ -38,7 +38,7 @@ function formatDate(dateStr: string) {
 function ArticleCard({ article, featured = false }: { article: BlogArticle; featured?: boolean }) {
   const backgroundStyle = article.og_image
     ? {
-        backgroundImage: `linear-gradient(135deg, rgba(27, 73, 101, 0.84), rgba(212, 97, 30, 0.72)), url(${article.og_image})`,
+        backgroundImage: `linear-gradient(135deg, rgba(20, 50, 69, 0.94), rgba(122, 50, 19, 0.84)), url(${article.og_image})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }
@@ -54,20 +54,20 @@ function ArticleCard({ article, featured = false }: { article: BlogArticle; feat
     >
       <div
         className={[
-          'flex items-end justify-between bg-[linear-gradient(135deg,#1B4965_0%,#255d81_45%,#D4611E_100%)] p-6 text-white',
+          'flex items-end justify-between bg-accent-900 p-6 text-white',
           featured ? 'min-h-[260px]' : 'min-h-[180px]',
         ].join(' ')}
         style={backgroundStyle}
       >
         <div>
-          <span className="inline-flex rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-white/90">
+          <span className="inline-flex rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-white">
             {article.kategorie}
           </span>
-          <div className="mt-4 max-w-xs text-sm text-white/80">
+          <div className="mt-4 max-w-xs text-sm text-white">
             {formatDate(article.created_at)}
           </div>
         </div>
-        <div className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90">
+        <div className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white">
           Beitrag
         </div>
       </div>
@@ -154,15 +154,17 @@ export default function BlogPage() {
       />
 
       <div className="space-y-8">
-        <section className="overflow-hidden rounded-[2rem] border border-secondary-200 bg-[linear-gradient(140deg,#1B4965_0%,#255d81_45%,#D4611E_100%)] px-7 py-8 text-white shadow-[0_28px_70px_rgba(27,73,101,0.18)] sm:px-10 sm:py-10">
+        <section
+          className="overflow-hidden rounded-[2rem] border border-secondary-200 bg-accent-900 px-7 py-8 text-white shadow-[0_28px_70px_rgba(27,73,101,0.18)] sm:px-10 sm:py-10"
+        >
           <div className="max-w-3xl">
-            <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-white/90">
+            <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-white">
               Redaktion & Einordnung
             </span>
             <h1 className="mt-5 font-display text-4xl font-bold tracking-tight sm:text-5xl">
               Blog und Neuigkeiten mit Haltung, Klarheit und Kontext.
             </h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-white/86 sm:text-lg">
+            <p className="mt-4 max-w-2xl text-base leading-7 text-white sm:text-lg">
               Hier bündeln wir Analysen, Berichte aus dem Vereinsalltag, Einordnungen zu aktuellen Entwicklungen und
               Hinweise auf Projekte, Veranstaltungen und Beteiligungsmöglichkeiten.
             </p>

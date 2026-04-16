@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { dashboardApi } from '../../services/dashboard-api';
+import { useEffect, useRef, useState } from 'react';
 import { useAccessibleDialog } from '../../hooks/useAccessibleDialog';
+import { dashboardApi } from '../../services/dashboard-api';
 
 interface Event {
   id: number;
@@ -13,32 +13,102 @@ interface Event {
   type: 'workshop' | 'meeting' | 'webinar' | 'social';
 }
 
-const TYPE_LABELS: Record<string, string> = {
+type EventFilter = 'all' | 'upcoming' | 'past';
+
+type ApiEvent = {
+  id?: number;
+  title?: string;
+  titel?: string;
+  date?: string;
+  datum?: string;
+  location?: string;
+  ort?: string;
+  capacity?: number;
+  kapazitaet?: number;
+  registered?: number;
+  anmeldungen?: number;
+  status?: string;
+  type?: string;
+  typ?: string;
+};
+
+const TYPE_LABELS: Record<Event['type'], string> = {
   workshop: 'Workshop',
   meeting: 'Versammlung',
   webinar: 'Webinar',
   social: 'Social',
 };
 
-const STATUS_COLORS: Record<string, string> = {
+const STATUS_COLORS: Record<Event['status'], string> = {
   upcoming: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
   active: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300',
   past: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400',
   cancelled: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
 };
 
-const STATUS_LABELS: Record<string, string> = {
+const STATUS_LABELS: Record<Event['status'], string> = {
   upcoming: 'Geplant',
   active: 'Aktiv',
   past: 'Vergangen',
   cancelled: 'Abgesagt',
 };
 
+function normalizeEventType(value: string | undefined): Event['type'] {
+  if (value === 'meeting' || value === 'webinar' || value === 'social') {
+    return value;
+  }
+  return 'workshop';
+}
+
+function normalizeEventStatus(value: string | undefined): Event['status'] {
+  if (value === 'active' || value === 'past' || value === 'cancelled') {
+    return value;
+  }
+  return 'upcoming';
+}
+
+function mapApiEvent(event: ApiEvent): Event {
+  return {
+    id: Number(event.id ?? 0),
+    title: event.title || event.titel || '',
+    date: event.date || event.datum || '',
+    location: event.location || event.ort || '',
+    capacity: Number(event.capacity ?? event.kapazitaet ?? 50),
+    registered: Number(event.registered ?? event.anmeldungen ?? 0),
+    status: normalizeEventStatus(event.status),
+    type: normalizeEventType(event.type || event.typ),
+  };
+}
+
+function getFilteredEvents(events: Event[], filter: EventFilter): Event[] {
+  if (filter === 'all') {
+    return events;
+  }
+  if (filter === 'upcoming') {
+    return events.filter(event => event.status === 'upcoming' || event.status === 'active');
+  }
+  return events.filter(event => event.status === 'past' || event.status === 'cancelled');
+}
+
+function formatEventDate(dateValue: string): string {
+  const parsedDate = new Date(dateValue);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return 'Datum offen';
+  }
+
+  return parsedDate.toLocaleDateString('de-AT', {
+    weekday: 'short',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+}
+
 export default function AdminEvents() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<'all' | 'upcoming' | 'past'>('upcoming');
+  const [filter, setFilter] = useState<EventFilter>('upcoming');
   const [showModal, setShowModal] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
@@ -68,17 +138,8 @@ export default function AdminEvents() {
     setError(null);
     try {
       const res = await dashboardApi.getEvents();
-      const mapped = (res.data || []).map((e: any) => ({
-        id: e.id,
-        title: e.title || e.titel || '',
-        date: e.date || e.datum || '',
-        location: e.location || e.ort || '',
-        capacity: e.capacity || e.kapazitaet || 50,
-        registered: e.registered || e.anmeldungen || 0,
-        status: e.status || 'upcoming',
-        type: e.type || e.typ || 'workshop',
-      }));
-      setEvents(mapped);
+      const rawEvents = Array.isArray(res.data) ? (res.data as ApiEvent[]) : [];
+      setEvents(rawEvents.map(mapApiEvent));
     } catch {
       setEvents([]);
       setError('Verbindung zur API nicht möglich – es werden keine Eventdaten angezeigt.');
@@ -107,10 +168,14 @@ export default function AdminEvents() {
     setCreating(true);
     setCreateError(null);
     try {
+      const requestedCapacity = Number(capacityRef.current?.value);
+      const safeCapacity =
+        Number.isFinite(requestedCapacity) && requestedCapacity > 0 ? requestedCapacity : 50;
+
       await dashboardApi.createEvent({
         titel: title,
         start_datum: date,
-        max_teilnehmer: Number(capacityRef.current?.value) || 50,
+        max_teilnehmer: safeCapacity,
         ort: locationRef.current?.value || '',
         kategorie: typeRef.current?.value || 'Workshop',
         beschreibung,
@@ -126,13 +191,7 @@ export default function AdminEvents() {
     }
   }
 
-  const filtered = events.filter(e =>
-    filter === 'all'
-      ? true
-      : filter === 'upcoming'
-        ? e.status === 'upcoming' || e.status === 'active'
-        : e.status === 'past' || e.status === 'cancelled'
-  );
+  const filtered = getFilteredEvents(events, filter);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8">
@@ -179,6 +238,7 @@ export default function AdminEvents() {
         {(['all', 'upcoming', 'past'] as const).map(f => (
           <button
             key={f}
+            type="button"
             onClick={() => setFilter(f)}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               filter === f
@@ -223,14 +283,7 @@ export default function AdminEvents() {
                     {event.title}
                   </h3>
                   <div className="flex flex-wrap gap-3 mt-2 text-sm text-gray-500 dark:text-gray-400">
-                    <span>
-                      {new Date(event.date).toLocaleDateString('de-AT', {
-                        weekday: 'short',
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                      })}
-                    </span>
+                    <span>{formatEventDate(event.date)}</span>
                     <span>{event.location}</span>
                     <span>
                       {event.registered}/{event.capacity} Teilnehmer
@@ -241,7 +294,7 @@ export default function AdminEvents() {
                       <div
                         className={`h-1.5 rounded-full ${event.registered >= event.capacity ? 'bg-red-500' : 'bg-blue-500'}`}
                         style={{
-                          width: `${Math.min((event.registered / event.capacity) * 100, 100)}%`,
+                          width: `${Math.min((event.registered / Math.max(event.capacity, 1)) * 100, 100)}%`,
                         }}
                       />
                     </div>
@@ -253,10 +306,16 @@ export default function AdminEvents() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button className="px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors">
+                  <button
+                    type="button"
+                    className="px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition-colors"
+                  >
                     Bearbeiten
                   </button>
-                  <button className="px-3 py-1.5 text-sm bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-lg transition-colors">
+                  <button
+                    type="button"
+                    className="px-3 py-1.5 text-sm bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-lg transition-colors"
+                  >
                     Teilnehmer
                   </button>
                 </div>

@@ -26,26 +26,6 @@
       "replacement": null
     },
     {
-      "id": "janitor.agent",
-      "kind": "agent",
-      "status": "deprecated",
-      "owner": "copilot",
-      "path": ".github/agents/janitor.agent.md",
-      "role": "developer",
-      "sourceOfTruth": ".github/agents/janitor.agent.md",
-      "replacement": ".github/agents/task-planner.agent.md"
-    },
-    {
-      "id": "laravel-expert-agent.agent",
-      "kind": "agent",
-      "status": "deprecated",
-      "owner": "copilot",
-      "path": ".github/agents/laravel-expert-agent.agent.md",
-      "role": "developer",
-      "sourceOfTruth": ".github/agents/laravel-expert-agent.agent.md",
-      "replacement": ".github/agents/task-planner.agent.md"
-    },
-    {
       "id": "mentor.agent",
       "kind": "agent",
       "status": "active",
@@ -56,36 +36,6 @@
       "replacement": null
     },
     {
-      "id": "php-mcp-expert.agent",
-      "kind": "agent",
-      "status": "vendor",
-      "owner": "copilot",
-      "path": ".github/agents/php-mcp-expert.agent.md",
-      "role": "developer",
-      "sourceOfTruth": ".github/agents/php-mcp-expert.agent.md",
-      "replacement": ".github/agents/task-planner.agent.md"
-    },
-    {
-      "id": "postgresql-dba.agent",
-      "kind": "agent",
-      "status": "vendor",
-      "owner": "copilot",
-      "path": ".github/agents/postgresql-dba.agent.md",
-      "role": "devops",
-      "sourceOfTruth": ".github/agents/postgresql-dba.agent.md",
-      "replacement": ".github/agents/devops-expert.agent.md"
-    },
-    {
-      "id": "python-mcp-expert.agent",
-      "kind": "agent",
-      "status": "vendor",
-      "owner": "copilot",
-      "path": ".github/agents/python-mcp-expert.agent.md",
-      "role": "developer",
-      "sourceOfTruth": ".github/agents/python-mcp-expert.agent.md",
-      "replacement": ".github/agents/task-planner.agent.md"
-    },
-    {
       "id": "task-planner.agent",
       "kind": "agent",
       "status": "active",
@@ -94,16 +44,6 @@
       "role": "architect",
       "sourceOfTruth": ".github/agents/task-planner.agent.md",
       "replacement": null
-    },
-    {
-      "id": "typescript-mcp-expert.agent",
-      "kind": "agent",
-      "status": "vendor",
-      "owner": "copilot",
-      "path": ".github/agents/typescript-mcp-expert.agent.md",
-      "role": "developer",
-      "sourceOfTruth": ".github/agents/typescript-mcp-expert.agent.md",
-      "replacement": ".github/agents/task-planner.agent.md"
     },
     {
       "id": "claude-ai-integration-architect",

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
-import { buildPortalUrl, buildPublicUrl, isPortalHost } from '../utils/runtimeHost';
+import { buildPublicUrl, isPortalHost, PUBLIC_PORTAL_ENTRY_PATH } from '../utils/runtimeHost';
 
 type LocalNavLinkProps = {
   to: string;
@@ -18,7 +18,7 @@ function LocalNavLink({ to, children, onClick }: LocalNavLinkProps) {
       to={to}
       onClick={onClick}
       className={[
-        'rounded-full px-3 py-2 text-sm font-medium transition-colors',
+        'rounded-full px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2',
         active
           ? 'bg-primary-50 text-primary-700'
           : 'text-secondary-700 hover:bg-secondary-50 hover:text-secondary-900',
@@ -39,7 +39,7 @@ function ExternalNavLink({ href, children, subtle = false }: ExternalNavLinkProp
   return (
     <a
       className={[
-        'rounded-full px-3 py-2 text-sm font-medium transition-colors',
+        'rounded-full px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2',
         subtle
           ? 'text-secondary-700 hover:bg-secondary-50 hover:text-secondary-900'
           : 'bg-primary-600 text-white hover:bg-primary-700',
@@ -63,7 +63,7 @@ function BrandLink({ href, label }: { href: string; label: string }) {
         className="h-10 w-10 rounded-full object-cover ring-2 ring-primary-100 transition-all"
       />
       <div className="hidden sm:block">
-        <span className="block text-xs font-medium uppercase tracking-wider text-secondary-400">
+        <span className="block text-xs font-medium uppercase tracking-wider text-secondary-600">
           Verein
         </span>
         <span className="block text-base font-bold leading-tight text-secondary-900">{label}</span>
@@ -72,11 +72,17 @@ function BrandLink({ href, label }: { href: string; label: string }) {
   );
 
   return href.startsWith('http') ? (
-    <a className="group flex items-center gap-3" href={href}>
+    <a
+      className="group flex items-center gap-3 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+      href={href}
+    >
       {content}
     </a>
   ) : (
-    <Link className="group flex items-center gap-3" to={href}>
+    <Link
+      className="group flex items-center gap-3 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+      to={href}
+    >
       {content}
     </Link>
   );
@@ -112,16 +118,16 @@ function PublicNavBar() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
-          <ExternalNavLink href={buildPortalUrl('/login')} subtle>
+          <LocalNavLink to={PUBLIC_PORTAL_ENTRY_PATH}>
             Portal-Login
-          </ExternalNavLink>
+          </LocalNavLink>
           <LocalNavLink to="/spenden">Spenden</LocalNavLink>
         </div>
 
         <button
           ref={mobileToggleRef}
           type="button"
-          className="rounded-lg p-2 text-secondary-700 hover:bg-secondary-50 md:hidden"
+          className="rounded-lg p-2 text-secondary-700 hover:bg-secondary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 md:hidden"
           onClick={() => setMobileOpen(value => !value)}
           aria-controls={mobileMenuId}
           aria-expanded={mobileOpen}
@@ -129,9 +135,19 @@ function PublicNavBar() {
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             {mobileOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7h16M4 12h16M4 17h16" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 7h16M4 12h16M4 17h16"
+              />
             )}
           </svg>
         </button>
@@ -146,24 +162,37 @@ function PublicNavBar() {
           <div className="flex flex-col gap-1">
             <Link
               ref={firstMobileLinkRef}
-              className="rounded-full px-3 py-2 text-sm font-medium text-secondary-700 hover:bg-secondary-50 hover:text-secondary-900"
+              className="rounded-full px-3 py-2 text-sm font-medium text-secondary-700 hover:bg-secondary-50 hover:text-secondary-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
               to="/"
               onClick={() => setMobileOpen(false)}
             >
               Start
             </Link>
-            <LocalNavLink onClick={() => setMobileOpen(false)} to="/themen">Themen</LocalNavLink>
-            <LocalNavLink onClick={() => setMobileOpen(false)} to="/veranstaltungen">Veranstaltungen</LocalNavLink>
-            <LocalNavLink onClick={() => setMobileOpen(false)} to="/blog">Blog</LocalNavLink>
-            <LocalNavLink onClick={() => setMobileOpen(false)} to="/forum">Forum</LocalNavLink>
-            <LocalNavLink onClick={() => setMobileOpen(false)} to="/spiel">Demokratiespiel</LocalNavLink>
-            <LocalNavLink onClick={() => setMobileOpen(false)} to="/mitglied-werden">Mitglied werden</LocalNavLink>
-            <a
-              className="rounded-full px-3 py-2 text-sm font-medium text-primary-700 hover:bg-primary-50"
-              href={buildPortalUrl('/login')}
+            <LocalNavLink onClick={() => setMobileOpen(false)} to="/themen">
+              Themen
+            </LocalNavLink>
+            <LocalNavLink onClick={() => setMobileOpen(false)} to="/veranstaltungen">
+              Veranstaltungen
+            </LocalNavLink>
+            <LocalNavLink onClick={() => setMobileOpen(false)} to="/blog">
+              Blog
+            </LocalNavLink>
+            <LocalNavLink onClick={() => setMobileOpen(false)} to="/forum">
+              Forum
+            </LocalNavLink>
+            <LocalNavLink onClick={() => setMobileOpen(false)} to="/spiel">
+              Demokratiespiel
+            </LocalNavLink>
+            <LocalNavLink onClick={() => setMobileOpen(false)} to="/mitglied-werden">
+              Mitglied werden
+            </LocalNavLink>
+            <Link
+              className="rounded-full px-3 py-2 text-sm font-medium text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 hover:bg-primary-50"
+              to={PUBLIC_PORTAL_ENTRY_PATH}
+              onClick={() => setMobileOpen(false)}
             >
               Portal-Login
-            </a>
+            </Link>
           </div>
         </nav>
       )}
@@ -212,7 +241,7 @@ function PortalNavBar() {
           </ExternalNavLink>
           {token ? (
             <button
-              className="rounded-full bg-primary-600 px-3 py-2 text-sm font-semibold text-white hover:bg-primary-700"
+              className="rounded-full bg-primary-600 px-3 py-2 text-sm font-semibold text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 hover:bg-primary-700"
               onClick={handleLogout}
             >
               Logout
@@ -225,7 +254,7 @@ function PortalNavBar() {
         <button
           ref={mobileToggleRef}
           type="button"
-          className="rounded-lg p-2 text-secondary-700 hover:bg-secondary-50 md:hidden"
+          className="rounded-lg p-2 text-secondary-700 hover:bg-secondary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 md:hidden"
           onClick={() => setMobileOpen(value => !value)}
           aria-controls={mobileMenuId}
           aria-expanded={mobileOpen}
@@ -233,9 +262,19 @@ function PortalNavBar() {
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             {mobileOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7h16M4 12h16M4 17h16" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 7h16M4 12h16M4 17h16"
+              />
             )}
           </svg>
         </button>
@@ -250,31 +289,43 @@ function PortalNavBar() {
           <div className="flex flex-col gap-1">
             <Link
               ref={firstMobileLinkRef}
-              className="rounded-full px-3 py-2 text-sm font-medium text-secondary-700 hover:bg-secondary-50 hover:text-secondary-900"
+              className="rounded-full px-3 py-2 text-sm font-medium text-secondary-700 hover:bg-secondary-50 hover:text-secondary-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
               to="/member"
               onClick={() => setMobileOpen(false)}
             >
               Profil
             </Link>
-            <LocalNavLink onClick={() => setMobileOpen(false)} to="/member/dashboard">Übersicht</LocalNavLink>
-            <LocalNavLink onClick={() => setMobileOpen(false)} to="/member/rechnungen">Rechnungen</LocalNavLink>
-            <LocalNavLink onClick={() => setMobileOpen(false)} to="/member/newsletter">Newsletter</LocalNavLink>
-            <LocalNavLink onClick={() => setMobileOpen(false)} to="/member/datenschutz">Datenschutz</LocalNavLink>
+            <LocalNavLink onClick={() => setMobileOpen(false)} to="/member/dashboard">
+              Übersicht
+            </LocalNavLink>
+            <LocalNavLink onClick={() => setMobileOpen(false)} to="/member/rechnungen">
+              Rechnungen
+            </LocalNavLink>
+            <LocalNavLink onClick={() => setMobileOpen(false)} to="/member/newsletter">
+              Newsletter
+            </LocalNavLink>
+            <LocalNavLink onClick={() => setMobileOpen(false)} to="/member/datenschutz">
+              Datenschutz
+            </LocalNavLink>
             {hasBackofficeAccess && (
               <>
-                <LocalNavLink onClick={() => setMobileOpen(false)} to="/admin">Backoffice</LocalNavLink>
-                <LocalNavLink onClick={() => setMobileOpen(false)} to="/admin/community">Community</LocalNavLink>
+                <LocalNavLink onClick={() => setMobileOpen(false)} to="/admin">
+                  Backoffice
+                </LocalNavLink>
+                <LocalNavLink onClick={() => setMobileOpen(false)} to="/admin/community">
+                  Community
+                </LocalNavLink>
               </>
             )}
             <a
-              className="rounded-full px-3 py-2 text-sm font-medium text-secondary-700 hover:bg-secondary-50"
+              className="rounded-full px-3 py-2 text-sm font-medium text-secondary-700 hover:bg-secondary-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
               href={buildPublicUrl('/')}
             >
               Zur Website
             </a>
             {token && (
               <button
-                className="rounded-full px-3 py-2 text-left text-sm font-medium text-primary-700 hover:bg-primary-50"
+                className="rounded-full px-3 py-2 text-left text-sm font-medium text-primary-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 hover:bg-primary-50"
                 onClick={handleLogout}
               >
                 Logout

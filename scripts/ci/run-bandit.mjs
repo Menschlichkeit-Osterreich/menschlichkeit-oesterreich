@@ -6,11 +6,11 @@ import { resolve } from 'node:path';
 const REPORTS_DIR = resolve(process.cwd(), 'quality-reports');
 const OUTPUT_JSON = resolve(REPORTS_DIR, 'bandit-security.json');
 
-function run(cmd, args = []) {
+function run(cmd, args = [], okExitCodes = [0]) {
   return new Promise((resolveOk, reject) => {
     const p = spawn(cmd, args, { stdio: 'inherit', shell: false });
     p.on('error', reject);
-    p.on('exit', code => (code === 0 ? resolveOk(0) : reject(new Error(`${cmd} exited ${code}`))));
+    p.on('exit', code => (okExitCodes.includes(code) ? resolveOk(code) : reject(new Error(`${cmd} exited ${code}`))));
   });
 }
 
@@ -28,11 +28,12 @@ async function main() {
       '-r',
       'scripts/',
       'enterprise-upgrade/scripts/',
+      'apps/api/',
       '-f',
       'json',
       '-o',
       OUTPUT_JSON,
-    ]);
+    ], [0, 1]);
   } catch (e) {
     console.warn('Bandit nicht verfügbar, schreibe leeren Report:', e.message);
     writeEmpty();

@@ -1,6 +1,6 @@
 // Vitest Configuration
-import { defineConfig } from 'vitest/config';
 import { resolve } from 'path';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
@@ -32,6 +32,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      '@/game': resolve(__dirname, './apps/babylon-game/src/game'),
       '@': resolve(__dirname, './'),
       '@web': resolve(__dirname, './web'),
       '@games': resolve(__dirname, './web/games'),

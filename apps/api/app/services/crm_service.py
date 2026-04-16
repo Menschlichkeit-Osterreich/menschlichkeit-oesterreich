@@ -168,6 +168,20 @@ class CrmFacade:
         finally:
             await client.close()
 
+    async def update_contribution(self, *, contribution_id: int, values: dict[str, Any]) -> bool:
+        client = self._client()
+        if client is None:
+            logger.info("crm_disabled | action=update_contribution | contribution_id=%s", contribution_id)
+            return False
+        try:
+            await client.update_contribution(contribution_id, values)
+            return True
+        except Exception as exc:
+            logger.warning("crm_update_contribution_failed | contribution_id=%s | error=%s", contribution_id, exc)
+            return False
+        finally:
+            await client.close()
+
     async def set_newsletter_subscription(self, *, contact_id: int, subscribe: bool) -> bool:
         client = self._client()
         if client is None:

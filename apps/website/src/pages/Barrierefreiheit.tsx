@@ -71,6 +71,10 @@ export default function Barrierefreiheit() {
             Zusätzliche Komfortfunktionen sind willkommen, ersetzen aber keine saubere
             Grundumsetzung.
           </li>
+          <li>
+            Ein mögliches Accessibility-Overlay wäre höchstens eine Zusatzfunktion und keine
+            Hauptlösung für Barrierefreiheit.
+          </li>
         </ul>
       </section>
     </div>

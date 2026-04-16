@@ -1,69 +1,71 @@
-import React from 'react';
+import { lazy } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useAuth } from './auth/AuthContext';
 import CrossHostRedirect from './components/CrossHostRedirect';
+import AuthLayout from './layouts/AuthLayout';
+import DashboardLayout from './layouts/DashboardLayout';
+import PublicLayout from './layouts/PublicLayout';
+import AdminRoute from './routes/AdminRoute';
+import ProtectedRoute from './routes/ProtectedRoute';
 import {
+  buildPortalProbeUrl,
   buildPortalUrl,
   buildPublicUrl,
   getRuntimeHostVariant,
   mapLegacyPortalPath,
+  PUBLIC_PORTAL_ENTRY_PATH,
 } from './utils/runtimeHost';
-import ProtectedRoute from './routes/ProtectedRoute';
-import AdminRoute from './routes/AdminRoute';
-import PublicLayout from './layouts/PublicLayout';
-import AuthLayout from './layouts/AuthLayout';
-import DashboardLayout from './layouts/DashboardLayout';
 
-import Home from './pages/Home';
-import UeberUns from './pages/UeberUns';
-import Statuten from './pages/Statuten';
-import Beitragsordnung from './pages/Beitragsordnung';
-import Veranstaltungen from './pages/Veranstaltungen';
-import Bildung from './pages/Bildung';
-import Materialien from './pages/Materialien';
-import JoinPage from './pages/Join';
-import MembershipSuccessPage from './pages/MembershipSuccess';
-import DonatePage from './pages/Donate';
-import SuccessPage from './pages/Success';
-import KontaktPage from './pages/Kontakt';
-import ImpressumPage from './pages/Impressum';
-import DatenschutzPage from './pages/Datenschutz';
-import BarrierefreiheitPage from './pages/Barrierefreiheit';
-import SpielPage from './pages/Spiel';
-import ForumPage from './pages/ForumPage';
-import ForumThread from './pages/ForumThread';
-import BlogPage from './pages/BlogPage';
-import BlogArticle from './pages/BlogArticle';
-import MitmachenPage from './pages/Mitmachen';
-import NotFoundPage from './pages/NotFound';
-import Login from './pages/Login';
-import PasswordReset from './pages/PasswordReset';
-import TeamPage from './pages/Team';
-import TransparenzPage from './pages/Transparenz';
-import PressePage from './pages/Presse';
-import ThemenIndex from './pages/themen/ThemenIndex';
-import DemokratiePage from './pages/themen/Demokratie';
-import MenschenrechtePage from './pages/themen/Menschenrechte';
-import SozialeGerechtigkeitPage from './pages/themen/SozialeGerechtigkeit';
-import MemberArea from './pages/MemberArea';
-import MemberDashboard from './pages/MemberDashboard';
-import MemberOnboarding from './pages/MemberOnboarding';
-import MemberSepa from './pages/MemberSepa';
-import MemberBilling from './pages/MemberBilling';
-import MemberNewsletter from './pages/MemberNewsletter';
-import PrivacySettings from './pages/PrivacySettings';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import MemberManagement from './pages/MemberManagement';
-import BoardTreasurerDashboard from './pages/BoardTreasurerDashboard';
-import AdminQueuePage from './pages/AdminQueue';
-import FinanceDashboard from './pages/admin/FinanceDashboard';
-import AdminEvents from './pages/admin/AdminEvents';
-import AdminNewsletter from './pages/admin/AdminNewsletter';
-import AdminDSGVO from './pages/admin/AdminDSGVO';
-import AdminReports from './pages/admin/AdminReports';
-import AdminSettings from './pages/admin/AdminSettings';
-import AdminOpenClaw from './pages/admin/AdminOpenClaw';
-import AdminCommunity from './pages/admin/AdminCommunity';
+const Home = lazy(() => import('./pages/Home'));
+const UeberUns = lazy(() => import('./pages/UeberUns'));
+const Statuten = lazy(() => import('./pages/Statuten'));
+const Beitragsordnung = lazy(() => import('./pages/Beitragsordnung'));
+const Veranstaltungen = lazy(() => import('./pages/Veranstaltungen'));
+const Bildung = lazy(() => import('./pages/Bildung'));
+const Materialien = lazy(() => import('./pages/Materialien'));
+const JoinPage = lazy(() => import('./pages/Join'));
+const MembershipSuccessPage = lazy(() => import('./pages/MembershipSuccess'));
+const DonatePage = lazy(() => import('./pages/Donate'));
+const SuccessPage = lazy(() => import('./pages/Success'));
+const KontaktPage = lazy(() => import('./pages/Kontakt'));
+const ImpressumPage = lazy(() => import('./pages/Impressum'));
+const DatenschutzPage = lazy(() => import('./pages/Datenschutz'));
+const BarrierefreiheitPage = lazy(() => import('./pages/Barrierefreiheit'));
+const SpielPage = lazy(() => import('./pages/Spiel'));
+const ForumPage = lazy(() => import('./pages/ForumPage'));
+const ForumThread = lazy(() => import('./pages/ForumThread'));
+const BlogPage = lazy(() => import('./pages/BlogPage'));
+const BlogArticle = lazy(() => import('./pages/BlogArticle'));
+const MitmachenPage = lazy(() => import('./pages/Mitmachen'));
+const NotFoundPage = lazy(() => import('./pages/NotFound'));
+const Login = lazy(() => import('./pages/Login'));
+const PasswordReset = lazy(() => import('./pages/PasswordReset'));
+const TeamPage = lazy(() => import('./pages/Team'));
+const TransparenzPage = lazy(() => import('./pages/Transparenz'));
+const PressePage = lazy(() => import('./pages/Presse'));
+const ThemenIndex = lazy(() => import('./pages/themen/ThemenIndex'));
+const DemokratiePage = lazy(() => import('./pages/themen/Demokratie'));
+const MenschenrechtePage = lazy(() => import('./pages/themen/Menschenrechte'));
+const SozialeGerechtigkeitPage = lazy(() => import('./pages/themen/SozialeGerechtigkeit'));
+const MemberArea = lazy(() => import('./pages/MemberArea'));
+const MemberDashboard = lazy(() => import('./pages/MemberDashboard'));
+const MemberOnboarding = lazy(() => import('./pages/MemberOnboarding'));
+const MemberSepa = lazy(() => import('./pages/MemberSepa'));
+const MemberBilling = lazy(() => import('./pages/MemberBilling'));
+const MemberNewsletter = lazy(() => import('./pages/MemberNewsletter'));
+const PrivacySettings = lazy(() => import('./pages/PrivacySettings'));
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const MemberManagement = lazy(() => import('./pages/MemberManagement'));
+const BoardTreasurerDashboard = lazy(() => import('./pages/BoardTreasurerDashboard'));
+const AdminQueuePage = lazy(() => import('./pages/AdminQueue'));
+const FinanceDashboard = lazy(() => import('./pages/admin/FinanceDashboard'));
+const AdminEvents = lazy(() => import('./pages/admin/AdminEvents'));
+const AdminNewsletter = lazy(() => import('./pages/admin/AdminNewsletter'));
+const AdminDSGVO = lazy(() => import('./pages/admin/AdminDSGVO'));
+const AdminReports = lazy(() => import('./pages/admin/AdminReports'));
+const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
+const AdminOpenClaw = lazy(() => import('./pages/admin/AdminOpenClaw'));
+const AdminCommunity = lazy(() => import('./pages/admin/AdminCommunity'));
 
 function PortalEntryRoute() {
   const { token, hasBackofficeAccess } = useAuth();
@@ -73,11 +75,26 @@ function PortalEntryRoute() {
 function RedirectCurrentPathToPortal() {
   const location = useLocation();
   const target = `${mapLegacyPortalPath(location.pathname)}${location.search || ''}${location.hash || ''}`;
+  const isLoginEntry =
+    target === PUBLIC_PORTAL_ENTRY_PATH ||
+    target.startsWith('/passwort-vergessen') ||
+    target.startsWith('/passwort-reset');
   return (
     <CrossHostRedirect
       to={buildPortalUrl(target)}
-      title="Weiterleitung zum CRM-Portal"
-      description="Geschützte Bereiche werden zentral auf crm.menschlichkeit-oesterreich.at bereitgestellt."
+      title={isLoginEntry ? 'Weiter zum CRM-Portal' : 'Weiter zum geschützten Bereich'}
+      description={
+        isLoginEntry
+          ? 'Das Mitgliederportal wird zentral auf crm.menschlichkeit-oesterreich.at bereitgestellt.'
+          : 'Geschützte Bereiche werden zentral auf crm.menschlichkeit-oesterreich.at bereitgestellt.'
+      }
+      probeUrl={buildPortalProbeUrl()}
+      failureTitle="CRM-Portal derzeit nicht erreichbar"
+      failureDescription="Das CRM-Portal hat gerade nicht geantwortet. Sie bleiben auf der öffentlichen Website und können es später erneut versuchen oder uns direkt kontaktieren."
+      fallbackActions={[
+        { href: buildPublicUrl('/kontakt'), label: 'Kontakt aufnehmen' },
+        { href: buildPublicUrl('/mitglied-werden'), label: 'Mitglied werden' },
+      ]}
     />
   );
 }

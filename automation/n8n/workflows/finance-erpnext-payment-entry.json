@@ -1,0 +1,81 @@
+{
+  "name": "Finance: ERPNext Payment Entry",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "finance-erpnext-payment-entry",
+        "options": {}
+      },
+      "id": "payment-webhook",
+      "name": "Webhook: Payment Data",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const body = $input.first().json.body || {};\nif (!body.invoice_id || !body.payment_data) {\n  throw new Error('invoice_id und payment_data sind erforderlich');\n}\nreturn [{ json: body }];"
+      },
+      "id": "validate-payment",
+      "name": "Validate Payment Payload",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ `${$env.API_BASE_URL}/finance/invoices/${$json.invoice_id}/payment` }}",
+        "method": "POST",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify($json.payment_data) }}",
+        "options": {}
+      },
+      "id": "mark-paid",
+      "name": "API: Mark Invoice Paid",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [700, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-backend-auth",
+          "name": "API Backend Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.API_BASE_URL }}/api/internal/finance/erpnext/process",
+        "method": "POST",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ limit: 10 }) }}",
+        "options": {}
+      },
+      "id": "process-sync-after-payment",
+      "name": "API: Process ERPNext Queue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [950, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-backend-auth",
+          "name": "API Backend Auth"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "payment-webhook": {
+      "main": [[{ "node": "Validate Payment Payload", "type": "main", "index": 0 }]]
+    },
+    "validate-payment": {
+      "main": [[{ "node": "API: Mark Invoice Paid", "type": "main", "index": 0 }]]
+    },
+    "mark-paid": {
+      "main": [[{ "node": "API: Process ERPNext Queue", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": ["finance", "erpnext", "payment", "automation"]
+}

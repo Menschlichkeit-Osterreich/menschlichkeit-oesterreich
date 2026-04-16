@@ -42,6 +42,7 @@ export interface ScenarioResultRecord {
 export interface PlayerProgressProfile {
   activeRoleId: string;
   activeScenarioId: string;
+  audioMuted: boolean;
   completedMissionIds: string[];
   completedScenarioIds: string[];
   lastMissionSnapshot: MissionProgressSnapshot | null;
@@ -54,7 +55,7 @@ export interface GameBootstrapData {
   progress: PlayerProgressProfile;
 }
 
-export type GameDataSource = 'local' | 'api-stub';
+export type GameDataSource = 'local' | 'api' | 'api-stub';
 
 export interface GameDataAdapterConfig {
   source: GameDataSource;
@@ -68,6 +69,7 @@ export interface GameDataAdapter {
   saveScenarioResult(result: ScenarioResultRecord): Promise<void>;
   setActiveRole(roleId: string): Promise<void>;
   setActiveScenario(scenarioId: string): Promise<void>;
+  setAudioMuted(audioMuted: boolean): Promise<void>;
 }
 
 export const DEFAULT_PLAYER_ROLES: PlayerRole[] = [
@@ -89,11 +91,22 @@ export const DEFAULT_PLAYER_ROLES: PlayerRole[] = [
     timeBonusSeconds: 8,
     interactionRadiusMultiplier: 1.25,
   },
+  {
+    id: 'vermittler',
+    title: 'Vermittler*in',
+    description: 'Schafft Raum für Verständigung zwischen unterschiedlichen Perspektiven.',
+    specialty:
+      'Größere Interaktionsreichweite und zusätzlicher Zeitpuffer für schwierige Gespräche.',
+    moveSpeedMultiplier: 0.86,
+    timeBonusSeconds: 15,
+    interactionRadiusMultiplier: 1.5,
+  },
 ];
 
 export const DEFAULT_PROGRESS_PROFILE: PlayerProgressProfile = {
   activeRoleId: DEFAULT_PLAYER_ROLES[0]?.id ?? 'runner',
   activeScenarioId: DEFAULT_ACTIVE_SCENARIO.id,
+  audioMuted: false,
   completedMissionIds: [],
   completedScenarioIds: [],
   lastMissionSnapshot: null,

@@ -104,39 +104,36 @@ const STEPS = ['Persönliche Daten', 'Mitgliedschaft', 'Zahlung', 'Bestätigung'
 function ProgressBar({ current }: { current: number }) {
   return (
     <nav aria-label="Antragsschritte" className="mb-6">
-      <ol className="flex items-center gap-0">
+      <p className="sr-only" aria-live="polite">
+        Schritt {current + 1} von {STEPS.length}: {STEPS[current]}
+      </p>
+      <ol className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         {STEPS.map((label, i) => {
           const done = i < current;
           const active = i === current;
           return (
-            <React.Fragment key={label}>
-              <li className="flex flex-col items-center flex-1">
+            <li key={label} className="flex flex-col items-center">
+              <div className="flex min-h-[3.5rem] flex-col items-center">
                 <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-colors
+                  className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-bold transition-colors
                     ${
                       done
                         ? 'bg-primary-500 border-primary-500 text-white'
                         : active
                           ? 'bg-white border-primary-500 text-primary-600'
-                          : 'bg-white border-secondary-300 text-secondary-400'
+                          : 'bg-secondary-50 border-secondary-400 text-secondary-700'
                     }`}
                   aria-current={active ? 'step' : undefined}
                 >
                   {done ? '✓' : i + 1}
                 </div>
                 <span
-                  className={`mt-1 text-xs text-center leading-tight hidden sm:block
-                  ${active ? 'font-semibold text-primary-600' : 'text-secondary-500'}`}
+                  className={`mt-2 text-center text-xs leading-tight ${active ? 'font-semibold text-primary-700' : 'text-secondary-600'}`}
                 >
                   {label}
                 </span>
-              </li>
-              {i < STEPS.length - 1 && (
-                <div
-                  className={`flex-1 h-0.5 mx-1 transition-colors ${done ? 'bg-primary-500' : 'bg-secondary-200'}`}
-                />
-              )}
-            </React.Fragment>
+              </div>
+            </li>
           );
         })}
       </ol>
@@ -161,14 +158,14 @@ function Step1({
       <h2 className="text-lg font-semibold">Persönliche Daten</h2>
       <div className="grid sm:grid-cols-2 gap-3">
         <Input
-          label="Vorname *"
+          label="Vorname"
           value={data.firstName}
           onChange={e => set({ firstName: e.target.value })}
           required
           autoComplete="given-name"
         />
         <Input
-          label="Nachname *"
+          label="Nachname"
           value={data.lastName}
           onChange={e => set({ lastName: e.target.value })}
           required
@@ -177,7 +174,7 @@ function Step1({
       </div>
       <Input
         type="email"
-        label="E-Mail-Adresse *"
+        label="E-Mail-Adresse"
         value={data.email}
         onChange={e => set({ email: e.target.value })}
         required
@@ -200,7 +197,10 @@ function Step1({
         value={data.company}
         onChange={e => set({ company: e.target.value })}
       />
-      <p className="text-xs text-secondary-500">* Pflichtfelder</p>
+      <p className="text-xs text-secondary-700">
+        <span aria-hidden="true" className="font-semibold text-error-700">*</span>{' '}
+        Pflichtfelder
+      </p>
       <div className="flex justify-end pt-2">
         <Button type="button" disabled={!valid} onClick={onNext}>
           Weiter →
@@ -229,7 +229,11 @@ function Step2({
       <h2 className="text-lg font-semibold">Mitgliedschaftskategorie</h2>
 
       <fieldset className="space-y-2">
-        <legend className="text-sm font-medium text-secondary-700">Mitgliedsart *</legend>
+        <legend className="text-sm font-medium text-secondary-700">
+          Mitgliedsart{' '}
+          <span aria-hidden="true" className="font-semibold text-error-700">*</span>
+          <span className="sr-only">Pflichtfeld</span>
+        </legend>
         {(Object.entries(MEMBERSHIP_LABELS) as [MembershipType, string][]).map(([key, label]) => (
           <label
             key={key}
@@ -253,7 +257,11 @@ function Step2({
       </fieldset>
 
       <label className="block">
-        <span className="text-sm font-medium text-secondary-700">Beitragskategorie *</span>
+        <span className="text-sm font-medium text-secondary-700">
+          Beitragskategorie{' '}
+          <span aria-hidden="true" className="font-semibold text-error-700">*</span>
+          <span className="sr-only">Pflichtfeld</span>
+        </span>
         <select
           className="mt-1 w-full rounded-lg border border-secondary-200 p-2.5 text-sm"
           value={data.category}
@@ -302,7 +310,11 @@ function Step3({
       <h2 className="text-lg font-semibold">Zahlungsweise</h2>
 
       <fieldset className="space-y-2">
-        <legend className="text-sm font-medium text-secondary-700">Zahlungsart wählen *</legend>
+        <legend className="text-sm font-medium text-secondary-700">
+          Zahlungsart wählen{' '}
+          <span aria-hidden="true" className="font-semibold text-error-700">*</span>
+          <span className="sr-only">Pflichtfeld</span>
+        </legend>
 
         <label
           className={`flex items-center gap-3 rounded-lg border p-3 cursor-pointer transition-colors
@@ -466,6 +478,7 @@ function Step4({
           <label key={key} className="flex items-start gap-2 text-sm cursor-pointer">
             <input
               type="checkbox"
+              name={key}
               className="mt-0.5"
               checked={data[key as keyof FormData] as boolean}
               onChange={e => set({ [key]: e.target.checked })}
@@ -477,6 +490,7 @@ function Step4({
         <label className="flex items-start gap-2 text-sm cursor-pointer text-secondary-600">
           <input
             type="checkbox"
+            name="newsletterOptIn"
             className="mt-0.5"
             checked={data.newsletterOptIn}
             onChange={e => set({ newsletterOptIn: e.target.checked })}
@@ -484,7 +498,7 @@ function Step4({
           <span>Ich möchte den Newsletter von Menschlichkeit Österreich erhalten. (optional)</span>
         </label>
 
-        <p className="text-xs text-secondary-400 pt-1">
+        <p className="text-xs text-secondary-600 pt-1">
           Für den verbindlichen Wortlaut gelten die Statuten, die Beitragsordnung und die
           Datenschutzerklärung in der jeweils bereitgestellten Fassung.
         </p>

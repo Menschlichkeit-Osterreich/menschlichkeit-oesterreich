@@ -4,7 +4,7 @@ import { API_BASE_URL } from '@/constants/api';
 import { useAuth } from '../auth/AuthContext';
 import JsonLdBreadcrumb from '../components/seo/JsonLdBreadcrumb';
 import SeoHead from '../components/seo/SeoHead';
-import { buildPortalUrl } from '../utils/runtimeHost';
+import { PUBLIC_PORTAL_ENTRY_PATH } from '../utils/runtimeHost';
 
 interface ForumCategory {
   id: string;
@@ -176,16 +176,18 @@ export default function ForumPage() {
       />
 
       <div className="space-y-8">
-        <section className="overflow-hidden rounded-[2rem] border border-secondary-200 bg-[linear-gradient(140deg,#1B4965_0%,#255d81_46%,#D4611E_100%)] px-7 py-8 text-white shadow-[0_28px_70px_rgba(27,73,101,0.18)] sm:px-10 sm:py-10">
+        <section
+          className="overflow-hidden rounded-[2rem] border border-secondary-200 bg-accent-900 px-7 py-8 text-white shadow-[0_28px_70px_rgba(27,73,101,0.18)] sm:px-10 sm:py-10"
+        >
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
-              <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-white/90">
+              <span className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-white">
                 Community
               </span>
               <h1 className="mt-5 font-display text-4xl font-bold tracking-tight sm:text-5xl">
                 Forum für konstruktiven Austausch und gemeinsame Themenarbeit.
               </h1>
-              <p className="mt-4 max-w-2xl text-base leading-7 text-white/86 sm:text-lg">
+              <p className="mt-4 max-w-2xl text-base leading-7 text-white sm:text-lg">
                 Das Forum verbindet Diskussionen, Rückfragen, Veranstaltungsimpulse und Ideen aus der Community. Öffentliche
                 Startthemen bleiben sichtbar, neue Diskussionen werden über das Portal gestartet.
               </p>
@@ -202,12 +204,12 @@ export default function ForumPage() {
                   Neues Thema
                 </button>
               ) : (
-                <a
+                <Link
                   className="rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-secondary-950 transition-colors hover:bg-secondary-50"
-                  href={buildPortalUrl('/login')}
+                  to={PUBLIC_PORTAL_ENTRY_PATH}
                 >
                   Im Portal anmelden
-                </a>
+                </Link>
               )}
             </div>
           </div>

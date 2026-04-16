@@ -131,4 +131,3 @@ async def stripe_webhook(request: Request):
         signature_valid=True,
     )
     return {"success": True}
-

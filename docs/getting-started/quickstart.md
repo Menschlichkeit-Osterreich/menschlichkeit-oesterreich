@@ -1,6 +1,6 @@
 # Quickstart – Repo-Root und aktive Services
 
-Dies ist der schlanke Einstieg aus der Doku-Navigation. Die kanonische Betriebsanleitung liegt in [../QUICKSTART.md](../QUICKSTART.md).
+Dies ist der schlanke Einstieg aus der Doku-Navigation. Für den Gesamtüberblick siehe [Dokumentationsindex](../README.md) und für den operativen Deployvertrag [../../README_DEPLOY.md](../../README_DEPLOY.md).
 
 ## Kanonischer Repo-Root
 
@@ -37,6 +37,6 @@ npm run dev:api
 ## Betriebsvertrag
 
 - Produktionsdeploy: `.github/workflows/deploy-plesk.yml`
-- Deploy-Doku: `README_DEPLOY.md`
+- Deploy-Doku: `../../README_DEPLOY.md`
 - Health API: `/healthz` und `/readyz`
 - Legacy-Alias: `/health`

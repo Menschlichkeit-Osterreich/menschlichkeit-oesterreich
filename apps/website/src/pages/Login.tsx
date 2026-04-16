@@ -39,7 +39,7 @@ export default function LoginPage() {
       {/* Header */}
       <div className="mb-8">
         <h2 className="text-2xl font-bold text-secondary-900 mb-1">Willkommen zurück</h2>
-        <p className="text-secondary-500 text-sm">Melde dich mit deinem Mitgliedskonto an.</p>
+        <p className="text-secondary-700 text-sm">Melde dich mit deinem Mitgliedskonto an.</p>
       </div>
 
       {redirected && (
@@ -54,7 +54,7 @@ export default function LoginPage() {
         </Alert>
       )}
 
-      <form onSubmit={onSubmit} className="space-y-4" aria-busy={loading}>
+      <form onSubmit={onSubmit} className="space-y-4">
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-secondary-700 mb-1.5">
             E-Mail-Adresse
@@ -99,9 +99,8 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setShowPassword((v) => !v)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary-400 hover:text-secondary-600 transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-secondary-600 hover:text-secondary-700 transition-colors"
               aria-label={showPassword ? 'Passwort verstecken' : 'Passwort anzeigen'}
-              aria-pressed={showPassword}
             >
               {showPassword ? (
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -120,7 +119,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading || !email || !password}
-          aria-busy={loading}
+
           className="w-full py-3 px-4 rounded-xl bg-primary-600 text-white font-bold text-sm hover:bg-primary-700 active:bg-primary-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm hover:shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500 flex items-center justify-center gap-2"
         >
           {loading ? (
@@ -138,13 +137,13 @@ export default function LoginPage() {
       </form>
 
       <div className="mt-6 pt-6 border-t border-secondary-100">
-        <p className="text-sm text-secondary-500 text-center">
+        <p className="text-sm text-secondary-700 text-center">
           Noch kein Mitglied?{' '}
           <a href={buildPublicUrl('/mitglied-werden')} className="font-semibold text-primary-600 hover:text-primary-800 transition-colors">
             Jetzt Mitglied werden
           </a>
         </p>
-        <p className="mt-3 text-center text-xs text-secondary-400">
+        <p className="mt-3 text-center text-xs text-secondary-600">
           Support: <a className="hover:text-primary-700" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
         </p>
       </div>

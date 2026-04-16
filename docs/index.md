@@ -2,6 +2,8 @@
 
 **Kanonischer Einstiegspunkt für die Projektdokumentation.**
 
+Hinweis: Für Datei-Browser und GitHub-Ansichten verweist auch [README.md](README.md) auf diesen Index.
+
 Zielgruppen: Entwickler:innen, DevOps, Datenschutzbeauftragte, Maintainer.
 
 ---

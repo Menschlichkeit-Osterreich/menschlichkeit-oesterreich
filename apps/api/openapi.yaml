@@ -131,6 +131,46 @@ components:
         saldo_jahr_cents: { type: integer }
         offene_rechnungen: { type: integer }
         ueberfaellige_rechnungen: { type: integer }
+        source_system: { type: string }
+        erpnext_enabled: { type: boolean }
+
+    FinanceCockpit:
+      type: object
+      properties:
+        overview: { $ref: '#/components/schemas/FinanceOverview' }
+        sync:
+          type: object
+          properties:
+            pending: { type: integer }
+            processing: { type: integer }
+            failed: { type: integer }
+            success: { type: integer }
+            latest_success_at: { type: string, nullable: true }
+            erpnext_enabled: { type: boolean }
+            failures:
+              type: array
+              items: { type: object }
+        receivables:
+          type: array
+          items: { type: object }
+        payables:
+          type: array
+          items: { type: object }
+        bank_accounts:
+          type: array
+          items: { type: object }
+        payroll_runs:
+          type: array
+          items: { type: object }
+        assets:
+          type: array
+          items: { type: object }
+        expense_claims:
+          type: array
+          items: { type: object }
+        mapping:
+          type: object
+          additionalProperties: { type: string }
 
     KpisOverview:
       type: object
@@ -861,6 +901,90 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/FinanceOverview' }
+
+  /api/finance/cockpit:
+    get:
+      tags: [Finanzen]
+      summary: ERPNext-Finanzcockpit
+      responses:
+        '200':
+          description: Aggregiertes Finanzcockpit
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/FinanceCockpit' }
+
+  /api/finance/sync/health:
+    get:
+      tags: [Finanzen]
+      summary: ERPNext-Sync-Status
+      responses:
+        '200':
+          description: Queue-, Failure- und ERPNext-Status
+
+  /api/finance/sync/process:
+    post:
+      tags: [Finanzen]
+      summary: ERPNext-Sync-Queue verarbeiten
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20, minimum: 1, maximum: 100 }
+      responses:
+        '200':
+          description: Prozessierte Sync-Einträge
+
+  /api/finance/sync/requeue/{sync_id}:
+    post:
+      tags: [Finanzen]
+      summary: Sync-Eintrag erneut einreihen
+      parameters:
+        - name: sync_id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Sync neu eingereiht
+
+  /api/finance/payables:
+    post:
+      tags: [Finanzen]
+      summary: Eingangsrechnung / Ausgabe anlegen
+      responses:
+        '201':
+          description: Purchase Invoice in ERPNext angelegt
+
+  /api/finance/manual-journal:
+    post:
+      tags: [Finanzen]
+      summary: Manuelle Journalbuchung anlegen
+      responses:
+        '201':
+          description: Journal Entry in ERPNext angelegt
+
+  /api/finance/reports/catalog:
+    get:
+      tags: [Finanzen]
+      summary: Reportkatalog abrufen
+      responses:
+        '200':
+          description: Unterstützte Finance-Reports
+
+  /api/finance/reports/{report_id}:
+    get:
+      tags: [Finanzen]
+      summary: Reportdaten abrufen
+      parameters:
+        - name: report_id
+          in: path
+          required: true
+          schema: { type: string }
+        - name: format
+          in: query
+          schema: { type: string, enum: [json, csv], default: json }
+      responses:
+        '200':
+          description: Reportdaten als API-Payload
 
   /api/finance/invoices:
     get:

@@ -41,19 +41,78 @@ function applyMaterialColor(
 }
 
 export function applyScenarioEnvironmentTheme(scene: Scene, scenario: GameScenario) {
-  const isResonance = scenario.visualTheme === 'resonance';
-  scene.clearColor = isResonance ? new Color4(0.07, 0.05, 0.12, 1) : new Color4(0.05, 0.1, 0.14, 1);
+  const themeMap: Record<
+    GameScenario['visualTheme'],
+    {
+      clear: Color4;
+      fogDensity: number;
+      fogColor: Color3;
+      groundDiffuse: Color3;
+      groundEmissive: Color3;
+      wallDiffuse: Color3;
+      wallEmissive: Color3;
+    }
+  > = {
+    training: {
+      clear: new Color4(0.05, 0.1, 0.14, 1),
+      fogDensity: 0.004,
+      fogColor: new Color3(0.08, 0.14, 0.18),
+      groundDiffuse: new Color3(0.13, 0.22, 0.24),
+      groundEmissive: new Color3(0.02, 0.08, 0.09),
+      wallDiffuse: new Color3(0.24, 0.19, 0.26),
+      wallEmissive: new Color3(0.03, 0.03, 0.06),
+    },
+    resonance: {
+      clear: new Color4(0.07, 0.05, 0.12, 1),
+      fogDensity: 0.008,
+      fogColor: new Color3(0.16, 0.08, 0.22),
+      groundDiffuse: new Color3(0.18, 0.12, 0.24),
+      groundEmissive: new Color3(0.06, 0.02, 0.12),
+      wallDiffuse: new Color3(0.3, 0.16, 0.38),
+      wallEmissive: new Color3(0.08, 0.02, 0.12),
+    },
+    gehoor: {
+      clear: new Color4(0.03, 0.12, 0.14, 1),
+      fogDensity: 0.005,
+      fogColor: new Color3(0.05, 0.2, 0.22),
+      groundDiffuse: new Color3(0.08, 0.26, 0.24),
+      groundEmissive: new Color3(0.02, 0.1, 0.1),
+      wallDiffuse: new Color3(0.12, 0.36, 0.36),
+      wallEmissive: new Color3(0.03, 0.12, 0.12),
+    },
+    kompromiss: {
+      clear: new Color4(0.12, 0.09, 0.05, 1),
+      fogDensity: 0.0055,
+      fogColor: new Color3(0.24, 0.17, 0.09),
+      groundDiffuse: new Color3(0.29, 0.2, 0.11),
+      groundEmissive: new Color3(0.1, 0.06, 0.02),
+      wallDiffuse: new Color3(0.42, 0.28, 0.14),
+      wallEmissive: new Color3(0.13, 0.07, 0.03),
+    },
+    beschluss: {
+      clear: new Color4(0.12, 0.04, 0.08, 1),
+      fogDensity: 0.006,
+      fogColor: new Color3(0.24, 0.08, 0.14),
+      groundDiffuse: new Color3(0.28, 0.08, 0.16),
+      groundEmissive: new Color3(0.1, 0.03, 0.06),
+      wallDiffuse: new Color3(0.43, 0.12, 0.22),
+      wallEmissive: new Color3(0.14, 0.04, 0.08),
+    },
+  };
+
+  const theme = themeMap[scenario.visualTheme] ?? themeMap.training;
+  scene.clearColor = theme.clear;
   scene.fogMode = Scene.FOGMODE_EXP2;
-  scene.fogDensity = isResonance ? 0.008 : 0.004;
-  scene.fogColor = isResonance ? new Color3(0.16, 0.08, 0.22) : new Color3(0.08, 0.14, 0.18);
+  scene.fogDensity = theme.fogDensity;
+  scene.fogColor = theme.fogColor;
 
   applyMaterialColor(scene, 'arena-ground-material', {
-    diffuse: isResonance ? new Color3(0.18, 0.12, 0.24) : new Color3(0.13, 0.22, 0.24),
-    emissive: isResonance ? new Color3(0.06, 0.02, 0.12) : new Color3(0.02, 0.08, 0.09),
+    diffuse: theme.groundDiffuse,
+    emissive: theme.groundEmissive,
   });
   applyMaterialColor(scene, 'arena-wall-material', {
-    diffuse: isResonance ? new Color3(0.3, 0.16, 0.38) : new Color3(0.24, 0.19, 0.26),
-    emissive: isResonance ? new Color3(0.08, 0.02, 0.12) : new Color3(0.03, 0.03, 0.06),
+    diffuse: theme.wallDiffuse,
+    emissive: theme.wallEmissive,
   });
 }
 

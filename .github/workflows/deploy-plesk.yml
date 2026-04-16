@@ -44,7 +44,7 @@ env:
   GAMES_REMOTE_PATH: ${{ vars.PLESK_GAMES_PATH || 'subdomains/games/httpdocs' }}
   MAIN_DOMAIN: ${{ vars.MAIN_DOMAIN || 'menschlichkeit-oesterreich.at' }}
   NODE_VERSION: '22'
-  TARGET_SERVICE: ${{ github.event_name == 'push' && 'frontend' || github.event.inputs.service || 'all' }}
+  TARGET_SERVICE: ${{ github.event_name == 'push' && 'all' || github.event.inputs.service || 'all' }}
 
 jobs:
   # ============================================================
@@ -125,7 +125,7 @@ jobs:
 
       - name: TypeScript-Check
         working-directory: apps/website
-        run: npm run type-check || true
+        run: npm run type-check
 
       - name: Frontend bauen
         working-directory: apps/website
@@ -134,6 +134,16 @@ jobs:
           NODE_ENV: production
           VITE_APP_URL: 'https://${{ env.MAIN_DOMAIN }}'
           VITE_API_URL: 'https://api.${{ env.MAIN_DOMAIN }}'
+
+      - name: Public Route Smokes + Pa11y
+        working-directory: apps/website
+        run: |
+          npm run a11y:preview > /tmp/moe-website-preview.log 2>&1 &
+          PREVIEW_PID=$!
+          trap 'kill ${PREVIEW_PID}' EXIT
+          npx wait-on http://127.0.0.1:4173
+          npm run route:smoke
+          npm run a11y:test
 
       - name: Build-Größe ausgeben
         working-directory: apps/website
@@ -216,15 +226,21 @@ jobs:
     needs: [build-frontend, build-games, test]
     environment: production
     if: >-
-      github.event_name == 'workflow_dispatch' &&
+      (github.event_name == 'push' ||
+        (github.event_name == 'workflow_dispatch' &&
+          github.event.inputs.dry_run != 'true')) &&
       needs.build-frontend.result == 'success' &&
       needs.build-games.result == 'success' &&
-      needs.test.result == 'success' &&
-      github.event.inputs.dry_run != 'true'
+      needs.test.result == 'success'
 
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Node.js ${{ env.NODE_VERSION }} einrichten
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.2.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
 
       # ── SSH einrichten ──────────────────────────────────────
       - name: SSH-Agent starten
@@ -455,6 +471,38 @@ jobs:
           echo "Frontend HTTP: ${HTTP}"
           [[ "${HTTP}" =~ ^[23] ]] || { echo "✗ Frontend Healthcheck fehlgeschlagen."; exit 1; }
 
+      - name: Public Route Smoke — Live
+        if: >
+          always() && (
+            env.TARGET_SERVICE == 'all' ||
+            env.TARGET_SERVICE == 'frontend'
+          )
+        run: |
+          node apps/website/scripts/check-route-health.mjs \
+            "https://www.${{ env.MAIN_DOMAIN }}" \
+            / \
+            /kontakt \
+            /mitglied-werden \
+            /spenden \
+            /forum \
+            /spiel \
+            /login \
+            /barrierefreiheit
+
+      - name: Release Marker — Frontend
+        if: >
+          always() && (
+            env.TARGET_SERVICE == 'all' ||
+            env.TARGET_SERVICE == 'frontend'
+          )
+        run: |
+          MARKER=$(curl --silent --max-time 15 "https://www.${{ env.MAIN_DOMAIN }}/.deploy_release" || true)
+          echo "${MARKER}"
+          echo "${MARKER}" | grep -q "commit=${GITHUB_SHA::8}" || {
+            echo "✗ Frontend-Release-Marker zeigt nicht auf den erwarteten Commit.";
+            exit 1;
+          }
+
       - name: Healthcheck — API
         if: >
           always() && (
@@ -479,6 +527,32 @@ jobs:
             "https://crm.${{ env.MAIN_DOMAIN }}/")
           echo "CRM Portal HTTP: ${HTTP}"
           [[ "${HTTP}" =~ ^[23] ]] || { echo "✗ CRM-Portal Healthcheck fehlgeschlagen."; exit 1; }
+
+      - name: CRM Route Smoke — Live
+        if: >
+          always() && (
+            env.TARGET_SERVICE == 'all' ||
+            env.TARGET_SERVICE == 'crm'
+          )
+        run: |
+          node apps/website/scripts/check-route-health.mjs \
+            "https://crm.${{ env.MAIN_DOMAIN }}" \
+            / \
+            /login
+
+      - name: Release Marker — CRM
+        if: >
+          always() && (
+            env.TARGET_SERVICE == 'all' ||
+            env.TARGET_SERVICE == 'crm'
+          )
+        run: |
+          MARKER=$(curl --silent --max-time 15 "https://crm.${{ env.MAIN_DOMAIN }}/.deploy_release" || true)
+          echo "${MARKER}"
+          echo "${MARKER}" | grep -q "commit=${GITHUB_SHA::8}" || {
+            echo "✗ CRM-Release-Marker zeigt nicht auf den erwarteten Commit.";
+            exit 1;
+          }
 
       - name: Healthcheck — CRM-Native
         if: >
@@ -505,6 +579,17 @@ jobs:
             "https://games.${{ env.MAIN_DOMAIN }}/")
           echo "Games HTTP: ${HTTP}"
           [[ "${HTTP}" =~ ^[23] ]] || { echo "✗ Games Healthcheck fehlgeschlagen."; exit 1; }
+
+      - name: Games Route Smoke — Live
+        if: >
+          always() && (
+            env.TARGET_SERVICE == 'all' ||
+            env.TARGET_SERVICE == 'games'
+          )
+        run: |
+          node apps/website/scripts/check-route-health.mjs \
+            "https://games.${{ env.MAIN_DOMAIN }}" \
+            /
 
       # ── Deployment-Zusammenfassung ──────────────────────────
       - name: Deployment-Zusammenfassung

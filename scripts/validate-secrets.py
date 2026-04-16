@@ -205,7 +205,12 @@ PROFILES: dict[str, TemplateProfile] = {
             "SEPA_CREDITOR_IBAN",
             "SEPA_CREDITOR_BIC",
         },
-        forbidden_keys={"APP_ENV", "JWT_SECRET", "INTERNAL_API_TOKEN", "INTERNAL_API_SECRET"},
+        forbidden_keys={
+            "APP_ENV",
+            "JWT_SECRET",
+            "INTERNAL_API_TOKEN",
+            "INTERNAL_API_SECRET",
+        },
         forbidden_prefixes=("VITE_", "TEST_"),
     ),
     "apps/website/.env.example": TemplateProfile(
@@ -313,7 +318,9 @@ def infer_profile(path: Path) -> TemplateProfile | None:
     if path.name == ".env":
         candidate = path.parent / ".env.example"
         try:
-            rel_candidate = candidate.resolve().relative_to(Path.cwd().resolve()).as_posix()
+            rel_candidate = (
+                candidate.resolve().relative_to(Path.cwd().resolve()).as_posix()
+            )
         except ValueError:
             rel_candidate = candidate.as_posix()
         return PROFILES.get(rel_candidate)
@@ -321,7 +328,9 @@ def infer_profile(path: Path) -> TemplateProfile | None:
 
 
 def is_placeholder(value: str) -> bool:
-    return any(re.search(pattern, value, re.IGNORECASE) for pattern in PLACEHOLDER_PATTERNS)
+    return any(
+        re.search(pattern, value, re.IGNORECASE) for pattern in PLACEHOLDER_PATTERNS
+    )
 
 
 def validate_common(

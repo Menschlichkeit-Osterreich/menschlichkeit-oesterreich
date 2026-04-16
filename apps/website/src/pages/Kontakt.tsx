@@ -179,10 +179,12 @@ export default function Kontakt() {
       />
       <JsonLdFaq items={FAQ} />
       {/* Hero */}
-      <section className="bg-gradient-to-br from-primary-700 to-primary-900 text-white py-16">
+      <section
+        className="bg-primary-800 py-16 text-white"
+      >
         <div className="container mx-auto px-4 text-center max-w-3xl">
           <h1 className="text-4xl font-bold mb-4">Kontakt</h1>
-          <p className="text-xl text-white/80">
+          <p className="text-xl text-white">
             Fragen zu Mitgliedschaft, Spenden, Veranstaltungen, Bildung oder Medienanfragen
             beantworten wir gerne.
           </p>
@@ -203,7 +205,7 @@ export default function Kontakt() {
                   </div>
                   <div>
                     <p className="font-semibold mb-1">Adresse</p>
-                    <address className="not-italic text-gray-600 text-sm">
+                    <address className="not-italic text-sm text-secondary-600">
                       Verein Menschlichkeit Österreich
                       <br />
                       Pottenbrunner Hauptstraße 108/Top 1<br />
@@ -250,7 +252,7 @@ export default function Kontakt() {
                   </div>
                   <div>
                     <p className="font-semibold mb-1">Vereinsregister</p>
-                    <p className="text-gray-600 text-sm">
+                    <p className="text-sm text-secondary-600">
                       ZVR: {LEGAL_FACTS.zvr}
                       <br />
                       Gegründet: {LEGAL_FACTS.foundingDateLabel}
@@ -334,10 +336,10 @@ export default function Kontakt() {
                     <div>
                       <label
                         htmlFor="name"
-                        className="block text-sm font-medium text-gray-700 mb-1"
+                        className="mb-1 block text-sm font-medium text-secondary-700"
                       >
                         Name{' '}
-                        <span aria-hidden="true" className="text-red-500">
+                        <span aria-hidden="true" className="font-semibold text-error-700">
                           *
                         </span>
                         <span className="sr-only">Pflichtfeld</span>
@@ -350,7 +352,7 @@ export default function Kontakt() {
                         required
                         value={form.name}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        className="w-full rounded-lg border border-secondary-300 px-3 py-2 text-sm text-secondary-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
                         placeholder="Ihr Name"
                         aria-invalid={fieldErrors.name ? 'true' : 'false'}
                         aria-describedby={fieldErrors.name ? 'name-error' : undefined}
@@ -364,10 +366,10 @@ export default function Kontakt() {
                     <div>
                       <label
                         htmlFor="email"
-                        className="block text-sm font-medium text-gray-700 mb-1"
+                        className="mb-1 block text-sm font-medium text-secondary-700"
                       >
                         E-Mail{' '}
-                        <span aria-hidden="true" className="text-red-500">
+                        <span aria-hidden="true" className="font-semibold text-error-700">
                           *
                         </span>
                         <span className="sr-only">Pflichtfeld</span>
@@ -380,7 +382,7 @@ export default function Kontakt() {
                         required
                         value={form.email}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        className="w-full rounded-lg border border-secondary-300 px-3 py-2 text-sm text-secondary-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
                         placeholder="ihre@email.at"
                         aria-invalid={fieldErrors.email ? 'true' : 'false'}
                         aria-describedby={fieldErrors.email ? 'email-error' : undefined}
@@ -396,10 +398,10 @@ export default function Kontakt() {
                   <div>
                     <label
                       htmlFor="subject"
-                      className="block text-sm font-medium text-gray-700 mb-1"
+                      className="mb-1 block text-sm font-medium text-secondary-700"
                     >
                       Betreff{' '}
-                      <span aria-hidden="true" className="text-red-500">
+                      <span aria-hidden="true" className="font-semibold text-error-700">
                         *
                       </span>
                       <span className="sr-only">Pflichtfeld</span>
@@ -410,7 +412,7 @@ export default function Kontakt() {
                       name="subject"
                       value={form.subject}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="w-full rounded-lg border border-secondary-300 px-3 py-2 text-sm text-secondary-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
                       aria-invalid={fieldErrors.subject ? 'true' : 'false'}
                       aria-describedby={fieldErrors.subject ? 'subject-error' : undefined}
                     >
@@ -431,10 +433,10 @@ export default function Kontakt() {
                   <div>
                     <label
                       htmlFor="message"
-                      className="block text-sm font-medium text-gray-700 mb-1"
+                      className="mb-1 block text-sm font-medium text-secondary-700"
                     >
                       Nachricht{' '}
-                      <span aria-hidden="true" className="text-red-500">
+                      <span aria-hidden="true" className="font-semibold text-error-700">
                         *
                       </span>
                       <span className="sr-only">Pflichtfeld</span>
@@ -447,7 +449,7 @@ export default function Kontakt() {
                       required
                       value={form.message}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                      className="w-full resize-none rounded-lg border border-secondary-300 px-3 py-2 text-sm text-secondary-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
                       placeholder="Ihre Nachricht an uns..."
                       aria-invalid={fieldErrors.message ? 'true' : 'false'}
                       aria-describedby={fieldErrors.message ? 'message-error' : undefined}
@@ -459,8 +461,8 @@ export default function Kontakt() {
                     )}
                   </div>
 
-                  <div className="space-y-3 rounded-xl border border-gray-200 bg-gray-50 p-4">
-                    <label className="flex items-start gap-3 text-sm text-gray-700">
+                  <div className="space-y-3 rounded-xl border border-secondary-200 bg-secondary-50 p-4">
+                    <label className="flex items-start gap-3 text-sm text-secondary-700">
                       <input
                         ref={consentRef}
                         id="consentPrivacy"
@@ -468,7 +470,7 @@ export default function Kontakt() {
                         type="checkbox"
                         checked={form.consentPrivacy}
                         onChange={handleChange}
-                        className="mt-1 h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                        className="mt-1 h-4 w-4 rounded border-secondary-300 text-primary-600 focus:ring-primary-500"
                         aria-invalid={fieldErrors.consentPrivacy ? 'true' : 'false'}
                         aria-describedby={fieldErrors.consentPrivacy ? 'consent-error' : undefined}
                       />
@@ -486,14 +488,14 @@ export default function Kontakt() {
                       </p>
                     )}
 
-                    <label className="flex items-start gap-3 text-sm text-gray-700">
+                    <label className="flex items-start gap-3 text-sm text-secondary-700">
                       <input
                         id="newsletterOptIn"
                         name="newsletterOptIn"
                         type="checkbox"
                         checked={form.newsletterOptIn}
                         onChange={handleChange}
-                        className="mt-1 h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                        className="mt-1 h-4 w-4 rounded border-secondary-300 text-primary-600 focus:ring-primary-500"
                       />
                       <span>
                         Ich möchte zusätzlich per E-Mail über Vereinsaktivitäten informiert werden.
@@ -510,7 +512,7 @@ export default function Kontakt() {
                     {submitting ? 'Nachricht wird gesendet...' : 'Nachricht senden'}
                   </button>
 
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-secondary-600">
                     * Pflichtfelder. Ihre Nachricht wird direkt an unser System übermittelt. Ihre
                     Daten werden gemäß unserer{' '}
                     <a href="/datenschutz" className="text-primary-600 hover:underline">

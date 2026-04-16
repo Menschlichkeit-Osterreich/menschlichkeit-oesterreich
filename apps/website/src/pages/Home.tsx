@@ -70,21 +70,19 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <section
-        className="relative overflow-hidden"
+        className="relative overflow-hidden bg-accent-900"
         aria-label="Einstieg"
         data-component="Hero"
-        style={{ background: 'var(--brand-gradient)' }}
       >
-        <div className="absolute inset-0 opacity-10" aria-hidden="true">
+        <div className="absolute inset-0 opacity-5" aria-hidden="true">
           <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-white blur-3xl -translate-y-1/2 translate-x-1/4" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full bg-white blur-2xl translate-y-1/2 -translate-x-1/4" />
         </div>
 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-20 md:py-28">
           <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
             {/* Text */}
             <div className="flex-1 text-center md:text-left">
-              <span className="inline-block px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold tracking-widest uppercase mb-6 backdrop-blur-sm border border-white/20">
+              <span className="inline-block rounded-full border border-white/20 bg-white/12 px-3 py-1 text-xs font-semibold tracking-widest text-white uppercase mb-6 backdrop-blur-sm">
                 Verein Menschlichkeit Österreich
               </span>
               <h1
@@ -92,12 +90,12 @@ export default function HomePage() {
                 data-testid="hero.title"
               >
                 Gemeinsam gestalten –{' '}
-                <span className="block text-secondary-100 mt-2">
+                <span className="mt-2 block text-white">
                   Ein Österreich, das niemanden zurücklässt.
                 </span>
               </h1>
               <p
-                className="text-lg md:text-xl text-white/85 max-w-2xl mb-8 leading-relaxed"
+                className="mb-8 max-w-2xl text-lg leading-relaxed text-white md:text-xl"
                 data-testid="hero.lead"
               >
                 Initiative für soziale Gerechtigkeit, demokratische Teilhabe und ökologische
@@ -261,11 +259,7 @@ export default function HomePage() {
 
         {/* CTA Banner */}
         <section
-          className="mb-16 relative overflow-hidden rounded-3xl p-8 md:p-12 border border-secondary-100"
-          style={{
-            background:
-              'linear-gradient(135deg, rgba(27, 73, 101, 0.06) 0%, rgba(212, 97, 30, 0.12) 100%)',
-          }}
+          className="relative mb-16 overflow-hidden rounded-3xl border border-secondary-100 bg-secondary-50 p-8 md:p-12"
           aria-labelledby="join-title"
         >
           <div
@@ -285,7 +279,7 @@ export default function HomePage() {
               >
                 Werde Teil der Bewegung
               </h2>
-              <p className="text-secondary-600 leading-relaxed">
+              <p className="text-secondary-800 leading-relaxed">
                 Als Mitglied gestaltest du aktiv mit und stärkst unsere Gemeinschaft. Gemeinsam
                 setzen wir uns für ein gerechtes und solidarisches Österreich ein.
               </p>
@@ -394,7 +388,7 @@ export default function HomePage() {
         <section className="border-t border-secondary-100 pt-6" aria-labelledby="legal-title">
           <h2
             id="legal-title"
-            className="text-xs font-semibold text-secondary-400 uppercase tracking-wider mb-3"
+            className="text-xs font-semibold text-secondary-600 uppercase tracking-wider mb-3"
           >
             Rechtliches &amp; Datenschutz
           </h2>
@@ -413,7 +407,7 @@ export default function HomePage() {
                 key={l.to}
                 to={l.to}
                 data-testid={l.testId}
-                className="text-secondary-500 hover:text-primary-700 transition-colors hover:underline underline-offset-2"
+                className="text-secondary-700 hover:text-primary-700 transition-colors hover:underline underline-offset-2"
               >
                 {l.label}
               </Link>

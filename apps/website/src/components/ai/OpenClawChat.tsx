@@ -4,7 +4,7 @@
  * Unterstützt: Mitglieder-Anfragen, Event-Info, Demokratiespiel-Hilfe
  */
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { CONTACT_EMAIL } from '../../config/siteConfig';
 
 interface Message {
@@ -83,66 +83,71 @@ export const OpenClawChat: React.FC<OpenClawChatProps> = ({
     }
   };
 
-  const sendMessage = useCallback(async (text: string) => {
-    if (!text.trim() || isLoading) return;
+  const sendMessage = useCallback(
+    async (text: string) => {
+      if (!text.trim() || isLoading) return;
 
-    const userMsg: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: text.trim(),
-      timestamp: new Date(),
-      status: 'done',
-    };
+      const userMsg: Message = {
+        id: Date.now().toString(),
+        role: 'user',
+        content: text.trim(),
+        timestamp: new Date(),
+        status: 'done',
+      };
 
-    const assistantMsg: Message = {
-      id: (Date.now() + 1).toString(),
-      role: 'assistant',
-      content: '',
-      timestamp: new Date(),
-      status: 'sending',
-    };
+      const assistantMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: '',
+        timestamp: new Date(),
+        status: 'sending',
+      };
 
-    setMessages(prev => [...prev, userMsg, assistantMsg]);
-    setInput('');
-    setIsLoading(true);
+      setMessages(prev => [...prev, userMsg, assistantMsg]);
+      setInput('');
+      setIsLoading(true);
 
-    try {
-      // Task an Agent-Runtime senden
-      const response = await fetch(`${bridgeUrl}/agent/task/submit`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: text.trim().substring(0, 100),
-          objective: text.trim(),
-          role: 'research',
-          inputs: { query: text.trim(), source: 'website_chat' },
-        }),
-        signal: AbortSignal.timeout(30000),
-      });
+      try {
+        // Task an Agent-Runtime senden
+        const response = await fetch(`${bridgeUrl}/agent/task/submit`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: text.trim().substring(0, 100),
+            objective: text.trim(),
+            role: 'research',
+            inputs: { query: text.trim(), source: 'website_chat' },
+          }),
+          signal: AbortSignal.timeout(30000),
+        });
 
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json();
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
 
-      // Polling für Task-Ergebnis
-      const result = await pollTaskResult(data.task_id);
+        // Polling für Task-Ergebnis
+        const result = await pollTaskResult(data.task_id);
 
-      setMessages(prev => prev.map(m =>
-        m.id === assistantMsg.id
-          ? { ...m, content: result, status: 'done', taskId: data.task_id }
-          : m
-      ));
-    } catch (_error) {
-      // Fallback: Lokale Antworten für häufige Fragen
-      const fallback = getFallbackResponse(text);
-      setMessages(prev => prev.map(m =>
-        m.id === assistantMsg.id
-          ? { ...m, content: fallback, status: 'done' }
-          : m
-      ));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [isLoading, bridgeUrl]);
+        setMessages(prev =>
+          prev.map(m =>
+            m.id === assistantMsg.id
+              ? { ...m, content: result, status: 'done', taskId: data.task_id }
+              : m
+          )
+        );
+      } catch (_error) {
+        // Fallback: Lokale Antworten für häufige Fragen
+        const fallback = getFallbackResponse(text);
+        setMessages(prev =>
+          prev.map(m =>
+            m.id === assistantMsg.id ? { ...m, content: fallback, status: 'done' } : m
+          )
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [isLoading, bridgeUrl]
+  );
 
   const pollTaskResult = async (taskId: string, maxAttempts = 20): Promise<string> => {
     for (let i = 0; i < maxAttempts; i++) {
@@ -156,7 +161,9 @@ export const OpenClawChat: React.FC<OpenClawChatProps> = ({
         if (task.status === 'DEADLETTER') {
           throw new Error(task.error_message);
         }
-      } catch { /* weiter versuchen */ }
+      } catch {
+        /* weiter versuchen */
+      }
     }
     throw new Error('Timeout');
   };
@@ -185,9 +192,7 @@ export const OpenClawChat: React.FC<OpenClawChatProps> = ({
     }
   };
 
-  const positionClass = position === 'bottom-right'
-    ? 'bottom-6 right-6'
-    : 'bottom-6 left-6';
+  const positionClass = position === 'bottom-right' ? 'bottom-6 right-6' : 'bottom-6 left-6';
 
   return (
     <div className={`fixed ${positionClass} z-50 flex flex-col items-end gap-3`}>
@@ -202,7 +207,9 @@ export const OpenClawChat: React.FC<OpenClawChatProps> = ({
             <div className="flex-1">
               <div className="text-white font-semibold text-sm">KI-Assistent</div>
               <div className="flex items-center gap-1.5">
-                <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-400' : 'bg-gray-400'}`} />
+                <div
+                  className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-400' : 'bg-gray-400'}`}
+                />
                 <span className="text-white/70 text-xs">
                   {isOnline ? 'Online' : 'Offline – Basis-Antworten aktiv'}
                 </span>
@@ -214,7 +221,12 @@ export const OpenClawChat: React.FC<OpenClawChatProps> = ({
               aria-label="Chat schließen"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
@@ -235,25 +247,38 @@ export const OpenClawChat: React.FC<OpenClawChatProps> = ({
                 >
                   {msg.status === 'sending' ? (
                     <div className="flex gap-1 py-1">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      <div
+                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: '0ms' }}
+                      />
+                      <div
+                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: '150ms' }}
+                      />
+                      <div
+                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                        style={{ animationDelay: '300ms' }}
+                      />
                     </div>
                   ) : (
-                    <span dangerouslySetInnerHTML={{
-                      __html: msg.content.replace(
-                        /\[([^\]]+)\]\(([^)]+)\)/g,
-                        (_match, text, url) => {
-                          // Security: only allow safe URL protocols; block javascript:, data:, vbscript:
-                          const safeUrl = /^(https?:\/\/|\/|#)/.test(url) ? url : '#';
-                          // Escape HTML in the link text to prevent injection
-                          const safeText = text.replace(/[<>"&]/g, (c: string) =>
-                            ({ '<': '&lt;', '>': '&gt;', '"': '&quot;', '&': '&amp;' }[c] ?? c)
-                          );
-                          return `<a href="${safeUrl}" class="underline hover:no-underline" target="_self" rel="noopener noreferrer">${safeText}</a>`;
-                        }
-                      )
-                    }} />
+                    <span
+                      dangerouslySetInnerHTML={{
+                        __html: msg.content.replace(
+                          /\[([^\]]+)\]\(([^)]+)\)/g,
+                          (_match, text, url) => {
+                            // Security: only allow safe URL protocols; block javascript:, data:, vbscript:
+                            const safeUrl = /^(https?:\/\/|\/|#)/.test(url) ? url : '#';
+                            // Escape HTML in the link text to prevent injection
+                            const safeText = text.replace(
+                              /[<>"&]/g,
+                              (c: string) =>
+                                ({ '<': '&lt;', '>': '&gt;', '"': '&quot;', '&': '&amp;' })[c] ?? c
+                            );
+                            return `<a href="${safeUrl}" class="underline hover:no-underline" target="_self" rel="noopener noreferrer">${safeText}</a>`;
+                          }
+                        ),
+                      }}
+                    />
                   )}
                 </div>
               </div>
@@ -294,8 +319,18 @@ export const OpenClawChat: React.FC<OpenClawChatProps> = ({
               className="w-9 h-9 bg-red-600 hover:bg-red-700 disabled:bg-gray-300 rounded-full flex items-center justify-center transition-colors"
               aria-label="Senden"
             >
-              <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              <svg
+                className="w-4 h-4 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+                />
               </svg>
             </button>
           </div>
@@ -310,11 +345,21 @@ export const OpenClawChat: React.FC<OpenClawChatProps> = ({
       >
         {isOpen ? (
           <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         ) : (
           <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+            />
           </svg>
         )}
         {/* Unread-Badge */}

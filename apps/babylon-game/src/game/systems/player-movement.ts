@@ -7,6 +7,7 @@ const WALK_SPEED = 4.5;
 const SPRINT_SPEED = 7.2;
 const JUMP_FORCE = 7.5;
 const GRAVITY = 18;
+const FALL_BOUNDARY_Y = -5;
 
 export function updatePlayerMovement({
   deltaSeconds,
@@ -45,6 +46,6 @@ export function updatePlayerMovement({
   );
 
   return {
-    fellOut: player.mesh.position.y < -5,
+    fellOut: player.mesh.position.y < FALL_BOUNDARY_Y,
   };
 }

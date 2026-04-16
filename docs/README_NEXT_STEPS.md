@@ -7,6 +7,7 @@ Diese Datei ist **kein aktiver Umsetzungsplan** mehr. Sie wird nur als historisc
 - Maintainer-Entscheidungsgrundlage: `reports/repository-live-stabilization-assessment-2026-03-31.md`
 - Deployvertrag und Betriebsgrenzen: `README_DEPLOY.md`
 - Repo-Zonen und aktive Pfade: `README.md`
+- Dokumentationsindex: `docs/README.md`
 - Monitoring- und Health-Vertrag: `docs/operations/monitoring.md`
 
 ## Fuer neue Arbeit verbindlich

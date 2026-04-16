@@ -1,4 +1,4 @@
-import { DEFAULT_HUD_STATE, type GameHudState } from '@/game/state/game-types';
+import { DEFAULT_HUD_STATE, type GameHudState } from './game-types';
 
 export type GameStateListener = (state: GameHudState) => void;
 
@@ -8,11 +8,23 @@ export function createGameStore(initialState: Partial<GameHudState> = {}) {
     ...initialState,
   };
   const listeners = new Set<GameStateListener>();
+  let emitting = false;
+  let rerun = false;
 
   const emit = () => {
-    for (const listener of listeners) {
-      listener(state);
+    if (emitting) {
+      rerun = true;
+      return;
     }
+
+    emitting = true;
+    do {
+      rerun = false;
+      for (const listener of listeners) {
+        listener(state);
+      }
+    } while (rerun);
+    emitting = false;
   };
 
   return {

@@ -16,6 +16,7 @@ from ..schemas.internal import (
     InternalSyncMemberRequest,
 )
 from ..services.crm_service import crm_service
+from ..services.finance_sync_service import finance_sync_service
 from ..services.mail_service import mail_service
 from ..services.member_service import member_service
 from ..services.payment_service import payment_service
@@ -118,6 +119,11 @@ async def internal_donation_received(
 @router.post("/internal/finance/invoice-created")
 async def invoice_created(payload: dict, request: Request):
     await _require_internal_signature(request)
+    if payload.get("id"):
+        try:
+            await finance_sync_service.enqueue_invoice(payload)
+        except Exception:
+            pass
     return {"success": True, "data": payload}
 
 
@@ -125,6 +131,19 @@ async def invoice_created(payload: dict, request: Request):
 async def dunning_run(payload: dict, request: Request):
     await _require_internal_signature(request)
     return {"success": True, "data": payload}
+
+
+@router.post("/internal/finance/erpnext/process")
+async def internal_erpnext_process(payload: dict, request: Request):
+    await _require_internal_signature(request)
+    limit = int(payload.get("limit") or 20)
+    return {"success": True, "data": await finance_sync_service.process_pending(limit=limit)}
+
+
+@router.get("/internal/finance/erpnext/health")
+async def internal_erpnext_health(request: Request):
+    await _require_internal_signature(request)
+    return {"success": True, "data": await finance_sync_service.get_sync_health()}
 
 
 @router.post("/internal/mail/send")
@@ -406,7 +425,7 @@ async def compat_generate_receipt(payload: dict, request: Request):
 
 
 @router.post("/finance/invoices/{invoice_id}/payment")
-async def compat_mark_invoice_paid(invoice_id: int, payload: dict, request: Request):
+async def compat_mark_invoice_paid(invoice_id: str, payload: dict, request: Request):
     await _require_internal_signature(request)
     await execute(
         """
@@ -435,6 +454,10 @@ async def compat_mark_invoice_paid(invoice_id: int, payload: dict, request: Requ
         or payload.get("paid_amount")
         or invoice_data.get("total_amount")
     )
+    try:
+        await finance_sync_service.enqueue_invoice_payment(invoice_data, payload)
+    except Exception:
+        pass
     return invoice_data
 
 

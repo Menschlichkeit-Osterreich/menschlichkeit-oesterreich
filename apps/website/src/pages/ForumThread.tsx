@@ -4,7 +4,7 @@ import { API_BASE_URL } from '@/constants/api';
 import { useAuth } from '../auth/AuthContext';
 import JsonLdBreadcrumb from '../components/seo/JsonLdBreadcrumb';
 import SeoHead from '../components/seo/SeoHead';
-import { buildPortalUrl } from '../utils/runtimeHost';
+import { PUBLIC_PORTAL_ENTRY_PATH } from '../utils/runtimeHost';
 
 interface Thread {
   id: string;
@@ -282,12 +282,12 @@ export default function ForumThread() {
             <p className="mt-2 text-sm leading-7 text-secondary-600">
               Für neue Antworten und eigene Diskussionen nutzen Sie bitte das CRM-Portal.
             </p>
-            <a
+            <Link
               className="mt-5 inline-flex rounded-full bg-primary-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
-              href={buildPortalUrl('/login')}
+              to={PUBLIC_PORTAL_ENTRY_PATH}
             >
               Zum Portal-Login
-            </a>
+            </Link>
           </section>
         )}
       </div>

@@ -1,503 +1,306 @@
-# 🔍 Vollständiger Codebase-Audit — Menschlichkeit Österreich
+# Digitaler Barrierefreiheits- und Brand-Drift-Audit
 
-**Erstellt:** 2026-04-05
-**Auditor:** Claude Sonnet 4.6 (automatisiert)
-**Repo:** `Menschlichkeit-Osterreich/menschlichkeit-oesterreich`
-**Branch:** `main` (HEAD: `4a62ac22`)
-
----
-
-## Executive Summary
-
-Das Monorepo ist für ein Non-Profit-Projekt bemerkenswert professionell aufgestellt:
-42 GitHub Actions Workflows, alle Actions auf Commit-Hashes gepinnt, aktives
-Gitleaks-/Trivy-/Semgrep-/CodeQL-Scanning, Bitwarden-SDK für Secrets-Management.
-
-**Kritische Blocker:** 0 (keine sofortige Produktionsblockade)
-**High-Prio Findings:** 5
-**Medium-Prio Findings:** 7
-**Low-Prio Findings:** 6
+**Projekt:** `Menschlichkeit-Oesterreich/menschlichkeit-oesterreich`  
+**Datum:** 2026-04-13  
+**Prüfstand:** produktive Live-Umgebung  
+**Scope:** öffentliche Website, öffentliche Formulare, Forum, Spiel-Landingpage, Games-Host, Portal-Einstieg  
+**Prüfmethoden:** Live-HTML-Inspektion, `pa11y`, Puppeteer-Tastaturtests, Code-Abgleich gegen `apps/website`, Brand-Abgleich gegen `.claude/plugins/moe-brand/BRAND-GUIDELINES-V1.0.md`, `apps/website/src/styles/tokens.css` und `figma-design-system/00_design-tokens.json`
 
 ---
 
-## Findings nach Priorität
+## Kurzurteil
+
+**Ampelbewertung: Rot**
+
+**Ist die Website auch ohne Overlay barrierefrei gut nutzbar?**  
+**Nein.**
+
+Die öffentliche Website ist in einzelnen Bereichen bereits brauchbar, aber das **gesamte Live-Ökosystem** ist aktuell **nicht** barrierefrei gut nutzbar, weil:
+
+1. zentrale Einstiege (`/login`, `/barrierefreiheit`, `crm.../login`) live auf `404` laufen,
+2. wiederkehrende WCAG-AA-Kontrastfehler in gemeinsam genutzten Layout-Bausteinen vorkommen,
+3. Produktion, Routing und Brand-/Token-Quellen sichtbar auseinanderlaufen.
+
+Ein Accessibility-Overlay wäre hier **keine Lösung**, sondern würde vor allem technische Mängel kaschieren.
 
 ---
 
-### 🔴 CRITICAL — Keine Findings
+## Scope und Prüfpfade
 
-Keine kritischen Blocker identifiziert.
+Geprüft wurden diese Live-Pfade:
 
----
+- `https://www.menschlichkeit-oesterreich.at/`
+- `https://www.menschlichkeit-oesterreich.at/kontakt`
+- `https://www.menschlichkeit-oesterreich.at/mitglied-werden`
+- `https://www.menschlichkeit-oesterreich.at/spenden`
+- `https://www.menschlichkeit-oesterreich.at/forum`
+- `https://www.menschlichkeit-oesterreich.at/spiel`
+- `https://www.menschlichkeit-oesterreich.at/login`
+- `https://www.menschlichkeit-oesterreich.at/barrierefreiheit`
+- `https://games.menschlichkeit-oesterreich.at/`
+- `https://crm.menschlichkeit-oesterreich.at/login`
 
-### 🟠 HIGH
+Zusätzlicher Code-Abgleich:
 
-#### H1 — `.claude/skills/azure-devops-cli/SKILL.md` ist unvollständig (25 Zeilen statt 2467)
-
-**Datei:** `.claude/skills/azure-devops-cli/SKILL.md`
-**Status:** Die Datei wurde am 2026-04-05 neu angelegt, enthält aber nur den Header und
-die Authentifizierungs-Sektion (25 Zeilen / 887 Bytes). Die vollständige Referenz-Datei
-soll laut Aufgabenstellung 2467 Zeilen umfassen.
-**Risiko:** Alle KI-Assistenten, die den `azure-devops-cli`-Skill aufrufen, erhalten
-unvollständige Instruktionen — Azure-DevOps-Tasks können fehlschlagen oder korrekte
-CLI-Befehle werden nicht bekannt.
-**Sofort-Fix:** Skill aus Referenz-Datei wiederherstellen (siehe Abschnitt "Sofort-Fixes").
-
----
-
-#### H2 — 3 unpushed Commits auf `main`
-
-**Status:**
-
-```
-4a62ac22 feat(infra): azure postgresql konfiguration vorbereitet
-c467a60e chore: laravel-legacy-konfiguration entfernt
-6115bea3 feat(tools): openwolf second-brain integration mit pm2 und puppeteer-core
-```
-
-**Risiko:** Lokale Änderungen sind nicht auf origin gepusht — CI/CD läuft nicht dagegen,
-Reviews fehlen, kein Backup falls lokale Disk verloren geht.
-**Empfehlung:** `git push origin main` nach Review der Commits.
+- `apps/website/src/AppRoutes.tsx`
+- `apps/website/src/App.tsx`
+- `apps/website/src/layouts/PublicLayout.tsx`
+- `apps/website/src/components/NavBar.tsx`
+- `apps/website/src/pages/Join.tsx`
+- `apps/website/src/pages/Kontakt.tsx`
+- `apps/website/src/pages/Barrierefreiheit.tsx`
+- `apps/website/src/pages/Home.tsx`
+- `apps/website/src/pages/Spiel.tsx`
+- `apps/website/src/styles/tokens.css`
+- `apps/website/src/index.css`
+- `apps/website/src/styles/globals.css`
+- `figma-design-system/00_design-tokens.json`
 
 ---
 
-#### H3 — Viele offene Dependabot-Branches (Remote, nicht gemerged)
+## Positiv aufgefallen
 
-**Gezählte Remote-Branches:**
-
-```
-dependabot/pip/apps/api/alembic-1.18.4
-dependabot/pip/apps/api/httpx-0.28.1
-dependabot/pip/apps/api/prometheus-fastapi-instrumentator-7.1.0
-dependabot/pip/apps/api/pytest-9.0.2
-dependabot/pip/apps/api/python-dotenv-1.2.2
-dependabot/pip/apps/api/sqlalchemy-2.0.48
-dependabot/pip/apps/api/structlog-25.5.0
-dependabot/pip/api.menschlichkeit-oesterreich.at/fastapi-0.135.2
-dependabot/pip/api.menschlichkeit-oesterreich.at/pyjwt-2.12.1
-dependabot/pip/api.menschlichkeit-oesterreich.at/redis-7.4.0
-dependabot/pip/api.menschlichkeit-oesterreich.at/reportlab-4.4.10
-dependabot/pip/api.menschlichkeit-oesterreich.at/uvicorn-0.42.0
-dependabot/github_actions/github/codeql-action-4.35.1
-dependabot/github_actions/softprops/action-gh-release-2.6.1
-```
-
-**Hinweis:** Die lokalen Dependabot-Branches (#269, #270, #271 vermutlich für
-`setup-node-6.3.0`, `trivy-action-0.35.0`, `build-push-action-7.0.0`) warten auf
-Rebase. Viele dieser Branches überlappen sich (z.B. `fastapi-0.135.1` vs `fastapi-0.135.2`),
-was auf gestapelte/verwaiste PRs hindeutet.
-**Risiko:** Veraltete Dependencies → potenzielle CVEs; technischer Debt wächst.
-**Empfehlung:** Wöchentliche Merge-Session für Dependabot-PRs einführen.
+- Die öffentliche Website hat einen funktionierenden Skiplink; im Tastaturtest war `Zum Inhalt springen` auf der Startseite der erste Fokuspunkt.
+- Die mobile Startseite zeigte im Tastaturtest eine grundsätzlich logische Reihenfolge: Skiplink, Logo, Menübutton, Haupt-CTAs.
+- Das Kontaktformular ist im Quellcode sauber beschriftet und hat echte Labels, Inline-Fehlertexte, `aria-invalid`, `aria-describedby` und Fokus auf das erste fehlerhafte Feld: `apps/website/src/pages/Kontakt.tsx:61-125`, `apps/website/src/pages/Kontakt.tsx:333-416`.
+- Der Games-Host ist strukturell deutlich besser aufgestellt als die Hauptwebsite: Skiplink, `main`, `progressbar`, `radiogroup`, `aria-live` und `contentinfo` sind live vorhanden; `pa11y` meldete dort keine Fehler.
+- Auf den geprüften Hosts wurde **kein** offensichtliches Accessibility-Overlay wie Eye-Able erkannt. In den Live-HTMLs wurden keine entsprechenden externen Overlay-Skripte gefunden.
 
 ---
 
-#### H4 — CSP: `style-src 'unsafe-inline'` in Production
+## URL-Matrix
 
-**Datei:** `apps/api/app/main.py` Zeile 175
-**Code:**
-
-```python
-"style-src 'self' 'unsafe-inline'",
-```
-
-**Status:** `script-src` ist korrekt auf `'self'` beschränkt (gut!), aber `style-src`
-erlaubt noch `unsafe-inline`. Das ermöglicht CSS-basierte Angriffe (z.B. Exfiltration
-via CSS-Selektoren) und kann XSS-Vektoren bei Template-Rendering öffnen.
-**Empfehlung:** CSS-Inline-Styles durch CSS-Klassen ersetzen; alternativ per-Request
-Nonce einführen.
-
----
-
-#### H5 — JWT Token-Revocation bei Account-Deletion fehlt
-
-**Datei:** `apps/api/app/routers/privacy.py` (Zeile 107–130)
-**Status:** `POST /privacy/data-deletion` erstellt einen Löschantrag in der DB, aber
-es gibt keinen Token-Blacklist-Mechanismus. Gelöschte User könnten mit existierenden
-JWTs noch Requests abschicken bis zum Token-Expire.
-**Risiko:** DSGVO-Verletzung (gelöschter User hat noch Datenzugriff).
-**Empfehlung:** Redis-basierte JWT-Blacklist (Jti → Expire-Zeit) beim Löschantrag
-befüllen; `require_auth` Middleware muss Blacklist prüfen.
+| Pfad                | Status | Kurzbefund                                                                                    |
+| ------------------- | ------ | --------------------------------------------------------------------------------------------- |
+| `/`                 | 200    | semantisch solide Grundstruktur, aber globale Kontrastfehler                                  |
+| `/kontakt`          | 200    | Formular gut aufgebaut, aber Kontrastfehler im Layout und bei Pflichtmarkierungen             |
+| `/mitglied-werden`  | 200    | Kernflow vorhanden, aber Stepper semantisch fehlerhaft und kontrastschwach                    |
+| `/spenden`          | 200    | Formular grundsätzlich brauchbar, aber globale Kontrastprobleme                               |
+| `/forum`            | 200    | semantisch okay, aber wieder globale Kontrastfehler; Portal-CTA abhängig von kaputtem Login   |
+| `/spiel`            | 200    | Landingpage live erreichbar, aber deutliche Produktionsdrift und zusätzliche Kontrastprobleme |
+| `/login`            | 404    | zentraler öffentlicher Einstieg kaputt                                                        |
+| `/barrierefreiheit` | 404    | Accessibility-Seite in Produktion nicht erreichbar                                            |
+| `games...`          | 200    | technisch der robusteste geprüfte Pfad                                                        |
+| `crm.../login`      | 404    | Portal-Einstieg kaputt                                                                        |
 
 ---
 
-### 🟡 MEDIUM
+## Die 10 wichtigsten Probleme
 
-#### M1 — Mehrere redundante Admin-Token-Namen in GitHub Secrets
+### 1. Kritisch: Login-Kette ist für reale Nutzer kaputt
 
-**Datei:** `.github/workflows/branch-protection.yml`
-**Code-Kommentar im Workflow:**
+- **Live-Befund:** `https://www.menschlichkeit-oesterreich.at/login` liefert `404`.
+- **Live-Befund:** `https://crm.menschlichkeit-oesterreich.at/login` liefert ebenfalls `404`.
+- **Code-Bezug:** `apps/website/src/AppRoutes.tsx:133-137` leitet öffentliche Login-Pfade auf das Portal um.
+- **Code-Bezug:** `apps/website/src/utils/runtimeHost.ts:46-48` baut die Portal-URL technisch korrekt aus `CRM_SITE_URL`.
+- **Risiko/Wirkung:** Ein zentraler Tastatur- und Screenreader-relevanter Hauptpfad ist faktisch unbenutzbar. Für das Gesamtökosystem ist das ein Blocker.
 
-```
-TOKEN_1: GH_ADMIN_TOKEN (kanonisch)
-TOKEN_2: ADMIN_GITHUB_TOKEN (veraltet)
-TOKEN_3: REPO_ADMIN_TOKEN (veraltet)
-```
+### 2. Kritisch: Die Barrierefreiheitsseite existiert im Code, aber nicht in Produktion
 
-Das Workflow selbst dokumentiert, dass TOKEN_2/TOKEN_3 "veraltete Aliase" sind.
-Sie kosten keinen Aufwand, solange die Secrets existieren, aber sie erhöhen die
-Angriffsfläche bei einer möglichen Secret-Kompromittierung.
-**Empfehlung:** Nach vollständiger Konsolidierung auf `GH_ADMIN_TOKEN` hin die anderen
-beiden Secrets aus GitHub entfernen.
+- **Live-Befund:** `https://www.menschlichkeit-oesterreich.at/barrierefreiheit` liefert `404`.
+- **Code-Bezug:** `apps/website/src/AppRoutes.tsx:124` definiert die Route öffentlich.
+- **Code-Bezug:** `apps/website/src/pages/Barrierefreiheit.tsx:6-77` enthält eine inhaltlich klare Accessibility-Seite.
+- **Risiko/Wirkung:** Das Projekt verspricht Barrierefreiheit, stellt die entsprechende Seite aber live nicht bereit. Das ist fachlich und kommunikativ problematisch.
 
----
+### 3. Kritisch: Produktion läuft nicht konsistent auf dem aktuellen Frontend-Stand
 
-#### M2 — `codacy-analysis-cli-master/` im Repo
+- **Live-Befund:** Der öffentliche Header in Produktion enthält eine andere Navigationsstruktur als `apps/website/src/components/NavBar.tsx:104-119`.
+- **Live-Befund:** Die Startseiten-Hero-Zone läuft live mit einem roten Verlauf; der aktuelle Quellcode referenziert dagegen `var(--brand-gradient)` aus `apps/website/src/pages/Home.tsx:72-77` und `apps/website/src/index.css:12-15`.
+- **Live-Befund:** Die live ausgelieferte `/spiel`-Landingpage stimmt in Aufbau und Inhalten nicht mit `apps/website/src/pages/Spiel.tsx:58-253` überein.
+- **Risiko/Wirkung:** Accessibility-Befunde lassen sich nicht sauber schließen, solange unklar ist, welcher Code tatsächlich in Produktion läuft.
 
-**Pfad:** `menschlichkeit-oesterreich/codacy-analysis-cli-master/`
-Das komplette Codacy-CLI-Source-Repository (Scala) ist als Unterordner committed
-statt als Git-Submodule oder Docker-Image referenziert zu werden.
-**Risiko:** Repo-Bloat (~100k Dateien), keine automatischen Updates.
-**Empfehlung:** Entweder als Submodule oder entfernen + Docker-Image-Referenz nutzen.
+### 4. Hoch: Wiederkehrende WCAG-AA-Kontrastfehler in gemeinsamen Layout-Bausteinen
 
----
+- **Automatischer Befund:** `pa11y` meldet auf `/`, `/kontakt`, `/spenden`, `/forum` und `/spiel` dieselben Kontrastfehler.
+- **Code-Bezug:** `apps/website/src/layouts/PublicLayout.tsx:35`, `:41`, `:44-45`, `:51`, `:69`, `:79`, `:91`, `:98-99`, `:123-128`.
+- **Code-Bezug:** `apps/website/src/components/NavBar.tsx:66-69` verwendet ebenfalls sehr helle Sekundärfarben für kleine Meta-Typografie.
+- **Typische Wirkung:** kleine Metatexte wie `Verein`, Footer-Meta, Adresszeilen und `DSGVO-konform` unterschreiten die Lesbarkeitsanforderungen.
 
-#### M3 — `.complexity-log.md` (654 KB) und `.project-structure.md` (3 MB) committed
+### 5. Hoch: Der Mitgliedschafts-Stepper ist semantisch fehlerhaft
 
-**Größe:**
+- **Automatischer Befund:** `pa11y`/axe meldet auf `/mitglied-werden` einen `list`-Fehler.
+- **Code-Bezug:** `apps/website/src/pages/Join.tsx:107-139`.
+- **Problem:** In der geordneten Liste liegen direkte `<div>`-Elemente zwischen `<li>`-Elementen.
+- **Risiko/Wirkung:** Screenreader-Nutzer bekommen eine inkonsistente oder irreführende Schrittstruktur.
 
-- `.complexity-log.md` → 654 KB
-- `.project-structure.md` → 3 MB (größte Datei im Repo)
+### 6. Hoch: Pflichtfelder werden visuell zusätzlich mit zu schwachem Rot markiert
 
-Diese automatisch generierten Logs sind im Haupt-Branch gespeichert und werden
-vermutlich bei jedem Build neu generiert. Das bläht das Repo unnötig auf und erzeugt
-Merge-Konflikte.
-**Empfehlung:** In `.gitignore` aufnehmen; stattdessen als CI-Artefakt publizieren.
+- **Automatischer Befund:** `pa11y` meldet auf `/kontakt` Kontrastfehler für die roten Sternchen.
+- **Code-Bezug:** `apps/website/src/pages/Kontakt.tsx:340-343`, `:370-373`, `:402-405`.
+- **Wirkung:** Die Zusatzmarkierung ist nicht gut lesbar. Zwar wird `Pflichtfeld` zusätzlich per `sr-only` geliefert, visuell bleibt die Kennzeichnung aber unnötig schwach.
 
----
+### 7. Hoch: Forum und öffentliche CTAs verweisen in einen derzeit kaputten Portalpfad
 
-#### M4 — Verwaiste Dependabot-Remote-Branches mit altem Pfad `api.menschlichkeit-oesterreich.at/`
+- **Code-Bezug:** `apps/website/src/pages/ForumPage.tsx:205-209` verlinkt nicht eingeloggte Nutzer auf `buildPortalUrl('/login')`.
+- **Live-Befund:** genau dieser Zielpfad ist kaputt.
+- **Wirkung:** Nutzende, die diskutieren oder sich anmelden wollen, laufen aus einer öffentlich erreichbaren Seite direkt in einen Dead End.
 
-**Status:** `dependabot.yml` ist bereits korrekt (referenziert `/apps/api`).
-Jedoch existieren noch Remote-Branches mit dem alten Namensschema:
-`dependabot/pip/api.menschlichkeit-oesterreich.at/...` — das sind Überbleibsel
-aus der Umbenennungsphase.
-**Empfehlung:** Alte Branches auf GitHub schließen/löschen:
-`git push origin --delete dependabot/pip/api.menschlichkeit-oesterreich.at/<name>` für jeden alten Branch.
+### 8. Hoch: Brand-Quelle und aktive Token-Quelle widersprechen einander
 
----
+- **Brand-Plugin:** `.claude/plugins/moe-brand/BRAND-GUIDELINES-V1.0.md` fordert Orange/Blau sowie `Nunito Sans` und `Source Sans 3`.
+- **Aktive Website-Tokens:** `apps/website/src/styles/tokens.css:47-66`, `:124-125` spiegeln diese Brand-Logik tatsächlich wider.
+- **Figma-Tokens:** `figma-design-system/00_design-tokens.json:4-38`, `:89-99` definieren dagegen Rot/Slate und `Inter`/`Merriweather`.
+- **Wirkung:** Designerische Entscheidungen, Kontrastfreigaben und Implementierung laufen nicht aus einer einzigen verlässlichen Quelle.
 
-#### M5 — Ungetrackte `.claude/skills/` im Repo
+### 9. Mittel: Legacy-Styles und aktive Runtime-Styles zeigen widersprüchliche Farbsysteme
 
-**Git-Status:** `?? .claude/skills/`
-Die lokalen Skills in `.claude/skills/` sind nicht in `.gitignore` eingetragen und
-nicht committed — ein Zwischenzustand der zu Datenverlust führen kann.
-**Empfehlung:** Entweder committen (falls team-weite Skills gewünscht) oder explizit
-in `.gitignore` aufnehmen.
+- **Code-Bezug:** `apps/website/src/main.tsx:5` importiert nur `index.css`.
+- **Code-Bezug:** `apps/website/src/styles/globals.css:1-3` erklärt sich selbst als Legacy und nicht aktiv.
+- **Legacy-Widerspruch:** `apps/website/src/styles/globals.css:29-56` definiert ein anderes Primär-/Sekundärsystem als die aktiven Tokens.
+- **Wirkung:** Das erhöht das Risiko, dass Komponenten, Dokumentation und Deployments auf verschiedene Farb- und Kontrastmodelle referenzieren.
 
----
+### 10. Mittel: Die 404-Fehlerseiten selbst sind nicht ausreichend lesbar
 
-#### M6 — Veraltete `h11`-Pinning-Notiz in `requirements.txt` (Duplikat)
-
-**Datei:** `apps/api/requirements.txt`
-Der CVE-2025-43859 wurde bereits via Commit `6e49809c` gefixt und `h11>=0.16.0` gepinnt.
-Die aktuelle `requirements.txt` enthält die Pin korrekt. Allerdings gibt es noch einen
-alten `api.menschlichkeit-oesterreich.at/` Ordner, der möglicherweise eine separate
-`requirements.txt` mit veralteter Pinning enthält.
-**Empfehlung:** Sicherstellen dass `api.menschlichkeit-oesterreich.at/` kein aktives
-Deployment-Target mehr ist oder ebenso aktuell gepflegt wird.
+- **Automatischer Befund:** `pa11y` meldet auf `www.../login`, `www.../barrierefreiheit` und `crm.../login` zusätzliche Kontrastfehler direkt auf der Server-Fehlerseite.
+- **Wirkung:** Gerade in einem Fehlerfall bekommen Nutzende nicht einmal eine solide, kontrastreiche Rückfalloberfläche.
 
 ---
 
-#### M7 — HSTS nur in Production, nicht in Staging
+## Bewertung nach Themenbereich
 
-**Datei:** `apps/api/app/main.py` Zeile 186–188
+### 1. Semantik und Struktur
 
-```python
-if IS_PRODUCTION:
-    response.headers["Strict-Transport-Security"] = ...
-```
+- **Teilweise gut:** `main`, `footer`, `nav`, `h1` und Formularstrukturen sind auf mehreren Seiten sauber vorhanden.
+- **Schwachstelle:** Der Mitgliedschafts-Stepper verletzt Listen-Semantik in `apps/website/src/pages/Join.tsx:107-139`.
+- **Schwachstelle:** Produktionsdrift erschwert die Aussage, welche Semantik tatsächlich live ausgerollt ist.
 
-HSTS fehlt in Staging — das bedeutet Staging-Deployments sind anfällig für
-Protokoll-Downgrade-Angriffe.
-**Empfehlung:** HSTS auch in Staging aktivieren (mit kürzerem `max-age`).
+### 2. Tastaturbedienbarkeit
 
----
+- **Gut:** Startseite hat live einen funktionierenden Skiplink; im Tastaturtest war er der erste Fokuspunkt.
+- **Gut:** Mobile Fokusreihenfolge auf der Startseite war logisch und die Haupt-CTAs lagen im guten Größenbereich.
+- **Blocker:** Ein logisch erreichbarer Login-Pfad nützt nichts, wenn die Zielroute `404` liefert.
 
-### 🔵 LOW
+### 3. Screenreader-Tauglichkeit
 
-#### L1 — Babylon-Game Build-Artefakte committed (`.next/` Ordner)
+- **Gut:** Kontaktformular mit Labels, Fehlertexten und Fokussteuerung.
+- **Gut:** Games-Host mit `progressbar`, `radiogroup` und `aria-live`.
+- **Schwachstelle:** semantisch kaputter Stepper im Mitgliedschaftsflow.
 
-**Pfad:** `apps/babylon-game/.next/`
-Der komplette Next.js Build-Output ist im Repo. Das verursacht massiven Repo-Bloat
-und Merge-Konflikte.
-**Empfehlung:** `.next/` zu `.gitignore` hinzufügen.
+### 4. Bilder und Medien
 
----
+- **Gut:** Auf den geprüften Seiten hatten die zentralen Bilder sinnvolle `alt`-Texte.
+- **Gut:** Dekorative SVG-Icons auf dem Games-Host sind überwiegend `aria-hidden="true"`.
+- **Offen:** Audio-/Video-Alternativen waren im geprüften Scope kaum relevant, daher kein großer Negativbefund.
 
-#### L2 — Stale Remote-Branches
+### 5. Formulare
 
-Folgende Remote-Branches scheinen verwaist:
+- **Gut:** Kontaktformular ist technisch klar besser als der aktuelle Durchschnitt.
+- **Schwachstelle:** Pflichtkennzeichnung visuell zu schwach.
+- **Schwachstelle:** In produktiven Kernflows muss zusätzlich verifiziert werden, dass Backends und Fehlerzustände live stabil erreichbar sind.
 
-```
-copilot/worktree-2026-03-31T06-26-04
-copilot/update-github-secrets-management
-copilot/add-wiki-pages-for-pdfs
-```
+### 6. Kontrast und Lesbarkeit
 
-**Empfehlung:** Nach Review und Merge/Close der zugehörigen PRs löschen.
+- **Schwachstelle:** global wiederkehrendes Muster im Header/Footer.
+- **Schwachstelle:** zusätzliche Badge-/Metatext-Kontraste auf `/spiel`.
+- **Schwachstelle:** Fehlerseiten kontrastschwach.
 
----
+### 7. Responsive und mobile Nutzung
 
-#### L3 — Token-Konsolidierung für PAT-Expiry-Reminder nicht abgeschlossen
+- **Gut:** Mobile Fokusfolge auf der Startseite war im Test nachvollziehbar.
+- **Gut:** zentrale CTAs lagen im mobilen Test um etwa 49 bis 53 px Höhe.
+- **Schwachstelle:** Eine umfassende manuelle Zoom-/Reflow-Prüfung über alle Hosts hinweg bleibt als Folgeschritt sinnvoll.
 
-**Datei:** `.github/workflows/pat-expiry-reminder.yml`
-Das Workflow prüft mehrere Token-Namen auf Ablauf (GH_ADMIN_TOKEN, ADMIN_GITHUB_TOKEN,
-REPO_ADMIN_TOKEN). Nach der Token-Konsolidierung aus M1 muss dieses Workflow aktualisiert
-werden.
+### 8. Verständlichkeit
 
----
+- **Gut:** Sprache der öffentlichen Website ist klar, konkret und relativ leicht verständlich.
+- **Schwachstelle:** Ein kaputter Login- oder Statement-Link ist immer auch ein Verständlichkeitsproblem, weil Erwartung und Ergebnis auseinanderfallen.
 
-#### L4 — `logo.JPG` im Repo-Root
+### 9. Technische Robustheit
 
-**Pfad:** `logo.JPG` (112 KB)
-Binäre Assets sollten in `assets/` leben oder mit Git LFS verwaltet werden.
+- **Schwachstelle:** Routing-/Deployment-Drift.
+- **Schwachstelle:** Portal-Einstieg defekt.
+- **Schwachstelle:** Stepper-Semantik fehlerhaft.
 
----
+### 10. Overlay-Bewertung
 
-#### L5 — `composer-setup.php` committed (59 KB)
-
-Composer-Installer-Script im Repo. Wenn dieser Script eine veraltete Version von
-Composer installiert, kann es zu inkompatiblen Builds führen.
-**Empfehlung:** Via offiziellem Docker-Image oder CI-Action ersetzen.
-
----
-
-#### L6 — Python `pyproject.toml` referenziert veralteten Monorepo-Namen
-
-**Datei:** `pyproject.toml`
-
-```
-menschlichkeit-oesterreich-monorepo/
-```
-
-Der alte Monorepo-Name erscheint in `exclude`-Pfaden. Da der aktuelle Pfad
-`menschlichkeit-oesterreich-development/` ist, sind diese Excludes wirkungslos.
+- **Live-Befund:** kein Accessibility-Overlay erkannt.
+- **Bewertung:** gut so. Die vorhandenen Probleme sind klassische Code-, Deployment- und Kontrastthemen.
+- **Ein Overlay würde hier vor allem kaschieren:**
+  - kaputte Routen,
+  - unzureichende Farbkontraste,
+  - Produktionsdrift zwischen Quelle und Live-Stand.
+- **Zusatzrisiken eines Overlays:** zusätzliche Skripte, möglicher Fokuskonflikt, zusätzlicher Consent-/Datenschutzbedarf, falsches Compliance-Gefühl.
 
 ---
 
-## TODOs im Source-Code (Eigener Code)
+## Was bereits nativ erfüllt wird
 
-Die meisten TODOs/FIXMEs im Repo befinden sich im **Drupal Core Vendor-Code** (nicht beeinflussbar).
-
-Eigene Source-Code-TODOs (relevante Auswahl aus `.todos-report.md`):
-
-| #   | Datei                                               | Inhalt                         | Priorität |
-| --- | --------------------------------------------------- | ------------------------------ | --------- |
-| 1   | `apps/api/app/routers/privacy.py:304`               | JWT Token Revocation fehlt     | HIGH      |
-| 2   | `apps/api/app/main.py:175`                          | CSP unsafe-inline              | HIGH      |
-| 3   | `api.menschlichkeit-oesterreich.at/app/main.py:777` | CiviCRM IDs hardcoded als NOTE | LOW       |
+- Skiplink auf der öffentlichen Website
+- sinnvolle Grund-Landmarken auf zentralen Seiten
+- echtes Labeling und Fehlerführung im Kontaktformular
+- gute A11y-Basis auf dem Games-Host
+- keine erkennbare Abhängigkeit von einem Overlay
 
 ---
 
-## DSGVO/Security-Bewertung
+## Muss im Code oder Deployment behoben werden
 
-### ✅ Gut umgesetzt:
-
-- `.env` ist korrekt in `.gitignore` (P0 SECURITY Kommentar)
-- Gitleaks-CI läuft täglich + bei jedem PR
-- Bitwarden SDK für Secrets-Injection (`bitwarden-sdk>=2.0.0`)
-- `PII Middleware` vorhanden (`apps/api/app/middleware/pii_middleware.py`)
-- `DSGVO Compliance Check` als npm-Script (`compliance:dsgvo`)
-- Privacy-Router mit Data-Deletion, Consent-Revocation
-- SOPS-Konfiguration (`.sops.yaml`) für verschlüsselte Secrets
-- SBOM-Generierung via CI
-- Alle GitHub Actions auf Commit-Hashes gepinnt (Supply-Chain-Security)
-
-### ⚠️ Verbesserungsbedarf:
-
-- JWT Token-Revocation bei Account-Deletion (H5)
-- CSP `unsafe-inline` für Styles (H4)
-- HSTS fehlt in Staging (M7)
-
-### ✅ Hardcoded Secrets Check:
-
-Keine hardcoded Secrets in eigenem Source-Code gefunden. Die Secrets-Referenzen in
-`apps/api/app/services/sepa_service.py` nutzen korrekt `get_secret()` mit BSM-Fallback.
+1. Öffentliche Login-Kette und CRM-Login wieder funktionsfähig machen.
+2. Öffentliche Route `/barrierefreiheit` produktiv ausliefern.
+3. Produktionsdrift zwischen Live-Build und aktuellem `apps/website`-Stand auflösen.
+4. Kontrastfehler in Header und Footer global beheben.
+5. Stepper in `Join.tsx` semantisch korrekt aufbauen.
+6. Pflichtmarkierungen und kleine Metatexte kontraststark umsetzen.
+7. Brand- und Token-Quelle eindeutig festlegen und synchronisieren.
+8. Portal-abhängige CTAs erst dann prominent ausspielen, wenn der Zielpfad gesund ist.
 
 ---
 
-## CI/CD Analyse
+## Kann optional durch Zusatzfunktionen unterstützt werden
 
-### Pipeline-Übersicht (42 Workflows):
+1. zusätzlicher Kontrastmodus
+2. vergrößerte Standard-Schriftgröße
+3. Lesemodus für lange Inhalte
+4. zusätzliche Bedienhilfen für das Spiel
+5. feinere Reduktion von Animationen über die Basiseinstellung hinaus
 
-| Kategorie  | Workflows                                                                                                | Status |
-| ---------- | -------------------------------------------------------------------------------------------------------- | ------ |
-| Security   | gitleaks, codeql, semgrep, trivy, osv-scanner, owasp-zap, scorecard, secrets-validate, dependency-review | ✅     |
-| Build/Test | ci, api-tests, ci-forum, mcp-tests                                                                       | ✅     |
-| Deploy     | deploy-plesk, deploy-staging, deploy-forum                                                               | ✅     |
-| Quality    | codacy, quality, docs-lint                                                                               | ✅     |
-| Compliance | sbom-generation, env-guard, validate-secrets                                                             | ✅     |
-| Monitoring | ssl-cert-check, insights, otel-collector-test, n8n-smoke                                                 | ✅     |
-| Governance | branch-protection, pat-expiry-reminder, social-posts                                                     | ✅     |
-
-### Stärken:
-
-- `npm audit --audit-level=critical --omit=dev` als CI-Gate
-- Concurrency-Groups verhindern parallele Deployments
-- Timeout-Limits auf allen Jobs gesetzt
-- Branch-Protection wird täglich via Cron konfiguriert
-
-### Lücken:
-
-- `npm audit --audit-level=high` wäre sicherer (aktuell nur `critical`)
-- Kein automatisches Merge der Dependabot-PRs nach grünem CI
+Diese Punkte dürfen aber **nur ergänzen**, nicht die Grundumsetzung ersetzen.
 
 ---
 
-## Git-Status
+## Overlay-Fazit
 
-| Item                                | Status                                                         |
-| ----------------------------------- | -------------------------------------------------------------- |
-| Uncommitted Changes                 | Keine (Clean Working Tree)                                     |
-| Untracked                           | `.claude/skills/` (nicht gitignored)                           |
-| Unpushed Commits                    | **3** (`4a62ac22`, `c467a60e`, `6115bea3`)                     |
-| Offene Dependabot-Branches (Remote) | **14+**                                                        |
-| Aktive Feature-Branches             | `humanobmann/issue142`, `feature/devops-audit-rescue-20260310` |
+Ein Accessibility-Overlay wäre in diesem Zustand **nicht die Hauptlösung**.
 
----
+Die Seite braucht zuerst:
 
-## Dokumentations-Zustand
+- funktionierende Routen,
+- konsistente Deployments,
+- saubere Kontraste,
+- korrekte Semantik.
 
-| Dokument                  | Vorhanden | Qualität                            |
-| ------------------------- | --------- | ----------------------------------- |
-| README.md                 | ✅        | Gut (5.2 KB)                        |
-| CONTRIBUTING.md           | ✅        | Gut                                 |
-| CHANGELOG.md              | ✅        | Aktiv gepflegt                      |
-| SECURITY.md               | ✅        | Sehr gut (CVSS, Response-Times)     |
-| DEPLOYMENT_CONFIG.md      | ✅        | Detailliert                         |
-| DEVELOPMENT-QUICKSTART.md | ✅        | Vorhanden                           |
-| API OpenAPI               | ✅        | `apps/api/openapi.yaml`             |
-| DSGVO-Dokumentation       | ✅        | `dsgvo-audit` Skill, Privacy-Router |
-| Brand Guidelines          | ✅        | `Brand_Guidelines.md` (89 KB!)      |
-
-**Auffällig:** `Brand_Guidelines.md` (89 KB), `EMAIL_DESIGN_SYSTEM.md` (22 KB),
-`EMAIL_TEMPLATE_INVENTORY.md` (16 KB) sind für ein Code-Repo sehr umfangreiche
-Marketing-Dokumente — könnten in ein separates Confluence/Wiki ausgelagert werden.
+Erst wenn diese Basis stimmt, sind optionale Komfortfunktionen sinnvoll.
 
 ---
 
-## GitHub Issues die erstellt werden sollten
+## Test- und Evidenzbasis
 
-### Issue 1 — `[P1][security] JWT Token-Blacklist bei Account-Deletion implementieren`
+Automatisiert geprüft:
 
-```
-**Beschreibung:** Wenn ein User Account-Deletion beantragt, werden existierende JWTs
-nicht invalidiert. User hat bis Token-Expiry noch Datenzugriff → DSGVO-Verletzung.
+- `pa11y` auf `/`, `/kontakt`, `/mitglied-werden`, `/spenden`, `/forum`, `/spiel`, `/login`, `/barrierefreiheit`, `games...`, `crm.../login`
 
-**Umsetzung:**
-- Redis-Blacklist: `jti → exp` Mapping bei Löschantrag setzen
-- `require_auth` Middleware: Blacklist-Check vor jeder Anfrage
-- TTL = JWT-Lebensdauer (redundant entries werden automatisch bereinigt)
+Manuell bzw. halbautomatisiert geprüft:
 
-**Dateien:** apps/api/app/routers/privacy.py, apps/api/app/security.py
+- Tastaturpfad auf Startseite und Startseite mobil via Puppeteer
+- DOM-Fokusreihenfolge auf dem Games-Host
+- Live-Statuscodes via `curl`
+- Live-HTML gegen aktuellen Source-Code abgeglichen
 
-**Labels:** security, privacy, DSGVO, P1
-```
+Nicht vollumfänglich geprüft:
 
-### Issue 2 — `[P2][security] CSP unsafe-inline aus style-src entfernen`
+- echter NVDA-/VoiceOver-Durchlauf
+- vollständige 200%-Zoom-Prüfung jedes Hosts mit visueller Dokumentation
+- Touch-Gesten auf realen Geräten
 
-```
-**Beschreibung:** apps/api/app/main.py:175 enthält 'unsafe-inline' in style-src.
-
-**Umsetzung:**
-- Inline-Styles in FastAPI-Templates in CSS-Dateien auslagern
-- Oder: Per-Request Nonce generieren und in CSP + Templates injizieren
-- Report-Only Modus erst testen bevor enforcing
-
-**Dateien:** apps/api/app/main.py:165-195
-
-**Labels:** security, CSP, P2
-```
-
-### Issue 3 — `[P2][infra] Dependabot-Pfad-Duplikat bereinigen`
-
-```
-**Beschreibung:** dependabot.yml referenziert sowohl api.menschlichkeit-oesterreich.at/
-als auch apps/api/ für pip-Dependencies → doppelte PRs, Konflikte.
-
-**Umsetzung:**
-- Alten api.menschlichkeit-oesterreich.at/ Eintrag aus dependabot.yml entfernen
-- Offene verwaiste Dependabot-Branches schließen/löschen
-
-**Labels:** dependencies, infra, P2
-```
-
-### Issue 4 — `[P3][ops] .next/ Build-Artefakte aus Git entfernen`
-
-```
-**Beschreibung:** apps/babylon-game/.next/ (Build-Output) ist committed.
-Das bläht das Repo auf und erzeugt Konflikte.
-
-**Umsetzung:**
-1. .next/ zu .gitignore hinzufügen
-2. git rm -r --cached apps/babylon-game/.next/
-3. Commit
-
-**Labels:** chore, cleanup, P3
-```
-
-### Issue 5 — `[P3][tooling] .claude/skills/azure-devops-cli/SKILL.md vervollständigen`
-
-```
-**Beschreibung:** SKILL.md hat nur 25 Zeilen (Header + Auth-Sektion). Die vollständige
-Skill-Dokumentation soll laut Spezifikation ~2467 Zeilen umfassen und alle Azure DevOps
-CLI-Kommandos abdecken (Pipelines, Builds, Work Items, Artifacts, etc.).
-
-**Umsetzung:**
-- Vollständige Datei aus Referenz /sessions/vibrant-gracious-bohr/mnt/outputs/azure-devops-cli-SKILL.md
-  einkopieren
-- Committen (aktuell untracked)
-
-**Labels:** tooling, documentation, P3
-```
+Diese offenen Punkte ändern das Gesamturteil derzeit nicht, weil die zentralen Blocker schon vorher klar sind.
 
 ---
 
-## Sofort-Fixes (direkt umsetzbar)
+## Management-Zusammenfassung in einfacher Sprache
 
-### Fix 1 — `.claude/skills/` in `.gitignore` — ✅ ANGEWENDET
+Die Website wirkt an vielen Stellen schon ordentlich und das Spiel ist technisch sogar überraschend gut vorbereitet. Trotzdem ist das Gesamtbild derzeit **nicht grün**.
 
-`.gitignore` wurde aktualisiert: `.claude/skills/` ist jetzt ignoriert.
-Die Skills-Verzeichnisse sind user-lokal und sollen nicht ins Repo.
+Der wichtigste Grund ist: zentrale Wege funktionieren live nicht. Wer sich einloggen will oder die Barrierefreiheitsseite sucht, landet auf einer Fehlerseite. Dazu kommen wiederkehrende Kontrastprobleme bei kleinen Texten und ein deutlicher Unterschied zwischen dem aktuellen Code und dem, was tatsächlich online ist.
 
-### Fix 2 — Dependabot-Pfad — ✅ BEREITS KORREKT
-
-`dependabot.yml` referenziert korrekt `/apps/api`. Verwaiste Remote-Branches
-mit dem alten Pfad müssen auf GitHub geschlossen/gelöscht werden (manuel).
-
-### Fix 3 — `.next/` Build-Artefakte — ✅ BEREITS KORREKT
-
-`apps/babylon-game/.next/` ist bereits in `.gitignore` (Zeile 514) und nicht
-getrackt (0 Dateien via `git ls-files`).
-
-### Fix 4 — `npm audit --audit-level` von `critical` auf `high` anheben (offen)
-
-In `.github/workflows/ci.yml`:
-
-```yaml
-# Vorher:
-run: npm audit --audit-level=critical --omit=dev
-# Nachher:
-run: npm audit --audit-level=high --omit=dev
-```
-
----
-
-## Zusammenfassung
-
-| Kategorie          | Bewertung  | Kommentar                                                     |
-| ------------------ | ---------- | ------------------------------------------------------------- |
-| Security-Setup     | ⭐⭐⭐⭐   | Exzellent: Gitleaks, Trivy, CodeQL, OWASP ZAP                 |
-| Secrets-Management | ⭐⭐⭐⭐   | Bitwarden, SOPS, kein Hardcoding                              |
-| CI/CD              | ⭐⭐⭐⭐   | 42 Workflows, Hashes-Pinning, Timeouts                        |
-| Code-Qualität      | ⭐⭐⭐     | Gut; wenige eigene TODOs; Drupal-Vendor-TODOs sind irrelevant |
-| DSGVO              | ⭐⭐⭐     | PII-Middleware vorhanden, JWT-Revocation fehlt noch           |
-| Dokumentation      | ⭐⭐⭐⭐⭐ | Außergewöhnlich umfangreich                                   |
-| Dependencies       | ⭐⭐⭐     | Viele Dependabot-PRs offen; Overrides aktiv gepflegt          |
-| Repo-Hygiene       | ⭐⭐⭐     | .next/, codacy-CLI, große MD-Dateien committed                |
-
-**Gesamtbewertung: Produktionstauglich mit bekannten Verbesserungspunkten.**
-
----
-
-_Report generiert von Claude Sonnet 4.6 am 2026-04-05_
+Kurz gesagt:  
+**Die Basis ist da, aber Produktion und Qualitätssicherung sind noch nicht stabil genug, um die Website ohne Einschränkungen als barrierefrei gut nutzbar zu bewerten.**

@@ -10,7 +10,7 @@ export function createGameDataAdapter(
     ...(config.baseUrl ? { baseUrl: config.baseUrl } : {}),
   };
 
-  if (normalized.source === 'api-stub') {
+  if (normalized.source === 'api' || normalized.source === 'api-stub') {
     return createApiGameDataAdapter(normalized);
   }
 

@@ -99,5 +99,10 @@ export function createLocalGameDataAdapter(): GameDataAdapter {
       stored.progress.activeScenarioId = scenarioId;
       writeStoredState(stored);
     },
+    async setAudioMuted(audioMuted: boolean) {
+      const stored = readStoredState();
+      stored.progress.audioMuted = audioMuted;
+      writeStoredState(stored);
+    },
   };
 }

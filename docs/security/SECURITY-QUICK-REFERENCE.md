@@ -34,7 +34,7 @@ done
 - API-Entrypoint: `apps/api/app/main.py`
 - Security-Middleware und Limiting: `apps/api/app/security.py`
 - API-Tests: `apps/api/tests/test_security.py`, `apps/api/tests/test_pii_sanitizer.py`
-- Deployvertrag: `README_DEPLOY.md`
+- Deployvertrag: `README_DEPLOY.md` plus `docs/operations/deployment.md`
 - Monitoringvertrag: `docs/operations/monitoring.md`
 
 ## Incident-Minimum

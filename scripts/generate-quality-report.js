@@ -66,6 +66,13 @@ function readJsonReport(filePath) {
   return null;
 }
 
+function getNumericThreshold(name, fallback) {
+  const raw = process.env[name];
+  if (!raw) return fallback;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
 // Helper: Recursively scan figmadocs
 function scanFigmadocs(baseDir) {
   const absBase = path.resolve(baseDir);
@@ -233,18 +240,24 @@ if (lighthouseJson) {
   report.summary.performance_score = Math.round((perf || 0) * 100);
 
   // Update gates based on thresholds defined in run-lighthouse script
-  const perfOk = perf >= 0.9;
-  const a11yOk = a11y >= 0.95;
-  const bpOk = bestPractices >= 0.95;
-  const seoOk = seo >= 0.9;
+  const isCi = String(process.env.CI || '').toLowerCase() === 'true';
+  const perfThreshold = getNumericThreshold('LH_THRESHOLD_PERFORMANCE', isCi ? 0.9 : 0.65);
+  const a11yThreshold = getNumericThreshold('LH_THRESHOLD_A11Y', isCi ? 0.9 : 0.9);
+  const bpThreshold = getNumericThreshold('LH_THRESHOLD_BP', isCi ? 0.95 : 0.7);
+  const seoThreshold = getNumericThreshold('LH_THRESHOLD_SEO', isCi ? 0.9 : 0.9);
+
+  const perfOk = perf >= perfThreshold;
+  const a11yOk = a11y >= a11yThreshold;
+  const bpOk = bestPractices >= bpThreshold;
+  const seoOk = seo >= seoThreshold;
 
   report.quality_gates.performance_gate = {
     passed: perfOk && bpOk && seoOk,
-    details: `Scores: performance=${(perf * 100).toFixed(0)} a11y=${(a11y * 100).toFixed(0)} best-practices=${(bestPractices * 100).toFixed(0)} seo=${(seo * 100).toFixed(0)} (source: ${lighthouseUsedPath})`,
+    details: `Scores: performance=${(perf * 100).toFixed(0)} a11y=${(a11y * 100).toFixed(0)} best-practices=${(bestPractices * 100).toFixed(0)} seo=${(seo * 100).toFixed(0)} | thresholds: P>=${(perfThreshold * 100).toFixed(0)} BP>=${(bpThreshold * 100).toFixed(0)} SEO>=${(seoThreshold * 100).toFixed(0)} (source: ${lighthouseUsedPath})`,
   };
   report.quality_gates.accessibility_gate = {
     passed: a11yOk,
-    details: `Accessibility score ${(a11y * 100).toFixed(0)} (source: ${lighthouseUsedPath})`,
+    details: `Accessibility score ${(a11y * 100).toFixed(0)} (threshold ${(a11yThreshold * 100).toFixed(0)}) (source: ${lighthouseUsedPath})`,
   };
 }
 

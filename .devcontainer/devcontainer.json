@@ -24,8 +24,6 @@
     "vscode": {
       "extensions": [
         "ms-python.python",
-        "ms-python.flake8",
-        "ms-python.pylint",
         "ms-vscode.vscode-typescript-next",
         "esbenp.prettier-vscode",
         "ms-eslint.vscode-eslint",
@@ -34,7 +32,12 @@
         "bradlc.vscode-tailwindcss",
         "GitHub.copilot",
         "GitHub.copilot-chat",
-        "ms-vscode.powershell"
+        "ms-vscode.powershell",
+        "ms-vscode.azure-account",
+        "Prisma.prisma",
+        "redhat.vscode-yaml",
+        "ms-azuretools.vscode-docker",
+        "EditorConfig.EditorConfig"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
@@ -73,12 +76,7 @@
       }
     }
   },
-  "forwardPorts": [
-    3000,
-    5173,
-    8000,
-    8001
-  ],
+  "forwardPorts": [3000, 5173, 8000, 8001],
   "portsAttributes": {
     "3000": {
       "label": "Games Server",

@@ -31,7 +31,7 @@ export function createApiGameDataAdapter(config: GameDataAdapterConfig): GameDat
   const baseUrl = config.baseUrl?.trim() ?? '';
 
   return {
-    source: 'api-stub',
+    source: 'api',
     async loadBootstrapData(): Promise<GameBootstrapData> {
       const fallbackData = await localFallback.loadBootstrapData();
       if (!baseUrl) {
@@ -130,6 +130,22 @@ export function createApiGameDataAdapter(config: GameDataAdapterConfig): GameDat
           error
         );
         await localFallback.setActiveScenario(scenarioId);
+      }
+    },
+    async setAudioMuted(audioMuted: boolean) {
+      await localFallback.setAudioMuted(audioMuted);
+      if (!baseUrl) {
+        return;
+      }
+
+      try {
+        await postJson(baseUrl, '/game/audio', { audioMuted });
+      } catch (error) {
+        console.warn(
+          'Audio-Einstellung konnte nicht an die API übergeben werden, lokal wird gespeichert.',
+          error
+        );
+        await localFallback.setAudioMuted(audioMuted);
       }
     },
   };

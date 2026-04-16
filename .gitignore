@@ -102,6 +102,11 @@ api-keys.txt
 tokens.txt
 credentials.json
 service-account*.json
+codacy*token*.txt
+*codacy*api*token*.txt
+
+# Lokale Secret-Ablage (nie committen)
+.local-secrets/
 
 # Bitwarden / lokale Vault-Artefakte
 BW_ACCESS_TOKEN.txt

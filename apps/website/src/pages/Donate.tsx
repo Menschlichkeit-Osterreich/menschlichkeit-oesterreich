@@ -331,7 +331,9 @@ export default function DonatePage() {
               role="alert"
               aria-live="assertive"
             >
-              <p className="text-sm font-semibold text-red-900">Bitte prüfen Sie folgende Eingaben:</p>
+              <p className="text-sm font-semibold text-red-900">
+                Bitte prüfen Sie folgende Eingaben:
+              </p>
               <ul className="mt-2 list-disc pl-5 text-sm text-red-800">
                 {formErrors.map(item => (
                   <li key={item.id}>
@@ -381,7 +383,9 @@ export default function DonatePage() {
                     value={amount}
                     onChange={e => setAmount(Number(e.target.value))}
                     aria-invalid={showFieldErrors && !amountValid}
-                    aria-describedby={showFieldErrors && !amountValid ? 'donation-amount-error' : undefined}
+                    aria-describedby={
+                      showFieldErrors && !amountValid ? 'donation-amount-error' : undefined
+                    }
                   />
                   <span aria-hidden="true">€</span>
                 </div>
@@ -445,7 +449,9 @@ export default function DonatePage() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 aria-invalid={showFieldErrors && !emailValid}
-                aria-describedby={showFieldErrors && !emailValid ? 'donation-email-error' : undefined}
+                aria-describedby={
+                  showFieldErrors && !emailValid ? 'donation-email-error' : undefined
+                }
                 required
               />
               {showFieldErrors && !emailValid && (
@@ -471,6 +477,7 @@ export default function DonatePage() {
               <label className="flex items-center gap-2" htmlFor="donation-anonymous">
                 <input
                   id="donation-anonymous"
+                  name="anonymous"
                   type="checkbox"
                   checked={anonymous}
                   onChange={e => setAnonymous(e.target.checked)}
@@ -525,7 +532,9 @@ export default function DonatePage() {
                     value={iban}
                     onChange={e => setIban(e.target.value)}
                     aria-invalid={showFieldErrors && !ibanValid}
-                    aria-describedby={showFieldErrors && !ibanValid ? 'donation-iban-error' : undefined}
+                    aria-describedby={
+                      showFieldErrors && !ibanValid ? 'donation-iban-error' : undefined
+                    }
                     required
                   />
                   {showFieldErrors && !ibanValid && (
@@ -576,7 +585,6 @@ export default function DonatePage() {
                   />
                 </React.Suspense>
               )}
-
 
             <div className="mt-4 flex gap-2">
               <Button type="submit" disabled={!valid || submitting} aria-busy={submitting}>

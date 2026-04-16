@@ -1,3 +1,4 @@
+import { createAudioManager } from '@/game/audio/audio-manager';
 import { createEngineScene } from '@/game/bootstrap/create-engine-scene';
 import { createFollowCamera } from '@/game/bootstrap/create-follow-camera';
 import { setupPhysics } from '@/game/bootstrap/setup-physics';
@@ -16,28 +17,12 @@ import { createCollectibles } from '@/game/objects/create-collectibles';
 import { createGoalBeacon } from '@/game/objects/create-goal-beacon';
 import { createKineticCore } from '@/game/objects/create-kinetic-core';
 import { createPlayer } from '@/game/objects/create-player';
-import type { GameScenario } from '@/game/scenarios/scenario-model';
+import { resolveAvailableScenarios, type GameScenario } from '@/game/scenarios/scenario-model';
 import { createGameStore } from '@/game/state/game-store';
 import type { GameHudState, GameRuntime } from '@/game/state/game-types';
 import { updateGameplay } from '@/game/systems/gameplay-loop';
 import { createInputController } from '@/game/systems/input-controller';
 import { bindHudState } from '@/game/ui/bind-hud-state';
-
-function resolveAvailableScenarios(
-  scenarios: GameScenario[],
-  completedScenarioIds: string[]
-): GameScenario[] {
-  const completed = new Set(completedScenarioIds);
-  return scenarios.map(scenario => {
-    const unlocked =
-      scenario.status === 'playable' ||
-      (scenario.unlockAfterScenarioId ? completed.has(scenario.unlockAfterScenarioId) : false);
-    return {
-      ...scenario,
-      status: unlocked ? 'playable' : 'locked',
-    };
-  });
-}
 
 function pickActiveScenario(
   availableScenarios: GameScenario[],
@@ -105,6 +90,7 @@ export async function createGameRuntime({
     activeScenario,
     availableRoles,
     activeRole,
+    audioMuted: bootstrapData.progress.audioMuted ?? false,
     completedMissionIds: bootstrapData.progress.completedMissionIds,
     completedScenarioIds,
     lastScenarioResult: bootstrapData.progress.lastScenarioResult,
@@ -124,6 +110,8 @@ export async function createGameRuntime({
   const kineticCore = createKineticCore(scene);
   const goalBeacon = createGoalBeacon(scene);
   const input = createInputController(window);
+  const audio = createAudioManager(scene);
+  audio.setMuted(bootstrapData.progress.audioMuted ?? false);
   prepareMissionState(store, collectibles, goalBeacon, kineticCore, environment);
   if (!physicsReady) {
     store.setState({
@@ -134,7 +122,9 @@ export async function createGameRuntime({
 
   let lastPersistedStatus = store.getState().mission.status;
   let lastPersistedCollected = store.getState().collected;
+  let lastCollectedForAudio = store.getState().collected;
   let lastResultPhase: GameHudState['phase'] | null = null;
+  let lastPhase: GameHudState['phase'] = store.getState().phase;
   const unsubscribeDataSync = store.subscribe(state => {
     if (
       state.mission.status !== lastPersistedStatus ||
@@ -206,11 +196,35 @@ export async function createGameRuntime({
     if (state.phase !== 'success' && state.phase !== 'fail') {
       lastResultPhase = null;
     }
+
+    if (state.collected > lastCollectedForAudio) {
+      audio.playCollect();
+    }
+    lastCollectedForAudio = state.collected;
+
+    if (state.phase !== lastPhase) {
+      if (state.phase === 'playing') {
+        audio.playAmbient();
+      }
+      if (state.phase === 'success') {
+        audio.playSuccess();
+        audio.stopAmbient();
+      }
+      if (state.phase === 'fail') {
+        audio.playFail();
+        audio.stopAmbient();
+      }
+      if (state.phase === 'start') {
+        audio.stopAmbient();
+      }
+      lastPhase = state.phase;
+    }
   });
 
   let disposed = false;
   const onResize = () => engine.resize();
   window.addEventListener('resize', onResize);
+  window.addEventListener('orientationchange', onResize);
 
   engine.runRenderLoop(() => {
     if (disposed) {
@@ -332,6 +346,15 @@ export async function createGameRuntime({
       store.setState({ activeScenario: scenario });
       prepareMissionState(store, collectibles, goalBeacon, kineticCore, environment);
     },
+    setAudioMuted(audioMuted) {
+      if (disposed) {
+        return;
+      }
+
+      audio.setMuted(audioMuted);
+      void dataAdapter.setAudioMuted(audioMuted);
+      store.setState({ audioMuted });
+    },
     dispose() {
       if (disposed) {
         return;
@@ -339,7 +362,9 @@ export async function createGameRuntime({
 
       disposed = true;
       window.removeEventListener('resize', onResize);
+      window.removeEventListener('orientationchange', onResize);
       input.dispose();
+      audio.dispose();
       unsubscribeDataSync();
       unsubscribe();
       scene.dispose();

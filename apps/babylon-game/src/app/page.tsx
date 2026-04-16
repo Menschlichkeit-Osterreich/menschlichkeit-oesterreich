@@ -5,7 +5,9 @@ import { useEffect, useRef, useState } from 'react';
 import { createGameRuntime } from '@/game/bootstrap/create-game-runtime';
 import { createGameDataAdapter } from '@/game/data/create-game-data-adapter';
 import { DEFAULT_HUD_STATE, type GameHudState, type GameRuntime } from '@/game/state/game-types';
+import { AccessiblePanel } from '@/game/ui/AccessiblePanel';
 import { GameOverlay } from '@/game/ui/GameOverlay';
+import { TouchControls } from '@/game/ui/TouchControls';
 
 type AccessibleMissionStage = 'idle' | 'collect' | 'core' | 'beacon' | 'result';
 
@@ -23,7 +25,11 @@ export default function Home() {
   const runtimeRef = useRef<GameRuntime | null>(null);
   const dataAdapterRef = useRef(
     createGameDataAdapter({
-      source: process.env.NEXT_PUBLIC_GAME_DATA_SOURCE === 'api-stub' ? 'api-stub' : 'local',
+      source:
+        process.env.NEXT_PUBLIC_GAME_DATA_SOURCE === 'api' ||
+        process.env.NEXT_PUBLIC_GAME_DATA_SOURCE === 'api-stub'
+          ? 'api'
+          : 'local',
       ...(process.env.NEXT_PUBLIC_GAME_API_BASE_URL
         ? { baseUrl: process.env.NEXT_PUBLIC_GAME_API_BASE_URL }
         : {}),
@@ -121,7 +127,6 @@ export default function Home() {
     hud.totalCollectibles,
     hud.activeScenario.collectiblePositions.length
   );
-
   const handleAccessibleStart = () => {
     if (hud.activeScenario.status !== 'playable') {
       setAccessibleMission({
@@ -270,122 +275,57 @@ export default function Home() {
         aria-hidden="true"
         className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-orange-500/10 via-sky-500/5 to-transparent"
       />
-      <canvas
-        ref={canvasRef}
-        className="absolute inset-0 block h-full w-full select-none outline-none"
-        aria-hidden="true"
-      />
+      <div id="game-canvas" className="absolute inset-0">
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 block h-full w-full select-none outline-none"
+          aria-hidden="true"
+        />
+      </div>
+      <TouchControls visible={hud.phase === 'playing'} />
+      {hud.phase === 'loading' ? (
+        <div
+          className="pointer-events-none absolute inset-x-0 top-5 z-20 flex justify-center"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="flex items-center gap-3 rounded-2xl border border-orange-400/25 bg-slate-950/80 px-4 py-2 text-sm text-amber-100 shadow-xl backdrop-blur">
+            <span
+              className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-amber-200/30 border-t-amber-300"
+              aria-hidden="true"
+            />
+            <span className="animate-pulse">Spielwelt wird geladen …</span>
+          </div>
+        </div>
+      ) : null}
       {hud.phase !== 'playing' ? (
         <div className="pointer-events-none absolute bottom-4 right-4 max-w-xs rounded-2xl border border-orange-400/20 bg-slate-950/70 px-4 py-3 text-xs text-amber-50 shadow-xl backdrop-blur">
           Kurzlogik: <span className="font-semibold">zuhören → verbinden → Treffpunkt öffnen</span>
         </div>
       ) : null}
-      <details className="pointer-events-auto absolute bottom-4 left-4 z-20 w-full max-w-sm rounded-2xl border border-orange-400/20 bg-slate-950/78 p-3 text-sm text-amber-50 shadow-2xl backdrop-blur">
-        <summary className="cursor-pointer list-none text-sm font-medium text-amber-100">
-          Textmodus & Barrierefreiheit {accessibleMission.enabled ? '· aktiv' : '· optional'}
-        </summary>
-        <div className="mt-3 space-y-3">
-          <p className="text-xs text-slate-300">
-            Optionaler linearer Modus ohne 3D-Navigation. Öffne ihn nur, wenn du die Mission lieber
-            Schritt für Schritt als Text erleben willst.
-          </p>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className="grid gap-1">
-              <span className="text-[11px] uppercase tracking-[0.16em] text-slate-400">Rolle</span>
-              <select
-                value={hud.activeRole.id}
-                onChange={event => handleRoleSelect(event.target.value)}
-                className="rounded-xl border border-white/10 bg-slate-900 px-3 py-2 text-sm text-slate-50"
-              >
-                {hud.availableRoles.map(role => (
-                  <option key={role.id} value={role.id}>
-                    {role.title}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="grid gap-1">
-              <span className="text-[11px] uppercase tracking-[0.16em] text-slate-400">
-                Szenario
-              </span>
-              <select
-                value={hud.activeScenario.id}
-                onChange={event => handleScenarioSelect(event.target.value)}
-                className="rounded-xl border border-white/10 bg-slate-900 px-3 py-2 text-sm text-slate-50"
-              >
-                {hud.availableScenarios.map(scenario => (
-                  <option key={scenario.id} value={scenario.id}>
-                    {scenario.title}
-                    {scenario.status !== 'playable' ? ' – gesperrt' : ''}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <div className="rounded-xl bg-slate-900/80 p-3">
-            <p className="text-xs text-amber-100" role="status" aria-live="polite">
-              {accessibleMission.message}
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-2">
-            {!accessibleMission.enabled || accessibleMission.stage === 'idle' ? (
-              <button
-                type="button"
-                onClick={handleAccessibleStart}
-                className="rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-orange-400"
-              >
-                Textmodus starten
-              </button>
-            ) : null}
-
-            {accessibleMission.enabled && accessibleMission.stage === 'collect' ? (
-              <button
-                type="button"
-                onClick={handleAccessibleCollect}
-                className="rounded-xl bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300"
-              >
-                {hud.activeScenario.collectibleLabel} markieren ({accessibleMission.collected}/
-                {accessibleCollectibleCount})
-              </button>
-            ) : null}
-
-            {accessibleMission.enabled && accessibleMission.stage === 'core' ? (
-              <button
-                type="button"
-                onClick={() =>
-                  setAccessibleMission(current => ({
-                    ...current,
-                    stage: 'beacon',
-                    message: 'Gemeinschaftskern ist am Treffpunkt. Öffne jetzt den Dialogpunkt.',
-                  }))
-                }
-                className="rounded-xl bg-amber-300 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-amber-200"
-              >
-                Kern verschoben
-              </button>
-            ) : null}
-
-            {accessibleMission.enabled && accessibleMission.stage === 'beacon' ? (
-              <button
-                type="button"
-                onClick={() => void completeAccessibleMission('completed')}
-                className="rounded-xl bg-orange-500 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-orange-400"
-              >
-                Treffpunkt öffnen
-              </button>
-            ) : null}
-          </div>
-        </div>
-      </details>
+      <AccessiblePanel
+        hud={hud}
+        accessibleMission={accessibleMission}
+        accessibleCollectibleCount={accessibleCollectibleCount}
+        onRoleSelect={handleRoleSelect}
+        onScenarioSelect={handleScenarioSelect}
+        onAccessibleStart={handleAccessibleStart}
+        onAccessibleCollect={handleAccessibleCollect}
+        onCoreShift={() =>
+          setAccessibleMission(current => ({
+            ...current,
+            stage: 'beacon',
+            message: 'Gemeinschaftskern ist am Treffpunkt. Öffne jetzt den Dialogpunkt.',
+          }))
+        }
+        onBeaconOpen={() => void completeAccessibleMission('completed')}
+      />
       <GameOverlay
         hud={hud}
         onPrimaryAction={handlePrimaryAction}
         onRoleSelect={handleRoleSelect}
         onScenarioSelect={handleScenarioSelect}
+        onToggleAudio={() => runtimeRef.current?.setAudioMuted(!hud.audioMuted)}
       />
     </main>
   );

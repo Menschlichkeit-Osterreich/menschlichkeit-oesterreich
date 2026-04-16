@@ -42,8 +42,9 @@ Lokale oder historische Skripte sind nur Fallbacks und duerfen den Workflowvertr
 
 1. `main` aktuell halten
 2. Quality Gates laufen lassen
-3. `workflow_dispatch` oder Push auf `main` fuer `.github/workflows/deploy-plesk.yml`
-4. Post-Deploy-Smokes und Healthchecks verifizieren
+3. Push auf `main` startet den produktiven Workflow `.github/workflows/deploy-plesk.yml` automatisch
+4. `workflow_dispatch` bleibt fuer Dry-Runs oder gezielte Service-Deploys verfuegbar
+5. Route-Smokes, Release-Marker und Post-Deploy-Healthchecks muessen gruene Ergebnisse liefern
 
 ## Health-Vertrag
 
