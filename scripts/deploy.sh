@@ -35,6 +35,7 @@ LOCK_FILE="/tmp/moe_deploy.lock"
 LOG_DIR="${HOME}/.moe_deploy_logs"
 TIMESTAMP="$(date -u '+%Y%m%dT%H%M%SZ')"
 COMMIT_SHA="${COMMIT_SHA:-$(git rev-parse --short HEAD 2>/dev/null || echo 'unknown')}"
+# ── PLESK_* ist kanonisch, PLSK_* bleibt nur Legacy-Fallback ────────────────
 PLESK_HOST="${PLESK_HOST:-${PLSK_HOST:-}}"
 PLESK_USER="${PLESK_USER:-${PLSK_USER:-}}"
 PLESK_PORT="${PLESK_PORT:-${PLSK_PORT:-22}}"

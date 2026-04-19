@@ -16,6 +16,7 @@ set -euo pipefail
 SERVICE="${SERVICE:-all}"
 MAIN_DOMAIN="${MAIN_DOMAIN:-menschlichkeit-oesterreich.at}"
 VERIFY_JSON="${VERIFY_JSON:-false}"
+# ── PLESK_* ist kanonisch, PLSK_* bleibt nur Legacy-Fallback ────────────────
 PLESK_HOST="${PLESK_HOST:-${PLSK_HOST:-}}"
 PLESK_USER="${PLESK_USER:-${PLSK_USER:-}}"
 PLESK_PORT="${PLESK_PORT:-${PLSK_PORT:-22}}"
@@ -134,7 +135,7 @@ fi
 if [[ "${SERVICE}" == "all" || "${SERVICE}" == "api" ]]; then
   echo ""
   echo "── API ───────────────────────────────────────────────────"
-  API_PATH="${PLESK_API_PATH:-${PLSK_API_PATH:-subdomains/api/httpdocs}}"
+  API_PATH="${PLESK_API_PATH:-${PLSK_API_PATH:-subdomains/api/httpdocs}}" # PLSK_* = Legacy-Fallback
   check_release_marker "${API_PATH}" "API"
   check_remote_file    "${API_PATH}" "requirements.txt" "API"
   check_http           "https://api.${MAIN_DOMAIN}/healthz" "API"
@@ -144,7 +145,7 @@ fi
 if [[ "${SERVICE}" == "all" || "${SERVICE}" == "crm" ]]; then
   echo ""
   echo "── CRM ───────────────────────────────────────────────────"
-  CRM_PATH="${PLESK_CRM_PATH:-${PLSK_CRM_PATH:-subdomains/crm/httpdocs}}"
+  CRM_PATH="${PLESK_CRM_PATH:-${PLSK_CRM_PATH:-subdomains/crm/httpdocs}}" # PLSK_* = Legacy-Fallback
   check_release_marker "${CRM_PATH}" "CRM"
   check_remote_file    "${CRM_PATH}" "vendor/autoload.php" "CRM (composer)"
   check_http           "https://crm.${MAIN_DOMAIN}/" "CRM"
@@ -154,7 +155,7 @@ fi
 if [[ "${SERVICE}" == "all" || "${SERVICE}" == "games" ]]; then
   echo ""
   echo "── Games ─────────────────────────────────────────────────"
-  GAMES_PATH="${PLESK_GAMES_PATH:-${PLSK_GAMES_PATH:-subdomains/games/httpdocs}}"
+  GAMES_PATH="${PLESK_GAMES_PATH:-${PLSK_GAMES_PATH:-subdomains/games/httpdocs}}" # PLSK_* = Legacy-Fallback
   check_release_marker "${GAMES_PATH}" "Games"
   check_http           "https://games.${MAIN_DOMAIN}/" "Games"
 fi
