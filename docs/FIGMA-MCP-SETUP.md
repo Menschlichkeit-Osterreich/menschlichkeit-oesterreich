@@ -1,3 +1,10 @@
+---
+title: Figma MCP Setup
+description: Setup-Anleitung fuer die Figma-MCP-Anbindung mit Token und VS Code.
+lastUpdated: 2026-04-16
+status: ACTIVE
+---
+
 # 🎨 Figma MCP Integration – Setup Guide
 
 ## Übersicht
@@ -96,6 +103,7 @@ npm run figma:mcp:check
 ### Basis-Workflow: Design zu Code
 
 1. **Figma-Link kopieren**
+
    ```
    https://www.figma.com/make/mTlUSy9BQk4326cvwNa8zQ/Website?node-id=1-2
    ```
@@ -103,12 +111,14 @@ npm run figma:mcp:check
 2. **Copilot-Prompt (Beispiele)**
 
    **Einfach:**
+
    ```
    Generiere eine React-Komponente aus dem Figma-Design:
    https://www.figma.com/make/mTlUSy9BQk4326cvwNa8zQ/Website?node-id=1-2
    ```
 
    **Erweitert:**
+
    ```
    Generiere aus Figma Node 1:2 eine TypeScript React-Komponente mit:
    - Tailwind CSS basierend auf Design Tokens
@@ -118,8 +128,9 @@ npm run figma:mcp:check
    ```
 
    **Mit Komponenten-Name:**
+
    ```
-   Erstelle die Komponente "HeroSection" aus Figma Node 1:2 
+   Erstelle die Komponente "HeroSection" aus Figma Node 1:2
    und speichere sie unter frontend/src/components/figma/HeroSection.tsx
    ```
 
@@ -229,6 +240,7 @@ npm run quality:gates
 **Problem:** `⚠️ MCP Server not available, using fallback mode`
 
 **Lösungen:**
+
 ```bash
 # 1. Server-Status prüfen
 npm run figma:mcp:check
@@ -251,6 +263,7 @@ $env:FIGMA_API_TOKEN  # PowerShell
 **Problem:** `❌ Figma API error: 401`
 
 **Lösungen:**
+
 ```bash
 # Token neu generieren in Figma Settings
 # .env.local aktualisieren
@@ -262,6 +275,7 @@ $env:FIGMA_API_TOKEN  # PowerShell
 **Problem:** ESLint/TypeScript Errors in generierten Dateien
 
 **Lösungen:**
+
 ```bash
 # Auto-Fix ausführen
 npm run lint:js
@@ -278,6 +292,7 @@ npx tsc --noEmit
 **Problem:** Token Drift > 0
 
 **Lösungen:**
+
 ```bash
 # Manueller Sync
 npm run figma:sync
@@ -294,6 +309,7 @@ npm run figma:full-sync
 **Problem:** `Error: EADDRINUSE: address already in use`
 
 **Lösungen:**
+
 ```bash
 # Unix/Mac
 lsof -ti:3845 | xargs kill -9
@@ -310,12 +326,14 @@ npm run figma:mcp:server
 ### Token-Verwaltung
 
 ✅ **DO:**
+
 - Tokens nur in `.env.local` oder GitHub Secrets
 - Regelmäßig Tokens rotieren (alle 90 Tage)
 - Unterschiedliche Tokens für Dev/Staging/Prod
 - Token-Berechtigung auf "Read-Only" wenn möglich
 
 ❌ **DON'T:**
+
 - Tokens in Code committen
 - Tokens in Logs ausgeben
 - Tokens mit anderen teilen
@@ -365,6 +383,7 @@ cat quality-reports/figma-integration-*.json
 ### GitHub Actions Workflow
 
 Die Integration läuft automatisch bei:
+
 - Pull Requests (Dry-Run)
 - Push zu `main` (Full Sync)
 - Manueller Trigger via Workflow Dispatch
@@ -376,7 +395,7 @@ name: Figma Design Sync
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 2 * * *'  # Täglich 2:00 UTC
+    - cron: '0 2 * * *' # Täglich 2:00 UTC
 
 jobs:
   sync:
@@ -422,12 +441,13 @@ jobs:
 ### Projekt-spezifische Docs
 
 - [`.github/instructions/core/figma-mcp.instructions.md`](../.github/instructions/core/figma-mcp.instructions.md)
-- [`docs/FIGMA-COMPONENT-MAPPING.md`](../docs/FIGMA-COMPONENT-MAPPING.md)
-- [`figma-design-system/README.md`](../figma-design-system/README.md)
+- [`docs/FIGMA-COMPONENT-MAPPING.md`](./FIGMA-COMPONENT-MAPPING.md)
+- [`figma-design-system/FIGMA-README.md`](../figma-design-system/FIGMA-README.md)
 
 ### Beispiel-Prompts für Copilot
 
 **Komponente mit Props generieren:**
+
 ```
 Generiere aus Figma Node 1:2 eine TypeScript-Komponente "Button" mit Props:
 - variant: 'primary' | 'secondary' | 'outline'
@@ -437,6 +457,7 @@ Nutze Design Tokens und WCAG AA Accessibility.
 ```
 
 **Responsive Layout:**
+
 ```
 Erstelle aus Figma Node 3:5 ein responsives Grid-Layout
 mit Breakpoints: mobile (sm), tablet (md), desktop (lg).
@@ -444,6 +465,7 @@ Nutze Tailwind CSS und Design Tokens für Spacing.
 ```
 
 **Barrierefreie Form:**
+
 ```
 Generiere aus Figma Node 2:8 ein barrierefreies Formular mit:
 - ARIA Labels

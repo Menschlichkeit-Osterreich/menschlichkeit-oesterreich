@@ -503,7 +503,7 @@ jobs:
             exit 1;
           }
 
-      - name: Healthcheck — API
+      - name: Healthcheck — API Liveness
         if: >
           always() && (
             env.TARGET_SERVICE == 'all' ||
@@ -512,8 +512,26 @@ jobs:
         run: |
           HTTP=$(curl --silent --max-time 15 --output /dev/null --write-out "%{http_code}" \
             "https://api.${{ env.MAIN_DOMAIN }}/healthz" || echo "000")
-          echo "API HTTP: ${HTTP}"
-          [[ "${HTTP}" =~ ^[23] ]] || { echo "✗ API Healthcheck fehlgeschlagen (${HTTP}). Ggf. manuellen Neustart via Plesk-Panel durchführen."; exit 1; }
+          echo "API Liveness HTTP: ${HTTP}"
+          [[ "${HTTP}" =~ ^[23] ]] || {
+            echo "✗ API Liveness fehlgeschlagen (${HTTP}) auf /healthz. Deployment wird abgebrochen.";
+            exit 1;
+          }
+
+      - name: Healthcheck — API Readiness
+        if: >
+          always() && (
+            env.TARGET_SERVICE == 'all' ||
+            env.TARGET_SERVICE == 'api'
+          )
+        run: |
+          HTTP=$(curl --silent --max-time 15 --output /dev/null --write-out "%{http_code}" \
+            "https://api.${{ env.MAIN_DOMAIN }}/readyz" || echo "000")
+          echo "API Readiness HTTP: ${HTTP}"
+          [[ "${HTTP}" =~ ^[23] ]] || {
+            echo "✗ API Readiness fehlgeschlagen (${HTTP}) auf /readyz. Deployment wird abgebrochen.";
+            exit 1;
+          }
 
       - name: Healthcheck — CRM-Portal
         if: >

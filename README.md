@@ -27,9 +27,9 @@ Monorepo fuer Website, FastAPI-Backend, Drupal/CiviCRM, Babylon-Game, MCP-Server
 
 ## Root-Klassifikation
 
-- `aktiv`: `apps/`, `openclaw-system/`, `mcp-servers/`, aktive Root-Doku wie `README.md`, `README_DEPLOY.md`, `SECURITY.md`
-- `legacy/mirror`: `api.menschlichkeit-oesterreich.at/`, `crm.menschlichkeit-oesterreich.at/`, `new/`, `web/`, `services/`, `templates/`, `tools/`
-- `generated/evidence`: `quality-reports/`, `reports/`, `analysis/`, `generated/`
+- `aktiv`: `apps/`, `openclaw-system/`, `automation/`, `mcp-servers/`, `figma-design-system/`
+- `legacy/mirror`: `api.menschlichkeit-oesterreich.at/`, `crm.menschlichkeit-oesterreich.at/`, `new/`, `web/`, `services/`
+- `generated/evidence`: `runbooks/`, `monitoring/`, `reports/`, `analysis/`, `deployment-scripts/`, `security/`, `tests/`, `docs/`
 - `vendor/spezial`: `.browser-pilot/`, `.blender-toolkit/`, `codacy-analysis-cli-master/`
 
 Neue Produktarbeit gehoert nur in aktive Pfade. Legacy-/Mirror-Baeume bleiben vorerst read-only Referenz.
@@ -86,6 +86,12 @@ Fuer neue Backend-Arbeit gilt immer:
 cd apps/api
 python -m pytest tests -q
 ```
+
+## Deployment
+
+- Produktive Source of Truth: `.github/workflows/deploy-plesk.yml`
+- Kanonische menschliche Doku: `README_DEPLOY.md`
+- Lokale Deploy-Skripte gelten nur als Fallback fuer Dry-Runs und Vorbereitung.
 
 ## OpenClaw Windows Bridge
 

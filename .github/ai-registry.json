@@ -2,7 +2,28 @@
   "meta": {
     "version": 1,
     "updated": "2026-03-31",
-    "repository": "Menschlichkeit-Osterreich/menschlichkeit-oesterreich"
+    "repository": "Menschlichkeit-Osterreich/menschlichkeit-oesterreich",
+    "pathZones": {
+      "active": ["apps/", "openclaw-system/", "automation/", "mcp-servers/", "figma-design-system/"],
+      "legacy_read_only": [
+        "api.menschlichkeit-oesterreich.at/",
+        "crm.menschlichkeit-oesterreich.at/",
+        "new/",
+        "web/",
+        "services/"
+      ],
+      "evidence_ops": [
+        "runbooks/",
+        "monitoring/",
+        "reports/",
+        "analysis/",
+        "deployment-scripts/",
+        "security/",
+        "tests/",
+        "docs/"
+      ],
+      "special_experimental": [".browser-pilot/", ".blender-toolkit/", "codacy-analysis-cli-master/"]
+    }
   },
   "analysisEntry": {
     "id": "analysis-planning-core",

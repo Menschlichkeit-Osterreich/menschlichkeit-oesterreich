@@ -1,6 +1,7 @@
-# Deployment Scripts – Plesk & Multi-Service
+# Deployment Scripts – Plesk & Multi-Service (Fallback/Legacy)
 
-Diese Skripte automatisieren Builds und Deployments auf der Plesk-Umgebung mit Subdomain-Architektur.
+Diese Skripte sind historische oder lokale Hilfsmittel fuer Builds und Dry-Runs auf der Plesk-Umgebung.
+Der produktive Deploy-Vertrag wird im GitHub-Workflow gepflegt.
 
 ## Produktiver Standard
 
@@ -13,9 +14,10 @@ Der kanonische Produktionspfad ist der GitHub-Workflow `.github/workflows/deploy
 
 ## Wichtige Skripte
 
-- ./scripts/safe-deploy.sh: Sicherer Deploy mit Vorab-Checks (immer zuerst mit --dry-run)
-- ./deployment-scripts/deploy-crm-plesk.sh: Legacy-Hilfsskript fuer native CRM-Arbeit; produktiv gilt der Workflow-Split aus `deploy-plesk.yml`
-- ./deployment-scripts/deploy-api-plesk.sh: API-Deployment (FastAPI)
+- ./scripts/deploy-to-plesk.ps1: Fallback fuer lokale Vorbereitung und Dry-Runs
+- ./scripts/safe-deploy.sh: Legacy-Hilfsskript, nicht kanonisch fuer produktive Deploys
+- ./deployment-scripts/deploy-crm-plesk.sh: Legacy-Hilfsskript fuer native CRM-Arbeit
+- ./deployment-scripts/deploy-api-plesk.sh: Legacy-Hilfsskript fuer API-Deploys
 - ./build-pipeline.sh: Qualität prüfen, bauen, Berichte erzeugen
 
 ## Nutzung
@@ -32,24 +34,25 @@ npm run lint && npm run test:unit && npm run security:gitleaks
 ./build-pipeline.sh staging
 ```
 
-3. Dry-Run Deployment
+3. Dry-Run Fallback
 
 ```bash
-./scripts/safe-deploy.sh --dry-run
+pwsh -File scripts/deploy-to-plesk.ps1 -Target all -DryRun
 ```
 
-4. Produktives Deployment (nur nach Dry-Run OK)
+4. Produktives Deployment
 
 ```bash
-./scripts/safe-deploy.sh
+# via GitHub Actions:
+# .github/workflows/deploy-plesk.yml
 ```
 
 ## Hinweise & Sicherheit
 
-- Immer zuerst Dry-Run nutzen; keine destruktiven Aktionen ohne Simulation
+- Immer zuerst Dry-Run nutzen; produktive Deploys nur ueber den kanonischen Workflow
 - Secrets via secrets/ und config-templates/ pflegen – niemals in Skripte schreiben
 - SBOM/Supply-Chain prüfen (Trivy) nach Paketänderungen
-- Pro Service eigene Deploy-Skripte verwenden (Subdomain-Mapping beachten)
+- Pro Service den Workflow-Input service verwenden (Subdomain-Mapping liegt im Workflow)
 
 ## Fehlerbehebung
 

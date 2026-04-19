@@ -59,6 +59,13 @@
     "playwright": {
       "command": "npx",
       "args": ["-y", "@playwright/mcp@latest"]
+    },
+    "codacy-mcp-server": {
+      "command": "npx",
+      "args": ["-y", "@codacy/codacy-mcp@latest"],
+      "env": {
+        "CODACY_ACCOUNT_TOKEN": "${CODACY_ACCOUNT_TOKEN}"
+      }
     }
   }
 }

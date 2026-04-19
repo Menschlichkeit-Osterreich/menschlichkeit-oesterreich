@@ -1,4 +1,3 @@
-
 const tokens = require('./figma-design-system/00_design-tokens.json');
 
 const tt = tokens.designTokens;

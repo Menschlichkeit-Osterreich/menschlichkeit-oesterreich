@@ -3,7 +3,7 @@
 **Version:** 1.1.0  
 **Gültig ab:** 2025-10-18  
 **Review:** quartalsweise (Board & Tech Lead)  
-**Änderungsrechte:** Nur via Pull Request + Approval `@vorstand` & `@techlead` (siehe CODEOWNERS)
+**Änderungsrechte:** Nur via Pull Request mit Review gemaess operativer Ownership in `.github/CODEOWNERS`.
 
 ---
 
@@ -15,23 +15,23 @@ Dieses Dokument **fixiert verbindlich**:
 2. **Deployment-Ziele** (Subdomains, Plesk-Pfade, SSH)
 3. **Projekt-Mailadressen** (bestehend + im Repo vorgesehen "noch anzulegen")
 
-> **Schreibschutz:** Dieses Dokument darf nicht gelöscht/verschoben/umbenannt werden. Änderungen nur per PR mit Doppel-Freigabe (Board + Tech Lead).
+> **Schreibschutz:** Dieses Dokument darf nicht gelöscht/verschoben/umbenannt werden. Änderungen nur per PR mit Review gemaess `.github/CODEOWNERS`.
 
 ---
 
 ## 1) ENV-Standardisierung (Quelle der Wahrheit)
 
-* **`.env`** → **lokal**, niemals commiten (in `.gitignore`). Enthält echte Werte.
-* **`.env.example`** → **zentrale Masterliste** aller Keys (Platzhalter, kommentiert), **committen**.
-* **`.env.vault`** → verschlüsselte Team-/CI-Quelle via `dotenv-vault` (commitbar, aber Secrets verschlüsselt).
-* **Prefix-Regel:**
-  * Frontend (Vite): **nur** Variablen mit `VITE_` gelangen ins Bundle.
-  * Backend/Worker: keine `VITE_`-Variablen, Secrets bleiben serverseitig.
-* **Laden der ENV:**
-  * Node/TS: `import 'dotenv/config'`
-  * Python/FastAPI: `from dotenv import load_dotenv; load_dotenv()`
-  * Drupal/CiviCRM: via Server-ENV/Settings.
-* **Verbote:** Commits mit Klartext-Secrets; ENV in Issues/PRs; Kopien von `.env`.
+- **`.env`** → **lokal**, niemals commiten (in `.gitignore`). Enthält echte Werte.
+- **`.env.example`** → **zentrale Masterliste** aller Keys (Platzhalter, kommentiert), **committen**.
+- **`.env.vault`** → verschlüsselte Team-/CI-Quelle via `dotenv-vault` (commitbar, aber Secrets verschlüsselt).
+- **Prefix-Regel:**
+  - Frontend (Vite): **nur** Variablen mit `VITE_` gelangen ins Bundle.
+  - Backend/Worker: keine `VITE_`-Variablen, Secrets bleiben serverseitig.
+- **Laden der ENV:**
+  - Node/TS: `import 'dotenv/config'`
+  - Python/FastAPI: `from dotenv import load_dotenv; load_dotenv()`
+  - Drupal/CiviCRM: via Server-ENV/Settings.
+- **Verbote:** Commits mit Klartext-Secrets; ENV in Issues/PRs; Kopien von `.env`.
 
 **Pflichtaktionen (einmalig / bei Änderungen):**
 
@@ -63,35 +63,35 @@ REMOTE_BASE=/var/www/vhosts/menschlichkeit-oesterreich.at
 
 **Fixierte Remote-Zielpfade (relativ zu `REMOTE_BASE`):**
 
-| Site | Subdomain | Remote-Pfad |
-|------|-----------|-------------|
-| Root | menschlichkeit-oesterreich.at | `httpdocs` |
-| Admin Stg | admin.stg.menschlichkeit-oesterreich.at | `subdomains/admin.stg/httpdocs` |
-| Analytics | analytics.menschlichkeit-oesterreich.at | `subdomains/analytics/httpdocs` |
-| API Stg | api.stg.menschlichkeit-oesterreich.at | `subdomains/api.stg/httpdocs` |
-| Consent | consent.menschlichkeit-oesterreich.at | `subdomains/consent/httpdocs` |
-| CRM | crm.menschlichkeit-oesterreich.at | `subdomains/crm/httpdocs` |
-| Docs | docs.menschlichkeit-oesterreich.at | `subdomains/docs/httpdocs` |
-| Forum | forum.menschlichkeit-oesterreich.at | `subdomains/forum/httpdocs` |
-| Games | games.menschlichkeit-oesterreich.at | `subdomains/games/httpdocs` |
-| Grafana | grafana.menschlichkeit-oesterreich.at | `subdomains/grafana/httpdocs` |
-| Hooks | hooks.menschlichkeit-oesterreich.at | `subdomains/hooks/httpdocs` |
-| IDP | idp.menschlichkeit-oesterreich.at | `subdomains/idp/httpdocs` |
-| Logs | logs.menschlichkeit-oesterreich.at | `subdomains/logs/httpdocs` |
-| Media | media.menschlichkeit-oesterreich.at | `subdomains/media/httpdocs` |
-| n8n | n8n.menschlichkeit-oesterreich.at | `subdomains/n8n/httpdocs` |
+| Site       | Subdomain                                | Remote-Pfad                      |
+| ---------- | ---------------------------------------- | -------------------------------- |
+| Root       | menschlichkeit-oesterreich.at            | `httpdocs`                       |
+| Admin Stg  | admin.stg.menschlichkeit-oesterreich.at  | `subdomains/admin.stg/httpdocs`  |
+| Analytics  | analytics.menschlichkeit-oesterreich.at  | `subdomains/analytics/httpdocs`  |
+| API Stg    | api.stg.menschlichkeit-oesterreich.at    | `subdomains/api.stg/httpdocs`    |
+| Consent    | consent.menschlichkeit-oesterreich.at    | `subdomains/consent/httpdocs`    |
+| CRM        | crm.menschlichkeit-oesterreich.at        | `subdomains/crm/httpdocs`        |
+| Docs       | docs.menschlichkeit-oesterreich.at       | `subdomains/docs/httpdocs`       |
+| Forum      | forum.menschlichkeit-oesterreich.at      | `subdomains/forum/httpdocs`      |
+| Games      | games.menschlichkeit-oesterreich.at      | `subdomains/games/httpdocs`      |
+| Grafana    | grafana.menschlichkeit-oesterreich.at    | `subdomains/grafana/httpdocs`    |
+| Hooks      | hooks.menschlichkeit-oesterreich.at      | `subdomains/hooks/httpdocs`      |
+| IDP        | idp.menschlichkeit-oesterreich.at        | `subdomains/idp/httpdocs`        |
+| Logs       | logs.menschlichkeit-oesterreich.at       | `subdomains/logs/httpdocs`       |
+| Media      | media.menschlichkeit-oesterreich.at      | `subdomains/media/httpdocs`      |
+| n8n        | n8n.menschlichkeit-oesterreich.at        | `subdomains/n8n/httpdocs`        |
 | Newsletter | newsletter.menschlichkeit-oesterreich.at | `subdomains/newsletter/httpdocs` |
-| S3 | s3.menschlichkeit-oesterreich.at | `subdomains/s3/httpdocs` |
-| Status | status.menschlichkeit-oesterreich.at | `subdomains/status/httpdocs` |
-| Support | support.menschlichkeit-oesterreich.at | `subdomains/support/httpdocs` |
-| Votes | votes.menschlichkeit-oesterreich.at | `subdomains/vote/httpdocs` |
+| S3         | s3.menschlichkeit-oesterreich.at         | `subdomains/s3/httpdocs`         |
+| Status     | status.menschlichkeit-oesterreich.at     | `subdomains/status/httpdocs`     |
+| Support    | support.menschlichkeit-oesterreich.at    | `subdomains/support/httpdocs`    |
+| Votes      | votes.menschlichkeit-oesterreich.at      | `subdomains/vote/httpdocs`       |
 
 > **Hinweis:** Domain `votes.*`, Plesk-Pfad `vote`.
 
 **Deployment-Tooling (fixiert):**
 
-* `tools/deploy.ps1` (PowerShell) nutzt `.env`, erstellt Remote-Ordner, kopiert **nur Build-Output** (z. B. `frontend/dist`) per `scp`.
-* Optional: rsync (WSL) mit `--delete` & Excludes.
+- `tools/deploy.ps1` (PowerShell) nutzt `.env`, erstellt Remote-Ordner, kopiert **nur Build-Output** (z. B. `frontend/dist`) per `scp`.
+- Optional: rsync (WSL) mit `--delete` & Excludes.
 
 ---
 
@@ -99,36 +99,36 @@ REMOTE_BASE=/var/www/vhosts/menschlichkeit-oesterreich.at
 
 ### 3.1 Bereits angelegt (Plesk bestätigt)
 
-| Adresse | Zweck / Zuordnung | Limit / Status |
-|---------|-------------------|----------------|
-| peter.schuller@menschlichkeit-oesterreich.at | Persönlich – Projektleitung | 1.06 MB / 250 MB |
-| office@menschlichkeit-oesterreich.at | Offizielle Kontaktadresse NGO | 7.65 KB / 250 MB |
-| logging@menschlichkeit-oesterreich.at | System-/Audit-Logs (n8n, Server) | **197 MB / 250 MB** ⚠️ |
-| info@menschlichkeit-oesterreich.at | Allgemeine Infos / NGO-Anfragen | 91.4 KB / 250 MB |
-| civimail@menschlichkeit-oesterreich.at | Newsletter-Versand via CiviCRM | 18.1 KB / 250 MB |
-| bounce@menschlichkeit-oesterreich.at | Bounce-Handling Mailings | 248 KB / 250 MB |
+| Adresse                                      | Zweck / Zuordnung                | Limit / Status         |
+| -------------------------------------------- | -------------------------------- | ---------------------- |
+| peter.schuller@menschlichkeit-oesterreich.at | Persönlich – Projektleitung      | 1.06 MB / 250 MB       |
+| office@menschlichkeit-oesterreich.at         | Offizielle Kontaktadresse NGO    | 7.65 KB / 250 MB       |
+| logging@menschlichkeit-oesterreich.at        | System-/Audit-Logs (n8n, Server) | **197 MB / 250 MB** ⚠️ |
+| info@menschlichkeit-oesterreich.at           | Allgemeine Infos / NGO-Anfragen  | 91.4 KB / 250 MB       |
+| civimail@menschlichkeit-oesterreich.at       | Newsletter-Versand via CiviCRM   | 18.1 KB / 250 MB       |
+| bounce@menschlichkeit-oesterreich.at         | Bounce-Handling Mailings         | 248 KB / 250 MB        |
 
 > **Pflicht:** `logging@…` archivieren/entlasten, bevor Quota überschritten wird.
 
 ### 3.2 Im Repo vorgesehen — **müssen noch angelegt werden**
 
-| Adresse | Zweck / Referenz im Repo/Code | Status |
-|---------|-------------------------------|--------|
-| newsletter@menschlichkeit-oesterreich.at | Absender Newsletter (Frontend + n8n) | **noch anlegen** |
-| support@menschlichkeit-oesterreich.at | Support-Formulare / Helpdesk / Tickets | **noch anlegen** |
-| no-reply@menschlichkeit-oesterreich.at | Transaktionale Mails (DOI, Bestätigungen) | **noch anlegen** |
-| admin@menschlichkeit-oesterreich.at | Systemmeldungen (n8n, Cron, Monitoring) | **noch anlegen** |
-| devops@menschlichkeit-oesterreich.at | CI/CD, Actions, Error Reports | **noch anlegen** |
-| board@menschlichkeit-oesterreich.at | Vorstand / rechtliche Kommunikation | **noch anlegen** |
-| kassier@menschlichkeit-oesterreich.at | Finanzen, Stripe/SEPA-Rechnungen | **noch anlegen** |
-| fundraising@menschlichkeit-oesterreich.at | Sponsoring & Spendenkampagnen | **noch anlegen** |
+| Adresse                                   | Zweck / Referenz im Repo/Code             | Status           |
+| ----------------------------------------- | ----------------------------------------- | ---------------- |
+| newsletter@menschlichkeit-oesterreich.at  | Absender Newsletter (Frontend + n8n)      | **noch anlegen** |
+| support@menschlichkeit-oesterreich.at     | Support-Formulare / Helpdesk / Tickets    | **noch anlegen** |
+| no-reply@menschlichkeit-oesterreich.at    | Transaktionale Mails (DOI, Bestätigungen) | **noch anlegen** |
+| admin@menschlichkeit-oesterreich.at       | Systemmeldungen (n8n, Cron, Monitoring)   | **noch anlegen** |
+| devops@menschlichkeit-oesterreich.at      | CI/CD, Actions, Error Reports             | **noch anlegen** |
+| board@menschlichkeit-oesterreich.at       | Vorstand / rechtliche Kommunikation       | **noch anlegen** |
+| kassier@menschlichkeit-oesterreich.at     | Finanzen, Stripe/SEPA-Rechnungen          | **noch anlegen** |
+| fundraising@menschlichkeit-oesterreich.at | Sponsoring & Spendenkampagnen             | **noch anlegen** |
 
 **Mail-Regeln (Schreibschutz):**
 
-* Nur Adressen in dieser Liste sind "offiziell".
-* Anlegen/Löschen/Ändern **nur** via PR + Board/Tech-Lead Approval.
-* Standard-Quota: 250 MB; Änderungen via Plesk dokumentieren.
-* Aliasse/Weiterleitungen/Autoresponder **müssen** dokumentiert werden.
+- Nur Adressen in dieser Liste sind "offiziell".
+- Anlegen/Löschen/Ändern **nur** via PR + Board/Tech-Lead Approval.
+- Standard-Quota: 250 MB; Änderungen via Plesk dokumentieren.
+- Aliasse/Weiterleitungen/Autoresponder **müssen** dokumentiert werden.
 
 ---
 
@@ -205,14 +205,13 @@ jobs:
 
 ---
 
-## 6) CODEOWNERS (erzwingt Doppel-Freigabe)
+## 6) CODEOWNERS (operative Quelle)
 
-`CODEOWNERS` – Ergänzung:
+Operative Ownership und verpflichtende Reviews werden ausschliesslich in `.github/CODEOWNERS` definiert.
+Beispiele mit unbestaetigten Handles/Teams sind nicht normativ und duerfen diese Quelle nicht ersetzen.
 
 ```
-docs/ENV-DEPLOYMENT-MAIL-STANDARD.md  @vorstand @techlead
-.githooks/*                            @techlead
-.github/workflows/env-guard.yml        @techlead
+# siehe .github/CODEOWNERS (operativer Stand)
 ```
 
 ---
@@ -290,14 +289,14 @@ STRIPE_WEBHOOK_SECRET=
 
 ### 7.2 `tools/deploy.ps1` — Referenz
 
-* Akzeptiert `-Site <name>` (z. B. `frontend`, `crm`, `menschlichkeit`, `api_stg`)
-* Nutzt `REMOTE_<Site>` & `LOCAL_<Site>` aus `.env`
-* `-DryRun` zeigt Befehle ohne Übertragung
-* Verwendet `ssh/scp` (OpenSSH Client)
+- Akzeptiert `-Site <name>` (z. B. `frontend`, `crm`, `menschlichkeit`, `api_stg`)
+- Nutzt `REMOTE_<Site>` & `LOCAL_<Site>` aus `.env`
+- `-DryRun` zeigt Befehle ohne Übertragung
+- Verwendet `ssh/scp` (OpenSSH Client)
 
 ---
 
-**Geltung:** Dieses Dokument ist Teil der "Definition of Excellence" des Projekts. Abweichungen benötigen triftige Begründung & Doppel-Freigabe.
+**Geltung:** Dieses Dokument ist Teil der "Definition of Excellence" des Projekts. Abweichungen benötigen triftige Begründung und Review gemaess `.github/CODEOWNERS`.
 
 ---
 

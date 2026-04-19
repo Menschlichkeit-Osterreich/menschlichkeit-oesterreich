@@ -31,10 +31,13 @@ Das CRM-Root ist der Portal-SPA-Host. Drupal/CiviCRM liegt bewusst nur unter `/n
 
 ## Pflicht-Checks nach dem Deploy
 
-1. HTTP-Healthchecks fuer Website, API, CRM-Portal, CRM-Native und Games
-2. Live-Route-Smokes fuer die oeffentlichen Kernpfade auf `www`
-3. Live-Route-Smoke fuer `https://crm.menschlichkeit-oesterreich.at/login`
-4. Release-Marker-Pruefung auf Commit-Gleichstand via `/.deploy_release`
+1. HTTP-Healthchecks fuer Website, CRM-Portal, CRM-Native und Games
+2. API Liveness pruefen: `https://api.menschlichkeit-oesterreich.at/healthz`
+3. API Readiness pruefen: `https://api.menschlichkeit-oesterreich.at/readyz`
+4. `https://api.menschlichkeit-oesterreich.at/health` nur als Legacy-Alias behandeln
+5. Live-Route-Smokes fuer die oeffentlichen Kernpfade auf `www`
+6. Live-Route-Smoke fuer `https://crm.menschlichkeit-oesterreich.at/login`
+7. Release-Marker-Pruefung auf Commit-Gleichstand via `/.deploy_release`
 
 ## Betriebsregeln
 

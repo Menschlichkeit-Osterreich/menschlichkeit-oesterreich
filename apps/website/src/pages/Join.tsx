@@ -198,7 +198,9 @@ function Step1({
         onChange={e => set({ company: e.target.value })}
       />
       <p className="text-xs text-secondary-700">
-        <span aria-hidden="true" className="font-semibold text-error-700">*</span>{' '}
+        <span aria-hidden="true" className="font-semibold text-error-700">
+          *
+        </span>{' '}
         Pflichtfelder
       </p>
       <div className="flex justify-end pt-2">
@@ -231,7 +233,9 @@ function Step2({
       <fieldset className="space-y-2">
         <legend className="text-sm font-medium text-secondary-700">
           Mitgliedsart{' '}
-          <span aria-hidden="true" className="font-semibold text-error-700">*</span>
+          <span aria-hidden="true" className="font-semibold text-error-700">
+            *
+          </span>
           <span className="sr-only">Pflichtfeld</span>
         </legend>
         {(Object.entries(MEMBERSHIP_LABELS) as [MembershipType, string][]).map(([key, label]) => (
@@ -259,7 +263,9 @@ function Step2({
       <label className="block">
         <span className="text-sm font-medium text-secondary-700">
           Beitragskategorie{' '}
-          <span aria-hidden="true" className="font-semibold text-error-700">*</span>
+          <span aria-hidden="true" className="font-semibold text-error-700">
+            *
+          </span>
           <span className="sr-only">Pflichtfeld</span>
         </span>
         <select
@@ -312,7 +318,9 @@ function Step3({
       <fieldset className="space-y-2">
         <legend className="text-sm font-medium text-secondary-700">
           Zahlungsart wählen{' '}
-          <span aria-hidden="true" className="font-semibold text-error-700">*</span>
+          <span aria-hidden="true" className="font-semibold text-error-700">
+            *
+          </span>
           <span className="sr-only">Pflichtfeld</span>
         </legend>
 
@@ -654,8 +662,8 @@ export default function JoinPage() {
           <span className="rounded-full bg-white px-3 py-1">Klare Beitragsordnung</span>
         </div>
         <p className="mt-3 text-sm leading-relaxed text-primary-900">
-          In 4 Schritten zum Beitrittsantrag. Sie behalten jederzeit den Überblick über Mitgliedsart,
-          Beitrag und Zahlungsweg.
+          In 4 Schritten zum Beitrittsantrag. Sie behalten jederzeit den Überblick über
+          Mitgliedsart, Beitrag und Zahlungsweg.
         </p>
         <div className="mt-3 flex flex-wrap gap-3 text-sm">
           <Link to="/mitmachen" className="font-semibold text-primary-800 hover:underline">

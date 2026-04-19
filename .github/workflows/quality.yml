@@ -73,6 +73,9 @@ jobs:
         if: github.event_name == 'workflow_dispatch' || steps.changes.outputs.js != '[]'
         run: npm run lint
 
+      - name: Docs Governance
+        run: npm run docs:governance
+
       - name: ESLint SARIF
         if: github.event_name == 'workflow_dispatch' || steps.changes.outputs.js != '[]'
         run: |

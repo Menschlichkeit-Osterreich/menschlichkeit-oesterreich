@@ -1,5 +1,4 @@
-import React from 'react';
-import { Home, ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Home } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import SeoHead from '../components/seo/SeoHead';
 
@@ -16,7 +15,10 @@ export default function NotFound() {
   const navigate = useNavigate();
 
   return (
-    <main id="main" className="flex min-h-screen flex-col items-center justify-center bg-semantic-background px-4 py-16">
+    <main
+      id="main"
+      className="flex min-h-screen flex-col items-center justify-center bg-semantic-background px-4 py-16"
+    >
       <SeoHead
         title="Seite nicht gefunden – Menschlichkeit Österreich"
         description="Diese Seite existiert nicht. Besuchen Sie unsere Startseite oder navigieren Sie zu einem unserer Angebote."
@@ -24,15 +26,15 @@ export default function NotFound() {
       />
       <div className="max-w-lg w-full text-center">
         {/* Illustration */}
-        <div className="text-8xl mb-6 select-none" aria-hidden="true">🗺️</div>
+        <div className="text-8xl mb-6 select-none" aria-hidden="true">
+          🗺️
+        </div>
 
         {/* Error Code */}
         <div className="mb-2 text-6xl font-black tracking-tight text-primary-700">404</div>
 
         {/* Heading */}
-        <h1 className="text-2xl font-bold text-secondary-900 mb-3">
-          Diese Seite existiert nicht
-        </h1>
+        <h1 className="text-2xl font-bold text-secondary-900 mb-3">Diese Seite existiert nicht</h1>
         <p className="mx-auto mb-8 max-w-sm text-secondary-700">
           Die gesuchte Seite wurde möglicherweise verschoben, umbenannt oder existiert nicht mehr.
           Vielleicht hilft Ihnen einer der folgenden Links weiter.

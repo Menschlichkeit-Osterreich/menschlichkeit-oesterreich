@@ -54,6 +54,17 @@
       "args": ["-y", "@upstash/context7-mcp@latest"],
       "version": "1.0.0",
       "description": "Live-Dokumentation fuer Libraries"
+    },
+    "codacy-mcp-server": {
+      "name": "Codacy MCP",
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@codacy/codacy-mcp@latest"],
+      "version": "1.0.0",
+      "description": "Code Quality und Security Analyse via Codacy",
+      "env": {
+        "CODACY_ACCOUNT_TOKEN": "${env:CODACY_ACCOUNT_TOKEN}"
+      }
     }
   }
 }

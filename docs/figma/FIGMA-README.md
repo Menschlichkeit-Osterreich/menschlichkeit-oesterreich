@@ -1,3 +1,10 @@
+---
+title: Figma Design System Quick Reference
+description: Kurzreferenz fuer Figma-Token-Sync und Design-System-Integration.
+lastUpdated: 2026-04-16
+status: ACTIVE
+---
+
 # 🎨 Figma Design System - Quick Reference
 
 ## Status: ✅ Production-Ready
@@ -96,12 +103,12 @@ Prüft:
 
 ## 📚 Vollständige Dokumentation
 
-| Dokument                                                             | Beschreibung                                                     |
-| -------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| [**FIGMA-INTEGRATION-COMPLETE.md**](./FIGMA-INTEGRATION-COMPLETE.md) | 🎯 **Vollständige Dokumentation** - Setup, Usage, Best Practices |
-| [**FIGMA-SYNC-GUIDE.md**](./FIGMA-SYNC-GUIDE.md)                     | Setup-Anleitung & Konfiguration                                  |
-| [**BRAND-GUIDELINES.md**](./BRAND-GUIDELINES.md)                     | Brand Identity & Design Regeln                                   |
-| [**COMPONENT-USAGE.md**](./COMPONENT-USAGE.md)                       | Komponenten-Dokumentation                                        |
+| Dokument                                                                           | Beschreibung                                                     |
+| ---------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| [**FIGMA-INTEGRATION-COMPLETE.md**](../archive/bulk/FIGMA-INTEGRATION-COMPLETE.md) | 🎯 **Vollständige Dokumentation** - Setup, Usage, Best Practices |
+| [**FIGMA-SYNC-GUIDE.md**](./FIGMA-SYNC-GUIDE.md)                                   | Setup-Anleitung & Konfiguration                                  |
+| [**BRAND-GUIDELINES.md**](./BRAND-GUIDELINES.md)                                   | Brand Identity & Design Regeln                                   |
+| [**COMPONENT-USAGE.md**](../archive/bulk/COMPONENT-USAGE.md)                       | Komponenten-Dokumentation                                        |
 
 ---
 
@@ -133,7 +140,7 @@ npm run figma:validate
 
 ## 📞 Support
 
-- **Docs**: [FIGMA-INTEGRATION-COMPLETE.md](./FIGMA-INTEGRATION-COMPLETE.md)
+- **Docs**: [FIGMA-INTEGRATION-COMPLETE.md](../archive/bulk/FIGMA-INTEGRATION-COMPLETE.md)
 - **Issues**: [GitHub Issues](https://github.com/menschlichkeit-oesterreich/issues)
 - **Chat**: Slack #design-system
 - **E-Mail**: <design@menschlichkeit-oesterreich.at>

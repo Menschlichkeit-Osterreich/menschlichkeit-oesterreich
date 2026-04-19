@@ -15,6 +15,28 @@ Diese Datei beschreibt nur den **aktiven** Produktionsvertrag fuer `Menschlichke
 
 Lokale oder historische Skripte sind nur Fallbacks und duerfen den Workflowvertrag nicht uebersteuern.
 
+## Deploy-Einstiegspunkte (klassifiziert)
+
+### Canonical active
+
+- `.github/workflows/deploy-plesk.yml`
+
+### Documented fallback
+
+- `scripts/deploy-to-plesk.ps1` (nur manuelle Vorbereitung oder Dry-Run)
+- `deployment-scripts/README.md` (historische Hilfsskripte, keine produktive Wahrheit)
+
+### Spezialpfade (nicht produktive Hauptwahrheit)
+
+- `.github/workflows/deploy-staging.yml` (Staging)
+- `.github/workflows/deploy-forum.yml` (Forum-spezifisch)
+
+### Obsolete fuer produktiven Pfad
+
+- `scripts/deploy.sh` (Legacy-Bash-Deploy, nicht kanonisch)
+- `PLSK_*` Variablenvertrag
+- `PLESK_REMOTE_PATH`
+
 ## Kanonische Secrets und Variablen
 
 ### Secrets
