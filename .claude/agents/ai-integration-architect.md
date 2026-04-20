@@ -47,7 +47,6 @@ Diese Spezialisierung arbeitet unter dem `architect`-Rollenmodell aus `AGENTS.md
 - API: `apps/api/`
 - CRM: `apps/crm/`
 - Automatisierung: `automation/n8n/`
-- OpenClaw: `openclaw-system/`
 
 ## Ausgabeformat
 

@@ -282,5 +282,4 @@ VERBOTEN:
 | `.env.example`                           | Development-Vorlage (lokal)                 |
 | `scripts/safe-deploy.sh`                 | Manuelles Deployment-Skript (Fallback)      |
 | `deployment-scripts/deploy-api-plesk.sh` | API-spezifisches Plesk-Deployment           |
-| `openclaw-system/ARCHITECTURE.md`        | OpenClaw Multi-Agent Architektur            |
 | `CLAUDE.md`                              | Claude Code Projektanleitung                |

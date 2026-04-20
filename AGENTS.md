@@ -12,7 +12,7 @@ Unterstuetzte Clients:
 
 - Lokaler Root: `E:\Menschlichkeit-Osterreich\menschlichkeit-oesterreich`
 - Git-Remote: `https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich`
-- Aktive Produktstruktur: `apps/<service>/`, `openclaw-system/`, `automation/`, `figma-design-system/`
+- Aktive Produktstruktur: `apps/<service>/`, `automation/`, `figma-design-system/`
 - Main-first Workflow mit Branches von `main` und PRs zurueck auf `main`
 
 Hinweis zur Dateibenennung:
@@ -24,8 +24,6 @@ Hinweis zur Dateibenennung:
 ## Was diese Datei steuert
 
 Diese Datei beschreibt Repo-Contributor-Agents fuer Entwicklung, Review, Betrieb und Governance.
-
-Sie steuert nicht die Produkt-Runtime-Agenten von OpenClaw. Diese leben separat in `openclaw-system/configs/agent_roles.yaml` und den dazugehoerigen OpenClaw-Konfigurationen.
 
 ## Zuerst lesen
 
@@ -192,7 +190,7 @@ Spezialrollen duerfen keine parallele Repo-Governance einfuehren.
 1. Zuerst echte Pfade im Repository lesen.
 2. Dann genau eine primaere Rolle waehlen.
 3. Nur zusaetzliche Spezialisierungen hinzuziehen, wenn der Scope sie wirklich braucht.
-4. Repo-Contributor-Agents niemals mit OpenClaw-Runtime-Agenten vermischen.
+4. Repo-Contributor-Agents nicht mit externen Produkt- oder Laufzeitrollen vermischen.
 5. Neue Guidance muss sich an reale `apps/`-Pfade, aktuelle Services und das Main-first-Modell halten.
 6. Skill-, Prompt- und Plugin-Klassifikation folgt immer `.github/ai-registry.json`.
 

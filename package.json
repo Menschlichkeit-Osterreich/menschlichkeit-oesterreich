@@ -99,6 +99,7 @@
     "status:json": "node scripts/run-python.mjs scripts/codespace-status-check.py --json quality-reports/codespace-status.json",
     "mcp:check": "node scripts/mcp-check.mjs",
     "mcp:health": "node scripts/mcp-health-simple.mjs",
+    "diagnose:copilot": "node scripts/diagnose-copilot-claude-warnings.mjs",
     "docs:link-check": "node scripts/validate-docs-governance.mjs --mode=links",
     "docs:governance": "node scripts/validate-docs-governance.mjs --mode=all",
     "docs:governance:strict": "node scripts/validate-docs-governance.mjs --mode=all --strict",

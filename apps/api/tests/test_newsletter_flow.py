@@ -3,9 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from unittest.mock import AsyncMock, MagicMock, patch
-
-import pytest
+from unittest.mock import AsyncMock, patch
 
 
 _MOCK_BASE = "app.routers.newsletter"
@@ -101,6 +99,9 @@ class TestSubscribeNewsletter:
             )
             mock_mail.assert_called_once()
             assert mock_mail.call_args.kwargs["template_id"] == "newsletter_doi"
+            context = mock_mail.call_args.kwargs["context"]
+            assert "unsubscribe_url" in context
+            assert "/api/newsletter/unsubscribe?token=" in context["unsubscribe_url"]
 
 
 class TestConfirmNewsletter:
@@ -129,13 +130,18 @@ class TestConfirmNewsletter:
             patch(
                 f"{_MOCK_BASE}.mail_service.send_template",
                 new=AsyncMock(return_value=True),
-            ),
+            ) as mock_mail,
         ):
             resp = client.get(
                 "/api/newsletter/confirm?token=validtoken12345678901234567890"
             )
             assert resp.status_code == 200
             assert resp.json()["success"] is True
+            confirm_mail_kwargs = mock_mail.await_args_list[-1].kwargs
+            assert confirm_mail_kwargs["template_id"] == "newsletter_confirmed"
+            context = confirm_mail_kwargs["context"]
+            assert "unsubscribe_url" in context
+            assert "/api/newsletter/unsubscribe?token=" in context["unsubscribe_url"]
 
     def test_confirm_invalid_token_rejected(self, client):
         with patch(f"{_MOCK_BASE}.fetchrow", new=AsyncMock(return_value=None)):

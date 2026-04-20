@@ -100,7 +100,6 @@ get_bsm_key() {
 
     # Root .env: Heuristik
     case "$env_var" in
-        OC_*)    echo "openclaw/${env_var}" ;;
         GH_*|GPG_*) echo "shared/${env_var}" ;;
         SSH_*|PLESK_*) echo "infra/${env_var}" ;;
         *)       echo "shared/${env_var}" ;;
@@ -174,7 +173,6 @@ process_env_file ".env" ""
 process_env_file "apps/api/.env" "api"
 process_env_file "apps/website/.env.local" "website"
 process_env_file "automation/n8n/.env" "n8n"
-process_env_file "automation/openclaw/config/.env" "openclaw"
 
 # ── Zusammenfassung ─────────────────────────────────────────
 

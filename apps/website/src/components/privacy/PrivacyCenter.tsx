@@ -1,8 +1,13 @@
 // DSGVO Privacy Center - Sprint 1 Critical Component
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { privacyService } from '../../services/api';
+import { AnimatePresence, motion } from 'framer-motion';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useAccessibleDialog } from '../../hooks/useAccessibleDialog';
+import { privacyService } from '../../services/api';
+import {
+  loadConsentPreferences,
+  saveConsentPreferences,
+  type CookiePreferences,
+} from '../../utils/consentStorage';
 
 // TypeScript Interfaces for DSGVO Compliance
 interface UserConsent {
@@ -28,14 +33,6 @@ interface PrivacyRequest {
   completedDate?: Date;
   description?: string;
   attachments?: string[];
-}
-
-interface CookiePreferences {
-  essential: boolean;
-  analytics: boolean;
-  marketing: boolean;
-  personalization: boolean;
-  socialMedia: boolean;
 }
 
 interface PersonalDataCategory {
@@ -775,9 +772,15 @@ export const PrivacyCenter: React.FC<{
     onClose,
   });
 
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab, isOpen]);
+
   // Check if user has made cookie choices
   useEffect(() => {
-    const hasChosenCookies = localStorage.getItem('cookie-preferences');
+    const hasChosenCookies = loadConsentPreferences();
     if (!hasChosenCookies && !isOpen) {
       setShowCookieBanner(true);
     }
@@ -800,7 +803,7 @@ export const PrivacyCenter: React.FC<{
       socialMedia: nextConsents.find(c => c.id === 'social-media')?.isConsented || false,
     };
 
-    localStorage.setItem('cookie-preferences', JSON.stringify(preferences));
+    saveConsentPreferences(preferences);
     setShowCookieBanner(false);
     setAnnouncement('Cookie-Einstellungen wurden gespeichert.');
 
@@ -872,10 +875,11 @@ export const PrivacyCenter: React.FC<{
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
       <motion.div
+        data-testid="privacy-center-modal"
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
-        className="w-full max-w-4xl bg-surface rounded-lg shadow-xl max-h-[90vh] overflow-hidden"
+        className="privacy-center-modal w-full max-w-4xl bg-surface rounded-lg shadow-xl max-h-[90vh] overflow-hidden"
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
@@ -966,5 +970,5 @@ export const PrivacyCenter: React.FC<{
 };
 
 // Export additional components and types
-export type { UserConsent, PrivacyRequest, CookiePreferences, PersonalDataCategory };
-export { CookieConsentBanner, CookieSettings, DataRequestForm, DataOverview };
+export { CookieConsentBanner, CookieSettings, DataOverview, DataRequestForm };
+export type { CookiePreferences, PersonalDataCategory, PrivacyRequest, UserConsent };

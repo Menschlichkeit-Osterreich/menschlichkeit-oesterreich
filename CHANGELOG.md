@@ -26,7 +26,6 @@ Alle relevanten Änderungen an diesem Repository werden in diesem Dokument festg
 
 - fix(nginx): Host-Header-Injection in HTTP→HTTPS-Redirect behoben — `api.menschlichkeit-oesterreich.at.conf` und `crm.menschlichkeit-oesterreich.at.conf` verwenden nun hardcodierte Hostnamen statt `$host`; `nosemgrep`-Kommentare ergänzt
 - fix(nginx): `/metrics`-Endpunkt in `api.menschlichkeit-oesterreich.at.conf` auf `allow 127.0.0.1; deny all;` beschränkt — verhindert öffentlichen Zugriff auf Prometheus-Metriken
-- fix(xss): `OpenClawChat.tsx` — `dangerouslySetInnerHTML`-Markdown-Link-Renderer validiert jetzt URLs; `javascript:`, `data:`, `vbscript:`-Protokolle werden auf `#` umgeleitet; Link-Text wird HTML-escaped
 - fix(dsgvo): `auth.py` — fünf `logger.info()`-Aufrufe mit ungemaskten E-Mail-Adressen verwenden nun `scrub()` aus `pii_sanitizer`
 - fix(dsgvo): `invoices.py` — `target_email` in Log-Ausgabe wird nun via `scrub()` maskiert
 - fix(dsgvo): `PiiLoggingMiddleware` in `app/main.py` registriert — war implementiert aber nie aktiviert
@@ -68,7 +67,6 @@ Alle relevanten Änderungen an diesem Repository werden in diesem Dokument festg
 - feat(crm): CiviRules für Spendenprozess und Mitgliedschafts-Ablauf; 4 SearchKit-Views (Kontakte 360°, Donor Dashboard, Event-Teilnehmer, Mitglieder-Status); 3 Webformulare (Event-Anmeldung, Mitglied-SEPA, Spenden-Stripe) (#248)
 - feat(metrics): RBAC für Dashboard-Endpunkte (#229, #236); Audit-Logging, Rate-Limiting
 - feat(monitoring): `security/monitoring.py` — 5 audit_trail-basierte Metriken implementiert: erfolgreiche Logins, aktive Sitzungen (Distinct-Actor-Proxy), 2FA-Events, DSGVO-Datenexporte, Passwortänderungen; psycopg2-Integration mit graceful fallback
-- feat(devops): Windows-Bridge Start-Skript, WSL2-Proxy, Uninstaller (`openclaw-system/windows-bridge/`)
 - feat(deploy): Nginx-Konfiguration `deployment-scripts/nginx/menschlichkeit-oesterreich.at.conf` — TLS 1.2+, HSTS (1y preload), Security Headers, SPA-Fallback, Sitemap-Proxy mit Timeout-Absicherung
 - feat(docs): SEO-Audit-Runner `tools/audit/seo_audit.py` und generierter Report (`reports/audit/SEO-AUDIT-REPORT.md`) (#246)
 - feat(api): OpenAPI-Spezifikation `apps/api/openapi.yaml` — neue Endpunkte dokumentiert: `/sitemap.xml`, `/api/invoices/*`, `/api/donations/*`, `/api/sepa/*`

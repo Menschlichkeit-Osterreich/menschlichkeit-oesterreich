@@ -12,7 +12,7 @@ param(
     [string]$Environment = "development",
 
     [Parameter(Mandatory = $false)]
-    [ValidateSet("api", "website", "n8n", "openclaw", "infra", "shared", "all")]
+    [ValidateSet("api", "website", "n8n", "infra", "shared", "all")]
     [string]$Service = "all",
 
     [Parameter(Mandatory = $false)]

@@ -16,7 +16,7 @@ npm run test:api
 npm run build:workspaces
 ```
 
-Bei Frontend- oder OpenClaw-Aenderungen kommen zusaetzlich dazu:
+Bei Frontend-Aenderungen kommen zusaetzlich dazu:
 
 ```bash
 npm run build:frontend

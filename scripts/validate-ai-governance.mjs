@@ -89,7 +89,7 @@ const activeGithubAgents = new Set([
 ]);
 
 const requiredPathZones = {
-  active: ['apps/', 'openclaw-system/', 'automation/', 'mcp-servers/', 'figma-design-system/'],
+  active: ['apps/', 'automation/', 'mcp-servers/', 'figma-design-system/'],
   legacy_read_only: [
     'api.menschlichkeit-oesterreich.at/',
     'crm.menschlichkeit-oesterreich.at/',

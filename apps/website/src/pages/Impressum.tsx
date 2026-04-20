@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import SeoHead from '../components/seo/SeoHead';
 import JsonLdBreadcrumb from '../components/seo/JsonLdBreadcrumb';
-import { CONTACT_EMAIL, LEGAL_DOCS, LEGAL_FACTS, WHATSAPP_URL } from '../config/siteConfig';
+import { CONTACT_EMAIL, LEGAL_DOCS, LEGAL_FACTS, SITE_URL, WHATSAPP_URL } from '../config/siteConfig';
 
 export default function Impressum() {
   return (
@@ -32,6 +32,17 @@ export default function Impressum() {
         <section>
           <h2 className="text-xl font-semibold mb-3">Kontakt</h2>
           <p className="text-gray-700">
+            Website:{' '}
+            <a
+              href={SITE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary-600 hover:underline"
+            >
+              {SITE_URL}
+            </a>
+          </p>
+          <p className="text-gray-700">
             E-Mail:{' '}
             <a
               href={`mailto:${CONTACT_EMAIL}`}
@@ -60,6 +71,24 @@ export default function Impressum() {
             <dt className="font-medium">Vereinsbehörde</dt>
             <dd>{LEGAL_FACTS.registerAuthority}</dd>
           </dl>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mb-3">Vertretungsbefugtes Organ</h2>
+          <p className="text-gray-700 leading-relaxed">
+            Vertretungsbefugt ist der Vorstand gemäß den jeweils gültigen Statuten des Vereins.
+            Maßgeblich ist die aktuelle, im Verein beschlossene Statutenfassung.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mb-3">Grundlegende Richtung (§ 25 MedienG)</h2>
+          <p className="text-gray-700 leading-relaxed">
+            Diese Website dient der Information über Ziele, Werte, Aktivitäten und
+            Beteiligungsmöglichkeiten von Menschlichkeit Österreich sowie der Förderung von
+            Demokratie, Menschenrechten, sozialer Gerechtigkeit und zivilgesellschaftlicher
+            Teilhabe in Österreich.
+          </p>
         </section>
 
         <section>

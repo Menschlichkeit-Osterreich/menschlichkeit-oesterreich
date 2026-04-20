@@ -9,7 +9,7 @@
   "agent": "menschlichkeit-architect",
   "skills": ["transparency-audit", "democracy-game-dev"],
   "exposesAgents": ["menschlichkeit-architect", "security-officer", "accessibility-expert", "editorial-bot"],
-  "exposesSkills": ["transparency-audit", "democracy-game-dev", "openclaw-task", "openclaw-status", "migration-guide"],
+  "exposesSkills": ["transparency-audit", "democracy-game-dev", "migration-guide"],
   "mapsToRoles": ["architect", "security", "qa", "developer"],
   "analysisCapable": true,
   "hooks": "hooks/hooks.json",

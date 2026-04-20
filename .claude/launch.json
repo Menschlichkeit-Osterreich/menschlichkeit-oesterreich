@@ -38,33 +38,6 @@
       "port": 8002
     },
     {
-      "name": "openclaw-tool-gateway",
-      "runtimeExecutable": "cmd",
-      "runtimeArgs": [
-        "/c",
-        "cd /d E:\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich\\openclaw-system\\api\\fastapi_gateway && python -m uvicorn main:app --host 0.0.0.0 --port 9101 --reload"
-      ],
-      "port": 9101
-    },
-    {
-      "name": "openclaw-agent-runtime",
-      "runtimeExecutable": "cmd",
-      "runtimeArgs": [
-        "/c",
-        "cd /d E:\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich\\openclaw-system\\core\\agent_runtime && python -m uvicorn main:app --host 0.0.0.0 --port 9100 --reload"
-      ],
-      "port": 9100
-    },
-    {
-      "name": "windows-bridge",
-      "runtimeExecutable": "cmd",
-      "runtimeArgs": [
-        "/c",
-        "cd /d E:\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich\\openclaw-system\\windows-bridge && node wsl-proxy.js"
-      ],
-      "port": 18790
-    },
-    {
       "name": "prisma-studio",
       "runtimeExecutable": "cmd",
       "runtimeArgs": ["/c", "cd /d E:\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich && npm run db:studio"],

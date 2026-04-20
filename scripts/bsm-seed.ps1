@@ -58,11 +58,10 @@ $projectName = $projectMap[$Environment]
 
 # Service-spezifische .env-Dateien und deren BSM-Prefix
 $envSources = @(
-    @{ File = ".env";                                Prefix = "" },
-    @{ File = "apps/api/.env";                       Prefix = "api" },
-    @{ File = "apps/website/.env.local";             Prefix = "website" },
-    @{ File = "automation/n8n/.env";                 Prefix = "n8n" },
-    @{ File = "automation/openclaw/config/.env";     Prefix = "openclaw" }
+    @{ File = ".env"; Prefix = "" },
+    @{ File = "apps/api/.env"; Prefix = "api" },
+    @{ File = "apps/website/.env.local"; Prefix = "website" },
+    @{ File = "automation/n8n/.env"; Prefix = "n8n" }
 )
 
 # Mapping: env_var → bsm_key (aus secrets.manifest.json)
@@ -158,8 +157,7 @@ foreach ($source in $envSources) {
             }
             else {
                 # Root .env: anhand des Prefixes zuordnen
-                if ($envVar -like "OC_*") { $bsmKey = "openclaw/$envVar" }
-                elseif ($envVar -like "GH_*" -or $envVar -like "GPG_*") { $bsmKey = "shared/$envVar" }
+                if ($envVar -like "GH_*" -or $envVar -like "GPG_*") { $bsmKey = "shared/$envVar" }
                 elseif ($envVar -like "SSH_*" -or $envVar -like "PLESK_*") { $bsmKey = "infra/$envVar" }
                 else { $bsmKey = "shared/$envVar" }
             }

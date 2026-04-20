@@ -498,7 +498,13 @@ export default function Kontakt() {
                         className="mt-1 h-4 w-4 rounded border-secondary-300 text-primary-600 focus:ring-primary-500"
                       />
                       <span>
-                        Ich möchte zusätzlich per E-Mail über Vereinsaktivitäten informiert werden.
+                        Ich möchte zusätzlich per E-Mail über Vereinsaktivitäten informiert werden
+                        (Newsletter, optional). Die Anmeldung erfolgt per Double-Opt-In, und der
+                        Widerruf ist jederzeit möglich. Details in der{' '}
+                        <a href="/datenschutz" className="text-primary-600 hover:underline">
+                          Datenschutzerklärung
+                        </a>
+                        .
                       </span>
                     </label>
                   </div>

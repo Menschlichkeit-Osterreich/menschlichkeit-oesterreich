@@ -1,35 +1,45 @@
 # CODEOWNERS (Masterplan Phase 1)
+
 # TODO(ownership): Add confirmed GitHub teams/handles once officially established in org settings.
 
 # Default owner
-* @peschull
+
+- @peschull
 
 # -----------------------------------------------------------------------------
+
 # Active product paths
-# -----------------------------------------------------------------------------
-/apps/                   @peschull
-/openclaw-system/        @peschull
-/automation/             @peschull
-/mcp-servers/            @peschull
-/figma-design-system/    @peschull
 
 # -----------------------------------------------------------------------------
+
+/apps/ @peschull
+/automation/ @peschull
+/mcp-servers/ @peschull
+/figma-design-system/ @peschull
+
+# -----------------------------------------------------------------------------
+
 # Governance, security, deploy-sensitive paths
-# -----------------------------------------------------------------------------
-/.github/                @peschull
-/SECURITY.md             @peschull
-/README.md               @peschull
-/README_DEPLOY.md        @peschull
-/deployment-scripts/     @peschull
-/security/               @peschull
-/docs/governance/        @peschull
-/docs/security/          @peschull
 
 # -----------------------------------------------------------------------------
-# Legacy / mirror reference paths (protected, not free-form change areas)
+
+/.github/ @peschull
+/SECURITY.md @peschull
+/README.md @peschull
+/README_DEPLOY.md @peschull
+/deployment-scripts/ @peschull
+/security/ @peschull
+/docs/governance/ @peschull
+/docs/security/ @peschull
+
 # -----------------------------------------------------------------------------
-/api.menschlichkeit-oesterreich.at/   @peschull
-/crm.menschlichkeit-oesterreich.at/   @peschull
-/new/                                 @peschull
-/web/                                 @peschull
-/services/                            @peschull
+
+# Legacy / mirror reference paths (protected, not free-form change areas)
+
+# -----------------------------------------------------------------------------
+
+/api.menschlichkeit-oesterreich.at/ @peschull
+/crm.menschlichkeit-oesterreich.at/ @peschull
+/new/ @peschull
+/web/ @peschull
+/services/ @peschull

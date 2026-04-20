@@ -60,6 +60,7 @@ nohup uvicorn app.main:app --host 0.0.0.0 --port 8001 &
 ```
 
 **Healthcheck nach Neustart:**
+
 ```bash
 curl -f https://api.menschlichkeit-oesterreich.at/health
 # Erwartung: {"status": "ok"}
@@ -99,6 +100,7 @@ npm run dev:crm
 ### Produktion (PHP-Prozesse)
 
 Drupal läuft als PHP-FPM oder via Apache. Neustart via Plesk:
+
 1. Plesk → Domains → crm.menschlichkeit-oesterreich.at
 2. PHP-FPM Pool → Restart
 
@@ -110,25 +112,14 @@ plesk sbin php_handler --list
 ```
 
 **Cache leeren nach Neustart:**
+
 ```bash
 drush cr    # Drupal Cache rebuild
 ```
 
 ---
 
-## 5. OpenClaw Multi-Agent-System
-
-```bash
-# Ganzen Stack neu starten:
-bash openclaw-system/scripts/boot.sh
-
-# Smoke-Tests nach Neustart:
-bash openclaw-system/scripts/smoke.sh
-```
-
----
-
-## 6. Alle Services auf einmal
+## 5. Alle Services auf einmal
 
 ```bash
 # 1. Docker-Services:
@@ -148,21 +139,12 @@ npm run status:check
 
 ---
 
-## 7. Windows-Bridge (OpenClaw)
-
-```powershell
-# PowerShell als Admin:
-C:\openclawd-win-bridge\Start-Bridge.ps1
-
-# Oder:
-Restart-Service -Name "OpenClawBridge"
-```
-
 ---
 
 ## Eskalation
 
 Wenn Neustart nicht hilft nach 2 Versuchen:
+
 1. Logs sichern: `docker-compose logs > /tmp/service-logs-$(date +%Y%m%d).txt`
 2. [Incident Response](../docs/operations/incident-response.md) starten
 3. Backup-Restore prüfen: [Backup & Restore](../docs/operations/backup-restore.md)

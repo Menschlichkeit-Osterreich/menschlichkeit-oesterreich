@@ -78,10 +78,27 @@ export default function Datenschutz() {
             <li>
               Mitgliedschaftsdaten (Name, Adresse, E-Mail) für die Verwaltung der Mitgliedschaft
             </li>
-            <li>Zahlungsdaten für die Abwicklung von Mitgliedsbeiträgen und Spenden</li>
-            <li>Kontaktdaten bei Anfragen über das Kontaktformular</li>
-            <li>Technische Daten (IP-Adresse, Browser-Typ) für den Betrieb der Website</li>
+            <li>
+              Kontaktdaten bei Anfragen über das Kontaktformular (inkl. verpflichtender
+              Datenschutz-Einwilligung)
+            </li>
+            <li>
+              Newsletter-Daten (E-Mail, optional Vor- und Nachname) für den Versand nach
+              Double-Opt-In-Bestätigung
+            </li>
+            <li>
+              Zahlungsdaten für Mitgliedsbeiträge und Spenden (inkl. Stripe-gestützter
+              Zahlungsabwicklung sowie alternativer Zahlungsarten wie SEPA/Überweisung)
+            </li>
+            <li>
+              Technische Daten für Sicherheit und Betrieb (z. B. IP-/User-Agent-Hash in
+              Formularprozessen)
+            </li>
           </ul>
+          <p className="mt-3">
+            Auf der Website sind Einwilligungen in den relevanten Formularen integriert: Kontakt,
+            Mitgliedschaft, Spende und Newsletter-Anmeldung.
+          </p>
         </section>
 
         <section>
@@ -104,13 +121,46 @@ export default function Datenschutz() {
           <p>Wir geben Ihre Daten nicht an Dritte weiter, außer:</p>
           <ul className="list-disc list-inside mt-3 space-y-2">
             <li>Wenn Sie ausdrücklich eingewilligt haben</li>
-            <li>An Zahlungsdienstleister zur Abwicklung von Beiträgen/Spenden</li>
+            <li>
+              An Zahlungsdienstleister zur Abwicklung von Beiträgen/Spenden (insbesondere Stripe,
+              sofern diese Zahlungsart gewählt wird)
+            </li>
+            <li>
+              An unsere vereinsinterne CRM-/Verwaltungskette (CiviCRM) zur Mitglieder-, Kontakt- und
+              Newsletterverwaltung
+            </li>
+            <li>
+              An technische Auftragsverarbeiter für den sicheren Betrieb und die Verarbeitung von
+              Ereignissen (z. B. automatisierte Workflow-Verarbeitung)
+            </li>
             <li>Wenn wir gesetzlich dazu verpflichtet sind</li>
           </ul>
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">5. Speicherdauer</h2>
+          <h2 className="text-xl font-semibold mb-3">5. Newsletter und Einwilligungsmanagement</h2>
+          <ul className="list-disc list-inside mt-3 space-y-2">
+            <li>
+              Newsletter-Anmeldungen erfolgen per Double-Opt-In. Erst nach Bestätigung über den
+              Bestätigungslink wird die Anmeldung aktiviert.
+            </li>
+            <li>
+              Der Bestätigungslink ist zeitlich begrenzt, und eine erneute Anmeldung ist danach
+              erforderlich.
+            </li>
+            <li>
+              Jede Marketing-Einwilligung ist widerrufbar; Abmeldelinks sind in den
+              Newsletter-E-Mails enthalten.
+            </li>
+            <li>
+              Optionale Newsletter-Opt-ins in Kontakt- und Mitgliedschaftsprozessen führen in
+              denselben Double-Opt-In-Prozess.
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <h2 className="text-xl font-semibold mb-3">6. Speicherdauer</h2>
           <p>
             Wir speichern personenbezogene Daten nur so lange, wie es für den jeweiligen Zweck
             erforderlich ist oder gesetzliche Aufbewahrungspflichten bestehen. Mitgliedsdaten werden
@@ -120,7 +170,7 @@ export default function Datenschutz() {
         </section>
 
         <section id="rechte">
-          <h2 className="text-xl font-semibold mb-3">6. Ihre Rechte</h2>
+          <h2 className="text-xl font-semibold mb-3">7. Ihre Rechte</h2>
           <p>Sie haben folgende Rechte bezüglich Ihrer personenbezogenen Daten:</p>
           <ul className="list-disc list-inside mt-3 space-y-2">
             <li>
@@ -159,7 +209,7 @@ export default function Datenschutz() {
         </section>
 
         <section>
-          <h2 className="text-xl font-semibold mb-3">7. Beschwerderecht</h2>
+          <h2 className="text-xl font-semibold mb-3">8. Beschwerderecht</h2>
           <p>
             Sie haben das Recht, Beschwerde bei der österreichischen Datenschutzbehörde einzulegen:
           </p>
@@ -182,13 +232,17 @@ export default function Datenschutz() {
         </section>
 
         <section id="cookies">
-          <h2 className="text-xl font-semibold mb-3">8. Cookies</h2>
+          <h2 className="text-xl font-semibold mb-3">9. Cookies und Einwilligungssteuerung</h2>
           <p>
-            Diese Website verwendet derzeit technisch notwendige Cookies für Sicherheit,
-            Sitzungsverwaltung und grundlegende Funktionen. Optionale Kategorien wie Analyse,
-            Marketing oder Social Media bleiben standardmäßig deaktiviert und werden erst genutzt,
-            wenn dafür echte Funktionen aktiv sind und Sie ausdrücklich einwilligen. Wenn Sie Fragen
-            zu Einwilligungen, Cookies oder gespeicherten Daten haben, schreiben Sie uns bitte an{' '}
+            Diese Website verwendet ein Consent-Banner mit Kategorien für notwendige, Analyse-,
+            Marketing-, Personalisierungs- und Social-Media-Einstellungen. Notwendige Cookies bleiben
+            aktiv, optionale Kategorien sind standardmäßig deaktiviert und werden nur nach Ihrer
+            Auswahl gesetzt bzw. aktiviert.
+          </p>
+          <p className="mt-3">
+            Ihre Auswahl wird lokal in den Consent-Einstellungen gespeichert und kann über die
+            Datenschutz-/Cookie-Einstellungen jederzeit angepasst werden. Wenn Sie Fragen zu
+            Einwilligungen, Cookies oder gespeicherten Daten haben, schreiben Sie uns bitte an{' '}
             <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary-600 hover:underline">
               {CONTACT_EMAIL}
             </a>
@@ -196,7 +250,7 @@ export default function Datenschutz() {
           </p>
         </section>
 
-        <p className="text-sm text-gray-500 pt-4 border-t border-gray-200">Stand: Mai 2025</p>
+        <p className="text-sm text-gray-500 pt-4 border-t border-gray-200">Stand: April 2026</p>
       </div>
     </div>
   );

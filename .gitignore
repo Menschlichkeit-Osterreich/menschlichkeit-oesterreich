@@ -84,7 +84,6 @@ secrets/ZUGANGSDATEN-WOHER-BEKOMMEN.txt
 # Ausnahmen: eingecheckte Schema-Initialisierungsskripte
 !scripts/init-db.sql
 !scripts/db-user-setup.sql
-!openclaw-system/services/postgres/init.sql
 
 # Configuration with secrets
 config/local.json
@@ -414,7 +413,6 @@ config/.env.production
 # Ausnahmen: eingecheckte Schema-Initialisierungsskripte (see also line 65)
 !scripts/init-db.sql
 !scripts/db-user-setup.sql
-!openclaw-system/services/postgres/init.sql
 backup/
 backups/
 dumps/
@@ -509,10 +507,6 @@ crm.menschlichkeit-oesterreich.at/web/core/modules/**/tests/**/README.md
 !**/.env.example
 !**/.env.production.template
 !**/.env.test.example
-# OpenClaw – lokale Konfiguration (niemals einchecken)
-.openclaw/
-automation/openclaw/.env
-automation/openclaw/config/config.yaml
 
 # Incident-Evidence und interne Medien (DSGVO-sensitive Artefakte)
 docs/incidents/

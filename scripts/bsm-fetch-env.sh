@@ -25,7 +25,7 @@ while [[ $# -gt 0 ]]; do
         --output|-o)      OUTPUT_FILE="$2"; shift 2 ;;
         --dry-run)        DRY_RUN=true; shift ;;
         -h|--help)
-            echo "Verwendung: $0 [--environment dev|staging|production] [--service api|website|n8n|openclaw|infra|shared|all] [--output .env] [--dry-run]"
+            echo "Verwendung: $0 [--environment dev|staging|production] [--service api|website|n8n|infra|shared|all] [--output .env] [--dry-run]"
             exit 0
             ;;
         *) echo "[ERROR] Unbekanntes Argument: $1" >&2; exit 1 ;;

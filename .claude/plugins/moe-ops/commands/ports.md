@@ -27,18 +27,6 @@ disable-model-invocation: true
 | 3306 | MariaDB (CRM)     | `moe-crm-db`              |
 | 8025 | MailHog Web UI    | `moe-crm-mailhog`         |
 
-## OpenClaw Multi-Agent-System
-
-| Port  | Service               | Container          |
-| ----- | --------------------- | ------------------ |
-| 4222  | NATS JetStream        | `oc_nats`          |
-| 6380  | Redis (OpenClaw)      | `oc_redis`         |
-| 55432 | PostgreSQL (OpenClaw) | `oc_postgres`      |
-| 6333  | Qdrant REST           | `oc_qdrant`        |
-| 9100  | Agent-Runtime         | `oc_agent_runtime` |
-| 9101  | Tool-Gateway          | `oc_tool_gateway`  |
-| 18790 | Windows Bridge        | WSL2 Proxy         |
-
 ## Plesk Production
 
 | Port | Service                            |

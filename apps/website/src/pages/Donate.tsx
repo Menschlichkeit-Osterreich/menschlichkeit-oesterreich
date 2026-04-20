@@ -59,6 +59,7 @@ export default function DonatePage() {
   const [purpose, setPurpose] = React.useState('Allgemein');
   const [anonymous, setAnonymous] = React.useState(false);
   const [tribute, setTribute] = React.useState('');
+  const [consentPrivacy, setConsentPrivacy] = React.useState(false);
   const [instrument, setInstrument] = React.useState<Instrument>('sepa');
   const [iban, setIban] = React.useState('');
   const [bic, setBic] = React.useState('');
@@ -98,7 +99,7 @@ export default function DonatePage() {
   const amountValid = amount > 0;
   const ibanRequired = instrument === 'sepa';
   const ibanValid = !ibanRequired || iban.trim().length > 0;
-  const valid = emailValid && amountValid && ibanValid;
+  const valid = emailValid && amountValid && ibanValid && consentPrivacy;
   const showFieldErrors = submitAttempted;
   const formErrors: { id: string; label: string; message: string }[] = [];
   if (showFieldErrors && !amountValid) {
@@ -120,6 +121,13 @@ export default function DonatePage() {
       id: 'donation-iban',
       label: 'IBAN',
       message: 'Für SEPA-Lastschrift ist eine IBAN erforderlich.',
+    });
+  }
+  if (showFieldErrors && !consentPrivacy) {
+    formErrors.push({
+      id: 'donation-consent',
+      label: 'Datenschutz',
+      message: 'Bitte bestätigen Sie die Datenschutzerklärung.',
     });
   }
   const buildSuccessPath = React.useCallback(
@@ -585,6 +593,33 @@ export default function DonatePage() {
                   />
                 </React.Suspense>
               )}
+
+            <div className="rounded-xl border border-secondary-200 bg-secondary-50 p-4">
+              <label className="flex items-start gap-2 text-sm text-secondary-700" htmlFor="donation-consent">
+                <input
+                  id="donation-consent"
+                  name="consent-privacy"
+                  type="checkbox"
+                  checked={consentPrivacy}
+                  onChange={e => setConsentPrivacy(e.target.checked)}
+                  className="mt-0.5"
+                  aria-describedby={showFieldErrors && !consentPrivacy ? 'donation-consent-error' : undefined}
+                  required
+                />
+                <span>
+                  Ich habe die{' '}
+                  <Link to="/datenschutz" className="font-medium text-primary-700 hover:underline">
+                    Datenschutzerklärung
+                  </Link>{' '}
+                  gelesen und stimme der Verarbeitung meiner Angaben zur Spendenabwicklung zu. *
+                </span>
+              </label>
+              {showFieldErrors && !consentPrivacy && (
+                <p id="donation-consent-error" className="mt-2 text-sm text-red-700">
+                  Bitte bestätigen Sie die Datenschutzerklärung.
+                </p>
+              )}
+            </div>
 
             <div className="mt-4 flex gap-2">
               <Button type="submit" disabled={!valid || submitting} aria-busy={submitting}>

@@ -91,7 +91,6 @@ export default function AdminSettings() {
                 { name: 'n8n Automation', desc: 'Workflow-Automatisierung', status: 'connected', icon: '⚡' },
                 { name: 'Stripe', desc: 'Online-Zahlungen und Spenden', status: 'connected', icon: '💳' },
                 { name: 'Mailchimp / Brevo', desc: 'Newsletter-Versand', status: 'disconnected', icon: '📧' },
-                { name: 'OpenClaw', desc: 'KI-Assistent und Automatisierung', status: 'disconnected', icon: '🤖' },
                 { name: 'Google Analytics', desc: 'Website-Statistiken', status: 'connected', icon: '📊' },
                 { name: 'Plesk', desc: 'Hosting und Deployment', status: 'connected', icon: '🖥️' },
               ].map(int => (

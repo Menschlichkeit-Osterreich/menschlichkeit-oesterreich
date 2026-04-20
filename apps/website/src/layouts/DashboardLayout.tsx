@@ -1,7 +1,6 @@
-import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import NavBar from '../components/NavBar';
 import { useAuth } from '../auth/AuthContext';
+import NavBar from '../components/NavBar';
 import { buildPublicUrl } from '../utils/runtimeHost';
 
 interface SideNavItem {
@@ -32,7 +31,6 @@ const ADMIN_NAV: SideNavItem[] = [
   { to: '/admin/dsgvo', label: 'DSGVO', icon: '🔒' },
   { to: '/admin/reports', label: 'Berichte', icon: '📈' },
   { to: '/admin/settings', label: 'Einstellungen', icon: '⚙️' },
-  { to: '/admin/openclaw', label: 'OpenClaw', icon: '🤖' },
 ];
 
 function SideNav({ items }: { items: SideNavItem[] }) {

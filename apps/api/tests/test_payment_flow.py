@@ -232,6 +232,42 @@ class TestStripeWebhook:
             assert "bereits" in resp.json()["message"]
             mock_record.assert_not_called()  # Kein doppeltes Recording
 
+    def test_webhook_duplicate_failed_event_ignored_without_mail_or_status_update(
+        self, client
+    ):
+        payload = _stripe_event(
+            "payment_intent.payment_failed",
+            {
+                "id": "pi_dup_failed",
+                "amount": 5000,
+                "currency": "eur",
+                "metadata": {"email": "spender@example.at"},
+            },
+        )
+        with (
+            patch(f"{_MOCK_BASE}.db_fetchrow", new=AsyncMock(return_value={"id": 1})),
+            patch(
+                "app.services.payment_service.payment_service.verify_stripe_signature",
+                new=AsyncMock(),
+            ),
+            patch(f"{_MOCK_BASE}.execute", new=AsyncMock()) as mock_exec,
+            patch(
+                f"{_MOCK_BASE}.mail_service.send_template", new=AsyncMock()
+            ) as mock_mail,
+        ):
+            resp = client.post(
+                "/api/webhooks/stripe",
+                content=json.dumps(payload).encode(),
+                headers={
+                    "stripe-signature": "t=1,v1=mocksig",
+                    "Content-Type": "application/json",
+                },
+            )
+            assert resp.status_code == 200
+            assert "bereits" in resp.json()["message"]
+            mock_exec.assert_not_called()
+            mock_mail.assert_not_called()
+
     def test_webhook_failed_no_email_no_mail_sent(self, client):
         """Fehlgeschlagene Zahlung ohne E-Mail in Metadata → keine Benachrichtigungs-Mail."""
         payload = _stripe_event(

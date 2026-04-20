@@ -364,7 +364,7 @@ Required steps for each secret class:
 
 GitHub-specific note:
 
-- rotate `GH_TOKEN` and `OC_GITHUB_TOKEN`
+- rotate `GH_TOKEN`
 - validate `GITHUB_REPO` and `GITHUB_OWNER` after rotation, but do not treat
   them as secrets because they are configuration values, not credentials
 

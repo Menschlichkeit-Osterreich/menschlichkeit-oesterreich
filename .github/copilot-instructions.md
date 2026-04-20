@@ -62,6 +62,7 @@ Nicht aktiv:
 
 - Repository first: vor Vorschlaegen immer den realen Repo-Stand lesen.
 - Keine neuen Parallelstrukturen erfinden, wenn `AGENTS.md`, `CLAUDE.md` oder Core-Instructions schon den Vertrag definieren.
+- Bei Tool-Aufrufen mit Dateipfaden absolute Workspace-Pfade verwenden, sobald das Tool keine relativen Pfade akzeptiert.
 - Nutzertexte bleiben in oesterreichischem Deutsch.
 - Keine Secrets oder PII in Code, Logs, Beispielen oder Prompts.
 - Brand-Arbeit folgt den Token- und Plugin-Quellen im Repo.

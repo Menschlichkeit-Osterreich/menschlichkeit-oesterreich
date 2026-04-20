@@ -1,19 +1,34 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  COOKIE_PREFERENCES_UPDATED_EVENT,
+  loadConsentPreferences,
+  saveConsentPreferences,
+} from '../utils/consentStorage';
 
-const CONSENT_KEY = 'moe_cookie_consent';
+interface CookieConsentProps {
+  onCustomize?: () => void;
+}
 
-export default function CookieConsent() {
+export default function CookieConsent({ onCustomize }: CookieConsentProps) {
   const [visible, setVisible] = useState(false);
   const acceptButtonRef = useRef<HTMLButtonElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
-  useEffect(() => {
-    const consent = localStorage.getItem(CONSENT_KEY);
-    if (!consent) {
-      const timer = setTimeout(() => setVisible(true), 1000);
-      return () => clearTimeout(timer);
-    }
+  const syncVisibility = useCallback(() => {
+    setVisible(loadConsentPreferences() === null);
   }, []);
+
+  useEffect(() => {
+    const timer = window.setTimeout(syncVisibility, 1000);
+    const handlePreferencesUpdated = () => syncVisibility();
+
+    window.addEventListener(COOKIE_PREFERENCES_UPDATED_EVENT, handlePreferencesUpdated);
+
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener(COOKIE_PREFERENCES_UPDATED_EVENT, handlePreferencesUpdated);
+    };
+  }, [syncVisibility]);
 
   useEffect(() => {
     if (!visible) {
@@ -30,20 +45,42 @@ export default function CookieConsent() {
     };
   }, [visible]);
 
-  function accept() {
-    localStorage.setItem(CONSENT_KEY, 'accepted');
+  function acceptAll() {
+    saveConsentPreferences({
+      essential: true,
+      analytics: true,
+      marketing: true,
+      personalization: true,
+      socialMedia: true,
+    });
     setVisible(false);
   }
 
-  function reject() {
-    localStorage.setItem(CONSENT_KEY, 'rejected');
+  function acceptEssentialOnly() {
+    saveConsentPreferences({
+      essential: true,
+      analytics: false,
+      marketing: false,
+      personalization: false,
+      socialMedia: false,
+    });
     setVisible(false);
+  }
+
+  function customizePreferences() {
+    if (!onCustomize) {
+      return;
+    }
+
+    setVisible(false);
+    onCustomize();
   }
 
   if (!visible) return null;
 
   return (
     <section
+      data-testid="cookie-consent-banner"
       className="fixed bottom-0 inset-x-0 z-50 p-4 sm:p-6"
       role="region"
       aria-labelledby="cookie-consent-title"
@@ -69,18 +106,25 @@ export default function CookieConsent() {
           <div className="flex gap-2 shrink-0">
             <button
               type="button"
-              onClick={reject}
+              onClick={acceptEssentialOnly}
               className="px-4 py-2 text-xs font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
             >
-              Nur notwendige Cookies
+              Nur notwendige
+            </button>
+            <button
+              type="button"
+              onClick={customizePreferences}
+              className="px-4 py-2 text-xs font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+            >
+              Anpassen
             </button>
             <button
               ref={acceptButtonRef}
               type="button"
-              onClick={accept}
+              onClick={acceptAll}
               className="px-4 py-2 text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
             >
-              Verstanden
+              Alle akzeptieren
             </button>
           </div>
         </div>

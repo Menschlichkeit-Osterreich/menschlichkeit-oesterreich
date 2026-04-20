@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { API_BASE_URL } from '@/constants/api';
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
 interface KPI {
   label: string;
@@ -19,7 +19,6 @@ const QUICK_LINKS = [
   { label: 'Blog & Forum', icon: '📰', path: '/admin/community', color: 'bg-orange-600' },
   { label: 'DSGVO', icon: '🔒', path: '/admin/dsgvo', color: 'bg-red-600' },
   { label: 'Berichte', icon: '📊', path: '/admin/reports', color: 'bg-indigo-600' },
-  { label: 'OpenClaw', icon: '🤖', path: '/admin/openclaw', color: 'bg-slate-700' },
   { label: 'Einstellungen', icon: '⚙️', path: '/admin/settings', color: 'bg-gray-600' },
 ];
 

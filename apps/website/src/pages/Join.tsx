@@ -503,7 +503,15 @@ function Step4({
             checked={data.newsletterOptIn}
             onChange={e => set({ newsletterOptIn: e.target.checked })}
           />
-          <span>Ich möchte den Newsletter von Menschlichkeit Österreich erhalten. (optional)</span>
+          <span>
+            Ich möchte den Newsletter von Menschlichkeit Österreich erhalten (optional). Die
+            Anmeldung erfolgt per Double-Opt-In, und der Widerruf ist jederzeit möglich. Details in
+            der{' '}
+            <a href="/datenschutz" className="text-primary-600 underline" target="_blank">
+              Datenschutzerklärung
+            </a>
+            .
+          </span>
         </label>
 
         <p className="text-xs text-secondary-600 pt-1">

@@ -64,7 +64,6 @@ const AdminNewsletter = lazy(() => import('./pages/admin/AdminNewsletter'));
 const AdminDSGVO = lazy(() => import('./pages/admin/AdminDSGVO'));
 const AdminReports = lazy(() => import('./pages/admin/AdminReports'));
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
-const AdminOpenClaw = lazy(() => import('./pages/admin/AdminOpenClaw'));
 const AdminCommunity = lazy(() => import('./pages/admin/AdminCommunity'));
 
 function PortalEntryRoute() {
@@ -206,7 +205,6 @@ function buildPortalRoutes() {
         <Route path="/admin/dsgvo" element={<AdminDSGVO />} />
         <Route path="/admin/reports" element={<AdminReports />} />
         <Route path="/admin/settings" element={<AdminSettings />} />
-        <Route path="/admin/openclaw" element={<AdminOpenClaw />} />
       </Route>
 
       <Route path="/account/privacy" element={<Navigate replace to="/member/datenschutz" />} />

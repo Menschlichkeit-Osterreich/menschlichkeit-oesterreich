@@ -1,7 +1,7 @@
 ---
 name: qa-engineer
 description: 'Quality Assurance Engineer — generiert und fuehrt Tests aus, prueft Accessibility, validiert Payment-Flows'
-model: claude-sonnet-4-6
+model: claude-sonnet-4-20250514
 color: yellow
 tools:
   - Read

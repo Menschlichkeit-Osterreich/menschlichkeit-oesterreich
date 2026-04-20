@@ -32,6 +32,7 @@ Copilot soll im Repo aktiv dieselbe Governance nutzen wie Codex und Claude Code,
 - Kein `develop`-basierter Workflow in neuen Vorschlaegen.
 - Keine Guidance erstellen, die historische Root-Pfade oder alte Einzelordner als aktive Ziele behandelt.
 - Bei VS Code-, MCP- oder CI-Themen immer die aktuellen Repo-Dateien als Wahrheit nehmen.
+- Bei Dateitools absolute Workspace-Pfade bevorzugen, wenn die jeweilige Toolchain relative Pfade nicht akzeptiert.
 
 ## Bei Aenderungen an Governance
 

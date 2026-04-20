@@ -4,7 +4,7 @@
     "updated": "2026-03-31",
     "repository": "Menschlichkeit-Osterreich/menschlichkeit-oesterreich",
     "pathZones": {
-      "active": ["apps/", "openclaw-system/", "automation/", "mcp-servers/", "figma-design-system/"],
+      "active": ["apps/", "automation/", "mcp-servers/", "figma-design-system/"],
       "legacy_read_only": [
         "api.menschlichkeit-oesterreich.at/",
         "crm.menschlichkeit-oesterreich.at/",
@@ -918,26 +918,6 @@
       "status": "adapter",
       "owner": "claude",
       "path": ".claude/plugins/menschlichkeit-dev-suite/skills/migration-guide/SKILL.md",
-      "role": "developer",
-      "sourceOfTruth": ".github/skills/moe-dev-suite/SKILL.md",
-      "replacement": ".github/skills/moe-dev-suite/SKILL.md"
-    },
-    {
-      "id": "plugin-skills-openclaw-status",
-      "kind": "skill",
-      "status": "adapter",
-      "owner": "claude",
-      "path": ".claude/plugins/menschlichkeit-dev-suite/skills/openclaw-status/SKILL.md",
-      "role": "developer",
-      "sourceOfTruth": ".github/skills/moe-dev-suite/SKILL.md",
-      "replacement": ".github/skills/moe-dev-suite/SKILL.md"
-    },
-    {
-      "id": "plugin-skills-openclaw-task",
-      "kind": "skill",
-      "status": "adapter",
-      "owner": "claude",
-      "path": ".claude/plugins/menschlichkeit-dev-suite/skills/openclaw-task/SKILL.md",
       "role": "developer",
       "sourceOfTruth": ".github/skills/moe-dev-suite/SKILL.md",
       "replacement": ".github/skills/moe-dev-suite/SKILL.md"

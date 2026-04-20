@@ -14,15 +14,9 @@ export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || apiOriginFromV2Url || DEFAULT_FASTAPI_ORIGIN;
 
 /** Kanonische FastAPI-API inklusive /api */
-export const API_V2_URL =
-  import.meta.env.VITE_API_URL || `${API_BASE_URL}/api`;
-
-/** OpenClaw Windows-Bridge */
-export const OPENCLAW_BRIDGE_URL =
-  import.meta.env.VITE_OPENCLAW_BRIDGE_URL || 'http://127.0.0.1:18790';
+export const API_V2_URL = import.meta.env.VITE_API_URL || `${API_BASE_URL}/api`;
 
 /** CiviCRM REST-API */
 export const CIVICRM_BASE_URL =
   import.meta.env.VITE_CIVICRM_BASE_URL || 'https://crm.menschlichkeit-oesterreich.at';
-export const CIVICRM_API_ENDPOINT =
-  import.meta.env.VITE_CIVICRM_API_ENDPOINT || '/api/v4';
+export const CIVICRM_API_ENDPOINT = import.meta.env.VITE_CIVICRM_API_ENDPOINT || '/api/v4';

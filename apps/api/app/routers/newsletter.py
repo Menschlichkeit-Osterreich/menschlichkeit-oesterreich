@@ -22,6 +22,11 @@ router = APIRouter()
 ALLOWED_NEWSLETTER_ROLES = {"staff", "finance", "admin", "sysadmin", "moderator"}
 
 
+def _build_unsubscribe_url(base_url: str, token: str) -> str:
+    normalized = base_url.rstrip("/")
+    return f"{normalized}/api/newsletter/unsubscribe?token={token}"
+
+
 async def ensure_newsletter_admin_tables() -> None:
     await execute(
         """
@@ -203,7 +208,9 @@ async def subscribe_newsletter(body: NewsletterSubscribeRequest, request: Reques
             body.source,
         )
 
-    confirm_url = f"{request.base_url}api/newsletter/confirm?token={token}"
+    base_url = str(request.base_url)
+    confirm_url = f"{base_url}api/newsletter/confirm?token={token}"
+    unsubscribe_url = _build_unsubscribe_url(base_url, token)
     await mail_service.send_template(
         template_id="newsletter_doi",
         recipient_email=email,
@@ -211,6 +218,7 @@ async def subscribe_newsletter(body: NewsletterSubscribeRequest, request: Reques
             "first_name": body.first_name or "",
             "last_name": body.last_name or "",
             "confirmation_url": confirm_url,
+            "unsubscribe_url": unsubscribe_url,
         },
         entity_type="newsletter_subscription",
     )
@@ -221,7 +229,7 @@ async def subscribe_newsletter(body: NewsletterSubscribeRequest, request: Reques
 
 
 @router.get("/newsletter/confirm")
-async def confirm_newsletter(token: str = Query(..., min_length=10)):
+async def confirm_newsletter(request: Request, token: str = Query(..., min_length=10)):
     pending = await fetchrow(
         "SELECT id, token_created_at FROM newsletter_subscriptions WHERE confirmation_token = $1 AND status = 'pending_confirmation'",
         token,
@@ -284,6 +292,7 @@ async def confirm_newsletter(token: str = Query(..., min_length=10)):
         context={
             "first_name": subscription.get("first_name") or "",
             "last_name": subscription.get("last_name") or "",
+            "unsubscribe_url": _build_unsubscribe_url(str(request.base_url), token),
         },
         entity_type="newsletter_subscription",
     )
