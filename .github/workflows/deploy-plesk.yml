@@ -223,7 +223,7 @@ jobs:
   deploy:
     name: Deploy → Plesk
     runs-on: ubuntu-latest
-    needs: [build-frontend, build-games, test]
+    needs: [bsm-secrets, build-frontend, build-games, test]
     environment: production
     if: >-
       (github.event_name == 'push' ||
@@ -321,14 +321,57 @@ jobs:
         if: >
           env.TARGET_SERVICE == 'all' ||
           env.TARGET_SERVICE == 'api'
+        env:
+          GRAPH_TENANT: ${{ env.MICROSOFT_TENANT_ID }}
+          GRAPH_CLIENT: ${{ env.MICROSOFT_CLIENT_ID }}
+          GRAPH_CLIENT_SECRET: ${{ env.MICROSOFT_CLIENT_SECRET }}
+          GRAPH_SENDER: ${{ env.MICROSOFT_GRAPH_SENDER }}
+          MAIL_TRANSPORT_SECRET: ${{ secrets.MAIL_TRANSPORT }}
         run: |
+          set -euo pipefail
+          missing=0
+          for var in GRAPH_TENANT GRAPH_CLIENT GRAPH_CLIENT_SECRET GRAPH_SENDER; do
+            if [ -z "${!var:-}" ]; then
+              echo "✗ ${var} fehlt fuer den API-Runtime-Deploy."
+              missing=1
+            fi
+          done
+          if [ "${missing}" -eq 1 ]; then
+            echo "✗ Graph-Mail-Secrets sind im Production-Deploy nicht vollstaendig hinterlegt."
+            exit 1
+          fi
+
+          {
+            printf 'MAIL_TRANSPORT=%s\n' "${MAIL_TRANSPORT_SECRET:-graph}"
+            printf 'MICROSOFT_TENANT_ID=%s\n' "${GRAPH_TENANT}"
+            printf 'MICROSOFT_CLIENT_ID=%s\n' "${GRAPH_CLIENT}"
+            printf 'MICROSOFT_CLIENT_SECRET=%s\n' "${GRAPH_CLIENT_SECRET}"
+            printf 'MICROSOFT_GRAPH_SENDER=%s\n' "${GRAPH_SENDER}"
+          } > /tmp/api-runtime.env
+
           # Pfad relativ zum Chroot-Home
           tar --exclude=".git" --exclude="__pycache__" --exclude="*.pyc" \
               --exclude=".venv" --exclude="venv" --exclude=".env" --exclude="*.log" \
               -czf /tmp/api.tar.gz -C apps/api .
           ssh plesk-prod "mkdir -p '${{ env.API_REMOTE_PATH }}'"
           scp -F ~/.ssh/config /tmp/api.tar.gz "plesk-prod:api.tar.gz"
+          scp -F ~/.ssh/config /tmp/api-runtime.env "plesk-prod:${{ env.API_REMOTE_PATH }}/.env.deploy"
           ssh plesk-prod "tar -xzf api.tar.gz -C '${{ env.API_REMOTE_PATH }}' && rm api.tar.gz"
+          ssh plesk-prod "
+            set -e
+            ENV_FILE='${{ env.API_REMOTE_PATH }}/.env'
+            OVERLAY_FILE='${{ env.API_REMOTE_PATH }}/.env.deploy'
+            TMP_FILE='${{ env.API_REMOTE_PATH }}/.env.merged'
+            if [ -f \"\$ENV_FILE\" ]; then
+              grep -vE '^(MAIL_TRANSPORT|MICROSOFT_TENANT_ID|MICROSOFT_CLIENT_ID|MICROSOFT_CLIENT_SECRET|MICROSOFT_GRAPH_SENDER)=' \"\$ENV_FILE\" > \"\$TMP_FILE\" || true
+              cat \"\$OVERLAY_FILE\" >> \"\$TMP_FILE\"
+              mv \"\$TMP_FILE\" \"\$ENV_FILE\"
+              rm -f \"\$OVERLAY_FILE\"
+            else
+              mv \"\$OVERLAY_FILE\" \"\$ENV_FILE\"
+            fi
+            chmod 600 \"\$ENV_FILE\" || true
+          "
           ssh plesk-prod \
             "command -v pip3 && pip3 install -r '${{ env.API_REMOTE_PATH }}/requirements.txt' --quiet 2>&1 | tail -5" || \
             echo "⚠️ pip3 nicht im Chroot verfügbar."
