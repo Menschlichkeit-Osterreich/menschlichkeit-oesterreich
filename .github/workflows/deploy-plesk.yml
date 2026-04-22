@@ -349,7 +349,7 @@ jobs:
         if: >
           env.TARGET_SERVICE == 'all' ||
           env.TARGET_SERVICE == 'frontend'
-        uses: actions/download-artifact@fa0a91b85d4f404e444306234f5d70e8f8d04eea # v4.1.8
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
         with:
           name: frontend-dist-${{ github.sha }}
           path: _dist_website/
@@ -451,7 +451,7 @@ jobs:
         if: >
           env.TARGET_SERVICE == 'all' ||
           env.TARGET_SERVICE == 'crm'
-        uses: actions/download-artifact@fa0a91b85d4f404e444306234f5d70e8f8d04eea # v4.1.8
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
         with:
           name: frontend-dist-${{ github.sha }}
           path: _dist_crm_portal/
@@ -549,7 +549,7 @@ jobs:
         if: >
           env.TARGET_SERVICE == 'all' ||
           env.TARGET_SERVICE == 'games'
-        uses: actions/download-artifact@fa0a91b85d4f404e444306234f5d70e8f8d04eea # v4.1.8
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
         with:
           name: games-dist-${{ github.sha }}
           path: _dist_games/
