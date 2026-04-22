@@ -52,12 +52,16 @@ jobs:
   # ============================================================
   bsm-secrets:
     name: 'BSM: Production Secrets laden'
-    if: vars.BSM_ENABLED == 'true'
     uses: ./.github/workflows/reusable-bsm-secrets.yml
     with:
       profile: deploy-production
     secrets:
       BW_ACCESS_TOKEN: ${{ secrets.BW_ACCESS_TOKEN }}
+      MICROSOFT_TENANT_ID: ${{ secrets.MICROSOFT_TENANT_ID }}
+      MICROSOFT_CLIENT_ID: ${{ secrets.MICROSOFT_CLIENT_ID }}
+      MICROSOFT_CLIENT_SECRET: ${{ secrets.MICROSOFT_CLIENT_SECRET }}
+      MICROSOFT_GRAPH_SENDER: ${{ secrets.MICROSOFT_GRAPH_SENDER }}
+      ALERTS_SLACK_WEBHOOK: ${{ secrets.ALERTS_SLACK_WEBHOOK }}
 
   # ============================================================
   # VALIDATE — Env-Vars, Branch-Schutz, Dry-Run-Banner
@@ -218,12 +222,47 @@ jobs:
         run: npm run test:unit -- --run
 
   # ============================================================
+  # PREFLIGHT — BSM Handoff prüfen (auch im Dry-Run)
+  # ============================================================
+  preflight:
+    name: Preflight (BSM Handoff)
+    runs-on: ubuntu-latest
+    needs: [bsm-secrets, validate]
+    if: >-
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' &&
+        (github.event.inputs.service == 'all' || github.event.inputs.service == 'api'))
+    steps:
+      - name: Preflight → BSM Secret Validation
+        run: |
+          set -euo pipefail
+          TENANT="${{ needs.bsm-secrets.outputs.MICROSOFT_TENANT_ID }}"
+          CLIENT="${{ needs.bsm-secrets.outputs.MICROSOFT_CLIENT_ID }}"
+          SECRET="${{ needs.bsm-secrets.outputs.MICROSOFT_CLIENT_SECRET }}"
+          SENDER="${{ needs.bsm-secrets.outputs.MICROSOFT_GRAPH_SENDER }}"
+          WEBHOOK="${{ needs.bsm-secrets.outputs.ALERTS_SLACK_WEBHOOK }}"
+
+          echo "=== Preflight: BSM Secret Validation ==="
+          ERRORS=0
+          [ -n "${TENANT}" ] && echo "✓ MICROSOFT_TENANT_ID" || { echo "✗ MICROSOFT_TENANT_ID fehlt"; ERRORS=$((ERRORS+1)); }
+          [ -n "${CLIENT}" ] && echo "✓ MICROSOFT_CLIENT_ID" || { echo "✗ MICROSOFT_CLIENT_ID fehlt"; ERRORS=$((ERRORS+1)); }
+          [ -n "${SECRET}" ] && echo "✓ MICROSOFT_CLIENT_SECRET" || { echo "✗ MICROSOFT_CLIENT_SECRET fehlt"; ERRORS=$((ERRORS+1)); }
+          [ -n "${SENDER}" ] && echo "✓ MICROSOFT_GRAPH_SENDER" || { echo "✗ MICROSOFT_GRAPH_SENDER fehlt"; ERRORS=$((ERRORS+1)); }
+          [ -n "${WEBHOOK}" ] && echo "✓ ALERTS_SLACK_WEBHOOK" || { echo "✗ ALERTS_SLACK_WEBHOOK fehlt"; ERRORS=$((ERRORS+1)); }
+
+          if [ "${ERRORS}" -gt 0 ]; then
+            echo "✗ ${ERRORS} BSM-Secret(s) fehlen. Deployment abgebrochen."
+            exit 1
+          fi
+          echo "✓ Alle BSM-Secrets vorhanden."
+
+  # ============================================================
   # DEPLOY — rsync + Remote-Kommandos
   # ============================================================
   deploy:
     name: Deploy → Plesk
     runs-on: ubuntu-latest
-    needs: [bsm-secrets, build-frontend, build-games, test]
+    needs: [bsm-secrets, preflight, build-frontend, build-games, test]
     environment: production
     if: >-
       (github.event_name == 'push' ||
@@ -231,7 +270,8 @@ jobs:
           github.event.inputs.dry_run != 'true')) &&
       needs.build-frontend.result == 'success' &&
       needs.build-games.result == 'success' &&
-      needs.test.result == 'success'
+      needs.test.result == 'success' &&
+      needs.preflight.result == 'success'
 
     steps:
       - name: Checkout
@@ -244,9 +284,12 @@ jobs:
 
       # ── SSH einrichten ──────────────────────────────────────
       - name: SSH-Agent starten
-        uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.PLESK_SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          eval "$(ssh-agent -s)"
+          echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=${SSH_AGENT_PID}" >> "$GITHUB_ENV"
+          echo "${{ secrets.PLESK_SSH_PRIVATE_KEY }}" | tr -d '\r' | ssh-add -
 
       - name: known_hosts aus Secret eintragen
         run: |
@@ -317,29 +360,47 @@ jobs:
           echo "✓ Frontend deployt."
 
       # ── API deployen ────────────────────────────────────────
+      # ── Preflight: Microsoft Graph + Slack Secrets validieren ────────────
+      - name: Preflight → BSM Secret Validation
+        if: >
+          env.TARGET_SERVICE == 'all' ||
+          env.TARGET_SERVICE == 'api'
+        run: |
+          set -euo pipefail
+          TENANT="${{ needs.bsm-secrets.outputs.MICROSOFT_TENANT_ID }}"
+          CLIENT="${{ needs.bsm-secrets.outputs.MICROSOFT_CLIENT_ID }}"
+          SECRET="${{ needs.bsm-secrets.outputs.MICROSOFT_CLIENT_SECRET }}"
+          SENDER="${{ needs.bsm-secrets.outputs.MICROSOFT_GRAPH_SENDER }}"
+          WEBHOOK="${{ needs.bsm-secrets.outputs.ALERTS_SLACK_WEBHOOK }}"
+
+          echo "=== Preflight: BSM Secret Validation ==="
+          ERRORS=0
+          [ -n "${TENANT}" ] && echo "✓ MICROSOFT_TENANT_ID" || { echo "✗ MICROSOFT_TENANT_ID fehlt"; ERRORS=$((ERRORS+1)); }
+          [ -n "${CLIENT}" ] && echo "✓ MICROSOFT_CLIENT_ID" || { echo "✗ MICROSOFT_CLIENT_ID fehlt"; ERRORS=$((ERRORS+1)); }
+          [ -n "${SECRET}" ] && echo "✓ MICROSOFT_CLIENT_SECRET" || { echo "✗ MICROSOFT_CLIENT_SECRET fehlt"; ERRORS=$((ERRORS+1)); }
+          [ -n "${SENDER}" ] && echo "✓ MICROSOFT_GRAPH_SENDER" || { echo "✗ MICROSOFT_GRAPH_SENDER fehlt"; ERRORS=$((ERRORS+1)); }
+          [ -n "${WEBHOOK}" ] && echo "✓ ALERTS_SLACK_WEBHOOK" || { echo "✗ ALERTS_SLACK_WEBHOOK fehlt"; ERRORS=$((ERRORS+1)); }
+
+          if [ "${ERRORS}" -gt 0 ]; then
+            echo "✗ ${ERRORS} BSM-Secret(s) fehlen. Deployment abgebrochen."
+            exit 1
+          fi
+          echo "✓ Alle BSM-Secrets vorhanden."
+
       - name: API → scp (Chroot-SSH)
         if: >
           env.TARGET_SERVICE == 'all' ||
           env.TARGET_SERVICE == 'api'
         env:
-          GRAPH_TENANT: ${{ env.MICROSOFT_TENANT_ID }}
-          GRAPH_CLIENT: ${{ env.MICROSOFT_CLIENT_ID }}
-          GRAPH_CLIENT_SECRET: ${{ env.MICROSOFT_CLIENT_SECRET }}
-          GRAPH_SENDER: ${{ env.MICROSOFT_GRAPH_SENDER }}
+          GRAPH_TENANT: ${{ needs.bsm-secrets.outputs.MICROSOFT_TENANT_ID }}
+          GRAPH_CLIENT: ${{ needs.bsm-secrets.outputs.MICROSOFT_CLIENT_ID }}
+          GRAPH_CLIENT_SECRET: ${{ needs.bsm-secrets.outputs.MICROSOFT_CLIENT_SECRET }}
+          GRAPH_SENDER: ${{ needs.bsm-secrets.outputs.MICROSOFT_GRAPH_SENDER }}
+          ALERTS_SLACK_WEBHOOK: ${{ needs.bsm-secrets.outputs.ALERTS_SLACK_WEBHOOK }}
           MAIL_TRANSPORT_SECRET: ${{ secrets.MAIL_TRANSPORT }}
         run: |
           set -euo pipefail
-          missing=0
-          for var in GRAPH_TENANT GRAPH_CLIENT GRAPH_CLIENT_SECRET GRAPH_SENDER; do
-            if [ -z "${!var:-}" ]; then
-              echo "✗ ${var} fehlt fuer den API-Runtime-Deploy."
-              missing=1
-            fi
-          done
-          if [ "${missing}" -eq 1 ]; then
-            echo "✗ Graph-Mail-Secrets sind im Production-Deploy nicht vollstaendig hinterlegt."
-            exit 1
-          fi
+          echo "=== API Deploy: Graph/Slack Secrets aus BSM Job ==="
 
           {
             printf 'MAIL_TRANSPORT=%s\n' "${MAIL_TRANSPORT_SECRET:-graph}"
@@ -347,6 +408,7 @@ jobs:
             printf 'MICROSOFT_CLIENT_ID=%s\n' "${GRAPH_CLIENT}"
             printf 'MICROSOFT_CLIENT_SECRET=%s\n' "${GRAPH_CLIENT_SECRET}"
             printf 'MICROSOFT_GRAPH_SENDER=%s\n' "${GRAPH_SENDER}"
+            printf 'ALERTS_SLACK_WEBHOOK=%s\n' "${ALERTS_SLACK_WEBHOOK:-}"
           } > /tmp/api-runtime.env
 
           # Pfad relativ zum Chroot-Home
@@ -363,7 +425,7 @@ jobs:
             OVERLAY_FILE='${{ env.API_REMOTE_PATH }}/.env.deploy'
             TMP_FILE='${{ env.API_REMOTE_PATH }}/.env.merged'
             if [ -f \"\$ENV_FILE\" ]; then
-              grep -vE '^(MAIL_TRANSPORT|MICROSOFT_TENANT_ID|MICROSOFT_CLIENT_ID|MICROSOFT_CLIENT_SECRET|MICROSOFT_GRAPH_SENDER)=' \"\$ENV_FILE\" > \"\$TMP_FILE\" || true
+              grep -vE '^(MAIL_TRANSPORT|MICROSOFT_TENANT_ID|MICROSOFT_CLIENT_ID|MICROSOFT_CLIENT_SECRET|MICROSOFT_GRAPH_SENDER|ALERTS_SLACK_WEBHOOK)=' \"\$ENV_FILE\" > \"\$TMP_FILE\" || true
               cat \"\$OVERLAY_FILE\" >> \"\$TMP_FILE\"
               mv \"\$TMP_FILE\" \"\$ENV_FILE\"
               rm -f \"\$OVERLAY_FILE\"
