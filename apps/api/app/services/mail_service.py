@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import os
 import re
 import smtplib
 from dataclasses import dataclass
@@ -17,13 +16,20 @@ from jinja2 import Environment, FileSystemLoader
 from ..db import execute
 from ..secrets_provider import get_secret
 from ..email_config import (
+    GRAPH_TOKEN_CACHE_TTL,
     MAIL_FROM_ADDRESS,
     MAIL_FROM_NAME,
+    MAIL_TRANSPORT,
     MAIL_REPLY_TO_ADDRESS,
+    MICROSOFT_CLIENT_ID,
+    MICROSOFT_CLIENT_SECRET,
+    MICROSOFT_GRAPH_SENDER,
+    MICROSOFT_TENANT_ID,
     SMTP_ENCRYPTION,
     SMTP_HOST,
     SMTP_PORT,
 )
+from .graph_mail_transport import GraphMailTransport, GraphMailTransportError
 
 logger = logging.getLogger("menschlichkeit.mail")
 
@@ -51,6 +57,34 @@ class MailService:
         self.smtp_password = get_secret(
             "MAIL_PASSWORD", bsm_key="api/MAIL_PASSWORD"
         ).strip()
+        self.graph_tenant_id = get_secret(
+            "MICROSOFT_TENANT_ID",
+            default=MICROSOFT_TENANT_ID,
+            bsm_key="api/MICROSOFT_TENANT_ID",
+        ).strip()
+        self.graph_client_id = get_secret(
+            "MICROSOFT_CLIENT_ID",
+            default=MICROSOFT_CLIENT_ID,
+            bsm_key="api/MICROSOFT_CLIENT_ID",
+        ).strip()
+        self.graph_client_secret = get_secret(
+            "MICROSOFT_CLIENT_SECRET",
+            default=MICROSOFT_CLIENT_SECRET,
+            bsm_key="api/MICROSOFT_CLIENT_SECRET",
+        ).strip()
+        self.graph_sender = get_secret(
+            "MICROSOFT_GRAPH_SENDER",
+            default=MICROSOFT_GRAPH_SENDER,
+            bsm_key="api/MICROSOFT_GRAPH_SENDER",
+        ).strip()
+        self.graph_transport = GraphMailTransport(
+            tenant_id=self.graph_tenant_id,
+            client_id=self.graph_client_id,
+            client_secret=self.graph_client_secret,
+            sender=self.graph_sender,
+            token_cache_ttl=GRAPH_TOKEN_CACHE_TTL,
+        )
+        self.graph_templates = {"admin_alert", "donation_failed"}
         self.templates: dict[str, MailTemplate] = {
             "welcome": MailTemplate(
                 "welcome_email.html",
@@ -153,6 +187,36 @@ class MailService:
     def _smtp_enabled(self) -> bool:
         return bool(self.smtp_user and self.smtp_password and SMTP_HOST and SMTP_PORT)
 
+    def _graph_enabled_for_template(self, template_id: str) -> bool:
+        return (
+            MAIL_TRANSPORT == "graph"
+            and template_id in self.graph_templates
+            and self.graph_transport.is_enabled
+        )
+
+    @staticmethod
+    def _build_message(
+        *,
+        template_id: str,
+        subject: str,
+        recipient_email: str,
+        html: str,
+        text: str,
+        context: dict[str, Any],
+    ) -> EmailMessage:
+        message = EmailMessage()
+        message["Subject"] = subject
+        message["From"] = f"{MAIL_FROM_NAME} <{MAIL_FROM_ADDRESS}>"
+        message["To"] = recipient_email
+        message["Reply-To"] = MAIL_REPLY_TO_ADDRESS
+        unsubscribe_url = context.get("unsubscribe_url")
+        if unsubscribe_url and template_id.startswith("newsletter"):
+            message["List-Unsubscribe"] = f"<{unsubscribe_url}>"
+            message["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
+        message.set_content(text)
+        message.add_alternative(html, subtype="html")
+        return message
+
     async def log_email(
         self,
         *,
@@ -203,7 +267,48 @@ class MailService:
         if subject_override:
             subject = subject_override
 
-        provider = "smtp" if self._smtp_enabled() else "log-only"
+        message = self._build_message(
+            template_id=template_id,
+            subject=subject,
+            recipient_email=recipient_email,
+            html=html,
+            text=text,
+            context=context,
+        )
+
+        if self._graph_enabled_for_template(template_id):
+            try:
+                await self.graph_transport.send_message(message)
+                await self.log_email(
+                    recipient_email=recipient_email,
+                    subject=subject,
+                    template_name=template_id,
+                    entity_type=entity_type,
+                    entity_id=entity_id,
+                    status="sent",
+                    provider="graph",
+                )
+                return True
+            except GraphMailTransportError as exc:
+                logger.warning(
+                    "graph_send_failed_no_smtp_fallback | template=%s | recipient=%s | error=%s",
+                    template_id,
+                    recipient_email,
+                    exc,
+                )
+                await self.log_email(
+                    recipient_email=recipient_email,
+                    subject=subject,
+                    template_name=template_id,
+                    entity_type=entity_type,
+                    entity_id=entity_id,
+                    status="failed",
+                    provider="graph",
+                    error_message=str(exc),
+                )
+                return False
+
+        provider = "smtp"
 
         if not self._smtp_enabled():
             await self.log_email(
@@ -213,21 +318,9 @@ class MailService:
                 entity_type=entity_type,
                 entity_id=entity_id,
                 status="logged",
-                provider=provider,
+                provider="log-only",
             )
             return True
-
-        message = EmailMessage()
-        message["Subject"] = subject
-        message["From"] = f"{MAIL_FROM_NAME} <{MAIL_FROM_ADDRESS}>"
-        message["To"] = recipient_email
-        message["Reply-To"] = MAIL_REPLY_TO_ADDRESS
-        unsubscribe_url = context.get("unsubscribe_url")
-        if unsubscribe_url and template_id.startswith("newsletter"):
-            message["List-Unsubscribe"] = f"<{unsubscribe_url}>"
-            message["List-Unsubscribe-Post"] = "List-Unsubscribe=One-Click"
-        message.set_content(text)
-        message.add_alternative(html, subtype="html")
 
         last_exc: Exception | None = None
         for attempt in range(_SMTP_MAX_RETRIES):
@@ -273,6 +366,7 @@ class MailService:
             recipient_email,
             last_exc,
         )
+        error_message = str(last_exc)
         await self.log_email(
             recipient_email=recipient_email,
             subject=subject,
@@ -281,7 +375,7 @@ class MailService:
             entity_id=entity_id,
             status="failed",
             provider=provider,
-            error_message=str(last_exc),
+            error_message=error_message,
         )
         return False
 

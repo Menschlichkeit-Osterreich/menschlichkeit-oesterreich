@@ -252,6 +252,30 @@
       "problemMatcher": []
     },
     {
+      "label": "Workspace: Bootstrap",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "workspace:bootstrap"],
+      "group": "none",
+      "presentation": {
+        "panel": "shared",
+        "group": "ops"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "VSCode: Install Recommended Extensions",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "vscode:extensions:install"],
+      "group": "none",
+      "presentation": {
+        "panel": "shared",
+        "group": "ops"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Bitwarden: Projects Check",
       "type": "shell",
       "command": "pwsh",
@@ -342,25 +366,6 @@
         "Bypass",
         "-File",
         "scripts/verify-payment-secret-wiring.ps1"
-      ],
-      "isBackground": false,
-      "problemMatcher": [],
-      "group": "test"
-    },
-    {
-      "label": "Verify: BW Payment Env Sync",
-      "type": "shell",
-      "command": "pwsh",
-      "args": [
-        "-NoLogo",
-        "-NoProfile",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-File",
-        "scripts/sync-payment-env-from-bw.ps1",
-        "-DryRun",
-        "-StripeMode",
-        "test"
       ],
       "isBackground": false,
       "problemMatcher": [],

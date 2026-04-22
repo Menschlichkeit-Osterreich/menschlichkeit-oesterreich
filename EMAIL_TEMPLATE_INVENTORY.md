@@ -1,4 +1,5 @@
 # Email Template Inventory
+
 **Projekt:** Menschlichkeit Osterreich
 **Datum:** 2026-03-22
 
@@ -8,20 +9,20 @@
 
 Die E-Mail-Templates der Plattform befinden sich in zwei Verzeichnissen:
 
-| Verzeichnis | Anzahl | Typ |
-|-------------|--------|-----|
-| `apps/api/src/notifications/templates/` | 12 Dateien | Transaktions- und Marketing-E-Mails |
-| `apps/api/src/finance/templates/` | 4 Dateien | Rechnungen, Mahnungen, PDF-Vorlagen |
-| **Gesamt** | **16 Dateien** | |
+| Verzeichnis                             | Anzahl         | Typ                                 |
+| --------------------------------------- | -------------- | ----------------------------------- |
+| `apps/api/src/notifications/templates/` | 12 Dateien     | Transaktions- und Marketing-E-Mails |
+| `apps/api/src/finance/templates/`       | 4 Dateien      | Rechnungen, Mahnungen, PDF-Vorlagen |
+| **Gesamt**                              | **16 Dateien** |                                     |
 
 ### Status-Verteilung
 
-| Status | Anzahl | Beschreibung |
-|--------|--------|-------------|
-| Production | 4 | Vollstaendig gestaltet, im Einsatz |
-| Stub | 8 | Minimal-Template, nur Text, kein Branding |
-| Stub (PDF) | 3 | PDF-Vorlagen, nur Platzhalter |
-| Fehlt | 5 | Benoetigt, aber noch nicht erstellt |
+| Status     | Anzahl | Beschreibung                              |
+| ---------- | ------ | ----------------------------------------- |
+| Production | 4      | Vollstaendig gestaltet, im Einsatz        |
+| Stub       | 8      | Minimal-Template, nur Text, kein Branding |
+| Stub (PDF) | 3      | PDF-Vorlagen, nur Platzhalter             |
+| Fehlt      | 5      | Benoetigt, aber noch nicht erstellt       |
 
 ---
 
@@ -29,18 +30,18 @@ Die E-Mail-Templates der Plattform befinden sich in zwei Verzeichnissen:
 
 Der `MailService` registriert 10 Templates mit folgender Konfiguration:
 
-| Template-ID | Datei | Betreff | Preheader |
-|-------------|-------|---------|-----------|
-| welcome | welcome_email.html | Willkommen bei Menschlichkeit Osterreich | Danke fuer Ihre Registrierung |
-| verify_email | verify_email.html | Bitte E-Mail-Adresse bestaetigen | Bestaetigen Sie Ihre E-Mail |
-| newsletter_doi | newsletter_doi.html | Bitte Newsletter-Anmeldung bestaetigen | Ein Klick fehlt noch |
-| newsletter_confirmed | newsletter_confirmed.html | Newsletter-Anmeldung bestaetigt | Ihre Anmeldung ist bestaetigt |
-| newsletter_unsubscribed | newsletter_unsubscribed.html | Newsletter-Abmeldung bestaetigt | Erfolgreich abgemeldet |
-| donation_success | donation_thank_you_email.html | Vielen Dank fuer Ihre Unterstuetzung | Ihre Unterstuetzung ist eingegangen |
-| membership_received | membership_received.html | Ihr Mitgliedsantrag ist eingegangen | Danke fuer Ihren Mitgliedsantrag |
-| password_reset | password_reset_email.html | Passwort zuruecksetzen | Link zur Wiederherstellung |
-| contact_confirmation | contact_confirmation.html | Ihre Nachricht ist bei uns eingegangen | Danke fuer Ihre Nachricht |
-| admin_alert | admin_alert.html | Interne Benachrichtigung | Neuer Vorgang |
+| Template-ID             | Datei                         | Betreff                                  | Preheader                           |
+| ----------------------- | ----------------------------- | ---------------------------------------- | ----------------------------------- |
+| welcome                 | welcome_email.html            | Willkommen bei Menschlichkeit Osterreich | Danke fuer Ihre Registrierung       |
+| verify_email            | verify_email.html             | Bitte E-Mail-Adresse bestaetigen         | Bestaetigen Sie Ihre E-Mail         |
+| newsletter_doi          | newsletter_doi.html           | Bitte Newsletter-Anmeldung bestaetigen   | Ein Klick fehlt noch                |
+| newsletter_confirmed    | newsletter_confirmed.html     | Newsletter-Anmeldung bestaetigt          | Ihre Anmeldung ist bestaetigt       |
+| newsletter_unsubscribed | newsletter_unsubscribed.html  | Newsletter-Abmeldung bestaetigt          | Erfolgreich abgemeldet              |
+| donation_success        | donation_thank_you_email.html | Vielen Dank fuer Ihre Unterstuetzung     | Ihre Unterstuetzung ist eingegangen |
+| membership_received     | membership_received.html      | Ihr Mitgliedsantrag ist eingegangen      | Danke fuer Ihren Mitgliedsantrag    |
+| password_reset          | password_reset_email.html     | Passwort zuruecksetzen                   | Link zur Wiederherstellung          |
+| contact_confirmation    | contact_confirmation.html     | Ihre Nachricht ist bei uns eingegangen   | Danke fuer Ihre Nachricht           |
+| admin_alert             | admin_alert.html              | Interne Benachrichtigung                 | Neuer Vorgang                       |
 
 ---
 
@@ -322,13 +323,13 @@ Der `MailService` registriert 10 Templates mit folgender Konfiguration:
 
 Die folgenden Templates werden benoetigt, existieren aber noch nicht:
 
-| Template | Zweck | Prioritaet | Abhaengigkeit |
-|----------|-------|-----------|---------------|
-| donation_failed.html | Benachrichtigung bei fehlgeschlagener Spende | P1 | n8n payment-failed-notification Workflow (ebenfalls fehlend) |
-| recurring_donation_problem.html | Problem mit wiederkehrender Spende (Karte abgelaufen, etc.) | P2 | Stripe Webhook Integration |
-| admin_new_donation.html | Interne Benachrichtigung bei neuer Spende | P2 | Kann als Erweiterung von admin_alert.html implementiert werden |
-| admin_new_registration.html | Interne Benachrichtigung bei neuer Registrierung | P2 | Kann als Erweiterung von admin_alert.html implementiert werden |
-| opt_out_confirmed.html | Bestaetigung des vollstaendigen Opt-Out (DSGVO Art. 21) | P2 | GDPR right-to-erasure Workflow |
+| Template                        | Zweck                                                       | Prioritaet | Abhaengigkeit                                                                         |
+| ------------------------------- | ----------------------------------------------------------- | ---------- | ------------------------------------------------------------------------------------- |
+| donation_failed.html            | Benachrichtigung bei fehlgeschlagener Spende                | vorhanden  | Template ist im API-Stack vorhanden; optionaler n8n-/Ops-Folgeworkflow ist noch offen |
+| recurring_donation_problem.html | Problem mit wiederkehrender Spende (Karte abgelaufen, etc.) | P2         | Stripe Webhook Integration                                                            |
+| admin_new_donation.html         | Interne Benachrichtigung bei neuer Spende                   | P2         | Kann als Erweiterung von admin_alert.html implementiert werden                        |
+| admin_new_registration.html     | Interne Benachrichtigung bei neuer Registrierung            | P2         | Kann als Erweiterung von admin_alert.html implementiert werden                        |
+| opt_out_confirmed.html          | Bestaetigung des vollstaendigen Opt-Out (DSGVO Art. 21)     | P2         | GDPR right-to-erasure Workflow                                                        |
 
 ---
 
@@ -336,24 +337,24 @@ Die folgenden Templates werden benoetigt, existieren aber noch nicht:
 
 ### Ubersicht
 
-| Template | IST-Farbe | SOLL (Brand Guidelines) | Bewertung |
-|----------|-----------|------------------------|-----------|
-| welcome_email | #1a4a6e Blau Gradient | #1B4965 Demokratie-Blau | Nah dran, minimale Korrektur |
-| donation_thank_you | #6b21a8 Lila Gradient | #D84A1B Logo-Orange oder #1B4965 Blau | FALSCH -- Lila ist keine Brand-Farbe |
-| invoice_email | #1a4a6e Blau | #1B4965 Demokratie-Blau | Nah dran, minimale Korrektur |
-| dunning_email | Orange nach Rot (Eskalation) | Eskalationsfarben sind funktional | OK -- Sonderstatus fuer Mahnungen |
-| Alle Stubs | #1f2937 Grau | Kein Branding vorhanden | Muss bei Template-Upgrade korrigiert werden |
+| Template           | IST-Farbe                    | SOLL (Brand Guidelines)               | Bewertung                                   |
+| ------------------ | ---------------------------- | ------------------------------------- | ------------------------------------------- |
+| welcome_email      | #1a4a6e Blau Gradient        | #1B4965 Demokratie-Blau               | Nah dran, minimale Korrektur                |
+| donation_thank_you | #6b21a8 Lila Gradient        | #D84A1B Logo-Orange oder #1B4965 Blau | FALSCH -- Lila ist keine Brand-Farbe        |
+| invoice_email      | #1a4a6e Blau                 | #1B4965 Demokratie-Blau               | Nah dran, minimale Korrektur                |
+| dunning_email      | Orange nach Rot (Eskalation) | Eskalationsfarben sind funktional     | OK -- Sonderstatus fuer Mahnungen           |
+| Alle Stubs         | #1f2937 Grau                 | Kein Branding vorhanden               | Muss bei Template-Upgrade korrigiert werden |
 
 ### Brand-Farbreferenz
 
-| Token | HEX | Verwendung in E-Mails |
-|-------|-----|----------------------|
-| brand-primary | #D84A1B | CTA-Buttons, Akzente |
-| trust-blue | #1B4965 | Header-Hintergrund |
-| body-text | #4A4039 | Fliesstext |
-| heading-text | #2B231D | Ueberschriften |
-| surface | #F5F1ED | Infoboxen, Footer-Hintergrund |
-| border | #E8E0D8 | Trennlinien |
+| Token         | HEX     | Verwendung in E-Mails         |
+| ------------- | ------- | ----------------------------- |
+| brand-primary | #D84A1B | CTA-Buttons, Akzente          |
+| trust-blue    | #1B4965 | Header-Hintergrund            |
+| body-text     | #4A4039 | Fliesstext                    |
+| heading-text  | #2B231D | Ueberschriften                |
+| surface       | #F5F1ED | Infoboxen, Footer-Hintergrund |
+| border        | #E8E0D8 | Trennlinien                   |
 
 ### Korrektur-Prioritaeten
 
@@ -366,20 +367,20 @@ Die folgenden Templates werden benoetigt, existieren aber noch nicht:
 
 ## 6. DSGVO-Compliance-Status
 
-| Template | Absender-Adresse | Datenschutz-Link | Abmelde-Link | Verarbeitungsgrund | ZVR-Nummer | Bewertung |
-|----------|-----------------|-----------------|-------------|-------------------|-----------|-----------|
-| welcome_email | Ja | Ja | Ja | Nein | Ja | Gut |
-| verify_email | Nein | Nein | N/A | Nein | Nein | Mangelhaft |
-| newsletter_doi | Nein | Nein | Nein | Nein | Nein | KRITISCH |
-| newsletter_confirmed | Nein | Nein | Nein | Nein | Nein | KRITISCH |
-| newsletter_unsubscribed | Nein | Nein | N/A | Nein | Nein | Mangelhaft |
-| donation_thank_you | Ja | Ja | Ja | Nein | Ja | Gut |
-| membership_received | Unklar | Unklar | Unklar | Unklar | Unklar | Pruefung noetig |
-| password_reset | Nein | Nein | N/A | Nein | Nein | Mangelhaft |
-| contact_confirmation | Nein | Nein | N/A | Nein | Nein | Mangelhaft |
-| admin_alert | N/A | N/A | N/A | N/A | N/A | Intern |
-| invoice_email | Ja | Ja | N/A | N/A | Ja | Gut |
-| dunning_email | Ja | Ja | N/A | N/A | Ja | Gut |
+| Template                | Absender-Adresse | Datenschutz-Link | Abmelde-Link | Verarbeitungsgrund | ZVR-Nummer | Bewertung       |
+| ----------------------- | ---------------- | ---------------- | ------------ | ------------------ | ---------- | --------------- |
+| welcome_email           | Ja               | Ja               | Ja           | Nein               | Ja         | Gut             |
+| verify_email            | Nein             | Nein             | N/A          | Nein               | Nein       | Mangelhaft      |
+| newsletter_doi          | Nein             | Nein             | Nein         | Nein               | Nein       | KRITISCH        |
+| newsletter_confirmed    | Nein             | Nein             | Nein         | Nein               | Nein       | KRITISCH        |
+| newsletter_unsubscribed | Nein             | Nein             | N/A          | Nein               | Nein       | Mangelhaft      |
+| donation_thank_you      | Ja               | Ja               | Ja           | Nein               | Ja         | Gut             |
+| membership_received     | Unklar           | Unklar           | Unklar       | Unklar             | Unklar     | Pruefung noetig |
+| password_reset          | Nein             | Nein             | N/A          | Nein               | Nein       | Mangelhaft      |
+| contact_confirmation    | Nein             | Nein             | N/A          | Nein               | Nein       | Mangelhaft      |
+| admin_alert             | N/A              | N/A              | N/A          | N/A                | N/A        | Intern          |
+| invoice_email           | Ja               | Ja               | N/A          | N/A                | Ja         | Gut             |
+| dunning_email           | Ja               | Ja               | N/A          | N/A                | Ja         | Gut             |
 
 **Zusammenfassung:** 4 von 12 E-Mail-Templates sind DSGVO-konform. 2 Templates haben kritische Maengel (Newsletter-bezogen ohne Opt-Out). 6 Templates haben leichte Maengel (fehlendes Impressum).
 
@@ -387,12 +388,12 @@ Die folgenden Templates werden benoetigt, existieren aber noch nicht:
 
 ## 7. Naechste Schritte
 
-| Prioritaet | Aktion | Betroffene Templates | Deadline |
-|-----------|--------|---------------------|----------|
-| P0 | newsletter_doi.html: Opt-Out-Hinweis ergaenzen | newsletter_doi | Sofort |
-| P0 | newsletter_confirmed.html: Abmelde-Link ergaenzen | newsletter_confirmed | Sofort |
-| P1 | donation_thank_you: Lila nach Brand-Farben aendern | donation_thank_you_email | KW 13 |
-| P1 | _base.html erstellen (siehe EMAIL_DESIGN_SYSTEM.md) | Neues Template | KW 13 |
-| P2 | Alle Stubs auf _base.html umstellen | 8 Templates | KW 14-15 |
-| P2 | Fehlende Templates erstellen | 5 neue Templates | KW 15-16 |
-| P3 | PDF-Templates vollstaendig implementieren | dunning.html, receipt.html, membership_card.html | KW 16-17 |
+| Prioritaet | Aktion                                               | Betroffene Templates                             | Deadline |
+| ---------- | ---------------------------------------------------- | ------------------------------------------------ | -------- |
+| P0         | newsletter_doi.html: Opt-Out-Hinweis ergaenzen       | newsletter_doi                                   | Sofort   |
+| P0         | newsletter_confirmed.html: Abmelde-Link ergaenzen    | newsletter_confirmed                             | Sofort   |
+| P1         | donation_thank_you: Lila nach Brand-Farben aendern   | donation_thank_you_email                         | KW 13    |
+| P1         | \_base.html erstellen (siehe EMAIL_DESIGN_SYSTEM.md) | Neues Template                                   | KW 13    |
+| P2         | Alle Stubs auf \_base.html umstellen                 | 8 Templates                                      | KW 14-15 |
+| P2         | Fehlende Templates erstellen                         | 5 neue Templates                                 | KW 15-16 |
+| P3         | PDF-Templates vollstaendig implementieren            | dunning.html, receipt.html, membership_card.html | KW 16-17 |

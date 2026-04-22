@@ -12,8 +12,10 @@
 # 1. Templates anlegen
 .\scripts\setup-environments.ps1 -Frontend -Api
 
-# 2. Bitwarden Access Token einmalig bereitstellen
-$env:BW_TOKEN_FILE = "$env:USERPROFILE\OneDrive - Menschlichkeit Österreich\Desktop\BW_ACCESS_TOKEN.txt"
+# 2. Bitwarden Access Token einmalig bereitstellen (empfohlener Pfad, gitignored)
+New-Item -ItemType Directory -Force .local-secrets | Out-Null
+Set-Content -Path .local-secrets\bitwarden.env -Value 'BSM_ACCESS_TOKEN=PASTE_TOKEN_HERE' -Encoding UTF8
+$env:BW_TOKEN_FILE = (Resolve-Path .local-secrets\bitwarden.env).Path
 
 # 3. Service-Env direkt aus BSM ziehen
 .\scripts\bsm-fetch-env.ps1 -Environment development -Service website -OutputFile apps/website/.env.local
@@ -24,6 +26,37 @@ $env:BW_TOKEN_FILE = "$env:USERPROFILE\OneDrive - Menschlichkeit Österreich\Des
 ```
 
 > Die manuellen Schritte unten bleiben als Fallback bestehen, aber der bevorzugte Weg ist jetzt der BSM-Flow oben.
+
+### Welche `.env`-Datei fuer was?
+
+- Bitwarden Token lokal: `.local-secrets/bitwarden.env` (enthaelt nur `BSM_ACCESS_TOKEN=...`, ist gitignored)
+- API Runtime-Secrets: `apps/api/.env` (wird via `bsm-fetch-env.ps1` erzeugt)
+- Website Runtime-Secrets: `apps/website/.env.local` (wird via `bsm-fetch-env.ps1` erzeugt)
+
+Nie empfehlen:
+
+- Token in getrackten Dateien (`.env.example`, Dokumentation, Skripte)
+- Token im Klartext in Commit-Historie
+
+## Core Runtime Secret Contract (apps/api + Payment/Alert)
+
+Pflichtwerte fuer den aktiven Kernstack:
+
+- API Start / Security: `DATABASE_URL`, `JWT_SECRET_KEY`, `ENVIRONMENT`
+- Stripe Payment: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
+- Alerting: `ALERTS_SLACK_WEBHOOK`
+- Mailzustellung (SMTP): `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_ENCRYPTION`, `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME`, `MAIL_REPLY_TO_ADDRESS`
+
+Regel:
+
+- BSM-first, genau eine kanonische Quelle pro Pflichtwert (`secrets.manifest.json`).
+- Keine produktiven Werte in Repo-Dateien committen.
+
+Verifikation (nach `bsm-fetch-env`):
+
+```powershell
+pwsh -File scripts/verify-payment-secret-wiring.ps1
+```
 
 ## ⚡ Die wichtigsten 3 Schritte (SOFORT)
 

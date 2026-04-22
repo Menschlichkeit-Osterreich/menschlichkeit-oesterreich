@@ -28,6 +28,14 @@
       "justMyCode": false
     },
     {
+      "name": "Stripe: Listen Webhooks",
+      "type": "stripe",
+      "request": "launch",
+      "command": "listen",
+      "forwardTo": "http://localhost:8001/api/webhooks/stripe",
+      "events": ["payment_intent.payment_failed", "payment_intent.succeeded"]
+    },
+    {
       "name": "Dev: Games (Next.js)",
       "type": "pwa-node",
       "request": "launch",
@@ -64,6 +72,11 @@
     {
       "name": "Dev: Public Stack",
       "configurations": ["Dev: Frontend (Vite)", "Debug: API (FastAPI)", "Dev: CRM (Drupal)", "Dev: Games (Next.js)"],
+      "stopAll": true
+    },
+    {
+      "name": "Debug: API + Stripe Webhooks",
+      "configurations": ["Debug: API (FastAPI)", "Stripe: Listen Webhooks"],
       "stopAll": true
     }
   ]

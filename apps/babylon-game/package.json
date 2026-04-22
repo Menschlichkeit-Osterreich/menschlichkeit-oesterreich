@@ -11,6 +11,7 @@
     "build": "next build",
     "start": "next start -p 3001",
     "preview": "next build && next start -p 3001",
+    "test:unit": "vitest unit",
     "generate": "babylonjs-editor-cli pack",
     "lint": "next lint",
     "lint:fix": "next lint --fix",

@@ -1,10 +1,10 @@
 import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import SeoHead from '../components/seo/SeoHead';
 import JsonLdBreadcrumb from '../components/seo/JsonLdBreadcrumb';
 import JsonLdFaq from '../components/seo/JsonLdFaq';
-import { CONTACT_EMAIL, LEGAL_DOCS, LEGAL_FACTS, WHATSAPP_URL } from '../config/siteConfig';
+import SeoHead from '../components/seo/SeoHead';
 import { Alert } from '../components/ui/Alert';
+import { CONTACT_EMAIL, LEGAL_DOCS, LEGAL_FACTS, WHATSAPP_URL } from '../config/siteConfig';
 import { HttpError, http } from '../services/http';
 
 const FAQ = [
@@ -179,9 +179,7 @@ export default function Kontakt() {
       />
       <JsonLdFaq items={FAQ} />
       {/* Hero */}
-      <section
-        className="bg-primary-800 py-16 text-white"
-      >
+      <section className="bg-primary-800 py-16 text-white">
         <div className="container mx-auto px-4 text-center max-w-3xl">
           <h1 className="text-4xl font-bold mb-4">Kontakt</h1>
           <p className="text-xl text-white">
@@ -316,12 +314,7 @@ export default function Kontakt() {
                   </p>
                 </div>
               ) : (
-                <form
-                  onSubmit={handleSubmit}
-                  className="space-y-4"
-                  noValidate
-                  aria-busy={submitting}
-                >
+                <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                   {submitError && (
                     <Alert
                       variant="error"
@@ -354,7 +347,6 @@ export default function Kontakt() {
                         onChange={handleChange}
                         className="w-full rounded-lg border border-secondary-300 px-3 py-2 text-sm text-secondary-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
                         placeholder="Ihr Name"
-                        aria-invalid={fieldErrors.name ? 'true' : 'false'}
                         aria-describedby={fieldErrors.name ? 'name-error' : undefined}
                       />
                       {fieldErrors.name && (
@@ -384,7 +376,6 @@ export default function Kontakt() {
                         onChange={handleChange}
                         className="w-full rounded-lg border border-secondary-300 px-3 py-2 text-sm text-secondary-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
                         placeholder="ihre@email.at"
-                        aria-invalid={fieldErrors.email ? 'true' : 'false'}
                         aria-describedby={fieldErrors.email ? 'email-error' : undefined}
                       />
                       {fieldErrors.email && (
@@ -413,7 +404,6 @@ export default function Kontakt() {
                       value={form.subject}
                       onChange={handleChange}
                       className="w-full rounded-lg border border-secondary-300 px-3 py-2 text-sm text-secondary-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      aria-invalid={fieldErrors.subject ? 'true' : 'false'}
                       aria-describedby={fieldErrors.subject ? 'subject-error' : undefined}
                     >
                       <option value="">Bitte wählen...</option>
@@ -451,7 +441,6 @@ export default function Kontakt() {
                       onChange={handleChange}
                       className="w-full resize-none rounded-lg border border-secondary-300 px-3 py-2 text-sm text-secondary-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
                       placeholder="Ihre Nachricht an uns..."
-                      aria-invalid={fieldErrors.message ? 'true' : 'false'}
                       aria-describedby={fieldErrors.message ? 'message-error' : undefined}
                     />
                     {fieldErrors.message && (
@@ -471,7 +460,6 @@ export default function Kontakt() {
                         checked={form.consentPrivacy}
                         onChange={handleChange}
                         className="mt-1 h-4 w-4 rounded border-secondary-300 text-primary-600 focus:ring-primary-500"
-                        aria-invalid={fieldErrors.consentPrivacy ? 'true' : 'false'}
                         aria-describedby={fieldErrors.consentPrivacy ? 'consent-error' : undefined}
                       />
                       <span>
@@ -513,7 +501,6 @@ export default function Kontakt() {
                     type="submit"
                     className="w-full py-3 px-6 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-60"
                     disabled={submitting}
-                    aria-busy={submitting}
                   >
                     {submitting ? 'Nachricht wird gesendet...' : 'Nachricht senden'}
                   </button>

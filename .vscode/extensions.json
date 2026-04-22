@@ -13,6 +13,7 @@
     "bmewburn.vscode-intelephense-client",
     "Prisma.prisma",
     "ms-playwright.playwright",
+    "Stripe.vscode-stripe",
     "bradlc.vscode-tailwindcss",
     "redhat.vscode-yaml",
     "ms-vscode.powershell",

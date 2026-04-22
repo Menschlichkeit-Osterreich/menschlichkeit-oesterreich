@@ -26,6 +26,19 @@ function Get-BitwardenTokenFileCandidates {
         $candidates += Join-Path $env:USERPROFILE "Desktop\BW_ACCESS_TOKEN.txt"
     }
 
+    if ($env:GITHUB_WORKSPACE) {
+        $candidates += Join-Path $env:GITHUB_WORKSPACE ".local-secrets\bitwarden.env"
+    }
+
+    try {
+        $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+        $candidates += Join-Path $repoRoot ".local-secrets\bitwarden.env"
+        $candidates += Join-Path $repoRoot ".local-secrets\BW_ACCESS_TOKEN.txt"
+    }
+    catch {
+        # ignore path resolution failures and continue with other candidates
+    }
+
     return $candidates | Select-Object -Unique
 }
 
@@ -71,6 +84,20 @@ function Resolve-BitwardenAccessToken {
                 }
                 return $token
             }
+        }
+
+        # Fallback: Datei enthaelt nur den Token als Klartext in der ersten Zeile.
+        $firstLine = ($raw -split "`r?`n" | Select-Object -First 1).Trim()
+        if (-not [string]::IsNullOrWhiteSpace($firstLine) -and -not $firstLine.StartsWith('#')) {
+            $token = $firstLine.Trim('"').Trim("'")
+            if ($ExportToProcess) {
+                $env:BSM_ACCESS_TOKEN = $token
+                $env:BWS_ACCESS_TOKEN = $token
+                if (-not $env:BW_TOKEN_FILE) {
+                    $env:BW_TOKEN_FILE = $candidate
+                }
+            }
+            return $token
         }
     }
 

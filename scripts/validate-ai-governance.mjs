@@ -503,6 +503,48 @@ async function validateMcpConfiguration(errors) {
   if (!args.includes('@modelcontextprotocol/server-sequential-thinking')) {
     errors.push('mcp.json must use the official sequential-thinking MCP server');
   }
+
+  const vscodeMcpConfig = JSON.parse(await readText('.vscode/mcp.json'));
+  const vscodeServers = vscodeMcpConfig?.servers;
+  if (!vscodeServers || typeof vscodeServers !== 'object' || Array.isArray(vscodeServers)) {
+    errors.push('.vscode/mcp.json must define a servers object');
+    return;
+  }
+
+  const vscodeServerIds = Object.keys(vscodeServers);
+  if (vscodeServerIds.length !== 1 || vscodeServerIds[0] !== 'github') {
+    errors.push('.vscode/mcp.json must only contain the github overlay server');
+  }
+}
+
+async function validateVscodeTasks(errors) {
+  const tasksConfig = JSON.parse(await readText('.vscode/tasks.json'));
+  const tasks = tasksConfig?.tasks;
+  if (!Array.isArray(tasks)) {
+    errors.push('.vscode/tasks.json must define a tasks array');
+    return;
+  }
+
+  const labels = new Map();
+  for (const task of tasks) {
+    if (!task || typeof task !== 'object') {
+      errors.push('Each task entry in .vscode/tasks.json must be an object');
+      continue;
+    }
+
+    if (typeof task.label !== 'string' || task.label.trim().length === 0) {
+      errors.push('Each task in .vscode/tasks.json must have a non-empty label');
+      continue;
+    }
+
+    labels.set(task.label, (labels.get(task.label) ?? 0) + 1);
+  }
+
+  for (const [label, count] of labels.entries()) {
+    if (count > 1) {
+      errors.push(`Duplicate VS Code task label found: ${label}`);
+    }
+  }
 }
 
 async function main() {
@@ -524,6 +566,7 @@ async function main() {
   await validateMigrationFiles(errors);
   await validatePluginMetadata(errors);
   await validateMcpConfiguration(errors);
+  await validateVscodeTasks(errors);
 
   try {
     const workspace = JSON.parse(await readText('menschlichkeit-oesterreich.code-workspace'));

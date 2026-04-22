@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import json
 import os
+from html import escape
 from datetime import date
 from json import JSONDecodeError
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from ..db import execute, fetchrow as db_fetchrow
@@ -12,9 +14,64 @@ from ..schemas.payments import StripeIntentRequest
 from ..services.mail_service import mail_service
 from ..services.member_service import member_service
 from ..services.payment_service import payment_service
-from ..rbac import get_current_user
+from ..rbac import ADMIN_EMAILS, get_current_user
 
 router = APIRouter()
+
+
+async def _send_payment_failed_ops_alert(
+    *,
+    event_type: str,
+    amount: float,
+    currency: str,
+    donor_email: str | None,
+    gateway_intent_id: str,
+) -> None:
+    """Sends dual-channel payment failure alert: Email (ADMIN_EMAILS) + Slack (#06-crm-spenden)."""
+    subject = "Stripe-Zahlung fehlgeschlagen"
+    body_lines = [
+        f"Event: {escape(event_type)}",
+        f"Betrag: {amount:.2f} {escape(currency)}",
+        f"Spender-E-Mail: {escape(donor_email or '-')}",
+        f"Gateway-Intent: {escape(gateway_intent_id or '-')}",
+    ]
+    body_html = "<br/>".join(body_lines)
+
+    # Channel 1: Email alert (via existing admin_alert template)
+    if ADMIN_EMAILS:
+        for recipient in ADMIN_EMAILS:
+            await mail_service.send_template(
+                template_id="admin_alert",
+                recipient_email=recipient,
+                subject_override=subject,
+                context={
+                    "title": subject,
+                    "body_html": body_html,
+                    "related_id": gateway_intent_id or None,
+                },
+                entity_type="alert",
+            )
+
+    # Channel 2: Slack alert (via #06-crm-spenden webhook, reuses queue-monitor.json pattern)
+    slack_webhook = os.environ.get("ALERTS_SLACK_WEBHOOK", "").strip()
+    if slack_webhook:
+        slack_text = (
+            f"🚨 *Payment Failure Alert*\n"
+            f"• Event: `{event_type}`\n"
+            f"• Amount: `{amount:.2f} {currency}`\n"
+            f"• Donor: `{donor_email or '-'}`\n"
+            f"• Intent: `{gateway_intent_id or '-'}`"
+        )
+        try:
+            async with httpx.AsyncClient(timeout=10) as client:
+                await client.post(
+                    slack_webhook,
+                    json={"text": slack_text},
+                    headers={"Content-Type": "application/json"},
+                )
+        except Exception as e:
+            # Log but don't block: Slack delivery is informational, not critical
+            print(f"Slack alert delivery failed: {e}")
 
 
 @router.post("/payments/stripe/intent")
@@ -100,11 +157,19 @@ async def stripe_webhook(request: Request):
                 gateway_intent_id,
             )
         if event_type == "payment_intent.payment_failed":
+            amount = float(obj.get("amount", 0)) / 100
+            currency = obj.get("currency", "eur").upper()
             email = (
                 obj.get("metadata", {}).get("email") or obj.get("receipt_email") or ""
             )
+            await _send_payment_failed_ops_alert(
+                event_type=event_type,
+                amount=amount,
+                currency=currency,
+                donor_email=email or None,
+                gateway_intent_id=gateway_intent_id,
+            )
             if email:
-                amount = float(obj.get("amount", 0)) / 100
                 failure_reason = (obj.get("last_payment_error") or {}).get("message")
                 public_app_url = os.environ.get(
                     "PUBLIC_APP_URL", "https://menschlichkeit-oesterreich.at"

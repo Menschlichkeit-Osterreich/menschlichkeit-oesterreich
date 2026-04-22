@@ -93,3 +93,24 @@ def test_process_data_deletion_approval_revokes_all_sessions(client, auth_header
         mock_audit.await_args.kwargs["metadata"]["eventType"]
         == "data_deletion_processed"
     )
+
+
+def test_process_data_deletion_rejects_invalid_action(client, auth_headers):
+    response = client.post(
+        "/api/privacy/data-deletion/33333333-3333-3333-3333-333333333333/process",
+        headers=auth_headers,
+        json={"action": "noop"},
+    )
+
+    assert response.status_code == 422
+
+
+def test_process_data_deletion_returns_404_for_unknown_request(client, auth_headers):
+    with patch("app.routers.privacy.fetchrow", new=AsyncMock(return_value=None)):
+        response = client.post(
+            "/api/privacy/data-deletion/44444444-4444-4444-4444-444444444444/process",
+            headers=auth_headers,
+            json={"action": "approve"},
+        )
+
+    assert response.status_code == 404

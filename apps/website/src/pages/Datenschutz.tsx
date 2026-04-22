@@ -1,6 +1,5 @@
-import React from 'react';
-import SeoHead from '../components/seo/SeoHead';
 import JsonLdBreadcrumb from '../components/seo/JsonLdBreadcrumb';
+import SeoHead from '../components/seo/SeoHead';
 import { CONTACT_EMAIL } from '../config/siteConfig';
 
 export default function Datenschutz() {
@@ -235,9 +234,9 @@ export default function Datenschutz() {
           <h2 className="text-xl font-semibold mb-3">9. Cookies und Einwilligungssteuerung</h2>
           <p>
             Diese Website verwendet ein Consent-Banner mit Kategorien für notwendige, Analyse-,
-            Marketing-, Personalisierungs- und Social-Media-Einstellungen. Notwendige Cookies bleiben
-            aktiv, optionale Kategorien sind standardmäßig deaktiviert und werden nur nach Ihrer
-            Auswahl gesetzt bzw. aktiviert.
+            Marketing-, Personalisierungs- und Social-Media-Einstellungen. Notwendige Cookies
+            bleiben aktiv, optionale Kategorien sind standardmäßig deaktiviert und werden nur nach
+            Ihrer Auswahl gesetzt bzw. aktiviert.
           </p>
           <p className="mt-3">
             Ihre Auswahl wird lokal in den Consent-Einstellungen gespeichert und kann über die

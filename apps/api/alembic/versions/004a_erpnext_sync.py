@@ -1,12 +1,12 @@
-"""004 – ERPNext Sync-Tracking und Idempotenz.
+"""004a – ERPNext Sync-Tracking und Idempotenz.
 
-Revision: 004
+Revision: 004a
 Abhängig von: 003
 """
 
 from alembic import op
 
-revision = "004"
+revision = "004a"
 down_revision = "003"
 branch_labels = None
 depends_on = None

@@ -68,6 +68,22 @@ class TestSubscribeNewsletter:
             call_sql = mock_exec.call_args[0][0]
             assert "UPDATE" in call_sql
 
+    def test_subscribe_existing_email_rate_limited_with_recent_token(self, client):
+        existing_row = {
+            "id": "42",
+            "token_created_at": datetime.now(timezone.utc) - timedelta(minutes=1),
+        }
+        with patch(f"{_MOCK_BASE}.fetchrow", new=AsyncMock(return_value=existing_row)):
+            resp = client.post(
+                "/api/newsletter/subscribe",
+                json={
+                    "email": "existing@example.at",
+                    "first_name": "Erika",
+                    "consent": True,
+                },
+            )
+            assert resp.status_code == 429
+
     def test_subscribe_with_honeypot_rejected(self, client):
         resp = client.post(
             "/api/newsletter/subscribe",

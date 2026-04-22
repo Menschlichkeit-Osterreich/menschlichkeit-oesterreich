@@ -332,7 +332,7 @@ export default function DonatePage() {
       )}
 
       <Card className="p-4">
-        <form onSubmit={onSubmit} aria-busy={submitting}>
+        <form onSubmit={onSubmit}>
           {formErrors.length > 0 && (
             <div
               className="mb-4 rounded-lg border border-red-300 bg-red-50 p-3"
@@ -367,7 +367,6 @@ export default function DonatePage() {
                       : 'border-secondary-300 bg-white text-secondary-800 hover:bg-secondary-50',
                   ].join(' ')}
                   onClick={() => setAmount(preset)}
-                  aria-pressed={amount === preset}
                 >
                   {preset} €
                 </button>
@@ -390,7 +389,6 @@ export default function DonatePage() {
                     inputMode="numeric"
                     value={amount}
                     onChange={e => setAmount(Number(e.target.value))}
-                    aria-invalid={showFieldErrors && !amountValid}
                     aria-describedby={
                       showFieldErrors && !amountValid ? 'donation-amount-error' : undefined
                     }
@@ -456,7 +454,6 @@ export default function DonatePage() {
                 spellCheck={false}
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                aria-invalid={showFieldErrors && !emailValid}
                 aria-describedby={
                   showFieldErrors && !emailValid ? 'donation-email-error' : undefined
                 }
@@ -539,7 +536,6 @@ export default function DonatePage() {
                     autoComplete="off"
                     value={iban}
                     onChange={e => setIban(e.target.value)}
-                    aria-invalid={showFieldErrors && !ibanValid}
                     aria-describedby={
                       showFieldErrors && !ibanValid ? 'donation-iban-error' : undefined
                     }
@@ -595,7 +591,10 @@ export default function DonatePage() {
               )}
 
             <div className="rounded-xl border border-secondary-200 bg-secondary-50 p-4">
-              <label className="flex items-start gap-2 text-sm text-secondary-700" htmlFor="donation-consent">
+              <label
+                className="flex items-start gap-2 text-sm text-secondary-700"
+                htmlFor="donation-consent"
+              >
                 <input
                   id="donation-consent"
                   name="consent-privacy"
@@ -603,7 +602,9 @@ export default function DonatePage() {
                   checked={consentPrivacy}
                   onChange={e => setConsentPrivacy(e.target.checked)}
                   className="mt-0.5"
-                  aria-describedby={showFieldErrors && !consentPrivacy ? 'donation-consent-error' : undefined}
+                  aria-describedby={
+                    showFieldErrors && !consentPrivacy ? 'donation-consent-error' : undefined
+                  }
                   required
                 />
                 <span>

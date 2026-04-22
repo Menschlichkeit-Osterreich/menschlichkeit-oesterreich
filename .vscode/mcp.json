@@ -14,57 +14,6 @@
         "repository": "Menschlichkeit-Osterreich/menschlichkeit-oesterreich",
         "branch": "main"
       }
-    },
-    "filesystem": {
-      "name": "Filesystem",
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "${workspaceFolder}"],
-      "version": "1.0.0",
-      "description": "Workspace-scoped Dateisystemzugriff"
-    },
-    "memory": {
-      "name": "Memory",
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"],
-      "version": "1.0.0",
-      "description": "Persistenter Konversationsspeicher"
-    },
-    "sequential-thinking": {
-      "name": "Sequential Thinking",
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
-      "version": "1.0.0",
-      "description": "Mehrschrittige Analyse fuer komplexe Aufgaben"
-    },
-    "playwright": {
-      "name": "Playwright",
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@playwright/mcp@latest"],
-      "version": "1.0.0",
-      "description": "Browser-Automatisierung und UI-Debugging"
-    },
-    "context7": {
-      "name": "Context7",
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp@latest"],
-      "version": "1.0.0",
-      "description": "Live-Dokumentation fuer Libraries"
-    },
-    "codacy-mcp-server": {
-      "name": "Codacy MCP",
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@codacy/codacy-mcp@latest"],
-      "version": "1.0.0",
-      "description": "Code Quality und Security Analyse via Codacy",
-      "env": {
-        "CODACY_ACCOUNT_TOKEN": "${env:CODACY_ACCOUNT_TOKEN}"
-      }
     }
   }
 }

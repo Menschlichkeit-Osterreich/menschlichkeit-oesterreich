@@ -6,7 +6,7 @@ import asyncio
 import hashlib
 import hmac
 import json
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -141,6 +141,12 @@ class TestStripeWebhook:
                 "last_payment_error": {"message": "Karte abgelehnt"},
             },
         )
+        # Mock for Slack webhook dispatch (dual-channel alert pattern)
+        mock_slack_client = AsyncMock()
+        mock_slack_client.__aenter__ = AsyncMock(return_value=mock_slack_client)
+        mock_slack_client.__aexit__ = AsyncMock(return_value=None)
+        mock_slack_client.post = AsyncMock(return_value=None)
+
         with (
             patch(f"{_MOCK_BASE}.db_fetchrow", new=AsyncMock(return_value=None)),
             patch(
@@ -152,10 +158,19 @@ class TestStripeWebhook:
                 new=AsyncMock(return_value=True),
             ),
             patch(f"{_MOCK_BASE}.execute", new=AsyncMock()) as mock_exec,
+            patch(f"{_MOCK_BASE}.ADMIN_EMAILS", ["ops@example.at"]),
             patch(
                 f"{_MOCK_BASE}.mail_service.send_template",
                 new=AsyncMock(return_value=True),
             ) as mock_mail,
+            patch(
+                f"{_MOCK_BASE}.os.environ.get",
+                return_value="https://hooks.slack.com/services/mock/webhook",
+            ),
+            patch(
+                f"{_MOCK_BASE}.httpx.AsyncClient",
+                return_value=mock_slack_client,
+            ) as mock_httpx,
         ):
             resp = client.post(
                 "/api/webhooks/stripe",
@@ -169,9 +184,34 @@ class TestStripeWebhook:
             # DB-Status muss auf 'failed' gesetzt werden
             mock_exec.assert_called_once()
             assert "failed" in mock_exec.call_args[0]
-            # Fehler-Mail muss gesendet werden
-            mock_mail.assert_called_once()
-            assert mock_mail.call_args.kwargs["template_id"] == "donation_failed"
+            # Fehler-Mail und Ops-Alert muessen gesendet werden (email dispatch)
+            assert mock_mail.call_count == 2
+            call_kwargs = [call.kwargs for call in mock_mail.call_args_list]
+            assert call_kwargs[0]["template_id"] == "admin_alert"
+            assert call_kwargs[0]["recipient_email"] == "ops@example.at"
+            assert (
+                "payment_intent.payment_failed"
+                in call_kwargs[0]["context"]["body_html"]
+            )
+            assert "pi_failed123" in call_kwargs[0]["context"]["body_html"]
+            assert call_kwargs[1]["template_id"] == "donation_failed"
+
+            # Slack dual-channel dispatch validation
+            mock_httpx.assert_called_once_with(timeout=10)
+            mock_slack_client.post.assert_called_once()
+            # URL is positional arg, kwargs contain json/headers
+            assert (
+                mock_slack_client.post.call_args[0][0]
+                == "https://hooks.slack.com/services/mock/webhook"
+            )
+            slack_call_kwargs = mock_slack_client.post.call_args.kwargs
+            assert "text" in slack_call_kwargs["json"]
+            assert "Payment Failure Alert" in slack_call_kwargs["json"]["text"]
+            assert "pi_failed123" in slack_call_kwargs["json"]["text"]
+            assert (
+                "5000.00" in slack_call_kwargs["json"]["text"]
+                or "50.00" in slack_call_kwargs["json"]["text"]
+            )
 
     def test_webhook_payment_canceled_updates_status_no_mail(self, client):
         payload = _stripe_event(
@@ -250,6 +290,7 @@ class TestStripeWebhook:
                 "app.services.payment_service.payment_service.verify_stripe_signature",
                 new=AsyncMock(),
             ),
+            patch(f"{_MOCK_BASE}.ADMIN_EMAILS", ["ops@example.at"]),
             patch(f"{_MOCK_BASE}.execute", new=AsyncMock()) as mock_exec,
             patch(
                 f"{_MOCK_BASE}.mail_service.send_template", new=AsyncMock()
@@ -288,6 +329,7 @@ class TestStripeWebhook:
                 "app.services.payment_service.payment_service.record_webhook_event",
                 new=AsyncMock(return_value=True),
             ),
+            patch(f"{_MOCK_BASE}.ADMIN_EMAILS", []),
             patch(f"{_MOCK_BASE}.execute", new=AsyncMock()),
             patch(
                 f"{_MOCK_BASE}.mail_service.send_template", new=AsyncMock()

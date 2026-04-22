@@ -251,9 +251,16 @@ $secretCandidates = @(
     "sk_$StripeMode",
     "STRIPE_${StripeMode}_SECRET_KEY"
 )
+$webhookSecretCandidates = @(
+    "api/STRIPE_WEBHOOK_SECRET",
+    "STRIPE_WEBHOOK_SECRET",
+    "whsec_$StripeMode",
+    "STRIPE_${StripeMode}_WEBHOOK_SECRET"
+)
 
 $publishableKey = Get-BitwardenSecretValue -Candidates $publishableCandidates
 $stripeSecret = Get-BitwardenSecretValue -Candidates $secretCandidates
+$stripeWebhookSecret = Get-BitwardenSecretValue -Candidates $webhookSecretCandidates
 
 if ($publishableKey) {
     Set-EnvValue -Path $WebsiteEnvFile -Key "VITE_STRIPE_PUBLISHABLE_KEY" -Value $publishableKey
@@ -267,6 +274,13 @@ if ($stripeSecret) {
 }
 else {
     Write-WarnLine "Kein Stripe Secret Key in Bitwarden gefunden (Kandidaten: $($secretCandidates -join ', '))."
+}
+
+if ($stripeWebhookSecret) {
+    Set-EnvValue -Path $ApiEnvFile -Key "STRIPE_WEBHOOK_SECRET" -Value $stripeWebhookSecret
+}
+else {
+    Write-WarnLine "Kein Stripe Webhook Secret in Bitwarden gefunden (Kandidaten: $($webhookSecretCandidates -join ', '))."
 }
 
 foreach ($legacyKey in @("VITE_PAYPAL_CLIENT_ID")) {

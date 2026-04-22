@@ -1,4 +1,5 @@
 """Tests für MailService: Template-Rendering und SMTP-Retry-Logik."""
+
 from __future__ import annotations
 
 import asyncio
@@ -8,6 +9,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from app.services.mail_service import MailService
+from app.services.graph_mail_transport import GraphMailTransportError
 
 
 def _run(coro):
@@ -17,7 +19,11 @@ def _run(coro):
 # Minimale Testkontexte für alle 17 registrierten Templates
 _MINIMAL_CONTEXTS: dict[str, dict] = {
     "welcome": {
-        "contact": {"first_name": "Max", "last_name": "Mustermann", "email": "max@example.at"},
+        "contact": {
+            "first_name": "Max",
+            "last_name": "Mustermann",
+            "email": "max@example.at",
+        },
         "member": {"membership_number": "MOE-2026-001"},
         "invoice": {"amount": 48.0},
     },
@@ -94,7 +100,11 @@ _MINIMAL_CONTEXTS: dict[str, dict] = {
         "retry_url": "https://example.at/spenden",
     },
     "admin_new_donation": {
-        "contact": {"first_name": "Max", "last_name": "Mustermann", "email": "max@example.at"},
+        "contact": {
+            "first_name": "Max",
+            "last_name": "Mustermann",
+            "email": "max@example.at",
+        },
         "donation": {
             "amount": 50.0,
             "date": "22.03.2026",
@@ -152,7 +162,9 @@ class TestTemplateRendering:
 
     def test_render_liefert_plaintext_variante(self):
         svc = MailService()
-        _, html, text = svc._render("newsletter_doi", _MINIMAL_CONTEXTS["newsletter_doi"])
+        _, html, text = svc._render(
+            "newsletter_doi", _MINIMAL_CONTEXTS["newsletter_doi"]
+        )
         assert "<" not in text  # Text-Variante enthält keine HTML-Tags
 
     def test_subject_override_wird_angewendet(self):
@@ -193,11 +205,13 @@ class TestSmtpRetryLogik:
             patch("smtplib.SMTP_SSL", return_value=smtp_mock),
             patch("app.services.mail_service.execute", new=AsyncMock()),
         ):
-            result = _run(svc.send_template(
-                template_id="newsletter_confirmed",
-                recipient_email="test@example.at",
-                context=_MINIMAL_CONTEXTS["newsletter_confirmed"],
-            ))
+            result = _run(
+                svc.send_template(
+                    template_id="newsletter_confirmed",
+                    recipient_email="test@example.at",
+                    context=_MINIMAL_CONTEXTS["newsletter_confirmed"],
+                )
+            )
         assert result is True
         smtp_mock.send_message.assert_called_once()
 
@@ -212,11 +226,13 @@ class TestSmtpRetryLogik:
             patch("app.services.mail_service.execute", new=AsyncMock()),
             patch("asyncio.sleep", new=AsyncMock()),
         ):
-            result = _run(svc.send_template(
-                template_id="newsletter_confirmed",
-                recipient_email="test@example.at",
-                context=_MINIMAL_CONTEXTS["newsletter_confirmed"],
-            ))
+            result = _run(
+                svc.send_template(
+                    template_id="newsletter_confirmed",
+                    recipient_email="test@example.at",
+                    context=_MINIMAL_CONTEXTS["newsletter_confirmed"],
+                )
+            )
         assert result is False
         assert smtp_mock.send_message.call_count == 3
 
@@ -236,11 +252,13 @@ class TestSmtpRetryLogik:
             patch("app.services.mail_service.execute", new=AsyncMock()),
             patch("asyncio.sleep", new=AsyncMock()),
         ):
-            result = _run(svc.send_template(
-                template_id="newsletter_confirmed",
-                recipient_email="test@example.at",
-                context=_MINIMAL_CONTEXTS["newsletter_confirmed"],
-            ))
+            result = _run(
+                svc.send_template(
+                    template_id="newsletter_confirmed",
+                    recipient_email="test@example.at",
+                    context=_MINIMAL_CONTEXTS["newsletter_confirmed"],
+                )
+            )
         assert result is True
         assert smtp_mock.send_message.call_count == 2
 
@@ -249,11 +267,13 @@ class TestSmtpRetryLogik:
         svc.smtp_user = ""
         svc.smtp_password = ""
         with patch("app.services.mail_service.execute", new=AsyncMock()) as mock_exec:
-            result = _run(svc.send_template(
-                template_id="newsletter_confirmed",
-                recipient_email="test@example.at",
-                context=_MINIMAL_CONTEXTS["newsletter_confirmed"],
-            ))
+            result = _run(
+                svc.send_template(
+                    template_id="newsletter_confirmed",
+                    recipient_email="test@example.at",
+                    context=_MINIMAL_CONTEXTS["newsletter_confirmed"],
+                )
+            )
         assert result is True
         # execute (log_email) wurde mit status='logged' aufgerufen
         mock_exec.assert_called_once()
@@ -268,13 +288,113 @@ class TestSmtpRetryLogik:
             patch("smtplib.SMTP_SSL", return_value=smtp_mock),
             patch("app.services.mail_service.execute", new=AsyncMock()),
         ):
-            result = _run(svc.send_template(
-                template_id="newsletter_confirmed",
-                recipient_email="test@example.at",
-                context=_MINIMAL_CONTEXTS["newsletter_confirmed"],
-                subject_override="Mein eigener Betreff",
-            ))
+            result = _run(
+                svc.send_template(
+                    template_id="newsletter_confirmed",
+                    recipient_email="test@example.at",
+                    context=_MINIMAL_CONTEXTS["newsletter_confirmed"],
+                    subject_override="Mein eigener Betreff",
+                )
+            )
         assert result is True
         # Überprüfe, dass die Nachricht den überschriebenen Betreff verwendet
         sent_message = smtp_mock.send_message.call_args[0][0]
         assert sent_message["Subject"] == "Mein eigener Betreff"
+
+
+class TestGraphTransport:
+    @pytest.fixture
+    def svc(self):
+        s = MailService()
+        s.smtp_user = "sender@test.at"
+        s.smtp_password = "testpassword"
+        return s
+
+    def _smtp_mock(self):
+        m = MagicMock()
+        m.__enter__ = MagicMock(return_value=m)
+        m.__exit__ = MagicMock(return_value=False)
+        m.send_message = MagicMock(return_value=None)
+        return m
+
+    def test_admin_alert_uses_graph_when_enabled(self, svc):
+        svc.graph_transport = MagicMock()
+        svc.graph_transport.is_enabled = True
+        svc.graph_transport.send_message = AsyncMock(return_value=True)
+        with (
+            patch("app.services.mail_service.MAIL_TRANSPORT", "graph"),
+            patch("app.services.mail_service.execute", new=AsyncMock()) as mock_exec,
+            patch("smtplib.SMTP_SSL") as mock_smtp_ssl,
+            patch("smtplib.SMTP") as mock_smtp,
+        ):
+            result = _run(
+                svc.send_template(
+                    template_id="admin_alert",
+                    recipient_email="ops@example.at",
+                    context=_MINIMAL_CONTEXTS["admin_alert"],
+                )
+            )
+
+        assert result is True
+        svc.graph_transport.send_message.assert_awaited_once()
+        mock_smtp_ssl.assert_not_called()
+        mock_smtp.assert_not_called()
+        assert mock_exec.call_count == 1
+        args = mock_exec.call_args[0]
+        assert args[6] == "sent"
+        assert args[7] == "graph"
+
+    def test_admin_alert_graph_failure_does_not_fallback_to_smtp(self, svc):
+        svc.graph_transport = MagicMock()
+        svc.graph_transport.is_enabled = True
+        svc.graph_transport.send_message = AsyncMock(
+            side_effect=GraphMailTransportError("graph down")
+        )
+        with (
+            patch("app.services.mail_service.MAIL_TRANSPORT", "graph"),
+            patch("app.services.mail_service.execute", new=AsyncMock()) as mock_exec,
+            patch("smtplib.SMTP_SSL") as mock_smtp_ssl,
+            patch("smtplib.SMTP") as mock_smtp,
+        ):
+            result = _run(
+                svc.send_template(
+                    template_id="admin_alert",
+                    recipient_email="ops@example.at",
+                    context=_MINIMAL_CONTEXTS["admin_alert"],
+                )
+            )
+
+        assert result is False
+        svc.graph_transport.send_message.assert_awaited_once()
+        mock_smtp_ssl.assert_not_called()
+        mock_smtp.assert_not_called()
+        args = mock_exec.call_args[0]
+        assert args[6] == "failed"
+        assert args[7] == "graph"
+
+    def test_donation_failed_graph_failure_without_smtp_returns_false(self, svc):
+        svc.graph_transport = MagicMock()
+        svc.graph_transport.is_enabled = True
+        svc.graph_transport.send_message = AsyncMock(
+            side_effect=GraphMailTransportError("graph auth failed")
+        )
+        svc.smtp_user = ""
+        svc.smtp_password = ""
+        with (
+            patch("app.services.mail_service.MAIL_TRANSPORT", "graph"),
+            patch.object(svc, "_smtp_enabled", return_value=False),
+            patch("app.services.mail_service.execute", new=AsyncMock()) as mock_exec,
+        ):
+            result = _run(
+                svc.send_template(
+                    template_id="donation_failed",
+                    recipient_email="spender@example.at",
+                    context=_MINIMAL_CONTEXTS["donation_failed"],
+                )
+            )
+
+        assert result is False
+        svc.graph_transport.send_message.assert_awaited_once()
+        args = mock_exec.call_args[0]
+        assert args[6] == "failed"
+        assert args[7] == "graph"
