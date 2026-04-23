@@ -446,6 +446,23 @@ jobs:
             "printf '%s\n' '${{ steps.release.outputs.marker }}' > '${{ env.API_REMOTE_PATH }}/.deploy_release'"
           echo "✓ API deployt."
 
+      - name: API Runtime Reload triggern
+        if: >
+          env.TARGET_SERVICE == 'all' ||
+          env.TARGET_SERVICE == 'api'
+        run: |
+          ssh plesk-prod "
+            set -e
+            if [ -d '${{ env.API_REMOTE_PATH }}/tmp' ]; then
+              touch '${{ env.API_REMOTE_PATH }}/tmp/restart.txt'
+              echo '✓ restart.txt gesetzt'
+            else
+              echo '⚠️ Kein tmp/-Verzeichnis gefunden; restart.txt uebersprungen'
+            fi
+          "
+          echo "Warte 8 Sekunden auf Runtime-Warm-up ..."
+          sleep 8
+
       # ── CRM deployen ────────────────────────────────────────
       - name: CRM-Portal-Artefakt herunterladen
         if: >
