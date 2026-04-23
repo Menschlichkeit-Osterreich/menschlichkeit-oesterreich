@@ -453,15 +453,32 @@ jobs:
         run: |
           ssh plesk-prod "
             set -e
-            if [ -d '${{ env.API_REMOTE_PATH }}/tmp' ]; then
-              touch '${{ env.API_REMOTE_PATH }}/tmp/restart.txt'
-              echo '✓ restart.txt gesetzt'
+            cd '${{ env.API_REMOTE_PATH }}'
+            if [ -f 'venv/bin/activate' ]; then
+              . 'venv/bin/activate'
+              echo '✓ venv aktiviert'
             else
-              echo '⚠️ Kein tmp/-Verzeichnis gefunden; restart.txt uebersprungen'
+              echo '⚠️ venv/bin/activate nicht gefunden; verwende System-Umgebung'
             fi
+
+            if command -v uvicorn >/dev/null 2>&1; then
+              echo '✓ uvicorn gefunden'
+            else
+              echo '✗ uvicorn nicht gefunden; API-Restart abgebrochen'
+              exit 1
+            fi
+
+            pkill -f 'uvicorn app.main:app' || true
+            nohup uvicorn app.main:app --host 0.0.0.0 --port 8001 >/dev/null 2>&1 &
+            sleep 1
+            pgrep -f 'uvicorn app.main:app' >/dev/null 2>&1 || {
+              echo '✗ uvicorn-Prozess nach Restart nicht gefunden'
+              exit 1
+            }
+            echo '✓ API-Restart erfolgreich angestoßen'
           "
-          echo "Warte 8 Sekunden auf Runtime-Warm-up ..."
-          sleep 8
+          echo "Warte 12 Sekunden auf Runtime-Warm-up ..."
+          sleep 12
 
       # ── CRM deployen ────────────────────────────────────────
       - name: CRM-Portal-Artefakt herunterladen
