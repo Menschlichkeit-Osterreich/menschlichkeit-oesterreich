@@ -354,11 +354,34 @@ jobs:
           name: frontend-dist-${{ github.sha }}
           path: _dist_website/
 
+      - name: Frontend Preflight (Chroot-SSH + Zielpfad)
+        if: >
+          env.TARGET_SERVICE == 'all' ||
+          env.TARGET_SERVICE == 'frontend'
+        run: |
+          set -euo pipefail
+          TARGET_PATH='${{ env.FRONTEND_REMOTE_PATH }}'
+
+          echo "[PRECHECK][SSH] Verbindung testen"
+          ssh plesk-prod "true"
+
+          echo "[PRECHECK][PATH] Zielpfad vorbereiten: ${TARGET_PATH}"
+          ssh plesk-prod "mkdir -p '${TARGET_PATH}'"
+          ssh plesk-prod "[ -d '${TARGET_PATH}' ]"
+
+          echo "[PRECHECK][PERM] Schreibbarkeit pruefen: ${TARGET_PATH}"
+          TEST_FILE="${TARGET_PATH}/.preflight-write-test-${GITHUB_RUN_ID}"
+          ssh plesk-prod "printf '%s\n' preflight > '${TEST_FILE}'"
+          ssh plesk-prod "rm -f '${TEST_FILE}'"
+
+          echo "✓ Frontend Preflight erfolgreich."
+
       - name: Frontend → scp (Chroot-SSH)
         if: >
           env.TARGET_SERVICE == 'all' ||
           env.TARGET_SERVICE == 'frontend'
         run: |
+          set -euo pipefail
           # Chroot-SSH: Pfade relativ zum Home-Verzeichnis des Chroot-Users
           find _dist_website -name "*.map" -delete
           ssh plesk-prod "mkdir -p '${{ env.FRONTEND_REMOTE_PATH }}'"
