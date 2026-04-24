@@ -3,39 +3,108 @@ $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $PSScriptRoot
 Set-Location $repo
 
-function Get-EnvState {
+function Test-FileContains {
     param(
         [string]$Path,
-        [string]$Key
+        [string]$Needle
     )
 
-    if (-not (Test-Path $Path)) { return 'missing-file' }
+    if (-not (Test-Path $Path)) {
+        return $false
+    }
 
-    $line = Get-Content $Path | Where-Object { $_ -match ('^' + [regex]::Escape($Key) + '=') } | Select-Object -First 1
-    if (-not $line) { return 'missing-key' }
-
-    $value = ($line -split '=', 2)[1].Trim()
-    if ([string]::IsNullOrWhiteSpace($value)) { return 'empty' }
-    if ($value -match 'PLACEHOLDER|CHANGE_ME') { return 'placeholder' }
-    return 'set'
+    $content = Get-Content -Path $Path -Raw
+    return $content.Contains($Needle)
 }
 
-[PSCustomObject]@{
-    WebsiteStripePublishable    = Get-EnvState 'apps/website/.env.local' 'VITE_STRIPE_PUBLISHABLE_KEY'
-    ApiDatabaseUrl              = Get-EnvState 'apps/api/.env' 'DATABASE_URL'
-    ApiStripeSecret             = Get-EnvState 'apps/api/.env' 'STRIPE_SECRET_KEY'
-    ApiStripeWebhookSecret      = Get-EnvState 'apps/api/.env' 'STRIPE_WEBHOOK_SECRET'
-    ApiAlertsSlackWebhook       = Get-EnvState 'apps/api/.env' 'ALERTS_SLACK_WEBHOOK'
-    ApiMailUsername             = Get-EnvState 'apps/api/.env' 'MAIL_USERNAME'
-    ApiMailPassword             = Get-EnvState 'apps/api/.env' 'MAIL_PASSWORD'
-    ApiMailHost                 = Get-EnvState 'apps/api/.env' 'MAIL_HOST'
-    ApiMailPort                 = Get-EnvState 'apps/api/.env' 'MAIL_PORT'
-    ApiMailEncryption           = Get-EnvState 'apps/api/.env' 'MAIL_ENCRYPTION'
-    ApiMailFromAddress          = Get-EnvState 'apps/api/.env' 'MAIL_FROM_ADDRESS'
-    ApiMailFromName             = Get-EnvState 'apps/api/.env' 'MAIL_FROM_NAME'
-    ApiMailReplyToAddress       = Get-EnvState 'apps/api/.env' 'MAIL_REPLY_TO_ADDRESS'
-    WebsiteLegacyPayPalRemoved  = (Get-EnvState 'apps/website/.env.local' 'VITE_PAYPAL_CLIENT_ID') -eq 'missing-key'
-    ApiLegacyPayPalIdRemoved    = (Get-EnvState 'apps/api/.env' 'PAYPAL_CLIENT_ID') -eq 'missing-key'
-    ApiLegacyPayPalSecretRemoved = (Get-EnvState 'apps/api/.env' 'PAYPAL_CLIENT_SECRET') -eq 'missing-key'
-    BsmOrganizationConfigured   = -not [string]::IsNullOrWhiteSpace($env:BSM_ORGANIZATION_ID)
-} | ConvertTo-Json -Compress
+function Get-ProfileSecretMap {
+    param(
+        [string]$MapPath,
+        [string]$Profile
+    )
+
+    $json = Get-Content -Path $MapPath -Raw | ConvertFrom-Json
+    $profileNode = $json.profiles.$Profile
+    if (-not $profileNode) {
+        throw "BSM profile '$Profile' fehlt in $MapPath"
+    }
+    return $profileNode.secrets
+}
+
+$mapPath = '.github/bsm-secret-ids.json'
+$deployWorkflow = '.github/workflows/deploy-plesk.yml'
+$runtimeContract = 'apps/api/app/runtime_secret_contract.py'
+$mainPath = 'apps/api/app/main.py'
+$paymentsPath = 'apps/api/app/routers/payments.py'
+
+$requiredApiKeys = @(
+    'DATABASE_URL',
+    'JWT_SECRET_KEY',
+    'STRIPE_SECRET_KEY',
+    'STRIPE_WEBHOOK_SECRET',
+    'MOE_API_TOKEN',
+    'N8N_WEBHOOK_SECRET',
+    'CIVICRM_SITE_KEY',
+    'CIVICRM_API_KEY',
+    'ALERTS_SLACK_WEBHOOK',
+    'MICROSOFT_TENANT_ID',
+    'MICROSOFT_CLIENT_ID',
+    'MICROSOFT_CLIENT_SECRET',
+    'MICROSOFT_GRAPH_SENDER'
+)
+
+$requiredInfraKeys = @(
+    'PLESK_HOST',
+    'PLESK_USER',
+    'PLESK_PORT',
+    'PLESK_SSH_PRIVATE_KEY',
+    'PLESK_KNOWN_HOSTS'
+)
+
+$profileSecrets = Get-ProfileSecretMap -MapPath $mapPath -Profile 'deploy-production'
+$profileEnvVars = @($profileSecrets | ForEach-Object { $_.env_var })
+
+$missingApiInProfile = @($requiredApiKeys | Where-Object { $_ -notin $profileEnvVars })
+$missingInfraInProfile = @($requiredInfraKeys | Where-Object { $_ -notin $profileEnvVars })
+
+$placeholderCount = @(
+    $profileSecrets | Where-Object {
+        $_.uuid -match '^(UPDATE_VALUE_IN_VAULT|PLACEHOLDER_)'
+    }
+).Count
+
+$result = [ordered]@{
+    ProfileDeployProductionExists = $true
+    MissingApiKeysInProfile = $missingApiInProfile
+    MissingInfraKeysInProfile = $missingInfraInProfile
+    PlaceholderUuidCount = $placeholderCount
+    RuntimeContractHasStripeSecret = Test-FileContains -Path $runtimeContract -Needle '"STRIPE_SECRET_KEY"'
+    RuntimeContractHasStripeWebhook = Test-FileContains -Path $runtimeContract -Needle '"STRIPE_WEBHOOK_SECRET"'
+    RuntimeContractHasSlackWebhook = Test-FileContains -Path $runtimeContract -Needle '"ALERTS_SLACK_WEBHOOK"'
+    MainEnforcesRuntimeContract = Test-FileContains -Path $mainPath -Needle 'validate_runtime_secret_contract(ENVIRONMENT)'
+    PaymentsUsesSlackSecretProvider = (
+        (Test-FileContains -Path $paymentsPath -Needle 'get_secret(') -and
+        (Test-FileContains -Path $paymentsPath -Needle '"ALERTS_SLACK_WEBHOOK"') -and
+        (Test-FileContains -Path $paymentsPath -Needle 'bsm_key="api/ALERTS_SLACK_WEBHOOK"')
+    )
+    DeployWorkflowUsesBsmInjectedPleskKey = Test-FileContains -Path $deployWorkflow -Needle 'PLESK_SSH_PRIVATE_KEY'
+    DeployWorkflowAvoidsDirectSecretRefs = -not (Test-FileContains -Path $deployWorkflow -Needle 'secrets.PLESK_')
+}
+
+$ok = ($missingApiInProfile.Count -eq 0) -and
+      ($missingInfraInProfile.Count -eq 0) -and
+      ($placeholderCount -eq 0) -and
+      $result.RuntimeContractHasStripeSecret -and
+      $result.RuntimeContractHasStripeWebhook -and
+      $result.RuntimeContractHasSlackWebhook -and
+      $result.MainEnforcesRuntimeContract -and
+      $result.PaymentsUsesSlackSecretProvider -and
+      $result.DeployWorkflowUsesBsmInjectedPleskKey -and
+      $result.DeployWorkflowAvoidsDirectSecretRefs
+
+$result['Pass'] = $ok
+$result | ConvertTo-Json -Depth 5 -Compress
+
+if (-not $ok) {
+    exit 1
+}
