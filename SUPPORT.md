@@ -24,8 +24,8 @@ This document provides guidance on how to get support for this project.
 
 1. **Search existing resources:**
    - Check the [Documentation](docs/)
-   - Search [existing Issues](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues)
-   - Review [Discussions](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/discussions)
+   - Search [existing Issues](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/issues)
+   - Review [Discussions](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/discussions)
 
 2. **Try debugging:**
    - Enable debug mode: `DEBUG=* npm run dev`
@@ -33,13 +33,14 @@ This document provides guidance on how to get support for this project.
    - Run diagnostics: `npm run quality:gates`
 
 3. **Verify your setup:**
+
    ```bash
    # Check Node.js version
    node --version  # Should be >= 22.0.0
-   
+
    # Check npm version
    npm --version   # Should be >= 10.0.0
-   
+
    # Verify installation
    npm run verify
    ```
@@ -50,9 +51,9 @@ This document provides guidance on how to get support for this project.
 
 For questions, ideas, and general discussion:
 
-- **[Q&A](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/discussions/categories/q-a)** - Ask questions
-- **[Ideas](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/discussions/categories/ideas)** - Suggest improvements
-- **[Show and Tell](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/discussions/categories/show-and-tell)** - Share what you've built
+- **[Q&A](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/discussions/categories/q-a)** - Ask questions
+- **[Ideas](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/discussions/categories/ideas)** - Suggest improvements
+- **[Show and Tell](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/discussions/categories/show-and-tell)** - Share what you've built
 
 #### 🐛 GitHub Issues
 
@@ -98,6 +99,7 @@ A clear and concise description of what the bug is.
 
 **To Reproduce**
 Steps to reproduce the behavior:
+
 1. Go to '...'
 2. Click on '...'
 3. See error
@@ -106,9 +108,10 @@ Steps to reproduce the behavior:
 A clear and concise description of what you expected to happen.
 
 **Environment:**
- - OS: [e.g., macOS 14.1]
- - Node: [e.g., 22.0.0]
- - Browser: [e.g., Chrome 120]
+
+- OS: [e.g., macOS 14.1]
+- Node: [e.g., 22.0.0]
+- Browser: [e.g., Chrome 120]
 
 **Additional context**
 Add any other context about the problem here.
@@ -142,7 +145,7 @@ Please see our [Security Policy](SECURITY.md) for instructions on reporting secu
 - **[README](README.md)** - Project overview and quick start
 - **[Contributing Guide](CONTRIBUTING.md)** - How to contribute
 - **[Architecture Docs](docs/architecture/)** - System architecture
-- **[API Documentation](api.menschlichkeit-oesterreich.at/docs)** - API reference
+- **[API Specification](apps/api/openapi.yaml)** - Source-of-truth API reference for local development
 - **[Deployment Guide](deployment-scripts/README.md)** - Deployment instructions
 
 ### Tutorials & Guides
@@ -186,8 +189,9 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md).
 A: A comprehensive digital platform for democratic participation, education, and community engagement in Austria.
 
 **Q: What technologies does this project use?**  
-A: 
-- **Frontend:** React 18, TypeScript, Tailwind CSS
+A:
+
+- **Frontend:** React 19, TypeScript, Tailwind CSS
 - **Backend:** FastAPI (Python), Node.js
 - **CRM:** Drupal 10 + CiviCRM
 - **Database:** PostgreSQL 16, MariaDB
@@ -203,6 +207,7 @@ A: Use Node.js 22.x LTS or higher. We recommend using [nvm](https://github.com/n
 
 **Q: How do I run the project locally?**  
 A:
+
 ```bash
 npm install
 npm run dev:all
@@ -210,6 +215,7 @@ npm run dev:all
 
 **Q: How do I run tests?**  
 A:
+
 ```bash
 # Unit tests
 npm run test:unit
@@ -223,6 +229,7 @@ npm run test
 
 **Q: How do I check code quality?**  
 A:
+
 ```bash
 npm run quality:gates
 ```
@@ -231,6 +238,7 @@ npm run quality:gates
 
 **Q: How do I deploy to staging?**  
 A:
+
 ```bash
 ./build-pipeline.sh staging
 ```
@@ -240,6 +248,7 @@ A: See the [Deployment Guide](deployment-scripts/README.md) for detailed instruc
 
 **Q: How do I rollback a deployment?**  
 A:
+
 ```bash
 npm run deploy:rollback
 ```
@@ -259,6 +268,7 @@ A: See [Right to Erasure Procedures](docs/compliance/RIGHT-TO-ERASURE-PROCEDURES
 
 **Q: I'm getting "Cannot find module" errors**  
 A: Try:
+
 ```bash
 rm -rf node_modules package-lock.json
 npm install
@@ -266,12 +276,14 @@ npm install
 
 **Q: The development server won't start**  
 A: Check:
+
 1. Is port 3000 already in use?
 2. Are all dependencies installed?
 3. Is your `.env` file configured correctly?
 
 **Q: Tests are failing**  
 A: Try:
+
 ```bash
 npm run test:clean
 npm run test
@@ -279,6 +291,7 @@ npm run test
 
 **Q: Build is failing**  
 A: Try:
+
 ```bash
 npm run clean
 npm run build
@@ -297,9 +310,9 @@ npm run build
 
 ### GitHub
 
-- **Issues:** [github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/issues)
-- **Discussions:** [github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/discussions](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/discussions)
-- **Pull Requests:** [github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pulls](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/pulls)
+- **Issues:** [github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/issues](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/issues)
+- **Discussions:** [github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/discussions](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/discussions)
+- **Pull Requests:** [github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/pulls](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/pulls)
 
 ### Response Times
 
@@ -313,7 +326,7 @@ npm run build
 For complex issues, we offer virtual office hours:
 
 - **When:** Every Friday, 14:00-16:00 CET/CEST
-- **Where:** [GitHub Discussions - Office Hours](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/discussions/categories/office-hours)
+- **Where:** [GitHub Discussions - Office Hours](https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/discussions/categories/office-hours)
 - **How:** Post your question beforehand, join the discussion on Friday
 
 ---

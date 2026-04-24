@@ -93,7 +93,7 @@ cat .devcontainer/TROUBLESHOOTING.md
 If the API service fails to start due to missing dependencies:
 
 ```bash
-cd api.menschlichkeit-oesterreich.at
+cd apps/api
 # With timeout protection (recommended)
 timeout 120 pip install --user fastapi uvicorn python-dotenv
 # OR for full requirements:
@@ -119,7 +119,7 @@ pwsh .devcontainer/setup-powershell.ps1
 If pip installation times out during setup:
 
 ```bash
-cd api.menschlichkeit-oesterreich.at
+cd apps/api
 # The setup script now uses timeout automatically
 timeout 300 pip install --user --timeout 300 -r requirements.txt
 # OR install essentials only:
@@ -130,9 +130,9 @@ pip install --user -r requirements-minimal.txt
 
 The setup automatically creates `.env` files from examples. To customize:
 
-1. **API Configuration**: Edit `api.menschlichkeit-oesterreich.at/.env`
-2. **Frontend Configuration**: Edit `frontend/.env`
-3. **CRM Configuration**: Edit `crm.menschlichkeit-oesterreich.at/.env`
+1. **API Configuration**: Edit `apps/api/.env`
+2. **Website Configuration**: Edit `apps/website/.env.local`
+3. **CRM Configuration**: Review the Drupal/CiviCRM settings under `apps/crm/`
 
 ## 📊 Quality & Testing
 
@@ -194,9 +194,11 @@ For more help, see:
 
 ## 📁 Project Structure
 
-- `frontend/` - React/TypeScript frontend
-- `api.menschlichkeit-oesterreich.at/` - FastAPI Python backend
-- `crm.menschlichkeit-oesterreich.at/` - CiviCRM PHP application
-- `web/` - Educational games
+- `apps/website/` - React/TypeScript frontend
+- `apps/api/` - FastAPI Python backend
+- `apps/crm/` - Drupal 10 + CiviCRM
+- `apps/babylon-game/` - Educational games
 - `automation/n8n/` - Workflow automation
 - `scripts/` - Development and deployment scripts
+
+Hinweis: Domain- oder Mirror-Pfade wie `api.menschlichkeit-oesterreich.at/` und `crm.menschlichkeit-oesterreich.at/` sind keine aktiven lokalen Entwicklungsziele in diesem Repository.
