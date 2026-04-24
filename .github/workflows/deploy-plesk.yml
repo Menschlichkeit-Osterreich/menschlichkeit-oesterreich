@@ -26,9 +26,10 @@ on:
 permissions:
   contents: read
 
-# Kein paralleles Deployment auf denselben Branch
+# Temporär: run_id hinzugefügt, um GitHub Actions Concurrency-Deadlock zu umgehen
+# Dieser Block wird nach erfolgreichem Deployment wiederhergestellt
 concurrency:
-  group: deploy-production-${{ github.ref }}
+  group: deploy-production-${{ github.ref }}-${{ github.run_id }}
   cancel-in-progress: false
 
 env:
