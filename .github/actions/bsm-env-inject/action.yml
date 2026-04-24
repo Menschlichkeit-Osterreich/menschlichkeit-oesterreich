@@ -123,7 +123,13 @@ runs:
             exit 1
           fi
 
+          # Mask full value and each line to avoid multiline secret leakage in runner env dumps.
           echo "::add-mask::${value}"
+          while IFS= read -r line; do
+            if [ -n "$line" ]; then
+              echo "::add-mask::${line}"
+            fi
+          done <<< "$value"
           write_multiline_env "$env_var" "$value"
           printf '{"%s":%s}\n' "$env_var" "$(printf '%s' "$value" | jq -Rs '.')" >> "$secret_objects_file"
           injected_names+=("$env_var")
