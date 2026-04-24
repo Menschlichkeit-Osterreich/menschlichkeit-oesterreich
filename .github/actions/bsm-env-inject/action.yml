@@ -123,8 +123,11 @@ runs:
             exit 1
           fi
 
-          # Mask full value and each line to avoid multiline secret leakage in runner env dumps.
-          echo "::add-mask::${value}"
+          # Never pass multiline values directly to add-mask, because command parsing
+          # can emit subsequent lines into logs before masking applies.
+          if [[ "$value" != *$'\n'* ]]; then
+            echo "::add-mask::${value}"
+          fi
           while IFS= read -r line; do
             if [ -n "$line" ]; then
               echo "::add-mask::${line}"
