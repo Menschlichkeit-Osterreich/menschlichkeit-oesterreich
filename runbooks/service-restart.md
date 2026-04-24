@@ -40,6 +40,8 @@ npm run status:check
 
 ## 2. FastAPI (API Service)
 
+Hinweis: Die Abschnitte unter "Lokal" beschreiben Repository-Pfade und Dev-Kommandos. Die Abschnitte unter "Produktion (Plesk)" beschreiben ausschliesslich Laufzeitpfade auf dem Server und sind keine lokalen Arbeitsverzeichnisse.
+
 ### Lokal (Entwicklung)
 
 ```bash
@@ -90,6 +92,8 @@ npm run build:frontend
 ---
 
 ## 4. CRM (Drupal + CiviCRM)
+
+Hinweis: `crm.menschlichkeit-oesterreich.at` ist hier ein Plesk-Domain-Kontext. Fuer lokale Entwicklung im Repository gilt weiterhin der Source-Pfad `apps/crm/`.
 
 ### Lokal
 

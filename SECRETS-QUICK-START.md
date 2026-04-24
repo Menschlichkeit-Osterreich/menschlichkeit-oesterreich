@@ -76,7 +76,7 @@ DATABASE_URL=postgresql://postgres:STRONG_PASSWORD_HERE@localhost:5432/menschlic
 # Migrations ausführen
 npx prisma generate
 npx prisma migrate dev
-cd api.menschlichkeit-oesterreich.at
+cd apps/api
 alembic upgrade head
 ```
 
@@ -113,10 +113,10 @@ start https://github.com/settings/tokens/new
 # 3. "Generate token" klicken → Token kopieren (ghp_...)
 
 # 4. .env aktualisieren
-GH_TOKEN=ghp_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+GH_TOKEN=github_pat_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 # 5. GitHub Secret setzen:
-start https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/settings/secrets/actions/new
+start https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/settings/secrets/actions/new
 # Name: GH_TOKEN
 # Secret: ghp_XXX... (aus Schritt 3)
 ```

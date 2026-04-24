@@ -234,6 +234,8 @@ On Release:
 
 ### Domain Structure
 
+Hinweis: Die folgende Liste beschreibt Laufzeit-Domains in Produktion und Staging. Aktive Entwicklungs- und Source-Pfade im Repository liegen unter `apps/` und `automation/`, insbesondere `apps/website/`, `apps/api/`, `apps/crm/`, `apps/babylon-game/` und `automation/n8n/`.
+
 ```
 menschlichkeit-oesterreich.at/
 ├── www.menschlichkeit-oesterreich.at (Website)

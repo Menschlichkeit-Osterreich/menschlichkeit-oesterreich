@@ -5,6 +5,7 @@
 ### Problem: Devcontainer startet nicht oder hängt
 
 **Symptome:**
+
 - Codespace öffnet sich nicht vollständig
 - Setup-Prozess bleibt hängen
 - Fehlermeldungen beim Start
@@ -12,15 +13,17 @@
 **Lösung:**
 
 1. **Diagnose ausführen**
+
    ```bash
    bash .devcontainer/diagnose.sh
    ```
 
 2. **Logs überprüfen**
+
    ```bash
    # onCreate Log (falls vorhanden)
    cat /tmp/devcontainer-onCreate-setup.log
-   
+
    # Setup-Test ausführen
    bash .devcontainer/test-setup.sh
    ```
@@ -33,11 +36,13 @@
 ### Problem: Keine Netzwerkverbindung (Offline-Modus)
 
 **Symptome:**
+
 - `Network connectivity failed` Meldungen
 - npm/pip Installation schlägt fehl
 - Git clone/push funktioniert nicht
 
 **Erklärung:**
+
 - Dies ist normal in CI/Test-Umgebungen ohne Internet
 - Setup-Scripts erkennen dies automatisch und arbeiten offline
 
@@ -50,17 +55,18 @@
 # npm Pakete nachinstallieren
 npm install
 
-# Python Pakete nachinstallieren  
+# Python Pakete nachinstallieren
 pip install --user fastapi uvicorn python-dotenv pydantic
 
 # Vollständige API Requirements
-cd api.menschlichkeit-oesterreich.at
+cd apps/api
 pip install --user -r app/requirements.txt
 ```
 
 ### Problem: Python Dependencies fehlen (FastAPI/Uvicorn)
 
 **Symptome:**
+
 - `ModuleNotFoundError: No module named 'fastapi'`
 - API-Server startet nicht
 
@@ -74,13 +80,14 @@ pip install --user fastapi uvicorn python-dotenv pydantic
 timeout 120 pip install --user fastapi uvicorn python-dotenv
 
 # Vollständige Requirements (wenn benötigt)
-cd api.menschlichkeit-oesterreich.at
+cd apps/api
 timeout 180 pip install --user -r app/requirements.txt
 ```
 
 ### Problem: .env Dateien fehlen
 
 **Symptome:**
+
 - Umgebungsvariablen nicht verfügbar
 - Services starten mit Fehlern
 
@@ -92,13 +99,14 @@ bash .devcontainer/onCreate-setup.sh
 
 # Oder manuell:
 cp .env.example .env
-cp api.menschlichkeit-oesterreich.at/.env.example api.menschlichkeit-oesterreich.at/.env
-cp frontend/.env.example frontend/.env
+cp apps/api/.env.example apps/api/.env
+cp apps/website/.env.example apps/website/.env.local
 ```
 
 ### Problem: npm install schlägt fehl oder hängt
 
 **Symptome:**
+
 - npm install timeout
 - node_modules unvollständig
 - Dependency errors
@@ -123,6 +131,7 @@ npm install --only=production
 ### Problem: Shell-Skripte nicht ausführbar
 
 **Symptome:**
+
 - `Permission denied` beim Ausführen von .sh Dateien
 - Scripts laufen nicht
 
@@ -142,6 +151,7 @@ find . -name "*.sh" -type f -exec chmod +x {} \;
 ### Problem: PowerShell Module fehlen
 
 **Symptome:**
+
 - PowerShell-Funktionen nicht verfügbar
 - Module-Import schlägt fehl
 
@@ -233,12 +243,13 @@ bash .devcontainer/onCreate-setup.sh
 
 # 3. Dependencies neu installieren
 npm install
-cd api.menschlichkeit-oesterreich.at && pip install --user -r app/requirements.txt
+cd apps/api && pip install --user -r app/requirements.txt
 ```
 
 ### Codespace neu erstellen (letzter Ausweg)
 
 Wenn nichts hilft:
+
 1. Codespace löschen (GitHub → Codespaces → Delete)
 2. Neuen Codespace erstellen
 3. Warten bis automatisches Setup abgeschlossen ist
@@ -255,11 +266,12 @@ Wenn nichts hilft:
 ## 🆘 Wenn nichts funktioniert
 
 1. **Issue erstellen**
-   - Repository: github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
+   - Repository: github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich
    - Template: Bug Report
    - Anhängen: Output von `bash .devcontainer/diagnose.sh`
 
 2. **Direkte Hilfe**
+
    ```bash
    # Manual Setup mit interaktiver Auswahl
    bash .devcontainer/manual-setup.sh
