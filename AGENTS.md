@@ -10,7 +10,8 @@ Unterstuetzte Clients:
 
 ## Repo-Identitaet
 
-- Lokaler Root: `E:\Menschlichkeit-Osterreich\menschlichkeit-oesterreich`
+- Workspace-Root: Repository-Checkout von `Menschlichkeit-Osterreich/menschlichkeit-oesterreich`
+- Beispiel Windows-Checkout: `E:\Dev\menschlichkeit-oesterreich\menschlichkeit-oesterreich`
 - Git-Remote: `https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich`
 - Aktive Produktstruktur: `apps/<service>/`, `automation/`, `figma-design-system/`
 - Main-first Workflow mit Branches von `main` und PRs zurueck auf `main`
@@ -28,11 +29,11 @@ Diese Datei beschreibt Repo-Contributor-Agents fuer Entwicklung, Review, Betrieb
 ## Zuerst lesen
 
 1. `AGENTS.md`
-2. `CLAUDE.md`
-3. `.github/copilot-instructions.md`
-4. `.github/instructions/core/analysis-planning.instructions.md`
-5. `.github/ai-registry.json`
-6. passende Policies unter `.github/instructions/core/*.instructions.md`
+1. `CLAUDE.md`
+1. `.github/copilot-instructions.md`
+1. `.github/instructions/core/analysis-planning.instructions.md`
+1. `.github/ai-registry.json`
+1. passende Policies unter `.github/instructions/core/*.instructions.md`
 
 ## Kanonischer Analyse-Einstieg
 
@@ -182,17 +183,18 @@ Diese Rollen bauen auf den Core-Rollen auf und erweitern sie nur fuer klar abgeg
 - `brand` ueber `.claude/plugins/moe-brand/`
 - `github-audit` ueber `.claude/agents/github-auditor.md`
 - `civicrm` ueber `apps/crm/` und CRM-spezifische Betriebsdoku
+- `mcp-operations` ueber `.github/agents/mcp-operations.agent.md` als Copilot-Adapter fuer MCP-Checks, Overlay-Drift und Agenten-Maintenance
 
 Spezialrollen duerfen keine parallele Repo-Governance einfuehren.
 
 ## Routing-Regeln
 
 1. Zuerst echte Pfade im Repository lesen.
-2. Dann genau eine primaere Rolle waehlen.
-3. Nur zusaetzliche Spezialisierungen hinzuziehen, wenn der Scope sie wirklich braucht.
-4. Repo-Contributor-Agents nicht mit externen Produkt- oder Laufzeitrollen vermischen.
-5. Neue Guidance muss sich an reale `apps/`-Pfade, aktuelle Services und das Main-first-Modell halten.
-6. Skill-, Prompt- und Plugin-Klassifikation folgt immer `.github/ai-registry.json`.
+1. Dann genau eine primaere Rolle waehlen.
+1. Nur zusaetzliche Spezialisierungen hinzuziehen, wenn der Scope sie wirklich braucht.
+1. Repo-Contributor-Agents nicht mit externen Produkt- oder Laufzeitrollen vermischen.
+1. Neue Guidance muss sich an reale `apps/`-Pfade, aktuelle Services und das Main-first-Modell halten.
+1. Skill-, Prompt- und Plugin-Klassifikation folgt immer `.github/ai-registry.json`.
 
 ## Output-Regeln
 
@@ -201,6 +203,12 @@ Spezialrollen duerfen keine parallele Repo-Governance einfuehren.
 - Nutzertexte bleiben in oesterreichischem Deutsch.
 - Keine Secrets, Tokens oder PII in Beispielen oder Prompts.
 - Brand-Aenderungen muessen die aktiven Design-Tokens respektieren.
+
+## Configuration Reliability
+
+Repo-weite Konfigurationen sind nur akzeptiert, wenn sie portabel, validierbar und ohne persoenliche Pfade sind.
+Aenderungen an `.vscode/**`, `.devcontainer/**`, `.claude/**`, `mcp.json`, `.github/workflows/**` oder Agent/Copilot-Dateien muessen durch `npm run workspace:config:check` validiert werden.
+Geteilte Konfigurationen duerfen keine absoluten lokalen Pfade enthalten. Erlaubt sind `${workspaceFolder}`, repo-relative Pfade und npm Scripts.
 
 ## Definition of Done fuer Governance-nahe Aenderungen
 

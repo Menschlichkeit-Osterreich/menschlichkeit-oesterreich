@@ -4,7 +4,8 @@ Dieses Repository wird von Codex und Claude Code gemeinsam mit derselben Betrieb
 
 ## Repo Identity
 
-- Lokaler Repo-Root: `E:\Menschlichkeit-Osterreich\menschlichkeit-oesterreich`
+- Workspace-Root: Repository-Checkout von `Menschlichkeit-Osterreich/menschlichkeit-oesterreich`
+- Beispiel Windows-Checkout: `E:\Dev\menschlichkeit-oesterreich\menschlichkeit-oesterreich`
 - Git-Remote: `https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich`
 - Aktive Entwicklungsstruktur: `apps/<service>/`
 
@@ -13,9 +14,9 @@ Historische Root-Snapshots duerfen im Repository noch vorkommen, sind aber keine
 ## Prioritaeten
 
 1. Sicherheit
-2. Datenintegritaet
-3. Stabilitaet
-4. Velocity
+1. Datenintegritaet
+1. Stabilitaet
+1. Velocity
 
 Alle UI-Texte bleiben in oesterreichischem Deutsch.
 
@@ -49,12 +50,12 @@ npm run governance:check
 ## Agentenauswahl im Repo
 
 1. Lies zuerst `AGENTS.md`.
-2. Lies fuer Analyse und Planung danach `.github/instructions/core/analysis-planning.instructions.md`.
-3. Nutze `.github/ai-registry.json`, wenn du den Status von Agents, Skills, Prompts, Plugins oder Legacy-Artefakten klaeren musst.
-4. Pruefe bei groesseren Plaenen den offenen Backlog mit `state:open repo:${owner}/${repository} sort:updated-desc`.
-5. Waehle dann die passende Rolle: `architect`, `developer`, `devops`, `security` oder `qa`.
-6. Ziehe nur die zugehoerigen Chatmodes, Prompt-Dateien und Agenten hinzu.
-7. Vermische Repo-Contributor-Agents nie mit produktiven Laufzeitrollen ausserhalb der Repo-Governance.
+1. Lies fuer Analyse und Planung danach `.github/instructions/core/analysis-planning.instructions.md`.
+1. Nutze `.github/ai-registry.json`, wenn du den Status von Agents, Skills, Prompts, Plugins oder Legacy-Artefakten klaeren musst.
+1. Pruefe bei groesseren Plaenen den offenen Backlog mit `state:open repo:${owner}/${repository} sort:updated-desc`.
+1. Waehle dann die passende Rolle: `architect`, `developer`, `devops`, `security` oder `qa`.
+1. Ziehe nur die zugehoerigen Chatmodes, Prompt-Dateien und Agenten hinzu.
+1. Vermische Repo-Contributor-Agents nie mit produktiven Laufzeitrollen ausserhalb der Repo-Governance.
 
 Kurzregel:
 
@@ -72,6 +73,8 @@ Kurzregel:
 - Design-Tokens stammen aus `figma-design-system/00_design-tokens.json` sowie den abgeleiteten CSS-Tokens.
 - Brand-Arbeit nutzt die Quellen aus `.claude/plugins/moe-brand/`.
 - Bei dateibasierten Copilot- oder MCP-Toolaufrufen absolute Workspace-Pfade verwenden, wenn das Tool keine relativen Pfade akzeptiert.
+- Geteilte Repo-Konfigurationen bleiben portabel und nutzen `${workspaceFolder}`, repo-relative Pfade oder npm Scripts.
+- Aenderungen an Dot-Folder-, MCP-, Agenten- oder Workflow-Konfigurationen muessen `npm run workspace:config:check` bestehen.
 - Keine Secrets in Code, Logs oder Beispielen.
 - Keine PII in Logs; DSGVO-Regeln aus den Core-Instructions sind bindend.
 
@@ -103,6 +106,7 @@ Repo-Arbeitsagenten sind in `AGENTS.md` dokumentiert und werden ueber Codex, Cla
 
 - Projektweite MCP-Server liegen in `mcp.json`
 - Editor-spezifische MCP-Ergaenzungen liegen in `.vscode/mcp.json`
+- Spezialisierte MCP-Reparaturen koennen ueber `.github/agents/mcp-operations.agent.md` als Copilot-Adapter gebuendelt werden
 - Lokale Checks: `npm run mcp:check` und `npm run mcp:health`
 
 ## Brand-Kurzvertrag

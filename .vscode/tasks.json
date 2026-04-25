@@ -1,11 +1,5 @@
 {
   "version": "2.0.0",
-  "options": {
-    "shell": {
-      "executable": "pwsh.exe",
-      "args": ["-NoLogo", "-NoProfile", "-Command"]
-    }
-  },
   "tasks": [
     {
       "label": "Dev: All Services",
@@ -252,6 +246,18 @@
       "problemMatcher": []
     },
     {
+      "label": "Workspace: Config Check",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "workspace:config:check"],
+      "group": "none",
+      "presentation": {
+        "panel": "shared",
+        "group": "ops"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Workspace: Bootstrap",
       "type": "shell",
       "command": "npm",
@@ -286,63 +292,15 @@
     {
       "label": "Bitwarden: Python SDK Check",
       "type": "shell",
-      "command": "e:\\Dev\\menschlichkeit-oesterreich\\menschlichkeit-oesterreich\\.venv\\Scripts\\python.exe",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
       "args": ["-c", "import bitwarden_sdk; print('OK', bitwarden_sdk.__file__)"],
-      "isBackground": false,
-      "group": "none"
-    },
-    {
-      "label": "Bitwarden: Python SDK Check 2",
-      "type": "shell",
-      "command": "e:\\Dev\\menschlichkeit-oesterreich\\menschlichkeit-oesterreich\\.venv\\Scripts\\python.exe",
-      "args": ["-c", "import bitwarden_sdk; print(\"OK\", bitwarden_sdk.__file__)"],
-      "isBackground": false,
-      "group": "none"
-    },
-    {
-      "label": "Bitwarden: Inspect Python SDK",
-      "type": "shell",
-      "command": "e:\\Dev\\menschlichkeit-oesterreich\\menschlichkeit-oesterreich\\.venv\\Scripts\\python.exe",
-      "args": ["quality-reports/inspect_bitwarden_sdk.py"],
-      "isBackground": false,
-      "group": "none"
-    },
-    {
-      "label": "Bitwarden: Inspect Python SDK Signatures",
-      "type": "shell",
-      "command": "e:\\Dev\\menschlichkeit-oesterreich\\menschlichkeit-oesterreich\\.venv\\Scripts\\python.exe",
-      "args": ["quality-reports/inspect_bitwarden_sdk.py"],
-      "isBackground": false,
-      "group": "none"
-    },
-    {
-      "label": "Bitwarden: Discover Org Access",
-      "type": "shell",
-      "command": "e:\\Dev\\menschlichkeit-oesterreich\\menschlichkeit-oesterreich\\.venv\\Scripts\\python.exe",
-      "args": ["quality-reports/inspect_bitwarden_sdk.py"],
-      "isBackground": false,
-      "group": "none"
-    },
-    {
-      "label": "Bitwarden: Inspect Auth Response",
-      "type": "shell",
-      "command": "e:\\Dev\\menschlichkeit-oesterreich\\menschlichkeit-oesterreich\\.venv\\Scripts\\python.exe",
-      "args": ["quality-reports/inspect_bitwarden_sdk.py"],
-      "isBackground": false,
-      "group": "none"
-    },
-    {
-      "label": "Bitwarden: Inspect Sync Signature",
-      "type": "shell",
-      "command": "e:\\Dev\\menschlichkeit-oesterreich\\menschlichkeit-oesterreich\\.venv\\Scripts\\python.exe",
-      "args": ["quality-reports/inspect_bitwarden_sdk.py"],
       "isBackground": false,
       "group": "none"
     },
     {
       "label": "Pytest: Payment Regression",
       "type": "shell",
-      "command": "e:\\Dev\\menschlichkeit-oesterreich\\menschlichkeit-oesterreich\\.venv\\Scripts\\python.exe",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
       "args": [
         "-m",
         "pytest",
