@@ -28,7 +28,7 @@ _REQUIRED_SECRET_KEYS: dict[str, str] = {
 
 
 def _is_invalid_secret(value: str) -> bool:
-    if not value:
+    if not value or not value.strip():
         return True
     return bool(_PLACEHOLDER_RE.match(value.strip()))
 

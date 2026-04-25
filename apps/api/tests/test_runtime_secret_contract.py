@@ -9,12 +9,16 @@ Covered scenarios:
  3. environment=production with placeholder secrets  → RuntimeError
  4. environment=production with complete dummy values  → no error
 """
+
 from __future__ import annotations
 
 import pytest
 from unittest.mock import patch
 
-from app.runtime_secret_contract import validate_runtime_secret_contract, _is_invalid_secret
+from app.runtime_secret_contract import (
+    validate_runtime_secret_contract,
+    _is_invalid_secret,
+)
 
 # ---------------------------------------------------------------------------
 # Dummy values — obviously non-production, safe to commit
@@ -54,18 +58,19 @@ class TestIsInvalidSecret:
     def test_empty_string_is_invalid(self):
         assert _is_invalid_secret("") is True
 
-    def test_whitespace_only_is_valid(self):
-        # Implementation only rejects empty/None and placeholder patterns;
-        # whitespace-only strings are NOT treated as invalid.
-        assert _is_invalid_secret("   ") is False
+    def test_whitespace_only_is_invalid(self):
+        assert _is_invalid_secret("   ") is True
 
-    @pytest.mark.parametrize("placeholder", [
-        "CHANGE_ME",
-        "PLACEHOLDER",
-        "UPDATE_VALUE_IN_VAULT",
-        "YOUR_SECRET",
-        "REPLACE_THIS",
-    ])
+    @pytest.mark.parametrize(
+        "placeholder",
+        [
+            "CHANGE_ME",
+            "PLACEHOLDER",
+            "UPDATE_VALUE_IN_VAULT",
+            "YOUR_SECRET",
+            "REPLACE_THIS",
+        ],
+    )
     def test_placeholder_patterns_are_invalid(self, placeholder: str):
         assert _is_invalid_secret(placeholder) is True
 
@@ -109,7 +114,9 @@ class TestValidateRuntimeSecretContract:
             "app.runtime_secret_contract.get_secret",
             side_effect=_mock_get(placeholder_map),
         ):
-            with pytest.raises(RuntimeError, match="Missing required runtime secret contract entries"):
+            with pytest.raises(
+                RuntimeError, match="Missing required runtime secret contract entries"
+            ):
                 validate_runtime_secret_contract("test")
 
     def test_strict_flag_true_with_missing_secrets_raises(self, monkeypatch):
@@ -121,7 +128,9 @@ class TestValidateRuntimeSecretContract:
             "app.runtime_secret_contract.get_secret",
             side_effect=_mock_get({}, default=""),
         ):
-            with pytest.raises(RuntimeError, match="Missing required runtime secret contract entries"):
+            with pytest.raises(
+                RuntimeError, match="Missing required runtime secret contract entries"
+            ):
                 validate_runtime_secret_contract("staging")
 
     # Scenario 3 ─────────────────────────────────────────────────────────────
@@ -136,7 +145,9 @@ class TestValidateRuntimeSecretContract:
             "app.runtime_secret_contract.get_secret",
             side_effect=_mock_get(placeholder_map),
         ):
-            with pytest.raises(RuntimeError, match="Missing required runtime secret contract entries"):
+            with pytest.raises(
+                RuntimeError, match="Missing required runtime secret contract entries"
+            ):
                 validate_runtime_secret_contract("production")
 
     # Scenario 4 ─────────────────────────────────────────────────────────────
