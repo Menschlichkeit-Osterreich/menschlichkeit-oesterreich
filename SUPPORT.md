@@ -185,10 +185,10 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md).
 
 ### General Questions
 
-**Q: What is Menschlichkeit Österreich?**  
+**Q: What is Menschlichkeit Österreich?**
 A: A comprehensive digital platform for democratic participation, education, and community engagement in Austria.
 
-**Q: What technologies does this project use?**  
+**Q: What technologies does this project use?**
 A:
 
 - **Frontend:** React 19, TypeScript, Tailwind CSS
@@ -197,15 +197,15 @@ A:
 - **Database:** PostgreSQL 16, MariaDB
 - **Automation:** n8n, Docker
 
-**Q: Is this project open source?**  
+**Q: Is this project open source?**
 A: Please check the [LICENSE](LICENSE) file for licensing information.
 
 ### Development Questions
 
-**Q: Which Node.js version should I use?**  
+**Q: Which Node.js version should I use?**
 A: Use Node.js 22.x LTS or higher. We recommend using [nvm](https://github.com/nvm-sh/nvm) to manage Node.js versions.
 
-**Q: How do I run the project locally?**  
+**Q: How do I run the project locally?**
 A:
 
 ```bash
@@ -213,7 +213,7 @@ npm install
 npm run dev:all
 ```
 
-**Q: How do I run tests?**  
+**Q: How do I run tests?**
 A:
 
 ```bash
@@ -227,7 +227,7 @@ npm run test:e2e
 npm run test
 ```
 
-**Q: How do I check code quality?**  
+**Q: How do I check code quality?**
 A:
 
 ```bash
@@ -236,17 +236,17 @@ npm run quality:gates
 
 ### Deployment Questions
 
-**Q: How do I deploy to staging?**  
+**Q: How do I deploy to staging?**
 A:
 
 ```bash
 ./build-pipeline.sh staging
 ```
 
-**Q: How do I deploy to production?**  
+**Q: How do I deploy to production?**
 A: See the [Deployment Guide](deployment-scripts/README.md) for detailed instructions.
 
-**Q: How do I rollback a deployment?**  
+**Q: How do I rollback a deployment?**
 A:
 
 ```bash
@@ -255,18 +255,18 @@ npm run deploy:rollback
 
 ### DSGVO/Privacy Questions
 
-**Q: Is this project GDPR compliant?**  
+**Q: Is this project GDPR compliant?**
 A: Yes, this project follows GDPR/DSGVO requirements. See [Compliance Documentation](docs/compliance/).
 
-**Q: How is personal data handled?**  
+**Q: How is personal data handled?**
 A: See our [Privacy Documentation](docs/compliance/PRIVACY.md) for details.
 
-**Q: How do I request data deletion?**  
+**Q: How do I request data deletion?**
 A: See [Right to Erasure Procedures](docs/compliance/RIGHT-TO-ERASURE-PROCEDURES.md).
 
 ### Troubleshooting
 
-**Q: I'm getting "Cannot find module" errors**  
+**Q: I'm getting "Cannot find module" errors**
 A: Try:
 
 ```bash
@@ -274,14 +274,14 @@ rm -rf node_modules package-lock.json
 npm install
 ```
 
-**Q: The development server won't start**  
+**Q: The development server won't start**
 A: Check:
 
 1. Is port 3000 already in use?
 2. Are all dependencies installed?
 3. Is your `.env` file configured correctly?
 
-**Q: Tests are failing**  
+**Q: Tests are failing**
 A: Try:
 
 ```bash
@@ -289,7 +289,7 @@ npm run test:clean
 npm run test
 ```
 
-**Q: Build is failing**  
+**Q: Build is failing**
 A: Try:
 
 ```bash
@@ -349,8 +349,8 @@ For complex issues, we offer virtual office hours:
 
 ---
 
-**Last Updated:** 2025-10-13  
-**Version:** 1.0.0  
+**Last Updated:** 2025-10-13
+**Version:** 1.0.0
 **Maintainer:** Development Team
 
 ---

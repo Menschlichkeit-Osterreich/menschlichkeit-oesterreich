@@ -322,5 +322,5 @@ rm -rf ~/.cache/pip ~/.npm
 
 ---
 
-**Letzte Aktualisierung:** 2025-10-12  
+**Letzte Aktualisierung:** 2025-10-12
 **Maintenance:** DevOps Team Menschlichkeit Österreich

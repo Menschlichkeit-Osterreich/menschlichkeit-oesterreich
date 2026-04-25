@@ -39,7 +39,7 @@ apps/website/.vite/
 .env.vault
 .env.local
 .env.development
-.env.staging  
+.env.staging
 .env.production
 .env.*.local
 .env.*.decrypted

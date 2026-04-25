@@ -43,9 +43,6 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  SSH_HOST: ${{ secrets.PLESK_HOST }}
-  SSH_PORT: ${{ secrets.PLESK_PORT || '22' }}
-  SSH_USER: ${{ secrets.PLESK_USER }}
   BASE_PATH: ${{ vars.PLESK_BASE_PATH || '/var/www/vhosts/menschlichkeit-oesterreich.at/httpdocs' }}
   FRONTEND_REMOTE_PATH: ${{ vars.PLESK_FRONTEND_PATH || 'httpdocs' }}
   API_REMOTE_PATH: ${{ vars.PLESK_API_PATH || 'subdomains/api/httpdocs' }}
@@ -96,21 +93,15 @@ jobs:
 
       - name: Pflicht-Secrets prüfen
         env:
-          HAS_HOST: ${{ secrets.PLESK_HOST != '' }}
-          HAS_USER: ${{ secrets.PLESK_USER != '' }}
-          HAS_KEY: ${{ secrets.PLESK_SSH_PRIVATE_KEY != '' }}
-          HAS_KNOWN_HOSTS: ${{ secrets.PLESK_KNOWN_HOSTS != '' }}
+          HAS_BW_TOKEN: ${{ secrets.BW_ACCESS_TOKEN != '' }}
         run: |
           ERRORS=0
-          [[ "${HAS_HOST}"       == "true" ]] && echo "✓ PLESK_HOST"       || { echo "✗ PLESK_HOST fehlt";             ERRORS=$((ERRORS+1)); }
-          [[ "${HAS_USER}"       == "true" ]] && echo "✓ PLESK_USER"       || { echo "✗ PLESK_USER fehlt";             ERRORS=$((ERRORS+1)); }
-          [[ "${HAS_KEY}"        == "true" ]] && echo "✓ PLESK_SSH_PRIVATE_KEY" || { echo "✗ PLESK_SSH_PRIVATE_KEY fehlt"; ERRORS=$((ERRORS+1)); }
-          [[ "${HAS_KNOWN_HOSTS}" == "true" ]] && echo "✓ PLESK_KNOWN_HOSTS" || { echo "✗ PLESK_KNOWN_HOSTS fehlt";   ERRORS=$((ERRORS+1)); }
+          [[ "${HAS_BW_TOKEN}" == "true" ]] && echo "✓ BW_ACCESS_TOKEN" || { echo "✗ BW_ACCESS_TOKEN fehlt"; ERRORS=$((ERRORS+1)); }
           if (( ERRORS > 0 )); then
             echo "✗ ${ERRORS} Pflicht-Secret(s) fehlen. Deployment abgebrochen."
             exit 1
           fi
-          echo "✓ Alle Pflicht-Secrets vorhanden."
+          echo "✓ Pflicht-Secret fuer BSM vorhanden."
 
   # ============================================================
   # BUILD — Frontend (React + Vite)
@@ -260,6 +251,11 @@ jobs:
           ERRORS=0
 
           required_keys=(
+            PLESK_HOST
+            PLESK_USER
+            PLESK_PORT
+            PLESK_SSH_PRIVATE_KEY
+            PLESK_KNOWN_HOSTS
             DATABASE_URL
             JWT_SECRET_KEY
             STRIPE_SECRET_KEY
@@ -392,6 +388,32 @@ jobs:
           profile: deploy-production
           access_token: ${{ secrets.BW_ACCESS_TOKEN }}
 
+      - name: Plesk-Infra-Kontext aus BSM aufloesen (fail-fast)
+        run: |
+          set -euo pipefail
+          required_keys=(PLESK_HOST PLESK_USER PLESK_PORT PLESK_SSH_PRIVATE_KEY PLESK_KNOWN_HOSTS)
+          for key in "${required_keys[@]}"; do
+            value="${!key:-}"
+            if [ -z "$value" ]; then
+              echo "✗ ${key} fehlt in BSM-Injection"
+              exit 1
+            fi
+            if [[ "$value" =~ ^(CHANGE_ME|PLACEHOLDER|UPDATE_VALUE_IN_VAULT|YOUR_|REPLACE_) ]]; then
+              echo "✗ ${key} enthaelt einen Platzhalterwert"
+              exit 1
+            fi
+            echo "✓ ${key}"
+          done
+
+          if ! [[ "${PLESK_PORT}" =~ ^[0-9]+$ ]]; then
+            echo "✗ PLESK_PORT ist nicht numerisch: ${PLESK_PORT}"
+            exit 1
+          fi
+
+          echo "SSH_HOST=${PLESK_HOST}" >> "$GITHUB_ENV"
+          echo "SSH_USER=${PLESK_USER}" >> "$GITHUB_ENV"
+          echo "SSH_PORT=${PLESK_PORT}" >> "$GITHUB_ENV"
+
       - name: Node.js ${{ env.NODE_VERSION }} einrichten
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.2.0
         with:
@@ -404,23 +426,29 @@ jobs:
           eval "$(ssh-agent -s)"
           echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> "$GITHUB_ENV"
           echo "SSH_AGENT_PID=${SSH_AGENT_PID}" >> "$GITHUB_ENV"
-          echo "${{ secrets.PLESK_SSH_PRIVATE_KEY }}" | tr -d '\r' | ssh-add -
+          echo "${PLESK_SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
 
       - name: known_hosts aus Secret eintragen
         run: |
           mkdir -p ~/.ssh
           # Niemals ssh-keyscan in Produktion ohne Verifikation!
-          printf '%s\n' "${{ secrets.PLESK_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          printf '%s\n' "${PLESK_KNOWN_HOSTS}" >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
           echo "✓ known_hosts gesetzt."
 
       - name: SSH-Config schreiben
         run: |
+          RESOLVED_SSH_HOST="${PLESK_HOST}"
+          RESOLVED_SSH_PORT="${PLESK_PORT}"
+          RESOLVED_SSH_USER="${PLESK_USER}"
+          echo "SSH_HOST=${RESOLVED_SSH_HOST}" >> "$GITHUB_ENV"
+          echo "SSH_PORT=${RESOLVED_SSH_PORT}" >> "$GITHUB_ENV"
+          echo "SSH_USER=${RESOLVED_SSH_USER}" >> "$GITHUB_ENV"
           cat >> ~/.ssh/config <<EOF
           Host plesk-prod
-            HostName ${{ env.SSH_HOST }}
-            Port ${{ env.SSH_PORT }}
-            User ${{ env.SSH_USER }}
+            HostName ${RESOLVED_SSH_HOST}
+            Port ${RESOLVED_SSH_PORT}
+            User ${RESOLVED_SSH_USER}
             StrictHostKeyChecking yes
             BatchMode yes
             ConnectTimeout 15
@@ -645,24 +673,39 @@ jobs:
         run: |
           ssh plesk-prod "
             set -e
-            cd '${{ env.API_REMOTE_PATH }}'
-            if [ -f 'venv/bin/activate' ]; then
-              . 'venv/bin/activate'
-              echo '✓ venv aktiviert'
-            else
-              echo '⚠️ venv/bin/activate nicht gefunden; verwende System-Umgebung'
-            fi
+            API_PATH='${{ env.API_REMOTE_PATH }}'
+            cd \"\$API_PATH\"
 
-            if command -v uvicorn >/dev/null 2>&1; then
-              echo '✓ uvicorn gefunden'
+            # --- Interpreter deterministisch auflösen ---
+            PYTHON=''
+            if [ -x \"\$API_PATH/venv/bin/python\" ]; then
+              PYTHON=\"\$API_PATH/venv/bin/python\"
+              echo '✓ Interpreter: venv/bin/python'
+            elif [ -x \"\$API_PATH/.venv/bin/python\" ]; then
+              PYTHON=\"\$API_PATH/.venv/bin/python\"
+              echo '✓ Interpreter: .venv/bin/python'
+            elif command -v python3 >/dev/null 2>&1; then
+              PYTHON=\$(command -v python3)
+              echo \"⚠️  Kein venv; System-Python3: \$PYTHON\"
+            elif command -v python >/dev/null 2>&1; then
+              PYTHON=\$(command -v python)
+              echo \"⚠️  Kein venv; System-Python: \$PYTHON\"
             else
-              echo '✗ uvicorn nicht gefunden; API-Restart abgebrochen'
+              echo '✗ Kein Python-Interpreter gefunden (venv/bin/python, .venv/bin/python, python3, python)'
               exit 1
             fi
 
+            # --- uvicorn über Interpreter prüfen (PATH-unabhängig) ---
+            if ! \"\$PYTHON\" -m uvicorn --version >/dev/null 2>&1; then
+              echo \"✗ uvicorn nicht für Interpreter \$PYTHON installiert\"
+              exit 1
+            fi
+            echo \"✓ uvicorn verfügbar (\$PYTHON)\"
+
             pkill -f 'uvicorn app.main:app' || true
-            nohup uvicorn app.main:app --host 0.0.0.0 --port 8001 >/dev/null 2>&1 &
             sleep 1
+            nohup \"\$PYTHON\" -m uvicorn app.main:app --host 0.0.0.0 --port 8001 --log-level warning >/dev/null 2>&1 &
+            sleep 2
             pgrep -f 'uvicorn app.main:app' >/dev/null 2>&1 || {
               echo '✗ uvicorn-Prozess nach Restart nicht gefunden'
               exit 1
@@ -841,10 +884,8 @@ jobs:
 
       - name: Healthcheck — API Liveness
         if: >
-          always() && (
-            env.TARGET_SERVICE == 'all' ||
-            env.TARGET_SERVICE == 'api'
-          )
+          env.TARGET_SERVICE == 'all' ||
+          env.TARGET_SERVICE == 'api'
         run: |
           HTTP=$(curl --silent --max-time 15 --output /dev/null --write-out "%{http_code}" \
             "https://api.${{ env.MAIN_DOMAIN }}/healthz" || echo "000")
@@ -856,10 +897,8 @@ jobs:
 
       - name: Healthcheck — API Readiness
         if: >
-          always() && (
-            env.TARGET_SERVICE == 'all' ||
-            env.TARGET_SERVICE == 'api'
-          )
+          env.TARGET_SERVICE == 'all' ||
+          env.TARGET_SERVICE == 'api'
         run: |
           HTTP=$(curl --silent --max-time 15 --output /dev/null --write-out "%{http_code}" \
             "https://api.${{ env.MAIN_DOMAIN }}/readyz" || echo "000")

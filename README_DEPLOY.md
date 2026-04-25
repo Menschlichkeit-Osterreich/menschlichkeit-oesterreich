@@ -60,13 +60,31 @@ Lokale oder historische Skripte sind nur Fallbacks und duerfen den Workflowvertr
 
 `PLSK_*` und `PLESK_REMOTE_PATH` gelten nicht mehr als aktive Betriebswahrheit.
 
+## Abgeschlossener Infrastruktur-Fix 2026-04-24
+
+Problemursache:
+Im Plesk-Deploy fuehrten Remote-Pfade mit fuehrendem Slash wie `/httpdocs` in der chroot-basierten Zielumgebung zu einem fehleranfaelligen Zielpfadverhalten. Der Sollvertrag fuer `PLESK_*_PATH` ist deshalb ausschliesslich relativ und ohne fuehrenden Slash.
+
+Umgesetzte Guard-/Normalize-Logik:
+Der produktive Workflow `.github/workflows/deploy-plesk.yml` normalisiert fuehrende Slashes vor Deploy-Schritten weg und enthaelt fuer `workflow_dispatch` einen separaten Verifikationsmodus ueber `normalize_test_case`. In diesem Modus werden `BSM: Production Secrets laden`, Build-, Test-, Preflight- und Deploy-Jobs bewusst uebersprungen, sodass nur die Pfad-Normalisierung verifiziert wird.
+
+Referenzen:
+
+- Fix-Stand: Commit `e03d7958`
+- Verifikationsrun: `24885970632`
+- Nachgewiesener Testfall: `////httpdocs -> httpdocs`
+- Abschluss im Log: `keine SSH/SCP/Deploy-Schritte wurden ausgefuehrt`
+
+Erwarteter Sollzustand:
+Alle `PLESK_*_PATH`-Werte bleiben relativ, ohne fuehrenden Slash, zum Beispiel `httpdocs`, `subdomains/api/httpdocs` und `subdomains/crm/httpdocs/native`.
+
 ## Standardablauf
 
 1. `main` aktuell halten
-2. Quality Gates laufen lassen
-3. Push auf `main` startet den produktiven Workflow `.github/workflows/deploy-plesk.yml` automatisch
-4. `workflow_dispatch` bleibt fuer Dry-Runs oder gezielte Service-Deploys verfuegbar
-5. Route-Smokes, Release-Marker und Post-Deploy-Healthchecks muessen gruene Ergebnisse liefern
+1. Quality Gates laufen lassen
+1. Push auf `main` startet den produktiven Workflow `.github/workflows/deploy-plesk.yml` automatisch
+1. `workflow_dispatch` bleibt fuer Dry-Runs oder gezielte Service-Deploys verfuegbar
+1. Route-Smokes, Release-Marker und Post-Deploy-Healthchecks muessen gruene Ergebnisse liefern
 
 ## Health-Vertrag
 

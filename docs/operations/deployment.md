@@ -9,6 +9,50 @@
 - Standardfall: Push auf `main` deployt automatisch
 - Sonderfall: `workflow_dispatch` fuer Dry-Run oder gezielte Service-Auswahl
 
+## Aktiver BSM-/Runtime-Secret-Vertrag
+
+### Verbindliche Betriebswahrheit
+
+- `.github/workflows/deploy-plesk.yml` steuert den produktiven API-Deploy und den Handoff in die Runtime.
+- `.github/workflows/reusable-bsm-secrets.yml` ist der kanonische Loader fuer BSM-Secrets pro Profil.
+- `.github/bsm-secret-ids.json` ist das UUID-Mapping (BSM-Key -> Runtime-Env-Var) fuer die aktiven Deploy-Profile.
+
+Diese drei Dateien bilden zusammen den aktiven Deploy-/Secret-Vertrag. Keine zweite Wahrheit in Legacy- oder Archivpfaden pflegen.
+
+### Fuehrende Secret-Quelle
+
+- Fuehrend ist Bitwarden Secrets Manager (BSM).
+- Im Repository duerfen keine echten Secret-Werte liegen.
+- Das Mapping in `.github/bsm-secret-ids.json` muss fuer `deploy-production` mindestens diese API-Runtime-Werte enthalten:
+  - `MICROSOFT_TENANT_ID`
+  - `MICROSOFT_CLIENT_ID`
+  - `MICROSOFT_CLIENT_SECRET`
+  - `MICROSOFT_GRAPH_SENDER`
+  - `ALERTS_SLACK_WEBHOOK`
+
+### Runtime-Handoff (API)
+
+Im produktiven API-Pfad werden die genannten Werte wie folgt uebergeben:
+
+1. BSM-Injektion in der Pipeline (`bsm-env-inject`) auf Basis von `deploy-production`.
+1. API-Deploy erzeugt `.env.deploy` mit den injizierten Werten.
+1. Merge in `${API_REMOTE_PATH}/.env` (nur die betroffenen Keys werden ersetzt/gesetzt).
+1. Uvicorn-Restart im Zielpfad, danach Liveness/Readiness-Checks.
+
+### Verifikation ohne produktive Nebeneffekte
+
+Fuer reinen Handoff-Nachweis ohne Deploy-Schreibschritte:
+
+- Workflow manuell starten (`workflow_dispatch`) mit:
+  - `service=api`
+  - `dry_run=true`
+  - `normalize_test_case=none`
+- Erwarteter Nachweis im Job `Preflight (BSM Handoff)`:
+  - alle fuenf Zielwerte werden als vorhanden bestaetigt
+  - bei fehlendem Wert bricht der Lauf vor dem Deploy ab
+
+Damit ist der Secret-Handoff aus BSM in die Workflow-Runtime nachvollziehbar pruefbar, ohne produktive Deploy-Schritte auszufuehren.
+
 ## Service-Ziele auf Plesk
 
 | Service    | Zielpfad                         | Oeffentliche URL                                    |
