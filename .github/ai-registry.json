@@ -195,6 +195,16 @@
       "role": "qa",
       "sourceOfTruth": ".claude/plugins/moe-qa/agents/qa-engineer.md",
       "replacement": null
+    },
+    {
+      "id": "mcp-operations.agent",
+      "kind": "agent",
+      "status": "adapter",
+      "owner": "copilot",
+      "path": ".github/agents/mcp-operations.agent.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/agents/mcp-operations.agent.md",
+      "replacement": ".github/agents/devops-expert.agent.md"
     }
   ],
   "chatmodes": [
