@@ -1,5 +1,5 @@
 name: Codacy Analysis (SARIF Gate)
-"on":
+'on':
   pull_request: {}
   push:
     branches:
@@ -14,22 +14,25 @@ jobs:
   codacy:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      CODACY_SARIF_PATH: quality-reports/codacy-analysis.sarif
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Use Node.js 22
-        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af  # v4.2.0
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.2.0
         with:
           node-version: 22
 
-      - name: Analyze with Codacy (Node script → SARIF)
+      - name: Analyze with Codacy (Docker wrapper -> SARIF)
         run: |
-          node ./scripts/ci/run-codacy.mjs
+          bash ./scripts/codacy/codacy-cli.sh analyze --directory . --format sarif --output "$CODACY_SARIF_PATH"
+          test -s "$CODACY_SARIF_PATH"
 
       - name: Upload SARIF to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@45775bd8235c68ba998cffa5171334d58593da47  # v3.28.1
+        uses: github/codeql-action/upload-sarif@45775bd8235c68ba998cffa5171334d58593da47 # v3.28.1
         with:
-          sarif_file: codacy-analysis.sarif
+          sarif_file: ${{ env.CODACY_SARIF_PATH }}
           category: codacy
 
       - name: Fail if findings exceed threshold
@@ -39,21 +42,23 @@ jobs:
         # Kritische Security-Findings werden weiterhin geblockt wenn Codacy
         # diese als HIGH/CRITICAL einstuft und der Threshold überschritten wird.
         env:
-          CODACY_FINDINGS_THRESHOLD: ${{ vars.CODACY_FINDINGS_THRESHOLD || '25' }}
+          CODACY_FINDINGS_THRESHOLD: '25'
         run: |
           sudo apt-get update -y && sudo apt-get install -y jq
-          COUNT=$(jq -r '[.runs[].results|length] | add // 0' codacy-analysis.sarif || echo 0)
+          THRESHOLD="${CODACY_FINDINGS_THRESHOLD:-25}"
+          COUNT=$(jq -r '[.runs[].results|length] | add // 0' "$CODACY_SARIF_PATH" || echo 0)
           echo "findings=$COUNT" >> $GITHUB_OUTPUT
           echo "Findings: $COUNT"
-          if [ "$COUNT" -gt "$CODACY_FINDINGS_THRESHOLD" ]; then
-            echo "::error::Codacy findings ($COUNT) exceed threshold ($CODACY_FINDINGS_THRESHOLD). Bitte Findings beheben."
+          if [ "$COUNT" -gt "$THRESHOLD" ]; then
+            echo "::error::Codacy findings ($COUNT) exceed threshold ($THRESHOLD). Bitte Findings beheben."
             exit 1
           else
-            echo "::notice::Codacy findings: $COUNT (Threshold: $CODACY_FINDINGS_THRESHOLD) — OK"
+            echo "::notice::Codacy findings: $COUNT (Threshold: $THRESHOLD) - OK"
           fi
 
       - name: Summary
         if: always()
         run: |
           echo "## Codacy SARIF Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- SARIF: $CODACY_SARIF_PATH" >> $GITHUB_STEP_SUMMARY
           echo "- Findings: ${{ steps.gate.outputs.findings }}" >> $GITHUB_STEP_SUMMARY
