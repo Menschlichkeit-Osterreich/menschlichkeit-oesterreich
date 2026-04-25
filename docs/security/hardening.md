@@ -8,17 +8,17 @@ Dieses Dokument trennt explizit zwischen Maßnahmen, die im Repository umsetzbar
 
 ## Prioritätsmatrix
 
-| Priorität | Maßnahme | Umsetzbar in Repo? | Status |
-|-----------|----------|-------------------|--------|
-| P0 | HTTPS erzwingen (HSTS) | Plesk / Nginx | TODO |
-| P0 | Security Headers setzen | Plesk / `.htaccess` / Nginx | TODO |
-| P0 | CORS einschränken | FastAPI Middleware | TEILWEISE |
-| P1 | CSP konfigurieren | Plesk / Meta-Tag / Header | TODO |
-| P1 | Rate Limiting API | FastAPI Middleware | TODO |
-| P1 | WAF aktivieren | Plesk ModSecurity | TODO |
-| P1 | Audit-Logging API | FastAPI (vorhanden) | AKTIV |
-| P2 | DDoS-Basisschutz | Provider/CDN | TODO |
-| P2 | TLS-Konfiguration prüfen | Plesk SSL/TLS | TODO |
+| Priorität | Maßnahme                 | Umsetzbar in Repo?          | Status    |
+| --------- | ------------------------ | --------------------------- | --------- |
+| P0        | HTTPS erzwingen (HSTS)   | Plesk / Nginx               | TODO      |
+| P0        | Security Headers setzen  | Plesk / `.htaccess` / Nginx | TODO      |
+| P0        | CORS einschränken        | FastAPI Middleware          | TEILWEISE |
+| P1        | CSP konfigurieren        | Plesk / Meta-Tag / Header   | TODO      |
+| P1        | Rate Limiting API        | FastAPI Middleware          | TODO      |
+| P1        | WAF aktivieren           | Plesk ModSecurity           | TODO      |
+| P1        | Audit-Logging API        | FastAPI (vorhanden)         | AKTIV     |
+| P2        | DDoS-Basisschutz         | Provider/CDN                | TODO      |
+| P2        | TLS-Konfiguration prüfen | Plesk SSL/TLS               | TODO      |
 
 ---
 
@@ -67,6 +67,7 @@ Header always set Content-Security-Policy "default-src 'self'; script-src 'self'
 Aktuell: Status prüfen in `app/middleware/` oder `app/main.py`.
 
 Zielkonfiguration:
+
 ```python
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -119,6 +120,7 @@ async def login(request: Request, ...):
 **Voraussetzung:** Plesk-Admin-Zugriff auf `5.183.217.146:8443`
 
 Schritte (manuell):
+
 1. Plesk → Domains → domain.at → Apache & nginx Settings
 2. ModSecurity aktivieren
 3. Ruleset wählen: OWASP Core Ruleset (CRS) empfohlen
@@ -131,14 +133,17 @@ Schritte (manuell):
 ## 5. HSTS & TLS (Plesk + DNS)
 
 **Plesk:**
+
 1. Domains → SSL/TLS → Let's Encrypt erneuern (Autorenew aktivieren)
 2. "Redirect HTTP to HTTPS" aktivieren für alle Subdomains
 3. TLS-Version: Mindestens TLS 1.2, empfohlen 1.3
 
 **HSTS Preload:**
+
 ```
 Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
 ```
+
 Nach 6 Monaten stabiler Nutzung: hstspreload.org submission.
 
 ---
@@ -146,6 +151,7 @@ Nach 6 Monaten stabiler Nutzung: hstspreload.org submission.
 ## 6. DDoS-Basisschutz (Provider)
 
 Minimal-Schutz über Provider:
+
 - Cloudflare (kostenlos): DNS-Proxy aktivieren → automatischer DDoS-Schutz
 - Alternativ: Plesk Firewall für IP-Rate-Limiting aktivieren
 
@@ -156,15 +162,13 @@ Für n8n-Webhooks: Cloudflare Firewall Rule für Bot-Filtering.
 ## 7. Audit-Logging
 
 ### FastAPI (bereits vorhanden)
+
 - `app/middleware/pii_middleware.py` – PII-Filterung in Logs
 - Keine PII in Logs (E-Mails maskiert: `t**@example.com`, IBANs: `AT61***`)
 - Log-Level Produktion: `ERROR` (keine `DEBUG`-Logs in Prod)
 
-### OpenClaw Tool-Gateway
-- Alle Tool-Calls werden in PostgreSQL-Tabelle `oc_tool_calls` protokolliert
-- Log-Retention: 90 Tage (dann anonymisieren)
-
 ### Drupal
+
 - Watchdog-Modul aktiv halten
 - `pii_sanitizer`-Modul: `crm.menschlichkeit-oesterreich.at/web/modules/custom/pii_sanitizer/`
 
@@ -172,18 +176,18 @@ Für n8n-Webhooks: Cloudflare Firewall Rule für Bot-Filtering.
 
 ## 8. OWASP Top 10 – Abdeckungsstatus
 
-| OWASP-Kategorie | Abdeckung | Maßnahme |
-|----------------|-----------|----------|
-| A01 Broken Access Control | TEILWEISE | JWT-Validierung prüfen, RBAC im OpenClaw-Gateway |
-| A02 Cryptographic Failures | GUT | HTTPS, TLS 1.3, verschlüsselte Secrets |
-| A03 Injection | GUT | Parameterized Queries (Prisma/Alembic), Input Validation |
-| A04 Insecure Design | TEILWEISE | Threat Model vorhanden (`docs/security/FRONTEND-THREAT-MODEL.md`) |
-| A05 Security Misconfiguration | TEILWEISE | Security Headers fehlen noch → Phase H |
-| A06 Vulnerable Components | GUT | Trivy + OSV + Dependabot aktiv |
-| A07 Auth Failures | TEILWEISE | Rate Limiting noch nicht implementiert |
-| A08 Software/Data Integrity | GUT | SBOM, SLSA, signed commits |
-| A09 Logging Failures | GUT | PII-Sanitizer, Audit-Logging |
-| A10 SSRF | NIEDRIG | n8n-Webhooks sind potenzieller Vektor → Allowlist |
+| OWASP-Kategorie               | Abdeckung | Maßnahme                                                          |
+| ----------------------------- | --------- | ----------------------------------------------------------------- |
+| A01 Broken Access Control     | TEILWEISE | JWT-Validierung prüfen, RBAC über API/CRM-Rollenmodell härten     |
+| A02 Cryptographic Failures    | GUT       | HTTPS, TLS 1.3, verschlüsselte Secrets                            |
+| A03 Injection                 | GUT       | Parameterized Queries (Prisma/Alembic), Input Validation          |
+| A04 Insecure Design           | TEILWEISE | Threat Model vorhanden (`docs/security/FRONTEND-THREAT-MODEL.md`) |
+| A05 Security Misconfiguration | TEILWEISE | Security Headers fehlen noch → Phase H                            |
+| A06 Vulnerable Components     | GUT       | Trivy + OSV + Dependabot aktiv                                    |
+| A07 Auth Failures             | TEILWEISE | Rate Limiting noch nicht implementiert                            |
+| A08 Software/Data Integrity   | GUT       | SBOM, SLSA, signed commits                                        |
+| A09 Logging Failures          | GUT       | PII-Sanitizer, Audit-Logging                                      |
+| A10 SSRF                      | NIEDRIG   | n8n-Webhooks sind potenzieller Vektor → Allowlist                 |
 
 ---
 
@@ -201,5 +205,5 @@ Für n8n-Webhooks: Cloudflare Firewall Rule für Bot-Filtering.
 
 ---
 
-*Verwandt: `SECURITY.md`, `docs/security/responsible-disclosure.md`, `docs/operations/incident-response.md`*
-*OWASP ZAP Baseline-Test: `.github/workflows/owasp-zap-baseline.yml`*
+_Verwandt: `SECURITY.md`, `docs/security/responsible-disclosure.md`, `docs/operations/incident-response.md`_
+_OWASP ZAP Baseline-Test: `.github/workflows/owasp-zap-baseline.yml`_
