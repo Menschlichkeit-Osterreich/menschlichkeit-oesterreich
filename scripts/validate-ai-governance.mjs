@@ -28,7 +28,6 @@ const jsonFiles = [
   '.plugin-config/hook-session-summary.json',
   '.plugin-config/hook-sound-notifications.json',
   '.plugin-config/hook-todo-collector.json',
-  '.vscode/settings.json',
   '.vscode/launch.json',
   '.vscode/tasks.json',
   '.vscode/extensions.json',
