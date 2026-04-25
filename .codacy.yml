@@ -11,11 +11,25 @@ engines:
     enabled: false
 
 exclude_paths:
+  - '.codacy/**'
   - '.agents/**'
   - '.claude/**'
   - '.gemini/**'
+  - '.venv/**'
+  - '**/.pytest_cache/**'
+  - '**/__pycache__/**'
+  - '**/.next/**'
+  - '**/build/**'
+  - '**/coverage/**'
+  - '**/dist/**'
+  - '**/node_modules/**'
+  - '**/vendor/**'
   - 'attached_assets/**'
   - 'analysis/archive/**'
+  - 'analysis/reports/**'
+  - 'generated/**'
+  - 'logs/**'
+  - 'monitoring/**/dist/**'
   - 'crm.menschlichkeit-oesterreich.at/web/core/tests/**'
   - 'docs/archive/**'
   - 'figma-design-system/components/**'
@@ -31,5 +45,3 @@ categories:
     enabled: true
   Performance:
     enabled: true
-
-max-allowed-issues: 0

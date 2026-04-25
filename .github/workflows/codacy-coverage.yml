@@ -1,0 +1,61 @@
+name: Codacy Coverage Upload
+
+'on':
+  push:
+    branches:
+      - main
+      - master
+  pull_request: {}
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  coverage-upload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      COVERAGE_FILE: apps/website/coverage/lcov.info
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.2.0
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Run frontend unit tests with coverage
+        run: npm --prefix apps/website run test:unit -- --coverage --run
+
+      - name: Validate coverage artifact
+        run: test -s "$COVERAGE_FILE"
+
+      - name: Upload coverage to Codacy
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: |
+          if [ -z "${CODACY_PROJECT_TOKEN:-}" ]; then
+            echo "CODACY_PROJECT_TOKEN nicht gesetzt - Upload wird uebersprungen."
+            exit 0
+          fi
+          bash <(curl -Ls https://coverage.codacy.com/get.sh) report -r "$COVERAGE_FILE"
+
+      - name: Coverage summary
+        if: always()
+        env:
+          CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+        run: |
+          echo "## Codacy Coverage" >> $GITHUB_STEP_SUMMARY
+          echo "- Coverage file: $COVERAGE_FILE" >> $GITHUB_STEP_SUMMARY
+          if [ -n "${CODACY_PROJECT_TOKEN:-}" ]; then
+            echo "- Token: konfiguriert" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- Token: nicht gesetzt (Upload uebersprungen)" >> $GITHUB_STEP_SUMMARY
+          fi
