@@ -9,7 +9,7 @@
 #>
 [CmdletBinding()]
 param(
-    [string]$GitHubTokenUUID = "19b1c7c5-7ca5-483e-b607-b42001644c9d",
+    [string]$GitHubTokenUUID = "",
     [bool]$DryRun = $true
 )
 
@@ -20,6 +20,14 @@ $ErrorActionPreference = "Stop"
 . "$PSScriptRoot\bitwarden-common.ps1"
 
 Write-Host "🔑 GitHub PAT + Variables + Dry-Run Setup`n"
+
+if (-not $GitHubTokenUUID) {
+    $GitHubTokenUUID = $env:BWS_GITHUB_PAT_UUID
+}
+if (-not $GitHubTokenUUID) {
+    Write-Host "❌ FEHLER: GitHubTokenUUID fehlt. Übergib -GitHubTokenUUID oder setze BWS_GITHUB_PAT_UUID."
+    exit 1
+}
 
 # 1. BSM Token laden
 Write-Host "📦 [1/5] Lade Bitwarden Secrets Manager Token..."

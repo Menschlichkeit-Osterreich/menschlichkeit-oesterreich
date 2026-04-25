@@ -89,11 +89,11 @@ readinessProbe:
 # NEVER commit secrets
 # .env.example (commit this)
 DATABASE_URL=postgresql://localhost/myapp
-API_KEY=your_key_here
+SERVICE_TOKEN=example_value
 
 # .env (DO NOT commit - add to .gitignore)
 DATABASE_URL=postgresql://prod-server/myapp
-API_KEY=actual_secret_key_12345
+SERVICE_TOKEN=actual_runtime_secret
 ```
 
 ### **Branch Protection**

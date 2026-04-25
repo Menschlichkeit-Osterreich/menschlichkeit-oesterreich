@@ -107,7 +107,7 @@ const requiredPathZones = {
     'tests/',
     'docs/',
   ],
-  special_experimental: ['.browser-pilot/', '.blender-toolkit/', 'codacy-analysis-cli-master/'],
+  special_experimental: ['codacy-analysis-cli-master/'],
 };
 
 const readmeZoneMap = {
