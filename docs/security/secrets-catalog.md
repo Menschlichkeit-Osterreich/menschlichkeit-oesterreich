@@ -18,7 +18,7 @@
 | **Provider**              | Bitwarden Secrets Manager (EU)                                                                 |
 | **Vault URL**             | `https://vault.bitwarden.eu`                                                                   |
 | **Projekte**              | Gemeinsames Projekt `Menschlichkeit Österreich Secrets` (env-Scope via Key-Präfixe / MA-Scope) |
-| **Service Accounts**      | 10 (sa-api-dev/stg/prod, sa-openclaw-dev/prod, sa-n8n-dev/prod, sa-cicd, sa-infra-dev/prod)    |
+| **Service Accounts**      | 8 (sa-api-dev/stg/prod, sa-n8n-dev/prod, sa-cicd, sa-infra-dev/prod)                           |
 | **Verwaltete Secrets**    | 44 (definiert in `secrets.manifest.json`)                                                      |
 | **GitHub Integration**    | `.github/workflows/reusable-bsm-secrets.yml`                                                   |
 | **UUID-Mapping**          | `.github/bsm-secret-ids.json`                                                                  |
