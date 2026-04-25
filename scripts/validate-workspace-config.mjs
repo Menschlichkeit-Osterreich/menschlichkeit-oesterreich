@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+
+const execFileAsync = promisify(execFile);
 
 const root = process.cwd();
 
@@ -23,6 +27,18 @@ const stalePathPatterns = [
   /C:\\Users\\[^\\\s]+/gi,
   /\/home\//gi,
 ];
+
+const openClawBridgePatterns = [
+  /openclawd-win-bridge/gi,
+  /E:\\openclaw[d]?/gi,
+  /E:\\openwolf/gi,
+];
+
+const activeOpenClawTerms = /openclaw|openwolf|open claw|open wolf/gi;
+
+const activeConfigPrefixes = ['.vscode/', '.devcontainer/', '.claude/', '.github/workflows/', '.github/actions/'];
+
+const activeConfigFiles = ['package.json', 'mcp.json', '.vscode/mcp.json'];
 
 const forbiddenPathPatterns = [/(^|[^$])\b[A-Za-z]:\\/g, /\/home\//g];
 
@@ -105,6 +121,42 @@ function scanForForbiddenPaths(file, raw) {
   }
 }
 
+function scanForOpenClawBridgePaths(file, raw) {
+  for (const pattern of openClawBridgePatterns) {
+    if (pattern.test(raw)) {
+      addError(
+        'OPENCLAW_BRIDGE_PATH',
+        file,
+        `Personal OpenClaw/OpenWolf bridge path detected (${pattern}).`
+      );
+    }
+  }
+}
+
+async function getTrackedFiles() {
+  try {
+    const { stdout } = await execFileAsync('git', ['ls-files', '-z'], { cwd: root, maxBuffer: 10 * 1024 * 1024 });
+    return stdout
+      .split('\u0000')
+      .map(item => item.trim())
+      .filter(Boolean)
+      .map(rel);
+  } catch (error) {
+    addWarning('GIT_LS_FILES_FAILED', 'scripts/validate-workspace-config.mjs', error.message);
+    return [];
+  }
+}
+
+function isActiveConfigContext(file) {
+  if (activeConfigFiles.includes(file)) {
+    return true;
+  }
+  if (file.endsWith('.code-workspace')) {
+    return true;
+  }
+  return activeConfigPrefixes.some(prefix => file.startsWith(prefix));
+}
+
 async function checkGovernanceDocs() {
   for (const file of governanceDocs) {
     const { exists, raw } = await readMaybeText(file);
@@ -129,13 +181,14 @@ async function checkPackageAndTasks(packageData, taskData) {
     addError('MISSING_SCRIPT', 'package.json', 'Missing script governance:workspace.');
   }
 
-  const openwolfScripts = Object.keys(pkgScripts).filter(key => key.startsWith('openwolf:'));
-  if (openwolfScripts.length > 0) {
-    addWarning(
-      'OUT_OF_SCOPE_SCOPE',
-      'package.json',
-      `OpenWolf scripts are present (${openwolfScripts.join(', ')}). Keep in dedicated follow-up PR.`
-    );
+  for (const scriptName of Object.keys(pkgScripts)) {
+    if (/^openclaw:|^openwolf:/i.test(scriptName)) {
+      addError(
+        'OPENCLAW_PACKAGE_SCRIPT',
+        'package.json',
+        `Deprecated script namespace detected: '${scriptName}'.`
+      );
+    }
   }
 
   if (!taskData) {
@@ -407,6 +460,44 @@ async function checkMcp(repoMcpData) {
   }
 }
 
+async function checkTrackedHelperFilesAndActiveContexts() {
+  const tracked = await getTrackedFiles();
+
+  for (const file of tracked) {
+    if (file.includes('/.claude-dev-helper/')) {
+      addError(
+        'TRACKED_CLAUDE_HELPER_FILE',
+        file,
+        'Tracked local Claude helper state is not allowed. Remove via git rm and keep ignored.'
+      );
+    }
+  }
+
+  for (const file of tracked) {
+    if (!isActiveConfigContext(file)) {
+      continue;
+    }
+
+    const abs = path.join(root, file);
+    let raw = '';
+    try {
+      raw = await fs.readFile(abs, 'utf8');
+    } catch {
+      continue;
+    }
+
+    if (activeOpenClawTerms.test(raw)) {
+      addError(
+        'OPENCLAW_ACTIVE_CONTEXT',
+        file,
+        'OpenClaw/OpenWolf reference detected in active configuration context.'
+      );
+    }
+
+    scanForOpenClawBridgePaths(file, raw);
+  }
+}
+
 function printFindings() {
   const printGroup = (title, list) => {
     if (list.length === 0) {
@@ -439,6 +530,7 @@ async function main() {
     }
     scanForSecrets(file, raw);
     scanForForbiddenPaths(file, raw);
+    scanForOpenClawBridgePaths(file, raw);
     await readMaybeJson(file);
   }
 
@@ -463,6 +555,7 @@ async function main() {
   checkExtensions(extensionsJson.parsed, editorConfigMatches);
   checkDevcontainer(devcontainerJson.parsed, docsAiInstructionsExists);
   await checkMcp(mcpJson.parsed);
+  await checkTrackedHelperFilesAndActiveContexts();
 
   printFindings();
 
