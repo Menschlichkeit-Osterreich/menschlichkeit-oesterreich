@@ -7,7 +7,8 @@ from .secrets_provider import get_secret
 
 
 _PLACEHOLDER_RE = re.compile(
-    r"^(CHANGE_ME|PLACEHOLDER|UPDATE_VALUE_IN_VAULT|YOUR_|REPLACE_)"
+    r"^(CHANGE_ME|PLACEHOLDER|UPDATE_VALUE_IN_VAULT|YOUR_|REPLACE_)",
+    re.IGNORECASE,
 )
 
 _REQUIRED_SECRET_KEYS: dict[str, str] = {

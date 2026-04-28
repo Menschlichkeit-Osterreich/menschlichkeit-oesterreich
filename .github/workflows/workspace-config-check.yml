@@ -6,6 +6,7 @@ on:
       - '.vscode/**'
       - '.devcontainer/**'
       - '.claude/**'
+      - '.claude-dev-helper/**'
       - '.agents/**'
       - '.github/**'
       - 'mcp.json'
