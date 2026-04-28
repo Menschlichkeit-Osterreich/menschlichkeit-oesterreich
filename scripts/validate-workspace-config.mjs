@@ -23,14 +23,14 @@ const filesToValidate = [
 const governanceDocs = ['AGENTS.md', 'CLAUDE.md', '.github/copilot-instructions.md'];
 
 const stalePathPatterns = [
-  /E:\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich/gi,
-  /C:\\Users\\[^\\\s]+/gi,
-  /\/home\//gi,
+  /E:\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich/i,
+  /C:\\Users\\[^\\\s]+/i,
+  /\/home\//i,
 ];
 
-const openClawBridgePatterns = [/openclawd-win-bridge/gi, /E:\\openclaw[d]?/gi, /E:\\openwolf/gi];
+const openClawBridgePatterns = [/openclawd-win-bridge/i, /E:\\openclaw[d]?/i, /E:\\openwolf/i];
 
-const activeOpenClawTerms = /openclaw|openwolf|open claw|open wolf/gi;
+const activeOpenClawTerms = /openclaw|openwolf|open claw|open wolf/i;
 
 const activeConfigPrefixes = [
   '.vscode/',
@@ -42,15 +42,15 @@ const activeConfigPrefixes = [
 
 const activeConfigFiles = ['package.json', 'mcp.json', '.vscode/mcp.json'];
 
-const forbiddenPathPatterns = [/(^|[^$])\b[A-Za-z]:\\/g, /\/home\//g];
+const forbiddenPathPatterns = [/(^|[^$])\b[A-Za-z]:\\/, /\/home\//i];
 
 const forbiddenSecretPatterns = [
-  /ghp_[A-Za-z0-9]{20,}/g,
-  /github_pat_[A-Za-z0-9_]{20,}/g,
-  /AKIA[0-9A-Z]{16}/g,
-  /-----BEGIN [A-Z ]*PRIVATE KEY-----/g,
-  /\bsk_live_[A-Za-z0-9]+/g,
-  /\bAIza[0-9A-Za-z\-_]{35}\b/g,
+  /ghp_[A-Za-z0-9]{20,}/,
+  /github_pat_[A-Za-z0-9_]{20,}/,
+  /AKIA[0-9A-Z]{16}/,
+  /-----BEGIN [A-Z ]*PRIVATE KEY-----/,
+  /\bsk_live_[A-Za-z0-9]+/,
+  /\bAIza[0-9A-Za-z\-_]{35}\b/,
 ];
 
 const servicePorts = [5173, 8000, 8001, 3001, 8002];
@@ -73,6 +73,11 @@ function addError(code, file, message) {
 
 function addHardStop(code, file, message) {
   hardStops.push({ code, file, message });
+}
+
+function regexTest(pattern, raw) {
+  pattern.lastIndex = 0;
+  return pattern.test(raw);
 }
 
 async function readMaybeJson(file) {
@@ -108,7 +113,7 @@ async function readMaybeText(file) {
 
 function scanForSecrets(file, raw) {
   for (const pattern of forbiddenSecretPatterns) {
-    if (pattern.test(raw)) {
+    if (regexTest(pattern, raw)) {
       addHardStop('SECRET_LITERAL', file, `Potential secret literal detected (${pattern}).`);
       return;
     }
@@ -117,7 +122,7 @@ function scanForSecrets(file, raw) {
 
 function scanForForbiddenPaths(file, raw) {
   for (const pattern of forbiddenPathPatterns) {
-    if (pattern.test(raw)) {
+    if (regexTest(pattern, raw)) {
       addError('ABSOLUTE_PATH', file, `Forbidden absolute path detected (${pattern}).`);
     }
   }
@@ -125,7 +130,7 @@ function scanForForbiddenPaths(file, raw) {
 
 function scanForOpenClawBridgePaths(file, raw) {
   for (const pattern of openClawBridgePatterns) {
-    if (pattern.test(raw)) {
+    if (regexTest(pattern, raw)) {
       addError(
         'OPENCLAW_BRIDGE_PATH',
         file,
@@ -169,10 +174,48 @@ async function checkGovernanceDocs() {
       continue;
     }
     for (const pattern of stalePathPatterns) {
-      if (pattern.test(raw)) {
+      if (regexTest(pattern, raw)) {
         addError('STALE_ROOT_PATH', file, `Stale hardcoded root path found (${pattern}).`);
       }
     }
+  }
+}
+
+function checkRegexSafety() {
+  const groups = [
+    { name: 'stalePathPatterns', patterns: stalePathPatterns },
+    { name: 'openClawBridgePatterns', patterns: openClawBridgePatterns },
+    { name: 'forbiddenPathPatterns', patterns: forbiddenPathPatterns },
+    { name: 'forbiddenSecretPatterns', patterns: forbiddenSecretPatterns },
+    { name: 'activeOpenClawTerms', patterns: [activeOpenClawTerms] },
+  ];
+
+  for (const group of groups) {
+    for (const pattern of group.patterns) {
+      if (pattern.global) {
+        addError(
+          'GLOBAL_REGEX_UNSAFE',
+          'scripts/validate-workspace-config.mjs',
+          `${group.name} contains global RegExp ${pattern}; use non-global or reset before test().`
+        );
+      }
+    }
+  }
+}
+
+async function checkWorkspaceConfigWorkflowTriggerCoverage() {
+  const file = '.github/workflows/workspace-config-check.yml';
+  const { exists, raw } = await readMaybeText(file);
+  if (!exists) {
+    return;
+  }
+
+  if (!raw.includes('.claude-dev-helper/**')) {
+    addError(
+      'WORKFLOW_TRIGGER_MISSING_HELPER',
+      file,
+      "Missing trigger path '.claude-dev-helper/**' for helper-state drift protection."
+    );
   }
 }
 
@@ -491,7 +534,7 @@ async function checkTrackedHelperFilesAndActiveContexts() {
       continue;
     }
 
-    if (activeOpenClawTerms.test(raw)) {
+    if (regexTest(activeOpenClawTerms, raw)) {
       addError(
         'OPENCLAW_ACTIVE_CONTEXT',
         file,
@@ -528,6 +571,8 @@ function printFindings() {
 }
 
 async function main() {
+  checkRegexSafety();
+
   for (const file of filesToValidate) {
     const { exists, raw } = await readMaybeText(file);
     if (!exists) {
@@ -561,6 +606,7 @@ async function main() {
   checkDevcontainer(devcontainerJson.parsed, docsAiInstructionsExists);
   await checkMcp(mcpJson.parsed);
   await checkTrackedHelperFilesAndActiveContexts();
+  await checkWorkspaceConfigWorkflowTriggerCoverage();
 
   printFindings();
 

@@ -69,6 +69,13 @@ class TestIsInvalidSecret:
             "UPDATE_VALUE_IN_VAULT",
             "YOUR_SECRET",
             "REPLACE_THIS",
+            "change_me",
+            "placeholder",
+            "update_value_in_vault",
+            "your_secret",
+            "replace_this",
+            "Change_Me",
+            "PlaceHolder",
         ],
     )
     def test_placeholder_patterns_are_invalid(self, placeholder: str):
