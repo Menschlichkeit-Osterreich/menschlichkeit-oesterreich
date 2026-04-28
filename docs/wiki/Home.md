@@ -24,7 +24,6 @@ Wichtige lokale Services:
 - `apps/crm/`
 - `apps/babylon-game/`
 - `apps/forum/`
-- `openclaw-system/`
 - `mcp-servers/`
 
 Legacy- und Mirror-Pfade wie `api.menschlichkeit-oesterreich.at/` oder `crm.menschlichkeit-oesterreich.at/` bleiben nur Referenz und sind keine aktiven Zielpfade fuer neue Produktarbeit.

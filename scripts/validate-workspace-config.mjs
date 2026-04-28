@@ -1,7 +1,7 @@
 #!/usr/bin/env node
+import { execFile } from 'node:child_process';
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
@@ -28,15 +28,17 @@ const stalePathPatterns = [
   /\/home\//gi,
 ];
 
-const openClawBridgePatterns = [
-  /openclawd-win-bridge/gi,
-  /E:\\openclaw[d]?/gi,
-  /E:\\openwolf/gi,
-];
+const openClawBridgePatterns = [/openclawd-win-bridge/gi, /E:\\openclaw[d]?/gi, /E:\\openwolf/gi];
 
 const activeOpenClawTerms = /openclaw|openwolf|open claw|open wolf/gi;
 
-const activeConfigPrefixes = ['.vscode/', '.devcontainer/', '.claude/', '.github/workflows/', '.github/actions/'];
+const activeConfigPrefixes = [
+  '.vscode/',
+  '.devcontainer/',
+  '.claude/',
+  '.github/workflows/',
+  '.github/actions/',
+];
 
 const activeConfigFiles = ['package.json', 'mcp.json', '.vscode/mcp.json'];
 
@@ -135,7 +137,10 @@ function scanForOpenClawBridgePaths(file, raw) {
 
 async function getTrackedFiles() {
   try {
-    const { stdout } = await execFileAsync('git', ['ls-files', '-z'], { cwd: root, maxBuffer: 10 * 1024 * 1024 });
+    const { stdout } = await execFileAsync('git', ['ls-files', '-z'], {
+      cwd: root,
+      maxBuffer: 10 * 1024 * 1024,
+    });
     return stdout
       .split('\u0000')
       .map(item => item.trim())

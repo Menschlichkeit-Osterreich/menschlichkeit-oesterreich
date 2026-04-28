@@ -4,12 +4,35 @@ This directory contains security-related documentation for the Menschlichkeit Ö
 
 ## Documents
 
+### [secrets-catalog.md](./secrets-catalog.md)
+
+Operatives Token-Inventar mit Primaerablage, Injektionspfaden, Ownern,
+Minimalrechten und Rotationsregeln.
+
+### [GH-TOKEN-USAGE.md](./GH-TOKEN-USAGE.md)
+
+Quick-Start fuer persoenliche GitHub-PAT-Nutzung mit klarer Abgrenzung gegen
+produktive Workflow- und Deploy-Pfade.
+
+### [../../runbooks/token-uebergabe-template.md](../../runbooks/token-uebergabe-template.md)
+
+Ausfuellbares Standardblatt fuer Token-Uebergabe, Rotation und Incident-
+Nachweis ohne Secret-Werte im Dokument.
+
+### [missing-secrets-template.md](./missing-secrets-template.md)
+
+Ausfuellbare Review-Vorlage fuer fehlende oder deprecated Secrets auf Basis von
+`secrets.manifest.json`, inklusive Owner-, Ablage- und Injektionspfad.
+
 ### [2026-03-env-cleanup-rotation-log.md](./2026-03-env-cleanup-rotation-log.md)
+
 Technical mirror of the external ops/security task for post-cleanup credential
 rotation, including ownership, evidence, and revocation tracking.
 
 ### [SEMGREP-FINDINGS.md](./SEMGREP-FINDINGS.md)
+
 Comprehensive documentation of Semgrep security scan findings, including:
+
 - Identified XSS vulnerabilities
 - Remediation plan with priorities
 - Testing guidelines
@@ -40,6 +63,7 @@ The project uses multiple security scanning tools in CI/CD:
 ## Security Best Practices
 
 ### Code Security
+
 - ✅ Never use `innerHTML` without sanitization - use `textContent` or DOMPurify
 - ✅ Always validate and sanitize user input
 - ✅ Use parameterized queries for database access
@@ -47,12 +71,14 @@ The project uses multiple security scanning tools in CI/CD:
 - ✅ Use Content Security Policy (CSP) headers
 
 ### Dependency Security
+
 - ✅ Keep dependencies up to date
 - ✅ Review Dependabot alerts regularly
 - ✅ Use lock files (package-lock.json, composer.lock)
 - ✅ Audit dependencies: `npm audit`, `pip-audit`
 
 ### Secret Management
+
 - ✅ Never commit secrets to git
 - ✅ Use environment variables or secret managers
 - ✅ Rotate secrets regularly (90 days)
@@ -60,6 +86,7 @@ The project uses multiple security scanning tools in CI/CD:
 - ✅ Track incident runbooks in `docs/security/incidents/`
 
 ### DSGVO/Privacy
+
 - ✅ Encrypt PII (Personally Identifiable Information)
 - ✅ Implement data retention policies
 - ✅ Support data subject rights (access, deletion, portability)

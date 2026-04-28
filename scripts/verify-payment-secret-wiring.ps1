@@ -18,25 +18,13 @@ function Test-FileContains {
     return $content.Contains($Needle)
 }
 
-function Get-ProfileSecretMap {
-    param(
-        [string]$MapPath,
-        [string]$Profile
-    )
-
-    $json = Get-Content -Path $MapPath -Raw | ConvertFrom-Json
-    $profileNode = $json.profiles.$Profile
-    if (-not $profileNode) {
-        throw "BSM profile '$Profile' fehlt in $MapPath"
-    }
-    return $profileNode.secrets
-}
-
 $mapPath = '.github/bsm-secret-ids.json'
 $deployWorkflow = '.github/workflows/deploy-plesk.yml'
 $runtimeContract = 'apps/api/app/runtime_secret_contract.py'
 $mainPath = 'apps/api/app/main.py'
 $paymentsPath = 'apps/api/app/routers/payments.py'
+$mailServicePath = 'apps/api/app/services/mail_service.py'
+$graphMailTransportPath = 'apps/api/app/services/graph_mail_transport.py'
 
 $requiredApiKeys = @(
     'DATABASE_URL',
@@ -62,44 +50,94 @@ $requiredInfraKeys = @(
     'PLESK_KNOWN_HOSTS'
 )
 
-$profileSecrets = Get-ProfileSecretMap -MapPath $mapPath -Profile 'deploy-production'
-$profileEnvVars = @($profileSecrets | ForEach-Object { $_.env_var })
+$smtpProfileKeys = @(
+    'MAIL_USERNAME',
+    'MAIL_PASSWORD'
+)
 
-$missingApiInProfile = @($requiredApiKeys | Where-Object { $_ -notin $profileEnvVars })
-$missingInfraInProfile = @($requiredInfraKeys | Where-Object { $_ -notin $profileEnvVars })
+$secretMapJson = Get-Content -Path $mapPath -Raw | ConvertFrom-Json
+$deployProductionSecretSet = $secretMapJson.profiles.'deploy-production'
+if (-not $deployProductionSecretSet) {
+    throw "BSM profile 'deploy-production' fehlt in $mapPath"
+}
+
+$deploySetSecrets = $deployProductionSecretSet.secrets
+$deploySetEnvVars = @($deploySetSecrets | ForEach-Object { $_.env_var })
+
+$missingApiInDeploySet = @($requiredApiKeys | Where-Object { $_ -notin $deploySetEnvVars })
+$missingInfraInDeploySet = @($requiredInfraKeys | Where-Object { $_ -notin $deploySetEnvVars })
+$smtpKeysInDeploySet = @($smtpProfileKeys | Where-Object { $_ -in $deploySetEnvVars })
 
 $placeholderCount = @(
-    $profileSecrets | Where-Object {
+    $deploySetSecrets | Where-Object {
         $_.uuid -match '^(UPDATE_VALUE_IN_VAULT|PLACEHOLDER_)'
     }
 ).Count
 
 $result = [ordered]@{
-    ProfileDeployProductionExists = $true
-    MissingApiKeysInProfile = $missingApiInProfile
-    MissingInfraKeysInProfile = $missingInfraInProfile
+    DeploySetProductionExists = $true
+    MissingApiKeysInDeploySet = $missingApiInDeploySet
+    MissingInfraKeysInDeploySet = $missingInfraInDeploySet
+    SmtpKeysPresentInDeploySet = $smtpKeysInDeploySet
     PlaceholderUuidCount = $placeholderCount
     RuntimeContractHasStripeSecret = Test-FileContains -Path $runtimeContract -Needle '"STRIPE_SECRET_KEY"'
     RuntimeContractHasStripeWebhook = Test-FileContains -Path $runtimeContract -Needle '"STRIPE_WEBHOOK_SECRET"'
     RuntimeContractHasSlackWebhook = Test-FileContains -Path $runtimeContract -Needle '"ALERTS_SLACK_WEBHOOK"'
+    RuntimeContractHasMicrosoftTenant = Test-FileContains -Path $runtimeContract -Needle '"MICROSOFT_TENANT_ID"'
+    RuntimeContractHasMicrosoftClientId = Test-FileContains -Path $runtimeContract -Needle '"MICROSOFT_CLIENT_ID"'
+    RuntimeContractHasMicrosoftClientSecret = Test-FileContains -Path $runtimeContract -Needle '"MICROSOFT_CLIENT_SECRET"'
+    RuntimeContractHasMicrosoftGraphSender = Test-FileContains -Path $runtimeContract -Needle '"MICROSOFT_GRAPH_SENDER"'
+    RuntimeContractDefaultsMailTransportToGraph = Test-FileContains -Path $runtimeContract -Needle 'os.getenv("MAIL_TRANSPORT", "graph")'
+    RuntimeContractGuardsSmtpConditionally = (
+        (Test-FileContains -Path $runtimeContract -Needle 'if mail_transport == "smtp":') -and
+        (Test-FileContains -Path $runtimeContract -Needle 'get_secret("MAIL_USERNAME", bsm_key="api/MAIL_USERNAME")') -and
+        (Test-FileContains -Path $runtimeContract -Needle 'get_secret("MAIL_PASSWORD", bsm_key="api/MAIL_PASSWORD")')
+    )
     MainEnforcesRuntimeContract = Test-FileContains -Path $mainPath -Needle 'validate_runtime_secret_contract(ENVIRONMENT)'
     PaymentsUsesSlackSecretProvider = (
         (Test-FileContains -Path $paymentsPath -Needle 'get_secret(') -and
         (Test-FileContains -Path $paymentsPath -Needle '"ALERTS_SLACK_WEBHOOK"') -and
         (Test-FileContains -Path $paymentsPath -Needle 'bsm_key="api/ALERTS_SLACK_WEBHOOK"')
     )
+    MailServiceUsesGraphTransport = (
+        (Test-FileContains -Path $mailServicePath -Needle 'MAIL_TRANSPORT == "graph"') -and
+        (Test-FileContains -Path $mailServicePath -Needle 'GraphMailTransport(') -and
+        (Test-FileContains -Path $mailServicePath -Needle 'bsm_key="api/MICROSOFT_TENANT_ID"') -and
+        (Test-FileContains -Path $mailServicePath -Needle 'bsm_key="api/MICROSOFT_CLIENT_ID"') -and
+        (Test-FileContains -Path $mailServicePath -Needle 'bsm_key="api/MICROSOFT_CLIENT_SECRET"') -and
+        (Test-FileContains -Path $mailServicePath -Needle 'bsm_key="api/MICROSOFT_GRAPH_SENDER"')
+    )
+    MailServiceStillSupportsConditionalSmtpSecrets = (
+        (Test-FileContains -Path $mailServicePath -Needle 'get_secret(') -and
+        (Test-FileContains -Path $mailServicePath -Needle '"MAIL_USERNAME"') -and
+        (Test-FileContains -Path $mailServicePath -Needle '"MAIL_PASSWORD"')
+    )
+    GraphMailTransportTargetsMicrosoftEndpoints = (
+        (Test-FileContains -Path $graphMailTransportPath -Needle 'login.microsoftonline.com') -and
+        (Test-FileContains -Path $graphMailTransportPath -Needle 'graph.microsoft.com/v1.0/users/') -and
+        (Test-FileContains -Path $graphMailTransportPath -Needle '/sendMail')
+    )
     DeployWorkflowUsesBsmInjectedPleskKey = Test-FileContains -Path $deployWorkflow -Needle 'PLESK_SSH_PRIVATE_KEY'
     DeployWorkflowAvoidsDirectSecretRefs = -not (Test-FileContains -Path $deployWorkflow -Needle 'secrets.PLESK_')
 }
 
-$ok = ($missingApiInProfile.Count -eq 0) -and
-      ($missingInfraInProfile.Count -eq 0) -and
+$ok = ($missingApiInDeploySet.Count -eq 0) -and
+    ($missingInfraInDeploySet.Count -eq 0) -and
       ($placeholderCount -eq 0) -and
       $result.RuntimeContractHasStripeSecret -and
       $result.RuntimeContractHasStripeWebhook -and
       $result.RuntimeContractHasSlackWebhook -and
+    $result.RuntimeContractHasMicrosoftTenant -and
+    $result.RuntimeContractHasMicrosoftClientId -and
+    $result.RuntimeContractHasMicrosoftClientSecret -and
+    $result.RuntimeContractHasMicrosoftGraphSender -and
+    $result.RuntimeContractDefaultsMailTransportToGraph -and
+    $result.RuntimeContractGuardsSmtpConditionally -and
       $result.MainEnforcesRuntimeContract -and
       $result.PaymentsUsesSlackSecretProvider -and
+    $result.MailServiceUsesGraphTransport -and
+    $result.MailServiceStillSupportsConditionalSmtpSecrets -and
+    $result.GraphMailTransportTargetsMicrosoftEndpoints -and
       $result.DeployWorkflowUsesBsmInjectedPleskKey -and
       $result.DeployWorkflowAvoidsDirectSecretRefs
 
