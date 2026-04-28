@@ -80,6 +80,10 @@ function regexTest(pattern, raw) {
   return pattern.test(raw);
 }
 
+function isClaudeHelperStatePath(file) {
+  return file.startsWith('.claude-dev-helper/') || file.includes('/.claude-dev-helper/');
+}
+
 async function readMaybeJson(file) {
   const abs = path.join(root, file);
   try {
@@ -215,6 +219,26 @@ async function checkWorkspaceConfigWorkflowTriggerCoverage() {
       'WORKFLOW_TRIGGER_MISSING_HELPER',
       file,
       "Missing trigger path '.claude-dev-helper/**' for helper-state drift protection."
+    );
+  }
+}
+
+function checkClaudeHelperPathMatcher() {
+  const file = 'scripts/validate-workspace-config.mjs';
+
+  if (!isClaudeHelperStatePath('.claude-dev-helper/open-files.json')) {
+    addError(
+      'CLAUDE_HELPER_MATCHER_REGRESSION',
+      file,
+      'Root helper path must match .claude-dev-helper/* files.'
+    );
+  }
+
+  if (!isClaudeHelperStatePath('tools/.claude-dev-helper/open-files.json')) {
+    addError(
+      'CLAUDE_HELPER_MATCHER_REGRESSION',
+      file,
+      'Nested helper path must match */.claude-dev-helper/* files.'
     );
   }
 }
@@ -512,7 +536,7 @@ async function checkTrackedHelperFilesAndActiveContexts() {
   const tracked = await getTrackedFiles();
 
   for (const file of tracked) {
-    if (file.includes('/.claude-dev-helper/')) {
+    if (isClaudeHelperStatePath(file)) {
       addError(
         'TRACKED_CLAUDE_HELPER_FILE',
         file,
@@ -572,6 +596,7 @@ function printFindings() {
 
 async function main() {
   checkRegexSafety();
+  checkClaudeHelperPathMatcher();
 
   for (const file of filesToValidate) {
     const { exists, raw } = await readMaybeText(file);
