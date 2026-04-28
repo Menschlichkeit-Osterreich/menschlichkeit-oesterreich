@@ -659,9 +659,28 @@ jobs:
             fi
             chmod 600 \"\$ENV_FILE\" || true
           "
-          ssh plesk-prod \
-            "command -v pip3 && pip3 install -r '${{ env.API_REMOTE_PATH }}/requirements.txt' --quiet 2>&1 | tail -5" || \
-            echo "⚠️ pip3 nicht im Chroot verfügbar."
+          ssh plesk-prod "
+            set -e
+            API_PATH='${{ env.API_REMOTE_PATH }}'
+            PYTHON=''
+            if [ -x \"\$API_PATH/venv/bin/python\" ]; then
+              PYTHON=\"\$API_PATH/venv/bin/python\"
+              echo '✓ Interpreter: venv/bin/python'
+            elif [ -x \"\$API_PATH/.venv/bin/python\" ]; then
+              PYTHON=\"\$API_PATH/.venv/bin/python\"
+              echo '✓ Interpreter: .venv/bin/python'
+            elif command -v python3 >/dev/null 2>&1; then
+              PYTHON=\$(command -v python3)
+              echo \"⚠️  Kein venv; System-Python3: \$PYTHON\"
+            elif command -v python >/dev/null 2>&1; then
+              PYTHON=\$(command -v python)
+              echo \"⚠️  Kein venv; System-Python: \$PYTHON\"
+            else
+              echo '✗ Kein Python-Interpreter gefunden (venv/bin/python, .venv/bin/python, python3, python)'
+              exit 1
+            fi
+            \"\$PYTHON\" -m pip install -r \"\$API_PATH/requirements.txt\" --quiet 2>&1 | tail -5
+          "
           ssh plesk-prod \
             "printf '%s\n' '${{ steps.release.outputs.marker }}' > '${{ env.API_REMOTE_PATH }}/.deploy_release'"
           echo "✓ API deployt."
