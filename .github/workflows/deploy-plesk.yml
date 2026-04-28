@@ -679,7 +679,16 @@ jobs:
               echo '✗ Kein Python-Interpreter gefunden (venv/bin/python, .venv/bin/python, python3, python)'
               exit 1
             fi
-            \"\$PYTHON\" -m pip install -r \"\$API_PATH/requirements.txt\" --quiet 2>&1 | tail -5
+            PIP_INSTALL_LOG=\"\$API_PATH/.pip-install.log\"
+            if \"\$PYTHON\" -m pip install -r \"\$API_PATH/requirements.txt\" --quiet >\"\$PIP_INSTALL_LOG\" 2>&1; then
+              tail -5 \"\$PIP_INSTALL_LOG\"
+            else
+              echo '✗ pip install fehlgeschlagen. Letzte Log-Zeilen:'
+              tail -5 \"\$PIP_INSTALL_LOG\"
+              rm -f \"\$PIP_INSTALL_LOG\"
+              exit 1
+            fi
+            rm -f \"\$PIP_INSTALL_LOG\"
           "
           ssh plesk-prod \
             "printf '%s\n' '${{ steps.release.outputs.marker }}' > '${{ env.API_REMOTE_PATH }}/.deploy_release'"
