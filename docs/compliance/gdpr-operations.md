@@ -137,7 +137,7 @@ Wesentliche Verarbeitungen:
 | Pseudonymisierung | PII-Sanitizer in Logs                               | AKTIV               |
 | Backup            | Täglich, off-site                                   | TODO (Plesk prüfen) |
 | Löschkonzept      | Art. 17 DSGVO                                       | TEILWEISE           |
-| Protokollierung   | Audit-Log OpenClaw, Drupal Watchdog                 | AKTIV               |
+| Protokollierung   | API-Audit-Logs, Drupal Watchdog                     | AKTIV               |
 | Penetrationstest  | OWASP ZAP Baseline (automatisch)                    | AKTIV               |
 
 ---
@@ -150,7 +150,6 @@ Wesentliche Verarbeitungen:
 | Sitzungsdaten (Redis) | TTL 24h                  | Automatisch                |
 | Logs                  | 90 Tage                  | Cron: `npm run logs:purge` |
 | Backups               | 30 Tage                  | Automatisch (Plesk)        |
-| Audit-Logs OpenClaw   | 90 Tage                  | Anschließend anonymisieren |
 
 ```bash
 # Logs bereinigen:

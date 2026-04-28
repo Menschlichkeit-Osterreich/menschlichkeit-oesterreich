@@ -4,13 +4,12 @@ Dieses Dokument beschreibt alle Authentifizierungsflows der Plattform.
 
 ## Übersicht der Systeme
 
-| System | Auth-Methode | Token-Typ | Ablauf |
-|--------|-------------|-----------|--------|
-| Frontend (React) | JWT via FastAPI | Bearer Token | 24h (Access), 7d (Refresh) |
-| API (FastAPI) | JWT + OAuth2 | Bearer Token | 24h |
-| CRM (Drupal/CiviCRM) | Session Cookie + Drupal Auth | PHP Session | 2h |
-| n8n Automation | API Key / Webhook-Signatur | HMAC-SHA256 | Unbegrenzt (rotierbar) |
-| OpenClaw | JWT | Bearer Token | 1h |
+| System               | Auth-Methode                 | Token-Typ    | Ablauf                     |
+| -------------------- | ---------------------------- | ------------ | -------------------------- |
+| Frontend (React)     | JWT via FastAPI              | Bearer Token | 24h (Access), 7d (Refresh) |
+| API (FastAPI)        | JWT + OAuth2                 | Bearer Token | 24h                        |
+| CRM (Drupal/CiviCRM) | Session Cookie + Drupal Auth | PHP Session  | 2h                         |
+| n8n Automation       | API Key / Webhook-Signatur   | HMAC-SHA256  | Unbegrenzt (rotierbar)     |
 
 ## Frontend → API (JWT-Flow)
 

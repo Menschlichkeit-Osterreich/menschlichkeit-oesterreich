@@ -4,43 +4,37 @@
     {
       "name": "frontend-vite",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "cd /d E:\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich && npm run dev:frontend"],
+      "runtimeArgs": ["/c", "cd /d \"${workspaceFolder}\" && npm run dev:frontend"],
       "port": 5173
     },
     {
       "name": "api-fastapi",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": [
-        "/c",
-        "cd /d E:\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich\\apps\\api && python -m uvicorn --env-file .env app.main:app --host 0.0.0.0 --port 8001 --reload"
-      ],
+      "runtimeArgs": ["/c", "cd /d \"${workspaceFolder}\" && npm run dev:api"],
       "port": 8001
     },
     {
       "name": "crm-drupal",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": [
-        "/c",
-        "cd /d E:\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich && php -S localhost:8000 -t apps/crm/web"
-      ],
+      "runtimeArgs": ["/c", "cd /d \"${workspaceFolder}\" && npm run dev:crm"],
       "port": 8000
     },
     {
       "name": "games-nextjs",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "cd /d E:\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich && npm run dev:games"],
+      "runtimeArgs": ["/c", "cd /d \"${workspaceFolder}\" && npm run dev:games"],
       "port": 3001
     },
     {
       "name": "forum-phpbb",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "cd /d E:\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich && npm run dev:forum"],
+      "runtimeArgs": ["/c", "cd /d \"${workspaceFolder}\" && npm run dev:forum"],
       "port": 8002
     },
     {
       "name": "prisma-studio",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "cd /d E:\\Menschlichkeit-Osterreich\\menschlichkeit-oesterreich && npm run db:studio"],
+      "runtimeArgs": ["/c", "cd /d \"${workspaceFolder}\" && npm run db:studio"],
       "port": 5555
     }
   ]

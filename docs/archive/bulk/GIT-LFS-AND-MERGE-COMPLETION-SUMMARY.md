@@ -12,16 +12,16 @@ Die Git LFS Migration wurde erfolgreich durchgeführt und in den Default-Branch 
 
 ### Kernmetriken
 
-| Metrik | Wert |
-|--------|------|
-| **LFS-migrierte Dateien** | 139 Assets |
-| **LFS-Objekte-Größe** | 6.3 MB |
-| **Commits (LFS Branch)** | 6 |
-| **Commits (Merge + Features)** | 10 |
-| **Gesamt-Commits** | 16 |
-| **Neue Dateien** | 64 |
-| **Modifizierte Dateien** | 46 |
-| **Gelöschte Dateien** | 1 (CiviCRM submodule) |
+| Metrik                         | Wert                  |
+| ------------------------------ | --------------------- |
+| **LFS-migrierte Dateien**      | 139 Assets            |
+| **LFS-Objekte-Größe**          | 6.3 MB                |
+| **Commits (LFS Branch)**       | 6                     |
+| **Commits (Merge + Features)** | 10                    |
+| **Gesamt-Commits**             | 16                    |
+| **Neue Dateien**               | 64                    |
+| **Modifizierte Dateien**       | 46                    |
+| **Gelöschte Dateien**          | 1 (CiviCRM submodule) |
 
 ---
 
@@ -90,7 +90,7 @@ cddcbf7e - fix(scripts): Remove incompatible --fixup flag
 
 - `GITHUB-SECRETS-SETUP.md` (146 Zeilen erweitert)
 - `scripts/setup-ssh-keys.sh`
-- `scripts/setup-plesk-ssh-key.sh`
+- `scripts/setup-plesk-ssh-key.sh` (legacy, removed 2026-04-28)
 - `scripts/test-plesk-ssh.sh`
 
 **Features:**
@@ -400,15 +400,15 @@ cddcbf7e - fix(scripts): Remove incompatible --fixup flag
 
 ### 🎯 Quality Gates
 
-| Gate | Status | Nächste Schritte |
-|------|--------|------------------|
-| **Security** | ⚠️ | Trivy-Scan, Secret-Scan, Codacy Security |
-| **Maintainability** | 🔴 | Issue-Resolution (65% → ≤20%) |
-| **Duplication** | ✅ | Halten bei 0% |
-| **Performance** | ⏳ | Lighthouse Audit (P≥90, A11y≥90) |
-| **Coverage** | 🔴 | Test-Suite aufbauen (0% → ≥60%) |
-| **GDPR** | ✅ | PII-Sanitization implementiert |
-| **License** | ✅ | SBOM + SPDX vollständig |
+| Gate                | Status | Nächste Schritte                         |
+| ------------------- | ------ | ---------------------------------------- |
+| **Security**        | ⚠️     | Trivy-Scan, Secret-Scan, Codacy Security |
+| **Maintainability** | 🔴     | Issue-Resolution (65% → ≤20%)            |
+| **Duplication**     | ✅     | Halten bei 0%                            |
+| **Performance**     | ⏳     | Lighthouse Audit (P≥90, A11y≥90)         |
+| **Coverage**        | 🔴     | Test-Suite aufbauen (0% → ≥60%)          |
+| **GDPR**            | ✅     | PII-Sanitization implementiert           |
+| **License**         | ✅     | SBOM + SPDX vollständig                  |
 
 ---
 

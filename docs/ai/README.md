@@ -2,6 +2,8 @@
 
 Diese Struktur stellt versionierte, maschinenlesbare Repo-Intelligence-Artefakte bereit.
 
+> Hinweis zum Scope: Diese Artefakte sind Analyse-Snapshots. Historische Service-Referenzen (inklusive OpenClaw) können darin vorkommen und gelten nicht als aktiver Runtime-Scope.
+
 ## Artefakte
 
 - `repo-manifest.json`

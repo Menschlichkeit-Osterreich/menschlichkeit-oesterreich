@@ -41,18 +41,18 @@ n8n.menschlichkeit-oesterreich.at  → n8n Automation
 
 ## Technologie-Stack
 
-| Schicht | Technologie | Version |
-|---------|-------------|---------|
-| Frontend | React + TypeScript + Vite | React 18 |
-| API | FastAPI + Python | 3.12+ |
-| CRM | Drupal + CiviCRM | Drupal 10, PHP 8.1 |
-| Games | Statisch + Prisma ORM | PostgreSQL |
-| Automation | n8n (Docker) | 1.72.1 |
-| DB | PostgreSQL | ≥15 |
-| Cache | Redis | 7 |
-| ORM (API) | SQLAlchemy + Alembic | — |
-| ORM (Games) | Prisma | — |
-| Package Manager | npm Workspaces | npm 10+ |
+| Schicht         | Technologie               | Version            |
+| --------------- | ------------------------- | ------------------ |
+| Frontend        | React + TypeScript + Vite | React 18           |
+| API             | FastAPI + Python          | 3.12+              |
+| CRM             | Drupal + CiviCRM          | Drupal 10, PHP 8.1 |
+| Games           | Statisch + Prisma ORM     | PostgreSQL         |
+| Automation      | n8n (Docker)              | 1.72.1             |
+| DB              | PostgreSQL                | ≥15                |
+| Cache           | Redis                     | 7                  |
+| ORM (API)       | SQLAlchemy + Alembic      | —                  |
+| ORM (Games)     | Prisma                    | —                  |
+| Package Manager | npm Workspaces            | npm 10+            |
 
 ## Datenflüsse
 
@@ -85,24 +85,13 @@ GitHub Actions → n8n Webhook → Workflow → E-Mail / Slack / DB
 
 ## Migrationsverantwortlichkeiten
 
-| Service | ORM | Befehl | Koordination |
-|---------|-----|--------|-------------|
-| API | Alembic | `alembic upgrade head` | Muss mit Games abgestimmt werden |
-| Games | Prisma | `npx prisma migrate dev` | Muss mit API abgestimmt werden |
-| CRM | Drupal | `drush updb` | Unabhängig (eigene MariaDB) |
+| Service | ORM     | Befehl                   | Koordination                     |
+| ------- | ------- | ------------------------ | -------------------------------- |
+| API     | Alembic | `alembic upgrade head`   | Muss mit Games abgestimmt werden |
+| Games   | Prisma  | `npx prisma migrate dev` | Muss mit API abgestimmt werden   |
+| CRM     | Drupal  | `drush updb`             | Unabhängig (eigene MariaDB)      |
 
 **Wichtig:** API und Games teilen sich PostgreSQL. Schema-Änderungen müssen koordiniert werden.
-
-## OpenClaw Multi-Agent-System
-
-Separates Subsystem für KI-Automatisierung. Vollständige Dokumentation: [`openclaw-system/ARCHITECTURE.md`](../../openclaw-system/ARCHITECTURE.md).
-
-Kurzübersicht:
-
-- 6 spezialisierte Agenten (Orchestrator, Research, Code, Write, QA, Memory)
-- Kommunikation via NATS JetStream
-- Tool-Gateway als einziger Einstiegspunkt (Policy-Engine + Audit-Log)
-- Daten: PostgreSQL (`oc_*`-Tabellen), Redis, Qdrant (Vektoren)
 
 ## Repository-Struktur (wesentliche Verzeichnisse)
 
@@ -116,7 +105,6 @@ Kurzübersicht:
 ├── figma-design-system/               # Design Tokens
 ├── frontend/                          # React Frontend (Vite)
 ├── mcp-servers/                       # MCP Server (Figma, File-Server)
-├── openclaw-system/                   # Multi-Agent-KI-System
 ├── packages/design-system/            # Shared Design-System-Package
 ├── packages/ui/                       # Shared UI-Components
 ├── runbooks/                          # Betriebshandbücher
@@ -129,13 +117,13 @@ Kurzübersicht:
 
 49 GitHub Actions Workflows. Wichtigste:
 
-| Workflow | Trigger | Funktion |
-|----------|---------|---------|
-| `ci.yml` | Push/PR | Haupt-CI (Lint, Test, Build) |
-| `quality.yml` | Push/PR | ESLint, Qualitätschecks |
-| `security.yml` | Täglich + Push | Snyk + Trivy |
-| `codeql.yml` | Push/PR | SAST JavaScript/Python |
-| `gitleaks.yml` | Push | Secret Scanning |
-| `deploy-plesk.yml` | main Push | Produktions-Deployment |
-| `deploy-staging.yml` | main Push | Staging-Deployment |
-| `sbom-cyclonedx.yml` | Release | SBOM-Generierung |
+| Workflow             | Trigger        | Funktion                     |
+| -------------------- | -------------- | ---------------------------- |
+| `ci.yml`             | Push/PR        | Haupt-CI (Lint, Test, Build) |
+| `quality.yml`        | Push/PR        | ESLint, Qualitätschecks      |
+| `security.yml`       | Täglich + Push | Snyk + Trivy                 |
+| `codeql.yml`         | Push/PR        | SAST JavaScript/Python       |
+| `gitleaks.yml`       | Push           | Secret Scanning              |
+| `deploy-plesk.yml`   | main Push      | Produktions-Deployment       |
+| `deploy-staging.yml` | main Push      | Staging-Deployment           |
+| `sbom-cyclonedx.yml` | Release        | SBOM-Generierung             |

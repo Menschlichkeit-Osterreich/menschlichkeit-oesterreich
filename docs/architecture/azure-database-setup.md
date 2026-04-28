@@ -1,5 +1,7 @@
 # Azure PostgreSQL Setup für OpenClaw
 
+> Legacy-Hinweis: OpenClaw/OpenWolf ist nicht mehr aktiver Repository-Scope. Diese Seite bleibt nur als historische Dokumentation erhalten und ist nicht mehr operational verbindlich.
+
 **Status:** Vorbereitet (Provisioning ausstehend)
 **Erstellt:** 2026-04-03
 **Betrifft:** `openclaw-system/` — Audit, State, Agent-Memory

@@ -39,7 +39,7 @@ apps/website/.vite/
 .env.vault
 .env.local
 .env.development
-.env.staging  
+.env.staging
 .env.production
 .env.*.local
 .env.*.decrypted
@@ -95,6 +95,10 @@ config/smtp.json
 # IDE secrets
 .vscode/settings.local.json
 .vscode/secrets.json
+
+# Local Claude / IDE helper state
+.claude-dev-helper/
+**/.claude-dev-helper/
 
 # API Keys & Tokens
 api-keys.txt
@@ -327,9 +331,6 @@ logs/*.log
 logs/**/*.txt
 logs/**/*.log
 
-# OpenWolf pm2-Logs (nur .gitkeep behalten)
-apps/openwolf/logs/*.log
-apps/openwolf/logs/*.txt
 # Operative Security-Alerts — nicht im Repository versionieren
 # Schema-Dokumentation: logs/security-alerts.example.json (getrackt)
 logs/security-alerts.json

@@ -69,15 +69,6 @@ Für jedes Secret in Bitwarden SM:
 | `n8n/N8N_PASSWORD`       | `BSM_N8N_PASSWORD`       | **\_\_\_\_** | ⬜     |
 | `n8n/REDIS_PASSWORD`     | `BSM_N8N_REDIS_PASSWORD` | **\_\_\_\_** | ⬜     |
 
-### OpenClaw Secrets
-
-| BSM-Key                      | GitHub Variable         | UUID         | Status |
-| ---------------------------- | ----------------------- | ------------ | ------ |
-| `openclaw/OC_OPENAI_API_KEY` | `BSM_OC_OPENAI_API_KEY` | **\_\_\_\_** | ⬜     |
-| `openclaw/OC_GITHUB_TOKEN`   | `BSM_OC_GITHUB_TOKEN`   | **\_\_\_\_** | ⬜     |
-| `openclaw/OC_PG_DSN`         | `BSM_OC_PG_DSN`         | **\_\_\_\_** | ⬜     |
-| `openclaw/OC_REDIS_URL`      | `BSM_OC_REDIS_URL`      | **\_\_\_\_** | ⬜     |
-
 ### Infrastructure Secrets
 
 | BSM-Key                      | GitHub Variable               | UUID         | Status |

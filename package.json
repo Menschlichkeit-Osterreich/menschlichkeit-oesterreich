@@ -100,6 +100,8 @@
     "mcp:check": "node scripts/mcp-check.mjs",
     "mcp:health": "node scripts/mcp-health-simple.mjs",
     "diagnose:copilot": "node scripts/diagnose-copilot-claude-warnings.mjs",
+    "workspace:config:check": "node scripts/validate-workspace-config.mjs",
+    "governance:workspace": "npm run workspace:config:check",
     "docs:link-check": "node scripts/validate-docs-governance.mjs --mode=links",
     "docs:governance": "node scripts/validate-docs-governance.mjs --mode=all",
     "docs:governance:strict": "node scripts/validate-docs-governance.mjs --mode=all --strict",
@@ -112,11 +114,7 @@
     "git:auth:github": "pwsh -File scripts/gh/login-github.ps1",
     "git:sync:status": "pwsh -File scripts/git-sync.ps1 -Action status",
     "git:commit": "pwsh -File scripts/git-sync.ps1 -Action commit",
-    "git:sync": "pwsh -File scripts/git-sync.ps1 -Action sync",
-    "openwolf:init": "npm run --prefix apps/openwolf init",
-    "openwolf:start": "npm run --prefix apps/openwolf start",
-    "openwolf:stop": "npm run --prefix apps/openwolf stop",
-    "openwolf:dashboard": "npm run --prefix apps/openwolf dashboard"
+    "git:sync": "pwsh -File scripts/git-sync.ps1 -Action sync"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",

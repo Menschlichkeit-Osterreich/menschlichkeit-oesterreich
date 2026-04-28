@@ -10,6 +10,7 @@ import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
 from ..db import execute, fetchrow as db_fetchrow
+from ..secrets_provider import get_secret
 from ..schemas.payments import StripeIntentRequest
 from ..services.mail_service import mail_service
 from ..services.member_service import member_service
@@ -53,7 +54,9 @@ async def _send_payment_failed_ops_alert(
             )
 
     # Channel 2: Slack alert (via #06-crm-spenden webhook, reuses queue-monitor.json pattern)
-    slack_webhook = os.environ.get("ALERTS_SLACK_WEBHOOK", "").strip()
+    slack_webhook = get_secret(
+        "ALERTS_SLACK_WEBHOOK", bsm_key="api/ALERTS_SLACK_WEBHOOK"
+    ).strip()
     if slack_webhook:
         slack_text = (
             f"🚨 *Payment Failure Alert*\n"

@@ -11,11 +11,17 @@
 ```yaml
 Token-Typ: GitHub Personal Access Token (Fine-grained)
 Variable: GH_TOKEN
-Ablauf: 2026-10-18 (1 Jahr)
-Scope: repo, workflow, admin:org, codespace, attestations
-Speicherort: .env.local (lokal) + GitHub Secrets (CI/CD)
+Primärzweck: manuelle Admin- und CLI-Aufgaben einer benannten Person
+Standardspeicherort: lokaler Credential Store oder gh auth login
+Nicht fuer den Standard-Deploypfad: true
 NIE committen: ❌ .env, ❌ Git-History, ❌ Logs, ❌ Chat
 ```
+
+Verbindlicher Zielzustand:
+
+- Persoenliche PATs sind keine Standardloesung fuer produktive CI/CD-Pfade.
+- Fuer normale Workflows im selben Repo wird `github.token` bevorzugt.
+- Fuer produktive Secrets bleibt [docs/security/secrets-catalog.md](docs/security/secrets-catalog.md) die operative Referenz.
 
 ---
 
@@ -23,28 +29,37 @@ NIE committen: ❌ .env, ❌ Git-History, ❌ Logs, ❌ Chat
 
 ### Lokal (dein Rechner)
 
-**`.env.local`** (in Projekt-Root, NICHT in Git!)
+Bevorzugt:
 
-```dotenv
-# NIEMALS .env.local committen!
-GH_TOKEN=[GITHUB_PERSONAL_ACCESS_TOKEN_PLACEHOLDER]
-```
+- `gh auth login`
+- OS Credential Store / Keychain / Windows Credential Manager
+- optional ein lokaler, nicht versionierter Passwortmanager-Eintrag
 
-**Prüfen:**
+Nicht empfohlen als Regelpfad:
+
+- lokale `.env`-Dateien fuer persoenliche PATs
+- Shell-Profile mit Klartext-Token
+- Copy/Paste in Projektdateien
+
+Pruefen:
 
 ```bash
-# Windows (PowerShell)
-Get-Content .env.local | Select-String "GH_TOKEN"
-
-# Linux/macOS (Bash)
-grep "^GH_TOKEN=" .env.local
+# Login-Status der gh CLI
+gh auth status
 ```
 
-### GitHub Actions (CI/CD)
+### GitHub Actions (Ausnahmefall, nicht Standardpfad)
 
-**Repository Secrets:** https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/settings/secrets/actions
+Ein PAT darf in GitHub nur dann als Secret liegen, wenn ein benannter Ausnahmefall dokumentiert ist, zum Beispiel eine eng begrenzte Cross-Repo-Admin-Operation.
 
-**Zugriff in Workflows:**
+Bevorzugter Standard fuer Workflow-Runs im selben Repository:
+
+```yaml
+env:
+  GH_TOKEN: ${{ github.token }}
+```
+
+Nur fuer dokumentierte Ausnahmefaelle:
 
 ```yaml
 env:
@@ -58,11 +73,11 @@ env:
 ### gh CLI (Kommandozeile)
 
 ```bash
-# Token aus .env.local laden (automatisch via $PROFILE oder .bashrc)
+# Login ueber Credential Store / gh auth login
 gh auth status
 
 # Sollte zeigen:
-# ✓ Logged in to github.com as peschull (via GH_TOKEN)
+# ✓ Logged in to github.com as <user>
 
 # Beispiel-Kommandos
 gh repo list --limit 10
@@ -99,7 +114,7 @@ curl -H "Authorization: Bearer $GH_TOKEN" \
   env:
     GH_TOKEN: ${{ github.token }} # NICHT secrets.GH_TOKEN
 
-# Nur bei Cross-Repo-Operationen: PAT verwenden
+# Nur bei dokumentierten Cross-Repo- oder Admin-Operationen: PAT verwenden
 - uses: actions/checkout@v4
   with:
     repository: peschull/other-repo
@@ -117,8 +132,8 @@ curl -H "Authorization: Bearer $GH_TOKEN" \
 git add .env
 git commit -m "Add config"  # ❌ .env enthält Token!
 
-# RICHTIG – .env.local ist in .gitignore
-git add .env.local  # Git ignoriert diese Datei ✅
+# RICHTIG – Token bleibt im Credential Store und taucht nicht im Repo auf
+gh auth login
 ```
 
 ### ❌ Token in Logs ausgeben
@@ -144,7 +159,8 @@ git add .env.local  # Git ignoriert diese Datei ✅
 ❌ Pastebin/Gist (auch nicht "privat"!)
 
 ✅ Passwort-Manager (1Password, Bitwarden)
-✅ GitHub Secrets (für CI/CD)
+✅ Credential Store / gh auth login
+✅ GitHub Secrets nur fuer dokumentierte Ausnahmefaelle
 ```
 
 ---
@@ -169,10 +185,6 @@ gh auth status
 
 # 2. Neu einloggen (interaktiv)
 gh auth login
-
-# 3. Oder: Token aus .env.local neu laden
-source .env.local  # Bash/Zsh
-$env:GH_TOKEN = (Get-Content .env.local | Select-String "GH_TOKEN").ToString().Split("=")[1]  # PowerShell
 ```
 
 ---
@@ -193,7 +205,7 @@ gh: Resource not accessible by personal access token (HTTP 403)
 2. Token finden → **Edit**
 3. Scope hinzufügen (z.B. `admin:org`)
 4. **Update token**
-5. Neuen Token in `.env.local` und GitHub Secrets aktualisieren
+5. Neuen Token nur im Credential Store und gegebenenfalls im dokumentierten Ausnahme-Secret aktualisieren
 
 ---
 
@@ -231,6 +243,11 @@ gh auth status
 - **Reminder:** 30 Tage vorher (Auto-Issue via Workflow)
 
 **Rotation-Playbook:** `docs/security/GH-PAT-ROTATION.md`
+
+Ergaenzende Governance:
+
+- [docs/security/secrets-catalog.md](docs/security/secrets-catalog.md)
+- [runbooks/token-uebergabe-template.md](runbooks/token-uebergabe-template.md)
 
 ---
 

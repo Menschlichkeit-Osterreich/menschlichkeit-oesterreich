@@ -673,24 +673,39 @@ jobs:
         run: |
           ssh plesk-prod "
             set -e
-            cd '${{ env.API_REMOTE_PATH }}'
-            if [ -f 'venv/bin/activate' ]; then
-              . 'venv/bin/activate'
-              echo '✓ venv aktiviert'
-            else
-              echo '⚠️ venv/bin/activate nicht gefunden; verwende System-Umgebung'
-            fi
+            API_PATH='${{ env.API_REMOTE_PATH }}'
+            cd \"\$API_PATH\"
 
-            if command -v uvicorn >/dev/null 2>&1; then
-              echo '✓ uvicorn gefunden'
+            # --- Interpreter deterministisch auflösen ---
+            PYTHON=''
+            if [ -x \"\$API_PATH/venv/bin/python\" ]; then
+              PYTHON=\"\$API_PATH/venv/bin/python\"
+              echo '✓ Interpreter: venv/bin/python'
+            elif [ -x \"\$API_PATH/.venv/bin/python\" ]; then
+              PYTHON=\"\$API_PATH/.venv/bin/python\"
+              echo '✓ Interpreter: .venv/bin/python'
+            elif command -v python3 >/dev/null 2>&1; then
+              PYTHON=\$(command -v python3)
+              echo \"⚠️  Kein venv; System-Python3: \$PYTHON\"
+            elif command -v python >/dev/null 2>&1; then
+              PYTHON=\$(command -v python)
+              echo \"⚠️  Kein venv; System-Python: \$PYTHON\"
             else
-              echo '✗ uvicorn nicht gefunden; API-Restart abgebrochen'
+              echo '✗ Kein Python-Interpreter gefunden (venv/bin/python, .venv/bin/python, python3, python)'
               exit 1
             fi
 
+            # --- uvicorn über Interpreter prüfen (PATH-unabhängig) ---
+            if ! \"\$PYTHON\" -m uvicorn --version >/dev/null 2>&1; then
+              echo \"✗ uvicorn nicht für Interpreter \$PYTHON installiert\"
+              exit 1
+            fi
+            echo \"✓ uvicorn verfügbar (\$PYTHON)\"
+
             pkill -f 'uvicorn app.main:app' || true
-            nohup uvicorn app.main:app --host 0.0.0.0 --port 8001 >/dev/null 2>&1 &
             sleep 1
+            nohup \"\$PYTHON\" -m uvicorn app.main:app --host 0.0.0.0 --port 8001 --log-level warning >/dev/null 2>&1 &
+            sleep 2
             pgrep -f 'uvicorn app.main:app' >/dev/null 2>&1 || {
               echo '✗ uvicorn-Prozess nach Restart nicht gefunden'
               exit 1
@@ -869,10 +884,8 @@ jobs:
 
       - name: Healthcheck — API Liveness
         if: >
-          always() && (
-            env.TARGET_SERVICE == 'all' ||
-            env.TARGET_SERVICE == 'api'
-          )
+          env.TARGET_SERVICE == 'all' ||
+          env.TARGET_SERVICE == 'api'
         run: |
           HTTP=$(curl --silent --max-time 15 --output /dev/null --write-out "%{http_code}" \
             "https://api.${{ env.MAIN_DOMAIN }}/healthz" || echo "000")
@@ -884,10 +897,8 @@ jobs:
 
       - name: Healthcheck — API Readiness
         if: >
-          always() && (
-            env.TARGET_SERVICE == 'all' ||
-            env.TARGET_SERVICE == 'api'
-          )
+          env.TARGET_SERVICE == 'all' ||
+          env.TARGET_SERVICE == 'api'
         run: |
           HTTP=$(curl --silent --max-time 15 --output /dev/null --write-out "%{http_code}" \
             "https://api.${{ env.MAIN_DOMAIN }}/readyz" || echo "000")

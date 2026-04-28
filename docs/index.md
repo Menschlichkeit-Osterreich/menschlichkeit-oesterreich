@@ -25,7 +25,6 @@ Zielgruppen: Entwickler:innen, DevOps, Datenschutzbeauftragte, Maintainer.
 | [System-Übersicht](architecture/system-overview.md)                                                  | Multi-Service-Architektur, Datenflüsse                                            |
 | [Plattform-Gesamtaudit & Zielarchitektur](architecture/plattform-gesamtaudit-und-zielarchitektur.md) | Auditierbare Gesamtanalyse inkl. RBAC-, Subdomain-, Mail- und Monitoring-Matrizen |
 | [Infrastructure](infrastructure/)                                                                    | Plesk, Hosting, DNS                                                               |
-| [OpenClaw Architecture](../openclaw-system/ARCHITECTURE.md)                                          | Multi-Agent-System                                                                |
 | [ADRs](adr/)                                                                                         | Architekturentscheidungen                                                         |
 
 ---

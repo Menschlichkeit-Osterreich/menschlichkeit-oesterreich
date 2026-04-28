@@ -28,7 +28,6 @@ const jsonFiles = [
   '.plugin-config/hook-session-summary.json',
   '.plugin-config/hook-sound-notifications.json',
   '.plugin-config/hook-todo-collector.json',
-  '.vscode/settings.json',
   '.vscode/launch.json',
   '.vscode/tasks.json',
   '.vscode/extensions.json',
@@ -107,7 +106,7 @@ const requiredPathZones = {
     'tests/',
     'docs/',
   ],
-  special_experimental: ['.browser-pilot/', '.blender-toolkit/', 'codacy-analysis-cli-master/'],
+  special_experimental: ['codacy-analysis-cli-master/'],
 };
 
 const readmeZoneMap = {

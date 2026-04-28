@@ -1,6 +1,6 @@
 # Complete BSM Consolidation Workflow
 
-**Status**: 90% Complete | Blocked on Step 1 (UUID retrieval)
+**Status**: 95% Complete | UUID Mapping completed, pending GitHub variable verification + deployment validation
 **Last Updated**: 2025-10-18
 **Commit Reference**: d7361f4b (all four file modifications)
 **Owner**: DevOps Engineer
@@ -11,9 +11,9 @@
 
 This runbook completes the Bitwarden Secrets Manager (BSM) consolidation of four Graph-Mail credentials (MICROSOFT_TENANT_ID, MICROSOFT_CLIENT_ID, MICROSOFT_CLIENT_SECRET, MICROSOFT_GRAPH_SENDER) from GitHub Secrets bypass pattern into unified BSM injection workflow for production deployments.
 
-**What's Already Done (d7361f4b):**
+**What's Already Done (d7361f4b + subsequent mapping update):**
 
-- ✅ Operation 1: Added four Graph-Mail secrets to `.github/bsm-secret-ids.json` deploy-production array (with PLACEHOLDER UUIDs)
+- ✅ Operation 1: Added four Graph-Mail secrets to `.github/bsm-secret-ids.json` deploy-production array with real UUIDs
 - ✅ Operation 2: Extended `reusable-bsm-secrets.yml` deploy-production job with four secret variable mappings
 - ✅ Operation 3: Added `bsm-secrets` to deploy job needs array in `deploy-plesk.yml`
 - ✅ Operation 4: Replaced GitHub Secrets references with BSM-injected env vars in `deploy-plesk.yml`
@@ -22,16 +22,26 @@ This runbook completes the Bitwarden Secrets Manager (BSM) consolidation of four
 
 **What Remains:**
 
-- ❌ Replace four PLACEHOLDER\_\*\_UUID values with actual BSM Resource IDs
-- ❌ Create four GitHub Actions Repository Variables
+- ❌ Verify four GitHub Actions Repository Variables exist and match UUIDs
 - ❌ Test on staging branch
 - ❌ Deploy to production
 
 ---
 
-## Phase 1: Retrieve BSM Resource UUIDs (BLOCKING STEP)
+## Phase 1: Verify mapped BSM UUIDs (NO LONGER BLOCKING)
 
-### Task 1.1: Login to Bitwarden Vault
+### Task 1.1: Validate UUID mapping against current repository state
+
+Current mapping in `.github/bsm-secret-ids.json` (deploy-production):
+
+| Secret                  | UUID                                 |
+| ----------------------- | ------------------------------------ |
+| MICROSOFT_TENANT_ID     | 896d9258-dfe3-423f-a4ef-b43300a782a4 |
+| MICROSOFT_CLIENT_ID     | db7a1253-082c-4cfb-a5cc-b43300ad91df |
+| MICROSOFT_CLIENT_SECRET | d7399a8e-2559-4f11-a9ec-b43300ab8b11 |
+| MICROSOFT_GRAPH_SENDER  | 0d276eb3-407d-49c4-89c7-b43300b3cfbb |
+
+### Task 1.2: Login to Bitwarden Vault (verification only)
 
 ```
 URL: https://vault.bitwarden.eu
@@ -39,7 +49,7 @@ Credentials: Bitwarden Organization account
 Expected Access: deploy-production project
 ```
 
-### Task 1.2: Locate Four Graph-Mail Secrets
+### Task 1.3: Locate Four Graph-Mail Secrets
 
 Navigate to **Projects → deploy-production** and locate these four secrets:
 
@@ -50,7 +60,7 @@ Navigate to **Projects → deploy-production** and locate these four secrets:
 | MICROSOFT_CLIENT_SECRET | api/MICROSOFT_CLIENT_SECRET | Should exist      |
 | MICROSOFT_GRAPH_SENDER  | api/MICROSOFT_GRAPH_SENDER  | May need creation |
 
-### Task 1.3: Extract Resource IDs
+### Task 1.4: Compare Resource IDs
 
 For each secret:
 
@@ -64,7 +74,7 @@ For each secret:
 12345678-abcd-1234-5678-9abcdef01234
 ```
 
-### Task 1.4: Document UUIDs
+### Task 1.5: Document verification result
 
 Create a temporary file or note with these four UUIDs:
 
@@ -84,116 +94,20 @@ MICROSOFT_GRAPH_SENDER_UUID="[PASTE UUID HERE]"
 
 ---
 
-## Phase 2: Update `.github/bsm-secret-ids.json` with Real UUIDs
+## Phase 2: Ensure GitHub variables exist for mapped UUIDs
 
 **File**: `.github/bsm-secret-ids.json`
-**Lines to Update**: 61, 67, 73, 79
+**Target variables**: `BSM_API_MICROSOFT_TENANT_ID`, `BSM_API_MICROSOFT_CLIENT_ID`, `BSM_API_MICROSOFT_CLIENT_SECRET`, `BSM_API_MICROSOFT_GRAPH_SENDER`
 
-### Task 2.1: Read Current File State
+### Task 2.1: Verify mapping in repository
 
 ```bash
-cat .github/bsm-secret-ids.json | grep -A 1 "PLACEHOLDER"
+cat .github/bsm-secret-ids.json | grep -A 3 "MICROSOFT_"
 ```
 
-Expected output shows four PLACEHOLDER\_\*\_UUID values at lines 61, 67, 73, 79.
+Expected output: four MICROSOFT entries with non-placeholder UUIDs.
 
-### Task 2.2: Update Line 61 (MICROSOFT_TENANT_ID)
-
-**Before:**
-
-```json
-{
-  "bsm_key": "api/MICROSOFT_TENANT_ID",
-  "env_var": "MICROSOFT_TENANT_ID",
-  "github_variable": "BSM_API_MICROSOFT_TENANT_ID",
-  "uuid": "PLACEHOLDER_TENANT_ID_UUID"
-}
-```
-
-**After:**
-
-```json
-{
-  "bsm_key": "api/MICROSOFT_TENANT_ID",
-  "env_var": "MICROSOFT_TENANT_ID",
-  "github_variable": "BSM_API_MICROSOFT_TENANT_ID",
-  "uuid": "[UUID from Phase 1]"
-}
-```
-
-### Task 2.3: Update Line 67 (MICROSOFT_CLIENT_ID)
-
-**Before:**
-
-```json
-{
-  "bsm_key": "api/MICROSOFT_CLIENT_ID",
-  "env_var": "MICROSOFT_CLIENT_ID",
-  "github_variable": "BSM_API_MICROSOFT_CLIENT_ID",
-  "uuid": "PLACEHOLDER_CLIENT_ID_UUID"
-}
-```
-
-**After:**
-
-```json
-{
-  "bsm_key": "api/MICROSOFT_CLIENT_ID",
-  "env_var": "MICROSOFT_CLIENT_ID",
-  "github_variable": "BSM_API_MICROSOFT_CLIENT_ID",
-  "uuid": "[UUID from Phase 1]"
-}
-```
-
-### Task 2.4: Update Line 73 (MICROSOFT_CLIENT_SECRET)
-
-**Before:**
-
-```json
-{
-  "bsm_key": "api/MICROSOFT_CLIENT_SECRET",
-  "env_var": "MICROSOFT_CLIENT_SECRET",
-  "github_variable": "BSM_API_MICROSOFT_CLIENT_SECRET",
-  "uuid": "PLACEHOLDER_CLIENT_SECRET_UUID"
-}
-```
-
-**After:**
-
-```json
-{
-  "bsm_key": "api/MICROSOFT_CLIENT_SECRET",
-  "env_var": "MICROSOFT_CLIENT_SECRET",
-  "github_variable": "BSM_API_MICROSOFT_CLIENT_SECRET",
-  "uuid": "[UUID from Phase 1]"
-}
-```
-
-### Task 2.5: Update Line 79 (MICROSOFT_GRAPH_SENDER)
-
-**Before:**
-
-```json
-{
-  "bsm_key": "api/MICROSOFT_GRAPH_SENDER",
-  "env_var": "MICROSOFT_GRAPH_SENDER",
-  "github_variable": "BSM_API_MICROSOFT_GRAPH_SENDER",
-  "uuid": "PLACEHOLDER_GRAPH_SENDER_UUID"
-}
-```
-
-**After:**
-
-```json
-{
-  "bsm_key": "api/MICROSOFT_GRAPH_SENDER",
-  "env_var": "MICROSOFT_GRAPH_SENDER",
-  "github_variable": "BSM_API_MICROSOFT_GRAPH_SENDER",
-  "uuid": "[UUID from Phase 1]"
-}
-```
-
-### Task 2.6: Validate JSON Syntax
+### Task 2.2: Validate JSON Syntax
 
 ```bash
 npm run governance:check
@@ -201,7 +115,7 @@ npm run governance:check
 
 Expected output: ✅ All validation passed
 
-### Task 2.7: Commit Changes
+### Task 2.3: Commit Changes (only if mapping changed)
 
 ```bash
 git add .github/bsm-secret-ids.json

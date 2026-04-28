@@ -15,7 +15,7 @@ cd menschlichkeit-oesterreich
 - `apps/api/` fuer FastAPI und OpenAPI
 - `apps/crm/` fuer Drupal/CiviCRM unter `crm/.../native`
 - `apps/babylon-game/` fuer Games
-- `mcp-servers/` und `openclaw-system/` fuer Tooling und Agent-Runtime
+- `mcp-servers/` fuer Tooling-Integrationen
 
 ## Schnellstart lokal
 
