@@ -679,7 +679,7 @@ jobs:
               echo '✗ Kein Python-Interpreter gefunden (venv/bin/python, .venv/bin/python, python3, python)'
               exit 1
             fi
-            PIP_INSTALL_LOG=\"\$API_PATH/.pip-install.log\"
+            PIP_INSTALL_LOG=\"\$(mktemp \"\${API_PATH}/.pip-install.\${GITHUB_RUN_ID:-manual}.XXXXXX.log\")\"
             if \"\$PYTHON\" -m pip install -r \"\$API_PATH/requirements.txt\" --quiet >\"\$PIP_INSTALL_LOG\" 2>&1; then
               tail -5 \"\$PIP_INSTALL_LOG\"
             else
