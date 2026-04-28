@@ -1,0 +1,134 @@
+name: SSH Handshake Diagnose (Plesk)
+
+# Manuell auslösbarer Diagnose-Workflow.
+# Prüft ausschließlich, ob GitHub Actions mit den aktuellen BSM-Secrets
+# eine SSH-Verbindung zu Plesk aufbauen kann.
+# KEIN Deploy, KEIN scp, KEINE Dateiübertragung, KEINE Secret-Ausgabe.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ssh-handshake-probe:
+    name: SSH Handshake → Plesk
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: BSM-Secrets laden (deploy-production Profil)
+        uses: ./.github/actions/bsm-env-inject
+        with:
+          profile: deploy-production
+          access_token: ${{ secrets.BW_ACCESS_TOKEN }}
+
+      # Nur die 5 SSH-relevanten Secrets prüfen – fail-fast
+      - name: SSH-Pflicht-Secrets prüfen
+        run: |
+          set -euo pipefail
+          ERRORS=0
+          required_keys=(
+            PLESK_HOST
+            PLESK_USER
+            PLESK_PORT
+            PLESK_SSH_PRIVATE_KEY
+            PLESK_KNOWN_HOSTS
+          )
+          for key in "${required_keys[@]}"; do
+            value="${!key:-}"
+            if [ -n "$value" ]; then
+              echo "✓ ${key} vorhanden"
+            else
+              echo "✗ ${key} fehlt in BSM-Injection"
+              ERRORS=$((ERRORS + 1))
+            fi
+          done
+          if ! [[ "${PLESK_PORT:-}" =~ ^[0-9]+$ ]]; then
+            echo "✗ PLESK_PORT ist nicht numerisch"
+            ERRORS=$((ERRORS + 1))
+          fi
+          if [ "${ERRORS}" -gt 0 ]; then
+            echo "✗ ${ERRORS} SSH-Pflicht-Secret(s) fehlen oder ungültig. Abbruch."
+            exit 1
+          fi
+          echo "✓ Alle SSH-Pflicht-Secrets vorhanden und valide."
+
+      # Private Key nur per Pipe in den ssh-agent laden – niemals ausgeben
+      - name: SSH-Agent starten + Private Key laden
+        run: |
+          set -euo pipefail
+          eval "$(ssh-agent -s)"
+          echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=${SSH_AGENT_PID}" >> "$GITHUB_ENV"
+          echo "${PLESK_SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
+          echo "✓ SSH-Agent gestartet, Key geladen."
+
+      - name: known_hosts eintragen
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          # Niemals ssh-keyscan in Produktion ohne Verifikation!
+          printf '%s\n' "${PLESK_KNOWN_HOSTS}" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          echo "✓ known_hosts gesetzt."
+
+      - name: SSH-Config schreiben (plesk-prod Alias)
+        run: |
+          set -euo pipefail
+          cat >> ~/.ssh/config <<EOF
+          Host plesk-prod
+            HostName ${PLESK_HOST}
+            Port ${PLESK_PORT}
+            User ${PLESK_USER}
+            StrictHostKeyChecking yes
+            BatchMode yes
+            ConnectTimeout 15
+          EOF
+          chmod 600 ~/.ssh/config
+          echo "✓ SSH-Config gesetzt."
+
+      # Einzige SSH-Aktion: Verbindung testen, kein Deploy, kein scp
+      - name: SSH Handshake Diagnose
+        id: ssh-probe
+        run: |
+          set -eo pipefail
+          echo "=== SSH Verbindungstest → plesk-prod ==="
+          if ssh -vvv -o BatchMode=yes plesk-prod "echo SSH_OK && id && pwd" 2>&1; then
+            echo "::notice::✅ PASS – SSH-Verbindung zu Plesk erfolgreich."
+            echo "result=PASS" >> "$GITHUB_OUTPUT"
+          else
+            EXIT_CODE=$?
+            echo "::error::✗ FAIL – SSH-Verbindung fehlgeschlagen (Exit-Code: ${EXIT_CODE})"
+            echo "result=FAIL" >> "$GITHUB_OUTPUT"
+            exit "${EXIT_CODE}"
+          fi
+
+      - name: Job-Zusammenfassung schreiben
+        if: always()
+        run: |
+          RESULT="${{ steps.ssh-probe.outputs.result || 'UNKNOWN' }}"
+          {
+            echo "### 🔐 SSH Handshake Diagnose"
+            echo ""
+            if [ "${RESULT}" = "PASS" ]; then
+              echo "**Status:** ✅ PASS"
+              echo ""
+              echo "GitHub Actions kann sich mit dem aktuellen BSM-Key bei Plesk anmelden."
+            else
+              echo "**Status:** ❌ ${RESULT}"
+              echo ""
+              echo "Prüfe die \`ssh -vvv\` Ausgabe im Schritt *SSH Handshake Diagnose*."
+              echo ""
+              echo "Diagnose-Hinweise:"
+              echo "- \`Permission denied (publickey)\` → Key stimmt nicht (BSM-UUID prüfen)"
+              echo "- \`Connection refused\` / \`Network unreachable\` → Host oder Port falsch"
+              echo "- \`Host key verification failed\` → PLESK_KNOWN_HOSTS veraltet"
+              echo "- \`PLESK_* fehlt\` → BSM-Profil \`deploy-production\` prüfen"
+              echo ""
+              echo "Keine Secrets wurden ausgegeben."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
