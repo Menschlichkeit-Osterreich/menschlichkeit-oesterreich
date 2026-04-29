@@ -52,6 +52,7 @@ env:
   GAMES_REMOTE_PATH: ${{ vars.PLESK_GAMES_PATH || 'subdomains/games/httpdocs' }}
   MAIN_DOMAIN: ${{ vars.MAIN_DOMAIN || 'menschlichkeit-oesterreich.at' }}
   NODE_VERSION: '22'
+  LIVE_NOTIFICATION_PROBE: ${{ vars.LIVE_NOTIFICATION_PROBE || 'false' }}
   TARGET_SERVICE: ${{ github.event_name == 'push' && 'all' || github.event.inputs.service || 'all' }}
 
 jobs:
@@ -662,6 +663,47 @@ jobs:
             printf 'ALERTS_SLACK_WEBHOOK=%s\n' "${ALERTS_SLACK_WEBHOOK}"
           } > /tmp/api-runtime.env
 
+          echo "=== Verifiziere Secret-Handoff-Artefakt (.env.deploy) ==="
+          required_keys=(
+            MAIL_TRANSPORT
+            DATABASE_URL
+            JWT_SECRET_KEY
+            STRIPE_SECRET_KEY
+            STRIPE_WEBHOOK_SECRET
+            MOE_API_TOKEN
+            N8N_WEBHOOK_SECRET
+            CIVICRM_SITE_KEY
+            CIVICRM_API_KEY
+            MICROSOFT_TENANT_ID
+            MICROSOFT_CLIENT_ID
+            MICROSOFT_CLIENT_SECRET
+            MICROSOFT_GRAPH_SENDER
+            ALERTS_SLACK_WEBHOOK
+          )
+          placeholder_re='^(CHANGE_ME|PLACEHOLDER|UPDATE_VALUE_IN_VAULT|YOUR_|REPLACE_|TODO)'
+          handoff_errors=0
+          for key in "${required_keys[@]}"; do
+            value=$(grep -E "^${key}=" /tmp/api-runtime.env | sed -E "s/^${key}=//" || true)
+            if [ -z "${value}" ]; then
+              echo "✗ Handoff-Secret fehlt in .env.deploy: ${key}"
+              handoff_errors=$((handoff_errors+1))
+              continue
+            fi
+            if [[ "${value}" =~ ${placeholder_re} ]]; then
+              echo "✗ Handoff-Secret enthält Platzhalter in .env.deploy: ${key}"
+              handoff_errors=$((handoff_errors+1))
+              continue
+            fi
+            echo "✓ Handoff-Secret vorhanden: ${key}"
+          done
+
+          if [ "${handoff_errors}" -gt 0 ]; then
+            echo "✗ Secret-Handoff-Artefakt ist ungültig (${handoff_errors} Fehler)."
+            exit 1
+          fi
+          echo "API_HANDOFF_CONTRACT_STATUS=ok" >> "$GITHUB_ENV"
+          echo "✓ Secret-Handoff-Artefakt vollständig und ohne Platzhalter."
+
           # Pfad relativ zum Chroot-Home
           tar --exclude=".git" --exclude="__pycache__" --exclude="*.pyc" \
               --exclude=".venv" --exclude="venv" --exclude=".env" --exclude="*.log" \
@@ -1067,6 +1109,89 @@ jobs:
           verify_endpoint "/healthz" "API_HEALTHZ_STATUS" "API /healthz"
           verify_endpoint "/readyz" "API_READYZ_STATUS" "API /readyz"
 
+      - name: API Runtime Secret-Contract Report (redigiert)
+        if: >
+          env.TARGET_SERVICE == 'all' ||
+          env.TARGET_SERVICE == 'api'
+        run: |
+          set -euo pipefail
+
+          CONTRACT_JSON=$(ssh plesk-prod "API_PATH='${{ env.API_REMOTE_PATH }}' bash -s" <<'REMOTE'
+            set -euo pipefail
+            cd "$API_PATH"
+            API_ABS_PATH="$(pwd -P)"
+            INTERPRETER_FILE="$API_ABS_PATH/.deploy_python_interpreter"
+            [ -s "$INTERPRETER_FILE" ] || { echo "{\"error\":\"missing_interpreter_file\"}"; exit 1; }
+            PYTHON="$(sed -n '1p' "$INTERPRETER_FILE")"
+            [ -x "$PYTHON" ] || { echo "{\"error\":\"interpreter_not_executable\"}"; exit 1; }
+            cd "$API_ABS_PATH"
+            "$PYTHON" -c "import json,os; from app.runtime_secret_contract import runtime_secret_contract_report; environment=(os.getenv('ENVIRONMENT') or os.getenv('APP_ENV') or 'development').strip() or 'development'; report=runtime_secret_contract_report(environment); print(json.dumps(report, separators=(',', ':'), ensure_ascii=True))"
+          REMOTE
+          )
+
+          if [ -z "$CONTRACT_JSON" ]; then
+            echo "✗ Runtime-Secret-Contract-Report leer"
+            exit 1
+          fi
+
+          echo "RUNTIME_SECRET_CONTRACT_JSON=$CONTRACT_JSON" >> "$GITHUB_ENV"
+
+          CONTRACT_OK=$(printf '%s' "$CONTRACT_JSON" | jq -r '.contract_ok // false')
+          GRAPH_OK=$(printf '%s' "$CONTRACT_JSON" | jq -r '.channels.graph_mail_configured // false')
+          SLACK_OK=$(printf '%s' "$CONTRACT_JSON" | jq -r '.channels.slack_webhook_configured // false')
+
+          if [ "$CONTRACT_OK" != "true" ] || [ "$GRAPH_OK" != "true" ] || [ "$SLACK_OK" != "true" ]; then
+            echo "✗ Runtime-Secret-Contract verletzt (contract_ok=$CONTRACT_OK, graph_mail=$GRAPH_OK, slack=$SLACK_OK)"
+            echo "API_SECRET_RUNTIME_STATUS=failed" >> "$GITHUB_ENV"
+            exit 1
+          fi
+
+          echo "API_SECRET_RUNTIME_STATUS=ok" >> "$GITHUB_ENV"
+          echo "✓ Runtime-Secret-Contract inkl. Graph/Slack-Kanäle ist valide."
+
+      - name: Notification Live-Probe (Graph/Slack) oder manueller nächster Schritt
+        if: >
+          env.TARGET_SERVICE == 'all' ||
+          env.TARGET_SERVICE == 'api'
+        run: |
+          set -euo pipefail
+
+          if [ "${LIVE_NOTIFICATION_PROBE}" != "true" ]; then
+            echo "API_NOTIFICATION_PROBE_STATUS=manual-step-required" >> "$GITHUB_ENV"
+            echo "API_NOTIFICATION_PROBE_BREAKPOINT=live_probe_disabled" >> "$GITHUB_ENV"
+            echo "LIVE-Probe deaktiviert (vars.LIVE_NOTIFICATION_PROBE != true)."
+            echo "Manueller Nachweis: Stripe-Test-Webhook \`payment_intent.payment_failed\` gegen den bestehenden Endpunkt auslösen — bestätigt Admin-Mail (Graph) und Slack-Alert in einem einzigen produktionsnahen Pfad." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          PROBE_RESULT=$(ssh plesk-prod "API_PATH='${{ env.API_REMOTE_PATH }}' bash -s" <<'REMOTE'
+            set -euo pipefail
+            cd "$API_PATH"
+            API_ABS_PATH="$(pwd -P)"
+            INTERPRETER_FILE="$API_ABS_PATH/.deploy_python_interpreter"
+            [ -s "$INTERPRETER_FILE" ] || { echo "{\"probe\":\"failed\",\"breakpoint\":\"missing_interpreter\"}"; exit 0; }
+            PYTHON="$(sed -n '1p' "$INTERPRETER_FILE")"
+            [ -x "$PYTHON" ] || { echo "{\"probe\":\"failed\",\"breakpoint\":\"interpreter_not_executable\"}"; exit 0; }
+            cd "$API_ABS_PATH"
+            "$PYTHON" -c "import json; from app.runtime_notification_probe import run_live_notification_probe; print(json.dumps(run_live_notification_probe(), separators=(',', ':'), ensure_ascii=True))"
+          REMOTE
+          )
+
+          echo "API_NOTIFICATION_PROBE_JSON=$PROBE_RESULT" >> "$GITHUB_ENV"
+          PROBE_OK=$(printf '%s' "$PROBE_RESULT" | jq -r '.probe == "ok"')
+          if [ "$PROBE_OK" != "true" ]; then
+            BREAKPOINT=$(printf '%s' "$PROBE_RESULT" | jq -r '.breakpoint // "unknown"')
+            echo "API_NOTIFICATION_PROBE_STATUS=failed" >> "$GITHUB_ENV"
+            echo "API_NOTIFICATION_PROBE_BREAKPOINT=$BREAKPOINT" >> "$GITHUB_ENV"
+            echo "✗ LIVE-Notification-Probe fehlgeschlagen am Bruchpunkt: $BREAKPOINT"
+            echo "Bruchpunkt '$BREAKPOINT': Stripe-Test-Webhook \`payment_intent.payment_failed\` auslösen — deckt Graph-Mail und Slack in einem Pfad ab." >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          echo "API_NOTIFICATION_PROBE_STATUS=ok" >> "$GITHUB_ENV"
+          echo "API_NOTIFICATION_PROBE_BREAKPOINT=none" >> "$GITHUB_ENV"
+          echo "✓ LIVE-Notification-Probe abgeschlossen: Graph-Credentials gültig (Token-Erwerb verifiziert, kein Test-Mail gesendet), Slack-Webhook erreichbar und hat geantwortet."
+
       - name: Healthcheck — CRM-Portal
         if: >
           always() && (
@@ -1170,6 +1295,10 @@ jobs:
           echo "| API_REMOTE_PATH | \`${{ env.API_REMOTE_PATH }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| PLESK_HOST | ${PLESK_HOST:-nicht gesetzt} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| PLESK_USER | ${PLESK_USER:-nicht gesetzt} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Secret-Handoff (.env.deploy) | ${API_HANDOFF_CONTRACT_STATUS:-nicht geprueft} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Runtime-Secret-Contract | ${API_SECRET_RUNTIME_STATUS:-nicht geprueft} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Notification-Probe | ${API_NOTIFICATION_PROBE_STATUS:-nicht ausgefuehrt} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Probe-Bruchpunkt | ${API_NOTIFICATION_PROBE_BREAKPOINT:-n/a} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Python-Interpreter | \`${API_USED_PYTHON:-nicht ausgefuehrt}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Restart-Status | ${API_RESTART_STATUS:-nicht ausgefuehrt} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| /healthz Status | ${API_HEALTHZ_STATUS:-nicht ausgefuehrt} |" >> "$GITHUB_STEP_SUMMARY"
