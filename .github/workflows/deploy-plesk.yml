@@ -391,28 +391,50 @@ jobs:
       - name: Plesk-Infra-Kontext aus BSM aufloesen (fail-fast)
         run: |
           set -euo pipefail
-          required_keys=(PLESK_HOST PLESK_USER PLESK_PORT PLESK_SSH_PRIVATE_KEY PLESK_KNOWN_HOSTS)
-          for key in "${required_keys[@]}"; do
-            value="${!key:-}"
-            if [ -z "$value" ]; then
-              echo "✗ ${key} fehlt in BSM-Injection"
-              exit 1
-            fi
-            if [[ "$value" =~ ^(CHANGE_ME|PLACEHOLDER|UPDATE_VALUE_IN_VAULT|YOUR_|REPLACE_) ]]; then
-              echo "✗ ${key} enthaelt einen Platzhalterwert"
-              exit 1
-            fi
-            echo "✓ ${key}"
-          done
+          placeholder_re='^(CHANGE_ME|PLACEHOLDER|UPDATE_VALUE_IN_VAULT|YOUR_|REPLACE_|TODO)'
 
-          if ! [[ "${PLESK_PORT}" =~ ^[0-9]+$ ]]; then
-            echo "✗ PLESK_PORT ist nicht numerisch: ${PLESK_PORT}"
+          fail() {
+            echo "✗ $1"
             exit 1
-          fi
+          }
 
-          echo "SSH_HOST=${PLESK_HOST}" >> "$GITHUB_ENV"
-          echo "SSH_USER=${PLESK_USER}" >> "$GITHUB_ENV"
-          echo "SSH_PORT=${PLESK_PORT}" >> "$GITHUB_ENV"
+          has_placeholder_prefix() {
+            local value=$1
+            [[ "$value" =~ $placeholder_re ]]
+          }
+
+          [ -n "${PLESK_HOST:-}" ] || fail "PLESK_HOST fehlt in BSM-Injection"
+          ! has_placeholder_prefix "${PLESK_HOST}" || fail "PLESK_HOST enthaelt einen Platzhalterwert"
+          echo "✓ PLESK_HOST"
+
+          [ -n "${PLESK_USER:-}" ] || fail "PLESK_USER fehlt in BSM-Injection"
+          ! has_placeholder_prefix "${PLESK_USER}" || fail "PLESK_USER enthaelt einen Platzhalterwert"
+          [[ "${PLESK_USER}" =~ ^[A-Za-z0-9_][A-Za-z0-9._-]{0,63}$ ]] || fail "PLESK_USER hat ein ungueltiges Format"
+          echo "✓ PLESK_USER"
+
+          [ -n "${PLESK_PORT:-}" ] || fail "PLESK_PORT fehlt in BSM-Injection"
+          ! has_placeholder_prefix "${PLESK_PORT}" || fail "PLESK_PORT enthaelt einen Platzhalterwert"
+          [[ "${PLESK_PORT}" =~ ^[0-9]+$ ]] || fail "PLESK_PORT ist nicht numerisch"
+          if (( 10#${PLESK_PORT} < 1 || 10#${PLESK_PORT} > 65535 )); then
+            fail "PLESK_PORT liegt ausserhalb des erlaubten Bereichs 1..65535"
+          fi
+          echo "✓ PLESK_PORT"
+
+          [ -n "${PLESK_SSH_PRIVATE_KEY:-}" ] || fail "PLESK_SSH_PRIVATE_KEY fehlt in BSM-Injection"
+          if grep -Eq '(CHANGE_ME|PLACEHOLDER|UPDATE_VALUE_IN_VAULT|YOUR_|REPLACE_|TODO)' <<< "${PLESK_SSH_PRIVATE_KEY}"; then
+            fail "PLESK_SSH_PRIVATE_KEY enthaelt einen Platzhalterwert"
+          fi
+          echo "✓ PLESK_SSH_PRIVATE_KEY"
+
+          [ -n "${PLESK_KNOWN_HOSTS:-}" ] || fail "PLESK_KNOWN_HOSTS fehlt in BSM-Injection"
+          ! has_placeholder_prefix "${PLESK_KNOWN_HOSTS}" || fail "PLESK_KNOWN_HOSTS enthaelt einen Platzhalterwert"
+          if [[ "${PLESK_KNOWN_HOSTS}" == *$'\n'* || "${PLESK_KNOWN_HOSTS}" == *$'\r'* ]]; then
+            fail "PLESK_KNOWN_HOSTS muss genau eine OpenSSH-known_hosts-Zeile enthalten"
+          fi
+          if ! [[ "${PLESK_KNOWN_HOSTS}" =~ ^[^[:space:]]+[[:space:]]+(ssh-ed25519|ecdsa-sha2-nistp256)[[:space:]]+[A-Za-z0-9+/=]+$ ]]; then
+            fail "PLESK_KNOWN_HOSTS hat kein vollstaendiges OpenSSH-known_hosts-Format"
+          fi
+          echo "✓ PLESK_KNOWN_HOSTS"
 
       - name: Node.js ${{ env.NODE_VERSION }} einrichten
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.2.0
@@ -438,17 +460,15 @@ jobs:
 
       - name: SSH-Config schreiben
         run: |
-          RESOLVED_SSH_HOST="${PLESK_HOST}"
-          RESOLVED_SSH_PORT="${PLESK_PORT}"
-          RESOLVED_SSH_USER="${PLESK_USER}"
-          echo "SSH_HOST=${RESOLVED_SSH_HOST}" >> "$GITHUB_ENV"
-          echo "SSH_PORT=${RESOLVED_SSH_PORT}" >> "$GITHUB_ENV"
-          echo "SSH_USER=${RESOLVED_SSH_USER}" >> "$GITHUB_ENV"
+          set -euo pipefail
+          RESOLVED_PLESK_HOST="${PLESK_HOST}"
+          RESOLVED_PLESK_PORT="${PLESK_PORT}"
+          RESOLVED_PLESK_USER="${PLESK_USER}"
           cat >> ~/.ssh/config <<EOF
           Host plesk-prod
-            HostName ${RESOLVED_SSH_HOST}
-            Port ${RESOLVED_SSH_PORT}
-            User ${RESOLVED_SSH_USER}
+            HostName ${RESOLVED_PLESK_HOST}
+            Port ${RESOLVED_PLESK_PORT}
+            User ${RESOLVED_PLESK_USER}
             StrictHostKeyChecking yes
             BatchMode yes
             ConnectTimeout 15
@@ -576,8 +596,9 @@ jobs:
           env.TARGET_SERVICE == 'api'
         run: |
           set -euo pipefail
-          echo "=== Preflight: BSM Secret Validation ==="
+          echo "=== API Preflight: Runtime-Secrets ==="
           ERRORS=0
+          placeholder_re='^(CHANGE_ME|PLACEHOLDER|UPDATE_VALUE_IN_VAULT|YOUR_|REPLACE_|TODO)'
 
           required_keys=(
             DATABASE_URL
@@ -597,12 +618,17 @@ jobs:
 
           for key in "${required_keys[@]}"; do
             value="${!key:-}"
-            if [ -n "$value" ]; then
-              echo "✓ ${key}"
-            else
+            if [ -z "$value" ]; then
               echo "✗ ${key} fehlt"
               ERRORS=$((ERRORS+1))
+              continue
             fi
+            if [[ "$value" =~ $placeholder_re ]]; then
+              echo "✗ ${key} enthaelt einen Platzhalterwert"
+              ERRORS=$((ERRORS+1))
+              continue
+            fi
+            echo "✓ ${key}"
           done
 
           if [ "${ERRORS}" -gt 0 ]; then
@@ -660,10 +686,72 @@ jobs:
             chmod 600 \"\$ENV_FILE\" || true
           "
           ssh plesk-prod \
-            "command -v pip3 && pip3 install -r '${{ env.API_REMOTE_PATH }}/requirements.txt' --quiet 2>&1 | tail -5" || \
-            echo "⚠️ pip3 nicht im Chroot verfügbar."
-          ssh plesk-prod \
             "printf '%s\n' '${{ steps.release.outputs.marker }}' > '${{ env.API_REMOTE_PATH }}/.deploy_release'"
+          ssh plesk-prod "API_PATH='${{ env.API_REMOTE_PATH }}' EXPECTED_COMMIT='commit=${GITHUB_SHA::8}' bash -s" <<'REMOTE'
+            set -euo pipefail
+
+            fail() {
+              echo "✗ $1"
+              exit 1
+            }
+
+            cd "$API_PATH" || fail "API_REMOTE_PATH ist kein Directory"
+            API_ABS_PATH="$(pwd -P)"
+            RELEASE_FILE="$API_ABS_PATH/.deploy_release"
+
+            [ -s "$API_ABS_PATH/.env" ] || fail ".env fehlt oder ist leer"
+            [ -f "$API_ABS_PATH/app/main.py" ] || fail "app/main.py fehlt"
+            [ -f "$API_ABS_PATH/requirements.txt" ] || fail "requirements.txt fehlt"
+            [ -s "$RELEASE_FILE" ] || fail ".deploy_release fehlt oder ist leer"
+            grep -Fq "$EXPECTED_COMMIT" "$RELEASE_FILE" || fail ".deploy_release enthaelt nicht den erwarteten Commit"
+
+            PYTHON=""
+            if [ -x "$API_ABS_PATH/venv/bin/python" ]; then
+              PYTHON="$API_ABS_PATH/venv/bin/python"
+            elif [ -x "$API_ABS_PATH/.venv/bin/python" ]; then
+              PYTHON="$API_ABS_PATH/.venv/bin/python"
+            elif command -v python3 >/dev/null 2>&1; then
+              PYTHON="$(command -v python3)"
+            elif command -v python >/dev/null 2>&1; then
+              PYTHON="$(command -v python)"
+            else
+              fail "Kein Python-Interpreter verfuegbar"
+            fi
+
+            [ -x "$PYTHON" ] || fail "Python-Interpreter ist nicht ausfuehrbar"
+            "$PYTHON" --version >/dev/null 2>&1 || fail "python --version fehlgeschlagen"
+            "$PYTHON" -m pip --version >/dev/null 2>&1 || fail "pip fuer Interpreter nicht verfuegbar"
+            "$PYTHON" -m pip install -r requirements.txt --quiet 2>&1 | tail -5
+            "$PYTHON" -m uvicorn --version >/dev/null 2>&1 || fail "uvicorn fuer Interpreter nicht verfuegbar"
+            printf '%s\n' "$PYTHON" > "$API_ABS_PATH/.deploy_python_interpreter"
+            chmod 600 "$API_ABS_PATH/.deploy_python_interpreter" || true
+            echo "✓ API-Handoff und Interpreter validiert"
+          REMOTE
+          API_USED_PYTHON=$(ssh plesk-prod "API_PATH='${{ env.API_REMOTE_PATH }}' bash -s" <<'REMOTE'
+            set -euo pipefail
+            cd "$API_PATH"
+            API_ABS_PATH="$(pwd -P)"
+            sed -n '1p' "$API_ABS_PATH/.deploy_python_interpreter"
+          REMOTE
+          )
+          if [ -z "${API_USED_PYTHON}" ]; then
+            echo "✗ Gespeicherter API-Python-Interpreter ist leer"
+            exit 1
+          fi
+          API_RELEASE_MARKER_COMMIT=$(ssh plesk-prod "API_PATH='${{ env.API_REMOTE_PATH }}' bash -s" <<'REMOTE'
+            set -euo pipefail
+            cd "$API_PATH"
+            API_ABS_PATH="$(pwd -P)"
+            RELEASE_FILE="$API_ABS_PATH/.deploy_release"
+            grep -oE 'commit=[^ ]+' "$RELEASE_FILE" | head -1 | cut -d= -f2
+          REMOTE
+          )
+          if [ "${API_RELEASE_MARKER_COMMIT}" != "${GITHUB_SHA::8}" ]; then
+            echo "✗ API-Release-Marker zeigt nicht auf den erwarteten Commit."
+            exit 1
+          fi
+          echo "API_USED_PYTHON=${API_USED_PYTHON}" >> "$GITHUB_ENV"
+          echo "API_RELEASE_MARKER_COMMIT=${API_RELEASE_MARKER_COMMIT}" >> "$GITHUB_ENV"
           echo "✓ API deployt."
 
       - name: API Runtime Reload triggern
@@ -671,47 +759,71 @@ jobs:
           env.TARGET_SERVICE == 'all' ||
           env.TARGET_SERVICE == 'api'
         run: |
-          ssh plesk-prod "
-            set -e
-            API_PATH='${{ env.API_REMOTE_PATH }}'
-            cd \"\$API_PATH\"
+          set -euo pipefail
+          echo "API_RESTART_STATUS=running" >> "$GITHUB_ENV"
+          if ssh plesk-prod "API_PATH='${{ env.API_REMOTE_PATH }}' bash -s" <<'REMOTE'
+            set -euo pipefail
 
-            # --- Interpreter deterministisch auflösen ---
-            PYTHON=''
-            if [ -x \"\$API_PATH/venv/bin/python\" ]; then
-              PYTHON=\"\$API_PATH/venv/bin/python\"
-              echo '✓ Interpreter: venv/bin/python'
-            elif [ -x \"\$API_PATH/.venv/bin/python\" ]; then
-              PYTHON=\"\$API_PATH/.venv/bin/python\"
-              echo '✓ Interpreter: .venv/bin/python'
-            elif command -v python3 >/dev/null 2>&1; then
-              PYTHON=\$(command -v python3)
-              echo \"⚠️  Kein venv; System-Python3: \$PYTHON\"
-            elif command -v python >/dev/null 2>&1; then
-              PYTHON=\$(command -v python)
-              echo \"⚠️  Kein venv; System-Python: \$PYTHON\"
-            else
-              echo '✗ Kein Python-Interpreter gefunden (venv/bin/python, .venv/bin/python, python3, python)'
+            fail() {
+              echo "✗ $1"
               exit 1
-            fi
+            }
 
-            # --- uvicorn über Interpreter prüfen (PATH-unabhängig) ---
-            if ! \"\$PYTHON\" -m uvicorn --version >/dev/null 2>&1; then
-              echo \"✗ uvicorn nicht für Interpreter \$PYTHON installiert\"
-              exit 1
-            fi
-            echo \"✓ uvicorn verfügbar (\$PYTHON)\"
+            cd "$API_PATH" || fail "API_REMOTE_PATH nicht erreichbar"
+            API_ABS_PATH="$(pwd -P)"
+            INTERPRETER_FILE="$API_ABS_PATH/.deploy_python_interpreter"
+            [ -s "$INTERPRETER_FILE" ] || fail ".deploy_python_interpreter fehlt oder ist leer"
+            PYTHON="$(sed -n '1p' "$INTERPRETER_FILE")"
+            [ -n "$PYTHON" ] || fail "Gespeicherter Python-Interpreter ist leer"
+            [ -x "$PYTHON" ] || fail "Gespeicherter Python-Interpreter ist nicht ausfuehrbar"
+            "$PYTHON" --version >/dev/null 2>&1 || fail "python --version fehlgeschlagen"
+            "$PYTHON" -m pip --version >/dev/null 2>&1 || fail "pip fuer gespeicherten Interpreter nicht verfuegbar"
+            "$PYTHON" -m uvicorn --version >/dev/null 2>&1 || fail "uvicorn fuer gespeicherten Interpreter nicht verfuegbar"
 
             pkill -f 'uvicorn app.main:app' || true
             sleep 1
-            nohup \"\$PYTHON\" -m uvicorn app.main:app --host 0.0.0.0 --port 8001 --log-level warning >/dev/null 2>&1 &
-            sleep 2
-            pgrep -f 'uvicorn app.main:app' >/dev/null 2>&1 || {
-              echo '✗ uvicorn-Prozess nach Restart nicht gefunden'
-              exit 1
-            }
-            echo '✓ API-Restart erfolgreich angestoßen'
-          "
+            nohup "$PYTHON" -m uvicorn app.main:app --host 0.0.0.0 --port 8001 --log-level warning >/dev/null 2>&1 &
+
+            FOUND_PROCESS=0
+            for _ in 1 2 3 4 5; do
+              if pgrep -f 'uvicorn app.main:app' >/dev/null 2>&1; then
+                FOUND_PROCESS=1
+                break
+              fi
+              sleep 1
+            done
+            [ "$FOUND_PROCESS" -eq 1 ] || fail "uvicorn-Prozess nach Restart nicht gefunden"
+
+            PORT_TOOL="none"
+            PORT_OK="unknown"
+            if command -v ss >/dev/null 2>&1; then
+              PORT_TOOL="ss"
+              ss -ltn 2>/dev/null | awk '{print $4}' | grep -Eq '(^|:)8001$' && PORT_OK="yes" || PORT_OK="no"
+            elif command -v lsof >/dev/null 2>&1; then
+              PORT_TOOL="lsof"
+              lsof -nP -iTCP:8001 -sTCP:LISTEN >/dev/null 2>&1 && PORT_OK="yes" || PORT_OK="no"
+            elif command -v netstat >/dev/null 2>&1; then
+              PORT_TOOL="netstat"
+              netstat -ltn 2>/dev/null | awk '{print $4}' | grep -Eq '(^|:)8001$' && PORT_OK="yes" || PORT_OK="no"
+            fi
+
+            if [ "$PORT_OK" = "no" ]; then
+              fail "Port 8001 ist laut ${PORT_TOOL} nicht im LISTEN-Status"
+            fi
+            if [ "$PORT_TOOL" = "none" ]; then
+              echo "⚠️ Kein Port-Prueftool vorhanden; externer 30s-Verify entscheidet hart."
+            else
+              echo "✓ Port 8001 geprueft via ${PORT_TOOL}"
+            fi
+
+            echo "✓ API-Restart erfolgreich"
+          REMOTE
+          then
+            echo "API_RESTART_STATUS=ok" >> "$GITHUB_ENV"
+          else
+            echo "API_RESTART_STATUS=failed" >> "$GITHUB_ENV"
+            exit 1
+          fi
           echo "Warte 12 Sekunden auf Runtime-Warm-up ..."
           sleep 12
 
@@ -882,31 +994,78 @@ jobs:
             exit 1;
           }
 
-      - name: Healthcheck — API Liveness
+      - name: API Verify — Health + Readiness
         if: >
           env.TARGET_SERVICE == 'all' ||
           env.TARGET_SERVICE == 'api'
         run: |
-          HTTP=$(curl --silent --max-time 15 --output /dev/null --write-out "%{http_code}" \
-            "https://api.${{ env.MAIN_DOMAIN }}/healthz" || echo "000")
-          echo "API Liveness HTTP: ${HTTP}"
-          [[ "${HTTP}" =~ ^[23] ]] || {
-            echo "✗ API Liveness fehlgeschlagen (${HTTP}) auf /healthz. Deployment wird abgebrochen.";
-            exit 1;
+          set -euo pipefail
+
+          verify_endpoint() {
+            local path=$1
+            local env_name=$2
+            local label=$3
+            local url="https://api.${{ env.MAIN_DOMAIN }}${path}"
+            local deadline=$((SECONDS + 30))
+            local last_http="000"
+            local last_reason="nicht erreicht"
+
+            while (( SECONDS < deadline )); do
+              local remaining=$((deadline - SECONDS))
+              local curl_timeout=5
+              if (( remaining < curl_timeout )); then
+                curl_timeout=$remaining
+              fi
+              if (( curl_timeout < 1 )); then
+                break
+              fi
+
+              local body_file
+              body_file=$(mktemp)
+              local http
+              http=$(curl --silent --show-error --max-time "${curl_timeout}" \
+                --output "${body_file}" \
+                --write-out "%{http_code}" \
+                "${url}" 2>/dev/null || true)
+              last_http="${http:-000}"
+
+              local body_compact
+              body_compact=$(tr -d '\r\n\t ' < "${body_file}" || true)
+              local body_lower
+              body_lower=$(tr '[:upper:]' '[:lower:]' < "${body_file}" || true)
+              rm -f "${body_file}"
+
+              if [ -n "${body_compact}" ] && [[ "${body_lower}" =~ (unhealthy|error|failed|unavailable|not[[:space:]_-]*ready|\"ready\"[[:space:]]*:[[:space:]]*false|ready[[:space:]]*:[[:space:]]*false|\"ok\"[[:space:]]*:[[:space:]]*false|ok[[:space:]]*:[[:space:]]*false|\"status\"[[:space:]]*:[[:space:]]*\"?(error|failed|unavailable)|status[[:space:]]*:[[:space:]]*\"?(error|failed|unavailable)) ]]; then
+                echo "${env_name}=failed (${last_http})" >> "$GITHUB_ENV"
+                echo "✗ ${label} meldet negatives Health-/Readiness-Signal"
+                exit 1
+              elif ! [[ "${last_http}" =~ ^[23][0-9][0-9]$ ]]; then
+                last_reason="HTTP ${last_http}"
+              elif [ -z "${body_compact}" ]; then
+                last_reason="Body leer"
+              elif ! [[ "${body_lower}" =~ (\{|\[|\"status\"|status|ok|healthy|ready|live|true) ]]; then
+                last_reason="Body ohne erwartbares Status-Signal"
+              else
+                echo "✓ ${label}: HTTP ${last_http}"
+                echo "${env_name}=HTTP ${last_http}" >> "$GITHUB_ENV"
+                return 0
+              fi
+
+              remaining=$((deadline - SECONDS))
+              if (( remaining > 2 )); then
+                sleep 2
+              elif (( remaining > 0 )); then
+                sleep "${remaining}"
+              fi
+            done
+
+            echo "${env_name}=failed (${last_http})" >> "$GITHUB_ENV"
+            echo "✗ ${label} fehlgeschlagen nach 30 Sekunden: ${last_reason}"
+            exit 1
           }
 
-      - name: Healthcheck — API Readiness
-        if: >
-          env.TARGET_SERVICE == 'all' ||
-          env.TARGET_SERVICE == 'api'
-        run: |
-          HTTP=$(curl --silent --max-time 15 --output /dev/null --write-out "%{http_code}" \
-            "https://api.${{ env.MAIN_DOMAIN }}/readyz" || echo "000")
-          echo "API Readiness HTTP: ${HTTP}"
-          [[ "${HTTP}" =~ ^[23] ]] || {
-            echo "✗ API Readiness fehlgeschlagen (${HTTP}) auf /readyz. Deployment wird abgebrochen.";
-            exit 1;
-          }
+          verify_endpoint "/healthz" "API_HEALTHZ_STATUS" "API /healthz"
+          verify_endpoint "/readyz" "API_READYZ_STATUS" "API /readyz"
 
       - name: Healthcheck — CRM-Portal
         if: >
@@ -1004,3 +1163,15 @@ jobs:
           echo "| 📋 CRM | https://crm.${{ env.MAIN_DOMAIN }}/ |" >> "$GITHUB_STEP_SUMMARY"
           echo "| 🧭 CRM Native | https://crm.${{ env.MAIN_DOMAIN }}/native/ |" >> "$GITHUB_STEP_SUMMARY"
           echo "| 🎮 Games | https://games.${{ env.MAIN_DOMAIN }}/ |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| API Deploy-Vertrag | Wert |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Ziel-Service | ${{ env.TARGET_SERVICE }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| API_REMOTE_PATH | \`${{ env.API_REMOTE_PATH }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| PLESK_HOST | ${PLESK_HOST:-nicht gesetzt} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| PLESK_USER | ${PLESK_USER:-nicht gesetzt} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Python-Interpreter | \`${API_USED_PYTHON:-nicht ausgefuehrt}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Restart-Status | ${API_RESTART_STATUS:-nicht ausgefuehrt} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| /healthz Status | ${API_HEALTHZ_STATUS:-nicht ausgefuehrt} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| /readyz Status | ${API_READYZ_STATUS:-nicht ausgefuehrt} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Release-Marker-Commit | ${API_RELEASE_MARKER_COMMIT:-nicht geprueft} |" >> "$GITHUB_STEP_SUMMARY"
