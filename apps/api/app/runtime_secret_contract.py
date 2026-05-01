@@ -5,7 +5,6 @@ import re
 
 from .secrets_provider import get_secret
 
-
 _PLACEHOLDER_RE = re.compile(
     r"^(CHANGE_ME|PLACEHOLDER|UPDATE_VALUE_IN_VAULT|YOUR_|REPLACE_)",
     re.IGNORECASE,
@@ -34,6 +33,55 @@ def _is_invalid_secret(value: str) -> bool:
     return bool(_PLACEHOLDER_RE.match(value.strip()))
 
 
+def runtime_secret_contract_report(environment: str) -> dict[str, object]:
+    """Builds a redacted runtime-secret report without exposing values."""
+
+    strict_contract = environment == "production" or os.getenv(
+        "STRICT_SECRET_CONTRACT", "false"
+    ).lower() in {"1", "true", "yes", "on"}
+
+    invalid_keys: list[str] = []
+
+    for env_key, bsm_key in _REQUIRED_SECRET_KEYS.items():
+        value = get_secret(env_key, bsm_key=bsm_key).strip()
+        if _is_invalid_secret(value):
+            invalid_keys.append(env_key)
+
+    mail_transport = os.getenv("MAIL_TRANSPORT", "graph").strip().lower()
+    if mail_transport == "smtp":
+        smtp_user = get_secret("MAIL_USERNAME", bsm_key="api/MAIL_USERNAME").strip()
+        smtp_password = get_secret("MAIL_PASSWORD", bsm_key="api/MAIL_PASSWORD").strip()
+        if _is_invalid_secret(smtp_user):
+            invalid_keys.append("MAIL_USERNAME")
+        if _is_invalid_secret(smtp_password):
+            invalid_keys.append("MAIL_PASSWORD")
+
+    valid_count = len(_REQUIRED_SECRET_KEYS) - len(
+        [key for key in invalid_keys if key in _REQUIRED_SECRET_KEYS]
+    )
+    return {
+        "environment": environment,
+        "strict_contract": strict_contract,
+        "mail_transport": mail_transport,
+        "contract_ok": len(invalid_keys) == 0,
+        "required_secret_keys": len(_REQUIRED_SECRET_KEYS),
+        "valid_required_keys": valid_count,
+        "invalid_keys": sorted(set(invalid_keys)),
+        "channels": {
+            "graph_mail_configured": not any(
+                key in invalid_keys
+                for key in (
+                    "MICROSOFT_TENANT_ID",
+                    "MICROSOFT_CLIENT_ID",
+                    "MICROSOFT_CLIENT_SECRET",
+                    "MICROSOFT_GRAPH_SENDER",
+                )
+            ),
+            "slack_webhook_configured": "ALERTS_SLACK_WEBHOOK" not in invalid_keys,
+        },
+    }
+
+
 def validate_runtime_secret_contract(environment: str) -> None:
     """Enforces production runtime secret contract before API serves traffic.
 
@@ -44,28 +92,14 @@ def validate_runtime_secret_contract(environment: str) -> None:
     strict_contract = environment == "production" or os.getenv(
         "STRICT_SECRET_CONTRACT", "false"
     ).lower() in {"1", "true", "yes", "on"}
-
     if not strict_contract:
         return
 
-    missing: list[str] = []
+    report = runtime_secret_contract_report(environment)
 
-    for env_key, bsm_key in _REQUIRED_SECRET_KEYS.items():
-        value = get_secret(env_key, bsm_key=bsm_key).strip()
-        if _is_invalid_secret(value):
-            missing.append(env_key)
-
-    mail_transport = os.getenv("MAIL_TRANSPORT", "graph").strip().lower()
-    if mail_transport == "smtp":
-        smtp_user = get_secret("MAIL_USERNAME", bsm_key="api/MAIL_USERNAME").strip()
-        smtp_password = get_secret("MAIL_PASSWORD", bsm_key="api/MAIL_PASSWORD").strip()
-        if _is_invalid_secret(smtp_user):
-            missing.append("MAIL_USERNAME")
-        if _is_invalid_secret(smtp_password):
-            missing.append("MAIL_PASSWORD")
-
-    if missing:
-        missing_sorted = ", ".join(sorted(set(missing)))
+    invalid_keys = [str(key) for key in report["invalid_keys"]]
+    if invalid_keys:
+        missing_sorted = ", ".join(invalid_keys)
         raise RuntimeError(
             f"Missing required runtime secret contract entries: {missing_sorted}"
         )

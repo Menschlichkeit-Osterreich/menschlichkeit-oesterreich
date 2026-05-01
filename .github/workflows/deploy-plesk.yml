@@ -389,6 +389,24 @@ jobs:
           profile: deploy-production
           access_token: ${{ secrets.BW_ACCESS_TOKEN }}
 
+      - name: API Evidence Status initialisieren (redigiert)
+        if: >
+          env.TARGET_SERVICE == 'all' ||
+          env.TARGET_SERVICE == 'api'
+        run: |
+          {
+            echo "API_HANDOFF_CONTRACT_STATUS=not-run"
+            echo "API_SECRET_RUNTIME_STATUS=not-run"
+            echo "API_GRAPH_CHANNEL_CONFIG_STATUS=unknown"
+            echo "API_SLACK_CHANNEL_CONFIG_STATUS=unknown"
+            echo "API_GRAPH_CHANNEL_PROBE_STATUS=not-run"
+            echo "API_SLACK_CHANNEL_PROBE_STATUS=not-run"
+            echo "API_NOTIFICATION_PROBE_STATUS=not-run"
+            echo "API_NOTIFICATION_PROBE_BREAKPOINT=none"
+            echo "API_EVIDENCE_BREAKPOINT=none"
+            echo "API_OPEN_EVIDENCE_GAP=none"
+          } >> "$GITHUB_ENV"
+
       - name: Plesk-Infra-Kontext aus BSM aufloesen (fail-fast)
         run: |
           set -euo pipefail
@@ -680,6 +698,15 @@ jobs:
             MICROSOFT_GRAPH_SENDER
             ALERTS_SLACK_WEBHOOK
           )
+          expected_key_count="${#required_keys[@]}"
+          actual_key_count=$(grep -Ec '^[A-Z0-9_]+=' /tmp/api-runtime.env || true)
+          if [ "${actual_key_count}" -ne "${expected_key_count}" ]; then
+            echo "API_HANDOFF_CONTRACT_STATUS=failed" >> "$GITHUB_ENV"
+            echo "API_EVIDENCE_BREAKPOINT=handoff_local_key_count_mismatch" >> "$GITHUB_ENV"
+            echo "✗ Handoff-Artefakt-Key-Anzahl ungültig (expected=${expected_key_count}, actual=${actual_key_count})"
+              echo "API_OPEN_EVIDENCE_GAP=handoff_failed" >> "$GITHUB_ENV"
+            exit 1
+          fi
           placeholder_re='^(CHANGE_ME|PLACEHOLDER|UPDATE_VALUE_IN_VAULT|YOUR_|REPLACE_|TODO)'
           handoff_errors=0
           for key in "${required_keys[@]}"; do
@@ -698,10 +725,14 @@ jobs:
           done
 
           if [ "${handoff_errors}" -gt 0 ]; then
+            echo "API_HANDOFF_CONTRACT_STATUS=failed" >> "$GITHUB_ENV"
+            echo "API_EVIDENCE_BREAKPOINT=handoff_local_artifact_invalid" >> "$GITHUB_ENV"
             echo "✗ Secret-Handoff-Artefakt ist ungültig (${handoff_errors} Fehler)."
+              echo "API_OPEN_EVIDENCE_GAP=handoff_failed" >> "$GITHUB_ENV"
             exit 1
           fi
           echo "API_HANDOFF_CONTRACT_STATUS=ok" >> "$GITHUB_ENV"
+          echo "API_EVIDENCE_BREAKPOINT=none" >> "$GITHUB_ENV"
           echo "✓ Secret-Handoff-Artefakt vollständig und ohne Platzhalter."
 
           # Pfad relativ zum Chroot-Home
@@ -727,6 +758,20 @@ jobs:
             fi
             chmod 600 \"\$ENV_FILE\" || true
           "
+          if ! ssh plesk-prod "
+            set -e
+            ENV_FILE='${{ env.API_REMOTE_PATH }}/.env'
+            required_keys='MAIL_TRANSPORT DATABASE_URL JWT_SECRET_KEY STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET MOE_API_TOKEN N8N_WEBHOOK_SECRET CIVICRM_SITE_KEY CIVICRM_API_KEY MICROSOFT_TENANT_ID MICROSOFT_CLIENT_ID MICROSOFT_CLIENT_SECRET MICROSOFT_GRAPH_SENDER ALERTS_SLACK_WEBHOOK'
+            for key in \$required_keys; do
+              grep -q \"^\${key}=\" \"\$ENV_FILE\" || { echo \"missing_key:\${key}\"; exit 19; }
+            done
+          "; then
+            echo "API_HANDOFF_CONTRACT_STATUS=failed" >> "$GITHUB_ENV"
+            echo "API_EVIDENCE_BREAKPOINT=handoff_remote_merge_missing_key" >> "$GITHUB_ENV"
+            echo "✗ Remote-Handoff-Merge fehlgeschlagen oder Pflichtschlüssel fehlen nach Merge."
+              echo "API_OPEN_EVIDENCE_GAP=handoff_failed" >> "$GITHUB_ENV"
+            exit 1
+          fi
           ssh plesk-prod \
             "printf '%s\n' '${{ steps.release.outputs.marker }}' > '${{ env.API_REMOTE_PATH }}/.deploy_release'"
           ssh plesk-prod "API_PATH='${{ env.API_REMOTE_PATH }}' EXPECTED_COMMIT='commit=${GITHUB_SHA::8}' bash -s" <<'REMOTE'
@@ -777,7 +822,10 @@ jobs:
           REMOTE
           )
           if [ -z "${API_USED_PYTHON}" ]; then
+            echo "API_HANDOFF_CONTRACT_STATUS=failed" >> "$GITHUB_ENV"
+            echo "API_EVIDENCE_BREAKPOINT=handoff_missing_interpreter_marker" >> "$GITHUB_ENV"
             echo "✗ Gespeicherter API-Python-Interpreter ist leer"
+              echo "API_OPEN_EVIDENCE_GAP=handoff_failed" >> "$GITHUB_ENV"
             exit 1
           fi
           API_RELEASE_MARKER_COMMIT=$(ssh plesk-prod "API_PATH='${{ env.API_REMOTE_PATH }}' bash -s" <<'REMOTE'
@@ -789,7 +837,10 @@ jobs:
           REMOTE
           )
           if [ "${API_RELEASE_MARKER_COMMIT}" != "${GITHUB_SHA::8}" ]; then
+            echo "API_HANDOFF_CONTRACT_STATUS=failed" >> "$GITHUB_ENV"
+            echo "API_EVIDENCE_BREAKPOINT=handoff_release_marker_mismatch" >> "$GITHUB_ENV"
             echo "✗ API-Release-Marker zeigt nicht auf den erwarteten Commit."
+              echo "API_OPEN_EVIDENCE_GAP=handoff_failed" >> "$GITHUB_ENV"
             exit 1
           fi
           echo "API_USED_PYTHON=${API_USED_PYTHON}" >> "$GITHUB_ENV"
@@ -1140,13 +1191,27 @@ jobs:
           GRAPH_OK=$(printf '%s' "$CONTRACT_JSON" | jq -r '.channels.graph_mail_configured // false')
           SLACK_OK=$(printf '%s' "$CONTRACT_JSON" | jq -r '.channels.slack_webhook_configured // false')
 
+          if [ "$GRAPH_OK" = "true" ]; then
+            echo "API_GRAPH_CHANNEL_CONFIG_STATUS=configured" >> "$GITHUB_ENV"
+          else
+            echo "API_GRAPH_CHANNEL_CONFIG_STATUS=not_configured" >> "$GITHUB_ENV"
+          fi
+          if [ "$SLACK_OK" = "true" ]; then
+            echo "API_SLACK_CHANNEL_CONFIG_STATUS=configured" >> "$GITHUB_ENV"
+          else
+            echo "API_SLACK_CHANNEL_CONFIG_STATUS=not_configured" >> "$GITHUB_ENV"
+          fi
+
           if [ "$CONTRACT_OK" != "true" ] || [ "$GRAPH_OK" != "true" ] || [ "$SLACK_OK" != "true" ]; then
             echo "✗ Runtime-Secret-Contract verletzt (contract_ok=$CONTRACT_OK, graph_mail=$GRAPH_OK, slack=$SLACK_OK)"
             echo "API_SECRET_RUNTIME_STATUS=failed" >> "$GITHUB_ENV"
+            echo "API_EVIDENCE_BREAKPOINT=runtime_contract_failed" >> "$GITHUB_ENV"
+              echo "API_OPEN_EVIDENCE_GAP=runtime_contract_failed" >> "$GITHUB_ENV"
             exit 1
           fi
 
           echo "API_SECRET_RUNTIME_STATUS=ok" >> "$GITHUB_ENV"
+          printf '%s\n' "$CONTRACT_JSON" > /tmp/api-runtime-secret-contract.json
           echo "✓ Runtime-Secret-Contract inkl. Graph/Slack-Kanäle ist valide."
 
       - name: Notification Live-Probe (Graph/Slack) oder manueller nächster Schritt
@@ -1159,6 +1224,9 @@ jobs:
           if [ "${LIVE_NOTIFICATION_PROBE}" != "true" ]; then
             echo "API_NOTIFICATION_PROBE_STATUS=manual-step-required" >> "$GITHUB_ENV"
             echo "API_NOTIFICATION_PROBE_BREAKPOINT=live_probe_disabled" >> "$GITHUB_ENV"
+            echo "API_GRAPH_CHANNEL_PROBE_STATUS=not_probed" >> "$GITHUB_ENV"
+            echo "API_SLACK_CHANNEL_PROBE_STATUS=not_probed" >> "$GITHUB_ENV"
+            echo "API_OPEN_EVIDENCE_GAP=live_probe_not_executed" >> "$GITHUB_ENV"
             echo "LIVE-Probe deaktiviert (vars.LIVE_NOTIFICATION_PROBE != true)."
             echo "Manueller Nachweis: Stripe-Test-Webhook \`payment_intent.payment_failed\` gegen den bestehenden Endpunkt auslösen — bestätigt Admin-Mail (Graph) und Slack-Alert in einem einzigen produktionsnahen Pfad." >> "$GITHUB_STEP_SUMMARY"
             exit 0
@@ -1179,18 +1247,107 @@ jobs:
 
           echo "API_NOTIFICATION_PROBE_JSON=$PROBE_RESULT" >> "$GITHUB_ENV"
           PROBE_OK=$(printf '%s' "$PROBE_RESULT" | jq -r '.probe == "ok"')
+          GRAPH_PROBE_OK=$(printf '%s' "$PROBE_RESULT" | jq -r '.graph_token_probe // false')
+          SLACK_PROBE_OK=$(printf '%s' "$PROBE_RESULT" | jq -r '.slack_webhook_probe // false')
+
+          if [ "$GRAPH_PROBE_OK" = "true" ]; then
+            echo "API_GRAPH_CHANNEL_PROBE_STATUS=ok" >> "$GITHUB_ENV"
+          else
+            echo "API_GRAPH_CHANNEL_PROBE_STATUS=failed" >> "$GITHUB_ENV"
+          fi
+          if [ "$SLACK_PROBE_OK" = "true" ]; then
+            echo "API_SLACK_CHANNEL_PROBE_STATUS=ok" >> "$GITHUB_ENV"
+          else
+            echo "API_SLACK_CHANNEL_PROBE_STATUS=failed" >> "$GITHUB_ENV"
+          fi
+
           if [ "$PROBE_OK" != "true" ]; then
             BREAKPOINT=$(printf '%s' "$PROBE_RESULT" | jq -r '.breakpoint // "unknown"')
             echo "API_NOTIFICATION_PROBE_STATUS=failed" >> "$GITHUB_ENV"
             echo "API_NOTIFICATION_PROBE_BREAKPOINT=$BREAKPOINT" >> "$GITHUB_ENV"
+            echo "API_EVIDENCE_BREAKPOINT=notification_probe_failed" >> "$GITHUB_ENV"
             echo "✗ LIVE-Notification-Probe fehlgeschlagen am Bruchpunkt: $BREAKPOINT"
             echo "Bruchpunkt '$BREAKPOINT': Stripe-Test-Webhook \`payment_intent.payment_failed\` auslösen — deckt Graph-Mail und Slack in einem Pfad ab." >> "$GITHUB_STEP_SUMMARY"
+              echo "API_OPEN_EVIDENCE_GAP=probe_failed" >> "$GITHUB_ENV"
             exit 1
           fi
 
           echo "API_NOTIFICATION_PROBE_STATUS=ok" >> "$GITHUB_ENV"
           echo "API_NOTIFICATION_PROBE_BREAKPOINT=none" >> "$GITHUB_ENV"
+          echo "API_OPEN_EVIDENCE_GAP=none" >> "$GITHUB_ENV"
           echo "✓ LIVE-Notification-Probe abgeschlossen: Graph-Credentials gültig (Token-Erwerb verifiziert, kein Test-Mail gesendet), Slack-Webhook erreichbar und hat geantwortet."
+
+      - name: API Produktionsnachweis-JSON erzeugen (redigiert)
+        if: >
+          always() && (
+            env.TARGET_SERVICE == 'all' ||
+            env.TARGET_SERVICE == 'api'
+          )
+        run: |
+          set -euo pipefail
+          if [ "${API_OPEN_EVIDENCE_GAP:-none}" = "live_probe_not_executed" ]; then
+            DECISION_BASIS="live_probe_disabled_allows_success_with_explicit_gap"
+          elif [ "${API_NOTIFICATION_PROBE_STATUS:-not-run}" = "ok" ]; then
+            DECISION_BASIS="live_probe_executed_and_passed"
+          elif [ "${API_NOTIFICATION_PROBE_STATUS:-not-run}" = "failed" ]; then
+            DECISION_BASIS="live_probe_executed_and_failed"
+          else
+            DECISION_BASIS="probe_not_reached_prior_step_failed"
+          fi
+          TS=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
+          EVIDENCE_FILE="/tmp/api-production-evidence-${GITHUB_SHA}.json"
+          jq -n \
+            --arg run_id "${GITHUB_RUN_ID}" \
+            --arg sha "${GITHUB_SHA}" \
+            --arg timestamp "${TS}" \
+            --arg target_service "${TARGET_SERVICE}" \
+            --arg handoff_status "${API_HANDOFF_CONTRACT_STATUS:-not-run}" \
+            --arg runtime_contract_status "${API_SECRET_RUNTIME_STATUS:-not-run}" \
+            --arg graph_config_status "${API_GRAPH_CHANNEL_CONFIG_STATUS:-unknown}" \
+            --arg slack_config_status "${API_SLACK_CHANNEL_CONFIG_STATUS:-unknown}" \
+            --arg graph_probe_status "${API_GRAPH_CHANNEL_PROBE_STATUS:-not-run}" \
+            --arg slack_probe_status "${API_SLACK_CHANNEL_PROBE_STATUS:-not-run}" \
+            --arg notification_probe_status "${API_NOTIFICATION_PROBE_STATUS:-not-run}" \
+            --arg notification_probe_breakpoint "${API_NOTIFICATION_PROBE_BREAKPOINT:-none}" \
+            --arg evidence_breakpoint "${API_EVIDENCE_BREAKPOINT:-none}" \
+            --arg open_evidence_gap "${API_OPEN_EVIDENCE_GAP:-none}" \
+            --arg decision_basis "${DECISION_BASIS}" \
+            '{
+              run_id: $run_id,
+              sha: $sha,
+              timestamp: $timestamp,
+              target_service: $target_service,
+              handoff_status: $handoff_status,
+              runtime_contract_status: $runtime_contract_status,
+              graph_channel: {
+                configured: $graph_config_status,
+                probe: $graph_probe_status
+              },
+              slack_channel: {
+                configured: $slack_config_status,
+                probe: $slack_probe_status
+              },
+              notification_probe_status: $notification_probe_status,
+              notification_probe_breakpoint: $notification_probe_breakpoint,
+              evidence_breakpoint: $evidence_breakpoint,
+              open_evidence_gap: $open_evidence_gap,
+              decision_basis: $decision_basis
+            }' > "$EVIDENCE_FILE"
+
+      - name: API Produktionsnachweis-Artefakt hochladen
+        if: >
+          always() && (
+            env.TARGET_SERVICE == 'all' ||
+            env.TARGET_SERVICE == 'api'
+          )
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        with:
+          name: api-production-evidence-${{ github.sha }}
+          path: |
+            /tmp/api-production-evidence-${{ github.sha }}.json
+            /tmp/api-runtime-secret-contract.json
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Healthcheck — CRM-Portal
         if: >
@@ -1299,8 +1456,23 @@ jobs:
           echo "| Runtime-Secret-Contract | ${API_SECRET_RUNTIME_STATUS:-nicht geprueft} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Notification-Probe | ${API_NOTIFICATION_PROBE_STATUS:-nicht ausgefuehrt} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Probe-Bruchpunkt | ${API_NOTIFICATION_PROBE_BREAKPOINT:-n/a} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Evidenz-Bruchpunkt | ${API_EVIDENCE_BREAKPOINT:-n/a} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Python-Interpreter | \`${API_USED_PYTHON:-nicht ausgefuehrt}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Restart-Status | ${API_RESTART_STATUS:-nicht ausgefuehrt} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| /healthz Status | ${API_HEALTHZ_STATUS:-nicht ausgefuehrt} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| /readyz Status | ${API_READYZ_STATUS:-nicht ausgefuehrt} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Release-Marker-Commit | ${API_RELEASE_MARKER_COMMIT:-nicht geprueft} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### ✅ Produktionsnachweis (redigiert)" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Nachweis | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Secret-Handoff | ${API_HANDOFF_CONTRACT_STATUS:-not-run} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Runtime-Secret-Contract | ${API_SECRET_RUNTIME_STATUS:-not-run} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Graph-Kanal (Konfiguration) | ${API_GRAPH_CHANNEL_CONFIG_STATUS:-unknown} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Slack-Kanal (Konfiguration) | ${API_SLACK_CHANNEL_CONFIG_STATUS:-unknown} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Graph-Kanal (Probe) | ${API_GRAPH_CHANNEL_PROBE_STATUS:-not-run} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Slack-Kanal (Probe) | ${API_SLACK_CHANNEL_PROBE_STATUS:-not-run} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Probe-Bruchpunkt | ${API_NOTIFICATION_PROBE_BREAKPOINT:-none} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Evidenz-Bruchpunkt | ${API_EVIDENCE_BREAKPOINT:-none} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Offene Restlücke | ${API_OPEN_EVIDENCE_GAP:-none} |" >> "$GITHUB_STEP_SUMMARY"
