@@ -808,7 +808,16 @@ jobs:
             [ -x "$PYTHON" ] || fail "Python-Interpreter ist nicht ausfuehrbar"
             "$PYTHON" --version >/dev/null 2>&1 || fail "python --version fehlgeschlagen"
             "$PYTHON" -m pip --version >/dev/null 2>&1 || fail "pip fuer Interpreter nicht verfuegbar"
-            "$PYTHON" -m pip install -r requirements.txt --quiet 2>&1 | tail -5
+            PIP_INSTALL_LOG="$(mktemp "${API_ABS_PATH}/.pip-install.${GITHUB_RUN_ID:-manual}.XXXXXX.log")"
+            if "$PYTHON" -m pip install -r requirements.txt --quiet >"$PIP_INSTALL_LOG" 2>&1; then
+              tail -5 "$PIP_INSTALL_LOG"
+            else
+              echo "✗ pip install fehlgeschlagen. Letzte Log-Zeilen:"
+              tail -5 "$PIP_INSTALL_LOG"
+              rm -f "$PIP_INSTALL_LOG"
+              exit 1
+            fi
+            rm -f "$PIP_INSTALL_LOG"
             "$PYTHON" -m uvicorn --version >/dev/null 2>&1 || fail "uvicorn fuer Interpreter nicht verfuegbar"
             printf '%s\n' "$PYTHON" > "$API_ABS_PATH/.deploy_python_interpreter"
             chmod 600 "$API_ABS_PATH/.deploy_python_interpreter" || true
