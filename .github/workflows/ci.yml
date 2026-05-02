@@ -65,6 +65,35 @@ jobs:
       - name: Run API tests
         run: npm run test:api
 
+      - name: Collect website coverage
+        run: npm --prefix apps/website run test:unit -- --run --coverage
+
+      - name: Collect API coverage
+        run: |
+          python -m pytest apps/api/tests --cov=app --cov-report=xml:quality-reports/api-coverage.xml -q
+
+      - name: Upload coverage artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          if-no-files-found: error
+          path: |
+            apps/website/coverage/coverage-summary.json
+            apps/website/coverage/lcov.info
+            quality-reports/api-coverage.xml
+
+      - name: Upload coverage to Codecov
+        if: env.CODECOV_TOKEN != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: codecov/codecov-action@v5
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: apps/website/coverage/lcov.info,quality-reports/api-coverage.xml
+          flags: website,api
+          fail_ci_if_error: false
+          verbose: true
+
       - name: Build workspaces
         run: npm run build:workspaces
 

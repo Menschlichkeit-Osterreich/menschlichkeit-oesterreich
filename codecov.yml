@@ -1,0 +1,35 @@
+codecov:
+  require_ci_to_pass: true
+  notify:
+    wait_for_ci: true
+
+coverage:
+  precision: 2
+  round: down
+  range: 50..90
+
+  status:
+    project:
+      default:
+        informational: true
+    patch:
+      default:
+        informational: true
+
+ignore:
+  - 'apps/website/dist/**'
+  - 'apps/website/dist-ssr/**'
+  - 'apps/website/scripts/**'
+  - 'apps/website/src/test/**'
+  - 'crm.menschlichkeit-oesterreich.at/**'
+  - 'docs/archive/**'
+  - 'figma-design-system/**'
+  - 'generated/**'
+  - 'quality-reports/**'
+  - 'reports/**'
+  - 'vendor/**'
+
+comment:
+  layout: 'header, diff, flags, files'
+  behavior: default
+  require_changes: false

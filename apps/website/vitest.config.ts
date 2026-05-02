@@ -11,14 +11,21 @@ export default defineConfig({
     css: true,
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reportsDirectory: './coverage',
+      reporter: ['text', 'json', 'json-summary', 'html', 'lcovonly'],
+      include: ['src/**/*.{ts,tsx}'],
       exclude: [
         'node_modules/',
         'src/test/',
         '**/*.d.ts',
         '**/*.config.*',
+        '.eslintrc.cjs',
+        'dist-ssr/',
         '**/mockData',
-        'dist/'
+        'dist/',
+        'scripts/',
+        'src/entry-server.tsx',
+        'src/main.tsx'
       ]
     }
   },
