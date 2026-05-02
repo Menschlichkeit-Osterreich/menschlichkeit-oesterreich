@@ -8,26 +8,26 @@ Enthält **keine Secrets** — nur öffentliche Strukturinformationen und Platzh
 ## Server
 
 ```yaml
-host:        plesk7.digimagical.com
-ip:          5.183.217.146
-os:          Ubuntu 22.04 LTS
-ssh_port:    22
-webserver:   nginx 1.28.0
-php:         8.4.11
-database:    MariaDB 10.6.22
-panel:       Plesk (Obsidian)
+host: plesk7.digimagical.com
+ip: 5.183.217.146
+os: Ubuntu 22.04 LTS
+ssh_port: 22
+webserver: nginx 1.28.0
+php: 8.4.11
+database: MariaDB 10.6.22
+panel: Plesk (Obsidian)
 ```
 
 ---
 
 ## Services & Deployment Targets
 
-| Service   | Tech                    | Build-Kommando             | Ziel-Pfad auf Server                                         | Healthcheck-URL                              |
-|-----------|-------------------------|----------------------------|--------------------------------------------------------------|----------------------------------------------|
-| Frontend  | React 18 + Vite         | `npm run build:frontend`   | `/var/www/vhosts/menschlichkeit-oesterreich.at/httpdocs/`   | `https://menschlichkeit-oesterreich.at/`     |
-| API       | FastAPI (Python 3.12+)  | `pip install -r requirements.txt` | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/api/httpdocs/` | `https://api.menschlichkeit-oesterreich.at/health` |
-| CRM       | Drupal 10 + CiviCRM     | `composer install --no-dev` | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/crm/httpdocs/` | `https://crm.menschlichkeit-oesterreich.at/` |
-| Games     | Static Files            | _(kein Build)_             | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/games/httpdocs/` | `https://games.menschlichkeit-oesterreich.at/` |
+| Service  | Tech                   | Build-Kommando                    | Ziel-Pfad auf Server                                                       | Healthcheck-URL                                    |
+| -------- | ---------------------- | --------------------------------- | -------------------------------------------------------------------------- | -------------------------------------------------- |
+| Frontend | React 18 + Vite        | `npm run build:frontend`          | `/var/www/vhosts/menschlichkeit-oesterreich.at/httpdocs/`                  | `https://menschlichkeit-oesterreich.at/`           |
+| API      | FastAPI (Python 3.12+) | `pip install -r requirements.txt` | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/api/httpdocs/`   | `https://api.menschlichkeit-oesterreich.at/health` |
+| CRM      | Drupal 10 + CiviCRM    | `composer install --no-dev`       | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/crm/httpdocs/`   | `https://crm.menschlichkeit-oesterreich.at/`       |
+| Games    | Static Files           | _(kein Build)_                    | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/games/httpdocs/` | `https://games.menschlichkeit-oesterreich.at/`     |
 
 ### Lokale Service-Verzeichnisse (Repository → Server)
 
@@ -55,6 +55,7 @@ apps/game/                  → /subdomains/games/httpdocs/
 ```
 
 **Deployment-Strategie:** `rsync over SSH`
+
 - Stabil, kein Container-Overhead
 - Kompatibel mit Plesk-Hosting
 - Inkrementell (`--partial`), schnelle Recovery via `--backup`
@@ -133,16 +134,24 @@ VOTES_DB_USER      = svc_votes
 VOTES_DB_PASSWORD  = <Passwort>
 ```
 
-#### SMTP (Plesk Mail Server)
+#### SMTP (Microsoft 365 Business / Exchange Online)
 
-```
-SMTP_HOST      = <Mailserver aus Plesk, z. B. mail.menschlichkeit-oesterreich.at>
+```text
+SMTP_HOST      = smtp.office365.com
 SMTP_PORT      = 587
 SMTP_USER      = <E-Mail-Adresse, z. B. office@menschlichkeit-oesterreich.at>
-SMTP_PASSWORD  = <Passwort>
+SMTP_PASSWORD  = <App-Passwort oder Service-Credential>
+MAIL_ENCRYPTION = tls
 ```
 
+Aktueller Zielzustand:
+
+- produktive Vereinsmails laufen über den vorhandenen **Microsoft 365 Business Account**
+- dieselben Adressen können für API, CRM und n8n verwendet werden
+- mittelfristig ist **Microsoft Graph + Entra App Registration** dem reinen SMTP-Login vorzuziehen
+
 Mögliche Mail-Accounts:
+
 - `office@menschlichkeit-oesterreich.at`
 - `civimail@menschlichkeit-oesterreich.at`
 - `bounce@menschlichkeit-oesterreich.at`
@@ -221,13 +230,13 @@ logs/
 
 Für Claude Code Agents und MCP-Workflows stehen folgende Tool-IDs in `mcp.json` bereit:
 
-| Tool-ID          | Zweck                                        |
-|------------------|----------------------------------------------|
-| `plesk-deploy`   | Deployment via SSH + rsync auslösen          |
-| `n8n-webhook`    | Deployment-Benachrichtigung via n8n          |
+| Tool-ID          | Zweck                                                 |
+| ---------------- | ----------------------------------------------------- |
+| `plesk-deploy`   | Deployment via SSH + rsync auslösen                   |
+| `n8n-webhook`    | Deployment-Benachrichtigung via n8n                   |
 | `github-cli`     | GitHub Actions Workflows triggern (`gh workflow run`) |
-| `trivy-security` | Security-Scan vor Deployment                 |
-| `gitleaks`       | Secret-Scan vor Deployment                   |
+| `trivy-security` | Security-Scan vor Deployment                          |
+| `gitleaks`       | Secret-Scan vor Deployment                            |
 
 **Deployment via GitHub CLI (Agent-Kommando):**
 
@@ -266,12 +275,11 @@ VERBOTEN:
 
 ## Verwandte Dateien
 
-| Datei                                    | Zweck                                     |
-|------------------------------------------|-------------------------------------------|
+| Datei                                    | Zweck                                       |
+| ---------------------------------------- | ------------------------------------------- |
 | `.github/workflows/deploy-plesk.yml`     | CI/CD Pipeline (vollständige Multi-Service) |
-| `.env.production.template`               | Produktions-Umgebungsvorlage              |
-| `.env.example`                           | Development-Vorlage (lokal)               |
-| `scripts/safe-deploy.sh`                 | Manuelles Deployment-Skript (Fallback)    |
-| `deployment-scripts/deploy-api-plesk.sh` | API-spezifisches Plesk-Deployment         |
-| `openclaw-system/ARCHITECTURE.md`        | OpenClaw Multi-Agent Architektur          |
-| `CLAUDE.md`                              | Claude Code Projektanleitung              |
+| `.env.production.template`               | Produktions-Umgebungsvorlage                |
+| `.env.example`                           | Development-Vorlage (lokal)                 |
+| `scripts/safe-deploy.sh`                 | Manuelles Deployment-Skript (Fallback)      |
+| `deployment-scripts/deploy-api-plesk.sh` | API-spezifisches Plesk-Deployment           |
+| `CLAUDE.md`                              | Claude Code Projektanleitung                |

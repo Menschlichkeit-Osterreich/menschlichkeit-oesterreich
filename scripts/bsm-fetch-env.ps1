@@ -4,6 +4,7 @@
 # Verwendung:
 #   .\scripts\bsm-fetch-env.ps1 -Environment development -Service all -OutputFile .env
 #   .\scripts\bsm-fetch-env.ps1 -Environment production -Service api -OutputFile apps/api/.env
+#   .\scripts\bsm-fetch-env.ps1 -Environment development -Service website -OutputFile apps/website/.env.local
 
 param(
     [Parameter(Mandatory = $false)]
@@ -11,11 +12,14 @@ param(
     [string]$Environment = "development",
 
     [Parameter(Mandatory = $false)]
-    [ValidateSet("api", "n8n", "openclaw", "infra", "shared", "all")]
+    [ValidateSet("api", "website", "n8n", "infra", "shared", "all")]
     [string]$Service = "all",
 
     [Parameter(Mandatory = $false)]
     [string]$OutputFile = ".env",
+
+    [Parameter(Mandatory = $false)]
+    [string]$TokenFile = $env:BW_TOKEN_FILE,
 
     [Parameter(Mandatory = $false)]
     [switch]$DryRun = $false
@@ -23,64 +27,34 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+$wingetLinks = Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Links"
+if ((Test-Path $wingetLinks) -and ($env:Path -notlike "*$wingetLinks*")) {
+    $env:Path += ";$wingetLinks"
+}
+
+. (Join-Path $PSScriptRoot "bitwarden-common.ps1")
+
 # ── Voraussetzungen pruefen ─────────────────────────────────
+
+$null = Resolve-BitwardenAccessToken -TokenFile $TokenFile -ExportToProcess
 
 if (-not $env:BSM_ACCESS_TOKEN) {
     Write-Host "[ERROR] BSM_ACCESS_TOKEN ist nicht gesetzt." -ForegroundColor Red
-    Write-Host "Setze BSM_ACCESS_TOKEN in deinem Shell-Profil oder:" -ForegroundColor Yellow
-    Write-Host '  $env:BSM_ACCESS_TOKEN = "dein-access-token"' -ForegroundColor Yellow
-    exit 1
-}
-
-if (-not (Get-Command bws -ErrorAction SilentlyContinue)) {
-    Write-Host "[ERROR] bws CLI nicht gefunden." -ForegroundColor Red
-    Write-Host "Installation: choco install bws" -ForegroundColor Yellow
-    Write-Host "Oder: https://github.com/bitwarden/sdk-sm/releases" -ForegroundColor Yellow
+    Write-Host "Setze BSM_ACCESS_TOKEN/BW_ACCESS_TOKEN oder verweise mit BW_TOKEN_FILE auf deine gitignored Token-Datei." -ForegroundColor Yellow
     exit 1
 }
 
 # ── Konfiguration ───────────────────────────────────────────
 
-$projectMap = @{
-    "development" = "moe-development"
-    "staging"     = "moe-staging"
-    "production"  = "moe-production"
-}
-
-$projectName = $projectMap[$Environment]
+$scopeLabel = if ($env:BSM_PROJECT_NAME) { $env:BSM_PROJECT_NAME } else { $Environment }
 $bsmApiUrl = if ($env:BSM_API_URL) { $env:BSM_API_URL } else { "https://api.bitwarden.eu" }
 $bsmIdentityUrl = if ($env:BSM_IDENTITY_URL) { $env:BSM_IDENTITY_URL } else { "https://identity.bitwarden.eu" }
 
-Write-Host "[INFO] BSM Secrets laden: Projekt=$projectName, Service=$Service" -ForegroundColor Green
-
-# ── Projekt-ID ermitteln ────────────────────────────────────
-
-$bwsEnv = @{
-    BWS_ACCESS_TOKEN = $env:BSM_ACCESS_TOKEN
-}
-
-$projectsJson = & bws project list --output json 2>&1
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "[ERROR] bws project list fehlgeschlagen: $projectsJson" -ForegroundColor Red
-    exit 1
-}
-
-$projects = $projectsJson | ConvertFrom-Json
-$targetProject = $projects | Where-Object { $_.name -eq $projectName }
-
-if (-not $targetProject) {
-    Write-Host "[ERROR] BSM-Projekt '$projectName' nicht gefunden." -ForegroundColor Red
-    Write-Host "Verfuegbare Projekte:" -ForegroundColor Yellow
-    $projects | ForEach-Object { Write-Host "  - $($_.name)" -ForegroundColor Yellow }
-    exit 1
-}
-
-$projectId = $targetProject.id
-Write-Host "[INFO] Projekt gefunden: $projectName (ID: $projectId)" -ForegroundColor Green
+Write-Host "[INFO] BSM Secrets laden: Scope=$scopeLabel, Service=$Service" -ForegroundColor Green
 
 # ── Secrets laden ───────────────────────────────────────────
 
-$secretsJson = & bws secret list "$projectId" --output json 2>&1
+$secretsJson = Invoke-BwsCommand -Arguments @("secret", "list", "--output", "json") -TokenFile $TokenFile
 if ($LASTEXITCODE -ne 0) {
     Write-Host "[ERROR] bws secret list fehlgeschlagen: $secretsJson" -ForegroundColor Red
     exit 1

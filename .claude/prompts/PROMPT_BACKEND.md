@@ -90,7 +90,6 @@ Arbeite primär in und über diese Bereiche:
 9. apps/website/.env.example
 10. .github/workflows/
 11. scripts/
-12. openclaw-system/configs/capabilities.yaml nur falls n8n Webhook Freigaben oder Tooling betroffen sind
 
 Berücksichtige die dokumentierten Eckpunkte des Repos:
 

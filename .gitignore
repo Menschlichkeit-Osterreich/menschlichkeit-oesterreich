@@ -39,7 +39,7 @@ apps/website/.vite/
 .env.vault
 .env.local
 .env.development
-.env.staging  
+.env.staging
 .env.production
 .env.*.local
 .env.*.decrypted
@@ -84,7 +84,6 @@ secrets/ZUGANGSDATEN-WOHER-BEKOMMEN.txt
 # Ausnahmen: eingecheckte Schema-Initialisierungsskripte
 !scripts/init-db.sql
 !scripts/db-user-setup.sql
-!openclaw-system/services/postgres/init.sql
 
 # Configuration with secrets
 config/local.json
@@ -97,11 +96,34 @@ config/smtp.json
 .vscode/settings.local.json
 .vscode/secrets.json
 
+# Local Claude / IDE helper state
+.claude-dev-helper/
+**/.claude-dev-helper/
+
 # API Keys & Tokens
 api-keys.txt
 tokens.txt
 credentials.json
 service-account*.json
+codacy*token*.txt
+*codacy*api*token*.txt
+
+# Lokale Secret-Ablage (nie committen)
+.local-secrets/
+
+# Bitwarden / lokale Vault-Artefakte
+BW_ACCESS_TOKEN.txt
+BW_ACCESS_TOKEN*.txt
+master.txt
+master*.txt
+.bw-session
+.bw_session
+.bw/
+.bitwarden/
+bitwarden-export*.json
+bitwarden-export*.csv
+mcp-servers/bitwarden-cli/.env
+mcp-servers/bitwarden-cli/.env.local
 
 # ========================================
 # Node.js / NPM
@@ -308,6 +330,7 @@ logs/*.txt
 logs/*.log
 logs/**/*.txt
 logs/**/*.log
+
 # Operative Security-Alerts — nicht im Repository versionieren
 # Schema-Dokumentation: logs/security-alerts.example.json (getrackt)
 logs/security-alerts.json
@@ -391,7 +414,6 @@ config/.env.production
 # Ausnahmen: eingecheckte Schema-Initialisierungsskripte (see also line 65)
 !scripts/init-db.sql
 !scripts/db-user-setup.sql
-!openclaw-system/services/postgres/init.sql
 backup/
 backups/
 dumps/
@@ -486,10 +508,6 @@ crm.menschlichkeit-oesterreich.at/web/core/modules/**/tests/**/README.md
 !**/.env.example
 !**/.env.production.template
 !**/.env.test.example
-# OpenClaw – lokale Konfiguration (niemals einchecken)
-.openclaw/
-automation/openclaw/.env
-automation/openclaw/config/config.yaml
 
 # Incident-Evidence und interne Medien (DSGVO-sensitive Artefakte)
 docs/incidents/
@@ -503,6 +521,7 @@ backups/
 .claude/settings.local.json
 .claude/secrets.env
 .claude/plans/
+.claude/skills/
 .claude_pr_body.md
 
 # Babylon.js Editor

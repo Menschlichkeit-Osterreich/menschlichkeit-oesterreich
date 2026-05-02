@@ -1,3 +1,10 @@
+---
+title: Architecture Overview
+description: Technischer Ueberblick ueber Plattform-Architektur, Services und Schnittstellen.
+lastUpdated: 2026-04-16
+status: ACTIVE
+---
+
 # Architecture Overview
 
 **Menschlichkeit Österreich Platform Architecture**
@@ -59,6 +66,7 @@
 ## 📦 Service Breakdown
 
 ### 1. Website (WordPress)
+
 - **Purpose**: Public-facing website
 - **Port**: 80/443
 - **Database**: `mo_main` (MariaDB)
@@ -66,6 +74,7 @@
 - **Hosting**: Plesk
 
 ### 2. CRM (Drupal 10 + CiviCRM)
+
 - **Purpose**: Member & donation management
 - **Port**: 8000
 - **Database**: `mo_crm` (External MariaDB)
@@ -77,6 +86,7 @@
   - Donation tracking
 
 ### 3. API Backend (FastAPI)
+
 - **Purpose**: REST API for all services
 - **Port**: 8001
 - **Database**: Shared (via Prisma)
@@ -88,6 +98,7 @@
   - Rate limiting
 
 ### 4. Frontend (React)
+
 - **Purpose**: Modern web interface
 - **Port**: 3000 (dev) / 443 (prod)
 - **Stack**: React 18, TypeScript 5, Tailwind CSS, Vite
@@ -98,6 +109,7 @@
   - Austrian German localization
 
 ### 5. Gaming Platform
+
 - **Purpose**: Gamification & engagement
 - **Port**: 3000
 - **Database**: `mo_games` (External MariaDB)
@@ -108,6 +120,7 @@
   - Leaderboards
 
 ### 6. n8n Automation
+
 - **Purpose**: Workflow automation
 - **Port**: 5678
 - **Database**: `mo_n8n` (External MariaDB)
@@ -124,35 +137,35 @@
 
 ### PostgreSQL (External Server)
 
-| Database | Purpose | Schema Owner |
-|----------|---------|--------------|
-| `mo_idp` | Keycloak Identity Provider | `svc_idp` |
-| `mo_grafana` | Grafana Dashboards | `svc_grafana` |
-| `mo_discourse` | Forum (Optional) | `svc_discourse` |
+| Database       | Purpose                    | Schema Owner    |
+| -------------- | -------------------------- | --------------- |
+| `mo_idp`       | Keycloak Identity Provider | `svc_idp`       |
+| `mo_grafana`   | Grafana Dashboards         | `svc_grafana`   |
+| `mo_discourse` | Forum (Optional)           | `svc_discourse` |
 
 ### MariaDB - Plesk (localhost)
 
-| Database | Purpose | Schema Owner |
-|----------|---------|--------------|
-| `mo_main` | WordPress Website | `svc_main` |
-| `mo_votes` | Voting System | `svc_votes` |
-| `mo_support` | Support Tickets | `svc_support` |
+| Database        | Purpose               | Schema Owner     |
+| --------------- | --------------------- | ---------------- |
+| `mo_main`       | WordPress Website     | `svc_main`       |
+| `mo_votes`      | Voting System         | `svc_votes`      |
+| `mo_support`    | Support Tickets       | `svc_support`    |
 | `mo_newsletter` | Newsletter Management | `svc_newsletter` |
-| `mo_forum` | Community Forum | `svc_forum` |
+| `mo_forum`      | Community Forum       | `svc_forum`      |
 
 ### MariaDB - External Server
 
-| Database | Purpose | Schema Owner |
-|----------|---------|--------------|
-| `mo_crm` | Drupal + CiviCRM | `svc_crm` |
-| `mo_n8n` | n8n Workflows | `svc_n8n` |
-| `mo_hooks` | Webhook Logs | `svc_hooks` |
-| `mo_consent` | DSGVO Consent | `svc_consent` |
-| `mo_games` | Gaming Platform | `svc_games` |
-| `mo_analytics` | Analytics/ETL | `svc_analytics` |
-| `mo_api_stg` | API Staging | `svc_api_stg` |
-| `mo_admin_stg` | Admin Staging | `svc_admin_stg` |
-| `mo_nextcloud` | File Storage | `svc_nextcloud` |
+| Database       | Purpose          | Schema Owner    |
+| -------------- | ---------------- | --------------- |
+| `mo_crm`       | Drupal + CiviCRM | `svc_crm`       |
+| `mo_n8n`       | n8n Workflows    | `svc_n8n`       |
+| `mo_hooks`     | Webhook Logs     | `svc_hooks`     |
+| `mo_consent`   | DSGVO Consent    | `svc_consent`   |
+| `mo_games`     | Gaming Platform  | `svc_games`     |
+| `mo_analytics` | Analytics/ETL    | `svc_analytics` |
+| `mo_api_stg`   | API Staging      | `svc_api_stg`   |
+| `mo_admin_stg` | Admin Staging    | `svc_admin_stg` |
+| `mo_nextcloud` | File Storage     | `svc_nextcloud` |
 
 ---
 
@@ -220,6 +233,8 @@ On Release:
 ## 🌐 Network Architecture
 
 ### Domain Structure
+
+Hinweis: Die folgende Liste beschreibt Laufzeit-Domains in Produktion und Staging. Aktive Entwicklungs- und Source-Pfade im Repository liegen unter `apps/` und `automation/`, insbesondere `apps/website/`, `apps/api/`, `apps/crm/`, `apps/babylon-game/` und `automation/n8n/`.
 
 ```
 menschlichkeit-oesterreich.at/
@@ -374,45 +389,48 @@ Outbound:
 
 ### Performance Targets
 
-| Service | Response Time | Throughput | Availability |
-|---------|--------------|------------|--------------|
-| API | < 100ms (p95) | 1000 req/s | 99.9% |
-| CRM | < 500ms (p95) | 100 req/s | 99.5% |
-| Frontend | < 2s (LCP) | - | 99.9% |
-| Database | < 50ms (query) | 10K qps | 99.99% |
+| Service  | Response Time  | Throughput | Availability |
+| -------- | -------------- | ---------- | ------------ |
+| API      | < 100ms (p95)  | 1000 req/s | 99.9%        |
+| CRM      | < 500ms (p95)  | 100 req/s  | 99.5%        |
+| Frontend | < 2s (LCP)     | -          | 99.9%        |
+| Database | < 50ms (query) | 10K qps    | 99.99%       |
 
 ---
 
 ## 🛠️ Technology Decisions (ADRs)
 
 ### ADR-001: Multi-Service Architecture
+
 - **Decision**: Separate services instead of monolith
 - **Rationale**: Independent scaling, tech stack flexibility
 - **Trade-offs**: Increased complexity, distributed transactions
 
 ### ADR-002: PostgreSQL + MariaDB
+
 - **Decision**: Use both PostgreSQL and MariaDB
 - **Rationale**: Plesk limits (5 DBs), specific tool requirements
 - **Trade-offs**: Multiple DB systems to maintain
 
 ### ADR-003: DSGVO-First Design
+
 - **Decision**: Privacy-by-design from day one
 - **Rationale**: Legal compliance, user trust
 - **Trade-offs**: Additional development overhead
 
-See [docs/architecture/adr/](../../architecture/adr/) for full ADR list.
+See [docs/architecture/ADRs/](../architecture/ADRs/) for full ADR list.
 
 ---
 
 ## 📚 Further Reading
 
-- [Services Guide](Services) - Detailed service documentation
-- [Infrastructure](Infrastructure) - Hosting & networking details
-- [Security Architecture](Security) - Deep-dive into security
-- [Privacy by Design](Privacy) - DSGVO implementation
+- [Services Guide](../getting-started/services-and-ports.md) - Detailed service documentation
+- [Infrastructure](../infrastructure/SUBDOMAIN-REGISTRY.md) - Hosting & networking details
+- [Security Architecture](../security/README.md) - Deep-dive into security
+- [Privacy by Design](../privacy/art-05-06-grundsaetze.md) - DSGVO implementation
 
 ---
 
-**Last Updated**: 2025-10-12  
-**Version**: 1.0  
+**Last Updated**: 2025-10-12
+**Version**: 1.0
 **Maintainer**: Architecture Team

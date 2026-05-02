@@ -8,7 +8,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 
 from ..db import execute, fetch, fetchrow, fetchval
 from ..rbac import require_auth
-from ..schemas.newsletter import NewsletterSubscribeRequest, NewsletterUnsubscribeRequest
+from ..schemas.newsletter import (
+    NewsletterSubscribeRequest,
+    NewsletterUnsubscribeRequest,
+)
 from ..services.crm_service import crm_service
 from ..services.mail_service import mail_service
 from ..services.privacy_service import privacy_service
@@ -17,6 +20,11 @@ from ..services.utils import normalize_email
 router = APIRouter()
 
 ALLOWED_NEWSLETTER_ROLES = {"staff", "finance", "admin", "sysadmin", "moderator"}
+
+
+def _build_unsubscribe_url(base_url: str, token: str) -> str:
+    normalized = base_url.rstrip("/")
+    return f"{normalized}/api/newsletter/unsubscribe?token={token}"
 
 
 async def ensure_newsletter_admin_tables() -> None:
@@ -147,13 +155,22 @@ async def _newsletter_segments() -> list[dict]:
 
 @router.post("/newsletter/subscribe")
 async def subscribe_newsletter(body: NewsletterSubscribeRequest, request: Request):
+    if body.company and body.company.strip():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Ungültige Anfrage"
+        )
+
     if not body.consent:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Newsletter-Einwilligung ist erforderlich")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Newsletter-Einwilligung ist erforderlich",
+        )
 
     email = normalize_email(body.email)
     token = secrets.token_urlsafe(32)
     existing = await fetchrow(
-        "SELECT id, token_created_at FROM newsletter_subscriptions WHERE LOWER(email) = LOWER($1)", email
+        "SELECT id, token_created_at FROM newsletter_subscriptions WHERE LOWER(email) = LOWER($1)",
+        email,
     )
     # DoS-Schutz: max. 1 neues Token alle 5 Minuten pro E-Mail-Adresse
     if existing and existing["token_created_at"] is not None:
@@ -191,7 +208,9 @@ async def subscribe_newsletter(body: NewsletterSubscribeRequest, request: Reques
             body.source,
         )
 
-    confirm_url = f"{request.base_url}api/newsletter/confirm?token={token}"
+    base_url = str(request.base_url)
+    confirm_url = f"{base_url}api/newsletter/confirm?token={token}"
+    unsubscribe_url = _build_unsubscribe_url(base_url, token)
     await mail_service.send_template(
         template_id="newsletter_doi",
         recipient_email=email,
@@ -199,6 +218,7 @@ async def subscribe_newsletter(body: NewsletterSubscribeRequest, request: Reques
             "first_name": body.first_name or "",
             "last_name": body.last_name or "",
             "confirmation_url": confirm_url,
+            "unsubscribe_url": unsubscribe_url,
         },
         entity_type="newsletter_subscription",
     )
@@ -209,13 +229,16 @@ async def subscribe_newsletter(body: NewsletterSubscribeRequest, request: Reques
 
 
 @router.get("/newsletter/confirm")
-async def confirm_newsletter(token: str = Query(..., min_length=10)):
+async def confirm_newsletter(request: Request, token: str = Query(..., min_length=10)):
     pending = await fetchrow(
         "SELECT id, token_created_at FROM newsletter_subscriptions WHERE confirmation_token = $1 AND status = 'pending_confirmation'",
         token,
     )
     if not pending:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Ungültiger Bestätigungslink")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ungültiger Bestätigungslink",
+        )
     if pending["token_created_at"] is not None:
         age = datetime.now(timezone.utc) - pending["token_created_at"]
         if age > timedelta(hours=48):
@@ -233,7 +256,10 @@ async def confirm_newsletter(token: str = Query(..., min_length=10)):
         token,
     )
     if not row:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Ungültiger Bestätigungslink")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ungültiger Bestätigungslink",
+        )
 
     subscription = dict(row)
     contact = await crm_service.upsert_contact(
@@ -249,7 +275,9 @@ async def confirm_newsletter(token: str = Query(..., min_length=10)):
             contact_id,
             subscription["id"],
         )
-        await crm_service.set_newsletter_subscription(contact_id=contact_id, subscribe=True)
+        await crm_service.set_newsletter_subscription(
+            contact_id=contact_id, subscribe=True
+        )
 
     await privacy_service.record_consent(
         member_id=None,
@@ -264,6 +292,7 @@ async def confirm_newsletter(token: str = Query(..., min_length=10)):
         context={
             "first_name": subscription.get("first_name") or "",
             "last_name": subscription.get("last_name") or "",
+            "unsubscribe_url": _build_unsubscribe_url(str(request.base_url), token),
         },
         entity_type="newsletter_subscription",
     )
@@ -273,7 +302,10 @@ async def confirm_newsletter(token: str = Query(..., min_length=10)):
 @router.post("/newsletter/unsubscribe")
 async def unsubscribe_newsletter(body: NewsletterUnsubscribeRequest):
     if not body.email and not body.token:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail="E-Mail oder Token erforderlich")
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="E-Mail oder Token erforderlich",
+        )
     if body.token:
         row = await fetchrow(
             """
@@ -285,6 +317,11 @@ async def unsubscribe_newsletter(body: NewsletterUnsubscribeRequest):
             body.token,
         )
     else:
+        if not body.email:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="E-Mail erforderlich",
+            )
         row = await fetchrow(
             """
             UPDATE newsletter_subscriptions
@@ -292,13 +329,17 @@ async def unsubscribe_newsletter(body: NewsletterUnsubscribeRequest):
             WHERE LOWER(email) = LOWER($1)
             RETURNING *
             """,
-            normalize_email(body.email),
+            normalize_email(str(body.email)),
         )
     if not row:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Abonnement nicht gefunden")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Abonnement nicht gefunden"
+        )
     subscription = dict(row)
     if subscription.get("civicrm_contact_id"):
-        await crm_service.set_newsletter_subscription(contact_id=subscription["civicrm_contact_id"], subscribe=False)
+        await crm_service.set_newsletter_subscription(
+            contact_id=subscription["civicrm_contact_id"], subscribe=False
+        )
     await privacy_service.record_consent(
         member_id=None,
         email=subscription["email"],
@@ -323,13 +364,22 @@ async def unsubscribe_newsletter(body: NewsletterUnsubscribeRequest):
 async def newsletter_admin_overview(user: dict = Depends(require_newsletter_staff)):
     await ensure_newsletter_admin_tables()
     subscribers_total = int(
-        await fetchval("SELECT COUNT(*) FROM newsletter_subscriptions WHERE status = 'confirmed'") or 0
+        await fetchval(
+            "SELECT COUNT(*) FROM newsletter_subscriptions WHERE status = 'confirmed'"
+        )
+        or 0
     )
     avg_open_rate = float(
-        await fetchval("SELECT COALESCE(AVG(open_rate), 0) FROM newsletter_campaigns WHERE status = 'sent'") or 0
+        await fetchval(
+            "SELECT COALESCE(AVG(open_rate), 0) FROM newsletter_campaigns WHERE status = 'sent'"
+        )
+        or 0
     )
     avg_click_rate = float(
-        await fetchval("SELECT COALESCE(AVG(click_rate), 0) FROM newsletter_campaigns WHERE status = 'sent'") or 0
+        await fetchval(
+            "SELECT COALESCE(AVG(click_rate), 0) FROM newsletter_campaigns WHERE status = 'sent'"
+        )
+        or 0
     )
     campaigns_ytd = int(
         await fetchval(
@@ -373,13 +423,17 @@ async def newsletter_admin_campaigns(user: dict = Depends(require_newsletter_sta
 
 
 @router.post("/newsletter/admin/campaigns", status_code=status.HTTP_201_CREATED)
-async def create_newsletter_campaign(body: dict, user: dict = Depends(require_newsletter_staff)):
+async def create_newsletter_campaign(
+    body: dict, user: dict = Depends(require_newsletter_staff)
+):
     await ensure_newsletter_admin_tables()
     subject = str(body.get("subject") or "").strip()
     content = str(body.get("content") or "").strip()
     segment = str(body.get("segment") or "all_members").strip() or "all_members"
     if not subject or not content:
-        raise HTTPException(status_code=422, detail="Betreff und Inhalt sind erforderlich")
+        raise HTTPException(
+            status_code=422, detail="Betreff und Inhalt sind erforderlich"
+        )
 
     campaign_id = uuid4().hex
     recipients_count = await _segment_count(segment)
@@ -400,14 +454,20 @@ async def create_newsletter_campaign(body: dict, user: dict = Depends(require_ne
         body.get("scheduled_at"),
         user.get("uid"),
     )
-    row = await fetchrow("SELECT * FROM newsletter_campaigns WHERE id = $1", campaign_id)
+    row = await fetchrow(
+        "SELECT * FROM newsletter_campaigns WHERE id = $1", campaign_id
+    )
     return {"success": True, "data": dict(row)}
 
 
 @router.put("/newsletter/admin/campaigns/{campaign_id}")
-async def update_newsletter_campaign(campaign_id: str, body: dict, user: dict = Depends(require_newsletter_staff)):
+async def update_newsletter_campaign(
+    campaign_id: str, body: dict, user: dict = Depends(require_newsletter_staff)
+):
     await ensure_newsletter_admin_tables()
-    row = await fetchrow("SELECT * FROM newsletter_campaigns WHERE id = $1", campaign_id)
+    row = await fetchrow(
+        "SELECT * FROM newsletter_campaigns WHERE id = $1", campaign_id
+    )
     if not row:
         raise HTTPException(status_code=404, detail="Kampagne nicht gefunden")
 
@@ -424,10 +484,12 @@ async def update_newsletter_campaign(campaign_id: str, body: dict, user: dict = 
         updates["status"] = "scheduled" if body.get("scheduled_at") else "draft"
     if body.get("status") is not None:
         updates["status"] = str(body.get("status"))
-    if body.get("open_rate") is not None:
-        updates["open_rate"] = float(body.get("open_rate"))
-    if body.get("click_rate") is not None:
-        updates["click_rate"] = float(body.get("click_rate"))
+    open_rate = body.get("open_rate")
+    if open_rate is not None:
+        updates["open_rate"] = float(open_rate)
+    click_rate = body.get("click_rate")
+    if click_rate is not None:
+        updates["click_rate"] = float(click_rate)
 
     if updates:
         set_clauses = []
@@ -445,14 +507,20 @@ async def update_newsletter_campaign(campaign_id: str, body: dict, user: dict = 
             *params,
         )
 
-    updated = await fetchrow("SELECT * FROM newsletter_campaigns WHERE id = $1", campaign_id)
+    updated = await fetchrow(
+        "SELECT * FROM newsletter_campaigns WHERE id = $1", campaign_id
+    )
     return {"success": True, "data": dict(updated)}
 
 
 @router.post("/newsletter/admin/campaigns/{campaign_id}/send")
-async def send_newsletter_campaign(campaign_id: str, user: dict = Depends(require_newsletter_staff)):
+async def send_newsletter_campaign(
+    campaign_id: str, user: dict = Depends(require_newsletter_staff)
+):
     await ensure_newsletter_admin_tables()
-    row = await fetchrow("SELECT * FROM newsletter_campaigns WHERE id = $1", campaign_id)
+    row = await fetchrow(
+        "SELECT * FROM newsletter_campaigns WHERE id = $1", campaign_id
+    )
     if not row:
         raise HTTPException(status_code=404, detail="Kampagne nicht gefunden")
 
@@ -469,5 +537,7 @@ async def send_newsletter_campaign(campaign_id: str, user: dict = Depends(requir
         recipients_count,
         campaign_id,
     )
-    updated = await fetchrow("SELECT * FROM newsletter_campaigns WHERE id = $1", campaign_id)
+    updated = await fetchrow(
+        "SELECT * FROM newsletter_campaigns WHERE id = $1", campaign_id
+    )
     return {"success": True, "data": dict(updated)}

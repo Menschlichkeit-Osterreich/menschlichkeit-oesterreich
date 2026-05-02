@@ -116,6 +116,7 @@ echo ""
 
 # ── Pflicht-Variablen ─────────────────────────────────────────────────────────
 echo "▶ SSH / Plesk Zugangsdaten"
+# ── PLESK_* ist kanonisch, PLSK_* bleibt nur Legacy-Fallback ────────────────
 PLESK_HOST="${PLESK_HOST:-${PLSK_HOST:-}}"
 PLESK_USER="${PLESK_USER:-${PLSK_USER:-}}"
 PLESK_PORT="${PLESK_PORT:-${PLSK_PORT:-}}"

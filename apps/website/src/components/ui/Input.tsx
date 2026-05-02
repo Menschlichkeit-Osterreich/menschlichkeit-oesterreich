@@ -12,7 +12,8 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ label, id, error, helperText, state = error ? 'error' : 'default', className = '', ...props }, ref) => {
     const inputId = id || React.useId();
-    const describedBy = (state === 'error' || helperText) ? `${inputId}-desc` : undefined;
+    const describedBy = state === 'error' || helperText ? `${inputId}-desc` : undefined;
+    const showRequiredIndicator = Boolean(label && props.required);
 
     const ringByState: Record<State, string> = {
       default: 'focus:border-primary-500 focus:ring-primary-500 border-secondary-300',
@@ -24,16 +25,25 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <div className="w-full">
         {label && (
           <label htmlFor={inputId} className="mb-1 block text-sm font-medium text-secondary-700">
-            {label}
+            <span>{label}</span>
+            {showRequiredIndicator && (
+              <>
+                <span aria-hidden="true" className="ml-1 font-semibold text-error-700">
+                  *
+                </span>
+                <span className="sr-only">Pflichtfeld</span>
+              </>
+            )}
           </label>
         )}
         <input
           ref={ref}
           id={inputId}
           aria-invalid={state === 'error'}
+          aria-required={props.required || undefined}
           aria-describedby={describedBy}
           className={[
-            'block w-full rounded-md shadow-sm',
+            'block w-full rounded-md bg-white px-3 py-2 text-sm text-secondary-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
             ringByState[state],
             'disabled:bg-secondary-50 disabled:text-secondary-500',
             className,

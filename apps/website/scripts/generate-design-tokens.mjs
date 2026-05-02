@@ -5,9 +5,10 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const TOKENS_PATH = resolve(__dirname, '../../figma-design-system/00_design-tokens.json');
+const TOKENS_PATH = resolve(__dirname, '../../../figma-design-system/00_design-tokens.json');
 const OUT_PATH = resolve(__dirname, '../src/styles/tokens.css');
-const SOURCE_INFO = resolve(__dirname, '../../figma-design-system/figma-source.json');
+const SOURCE_INFO = resolve(__dirname, '../../../figma-design-system/figma-source.json');
+const BRAND_GUIDE = '../../../.claude/plugins/moe-brand/BRAND-GUIDELINES-V1.0.md';
 
 function toKebab(str) {
   return String(str)
@@ -57,15 +58,15 @@ const json = JSON.parse(readFileSync(TOKENS_PATH, 'utf-8'));
 const tokens = json.designTokens || json;
 
 const flattened = flatten(tokens);
-const css = `/* Auto-generated from figma-design-system/00_design-tokens.json */\n${buildCss(flattened, 'root')}`;
+const css = `/* Auto-generated from figma-design-system/00_design-tokens.json (derived from ${BRAND_GUIDE}) */\n${buildCss(flattened, 'root')}`;
 
 mkdirSync(resolve(__dirname, '../src/styles'), { recursive: true });
 writeFileSync(OUT_PATH, css);
 console.log(`Generated ${OUT_PATH}`);
+console.log(`Canonical brand source: ${BRAND_GUIDE}`);
 try {
   const src = JSON.parse(readFileSync(SOURCE_INFO, 'utf-8'));
   console.log(`Figma source: fileKey=${src.fileKey}`);
 } catch {
   // ignore
 }
-

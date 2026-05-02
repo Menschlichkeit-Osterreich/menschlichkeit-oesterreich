@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import SeoHead from '../components/seo/SeoHead';
 import JsonLdBreadcrumb from '../components/seo/JsonLdBreadcrumb';
 import JsonLdFaq from '../components/seo/JsonLdFaq';
+import SeoHead from '../components/seo/SeoHead';
+import { Alert } from '../components/ui/Alert';
 import { CONTACT_EMAIL, LEGAL_DOCS, LEGAL_FACTS, WHATSAPP_URL } from '../config/siteConfig';
+import { HttpError, http } from '../services/http';
 
 const FAQ = [
   {
@@ -25,22 +27,142 @@ const FAQ = [
 
 export default function Kontakt() {
   const [submitted, setSubmitted] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: '',
+    consentPrivacy: false,
+    newsletterOptIn: false,
+  });
+  const nameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const subjectRef = useRef<HTMLSelectElement>(null);
+  const messageRef = useRef<HTMLTextAreaElement>(null);
+  const consentRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const target = e.target;
+    const value =
+      target instanceof HTMLInputElement && target.type === 'checkbox'
+        ? target.checked
+        : target.value;
+
+    setForm(prev => ({ ...prev, [target.name]: value }));
+    setFieldErrors(prev => ({ ...prev, [target.name]: '' }));
+    setSubmitError('');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const focusFirstInvalidField = (errors: Record<string, string>) => {
+    if (errors.name) {
+      nameRef.current?.focus();
+      return;
+    }
+
+    if (errors.email) {
+      emailRef.current?.focus();
+      return;
+    }
+
+    if (errors.subject) {
+      subjectRef.current?.focus();
+      return;
+    }
+
+    if (errors.message) {
+      messageRef.current?.focus();
+      return;
+    }
+
+    if (errors.consentPrivacy) {
+      consentRef.current?.focus();
+    }
+  };
+
+  const validateForm = () => {
+    const nextErrors: Record<string, string> = {};
+
+    if (!form.name.trim()) {
+      nextErrors.name = 'Bitte geben Sie Ihren Namen ein.';
+    }
+
+    if (!form.email.trim()) {
+      nextErrors.email = 'Bitte geben Sie Ihre E-Mail-Adresse ein.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      nextErrors.email = 'Bitte geben Sie eine gültige E-Mail-Adresse ein.';
+    }
+
+    if (!form.subject.trim()) {
+      nextErrors.subject = 'Bitte wählen Sie einen Betreff aus.';
+    }
+
+    if (!form.message.trim()) {
+      nextErrors.message = 'Bitte geben Sie Ihre Nachricht ein.';
+    } else if (form.message.trim().length < 10) {
+      nextErrors.message = 'Die Nachricht muss mindestens 10 Zeichen lang sein.';
+    }
+
+    if (!form.consentPrivacy) {
+      nextErrors.consentPrivacy =
+        'Bitte bestätigen Sie die Datenschutzerklärung, bevor Sie die Anfrage absenden.';
+    }
+
+    return nextErrors;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Open mail client as fallback (no server-side form yet)
-    const body = encodeURIComponent(
-      `Name: ${form.name}\nE-Mail: ${form.email}\n\nNachricht:\n${form.message}`
-    );
-    window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(form.subject || 'Anfrage über Website')}&body=${body}`;
-    setSubmitted(true);
+    const validationErrors = validateForm();
+
+    if (Object.keys(validationErrors).length > 0) {
+      setFieldErrors(validationErrors);
+      focusFirstInvalidField(validationErrors);
+      return;
+    }
+
+    setSubmitting(true);
+    setSubmitError('');
+
+    const [firstName, ...restName] = form.name.trim().split(/\s+/);
+    const lastName = restName.join(' ').trim() || firstName;
+
+    try {
+      await http.post<{
+        success: boolean;
+        data?: { submissionId: number; submittedAt: string };
+      }>('/api/contact/submit', {
+        first_name: firstName,
+        last_name: lastName,
+        email: form.email.trim(),
+        subject: form.subject.trim(),
+        message: form.message.trim(),
+        consent_privacy: form.consentPrivacy,
+        newsletter_opt_in: form.newsletterOptIn,
+        source: 'website_contact_form',
+      });
+
+      setSubmitted(true);
+      setFieldErrors({});
+    } catch (error) {
+      if (error instanceof HttpError && typeof error.body === 'object' && error.body !== null) {
+        const detail =
+          'detail' in error.body && typeof error.body.detail === 'string'
+            ? error.body.detail
+            : error.message;
+        setSubmitError(detail || 'Ihre Anfrage konnte gerade nicht gesendet werden.');
+      } else if (error instanceof Error) {
+        setSubmitError(error.message || 'Ihre Anfrage konnte gerade nicht gesendet werden.');
+      } else {
+        setSubmitError('Ihre Anfrage konnte gerade nicht gesendet werden.');
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -49,17 +171,20 @@ export default function Kontakt() {
         title="Kontakt – Menschlichkeit Österreich"
         description="Kontaktieren Sie Menschlichkeit Österreich. Wir freuen uns auf Ihre Nachricht. Adresse: Pottenbrunner Hauptstraße 108/Top 1, 3140 Pottenbrunn."
       />
-      <JsonLdBreadcrumb items={[
-        { name: 'Start', url: 'https://www.menschlichkeit-oesterreich.at/' },
-        { name: 'Kontakt', url: 'https://www.menschlichkeit-oesterreich.at/kontakt' },
-      ]} />
+      <JsonLdBreadcrumb
+        items={[
+          { name: 'Start', url: 'https://www.menschlichkeit-oesterreich.at/' },
+          { name: 'Kontakt', url: 'https://www.menschlichkeit-oesterreich.at/kontakt' },
+        ]}
+      />
       <JsonLdFaq items={FAQ} />
       {/* Hero */}
-      <section className="bg-gradient-to-br from-primary-700 to-primary-900 text-white py-16">
+      <section className="bg-primary-800 py-16 text-white">
         <div className="container mx-auto px-4 text-center max-w-3xl">
           <h1 className="text-4xl font-bold mb-4">Kontakt</h1>
-          <p className="text-xl text-white/80">
-            Fragen zu Mitgliedschaft, Spenden, Veranstaltungen, Bildung oder Medienanfragen beantworten wir gerne.
+          <p className="text-xl text-white">
+            Fragen zu Mitgliedschaft, Spenden, Veranstaltungen, Bildung oder Medienanfragen
+            beantworten wir gerne.
           </p>
         </div>
       </section>
@@ -67,7 +192,6 @@ export default function Kontakt() {
       <section className="py-14">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
-
             {/* Contact Info */}
             <div>
               <h2 className="text-2xl font-bold mb-6">Kontaktinformationen</h2>
@@ -79,8 +203,9 @@ export default function Kontakt() {
                   </div>
                   <div>
                     <p className="font-semibold mb-1">Adresse</p>
-                    <address className="not-italic text-gray-600 text-sm">
-                      Verein Menschlichkeit Österreich<br />
+                    <address className="not-italic text-sm text-secondary-600">
+                      Verein Menschlichkeit Österreich
+                      <br />
                       Pottenbrunner Hauptstraße 108/Top 1<br />
                       3140 Pottenbrunn, Österreich
                     </address>
@@ -125,8 +250,9 @@ export default function Kontakt() {
                   </div>
                   <div>
                     <p className="font-semibold mb-1">Vereinsregister</p>
-                    <p className="text-gray-600 text-sm">
-                      ZVR: {LEGAL_FACTS.zvr}<br />
+                    <p className="text-sm text-secondary-600">
+                      ZVR: {LEGAL_FACTS.zvr}
+                      <br />
                       Gegründet: {LEGAL_FACTS.foundingDateLabel}
                     </p>
                   </div>
@@ -134,14 +260,36 @@ export default function Kontakt() {
               </div>
 
               <div className="mt-8 rounded-2xl border border-secondary-200 bg-secondary-50 p-5">
-                <h3 className="text-lg font-semibold text-secondary-900">Wichtige Seiten auf einen Blick</h3>
+                <h3 className="text-lg font-semibold text-secondary-900">
+                  Wichtige Seiten auf einen Blick
+                </h3>
                 <div className="mt-4 flex flex-wrap gap-3 text-sm">
-                  <Link to="/transparenz" className="font-medium text-primary-700 hover:underline">Transparenz</Link>
-                  <Link to="/impressum" className="font-medium text-primary-700 hover:underline">Impressum</Link>
-                  <Link to="/datenschutz" className="font-medium text-primary-700 hover:underline">Datenschutz</Link>
-                  <Link to="/statuten" className="font-medium text-primary-700 hover:underline">Statuten</Link>
-                  <Link to="/beitragsordnung" className="font-medium text-primary-700 hover:underline">Beitragsordnung</Link>
-                  <a href={LEGAL_DOCS.registerExcerpt.href} target="_blank" rel="noopener noreferrer" className="font-medium text-primary-700 hover:underline">Vereinsregisterauszug</a>
+                  <Link to="/transparenz" className="font-medium text-primary-700 hover:underline">
+                    Transparenz
+                  </Link>
+                  <Link to="/impressum" className="font-medium text-primary-700 hover:underline">
+                    Impressum
+                  </Link>
+                  <Link to="/datenschutz" className="font-medium text-primary-700 hover:underline">
+                    Datenschutz
+                  </Link>
+                  <Link to="/statuten" className="font-medium text-primary-700 hover:underline">
+                    Statuten
+                  </Link>
+                  <Link
+                    to="/beitragsordnung"
+                    className="font-medium text-primary-700 hover:underline"
+                  >
+                    Beitragsordnung
+                  </Link>
+                  <a
+                    href={LEGAL_DOCS.registerExcerpt.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-primary-700 hover:underline"
+                  >
+                    Vereinsregisterauszug
+                  </a>
                 </div>
               </div>
             </div>
@@ -151,59 +299,112 @@ export default function Kontakt() {
               <h2 className="text-2xl font-bold mb-6">Nachricht senden</h2>
 
               {submitted ? (
-                <div className="rounded-lg bg-green-50 border border-green-200 p-6 text-center">
-                  <div className="text-4xl mb-3" aria-hidden="true">✅</div>
+                <div
+                  className="rounded-lg bg-green-50 border border-green-200 p-6 text-center"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <div className="text-4xl mb-3" aria-hidden="true">
+                    ✅
+                  </div>
                   <h3 className="font-semibold text-green-800 mb-2">Vielen Dank!</h3>
                   <p className="text-green-700 text-sm">
-                    Ihr E-Mail-Programm wurde geöffnet. Bitte senden Sie die vorbereitete
-                    E-Mail ab, um uns zu kontaktieren.
+                    Ihre Anfrage wurde an unser System übermittelt. Sie erhalten eine Bestätigung
+                    per E-Mail, sobald wir die Nachricht verarbeitet haben.
                   </p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+                  {submitError && (
+                    <Alert
+                      variant="error"
+                      title="Anfrage konnte nicht gesendet werden"
+                      role="alert"
+                    >
+                      {submitError}
+                    </Alert>
+                  )}
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                        Name <span aria-hidden="true" className="text-red-500">*</span>
+                      <label
+                        htmlFor="name"
+                        className="mb-1 block text-sm font-medium text-secondary-700"
+                      >
+                        Name{' '}
+                        <span aria-hidden="true" className="font-semibold text-error-700">
+                          *
+                        </span>
+                        <span className="sr-only">Pflichtfeld</span>
                       </label>
                       <input
+                        ref={nameRef}
                         id="name"
                         name="name"
                         type="text"
                         required
                         value={form.name}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        className="w-full rounded-lg border border-secondary-300 px-3 py-2 text-sm text-secondary-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
                         placeholder="Ihr Name"
+                        aria-describedby={fieldErrors.name ? 'name-error' : undefined}
                       />
+                      {fieldErrors.name && (
+                        <p id="name-error" className="mt-1 text-xs text-red-700" role="alert">
+                          {fieldErrors.name}
+                        </p>
+                      )}
                     </div>
                     <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                        E-Mail <span aria-hidden="true" className="text-red-500">*</span>
+                      <label
+                        htmlFor="email"
+                        className="mb-1 block text-sm font-medium text-secondary-700"
+                      >
+                        E-Mail{' '}
+                        <span aria-hidden="true" className="font-semibold text-error-700">
+                          *
+                        </span>
+                        <span className="sr-only">Pflichtfeld</span>
                       </label>
                       <input
+                        ref={emailRef}
                         id="email"
                         name="email"
                         type="email"
                         required
                         value={form.email}
                         onChange={handleChange}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        className="w-full rounded-lg border border-secondary-300 px-3 py-2 text-sm text-secondary-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
                         placeholder="ihre@email.at"
+                        aria-describedby={fieldErrors.email ? 'email-error' : undefined}
                       />
+                      {fieldErrors.email && (
+                        <p id="email-error" className="mt-1 text-xs text-red-700" role="alert">
+                          {fieldErrors.email}
+                        </p>
+                      )}
                     </div>
                   </div>
 
                   <div>
-                    <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
-                      Betreff
+                    <label
+                      htmlFor="subject"
+                      className="mb-1 block text-sm font-medium text-secondary-700"
+                    >
+                      Betreff{' '}
+                      <span aria-hidden="true" className="font-semibold text-error-700">
+                        *
+                      </span>
+                      <span className="sr-only">Pflichtfeld</span>
                     </label>
                     <select
+                      ref={subjectRef}
                       id="subject"
                       name="subject"
                       value={form.subject}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      className="w-full rounded-lg border border-secondary-300 px-3 py-2 text-sm text-secondary-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      aria-describedby={fieldErrors.subject ? 'subject-error' : undefined}
                     >
                       <option value="">Bitte wählen...</option>
                       <option value="Mitgliedschaft">Mitgliedschaft</option>
@@ -212,38 +413,105 @@ export default function Kontakt() {
                       <option value="Presse & Medien">Presse &amp; Medien</option>
                       <option value="Allgemeine Anfrage">Allgemeine Anfrage</option>
                     </select>
+                    {fieldErrors.subject && (
+                      <p id="subject-error" className="mt-1 text-xs text-red-700" role="alert">
+                        {fieldErrors.subject}
+                      </p>
+                    )}
                   </div>
 
                   <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-                      Nachricht <span aria-hidden="true" className="text-red-500">*</span>
+                    <label
+                      htmlFor="message"
+                      className="mb-1 block text-sm font-medium text-secondary-700"
+                    >
+                      Nachricht{' '}
+                      <span aria-hidden="true" className="font-semibold text-error-700">
+                        *
+                      </span>
+                      <span className="sr-only">Pflichtfeld</span>
                     </label>
                     <textarea
+                      ref={messageRef}
                       id="message"
                       name="message"
                       rows={5}
                       required
                       value={form.message}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                      className="w-full resize-none rounded-lg border border-secondary-300 px-3 py-2 text-sm text-secondary-900 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-primary-500"
                       placeholder="Ihre Nachricht an uns..."
+                      aria-describedby={fieldErrors.message ? 'message-error' : undefined}
                     />
+                    {fieldErrors.message && (
+                      <p id="message-error" className="mt-1 text-xs text-red-700" role="alert">
+                        {fieldErrors.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-3 rounded-xl border border-secondary-200 bg-secondary-50 p-4">
+                    <label className="flex items-start gap-3 text-sm text-secondary-700">
+                      <input
+                        ref={consentRef}
+                        id="consentPrivacy"
+                        name="consentPrivacy"
+                        type="checkbox"
+                        checked={form.consentPrivacy}
+                        onChange={handleChange}
+                        className="mt-1 h-4 w-4 rounded border-secondary-300 text-primary-600 focus:ring-primary-500"
+                        aria-describedby={fieldErrors.consentPrivacy ? 'consent-error' : undefined}
+                      />
+                      <span>
+                        Ich habe die{' '}
+                        <a href="/datenschutz" className="text-primary-600 hover:underline">
+                          Datenschutzerklärung
+                        </a>{' '}
+                        gelesen und stimme der Verarbeitung meiner Anfrage zu. *
+                      </span>
+                    </label>
+                    {fieldErrors.consentPrivacy && (
+                      <p id="consent-error" className="text-xs text-red-700" role="alert">
+                        {fieldErrors.consentPrivacy}
+                      </p>
+                    )}
+
+                    <label className="flex items-start gap-3 text-sm text-secondary-700">
+                      <input
+                        id="newsletterOptIn"
+                        name="newsletterOptIn"
+                        type="checkbox"
+                        checked={form.newsletterOptIn}
+                        onChange={handleChange}
+                        className="mt-1 h-4 w-4 rounded border-secondary-300 text-primary-600 focus:ring-primary-500"
+                      />
+                      <span>
+                        Ich möchte zusätzlich per E-Mail über Vereinsaktivitäten informiert werden
+                        (Newsletter, optional). Die Anmeldung erfolgt per Double-Opt-In, und der
+                        Widerruf ist jederzeit möglich. Details in der{' '}
+                        <a href="/datenschutz" className="text-primary-600 hover:underline">
+                          Datenschutzerklärung
+                        </a>
+                        .
+                      </span>
+                    </label>
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full py-3 px-6 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                    className="w-full py-3 px-6 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-60"
+                    disabled={submitting}
                   >
-                    Nachricht senden
+                    {submitting ? 'Nachricht wird gesendet...' : 'Nachricht senden'}
                   </button>
 
-                  <p className="text-xs text-gray-500">
-                    * Pflichtfelder. Mit dem Absenden öffnet sich Ihr E-Mail-Programm.
-                    Ihre Daten werden gemäß unserer{' '}
+                  <p className="text-xs text-secondary-600">
+                    * Pflichtfelder. Ihre Nachricht wird direkt an unser System übermittelt. Ihre
+                    Daten werden gemäß unserer{' '}
                     <a href="/datenschutz" className="text-primary-600 hover:underline">
                       Datenschutzerklärung
                     </a>{' '}
-                    verarbeitet.
+                    verarbeitet, und Sie erhalten eine Bestätigung per E-Mail.
                   </p>
                 </form>
               )}
@@ -257,8 +525,11 @@ export default function Kontakt() {
           <div className="rounded-3xl border border-secondary-200 bg-white p-8 shadow-sm">
             <h2 className="text-2xl font-bold text-secondary-900">Häufige Anliegen</h2>
             <div className="mt-6 grid gap-4 md:grid-cols-3">
-              {FAQ.map((item) => (
-                <article key={item.question} className="rounded-2xl border border-secondary-100 bg-secondary-50 p-5">
+              {FAQ.map(item => (
+                <article
+                  key={item.question}
+                  className="rounded-2xl border border-secondary-100 bg-secondary-50 p-5"
+                >
                   <h3 className="font-semibold text-secondary-900">{item.question}</h3>
                   <p className="mt-3 text-sm leading-relaxed text-secondary-700">{item.answer}</p>
                 </article>

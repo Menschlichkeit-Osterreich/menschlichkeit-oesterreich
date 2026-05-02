@@ -1,7 +1,7 @@
 ---
 name: compliance-officer
 description: 'DSGVO- und Rechts-Compliance-Experte fuer die MOe-Plattform — prueft Datenschutz, Email-Templates, Impressum und PII-Schutz'
-model: claude-sonnet-4-6
+model: claude-sonnet-4-20250514
 color: red
 tools:
   - Read

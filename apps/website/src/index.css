@@ -12,6 +12,7 @@
     --brand-austria-red: #d4611e;
     --brand-austria-white: #ffffff;
     --brand-gradient: linear-gradient(135deg, #1b4965 0%, #d4611e 100%);
+    --brand-gradient-contrast: linear-gradient(135deg, #143245 0%, #7a3213 100%);
   }
   [data-theme='dark'] {
     color-scheme: dark;
@@ -25,10 +26,25 @@
   }
   body {
     @apply bg-semantic-background text-semantic-text-primary;
-    font-family: var(--ds-typography-font-family-primary);
+    font-family: var(--ds-typography-font-family-secondary);
     font-feature-settings:
       'rlig' 1,
       'calt' 1;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--ds-typography-font-family-primary);
+  }
+
+  select:not([multiple]):not([size]) {
+    appearance: auto;
+    background-image: none;
+    padding-right: 0.75rem;
   }
 }
 

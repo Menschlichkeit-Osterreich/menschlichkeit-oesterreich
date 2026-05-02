@@ -296,7 +296,7 @@ Root-Level                 → 8 Dateien (README/CHANGELOG Varianten)
 - [ ] **P3.2** Automatisiere Broken Link Fixes (Script für bekannte Umbenennungen)
 - [ ] **P3.3** Lösche irrelevante Temporärdateien (14 Dateien)
 - [ ] **P3.4** Linting Auto-Fix für einfache Fehler (MD009, MD012, MD047)
-- [ ] **P3.5** Erstelle `docs/QUICKSTART.md`
+- [ ] **P3.5** Konsolidiere Quickstart-Verweise auf `docs/getting-started/quickstart.md`
 
 **Impact:** Developer Experience, Link Health
 

@@ -11,6 +11,7 @@ from xml.etree import ElementTree as ET
 from ..db import connection, execute, fetch, fetchrow
 from ..secrets_provider import get_secret
 from .crm_service import crm_service
+from .finance_sync_service import finance_sync_service
 from ._payment_helpers import _money, _to_cents, _resolve_contact_id
 
 logger = logging.getLogger("menschlichkeit.payments.sepa")
@@ -238,6 +239,29 @@ class SepaService:
                 amount=amount,
                 source="SEPA-Mitgliedsbeitrag",
             )
+        if invoice:
+            try:
+                await finance_sync_service.enqueue_invoice_payment(
+                    {
+                        "id": str(invoice["id"]),
+                        "invoice_number": invoice["invoice_number"],
+                        "recipient_name": f"{member['vorname']} {member['nachname']}".strip() or member["email"],
+                        "recipient_email": member["email"],
+                        "currency": "EUR",
+                        "total_amount": float(_money(invoice["total_amount"])),
+                    },
+                    {
+                        "amount": float(_money(amount)),
+                        "channel": "sepa",
+                        "reference_no": crm_payment_id or payment_intent_id,
+                    },
+                )
+            except Exception as exc:
+                logger.warning(
+                    "erpnext_sepa_payment_enqueue_failed | invoice_id=%s | error=%s",
+                    invoice["id"],
+                    exc,
+                )
 
         return {
             "success": True,

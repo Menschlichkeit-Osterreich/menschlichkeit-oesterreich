@@ -3,20 +3,30 @@
     "GitHub.copilot",
     "GitHub.copilot-chat",
     "ms-vscode.vscode-typescript-next",
-    "ms-eslint.vscode-eslint",
+    "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
     "ms-python.python",
     "ms-python.vscode-pylance",
+    "ms-python.debugpy",
     "ms-python.black-formatter",
     "bmewburn.vscode-intelephense-client",
     "Prisma.prisma",
     "ms-playwright.playwright",
+    "Stripe.vscode-stripe",
     "bradlc.vscode-tailwindcss",
     "redhat.vscode-yaml",
     "ms-vscode.powershell",
+    "ms-vscode-remote.remote-containers",
+    "ms-azuretools.vscode-azureresourcegroups",
+    "GitHub.vscode-pull-request-github",
+    "GitHub.vscode-github-actions",
     "eamodio.gitlens",
-    "ms-azuretools.vscode-docker",
-    "EditorConfig.EditorConfig"
+    "ms-azuretools.vscode-docker"
   ],
-  "unwantedRecommendations": ["ms-python.flake8", "ms-python.pylint", "ms-vscode.vscode-jupyter"]
+  "unwantedRecommendations": [
+    "ms-python.flake8",
+    "ms-python.pylint",
+    "ms-vscode.vscode-jupyter",
+    "ms-windows-ai-studio.windows-ai-studio"
+  ]
 }

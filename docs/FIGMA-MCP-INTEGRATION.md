@@ -1,3 +1,10 @@
+---
+title: Figma MCP Integration Guide
+description: Technische Anleitung zur Figma-MCP-Integration und Komponenten-Generierung.
+lastUpdated: 2026-04-16
+status: ACTIVE
+---
+
 # Figma MCP Integration - Implementation Guide
 
 ## Overview
@@ -19,6 +26,7 @@ This document describes the Figma MCP (Model Context Protocol) integration for t
 **File**: `scripts/figma-mcp-integration.mjs`
 
 A comprehensive Node.js script that:
+
 - Connects to the Figma MCP server at `https://mcp.figma.com/mcp`
 - Fetches design metadata from the specified Figma file
 - Generates React TypeScript components from Figma nodes
@@ -37,6 +45,7 @@ All components are located in `frontend/src/components/figma/`:
 5. **Footer.tsx** - Footer component
 
 Each component:
+
 - ✅ Uses TypeScript for type safety
 - ✅ Integrates with Tailwind CSS and design tokens
 - ✅ Includes proper TypeScript interfaces
@@ -77,6 +86,7 @@ Generated documentation includes:
 **File**: `frontend/src/lib/utils.ts`
 
 Created utility function `cn()` for merging Tailwind CSS classes:
+
 - Uses `clsx` for conditional classes
 - Uses `tailwind-merge` to resolve conflicts
 
@@ -85,6 +95,7 @@ Created utility function `cn()` for merging Tailwind CSS classes:
 **File**: `frontend/src/components/figma/WebsiteLayout.example.tsx`
 
 A complete example showing how to use all generated components together in a real website layout, including:
+
 - Header with navigation
 - Hero section with CTA buttons
 - Features grid with cards
@@ -177,9 +188,7 @@ Components use design tokens from `figma-design-system/00_design-tokens.json`:
 Example:
 
 ```tsx
-<button className="bg-primary-500 text-white px-6 py-4">
-  Click me
-</button>
+<button className="bg-primary-500 text-white px-6 py-4">Click me</button>
 ```
 
 ### Component Structure
@@ -244,6 +253,7 @@ All generated components follow accessibility best practices:
    - Test prop variations
 
 4. **Run Accessibility Audits**
+
    ```bash
    npm run test:a11y
    ```
@@ -287,6 +297,7 @@ Ensure your `tsconfig.json` includes path aliases:
 ### Figma MCP Server Issues
 
 Check the MCP server configuration in `.vscode/mcp.json` and ensure:
+
 - The server URL is correct
 - You have proper authentication (if required)
 - Network connectivity to the MCP server
@@ -294,13 +305,14 @@ Check the MCP server configuration in `.vscode/mcp.json` and ensure:
 ## Resources
 
 - [Figma File](https://www.figma.com/make/mTlUSy9BQk4326cvwNa8zQ/Website)
-- [Component Documentation](../frontend/src/components/figma/README.md)
+- [Component Documentation](./figma/FIGMA-README.md)
 - [Component Mapping](./FIGMA-COMPONENT-MAPPING.md)
 - [Design Tokens](../figma-design-system/00_design-tokens.json)
 
 ## Support
 
 For questions or issues:
+
 - Check the generated documentation in `frontend/src/components/figma/README.md`
 - Review the component mapping in `docs/FIGMA-COMPONENT-MAPPING.md`
 - Consult the Figma design directly

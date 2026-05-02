@@ -39,7 +39,7 @@ Dieses Dokument beschreibt nur den **aktuellen** Betriebsvertrag fuer die Produk
 
 ## Harter Maintainer-Check vor Live-Rollout
 
-1. `README_DEPLOY.md` mit `.github/workflows/deploy-plesk.yml` abgleichen.
+1. `README_DEPLOY.md` und `docs/operations/deployment.md` mit `.github/workflows/deploy-plesk.yml` abgleichen.
 2. Sicherstellen, dass nur `PLESK_*` in aktiven Deploy-Templates und Runbooks verwendet wird.
 3. Smoke-Checks gegen `/healthz` und `/readyz` ausfuehren.
 4. Legacy-/Mirror-Pfade nicht als aktive Quelle deployen.

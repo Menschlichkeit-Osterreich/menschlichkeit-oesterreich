@@ -7,7 +7,8 @@ Diese Datei ist **kein aktiver Betriebsvertrag** mehr. Sie bleibt nur als Verwei
 - Maintainer-Bewertung: `reports/repository-live-stabilization-assessment-2026-03-31.md`
 - Repo-Root und aktive Pfade: `README.md`
 - Deployvertrag: `README_DEPLOY.md`
-- Lokaler Einstieg: `docs/QUICKSTART.md`
+- Lokaler Einstieg: `docs/getting-started/quickstart.md`
+- Dokumentationsindex: `docs/README.md`
 
 ## Status
 

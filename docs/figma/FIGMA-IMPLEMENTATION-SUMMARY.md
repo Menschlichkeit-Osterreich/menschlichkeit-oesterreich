@@ -1,3 +1,10 @@
+---
+title: Figma Implementation Summary
+description: Umsetzungsstatus und Artefaktuebersicht der Figma-Design-System-Integration.
+lastUpdated: 2026-04-16
+status: ACTIVE
+---
+
 # 🎉 Figma Design System Integration - Implementation Summary
 
 ## ✅ Status: COMPLETE & PRODUCTION-READY
@@ -426,13 +433,13 @@ cat figma-design-system/sync-log.txt
 
 ## 📚 Documentation Links
 
-| Dokument             | Zweck                                  | Link                                                             |
-| -------------------- | -------------------------------------- | ---------------------------------------------------------------- |
-| **Complete Docs**    | Vollständige Integration-Dokumentation | [FIGMA-INTEGRATION-COMPLETE.md](./FIGMA-INTEGRATION-COMPLETE.md) |
-| **Setup Guide**      | Schritt-für-Schritt Setup              | [FIGMA-SYNC-GUIDE.md](./FIGMA-SYNC-GUIDE.md)                     |
-| **Quick Reference**  | Schnellreferenz für tägliche Nutzung   | [FIGMA-README.md](./FIGMA-README.md)                             |
-| **Brand Guidelines** | Brand Identity & Design Rules          | [BRAND-GUIDELINES.md](./BRAND-GUIDELINES.md)                     |
-| **Component Usage**  | Komponenten-Dokumentation              | [COMPONENT-USAGE.md](./COMPONENT-USAGE.md)                       |
+| Dokument             | Zweck                                  | Link                                                                           |
+| -------------------- | -------------------------------------- | ------------------------------------------------------------------------------ |
+| **Complete Docs**    | Vollständige Integration-Dokumentation | [FIGMA-INTEGRATION-COMPLETE.md](../archive/bulk/FIGMA-INTEGRATION-COMPLETE.md) |
+| **Setup Guide**      | Schritt-für-Schritt Setup              | [FIGMA-SYNC-GUIDE.md](./FIGMA-SYNC-GUIDE.md)                                   |
+| **Quick Reference**  | Schnellreferenz für tägliche Nutzung   | [FIGMA-README.md](./FIGMA-README.md)                                           |
+| **Brand Guidelines** | Brand Identity & Design Rules          | [BRAND-GUIDELINES.md](./BRAND-GUIDELINES.md)                                   |
+| **Component Usage**  | Komponenten-Dokumentation              | [COMPONENT-USAGE.md](../archive/bulk/COMPONENT-USAGE.md)                       |
 
 ---
 
@@ -507,7 +514,7 @@ cat figma-design-system/sync-log.txt
 
 **Bei Fragen oder Problemen**:
 
-1. 📖 Siehe [FIGMA-INTEGRATION-COMPLETE.md](./FIGMA-INTEGRATION-COMPLETE.md)
+1. 📖 Siehe [FIGMA-INTEGRATION-COMPLETE.md](../archive/bulk/FIGMA-INTEGRATION-COMPLETE.md)
 2. 🐛 [GitHub Issues](https://github.com/menschlichkeit-oesterreich/issues)
 3. 💬 Slack #design-system
 4. 📧 <design@menschlichkeit-oesterreich.at>

@@ -14,8 +14,8 @@ module.exports = {
   darkMode: ['class', '[data-theme="dark"]'],
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   safelist: [
-    { pattern: /(bg|text|border)-(success|warning|error)-(50|100|200|300|400|500|600|700|800|900)/ },
-    { pattern: /(bg|text|border)-(primary|secondary)-(50|100|200|300|400|500|600|700|800|900)/ },
+    { pattern: /(bg|text|border)-(success|warning|error)-(50|100|200|300|400|500|600|700|800|900|950)/ },
+    { pattern: /(bg|text|border)-(primary|secondary|accent)-(50|100|200|300|400|500|600|700|800|900|950)/ },
   ],
   theme: {
     extend: {

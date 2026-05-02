@@ -10,9 +10,10 @@ Unterstuetzte Clients:
 
 ## Repo-Identitaet
 
-- Lokaler Root: `E:\Menschlichkeit-Osterreich\menschlichkeit-oesterreich`
+- Workspace-Root: Repository-Checkout von `Menschlichkeit-Osterreich/menschlichkeit-oesterreich`
+- Beispiel Windows-Checkout: `E:\Dev\menschlichkeit-oesterreich\menschlichkeit-oesterreich`
 - Git-Remote: `https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich`
-- Aktive Produktstruktur: `apps/<service>/`, `openclaw-system/`, `automation/`, `figma-design-system/`
+- Aktive Produktstruktur: `apps/<service>/`, `automation/`, `figma-design-system/`
 - Main-first Workflow mit Branches von `main` und PRs zurueck auf `main`
 
 Hinweis zur Dateibenennung:
@@ -25,16 +26,14 @@ Hinweis zur Dateibenennung:
 
 Diese Datei beschreibt Repo-Contributor-Agents fuer Entwicklung, Review, Betrieb und Governance.
 
-Sie steuert nicht die Produkt-Runtime-Agenten von OpenClaw. Diese leben separat in `openclaw-system/configs/agent_roles.yaml` und den dazugehoerigen OpenClaw-Konfigurationen.
-
 ## Zuerst lesen
 
 1. `AGENTS.md`
-2. `CLAUDE.md`
-3. `.github/copilot-instructions.md`
-4. `.github/instructions/core/analysis-planning.instructions.md`
-5. `.github/ai-registry.json`
-6. passende Policies unter `.github/instructions/core/*.instructions.md`
+1. `CLAUDE.md`
+1. `.github/copilot-instructions.md`
+1. `.github/instructions/core/analysis-planning.instructions.md`
+1. `.github/ai-registry.json`
+1. passende Policies unter `.github/instructions/core/*.instructions.md`
 
 ## Kanonischer Analyse-Einstieg
 
@@ -52,7 +51,13 @@ Wenn mehrere Clients beteiligt sind, bleibt diese Kette die einzige fuehrende Wa
 ## Aktive Artefakte
 
 - Machine-readable Registry: `.github/ai-registry.json`
-- Copilot-Agents: `.github/agents/*.agent.md`
+- Copilot-Agents: exakt fuenf sichtbare Dateien unter `.github/agents/`
+  - `.github/agents/task-planner.agent.md`
+  - `.github/agents/developer.agent.md`
+  - `.github/agents/devops-expert.agent.md`
+  - `.github/agents/security-reviewer.agent.md`
+  - `.github/agents/qa-reviewer.agent.md`
+- Archivierte Copilot-Agents: `.github/archive/agents/*.agent.md`
 - Claude-Agents: `.claude/agents/*.md` und `.claude/plugins/*/agents/*.md`
 - Aktive Chatmodes: `.github/chatmodes/**/*.chatmode.md`
 - Kanonische Skill-Schicht: `.github/skills/*/SKILL.md`
@@ -98,6 +103,7 @@ Trigger:
 Primaere Quellen:
 
 - `.github/skills/*/SKILL.md`
+- `.github/agents/developer.agent.md`
 - `.github/chatmodes/development/*.chatmode.md`
 - aktive `.github/prompts/*.prompt.md` laut `.github/ai-registry.json`
 - betroffene App unter `apps/`
@@ -145,6 +151,7 @@ Trigger:
 
 Primaere Quellen:
 
+- `.github/agents/security-reviewer.agent.md`
 - `.github/chatmodes/general/SicherheitsAudit_DE.chatmode.md`
 - `.github/instructions/core/dsgvo-compliance.instructions.md`
 - `.claude/agents/security-reviewer.md`
@@ -166,6 +173,7 @@ Trigger:
 
 Primaere Quellen:
 
+- `.github/agents/qa-reviewer.agent.md`
 - `.github/chatmodes/general/CodeReview_DE.chatmode.md`
 - `.github/chatmodes/general/BarrierefreiheitAudit_DE.chatmode.md`
 - `.github/chatmodes/general/PerformanceOptimierung_DE.chatmode.md`
@@ -184,17 +192,18 @@ Diese Rollen bauen auf den Core-Rollen auf und erweitern sie nur fuer klar abgeg
 - `brand` ueber `.claude/plugins/moe-brand/`
 - `github-audit` ueber `.claude/agents/github-auditor.md`
 - `civicrm` ueber `apps/crm/` und CRM-spezifische Betriebsdoku
+- `mcp-operations` als DevOps-Faehigkeit im sichtbaren Copilot-Agent `.github/agents/devops-expert.agent.md`
 
 Spezialrollen duerfen keine parallele Repo-Governance einfuehren.
 
 ## Routing-Regeln
 
 1. Zuerst echte Pfade im Repository lesen.
-2. Dann genau eine primaere Rolle waehlen.
-3. Nur zusaetzliche Spezialisierungen hinzuziehen, wenn der Scope sie wirklich braucht.
-4. Repo-Contributor-Agents niemals mit OpenClaw-Runtime-Agenten vermischen.
-5. Neue Guidance muss sich an reale `apps/`-Pfade, aktuelle Services und das Main-first-Modell halten.
-6. Skill-, Prompt- und Plugin-Klassifikation folgt immer `.github/ai-registry.json`.
+1. Dann genau eine primaere Rolle waehlen.
+1. Nur zusaetzliche Spezialisierungen hinzuziehen, wenn der Scope sie wirklich braucht.
+1. Repo-Contributor-Agents nicht mit externen Produkt- oder Laufzeitrollen vermischen.
+1. Neue Guidance muss sich an reale `apps/`-Pfade, aktuelle Services und das Main-first-Modell halten.
+1. Skill-, Prompt- und Plugin-Klassifikation folgt immer `.github/ai-registry.json`.
 
 ## Output-Regeln
 
@@ -204,12 +213,19 @@ Spezialrollen duerfen keine parallele Repo-Governance einfuehren.
 - Keine Secrets, Tokens oder PII in Beispielen oder Prompts.
 - Brand-Aenderungen muessen die aktiven Design-Tokens respektieren.
 
+## Configuration Reliability
+
+Repo-weite Konfigurationen sind nur akzeptiert, wenn sie portabel, validierbar und ohne persoenliche Pfade sind.
+Aenderungen an `.vscode/**`, `.devcontainer/**`, `.claude/**`, `mcp.json`, `.github/workflows/**` oder Agent/Copilot-Dateien muessen durch `npm run workspace:config:check` validiert werden.
+Geteilte Konfigurationen duerfen keine absoluten lokalen Pfade enthalten. Erlaubt sind `${workspaceFolder}`, repo-relative Pfade und npm Scripts.
+
 ## Definition of Done fuer Governance-nahe Aenderungen
 
 - `AGENTS.md`, `CLAUDE.md` und `.github/copilot-instructions.md` bleiben konsistent.
 - der einzige aktive Analyse-Einstieg bleibt `.github/instructions/core/analysis-planning.instructions.md`.
 - `.github/ai-registry.json` klassifiziert aktive, Adapter-, Vendor- und Legacy-Artefakte vollstaendig.
-- `.github/agents/*.agent.md`, `.github/chatmodes/**/*.chatmode.md` und relevante `.claude`-Agents zeigen auf reale Pfade.
+- `.github/agents/*.agent.md` enthaelt exakt die fuenf sichtbaren Copilot-Agents; archivierte Copilot-Agents liegen unter `.github/archive/agents/`.
+- `.github/chatmodes/**/*.chatmode.md` und relevante `.claude`-Agents zeigen auf reale Pfade.
 - `.github/prompts/chatmodes/*.yaml` bleiben explizit als Legacy markiert.
 - `.vscode/*`, `.claude/launch.json`, `mcp.json` und die Workspace-Datei passen zum aktiven Repo-Root.
 - `npm run governance:check` bleibt gruen.

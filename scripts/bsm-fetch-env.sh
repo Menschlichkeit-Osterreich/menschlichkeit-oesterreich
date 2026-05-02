@@ -5,6 +5,7 @@
 # Verwendung:
 #   bash scripts/bsm-fetch-env.sh --environment development --service all --output .env
 #   bash scripts/bsm-fetch-env.sh --environment production --service api --output apps/api/.env
+#   bash scripts/bsm-fetch-env.sh --environment development --service website --output apps/website/.env.local
 
 set -euo pipefail
 
@@ -24,7 +25,7 @@ while [[ $# -gt 0 ]]; do
         --output|-o)      OUTPUT_FILE="$2"; shift 2 ;;
         --dry-run)        DRY_RUN=true; shift ;;
         -h|--help)
-            echo "Verwendung: $0 [--environment dev|staging|production] [--service api|n8n|openclaw|infra|shared|all] [--output .env] [--dry-run]"
+            echo "Verwendung: $0 [--environment dev|staging|production] [--service api|website|n8n|infra|shared|all] [--output .env] [--dry-run]"
             exit 0
             ;;
         *) echo "[ERROR] Unbekanntes Argument: $1" >&2; exit 1 ;;
@@ -32,6 +33,14 @@ while [[ $# -gt 0 ]]; do
 done
 
 # ── Voraussetzungen ─────────────────────────────────────────
+
+if [[ -z "${BSM_ACCESS_TOKEN:-}" ]]; then
+    if [[ -n "${BWS_ACCESS_TOKEN:-}" ]]; then
+        export BSM_ACCESS_TOKEN="$BWS_ACCESS_TOKEN"
+    elif [[ -n "${BW_ACCESS_TOKEN:-}" ]]; then
+        export BSM_ACCESS_TOKEN="$BW_ACCESS_TOKEN"
+    fi
+fi
 
 if [[ -z "${BSM_ACCESS_TOKEN:-}" ]]; then
     echo "[ERROR] BSM_ACCESS_TOKEN ist nicht gesetzt." >&2

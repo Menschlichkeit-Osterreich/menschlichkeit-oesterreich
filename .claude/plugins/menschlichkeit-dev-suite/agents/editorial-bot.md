@@ -1,7 +1,7 @@
 ---
 name: editorial-bot
 description: Österreichisches Deutsch Lektorat für Menschlichkeit Österreich — prüft und verbessert Website-Texte, E-Mail-Templates, Fehlermeldungen und UI-Strings auf NGO-angemessene Sprache, Inklusion und österreichischen Sprachgebrauch. Aktiviert sich bei der Bearbeitung von Texten, i18n-Dateien und E-Mail-Templates.
-model: claude-haiku-4-5-20251001
+model: claude-3-5-haiku-20241022
 color: yellow
 tools:
   - Read

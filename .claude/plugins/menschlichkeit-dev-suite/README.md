@@ -11,7 +11,7 @@ Diese Claude-Plugin-Suite enthaelt repo-native Agents, Skills und Hooks fuer `Me
 ## Inhalt
 
 - Agents fuer Architektur, Security, Accessibility und redaktionelle Arbeit
-- Skills fuer Transparenz-Audits, Demokratiespiel, OpenClaw-Kontext und Migrationshilfe
+- Skills fuer Transparenz-Audits, Demokratiespiel und Migrationshilfe
 - Session- und Hook-Unterstuetzung fuer Claude Code
 
 ## Regel

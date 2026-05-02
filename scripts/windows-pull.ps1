@@ -10,7 +10,7 @@
 #   - PostgreSQL läuft (via Docker oder lokal)
 #
 # Verwendung (PowerShell als normaler User):
-#   cd E:\openclawd-win-bridge\repos\Menschlichkeit-Osterreich\menschlichkeit-oesterreich
+#   cd E:\Dev\menschlichkeit-oesterreich\menschlichkeit-oesterreich
 #   .\scripts\windows-pull.ps1
 # ============================================================
 
@@ -30,11 +30,12 @@ Write-Host "  Aktueller Branch: $(git rev-parse --abbrev-ref HEAD)" -ForegroundC
 Write-Host "  Letzter Commit:   $(git log -1 --oneline)" -ForegroundColor Green
 
 # ── 2. npm install (falls package.json geändert) ──────────────
-$pkgChanged = git diff HEAD@{1} HEAD --name-only 2>$null | Select-String "package.json"
+$pkgChanged = git diff HEAD@ { 1 } HEAD --name-only 2>$null | Select-String "package.json"
 if ($pkgChanged) {
     Write-Host "`n[2/3] package.json geändert — npm install …" -ForegroundColor Yellow
     npm install --prefix $RepoRoot
-} else {
+}
+else {
     Write-Host "`n[2/3] package.json unverändert — npm install übersprungen." -ForegroundColor Gray
 }
 
@@ -59,7 +60,8 @@ if (Test-Path $SeedScript) {
     if ($LASTEXITCODE -ne 0) {
         Write-Warning "  Seed fehlgeschlagen — Datenbank läuft? Siehe .env.test.local bzw. .env.test.example."
     }
-} else {
+}
+else {
     Write-Warning "  Seed-Script nicht gefunden: $SeedScript"
 }
 

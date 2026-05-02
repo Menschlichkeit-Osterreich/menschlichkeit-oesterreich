@@ -1,6 +1,6 @@
 # Menschlichkeit Oesterreich
 
-Monorepo fuer Website, FastAPI-Backend, Drupal/CiviCRM, Babylon-Game, MCP-Server und OpenClaw-Tooling.
+Monorepo fuer Website, FastAPI-Backend, Drupal/CiviCRM, Babylon-Game, Automatisierung und MCP-Server.
 
 ## Betriebsmodell
 
@@ -20,16 +20,15 @@ Monorepo fuer Website, FastAPI-Backend, Drupal/CiviCRM, Babylon-Game, MCP-Server
 | CRM                         | `apps/crm/`                            | aktiv                                         |
 | Babylon Game                | `apps/babylon-game/`                   | aktiv                                         |
 | Legacy API Mirror           | `api.menschlichkeit-oesterreich.at/`   | nur Referenz                                  |
-| OpenClaw                    | `openclaw-system/`                     | aktiv                                         |
 | MCP-Server                  | `mcp-servers/`                         | aktiv                                         |
 | Hidden Toolkits             | `.browser-pilot/`, `.blender-toolkit/` | separat klassifiziert, kein Root-Lint-Blocker |
 | Incident-/Qualitaetsreports | `quality-reports/`, `reports/`         | erzeugte Evidenz                              |
 
 ## Root-Klassifikation
 
-- `aktiv`: `apps/`, `openclaw-system/`, `mcp-servers/`, aktive Root-Doku wie `README.md`, `README_DEPLOY.md`, `SECURITY.md`
-- `legacy/mirror`: `api.menschlichkeit-oesterreich.at/`, `crm.menschlichkeit-oesterreich.at/`, `new/`, `web/`, `services/`, `templates/`, `tools/`
-- `generated/evidence`: `quality-reports/`, `reports/`, `analysis/`, `generated/`
+- `aktiv`: `apps/`, `automation/`, `mcp-servers/`, `figma-design-system/`
+- `legacy/mirror`: `api.menschlichkeit-oesterreich.at/`, `crm.menschlichkeit-oesterreich.at/`, `new/`, `web/`, `services/`
+- `generated/evidence`: `runbooks/`, `monitoring/`, `reports/`, `analysis/`, `deployment-scripts/`, `security/`, `tests/`, `docs/`
 - `vendor/spezial`: `.browser-pilot/`, `.blender-toolkit/`, `codacy-analysis-cli-master/`
 
 Neue Produktarbeit gehoert nur in aktive Pfade. Legacy-/Mirror-Baeume bleiben vorerst read-only Referenz.
@@ -87,17 +86,11 @@ cd apps/api
 python -m pytest tests -q
 ```
 
-## OpenClaw Windows Bridge
+## Deployment
 
-Die Windows-Bridge liegt in `openclaw-system/windows-bridge/` und ist ein eigenes Node-Paket. Sie stellt lokal standardmaessig diese Endpunkte bereit:
-
-- `GET /health`
-- `ANY /agent/*`
-- `ANY /tools/*`
-- `GET /wsl/status`
-- `POST /wsl/start-stack`
-
-Website-Integrationen verwenden `VITE_OPENCLAW_BRIDGE_URL`, standardmaessig `http://127.0.0.1:18790`.
+- Produktive Source of Truth: `.github/workflows/deploy-plesk.yml`
+- Kanonische menschliche Doku: `README_DEPLOY.md`
+- Lokale Deploy-Skripte gelten nur als Fallback fuer Dry-Runs und Vorbereitung.
 
 ## Incident- und Report-Artefakte
 
@@ -118,5 +111,4 @@ Website-Integrationen verwenden `VITE_OPENCLAW_BRIDGE_URL`, standardmaessig `htt
 - `reports/repository-live-stabilization-assessment-2026-03-31.md`
 - `apps/api/README.md`
 - `api.menschlichkeit-oesterreich.at/README.md`
-- `openclaw-system/ARCHITECTURE.md`
 - `analysis/REPOSITORY_TOTALPRUEFUNG_v3.0.0.md`

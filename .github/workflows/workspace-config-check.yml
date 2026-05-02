@@ -1,0 +1,48 @@
+name: Workspace Configuration Reliability
+
+on:
+  pull_request:
+    paths:
+      - '.vscode/**'
+      - '.devcontainer/**'
+      - '.claude/**'
+      - '.claude-dev-helper/**'
+      - '.agents/**'
+      - '.github/**'
+      - 'mcp.json'
+      - '.vscode/mcp.json'
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'scripts/validate-workspace-config.mjs'
+      - '*.code-workspace'
+      - '.gitignore'
+
+permissions:
+  contents: read
+
+jobs:
+  workspace-config-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Workspace config check
+        run: npm run workspace:config:check
+
+      - name: Governance check
+        run: npm run governance:check
+
+      - name: MCP check
+        run: npm run mcp:check

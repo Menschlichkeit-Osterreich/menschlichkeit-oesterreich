@@ -11,9 +11,9 @@ const historyMode = !args.includes('--mode=dir');
 
 function run(cmd, args = []) {
   return new Promise((resolveOk, reject) => {
-    const p = spawn(cmd, args, { stdio: 'inherit', shell: process.platform === 'win32' });
+    const p = spawn(cmd, args, { stdio: 'inherit', shell: false });
     p.on('error', reject);
-    p.on('exit', (code) => (code === 0 ? resolveOk(0) : reject(new Error(`${cmd} exited ${code}`))));
+    p.on('exit', code => (code === 0 ? resolveOk(0) : reject(new Error(`${cmd} exited ${code}`))));
   });
 }
 

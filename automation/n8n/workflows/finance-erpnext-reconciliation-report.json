@@ -1,0 +1,103 @@
+{
+  "name": "Finance: ERPNext Reconciliation Report",
+  "nodes": [
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "mode": "everyWeek",
+              "weekday": "monday",
+              "hour": 7,
+              "minute": 30
+            }
+          ]
+        }
+      },
+      "id": "cron-reconciliation",
+      "name": "Cron: Weekly Check",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [220, 280]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.API_BASE_URL }}/api/internal/finance/erpnext/health",
+        "options": {}
+      },
+      "id": "erpnext-health",
+      "name": "API: ERPNext Sync Health",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [460, 280],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-backend-auth",
+          "name": "API Backend Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const data = $input.first().json.data || {};\nconst failures = data.failures || [];\nreturn [{ json: { failed: data.failed || 0, pending: data.pending || 0, message: failures.length ? failures.map(f => `${f.operation}: ${f.last_error || 'unbekannt'}`).join('\\n') : 'Keine offenen Fehler' } }];"
+      },
+      "id": "build-summary",
+      "name": "Build Summary",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [700, 280]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.failed }}",
+              "operation": "larger",
+              "value2": 0
+            }
+          ]
+        }
+      },
+      "id": "if-failures",
+      "name": "If Failures Exist",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [920, 280]
+    },
+    {
+      "parameters": {
+        "to": "={{ $env.EMAIL_FINANZEN || 'finanzen@menschlichkeit-oesterreich.at' }}",
+        "subject": "ERPNext Reconciliation Report",
+        "text": "={{ `Pending: ${$json.pending}\\nFailed: ${$json.failed}\\n\\n${$json.message}` }}"
+      },
+      "id": "mail-finance",
+      "name": "Mail: Finance Team",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 1,
+      "position": [1160, 220],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-prod",
+          "name": "SMTP Prod"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "cron-reconciliation": {
+      "main": [[{ "node": "API: ERPNext Sync Health", "type": "main", "index": 0 }]]
+    },
+    "erpnext-health": {
+      "main": [[{ "node": "Build Summary", "type": "main", "index": 0 }]]
+    },
+    "build-summary": {
+      "main": [[{ "node": "If Failures Exist", "type": "main", "index": 0 }]]
+    },
+    "if-failures": {
+      "main": [[{ "node": "Mail: Finance Team", "type": "main", "index": 0 }], []]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": ["finance", "erpnext", "reconciliation", "report"]
+}

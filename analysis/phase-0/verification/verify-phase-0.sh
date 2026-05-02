@@ -22,7 +22,7 @@ declare -a ITEMS=(
   "crm.menschlichkeit-oesterreich.at/web/modules/custom/pii_sanitizer/README.md|CRM PII Sanitizer"
   "automation/n8n/custom-nodes/pii-sanitizer/README.md|n8n PII Sanitizer"
   "automation/privacy/right_to_erasure.py|Right to Erasure Script"
-  "automation/n8n/workflows/right-to-erasure.json|Right to Erasure Workflow (n8n)"
+  "automation/n8n/workflows/right-to-erasure-fixed.json|Right to Erasure Workflow (n8n)"
   "docs/legal/RIGHT-TO-ERASURE-WORKFLOW.md|Right to Erasure Documentation"
   "docs/security/AUTHENTICATION-FLOWS.md|Authentication Flows"
   "docs/security/SUPPLY-CHAIN-SECURITY-BLUEPRINT.md|Supply Chain Security Blueprint"

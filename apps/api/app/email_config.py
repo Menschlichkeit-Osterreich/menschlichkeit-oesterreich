@@ -15,12 +15,22 @@ EMAIL_FINANZEN = os.getenv("EMAIL_FINANZEN", f"finanzen@{DOMAIN}")
 EMAIL_VORSTAND = os.getenv("EMAIL_VORSTAND", f"vorstand@{DOMAIN}")
 EMAIL_DATENSCHUTZ = os.getenv("EMAIL_DATENSCHUTZ", f"datenschutz@{DOMAIN}")
 
-SMTP_HOST = os.getenv("MAIL_HOST", f"mail.{DOMAIN}")
+# Standard: Microsoft 365 Business / Exchange Online via STARTTLS.
+# Kann pro Umgebung weiterhin über MAIL_HOST überschrieben werden.
+SMTP_HOST = os.getenv("MAIL_HOST", "smtp.office365.com")
 SMTP_PORT = int(os.getenv("MAIL_PORT", "587"))
 SMTP_ENCRYPTION = os.getenv("MAIL_ENCRYPTION", "tls")
+MAIL_TRANSPORT = os.getenv("MAIL_TRANSPORT", "graph").lower()
 MAIL_FROM_ADDRESS = os.getenv("MAIL_FROM_ADDRESS", EMAIL_OFFICE)
 MAIL_FROM_NAME = os.getenv("MAIL_FROM_NAME", "Verein Menschlichkeit Österreich")
 MAIL_REPLY_TO_ADDRESS = os.getenv("MAIL_REPLY_TO_ADDRESS", EMAIL_OFFICE)
+
+# Microsoft Graph (OAuth Client Credentials)
+MICROSOFT_TENANT_ID = os.getenv("MICROSOFT_TENANT_ID", "")
+MICROSOFT_CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID", "")
+MICROSOFT_CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET", "")
+MICROSOFT_GRAPH_SENDER = os.getenv("MICROSOFT_GRAPH_SENDER", MAIL_FROM_ADDRESS)
+GRAPH_TOKEN_CACHE_TTL = int(os.getenv("GRAPH_TOKEN_CACHE_TTL", "3300"))
 
 ORGANIZATION = {
     "name": "Verein Menschlichkeit Österreich",

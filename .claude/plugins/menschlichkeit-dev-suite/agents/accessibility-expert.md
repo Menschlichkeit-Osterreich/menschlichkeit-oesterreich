@@ -1,7 +1,7 @@
 ---
 name: accessibility-expert
 description: WCAG 2.1 AA Barrierefreiheits-Experte für Menschlichkeit Österreich. Prüft und verbessert React-Komponenten, HTML-Templates und das Demokratiespiel auf Zugänglichkeit für alle Nutzer:innen, inkl. Screenreader-Kompatibilität, Tastatur-Navigation und Farbkontraste.
-model: claude-sonnet-4-6
+model: claude-sonnet-4-20250514
 color: green
 tools:
   - Read

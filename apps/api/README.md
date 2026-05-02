@@ -60,9 +60,7 @@ Die Test-Suite ist auf `tests/` standardisiert und laeuft ohne lokale PostgreSQL
 - `POST /api/privacy/data-export`
 - `POST /api/privacy/data-deletion`
 - `POST /api/payments/stripe/intent`
-- `POST /api/payments/paypal/order`
 - `POST /api/webhooks/stripe`
-- `POST /api/webhooks/paypal`
 
 ## Mail, DSGVO und Zahlungen
 

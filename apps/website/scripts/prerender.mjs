@@ -24,10 +24,14 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const DIST = join(ROOT, 'dist');
 const DIST_SSR = join(ROOT, 'dist-ssr');
+const STATIC_ONLY_ROUTES = ['/login', '/passwort-vergessen', '/passwort-reset'];
 
-const ROUTES_TO_PRERENDER = routes
-  .filter((route) => route.prerender !== false)
-  .map((route) => route.path);
+const ROUTES_TO_PRERENDER = [
+  ...new Set([
+    ...routes.filter((route) => route.prerender !== false).map((route) => route.path),
+    ...STATIC_ONLY_ROUTES,
+  ]),
+];
 
 const APP_HEAD_BLOCK = /<!--app-head:start-->[\s\S]*?<!--app-head:end-->/;
 

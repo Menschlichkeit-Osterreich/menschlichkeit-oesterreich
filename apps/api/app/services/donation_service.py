@@ -7,6 +7,7 @@ from typing import Any
 
 from ..db import execute, fetchrow
 from .crm_service import crm_service
+from .finance_sync_service import finance_sync_service
 from .mail_service import mail_service
 from ._payment_helpers import _money, _resolve_contact_id
 
@@ -82,7 +83,9 @@ class DonationService:
         )
         donation = dict(row)
         if resolved_contact_id and not civicrm_contribution_id:
-            contribution = await crm_service.create_contribution(contact_id=resolved_contact_id, amount=amount, source=source)
+            contribution = await crm_service.create_contribution(
+                contact_id=resolved_contact_id, amount=amount, source=source
+            )
             if contribution and contribution.get("id"):
                 donation["civicrm_contribution_id"] = int(contribution["id"])
                 await execute(
@@ -90,16 +93,28 @@ class DonationService:
                     int(contribution["id"]),
                     donation["id"],
                 )
+        try:
+            await finance_sync_service.enqueue_donation(donation)
+        except Exception as exc:
+            logger.warning("erpnext_donation_enqueue_failed | donation_id=%s | error=%s", donation.get("id"), exc)
         if donor_email and send_receipt_email:
+            first_name, _, last_name = (donor_name or "").partition(" ")
             await mail_service.send_template(
                 template_id="donation_success",
                 recipient_email=donor_email,
                 context={
-                    "first_name": donor_name.split(" ")[0] if donor_name else "",
-                    "donor_name": donor_name,
-                    "amount": f"{Decimal(str(amount)):.2f}",
-                    "currency": currency.upper(),
-                    "purpose": source,
+                    "contact": {
+                        "first_name": first_name,
+                        "last_name": last_name,
+                        "email": donor_email,
+                    },
+                    "donation": {
+                        "amount": f"{Decimal(str(amount)):.2f}",
+                        "currency": currency.upper(),
+                        "purpose": source,
+                        "date": str(donation.get("donation_date") or ""),
+                        "receipt_eligible": True,
+                    },
                 },
                 entity_type="donation",
                 entity_id=donation["id"],

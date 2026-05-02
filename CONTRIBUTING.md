@@ -16,7 +16,7 @@ npm run test:api
 npm run build:workspaces
 ```
 
-Bei Frontend- oder OpenClaw-Aenderungen kommen zusaetzlich dazu:
+Bei Frontend-Aenderungen kommen zusaetzlich dazu:
 
 ```bash
 npm run build:frontend
@@ -61,7 +61,15 @@ Hooks einmalig aktivieren:
 
 ```bash
 npm run git:hooks:enable
+npm run git:hooks:status
 ```
+
+Der kanonische Hook-Pfad ist `.githooks/`.
+Aktiv sind dabei insbesondere:
+
+- `pre-commit`: blockiert echte `.env`-Dateien und startet `lint-staged`
+- `commit-msg`: prüft Conventional Commits via `commitlint`
+- `pre-push`: führt `npm run governance:check`, `npm run mcp:check` und `npm run test:api` aus; Codacy läuft zusätzlich, wenn Docker lokal verfügbar ist
 
 GitHub-Login fuer HTTPS-Remote und Credential Manager:
 

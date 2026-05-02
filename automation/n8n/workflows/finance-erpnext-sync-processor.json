@@ -1,0 +1,51 @@
+{
+  "name": "Finance: ERPNext Sync Processor",
+  "nodes": [
+    {
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 10,
+              "unit": "minutes"
+            }
+          ]
+        }
+      },
+      "id": "cron-trigger",
+      "name": "Cron: Every 10 Minutes",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.API_BASE_URL }}/api/internal/finance/erpnext/process",
+        "method": "POST",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ limit: 25 }) }}",
+        "options": {}
+      },
+      "id": "process-sync",
+      "name": "API: Process ERPNext Sync Queue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [520, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-backend-auth",
+          "name": "API Backend Auth"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "cron-trigger": {
+      "main": [[{ "node": "API: Process ERPNext Sync Queue", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": ["finance", "erpnext", "sync", "automation"]
+}

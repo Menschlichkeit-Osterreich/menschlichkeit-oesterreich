@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '@/constants/api';
 import { STORAGE_KEYS } from '@/constants/storage';
-import { buildPortalUrl } from '../utils/runtimeHost';
+import { PUBLIC_PORTAL_ENTRY_PATH } from '../utils/runtimeHost';
 export default function Register() {
   const _navigate = useNavigate();
   const [form, setForm] = useState({
@@ -37,7 +37,7 @@ export default function Register() {
       return;
     }
     if (!form.agb || !form.datenschutz) {
-      setError('Bitte stimmen Sie den Nutzungsbedingungen und der Datenschutzerklärung zu');
+      setError('Bitte bestätigen Sie Statuten, Beitragsordnung und Datenschutzerklärung.');
       return;
     }
 
@@ -57,7 +57,7 @@ export default function Register() {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.detail || 'Registrierung fehlgeschlagen');
       sessionStorage.removeItem(STORAGE_KEYS.authToken);
-      window.location.href = buildPortalUrl('/login');
+      window.location.href = PUBLIC_PORTAL_ENTRY_PATH;
     } catch (err: any) {
       setError(err.message || 'Registrierung fehlgeschlagen');
     } finally {
@@ -67,7 +67,7 @@ export default function Register() {
 
   return (
     <div className="min-h-screen flex">
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-red-600 to-orange-500 text-white flex-col justify-center items-center p-12">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-700 via-primary-800 to-accent-600 text-white flex-col justify-center items-center p-12">
         <div className="max-w-md text-center">
           <div className="w-24 h-24 bg-white/20 rounded-3xl flex items-center justify-center mx-auto mb-6">
             <span className="text-5xl">🤝</span>
@@ -93,43 +93,84 @@ export default function Register() {
         </div>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-6 bg-gray-50 dark:bg-gray-900">
+      <div className="flex-1 flex items-center justify-center bg-secondary-50 p-6">
         <div className="w-full max-w-md">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Mitglied werden</h1>
-          <p className="text-gray-500 dark:text-gray-400 mb-6">
+          <h1 className="mb-2 text-2xl font-bold text-secondary-950">Mitglied werden</h1>
+          <p className="mb-6 text-secondary-600">
             Erstellen Sie Ihr Konto bei Menschlichkeit Österreich
           </p>
 
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg mb-4">
+            <div
+              className="mb-4 rounded-lg border border-error-200 bg-error-50 px-4 py-3 text-error-700"
+              role="alert"
+            >
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" aria-busy={loading}>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="vorname" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Vorname</label>
-                <input id="vorname" name="vorname" type="text" required value={form.vorname} onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+                <label htmlFor="vorname" className="mb-1 block text-sm font-medium text-secondary-700">
+                  Vorname
+                </label>
+                <input
+                  id="vorname"
+                  name="vorname"
+                  type="text"
+                  required
+                  value={form.vorname}
+                  onChange={handleChange}
+                  autoComplete="given-name"
+                  className="w-full rounded-lg border border-secondary-300 bg-white px-3 py-2 text-secondary-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                />
               </div>
               <div>
-                <label htmlFor="nachname" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nachname</label>
-                <input id="nachname" name="nachname" type="text" required value={form.nachname} onChange={handleChange}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+                <label htmlFor="nachname" className="mb-1 block text-sm font-medium text-secondary-700">
+                  Nachname
+                </label>
+                <input
+                  id="nachname"
+                  name="nachname"
+                  type="text"
+                  required
+                  value={form.nachname}
+                  onChange={handleChange}
+                  autoComplete="family-name"
+                  className="w-full rounded-lg border border-secondary-300 bg-white px-3 py-2 text-secondary-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                />
               </div>
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">E-Mail-Adresse</label>
-              <input id="email" name="email" type="email" required value={form.email} onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+              <label htmlFor="email" className="mb-1 block text-sm font-medium text-secondary-700">
+                E-Mail-Adresse
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                value={form.email}
+                onChange={handleChange}
+                autoComplete="email"
+                spellCheck={false}
+                className="w-full rounded-lg border border-secondary-300 bg-white px-3 py-2 text-secondary-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+              />
             </div>
 
             <div>
-              <label htmlFor="mitgliedschaft_typ" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mitgliedschaftsart</label>
-              <select id="mitgliedschaft_typ" name="mitgliedschaft_typ" value={form.mitgliedschaft_typ} onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent">
+              <label htmlFor="mitgliedschaft_typ" className="mb-1 block text-sm font-medium text-secondary-700">
+                Mitgliedschaftsart
+              </label>
+              <select
+                id="mitgliedschaft_typ"
+                name="mitgliedschaft_typ"
+                value={form.mitgliedschaft_typ}
+                onChange={handleChange}
+                className="w-full rounded-lg border border-secondary-300 bg-white px-3 py-2 text-secondary-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+              >
                 <option value="ordentlich">Ordentliches Mitglied (€ 36/Jahr)</option>
                 <option value="ermaessigt">Ermäßigtes Mitglied (€ 18/Jahr)</option>
                 <option value="ausserordentlich">Außerordentliches Mitglied</option>
@@ -138,43 +179,92 @@ export default function Register() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Passwort</label>
-              <input id="password" name="password" type="password" required minLength={8} value={form.password} onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                placeholder="Mindestens 8 Zeichen" />
+              <label htmlFor="password" className="mb-1 block text-sm font-medium text-secondary-700">
+                Passwort
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                minLength={8}
+                value={form.password}
+                onChange={handleChange}
+                autoComplete="new-password"
+                className="w-full rounded-lg border border-secondary-300 bg-white px-3 py-2 text-secondary-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+                placeholder="Mindestens 8 Zeichen…"
+              />
             </div>
 
             <div>
-              <label htmlFor="passwordConfirm" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Passwort bestätigen</label>
-              <input id="passwordConfirm" name="passwordConfirm" type="password" required value={form.passwordConfirm} onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent" />
+              <label htmlFor="passwordConfirm" className="mb-1 block text-sm font-medium text-secondary-700">
+                Passwort bestätigen
+              </label>
+              <input
+                id="passwordConfirm"
+                name="passwordConfirm"
+                type="password"
+                required
+                value={form.passwordConfirm}
+                onChange={handleChange}
+                autoComplete="new-password"
+                className="w-full rounded-lg border border-secondary-300 bg-white px-3 py-2 text-secondary-900 shadow-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+              />
             </div>
 
             <div className="space-y-2">
               <label className="flex items-start gap-2">
-                <input type="checkbox" name="agb" checked={form.agb} onChange={handleChange}
-                  className="mt-1 rounded border-gray-300 text-red-600 focus:ring-red-500" />
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  Ich akzeptiere die <Link to="/statuten" className="text-red-600 hover:underline">Statuten</Link> und die <Link to="/beitragsordnung" className="text-red-600 hover:underline">Beitragsordnung</Link>
+                <input
+                  type="checkbox"
+                  name="agb"
+                  checked={form.agb}
+                  onChange={handleChange}
+                  className="mt-1 rounded border-secondary-300 text-primary-600 focus:ring-primary-500"
+                />
+                <span className="text-sm text-secondary-600">
+                  Ich akzeptiere die{' '}
+                  <Link to="/statuten" className="font-medium text-primary-700 hover:underline">
+                    Statuten
+                  </Link>{' '}
+                  und die{' '}
+                  <Link to="/beitragsordnung" className="font-medium text-primary-700 hover:underline">
+                    Beitragsordnung
+                  </Link>
                 </span>
               </label>
               <label className="flex items-start gap-2">
-                <input type="checkbox" name="datenschutz" checked={form.datenschutz} onChange={handleChange}
-                  className="mt-1 rounded border-gray-300 text-red-600 focus:ring-red-500" />
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  Ich habe die <Link to="/datenschutz" className="text-red-600 hover:underline">Datenschutzerklärung</Link> gelesen und akzeptiert
+                <input
+                  type="checkbox"
+                  name="datenschutz"
+                  checked={form.datenschutz}
+                  onChange={handleChange}
+                  className="mt-1 rounded border-secondary-300 text-primary-600 focus:ring-primary-500"
+                />
+                <span className="text-sm text-secondary-600">
+                  Ich habe die{' '}
+                  <Link to="/datenschutz" className="font-medium text-primary-700 hover:underline">
+                    Datenschutzerklärung
+                  </Link>{' '}
+                  gelesen und akzeptiert
                 </span>
               </label>
             </div>
 
-            <button type="submit" disabled={loading}
-              className="w-full bg-gradient-to-r from-red-600 to-orange-500 text-white font-semibold py-3 rounded-lg hover:from-red-700 hover:to-orange-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+            <button
+              type="submit"
+              disabled={loading}
+              aria-busy={loading}
+              className="w-full rounded-lg bg-gradient-to-r from-primary-700 to-accent-600 py-3 font-semibold text-white transition-all hover:from-primary-800 hover:to-accent-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            >
               {loading ? 'Wird registriert…' : 'Jetzt Mitglied werden'}
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
-            Bereits Mitglied? <Link to="/login" className="text-red-600 hover:underline font-medium">Jetzt anmelden</Link>
+          <p className="mt-6 text-center text-sm text-secondary-600">
+            Bereits Mitglied?{' '}
+            <Link to="/login" className="font-medium text-primary-700 hover:underline">
+              Jetzt anmelden
+            </Link>
           </p>
         </div>
       </div>

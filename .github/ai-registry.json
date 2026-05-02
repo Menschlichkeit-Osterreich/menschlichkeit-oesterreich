@@ -1,8 +1,29 @@
 {
   "meta": {
     "version": 1,
-    "updated": "2026-03-31",
-    "repository": "Menschlichkeit-Osterreich/menschlichkeit-oesterreich"
+    "updated": "2026-05-02",
+    "repository": "Menschlichkeit-Osterreich/menschlichkeit-oesterreich",
+    "pathZones": {
+      "active": ["apps/", "automation/", "mcp-servers/", "figma-design-system/"],
+      "legacy_read_only": [
+        "api.menschlichkeit-oesterreich.at/",
+        "crm.menschlichkeit-oesterreich.at/",
+        "new/",
+        "web/",
+        "services/"
+      ],
+      "evidence_ops": [
+        "runbooks/",
+        "monitoring/",
+        "reports/",
+        "analysis/",
+        "deployment-scripts/",
+        "security/",
+        "tests/",
+        "docs/"
+      ],
+      "special_experimental": ["codacy-analysis-cli-master/"]
+    }
   },
   "analysisEntry": {
     "id": "analysis-planning-core",
@@ -16,76 +37,6 @@
   },
   "agents": [
     {
-      "id": "devops-expert.agent",
-      "kind": "agent",
-      "status": "active",
-      "owner": "copilot",
-      "path": ".github/agents/devops-expert.agent.md",
-      "role": "devops",
-      "sourceOfTruth": ".github/agents/devops-expert.agent.md",
-      "replacement": null
-    },
-    {
-      "id": "janitor.agent",
-      "kind": "agent",
-      "status": "deprecated",
-      "owner": "copilot",
-      "path": ".github/agents/janitor.agent.md",
-      "role": "developer",
-      "sourceOfTruth": ".github/agents/janitor.agent.md",
-      "replacement": ".github/agents/task-planner.agent.md"
-    },
-    {
-      "id": "laravel-expert-agent.agent",
-      "kind": "agent",
-      "status": "deprecated",
-      "owner": "copilot",
-      "path": ".github/agents/laravel-expert-agent.agent.md",
-      "role": "developer",
-      "sourceOfTruth": ".github/agents/laravel-expert-agent.agent.md",
-      "replacement": ".github/agents/task-planner.agent.md"
-    },
-    {
-      "id": "mentor.agent",
-      "kind": "agent",
-      "status": "active",
-      "owner": "copilot",
-      "path": ".github/agents/mentor.agent.md",
-      "role": "qa",
-      "sourceOfTruth": ".github/agents/mentor.agent.md",
-      "replacement": null
-    },
-    {
-      "id": "php-mcp-expert.agent",
-      "kind": "agent",
-      "status": "vendor",
-      "owner": "copilot",
-      "path": ".github/agents/php-mcp-expert.agent.md",
-      "role": "developer",
-      "sourceOfTruth": ".github/agents/php-mcp-expert.agent.md",
-      "replacement": ".github/agents/task-planner.agent.md"
-    },
-    {
-      "id": "postgresql-dba.agent",
-      "kind": "agent",
-      "status": "vendor",
-      "owner": "copilot",
-      "path": ".github/agents/postgresql-dba.agent.md",
-      "role": "devops",
-      "sourceOfTruth": ".github/agents/postgresql-dba.agent.md",
-      "replacement": ".github/agents/devops-expert.agent.md"
-    },
-    {
-      "id": "python-mcp-expert.agent",
-      "kind": "agent",
-      "status": "vendor",
-      "owner": "copilot",
-      "path": ".github/agents/python-mcp-expert.agent.md",
-      "role": "developer",
-      "sourceOfTruth": ".github/agents/python-mcp-expert.agent.md",
-      "replacement": ".github/agents/task-planner.agent.md"
-    },
-    {
       "id": "task-planner.agent",
       "kind": "agent",
       "status": "active",
@@ -96,14 +47,44 @@
       "replacement": null
     },
     {
-      "id": "typescript-mcp-expert.agent",
+      "id": "developer.agent",
       "kind": "agent",
-      "status": "vendor",
+      "status": "active",
       "owner": "copilot",
-      "path": ".github/agents/typescript-mcp-expert.agent.md",
+      "path": ".github/agents/developer.agent.md",
       "role": "developer",
-      "sourceOfTruth": ".github/agents/typescript-mcp-expert.agent.md",
-      "replacement": ".github/agents/task-planner.agent.md"
+      "sourceOfTruth": ".github/agents/developer.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "devops-expert.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/devops-expert.agent.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/agents/devops-expert.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "security-reviewer.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/security-reviewer.agent.md",
+      "role": "security",
+      "sourceOfTruth": ".github/agents/security-reviewer.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "qa-reviewer.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/qa-reviewer.agent.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/agents/qa-reviewer.agent.md",
+      "replacement": null
     },
     {
       "id": "claude-ai-integration-architect",
@@ -234,6 +215,186 @@
       "role": "qa",
       "sourceOfTruth": ".claude/plugins/moe-qa/agents/qa-engineer.md",
       "replacement": null
+    },
+    {
+      "id": "accessibility-runtime-tester.agent",
+      "kind": "agent",
+      "status": "deprecated",
+      "owner": "copilot",
+      "path": ".github/archive/agents/accessibility-runtime-tester.agent.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/archive/agents/accessibility-runtime-tester.agent.md",
+      "replacement": ".github/agents/qa-reviewer.agent.md"
+    },
+    {
+      "id": "accessibility.agent",
+      "kind": "agent",
+      "status": "deprecated",
+      "owner": "copilot",
+      "path": ".github/archive/agents/accessibility.agent.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/archive/agents/accessibility.agent.md",
+      "replacement": ".github/agents/qa-reviewer.agent.md"
+    },
+    {
+      "id": "agent-governance-reviewer.agent",
+      "kind": "agent",
+      "status": "deprecated",
+      "owner": "copilot",
+      "path": ".github/archive/agents/agent-governance-reviewer.agent.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/archive/agents/agent-governance-reviewer.agent.md",
+      "replacement": ".github/agents/task-planner.agent.md"
+    },
+    {
+      "id": "context-architect.agent",
+      "kind": "agent",
+      "status": "deprecated",
+      "owner": "copilot",
+      "path": ".github/archive/agents/context-architect.agent.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/archive/agents/context-architect.agent.md",
+      "replacement": ".github/agents/task-planner.agent.md"
+    },
+    {
+      "id": "doublecheck.agent",
+      "kind": "agent",
+      "status": "deprecated",
+      "owner": "copilot",
+      "path": ".github/archive/agents/doublecheck.agent.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/archive/agents/doublecheck.agent.md",
+      "replacement": ".github/agents/qa-reviewer.agent.md"
+    },
+    {
+      "id": "drupal-expert.agent",
+      "kind": "agent",
+      "status": "deprecated",
+      "owner": "copilot",
+      "path": ".github/archive/agents/drupal-expert.agent.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/archive/agents/drupal-expert.agent.md",
+      "replacement": ".github/agents/developer.agent.md"
+    },
+    {
+      "id": "expert-nextjs-developer.agent",
+      "kind": "agent",
+      "status": "deprecated",
+      "owner": "copilot",
+      "path": ".github/archive/agents/expert-nextjs-developer.agent.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/archive/agents/expert-nextjs-developer.agent.md",
+      "replacement": ".github/agents/developer.agent.md"
+    },
+    {
+      "id": "expert-react-frontend-engineer.agent",
+      "kind": "agent",
+      "status": "deprecated",
+      "owner": "copilot",
+      "path": ".github/archive/agents/expert-react-frontend-engineer.agent.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/archive/agents/expert-react-frontend-engineer.agent.md",
+      "replacement": ".github/agents/developer.agent.md"
+    },
+    {
+      "id": "frontend-performance-investigator.agent",
+      "kind": "agent",
+      "status": "deprecated",
+      "owner": "copilot",
+      "path": ".github/archive/agents/frontend-performance-investigator.agent.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/archive/agents/frontend-performance-investigator.agent.md",
+      "replacement": ".github/agents/qa-reviewer.agent.md"
+    },
+    {
+      "id": "github-actions-expert.agent",
+      "kind": "agent",
+      "status": "deprecated",
+      "owner": "copilot",
+      "path": ".github/archive/agents/github-actions-expert.agent.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/archive/agents/github-actions-expert.agent.md",
+      "replacement": ".github/agents/devops-expert.agent.md"
+    },
+    {
+      "id": "mcp-operations.agent",
+      "kind": "agent",
+      "status": "deprecated",
+      "owner": "copilot",
+      "path": ".github/archive/agents/mcp-operations.agent.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/archive/agents/mcp-operations.agent.md",
+      "replacement": ".github/agents/devops-expert.agent.md"
+    },
+    {
+      "id": "mentor.agent",
+      "kind": "agent",
+      "status": "deprecated",
+      "owner": "copilot",
+      "path": ".github/archive/agents/mentor.agent.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/archive/agents/mentor.agent.md",
+      "replacement": ".github/agents/qa-reviewer.agent.md"
+    },
+    {
+      "id": "playwright-tester.agent",
+      "kind": "agent",
+      "status": "deprecated",
+      "owner": "copilot",
+      "path": ".github/archive/agents/playwright-tester.agent.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/archive/agents/playwright-tester.agent.md",
+      "replacement": ".github/agents/qa-reviewer.agent.md"
+    },
+    {
+      "id": "qa-subagent.agent",
+      "kind": "agent",
+      "status": "deprecated",
+      "owner": "copilot",
+      "path": ".github/archive/agents/qa-subagent.agent.md",
+      "role": "qa",
+      "sourceOfTruth": ".github/archive/agents/qa-subagent.agent.md",
+      "replacement": ".github/agents/qa-reviewer.agent.md"
+    },
+    {
+      "id": "se-gitops-ci-specialist.agent",
+      "kind": "agent",
+      "status": "deprecated",
+      "owner": "copilot",
+      "path": ".github/archive/agents/se-gitops-ci-specialist.agent.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/archive/agents/se-gitops-ci-specialist.agent.md",
+      "replacement": ".github/agents/devops-expert.agent.md"
+    },
+    {
+      "id": "se-security-reviewer.agent",
+      "kind": "agent",
+      "status": "deprecated",
+      "owner": "copilot",
+      "path": ".github/archive/agents/se-security-reviewer.agent.md",
+      "role": "security",
+      "sourceOfTruth": ".github/archive/agents/se-security-reviewer.agent.md",
+      "replacement": ".github/agents/security-reviewer.agent.md"
+    },
+    {
+      "id": "se-system-architecture-reviewer.agent",
+      "kind": "agent",
+      "status": "deprecated",
+      "owner": "copilot",
+      "path": ".github/archive/agents/se-system-architecture-reviewer.agent.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/archive/agents/se-system-architecture-reviewer.agent.md",
+      "replacement": ".github/agents/task-planner.agent.md"
+    },
+    {
+      "id": "task-researcher.agent",
+      "kind": "agent",
+      "status": "deprecated",
+      "owner": "copilot",
+      "path": ".github/archive/agents/task-researcher.agent.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/archive/agents/task-researcher.agent.md",
+      "replacement": ".github/agents/task-planner.agent.md"
     }
   ],
   "chatmodes": [
@@ -957,26 +1118,6 @@
       "status": "adapter",
       "owner": "claude",
       "path": ".claude/plugins/menschlichkeit-dev-suite/skills/migration-guide/SKILL.md",
-      "role": "developer",
-      "sourceOfTruth": ".github/skills/moe-dev-suite/SKILL.md",
-      "replacement": ".github/skills/moe-dev-suite/SKILL.md"
-    },
-    {
-      "id": "plugin-skills-openclaw-status",
-      "kind": "skill",
-      "status": "adapter",
-      "owner": "claude",
-      "path": ".claude/plugins/menschlichkeit-dev-suite/skills/openclaw-status/SKILL.md",
-      "role": "developer",
-      "sourceOfTruth": ".github/skills/moe-dev-suite/SKILL.md",
-      "replacement": ".github/skills/moe-dev-suite/SKILL.md"
-    },
-    {
-      "id": "plugin-skills-openclaw-task",
-      "kind": "skill",
-      "status": "adapter",
-      "owner": "claude",
-      "path": ".claude/plugins/menschlichkeit-dev-suite/skills/openclaw-task/SKILL.md",
       "role": "developer",
       "sourceOfTruth": ".github/skills/moe-dev-suite/SKILL.md",
       "replacement": ".github/skills/moe-dev-suite/SKILL.md"

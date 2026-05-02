@@ -101,7 +101,7 @@ else
     echo ""
     echo "🔧 Troubleshooting:"
     echo "  1. Run: bash .devcontainer/setup.sh"
-    echo "  2. Check: ..dokum/CODESPACE-TROUBLESHOOTING.md"
+    echo "  2. Check: docs/archive/bulk/CODESPACE-TROUBLESHOOTING.md"
     echo "  3. Manual install: cd api.menschlichkeit-oesterreich.at && pip install --user fastapi uvicorn"
     exit 1
 fi

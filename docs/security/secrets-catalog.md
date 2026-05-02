@@ -1,418 +1,141 @@
-# Secrets Catalog & Management
+# Token-Inventar und Secret-Uebergabe
+
+Stand: 2026-04-25
+Owner: DevOps + Security
+Review-Zyklus: quartalsweise und nach jedem Incident
 
-**Organisation**: Menschlichkeit Österreich  
-**Secret Management Owner**: DevOps Team  
-**Last Updated**: 2026-03-25
-**Review Cycle**: Quartalsweise + bei jeder Secret-Änderung
+## Zweck
 
----
+Dieses Dokument ist das operative Inventar fuer alle wirklich benoetigten Token und tokenaehnlichen Zugangswerte im Projekt.
 
-## 🔑 Bitwarden Secrets Manager (BSM) — Primäre Secret-Quelle
+Es beantwortet fuer jede Klasse verbindlich:
 
-**Seit März 2026** werden CI/CD-Secrets primär über Bitwarden Secrets Manager (EU-Vault: `vault.bitwarden.eu`) verwaltet und in GitHub Actions injiziert.
+- wofuer der Zugang gebraucht wird
+- wer ihn fachlich und technisch verantwortet
+- wo die Primaerablage liegt
+- ueber welchen Injektionspfad er in Laufzeit oder Workflow gelangt
+- welche Minimalrechte gelten
+- wie Rotation und Incident-Entzug ablaufen
 
-| Eigenschaft               | Wert                                                                                        |
-| ------------------------- | ------------------------------------------------------------------------------------------- |
-| **Provider**              | Bitwarden Secrets Manager (EU)                                                              |
-| **Vault URL**             | `https://vault.bitwarden.eu`                                                                |
-| **Projekte**              | `moe-development`, `moe-staging`, `moe-production`                                          |
-| **Service Accounts**      | 10 (sa-api-dev/stg/prod, sa-openclaw-dev/prod, sa-n8n-dev/prod, sa-cicd, sa-infra-dev/prod) |
-| **Verwaltete Secrets**    | 44 (definiert in `secrets.manifest.json`)                                                   |
-| **GitHub Integration**    | `.github/workflows/reusable-bsm-secrets.yml`                                                |
-| **UUID-Mapping**          | `.github/bsm-secret-ids.json`                                                               |
-| **Migrations-Checkliste** | `docs/security/BSM-MIGRATION-CHECKLIST.md`                                                  |
+## Kanonische Grenzen
 
-### BSM Access Token
+Es gibt absichtlich nur eine Wahrheit je Ebene:
 
-| Secret Name       | Beschreibung                  | Scope             | Rotation |
-| ----------------- | ----------------------------- | ----------------- | -------- |
-| `BW_ACCESS_TOKEN` | BSM Service Account `sa-cicd` | Repository Secret | 90 Tage  |
+- `secrets.manifest.json` ist die kanonische Liste der produktiven und laufzeitnahen Secret-Namen fuer BSM-gestuetzte Services.
+- Dieses Dokument ist die kanonische Governance-Sicht fuer Token-Klassen, Eigentum, Ablage, Injektion und Rotation.
+- GitHub Repository Secrets und Environment Secrets sind Laufzeit-Injektionspunkte, nicht die Primaerdokumentation produktiver Secrets.
+- Produktive Secret-Werte werden nicht in Markdown, `.env.example`, Tickets, Chat, SharePoint-Screenshots oder Commit-Historie gepflegt.
 
----
+## Einsatzregeln
 
-## 🔑 GitHub Personal Access Token (PAT)
-
-| Eigenschaft             | Wert                                                             |
-| ----------------------- | ---------------------------------------------------------------- |
-| **Token-Name**          | `claud code full`                                                |
-| **Typ**                 | Fine-grained PAT                                                 |
-| **Erstellt**            | 2026-03-25                                                       |
-| **Ablauf**              | 2027-03-26                                                       |
-| **Berechtigungen**      | 30 Repository + 36 Organisation                                  |
-| **GitHub Secret**       | `GH_TOKEN`                                                       |
-| **Erinnerung**          | `.github/workflows/pat-expiry-reminder.yml` (30 Tage vor Ablauf) |
-| **Rotation-Playbook**   | `docs/security/GH-PAT-ROTATION.md`                               |
-| **Vollständiger Audit** | `docs/security/GITHUB-AUDIT-2026-03.md`                          |
-
-**Verwendung:** Nur für Admin-/Cross-Repo-Operationen. CI/CD-Secrets über BSM.
-
----
-
-## 📋 Secret Taxonomie
-
-Secrets sind nach **Scope** kategorisiert:
-
-| Scope            | Zugriff                    | Verwendung                      | Verwaltung                                        |
-| ---------------- | -------------------------- | ------------------------------- | ------------------------------------------------- |
-| **BSM (primär)** | CI/CD Workflows            | Deployment, Tests, Automation   | Bitwarden Vault (EU) → `reusable-bsm-secrets.yml` |
-| **Organization** | Alle/ausgewählte Repos     | Shared Services (Figma, Codacy) | GitHub Settings → Secrets → Organization          |
-| **Repository**   | Einzelnes Repo             | Repo-spezifisch (Deploy-Keys)   | GitHub Repo → Settings → Secrets                  |
-| **Environment**  | Environment (staging/prod) | Deployment-spezifisch           | GitHub Repo → Settings → Environments             |
-| **Codespaces**   | Development                | Lokale Entwicklung              | GitHub Settings → Codespaces → Secrets            |
-
----
-
-## 🔐 Organization Secrets
-
-**Verwaltung**: `gh secret set --org peschull SECRET_NAME --repos repo1,repo2`
-
-### Quality & Security Tools
-
-| Secret Name         | Beschreibung            | Benötigte Repos | Rotation | Status      |
-| ------------------- | ----------------------- | --------------- | -------- | ----------- |
-| `CODACY_API_TOKEN`  | Codacy Code Quality     | Alle            | 90 Tage  | ✅ Aktiv    |
-| `SEMGREP_APP_TOKEN` | Semgrep SAST Scanner    | Alle            | 90 Tage  | ⚠️ Optional |
-| `SNYK_TOKEN`        | Snyk Dependency Scanner | Alle            | 90 Tage  | ⚠️ Optional |
-| `SONAR_TOKEN`       | SonarQube Analysis      | Alle            | 90 Tage  | ⚠️ Optional |
-
-### Design & Integration
-
-| Secret Name          | Beschreibung             | Benötigte Repos            | Rotation | Status   |
-| -------------------- | ------------------------ | -------------------------- | -------- | -------- |
-| `FIGMA_ACCESS_TOKEN` | Figma Design System Sync | menschlichkeit-oesterreich | 180 Tage | ✅ Aktiv |
-| `FIGMA_FILE_ID`      | Figma File Identifier    | menschlichkeit-oesterreich | Nie (ID) | ✅ Aktiv |
-
-### Monitoring (Optional)
-
-| Secret Name  | Beschreibung   | Benötigte Repos            | Rotation  | Status      |
-| ------------ | -------------- | -------------------------- | --------- | ----------- |
-| `SENTRY_DSN` | Error Tracking | Alle Services              | Nie (DSN) | ⚠️ Optional |
-| `LHCI_TOKEN` | Lighthouse CI  | menschlichkeit-oesterreich | 90 Tage   | ⚠️ Optional |
-
----
-
-## 🏗️ Repository Secrets
-
-**Verwaltung**: `gh secret set SECRET_NAME < secret.txt`
-
-### SSH & Deployment (CRITICAL)
-
-| Secret Name       | Beschreibung             | Format                 | Rotation                     | Backup          |
-| ----------------- | ------------------------ | ---------------------- | ---------------------------- | --------------- |
-| `SSH_PRIVATE_KEY` | Plesk Deployment SSH Key | Base64-encoded ED25519 | Nie (außer Kompromittierung) | ✅ Offline      |
-| `SSH_HOST`        | Plesk Server Hostname    | `user@host` oder IP    | Bei Server-Wechsel           | ✅ Dokumentiert |
-| `SSH_USER`        | SSH Username             | String                 | Bei Server-Wechsel           | ✅ Dokumentiert |
-| `SSH_PORT`        | SSH Port                 | Integer (default: 22)  | Bei Config-Änderung          | ✅ Dokumentiert |
-| `PLESK_API_KEY`   | Plesk Panel API Key      | UUID                   | 90 Tage                      | ✅ Offline      |
-
-### Database Credentials (CRITICAL)
-
-**Tier 1: Plesk MariaDB (localhost)**
-
-| Secret Name             | Beschreibung        | Rotation | Notes                 |
-| ----------------------- | ------------------- | -------- | --------------------- |
-| `MO_MAIN_DB_PASS`       | Website DB Password | 90 Tage  | Used by mo_main       |
-| `MO_VOTES_DB_PASS`      | Voting System DB    | 90 Tage  | Used by mo_votes      |
-| `MO_SUPPORT_DB_PASS`    | Support Tickets DB  | 90 Tage  | Used by mo_support    |
-| `MO_NEWSLETTER_DB_PASS` | Newsletter DB       | 90 Tage  | Used by mo_newsletter |
-| `MO_FORUM_DB_PASS`      | Forum DB            | 90 Tage  | Used by mo_forum      |
-
-**Tier 2: External MariaDB**
-
-| Secret Name            | Beschreibung            | Rotation      | Notes          |
-| ---------------------- | ----------------------- | ------------- | -------------- |
-| `MYSQL_HOST`           | External MySQL Hostname | Bei Migration | Shared Host    |
-| `MO_CRM_DB_PASS`       | CiviCRM + Drupal DB     | 90 Tage       | PII-Critical   |
-| `MO_N8N_DB_PASS`       | n8n Workflows DB        | 90 Tage       | Automation     |
-| `MO_HOOKS_DB_PASS`     | Webhook Logs DB         | 90 Tage       | -              |
-| `MO_CONSENT_DB_PASS`   | DSGVO Consent DB        | 90 Tage       | DSGVO-Critical |
-| `MO_GAMES_DB_PASS`     | Gaming Platform DB      | 90 Tage       | -              |
-| `MO_ANALYTICS_DB_PASS` | Analytics DB            | 90 Tage       | -              |
-| `MO_API_STG_DB_PASS`   | API Staging DB          | 90 Tage       | Staging only   |
-| `MO_ADMIN_STG_DB_PASS` | Admin Staging DB        | 90 Tage       | Staging only   |
-| `MO_NEXTCLOUD_DB_PASS` | Nextcloud DB            | 90 Tage       | File Storage   |
-
-**Tier 3: PostgreSQL**
-
-| Secret Name            | Beschreibung        | Rotation      | Notes         |
-| ---------------------- | ------------------- | ------------- | ------------- |
-| `PG_HOST`              | PostgreSQL Hostname | Bei Migration | Shared Host   |
-| `PG_IDP_DB_PASS`       | Keycloak IDP DB     | 90 Tage       | Auth-Critical |
-| `PG_GRAFANA_DB_PASS`   | Grafana Metrics DB  | 90 Tage       | Monitoring    |
-| `PG_DISCOURSE_DB_PASS` | Discourse Forum DB  | 90 Tage       | Optional      |
-
-**Tier 4: Redis (Optional)**
-
-| Secret Name      | Beschreibung | Rotation      | Notes |
-| ---------------- | ------------ | ------------- | ----- |
-| `REDIS_HOST`     | Redis Server | Bei Migration | Cache |
-| `REDIS_PASSWORD` | Redis Auth   | 90 Tage       | -     |
-
-### Application Secrets (HIGH PRIORITY)
-
-| Secret Name          | Beschreibung            | Format         | Rotation     | Validation      |
-| -------------------- | ----------------------- | -------------- | ------------ | --------------- |
-| `CIVICRM_SITE_KEY`   | CiviCRM Security Key    | 32-char random | 180 Tage     | Required        |
-| `CIVICRM_API_KEY`    | CiviCRM API v4 Key      | UUID           | 90 Tage      | Required        |
-| `JWT_SECRET`         | JWT Signing Secret      | 32-char random | 90 Tage      | ✅ Min 32 chars |
-| `N8N_ENCRYPTION_KEY` | n8n Workflow Encryption | 32-char random | 180 Tage     | ✅ Required     |
-| `N8N_USER`           | n8n Admin Username      | String         | Bei Änderung | -               |
-| `N8N_PASSWORD`       | n8n Admin Password      | Strong         | 90 Tage      | ✅ Min 16 chars |
-
----
-
-## 🌍 Environment Secrets
-
-**Verwaltung**: `gh secret set --env ENV_NAME SECRET_NAME`
-
-### Staging Environment
-
-| Secret Name    | Beschreibung          | Value Source                                    |
-| -------------- | --------------------- | ----------------------------------------------- |
-| `DATABASE_URL` | Staging DB Connection | Different from Prod                             |
-| `API_BASE_URL` | Staging API Endpoint  | `https://api.stg.menschlichkeit-oesterreich.at` |
-| `ENABLE_DEBUG` | Debug Mode            | `true`                                          |
-| `LOG_LEVEL`    | Log Verbosity         | `debug`                                         |
-
-### Production Environment
-
-| Secret Name    | Beschreibung             | Value Source                                |
-| -------------- | ------------------------ | ------------------------------------------- |
-| `DATABASE_URL` | Production DB Connection | Prod Credentials                            |
-| `API_BASE_URL` | Production API Endpoint  | `https://api.menschlichkeit-oesterreich.at` |
-| `ENABLE_DEBUG` | Debug Mode               | `false`                                     |
-| `LOG_LEVEL`    | Log Verbosity            | `info`                                      |
-| `SENTRY_DSN`   | Error Tracking           | Production DSN                              |
-
----
-
-## 💻 Codespaces Secrets
-
-**Verwaltung**: GitHub Settings → Codespaces → Secrets
-
-| Secret Name          | Beschreibung             | Scope          | Notes          |
-| -------------------- | ------------------------ | -------------- | -------------- |
-| `DEV_DATABASE_URL`   | Local Development DB     | All Repos      | Testdaten      |
-| `FIGMA_ACCESS_TOKEN` | Design System Sync       | Selected Repos | Same as Org    |
-| `GITHUB_TOKEN`       | Codespace Git Operations | Auto-injected  | GitHub-managed |
-
----
-
-## 🔄 Secret Rotation Playbook
-
-### Standard Rotation (Geplant, 90 Tage)
-
-```bash
-# 1. Neues Secret generieren
-NEW_SECRET=$(openssl rand -base64 32)
-
-# 2. In Anwendung deployen (ohne alte zu entfernen)
-gh secret set SECRET_NAME --body "$NEW_SECRET"
-
-# 3. Rolling Update (graduelle Aktivierung)
-./scripts/rolling-update-secret.sh --secret SECRET_NAME --strategy gradual
-
-# 4. Verifizieren (alle Services nutzen neues Secret)
-./scripts/verify-secret-usage.sh --secret SECRET_NAME
-
-# 5. Altes Secret entfernen (nach 24h Übergangszeit)
-# Nur wenn Verifizierung erfolgreich
-
-# 6. Dokumentieren
-echo "$SECRET_NAME rotated on $(date)" >> .secret-rotation-log
-```
-
-### Emergency Rotation (Kompromittierung)
-
-```bash
-# 1. SOFORT alle betroffenen Services stoppen
-./scripts/emergency-stop.sh --services "api,crm,frontend"
-
-# 2. Neues Secret generieren & setzen
-./scripts/rotate-secret.sh --secret SECRET_NAME --emergency
-
-# 3. Alle Sessions invalidieren
-./scripts/invalidate-sessions.sh --all
-
-# 4. Services neu starten
-./scripts/restart-services.sh --services "api,crm,frontend"
-
-# 5. Incident dokumentieren
-./scripts/create-incident.sh --type "secret-compromise" --secret SECRET_NAME
-
-# 6. Post-Mortem
-# Siehe docs/privacy/art-33-34-incident-playbook.md
-```
-
-### Rotation Schedule
-
-| Secret Type        | Frequenz                 | Nächste Rotation | Owner     |
-| ------------------ | ------------------------ | ---------------- | --------- |
-| **SSH Keys**       | Nur bei Kompromittierung | -                | DevOps    |
-| **DB Passwords**   | 90 Tage                  | 2026-01-10       | DBA       |
-| **API Keys**       | 90 Tage                  | 2026-01-10       | API Team  |
-| **JWT/Encryption** | 90 Tage                  | 2026-01-10       | Security  |
-| **CiviCRM Keys**   | 180 Tage                 | 2026-04-10       | CRM Admin |
-
----
-
-## 🛡️ Secret Protection
-
-### Push Protection ✅ AKTIVIERT
-
-GitHub scannt **bei jedem Push** nach Secrets und **blockiert** den Push.
-
-**Konfiguration**:
-
-- ✅ Repository Settings → Code security → Secret scanning → Push protection
-- ✅ Alert bei Bypass-Versuchen
-- ✅ Automatische Issue-Erstellung bei Detection
-
-**Bypass-Policy**:
-
-```yaml
-Bypass erlaubt nur wenn:
-  - False Positive (dokumentiert)
-  - Staging/Test-Secret (kein Production)
-  - Legacy-Code-Migration (zeitlich begrenzt)
-
-Bypass-Prozess: 1. Reason angeben (obligatorisch)
-  2. Security-Review (DPO Approval)
-  3. Issue erstellen (Tracking)
-  4. Nachträgliche Rotation (innerhalb 24h)
-```
-
-### Secret Scanning ✅ AKTIVIERT
-
-**Automatische Scans**:
-
-- ✅ Bei jedem Push (Push Protection)
-- ✅ Historische Commits (GitHub-Scan)
-- ✅ Dependencies (npm, composer, pip)
-
-**Partner-Patterns**:
-
-- GitHub scannt nach 200+ Partner-Secrets (AWS, Azure, Stripe, etc.)
-- Bei Fund: Automatische Benachrichtigung an Partner (Secret wird invalidiert)
-
-### OIDC statt Langzeit-Secrets ✅ EMPFOHLEN
-
-**Cloud-Authentifizierung ohne Secrets**:
-
-```yaml
-# .github/workflows/deploy-azure.yml
-jobs:
-  deploy:
-    permissions:
-      id-token: write # OIDC Token-Erstellung
-      contents: read
-    steps:
-      - uses: azure/login@v1
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }} # Nur ID, kein Secret!
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          # KEIN client-secret benötigt!
-
-      - name: Deploy
-        run: az webapp deploy ...
-```
-
-**Vorteile**:
-
-- ✅ Keine Langzeit-Secrets (Token lebt nur Job-Dauer)
-- ✅ Automatische Rotation (jeder Job = neuer Token)
-- ✅ Audit-Trail (Cloud IAM Logs)
-- ✅ Granulare Berechtigungen (Role-Based)
-
----
-
-## 🧪 Validation & Testing
-
-### Automatisierte Validierung (CI/CD)
-
-**Workflow**: `.github/workflows/validate-secrets.yml`
-
-```bash
-# Manuelle Ausführung
-npm run validate:secrets
-
-# Prüft:
-# ✅ Alle required Secrets gesetzt
-# ✅ Secret-Format korrekt (z.B. JWT min 32 chars)
-# ✅ Keine hardcoded Secrets im Code
-# ✅ .env.example vollständig
-```
-
-### Secret-Qualität
-
-**Anforderungen**:
-
-```yaml
-Passwörter:
-  - Länge: ≥16 Zeichen (Admin: ≥20)
-  - Komplexität: Groß-/Kleinbuchstaben, Zahlen, Sonderzeichen
-  - Keine Dictionary-Wörter
-  - Kein Passwort-Reuse
-
-API Keys:
-  - Generiert: openssl rand -base64 32
-  - Kein manuelles "Ausdenken"
-
-SSH Keys:
-  - Typ: ED25519 (bevorzugt) oder RSA 4096
-  - Passphrase: Obligatorisch für Private Keys
-```
-
-### Leak-Detection
-
-**Tools**:
-
-- ✅ Gitleaks (CI/CD): `.github/workflows/gitleaks.yml`
-- ✅ GitHub Secret Scanning (automatisch)
-- ✅ Pre-Commit Hook: `.pre-commit-config.yaml`
-
-**Bei Secret-Leak**:
-
-1. **Sofort rotieren** (siehe Emergency Rotation)
-2. **Incident erstellen**: Art. 33 DSGVO prüfen
-3. **Root Cause**: Warum nicht verhindert?
-4. **Prevention**: Prozess anpassen
-
----
-
-## 📦 Bootstrap Scripts
-
-### Bash (Linux/macOS)
-
-**File**: `scripts/secrets-bootstrap.sh`
-
-```bash
-#!/bin/bash
-# Bootstrap all secrets via GitHub CLI
-
-set -euo pipefail
-
-# Repository Secrets
-gh secret set SSH_PRIVATE_KEY < ~/.ssh/id_ed25519
-gh secret set SSH_HOST --body "dmpl20230054@5.183.217.146"
-gh secret set MYSQL_HOST --body "external-mysql.example.com"
-gh secret set PG_HOST --body "external-pg.example.com"
-
-# Generate Random Secrets
-JWT_SECRET=$(openssl rand -base64 32)
-gh secret set JWT_SECRET --body "$JWT_SECRET"
-
-N8N_KEY=$(openssl rand -base64 32)
-gh secret set N8N_ENCRYPTION_KEY --body "$N8N_KEY"
-
-# Organization Secrets (requires --org flag)
-gh secret set FIGMA_ACCESS_TOKEN --org peschull \
-  --repos menschlichkeit-oesterreich \
-  --body "$(cat ~/.figma-token)"
+1. Ein Token, ein Zweck.
+2. Ein Token, ein fachlicher Owner.
+3. Ein produktiver Zugang, eine Primaerablage.
+4. Keine Klartext-Uebergabe in Chat, Mail, Ticket oder Shell-History.
+5. Keine PAT-Nutzung als Ersatz fuer saubere Workflow- oder System-Secrets.
+6. Jede Offenlegung fuehrt zu sofortigem Widerruf, Ersatz und Nachweis.
+7. Jede Rollen- oder Geraeteaenderung triggert Review oder Rotation.
+
+## Token-Klassen
+
+| Klasse      | Typ                | Grundregel                                                              |
+| ----------- | ------------------ | ----------------------------------------------------------------------- |
+| Persoenlich | menschlich         | Nur fuer klar benannte manuelle Admin-Aufgaben; nie fuer Produktivpfade |
+| Workflow    | systemnah          | Nur fuer CI/CD und nur entlang eines benannten Workflow-Pfads           |
+| Produktiv   | systembezogen      | Primaer in BSM, GitHub nur als Injektionspunkt                          |
+| Intern      | maschinell         | Nur fuer Service-zu-Service oder Runtime-Checks; keine Alltagsnutzung   |
+| Notfall     | zeitlich befristet | Nur fuer Incident-Behebung mit Ablaufdatum und Widerrufspflicht         |
+
+## Zentrales Inventar
+
+| Token oder Zugang                                | Klasse      | Zweck                                                                                   | Primaerablage                                                           | Injektionspfad                                                    | Fachlicher Owner | Technischer Owner | Minimalrechte                                                                    | Rotation                                                                            | Hinweise                                                                                                               |
+| ------------------------------------------------ | ----------- | --------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------- | ---------------- | ----------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `GH_TOKEN` (Fine-grained PAT)                    | persoenlich | Nur manuelle GitHub-CLI-, Review- oder Cross-Repo-Admin-Aufgaben einer benannten Person | lokaler Credential Store oder `gh auth login`                           | keine produktive Injektion; nur lokale Shell/CLI                  | benannte Person  | Security          | nur benoetigte Repo-/Org-Rechte; kein Default fuer Deployments                   | bei Rollenwechsel, Geraeteverlust, Offenlegung sofort; sonst spaetestens vor Ablauf | Darf nicht in produktiven Deploy-Pfaden und nicht als generischer Repo-Secret-Standard verwendet werden                |
+| `github.token`                                   | workflow    | Kurzlebiger GitHub-Token fuer denselben Workflow im selben Repo                         | GitHub Actions, ephemer                                                 | direkt aus GitHub Actions Context                                 | DevOps           | DevOps            | nur explizit gesetzte Workflow-Permissions                                       | automatisch pro Run                                                                 | Bevorzugt gegenueber PAT fuer Standard-Workflows                                                                       |
+| `BW_ACCESS_TOKEN` / `BSM_ACCESS_TOKEN`           | workflow    | Zugriff des Secret-Handoff-Workflows auf Bitwarden Secrets Manager                      | GitHub Environment oder Repo Secret mit dokumentierter Ausnahme         | `.github/workflows/reusable-bsm-secrets.yml` und `bsm-env-inject` | DevOps           | DevOps            | nur Zugriff fuer benoetigtes BSM-Service-Account-/Projekt-Scope                  | 90 Tage oder bei Exposure sofort                                                    | Ausnahme von der BSM-first-Regel, weil dieses Secret den Zugriff auf die Primaerquelle selbst ermoeglicht              |
+| `PLESK_SSH_PRIVATE_KEY`                          | workflow    | Deployment-Zugang zu Plesk                                                              | GitHub Environment Secret fuer Deployment                               | `deploy-plesk.yml` SSH-Agent                                      | DevOps           | DevOps            | nur Deployment-Host, nur benoetigter Benutzer, kein interaktiver Mehrzweckzugang | 180 Tage oder bei Host-/Rollenwechsel sofort                                        | tokenaehnlicher Zugang, gleich streng wie Secret behandeln                                                             |
+| `PLESK_KNOWN_HOSTS`                              | workflow    | Host-Pinning fuer Deployment                                                            | GitHub Environment Secret                                               | `deploy-plesk.yml` SSH-Setup                                      | DevOps           | DevOps            | nur verifizierte Hostkeys                                                        | bei Hostkey-Aenderung                                                               | kein Secret im engeren Sinn, aber sicherheitskritischer Vertrauensanker                                                |
+| `ALERTS_SLACK_WEBHOOK`                           | produktiv   | Versand betrieblicher Alerts an Slack                                                   | Bitwarden Secrets Manager                                               | BSM Handoff in API-Runtime und Deploy-Workflow                    | Operations       | DevOps            | nur Webhook fuer den benoetigten Channel                                         | 180 Tage oder bei Exposure sofort                                                   | nie parallel in mehreren `.env`-Dateien pflegen                                                                        |
+| `MICROSOFT_CLIENT_SECRET`                        | produktiv   | OAuth-Client-Secret fuer Graph/M365-Integration                                         | Bitwarden Secrets Manager                                               | BSM Handoff in API-Runtime                                        | Operations       | DevOps            | nur benoetigte App-Registration-Rechte                                           | 180 Tage oder nach App-/Owner-Wechsel                                               | gehoert logisch zu `MICROSOFT_TENANT_ID`, `MICROSOFT_CLIENT_ID`, `MICROSOFT_GRAPH_SENDER`; nur das Secret ist sensitiv |
+| `STRIPE_SECRET_KEY`                              | produktiv   | serverseitige Stripe-API-Zugriffe                                                       | Bitwarden Secrets Manager                                               | BSM Handoff in API-Runtime                                        | Finance          | DevOps            | nur benoetigter Stripe-Account und Modus                                         | 90 Tage oder bei Exposure sofort                                                    | produktiv und test klar getrennt halten                                                                                |
+| `STRIPE_WEBHOOK_SECRET`                          | produktiv   | Signaturpruefung eingehender Stripe-Events                                              | Bitwarden Secrets Manager                                               | BSM Handoff in API-Runtime                                        | Finance          | DevOps            | nur Signaturpruefung des benoetigten Endpunkts                                   | 90 Tage oder nach Endpoint-Neuerzeugung                                             | nie gemeinsam mit API-Key als Freitext dokumentieren                                                                   |
+| `CIVICRM_API_KEY`                                | produktiv   | API-Zugriff auf CRM-Funktionen                                                          | Bitwarden Secrets Manager                                               | BSM Handoff in API/CRM-Runtime                                    | CRM              | DevOps            | nur benoetigter API-Scope                                                        | 180 Tage oder bei Owner-Wechsel                                                     | wegen PII-Bezug als hochkritisch behandeln                                                                             |
+| `CIVICRM_SITE_KEY`                               | produktiv   | CiviCRM-Sicherheits- und Laufzeitkopplung                                               | Bitwarden Secrets Manager                                               | BSM Handoff in API/CRM-Runtime                                    | CRM              | DevOps            | nur interner CiviCRM-Use-Case                                                    | 180 Tage                                                                            | nie in Doku oder Support-Tickets wiederholen                                                                           |
+| `MOE_API_TOKEN`                                  | intern      | interner Maschinenzugriff auf geschuetzte API-Routen und Runtime-Checks                 | Bitwarden Secrets Manager                                               | BSM Handoff in API und angebundene Automationen                   | API Owner        | DevOps            | nur interner Scope, keine Admin-Generalrechte                                    | 180 Tage oder bei Exposure sofort                                                   | nicht fuer menschliche Alltagsnutzung wiederverwenden                                                                  |
+| `N8N_API_KEY` / `INTERNAL_API_TOKEN`             | intern      | Fallback- oder Altpfade fuer interne Maschinenautorisierung                             | Bitwarden Secrets Manager, nur wenn wirklich aktiv benoetigt            | BSM Handoff in API/n8n                                            | Automation       | DevOps            | nur interner Scope                                                               | 180 Tage; bei Abschaltung aus Inventar entfernen                                    | keine parallele Dauerpflege ohne dokumentierte Begruendung                                                             |
+| `N8N_WEBHOOK_SECRET`                             | intern      | Signaturpruefung und Absicherung interner Webhook-Pfade                                 | Bitwarden Secrets Manager                                               | BSM Handoff in API/n8n                                            | Automation       | DevOps            | nur benoetigte Webhook-Signatur                                                  | 180 Tage oder bei Exposure sofort                                                   | kein Ersatz fuer generische Service-Tokens                                                                             |
+| `FIGMA_ACCESS_TOKEN`                             | workflow    | Design-Sync und Token-Automation                                                        | GitHub Organization Secret oder lokaler Owner-Store fuer manuelle Syncs | Figma-bezogene Workflows oder lokale Design-Aufgaben              | Design           | DevOps            | nur Zugriff auf benoetigte Figma-Ressourcen                                      | 180 Tage                                                                            | nicht fuer allgemeine Entwickler-CLI wiederverwenden                                                                   |
+| `CODACY_API_TOKEN`                               | workflow    | Code-Quality-Integration                                                                | GitHub Organization Secret                                              | Security-/Quality-Workflows                                       | QA               | DevOps            | nur benoetigte Repository-/Org-Scopes                                            | 90 Tage                                                                             | optional, aber falls aktiv dokumentationspflichtig                                                                     |
+| `SEMGREP_APP_TOKEN`, `SNYK_TOKEN`, `SONAR_TOKEN` | workflow    | Security- und Qualitaetsscans                                                           | GitHub Organization Secret                                              | jeweilige Scan-Workflows                                          | QA/Security      | DevOps            | nur benoetigte Scanner-Rechte                                                    | 90 Tage                                                                             | nur aktiv halten, wenn der jeweilige Scanner wirklich genutzt wird                                                     |
+| Temporaere Incident-Tokens                       | notfall     | eng begrenzte Incident-Behebung                                                         | kontrollierte Sonderablage mit Ablaufdatum                              | nur benannter Incident-Workflow oder manuelle Notmassnahme        | Incident Lead    | Security          | exakt benoetigte Rechte, harte Laufzeitbegrenzung                                | sofort nach Incident-Ende widerrufen                                                | duerfen nie zu Dauerzugang werden                                                                                      |
+
+## Verbindliche Einsatzregeln je Klasse
+
+### Persoenliche Tokens
+
+- nur fuer benannte Menschen
+- nur lokal im Credential Store oder ueber `gh auth login`
+- nie in `GitHub Actions`, produktiven `.env`-Dateien oder Deploy-Handoff als Standardpfad
+
+### Workflow-Secrets
+
+- nur fuer klar benannte CI/CD-Aufgaben
+- GitHub Environment Secrets vor Repo Secrets bevorzugen
+- primaere technische Doku bleibt hier, primaere Wertablage fuer Produktivsecrets bleibt BSM
+
+### Produktive Integrations-Tokens
+
+- BSM ist die Quelle der Wahrheit
+- GitHub dient nur als kontrollierter Injektionspunkt, wenn BSM nicht direkt in die Runtime sprechen kann
+- keine manuelle Parallelpflege in mehreren Laufzeitdateien
+
+### Interne Service-Tokens
+
+- nur fuer Maschinen-zu-Maschinen-Pfade
+- Scope so klein wie moeglich
+- nie fuer menschliche Admin-Aufgaben oder Support-Zugriffe recyceln
+
+### Notfall-Tokens
+
+- nur mit Ticket-/Incident-Bezug
+- mit Ersteller, Grund, Ablaufdatum und Widerrufszeitpunkt dokumentieren
+- nach Ende des Incidents entfernen oder widerrufen
+
+## Pflichtfelder pro Eintrag
+
+Jeder neue oder geaenderte Token-Eintrag braucht mindestens:
+
+- exakten Einsatzzweck
+- fachlichen und technischen Owner
+- Primaerablage
+- Injektionspfad
+- Minimalrechte
+- Rotationsanlass und Intervall
+- Incident-Entzugspfad
+
+## Austritts- und Incident-Regel
+
+Folgende Ausloeser machen Review oder Rotation verpflichtend:
+
+- Rollenwechsel oder Ausscheiden eines Owners
+- Geraeteverlust
+- Log-, Chat-, Ticket- oder Repo-Offenlegung
+- Wechsel von Host, App-Registration, Webhook-Endpoint oder Drittanbieter-Konto
+
+Siehe dazu auch:
+
+- [docs/security/secrets-policy.md](docs/security/secrets-policy.md)
+- [docs/security/GH-TOKEN-USAGE.md](docs/security/GH-TOKEN-USAGE.md)
+- [docs/security/incidents/2026-03-secret-exposure-response.md](docs/security/incidents/2026-03-secret-exposure-response.md)
+- [runbooks/token-uebergabe-template.md](runbooks/token-uebergabe-template.md)
+- [docs/security/missing-secrets-template.md](docs/security/missing-secrets-template.md)
+  gh secret set FIGMA_ACCESS_TOKEN --org peschull \
+   --repos menschlichkeit-oesterreich \
+   --body "$(cat ~/.figma-token)"
 
 echo "✅ Secrets bootstrapped successfully"
-```
+
+````
 
 ### PowerShell (Windows)
 
@@ -433,7 +156,7 @@ $N8nKey = -join ((65..90) + (97..122) + (48..57) | Get-Random -Count 32 | % {[ch
 gh secret set N8N_ENCRYPTION_KEY --body $N8nKey
 
 Write-Host "✅ Secrets bootstrapped successfully" -ForegroundColor Green
-```
+````
 
 ---
 
@@ -541,6 +264,6 @@ WEBHOOK_URL=https://n8n.menschlichkeit-oesterreich.at
 
 ---
 
-**Verantwortlich**: DevOps Team  
-**Review**: Quartalsweise + bei Secret-Änderungen  
+**Verantwortlich**: DevOps Team
+**Review**: Quartalsweise + bei Secret-Änderungen
 **Kontakt**: security@menschlichkeit-oesterreich.at

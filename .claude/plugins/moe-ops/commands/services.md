@@ -45,9 +45,6 @@ npm run docker:up
 
 # n8n separat
 npm run n8n:start
-
-# OpenClaw Runtime
-bash openclaw-system/scripts/boot.sh
 ```
 
 ## Datenbank

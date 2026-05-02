@@ -2,14 +2,6 @@
   "$schema": "https://raw.githubusercontent.com/modelcontextprotocol/servers/main/schema/mcp.schema.json",
   "version": "2.0",
   "description": "Repo-approved MCP overlay fuer VS Code und GitHub Copilot",
-  "inputs": [
-    {
-      "id": "figma-api-token",
-      "type": "promptString",
-      "password": true,
-      "description": "Figma Personal Access Token fuer lokale Design-Abfragen"
-    }
-  ],
   "servers": {
     "github": {
       "name": "GitHub",
@@ -22,61 +14,6 @@
         "repository": "Menschlichkeit-Osterreich/menschlichkeit-oesterreich",
         "branch": "main"
       }
-    },
-    "figma": {
-      "name": "Figma",
-      "type": "http",
-      "url": "http://127.0.0.1:3845/mcp",
-      "version": "1.0.0",
-      "description": "Lokaler Figma-MCP-Server fuer Designsystem und Assets",
-      "env": {
-        "FIGMA_API_TOKEN": "${input:figma-api-token}",
-        "FIGMA_FILE_KEY": "mTlUSy9BQk4326cvwNa8zQ"
-      },
-      "metadata": {
-        "designTokens": "figma-design-system/00_design-tokens.json",
-        "defaultAssetDir": "apps/website/public/figma-assets"
-      }
-    },
-    "filesystem": {
-      "name": "Filesystem",
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "${workspaceFolder}"],
-      "version": "1.0.0",
-      "description": "Workspace-scoped Dateisystemzugriff"
-    },
-    "memory": {
-      "name": "Memory",
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-memory"],
-      "version": "1.0.0",
-      "description": "Persistenter Konversationsspeicher"
-    },
-    "sequential-thinking": {
-      "name": "Sequential Thinking",
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
-      "version": "1.0.0",
-      "description": "Mehrschrittige Analyse fuer komplexe Aufgaben"
-    },
-    "playwright": {
-      "name": "Playwright",
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@playwright/mcp@latest"],
-      "version": "1.0.0",
-      "description": "Browser-Automatisierung und UI-Debugging"
-    },
-    "context7": {
-      "name": "Context7",
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp@latest"],
-      "version": "1.0.0",
-      "description": "Live-Dokumentation fuer Libraries"
     }
   }
 }

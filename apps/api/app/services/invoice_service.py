@@ -9,6 +9,7 @@ from typing import Any
 
 from ..db import connection
 from .crm_service import crm_service
+from .finance_sync_service import finance_sync_service
 from ._payment_helpers import _money
 
 logger = logging.getLogger("menschlichkeit.payments.invoice")
@@ -130,7 +131,7 @@ class InvoiceService:
                         }
                     ),
                 )
-        return {
+        result = {
             "id": invoice_id,
             "invoice_number": invoice_number,
             "civicrm_contact_id": int(civicrm_contact_id),
@@ -154,6 +155,11 @@ class InvoiceService:
                 for item in normalized_items
             ],
         }
+        try:
+            await finance_sync_service.enqueue_invoice(result)
+        except Exception as exc:
+            logger.warning("erpnext_invoice_enqueue_failed | invoice_id=%s | error=%s", invoice_id, exc)
+        return result
 
 
 invoice_service = InvoiceService()

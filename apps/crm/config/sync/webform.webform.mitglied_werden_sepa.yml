@@ -14,7 +14,6 @@ uuid: c4b2e1f3-8f5d-5b6c-0d9e-2f3a4b5c6d7e
 id: mitglied_werden_sepa
 title: 'Mitglied werden'
 description: 'Mitgliedschaftsantrag mit SEPA-Lastschrift-Mandat. Vereinsstatuten und Beitragsordnung werden automatisch zugesandt.'
-status: open
 
 elements:
   # Schritt 1: Persönliche Daten
@@ -93,9 +92,9 @@ elements:
       '#title': Beitragskategorie
       '#required': true
       '#options':
-        standard: 'Standard (60 €/Jahr)'
-        ermaessigt: 'Ermäßigt – Schüler:in/Student:in/Pensionist:in (30 €/Jahr)'
-        haertefall: 'Härtefall (Betrag nach Vereinbarung)'
+        standard: 'Standard (36 €/Jahr)'
+        ermaessigt: 'Ermäßigt – Schüler:in/Student:in/Pensionist:in (18 €/Jahr)'
+        haertefall: 'Härtefall (beitragsfrei nach Vorstandsbeschluss)'
       '#default_value': standard
 
     nachweis_ermaessigung:
@@ -136,10 +135,11 @@ elements:
     mandat_einwilligung:
       '#type': checkbox
       '#title': >
-        Ich ermächtige Menschlichkeit Österreich (Gläubiger-ID: AT12ZZZ00000012345),
+        Ich ermächtige Menschlichkeit Österreich,
         Zahlungen von meinem Konto mittels SEPA-Lastschrift einzuziehen.
-        Zugleich weise ich mein Kreditinstitut an, die von Menschlichkeit Österreich
-        auf mein Konto gezogenen Lastschriften einzulösen.
+        Die Gläubiger-ID und Mandatsreferenz werden mir in der Vorabinformation bzw.
+        Bestätigung mitgeteilt. Zugleich weise ich mein Kreditinstitut an,
+        die von Menschlichkeit Österreich auf mein Konto gezogenen Lastschriften einzulösen.
         Hinweis: Ich kann innerhalb von acht Wochen, beginnend mit dem Belastungsdatum,
         die Erstattung des belasteten Betrages verlangen.
       '#required': true

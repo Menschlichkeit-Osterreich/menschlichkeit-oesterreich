@@ -76,7 +76,7 @@ Das komplette **Enterprise-Grade Development Environment** für das Multi-Servic
 ### PowerShell Scripts:
 
 - **🚀 setup-workspace.ps1**: Complete environment setup
-- **🔐 transfer-ssh-to-github.ps1**: SSH key extraction ✅
+- **🔐 transfer-ssh-to-github.ps1**: Legacy helper (removed 2026-04-28 due to insecure cleartext guidance)
 - **🔄 migrate-to-github-secrets.ps1**: Automated secrets migration
 - **📊 generate-quality-report.js**: Enterprise reporting
 - **🛡️ dsgvo-check.ps1**: Privacy compliance validation

@@ -1,7 +1,7 @@
 import { http } from './http';
 export { authService } from './api/auth';
-export { sepaService } from './api/sepa';
 export { privacyService } from './api/privacy';
+export { sepaService } from './api/sepa';
 
 export interface HealthResponse {
   status: string;
@@ -123,7 +123,20 @@ export const api = {
         purpose?: string | null;
         anonymous?: boolean;
         tribute_name?: string | null;
-        payment_instrument: 'bank_transfer' | 'sepa' | 'visa' | 'mastercard' | 'amex' | 'paypal' | 'apple_pay' | 'google_pay' | 'eps' | 'sofort' | 'revolut' | 'wise' | 'pos' | 'cash';
+        payment_instrument:
+          | 'bank_transfer'
+          | 'sepa'
+          | 'visa'
+          | 'mastercard'
+          | 'amex'
+          | 'apple_pay'
+          | 'google_pay'
+          | 'eps'
+          | 'sofort'
+          | 'revolut'
+          | 'wise'
+          | 'pos'
+          | 'cash';
       },
       token?: string
     ) => http.post<ApiResponse>(apiPaths.contributions.create, payload, token ? { token } : {}),
@@ -136,7 +149,7 @@ export const api = {
         interval: 'monthly' | 'quarterly' | 'yearly';
         financial_type?: 'donation' | 'membership_fee';
         purpose?: string | null;
-        payment_instrument: 'sepa' | 'visa' | 'mastercard' | 'amex' | 'paypal';
+        payment_instrument: 'bank_transfer' | 'sepa' | 'visa' | 'mastercard' | 'amex';
       },
       token?: string
     ) => http.post<ApiResponse>(apiPaths.contributions.recur, payload, token ? { token } : {}),
@@ -154,11 +167,18 @@ export const api = {
     requestDeletion: (payload: DataDeletionCreateRequest, token: string) =>
       http.post<ApiResponse>(`/api/privacy/data-deletion`, payload, { token }),
     listDeletions: (token: string) =>
-      http.get<ApiResponse<{ requests: DeletionRequestItem[] }>>(`/api/privacy/data-deletion`, { token }),
+      http.get<ApiResponse<{ requests: DeletionRequestItem[] }>>(`/api/privacy/data-deletion`, {
+        token,
+      }),
   },
   newsletter: {
-    subscribe: (payload: { email: string; first_name?: string; last_name?: string; consent: boolean }) =>
-      http.post<ApiResponse>('/api/newsletter/subscribe', payload),
+    subscribe: (payload: {
+      email: string;
+      first_name?: string;
+      last_name?: string;
+      consent: boolean;
+      company?: string;
+    }) => http.post<ApiResponse>('/api/newsletter/subscribe', payload),
   },
 
   // ── FastAPI v2 endpoints (/api/*) ─────────────────────────────────────────
@@ -166,39 +186,75 @@ export const api = {
   /** FastAPI Auth-Router – neue Endpunkte */
   authV2: {
     login: (email: string, password: string) =>
-      http.post<{ access_token: string; refresh_token: string; token_type: string; expires_in: number }>(
-        '/api/auth/login', { email, password }
-      ),
+      http.post<{
+        access_token: string;
+        refresh_token: string;
+        token_type: string;
+        expires_in: number;
+      }>('/api/auth/login', { email, password }),
     register: (payload: RegisterRequest) =>
-      http.post<{ access_token: string; refresh_token: string; token_type: string; expires_in: number }>(
-        '/api/auth/register', payload
-      ),
+      http.post<{
+        access_token: string;
+        refresh_token: string;
+        token_type: string;
+        expires_in: number;
+      }>('/api/auth/register', payload),
     me: (token: string) =>
       http.get<{ id: number; email: string; first_name: string; last_name: string; role: string }>(
-        '/api/auth/me', { token }
+        '/api/auth/me',
+        { token }
       ),
   },
 
   /** Mitgliederprofil & DSGVO-Rechte */
   members: {
     getProfile: (token: string) =>
-      http.get<{ id: number; email: string; first_name: string; last_name: string; role: string; civicrm_id?: number }>(
-        '/api/members/me/profile', { token }
-      ),
-    updateProfile: (payload: { first_name?: string; last_name?: string; phone?: string }, token: string) =>
-      http.put<ApiResponse>('/api/members/me/profile', payload, { token }),
+      http.get<{
+        id: number;
+        email: string;
+        first_name: string;
+        last_name: string;
+        role: string;
+        civicrm_id?: number;
+      }>('/api/members/me/profile', { token }),
+    updateProfile: (
+      payload: { first_name?: string; last_name?: string; phone?: string },
+      token: string
+    ) => http.put<ApiResponse>('/api/members/me/profile', payload, { token }),
     getInvoices: (token: string) =>
-      http.get<Array<{ id: number; invoice_number: string; total_amount: number; currency: string; issue_date: string; due_date: string; status: string; invoice_type: string; pdf_path: string | null }>>(
-        '/api/members/me/invoices', { token }
-      ),
+      http.get<
+        Array<{
+          id: number;
+          invoice_number: string;
+          total_amount: number;
+          currency: string;
+          issue_date: string;
+          due_date: string;
+          status: string;
+          invoice_type: string;
+          pdf_path: string | null;
+        }>
+      >('/api/members/me/invoices', { token }),
     getDonations: (token: string) =>
-      http.get<Array<{ id: number; amount: number; currency: string; donation_type: string; status: string; donation_date: string; receipt_eligible: boolean }>>(
-        '/api/members/me/donations', { token }
-      ),
+      http.get<
+        Array<{
+          id: number;
+          amount: number;
+          currency: string;
+          donation_type: string;
+          status: string;
+          donation_date: string;
+          receipt_eligible: boolean;
+        }>
+      >('/api/members/me/donations', { token }),
     requestDataExport: (reason: string | null, token: string) =>
       http.post<ApiResponse>('/api/members/me/data-export', { reason }, { token }),
     requestDeletion: (reason: string, token: string) =>
-      http.post<ApiResponse>('/api/members/me/delete-request', { reason, confirm: true }, { token }),
+      http.post<ApiResponse>(
+        '/api/members/me/delete-request',
+        { reason, confirm: true },
+        { token }
+      ),
   },
 
   /** Rechnungen (Admin + Mitglied) */
@@ -207,7 +263,10 @@ export const api = {
       const qs = new URLSearchParams();
       if (params?.status) qs.set('status', params.status);
       if (params?.page) qs.set('page', String(params.page));
-      return http.get<{ invoices: unknown[]; page: number }>(`/api/invoices${qs.toString() ? `?${qs}` : ''}`, { token });
+      return http.get<{ invoices: unknown[]; page: number }>(
+        `/api/invoices${qs.toString() ? `?${qs}` : ''}`,
+        { token }
+      );
     },
     get: (id: number, token: string) =>
       http.get<Record<string, unknown>>(`/api/invoices/${id}`, { token }),
@@ -231,7 +290,14 @@ export const api = {
       http.get<{ mandates: unknown[] }>(`/api/sepa/mandates?active_only=${activeOnly}`, { token }),
     listBatches: (token: string) =>
       http.get<{ batches: unknown[] }>('/api/sepa/batches', { token }),
-    createBatch: (payload: { collection_date: string; batch_type?: string; mandate_ids: number[] }, token: string) =>
-      http.post<{ id: number; batch_reference: string; message: string }>('/api/sepa/batches', payload, { token }),
+    createBatch: (
+      payload: { collection_date: string; batch_type?: string; mandate_ids: number[] },
+      token: string
+    ) =>
+      http.post<{ id: number; batch_reference: string; message: string }>(
+        '/api/sepa/batches',
+        payload,
+        { token }
+      ),
   },
 };

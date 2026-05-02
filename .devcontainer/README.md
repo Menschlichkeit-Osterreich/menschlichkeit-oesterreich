@@ -5,6 +5,7 @@
 When your Codespace starts, it will automatically run a **3-phase setup**:
 
 ### Phase 1: onCreate Setup (Critical - ~2 minutes)
+
 1. ✅ Install npm dependencies (with 300s timeout protection)
 2. ✅ Create environment files from `.env.example` templates
 3. ✅ Install critical Python dependencies (FastAPI, Uvicorn, python-dotenv)
@@ -12,11 +13,13 @@ When your Codespace starts, it will automatically run a **3-phase setup**:
 5. ✅ Resource monitoring (shows available memory, disk, CPU)
 
 ### Phase 2: postCreate Setup (~1 minute)
+
 1. ✅ Install additional Python dependencies (full requirements.txt)
 2. ✅ Install PHP dependencies (if composer.json exists)
 3. ✅ Final environment verification
 
 ### Phase 3: postStart Setup (Optional, non-blocking)
+
 1. ✅ PowerShell module installation (optional, doesn't block)
 2. ✅ PowerShell profile setup
 3. ✅ Helper scripts creation
@@ -24,6 +27,7 @@ When your Codespace starts, it will automatically run a **3-phase setup**:
 **Total Setup Time**: ~3-5 minutes
 
 **Key Improvements (2025-10-14):**
+
 - ✅ **Network connectivity detection** - Scripts now detect offline environments (CI/tests)
 - ✅ **Graceful offline fallback** - Setup works even without internet
 - ✅ **Node version compatibility** - Using LTS instead of specific version 22
@@ -65,6 +69,7 @@ npm run dev:games      # Games (Python) - http://localhost:3000
 ### Common Issues (Updated 2025-10-12)
 
 **Quick Diagnostics:**
+
 ```bash
 # Run comprehensive diagnostics
 bash .devcontainer/diagnose.sh
@@ -77,6 +82,7 @@ cat .devcontainer/TROUBLESHOOTING.md
 ```
 
 **Setup hangs or times out:**
+
 - ✅ The setup now has automatic timeout protection (120-180 seconds per operation)
 - ✅ PowerShell module installation is optional and won't block the setup
 - ✅ Comprehensive logging available at `/tmp/devcontainer-onCreate-setup.log`
@@ -87,7 +93,7 @@ cat .devcontainer/TROUBLESHOOTING.md
 If the API service fails to start due to missing dependencies:
 
 ```bash
-cd api.menschlichkeit-oesterreich.at
+cd apps/api
 # With timeout protection (recommended)
 timeout 120 pip install --user fastapi uvicorn python-dotenv
 # OR for full requirements:
@@ -113,7 +119,7 @@ pwsh .devcontainer/setup-powershell.ps1
 If pip installation times out during setup:
 
 ```bash
-cd api.menschlichkeit-oesterreich.at
+cd apps/api
 # The setup script now uses timeout automatically
 timeout 300 pip install --user --timeout 300 -r requirements.txt
 # OR install essentials only:
@@ -124,9 +130,9 @@ pip install --user -r requirements-minimal.txt
 
 The setup automatically creates `.env` files from examples. To customize:
 
-1. **API Configuration**: Edit `api.menschlichkeit-oesterreich.at/.env`
-2. **Frontend Configuration**: Edit `frontend/.env`
-3. **CRM Configuration**: Edit `crm.menschlichkeit-oesterreich.at/.env`
+1. **API Configuration**: Edit `apps/api/.env`
+2. **Website Configuration**: Edit `apps/website/.env.local`
+3. **CRM Configuration**: Review the Drupal/CiviCRM settings under `apps/crm/`
 
 ## 📊 Quality & Testing
 
@@ -178,18 +184,21 @@ If services won't start:
 4. Check the `.env` files are properly configured
 
 For more help, see:
+
 - [Devcontainer Diagnostics](.devcontainer/diagnose.sh) - Run: `bash .devcontainer/diagnose.sh`
 - [Troubleshooting Guide](.devcontainer/TROUBLESHOOTING.md) - Comprehensive troubleshooting
 - [Visual Summary](../DEVCONTAINER-FIX-VISUAL.md) - Overview of all improvements
 - [Detailed Changes](../DEVCONTAINER-IMPROVEMENTS.md) - Technical documentation
-- [Codespace Status Checker](../..dokum/CODESPACE-STATUS-CHECKER.md)
-- [Codespace Troubleshooting](../..dokum/CODESPACE-TROUBLESHOOTING.md)
+- [Codespace Status Checker](../docs/archive/bulk/CODESPACE-STATUS-CHECKER.md)
+- [Codespace Troubleshooting](../docs/archive/bulk/CODESPACE-TROUBLESHOOTING.md)
 
 ## 📁 Project Structure
 
-- `frontend/` - React/TypeScript frontend
-- `api.menschlichkeit-oesterreich.at/` - FastAPI Python backend
-- `crm.menschlichkeit-oesterreich.at/` - CiviCRM PHP application
-- `web/` - Educational games
+- `apps/website/` - React/TypeScript frontend
+- `apps/api/` - FastAPI Python backend
+- `apps/crm/` - Drupal 10 + CiviCRM
+- `apps/babylon-game/` - Educational games
 - `automation/n8n/` - Workflow automation
 - `scripts/` - Development and deployment scripts
+
+Hinweis: Domain- oder Mirror-Pfade wie `api.menschlichkeit-oesterreich.at/` und `crm.menschlichkeit-oesterreich.at/` sind keine aktiven lokalen Entwicklungsziele in diesem Repository.

@@ -6,6 +6,58 @@
 
 ---
 
+## ⚡ Kanonischer Local-Flow (bevor du manuell editierst)
+
+```powershell
+# 1. Templates anlegen
+.\scripts\setup-environments.ps1 -Frontend -Api
+
+# 2. Bitwarden Access Token einmalig bereitstellen (empfohlener Pfad, gitignored)
+New-Item -ItemType Directory -Force .local-secrets | Out-Null
+Set-Content -Path .local-secrets\bitwarden.env -Value 'BSM_ACCESS_TOKEN=PASTE_TOKEN_HERE' -Encoding UTF8
+$env:BW_TOKEN_FILE = (Resolve-Path .local-secrets\bitwarden.env).Path
+
+# 3. Service-Env direkt aus BSM ziehen
+.\scripts\bsm-fetch-env.ps1 -Environment development -Service website -OutputFile apps/website/.env.local
+.\scripts\bsm-fetch-env.ps1 -Environment development -Service api -OutputFile apps/api/.env
+
+# 4. Nur fuer Payment-spezifische Nachpflege / Abgleich
+.\scripts\sync-payment-env-from-bw.ps1 -Environment development -StripeMode test
+```
+
+> Die manuellen Schritte unten bleiben als Fallback bestehen, aber der bevorzugte Weg ist jetzt der BSM-Flow oben.
+
+### Welche `.env`-Datei fuer was?
+
+- Bitwarden Token lokal: `.local-secrets/bitwarden.env` (enthaelt nur `BSM_ACCESS_TOKEN=...`, ist gitignored)
+- API Runtime-Secrets: `apps/api/.env` (wird via `bsm-fetch-env.ps1` erzeugt)
+- Website Runtime-Secrets: `apps/website/.env.local` (wird via `bsm-fetch-env.ps1` erzeugt)
+
+Nie empfehlen:
+
+- Token in getrackten Dateien (`.env.example`, Dokumentation, Skripte)
+- Token im Klartext in Commit-Historie
+
+## Core Runtime Secret Contract (apps/api + Payment/Alert)
+
+Pflichtwerte fuer den aktiven Kernstack:
+
+- API Start / Security: `DATABASE_URL`, `JWT_SECRET_KEY`, `ENVIRONMENT`
+- Stripe Payment: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
+- Alerting: `ALERTS_SLACK_WEBHOOK`
+- Mailzustellung (SMTP): `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_HOST`, `MAIL_PORT`, `MAIL_ENCRYPTION`, `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME`, `MAIL_REPLY_TO_ADDRESS`
+
+Regel:
+
+- BSM-first, genau eine kanonische Quelle pro Pflichtwert (`secrets.manifest.json`).
+- Keine produktiven Werte in Repo-Dateien committen.
+
+Verifikation (nach `bsm-fetch-env`):
+
+```powershell
+pwsh -File scripts/verify-payment-secret-wiring.ps1
+```
+
 ## ⚡ Die wichtigsten 3 Schritte (SOFORT)
 
 ### 1️⃣ PostgreSQL starten (5 Minuten)
@@ -24,11 +76,12 @@ DATABASE_URL=postgresql://postgres:STRONG_PASSWORD_HERE@localhost:5432/menschlic
 # Migrations ausführen
 npx prisma generate
 npx prisma migrate dev
-cd api.menschlichkeit-oesterreich.at
+cd apps/api
 alembic upgrade head
 ```
 
 **Alternativ (lokale Installation):**
+
 ```powershell
 # PostgreSQL 15 installieren
 winget install PostgreSQL.PostgreSQL.15
@@ -60,10 +113,10 @@ start https://github.com/settings/tokens/new
 # 3. "Generate token" klicken → Token kopieren (ghp_...)
 
 # 4. .env aktualisieren
-GH_TOKEN=ghp_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+GH_TOKEN=github_pat_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 # 5. GitHub Secret setzen:
-start https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development/settings/secrets/actions/new
+start https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich/settings/secrets/actions/new
 # Name: GH_TOKEN
 # Secret: ghp_XXX... (aus Schritt 3)
 ```
@@ -147,8 +200,8 @@ start https://dashboard.stripe.com/test/apikeys
 # 2. "Publishable key" & "Secret key" kopieren
 
 # 3. .env aktualisieren
-STRIPE_PUBLISHABLE_KEY=pk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-STRIPE_SECRET_KEY=sk_test_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+STRIPE_PUBLISHABLE_KEY=CHANGE_ME_STRIPE_PUBLISHABLE_KEY
+STRIPE_SECRET_KEY=CHANGE_ME_STRIPE_SECRET_KEY
 
 # ⚠️ NIEMALS Live-Keys in .env committen!
 ```
@@ -218,6 +271,7 @@ start https://github.com/settings/gpg/new
 ## 🚨 Troubleshooting
 
 ### PostgreSQL startet nicht
+
 ```powershell
 # Logs prüfen
 docker-compose logs postgres
@@ -231,6 +285,7 @@ docker-compose up -d postgres
 ```
 
 ### GitHub Token funktioniert nicht
+
 ```bash
 # Test via API
 curl -H "Authorization: token ghp_XXXX..." https://api.github.com/user
@@ -240,6 +295,7 @@ curl -H "Authorization: token ghp_XXXX..." https://api.github.com/user
 ```
 
 ### Mailhog empfängt keine Mails
+
 ```powershell
 # Test-Mail senden
 python -c "import smtplib; smtplib.SMTP('localhost', 1025).sendmail('test@local', ['test@local'], 'Subject: Test\n\nBody')"

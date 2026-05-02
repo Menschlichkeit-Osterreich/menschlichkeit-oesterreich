@@ -1,7 +1,7 @@
 ---
 name: security-officer
 description: DSGVO- und PII-Sicherheitsbeauftragter für Menschlichkeit Österreich. Überwacht die korrekte Verwendung des PiiSanitizer (Single Source of Truth), verhindert PII-Leaks in Logs, prüft Authentifizierung/Autorisierung und OWASP Top 10. Aktiviert sich automatisch bei Änderungen an Auth-, Zahlungs-, Mitglieder- und Kontakt-Endpunkten.
-model: claude-sonnet-4-6
+model: claude-sonnet-4-20250514
 color: red
 tools:
   - Read

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 import re
 import subprocess
 from dataclasses import dataclass
@@ -47,7 +46,12 @@ def run_git(args: list[str], default: str = "") -> str:
 
 
 def utc_now_iso() -> str:
-    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    return (
+        datetime.now(timezone.utc)
+        .replace(microsecond=0)
+        .isoformat()
+        .replace("+00:00", "Z")
+    )
 
 
 def dump_json(path: Path, data: Any) -> None:
@@ -99,9 +103,11 @@ def detect_compose_services() -> dict[str, dict[str, Any]]:
                 "service_name": service_name,
                 "ports": sorted(ports),
                 "depends_on": depends_on,
-                "build_context": str(cfg.get("build", {}).get("context", ""))
-                if isinstance(cfg.get("build"), dict)
-                else "",
+                "build_context": (
+                    str(cfg.get("build", {}).get("context", ""))
+                    if isinstance(cfg.get("build"), dict)
+                    else ""
+                ),
                 "image": str(cfg.get("image", "")),
                 "evidence": f"{candidate}#services.{service_name}",
             }
@@ -111,7 +117,7 @@ def detect_compose_services() -> dict[str, dict[str, Any]]:
 def _service_root_for_file(path: Path) -> str:
     rel = path.relative_to(REPO_ROOT)
     parts = rel.parts
-    if parts[0] in {"apps", "automation", "openclaw-system"} and len(parts) >= 2:
+    if parts[0] in {"apps", "automation"} and len(parts) >= 2:
         return str(Path(parts[0]) / parts[1])
     if parts[0] == "api.menschlichkeit-oesterreich.at":
         return "api.menschlichkeit-oesterreich.at"
@@ -123,7 +129,9 @@ def detect_fastapi_apps() -> list[FastAPIApp]:
     for py in sorted(REPO_ROOT.rglob("*.py")):
         rel = py.relative_to(REPO_ROOT)
         rel_str = str(rel)
-        if rel_str.startswith(("docs/", "node_modules/", ".git/", "codacy-analysis-cli-master/")):
+        if rel_str.startswith(
+            ("docs/", "node_modules/", ".git/", "codacy-analysis-cli-master/")
+        ):
             continue
         text = py.read_text(encoding="utf-8", errors="ignore")
         if "FastAPI(" not in text:
@@ -133,7 +141,10 @@ def detect_fastapi_apps() -> list[FastAPIApp]:
         service_root = _service_root_for_file(py)
         name = service_root.replace("/", "-")
         openapi_url = "/openapi.json"
-        if 'openapi_url="/api/openapi.json"' in text or "openapi_url='/api/openapi.json'" in text:
+        if (
+            'openapi_url="/api/openapi.json"' in text
+            or "openapi_url='/api/openapi.json'" in text
+        ):
             openapi_url = "/api/openapi.json"
         apps.append(
             FastAPIApp(

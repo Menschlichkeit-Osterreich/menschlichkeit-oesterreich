@@ -12,6 +12,4 @@ Nutze diesen Skill fuer repo-native Spezialisierungen aus der Menschlichkeit-Dev
 
 - `.claude/plugins/menschlichkeit-dev-suite/skills/transparency-audit/SKILL.md`
 - `.claude/plugins/menschlichkeit-dev-suite/skills/democracy-game-dev/SKILL.md`
-- `.claude/plugins/menschlichkeit-dev-suite/skills/openclaw-task/SKILL.md`
-- `.claude/plugins/menschlichkeit-dev-suite/skills/openclaw-status/SKILL.md`
 - `.claude/plugins/menschlichkeit-dev-suite/skills/migration-guide/SKILL.md`

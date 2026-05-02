@@ -18,7 +18,10 @@ router = APIRouter()
 @router.post("/contact/submit")
 async def submit_contact(body: ContactSubmitRequest, request: Request):
     if not body.consent_privacy:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Datenschutz-Einwilligung ist erforderlich")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Datenschutz-Einwilligung ist erforderlich",
+        )
 
     crm_contact = await crm_service.upsert_contact(
         email=body.email,
@@ -48,10 +51,14 @@ async def submit_contact(body: ContactSubmitRequest, request: Request):
         body.message,
         body.source,
         int(crm_contact["id"]) if crm_contact and crm_contact.get("id") else None,
-        json.dumps({
-            "ip_hash": hash_optional(request.client.host if request.client else None),
-            "user_agent_hash": hash_optional(request.headers.get("User-Agent")),
-        }),
+        json.dumps(
+            {
+                "ip_hash": hash_optional(
+                    request.client.host if request.client else None
+                ),
+                "user_agent_hash": hash_optional(request.headers.get("User-Agent")),
+            }
+        ),
     )
     await privacy_service.record_consent(
         member_id=None,
@@ -96,7 +103,11 @@ async def submit_contact(body: ContactSubmitRequest, request: Request):
             "contact_form_optin",
             int(crm_contact["id"]) if crm_contact and crm_contact.get("id") else None,
         )
-        confirm_url = f"{request.base_url}api/newsletter/confirm?token={token}"
+        base_url = str(request.base_url)
+        confirm_url = f"{base_url}api/newsletter/confirm?token={token}"
+        unsubscribe_url = (
+            f"{base_url.rstrip('/')}/api/newsletter/unsubscribe?token={token}"
+        )
         await mail_service.send_template(
             template_id="newsletter_doi",
             recipient_email=str(body.email),
@@ -104,7 +115,14 @@ async def submit_contact(body: ContactSubmitRequest, request: Request):
                 "first_name": body.first_name,
                 "last_name": body.last_name,
                 "confirmation_url": confirm_url,
+                "unsubscribe_url": unsubscribe_url,
             },
             entity_type="newsletter_subscription",
         )
-    return {"success": True, "data": {"submissionId": row["id"], "submittedAt": row["created_at"].isoformat()}}
+    return {
+        "success": True,
+        "data": {
+            "submissionId": row["id"],
+            "submittedAt": row["created_at"].isoformat(),
+        },
+    }

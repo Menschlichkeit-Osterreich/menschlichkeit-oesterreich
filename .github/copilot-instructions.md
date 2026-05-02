@@ -13,7 +13,8 @@ GitHub Copilot arbeitet in diesem Repository nicht frei schwebend, sondern entla
 ## Repo-Identitaet
 
 - Repository: `Menschlichkeit-Osterreich/menschlichkeit-oesterreich`
-- Aktiver Root: `E:\Menschlichkeit-Osterreich\menschlichkeit-oesterreich`
+- Workspace-Root: Repository-Checkout von `Menschlichkeit-Osterreich/menschlichkeit-oesterreich`
+- Beispiel Windows-Checkout: `E:\Dev\menschlichkeit-oesterreich\menschlichkeit-oesterreich`
 - Main-first Workflow
 - Aktive Services unter `apps/website`, `apps/api`, `apps/crm`, `apps/babylon-game`, `apps/forum`
 
@@ -32,8 +33,12 @@ Nutze das Rollenmodell aus `AGENTS.md`:
 Copilot-spezifische Einstiegspunkte:
 
 - `.github/agents/task-planner.agent.md`
+- `.github/agents/developer.agent.md`
 - `.github/agents/devops-expert.agent.md`
-- `.github/agents/mentor.agent.md`
+- `.github/agents/security-reviewer.agent.md`
+- `.github/agents/qa-reviewer.agent.md`
+
+Archivierte oder deprecated Copilot-Agents liegen unter `.github/archive/agents/` und sind nicht als sichtbare Einstiegspunkte zu verwenden.
 
 Kanonischer Analyse-Einstieg:
 
@@ -62,9 +67,16 @@ Nicht aktiv:
 
 - Repository first: vor Vorschlaegen immer den realen Repo-Stand lesen.
 - Keine neuen Parallelstrukturen erfinden, wenn `AGENTS.md`, `CLAUDE.md` oder Core-Instructions schon den Vertrag definieren.
+- Bei Tool-Aufrufen mit Dateipfaden absolute Workspace-Pfade verwenden, sobald das Tool keine relativen Pfade akzeptiert.
+- Geteilte Konfigurationen muessen portabel bleiben und `${workspaceFolder}`, repo-relative Pfade oder npm Scripts verwenden.
 - Nutzertexte bleiben in oesterreichischem Deutsch.
 - Keine Secrets oder PII in Code, Logs, Beispielen oder Prompts.
 - Brand-Arbeit folgt den Token- und Plugin-Quellen im Repo.
+
+## Configuration Reliability Rule
+
+Alle Aenderungen an `.vscode/**`, `.devcontainer/**`, `.claude/**`, `mcp.json`, `.github/workflows/**` sowie Agent- und Copilot-Governance-Dateien muessen `npm run workspace:config:check` bestehen.
+Lokale absolute Pfade sind in geteilten Konfigurationen nicht erlaubt.
 
 ## Implementierungsstandards
 
@@ -82,6 +94,7 @@ Nicht aktiv:
 - `npm run test:api`
 - `npm run quality:gates`
 - `npm run governance:check`
+- `npm run workspace:config:check`
 
 ## Dokumentationsregel
 

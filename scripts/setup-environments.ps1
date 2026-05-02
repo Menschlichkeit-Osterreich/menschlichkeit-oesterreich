@@ -75,3 +75,7 @@ Write-Host "  apps/api/.env fuer API-Laufzeitwerte"
 Write-Host "  apps/website/.env.local fuer Vite-Werte"
 Write-Host "  automation/n8n/.env fuer n8n"
 Write-Host "  .env.test.local fuer lokale Test-Credentials"
+Write-Host ""
+Write-Host "Bitwarden BSM (falls konfiguriert):" -ForegroundColor Cyan
+Write-Host "  .\scripts\bsm-fetch-env.ps1 -Environment development -Service api -OutputFile apps/api/.env"
+Write-Host "  .\scripts\bsm-fetch-env.ps1 -Environment development -Service website -OutputFile apps/website/.env.local"

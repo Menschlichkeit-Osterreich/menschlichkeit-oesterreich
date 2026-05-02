@@ -1,107 +1,103 @@
 {
+  "meta": {
+    "canonicalBrandSource": ".claude/plugins/moe-brand/BRAND-GUIDELINES-V1.0.md",
+    "description": "Abgeleitete Build-Tokens fuer Website, CRM-Portal und Games-Landingpage. Kanonische Markenentscheidung liegt im Moe-Brand-Guide.",
+    "status": "derived-from-moe-brand"
+  },
   "designTokens": {
     "colors": {
       "primary": {
-        "50": "#fff5f5",
-        "100": "#ffe0e0",
-        "200": "#ffbdbd",
-        "300": "#ff8f8f",
-        "400": "#f85a5a",
-        "500": "#ef2c2c",
-        "600": "#dc2626",
-        "700": "#c01010",
-        "800": "#9b1313",
-        "900": "#7f1d1d"
+        "50": "#fdf3ed",
+        "100": "#fae2d4",
+        "200": "#f6c5a8",
+        "300": "#eea06f",
+        "400": "#e27a3f",
+        "500": "#d4611e",
+        "600": "#b54a0f",
+        "700": "#973b10",
+        "800": "#7a3213",
+        "900": "#512311",
+        "950": "#2f1207"
       },
       "secondary": {
-        "50": "#f8fafc",
-        "100": "#f1f5f9",
-        "200": "#e2e8f0",
-        "300": "#cbd5e1",
-        "400": "#94a3b8",
-        "500": "#64748b",
-        "600": "#475569",
-        "700": "#334155",
-        "800": "#1e293b",
-        "900": "#0f172a"
+        "50": "#faf7f5",
+        "100": "#f0ebe6",
+        "200": "#ddd5cc",
+        "300": "#c8bdb2",
+        "400": "#aa9d91",
+        "500": "#7a6e62",
+        "600": "#64574d",
+        "700": "#4a4039",
+        "800": "#382f29",
+        "900": "#2b231d",
+        "950": "#17120e"
       },
       "accent": {
-        "50": "#fef7ff",
-        "100": "#fdeef9",
-        "200": "#fde6f4",
-        "300": "#fcceeb",
-        "400": "#f9a8d4",
-        "500": "#f472b6",
-        "600": "#ec4899",
-        "700": "#db2777",
-        "800": "#be185d",
-        "900": "#9d174d"
+        "50": "#eef5f8",
+        "100": "#d7e7ef",
+        "200": "#b2d1e0",
+        "300": "#82b4cb",
+        "400": "#4f8bae",
+        "500": "#1b4965",
+        "600": "#163d55",
+        "700": "#143245",
+        "800": "#132a39",
+        "900": "#101f2a",
+        "950": "#091117"
       },
       "success": {
-        "50": "#f0fdf4",
-        "100": "#dcfce7",
-        "200": "#bbf7d0",
-        "300": "#86efac",
-        "400": "#4ade80",
-        "500": "#22c55e",
-        "600": "#16a34a",
-        "700": "#15803d",
-        "800": "#166534",
-        "900": "#14532d"
+        "50": "#eef7ef",
+        "100": "#d5ead7",
+        "200": "#add5b0",
+        "300": "#82bc86",
+        "400": "#5aa25f",
+        "500": "#2e7d32",
+        "600": "#286d2c",
+        "700": "#215a25",
+        "800": "#1b4a1f",
+        "900": "#123116"
       },
       "warning": {
-        "50": "#fffbeb",
-        "100": "#fef3c7",
-        "200": "#fde68a",
-        "300": "#fcd34d",
-        "400": "#fbbf24",
-        "500": "#f59e0b",
-        "600": "#d97706",
-        "700": "#b45309",
-        "800": "#92400e",
-        "900": "#78350f"
+        "50": "#fef2e8",
+        "100": "#fbd7bd",
+        "200": "#f8bb91",
+        "300": "#f39a5f",
+        "400": "#ed7b31",
+        "500": "#e65100",
+        "600": "#c64600",
+        "700": "#a33800",
+        "800": "#842e00",
+        "900": "#5f2000"
       },
       "error": {
-        "50": "#fef2f2",
-        "100": "#fee2e2",
-        "200": "#fecaca",
-        "300": "#fca5a5",
-        "400": "#f87171",
-        "500": "#ef4444",
-        "600": "#dc2626",
-        "700": "#b91c1c",
-        "800": "#991b1b",
-        "900": "#7f1d1d"
+        "50": "#f9eaea",
+        "100": "#efc9c9",
+        "200": "#e5a6a6",
+        "300": "#d97878",
+        "400": "#cf5151",
+        "500": "#c62828",
+        "600": "#ab2222",
+        "700": "#8d1c1c",
+        "800": "#701616",
+        "900": "#4e0f0f"
       },
       "semantic": {
         "background": "#ffffff",
-        "surface": "#f8fafc",
+        "surface": "#faf7f5",
         "overlay": "rgba(0, 0, 0, 0.5)",
-        "text-primary": "#0f172a",
-        "text-secondary": "#64748b",
+        "text-primary": "#2b231d",
+        "text-secondary": "#4a4039",
         "text-inverse": "#ffffff",
-        "border": "#e2e8f0",
-        "border-focus": "#0ea5e9",
-        "disabled": "#f1f5f9"
+        "border": "#ddd5cc",
+        "border-focus": "#1b4965",
+        "disabled": "#f0ebe6"
       }
     },
     "typography": {
       "fontFamily": {
-        "primary": [
-          "Inter",
-          "system-ui",
-          "sans-serif"
-        ],
-        "secondary": [
-          "Merriweather",
-          "Georgia",
-          "serif"
-        ],
-        "mono": [
-          "JetBrains Mono",
-          "Monaco",
-          "monospace"
-        ]
+        "primary": ["Nunito Sans", "system-ui", "sans-serif"],
+        "secondary": ["Source Sans 3", "Segoe UI", "sans-serif"],
+        "mono": ["JetBrains Mono", "Monaco", "monospace"]
       },
       "fontSize": {
         "xs": "0.75rem",
@@ -223,6 +219,6 @@
       "tooltip": "1800"
     }
   },
-  "lastSync": "2026-03-16T21:00:32.391Z",
-  "source": "local"
+  "lastSync": "2026-04-13T00:00:00.000Z",
+  "source": "moe-brand-derived"
 }

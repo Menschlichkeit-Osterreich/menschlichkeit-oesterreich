@@ -8,15 +8,16 @@ const topics = [
   {
     title: 'Solidarität',
     icon: '🤝',
-    color: 'bg-orange-50 border-orange-100',
-    iconBg: 'bg-orange-100',
-    description: 'Zusammenhalt statt Spaltung – wir stehen füreinander ein und lassen niemanden zurück.',
+    color: 'bg-secondary-50 border-secondary-100',
+    iconBg: 'bg-secondary-100',
+    description:
+      'Zusammenhalt statt Spaltung – wir stehen füreinander ein und lassen niemanden zurück.',
   },
   {
     title: 'Soziale Gerechtigkeit',
     icon: '⚖️',
-    color: 'bg-red-50 border-red-100',
-    iconBg: 'bg-red-100',
+    color: 'bg-primary-50 border-primary-100',
+    iconBg: 'bg-primary-100',
     description: 'Chancengleichheit und faire Teilhabe für alle Menschen in Österreich.',
   },
   {
@@ -38,14 +39,16 @@ const topics = [
     icon: '📚',
     color: 'bg-purple-50 border-purple-100',
     iconBg: 'bg-purple-100',
-    description: 'Wissen schafft Wandel – Bildungsangebote für alle Altersgruppen und Hintergründe.',
+    description:
+      'Wissen schafft Wandel – Bildungsangebote für alle Altersgruppen und Hintergründe.',
   },
   {
     title: 'Gemeinschaft',
     icon: '🏘️',
     color: 'bg-yellow-50 border-yellow-100',
     iconBg: 'bg-yellow-100',
-    description: 'Starke Netzwerke und lokale Gemeinschaften als Fundament einer gerechten Gesellschaft.',
+    description:
+      'Starke Netzwerke und lokale Gemeinschaften als Fundament einer gerechten Gesellschaft.',
   },
 ];
 
@@ -67,21 +70,19 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <section
-        className="relative overflow-hidden"
+        className="relative overflow-hidden bg-accent-900"
         aria-label="Einstieg"
         data-component="Hero"
-        style={{ background: 'linear-gradient(135deg, #b91c1c 0%, #dc2626 45%, #ea580c 100%)' }}
       >
-        <div className="absolute inset-0 opacity-10" aria-hidden="true">
+        <div className="absolute inset-0 opacity-5" aria-hidden="true">
           <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-white blur-3xl -translate-y-1/2 translate-x-1/4" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full bg-white blur-2xl translate-y-1/2 -translate-x-1/4" />
         </div>
 
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-20 md:py-28">
           <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
             {/* Text */}
             <div className="flex-1 text-center md:text-left">
-              <span className="inline-block px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold tracking-widest uppercase mb-6 backdrop-blur-sm border border-white/20">
+              <span className="inline-block rounded-full border border-white/20 bg-white/12 px-3 py-1 text-xs font-semibold tracking-widest text-white uppercase mb-6 backdrop-blur-sm">
                 Verein Menschlichkeit Österreich
               </span>
               <h1
@@ -89,15 +90,25 @@ export default function HomePage() {
                 data-testid="hero.title"
               >
                 Gemeinsam gestalten –{' '}
-                <span className="block text-orange-200 mt-2">Ein Österreich, das niemanden zurücklässt.</span>
+                <span className="mt-2 block text-white">
+                  Ein Österreich, das niemanden zurücklässt.
+                </span>
               </h1>
-              <p className="text-lg md:text-xl text-red-100 max-w-2xl mb-8 leading-relaxed" data-testid="hero.lead">
-                Initiative für soziale Gerechtigkeit, demokratische Teilhabe und ökologische Verantwortung in Österreich.
+              <p
+                className="mb-8 max-w-2xl text-lg leading-relaxed text-white md:text-xl"
+                data-testid="hero.lead"
+              >
+                Initiative für soziale Gerechtigkeit, demokratische Teilhabe und ökologische
+                Verantwortung in Österreich.
               </p>
-              <div className="flex flex-wrap gap-3 justify-center md:justify-start" role="group" aria-label="Wichtige Aktionen">
+              <div
+                className="flex flex-wrap gap-3 justify-center md:justify-start"
+                role="group"
+                aria-label="Wichtige Aktionen"
+              >
                 <Link
                   to="/mitglied-werden"
-                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white text-primary-700 font-bold text-sm hover:bg-orange-50 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
+                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white text-secondary-900 font-bold text-sm hover:bg-secondary-50 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
                   data-testid="cta.join"
                 >
                   <span aria-hidden="true">✨</span>
@@ -141,7 +152,7 @@ export default function HomePage() {
       <section className="bg-white border-b border-secondary-100 shadow-sm" aria-label="Kennzahlen">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-0 divide-x divide-secondary-100">
-            {stats.map((s) => (
+            {stats.map(s => (
               <div key={s.label} className="text-center py-5 px-4">
                 <div className="text-2xl font-bold text-primary-700">{s.value}</div>
                 <div className="text-xs text-secondary-500 mt-0.5 font-medium">{s.label}</div>
@@ -152,22 +163,26 @@ export default function HomePage() {
       </section>
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-14">
-
         {/* Schwerpunkte */}
-        <section className="mb-16 rounded-3xl border border-secondary-100 bg-secondary-50 p-8 md:p-10" aria-labelledby="trust-title">
+        <section
+          className="mb-16 rounded-3xl border border-secondary-100 bg-secondary-50 p-8 md:p-10"
+          aria-labelledby="trust-title"
+        >
           <div className="grid gap-8 lg:grid-cols-[1.3fr_1fr] lg:items-start">
             <div>
               <h2 id="trust-title" className="text-3xl font-bold text-secondary-900 mb-4">
                 In Österreich verankert und transparent organisiert
               </h2>
               <p className="text-secondary-700 leading-relaxed mb-4">
-                Menschlichkeit Österreich arbeitet von Pottenbrunn aus an Bildungsangeboten, Veranstaltungen und
-                Beteiligungsformaten für Menschen in ganz Österreich. Transparenz, Datenschutz und nachvollziehbare
-                Vereinsstrukturen gehören für uns zur öffentlichen Verantwortung.
+                Menschlichkeit Österreich arbeitet von Pottenbrunn aus an Bildungsangeboten,
+                Veranstaltungen und Beteiligungsformaten für Menschen in ganz Österreich.
+                Transparenz, Datenschutz und nachvollziehbare Vereinsstrukturen gehören für uns zur
+                öffentlichen Verantwortung.
               </p>
               <p className="text-secondary-700 leading-relaxed">
-                Wenn Sie sich ein genaueres Bild machen möchten, finden Sie auf unseren Seiten zu Transparenz,
-                Statuten, Beitragsordnung und Datenschutz die wichtigsten Grundlagen unserer Arbeit.
+                Wenn Sie sich ein genaueres Bild machen möchten, finden Sie auf unseren Seiten zu
+                Transparenz, Statuten, Beitragsordnung und Datenschutz die wichtigsten Grundlagen
+                unserer Arbeit.
               </p>
             </div>
             <div className="rounded-2xl border border-white bg-white p-6 shadow-sm">
@@ -180,16 +195,30 @@ export default function HomePage() {
                 <li>WhatsApp: 0680 1608053</li>
               </ul>
               <div className="mt-5 flex flex-wrap gap-3">
-                <Link to="/transparenz" className="text-sm font-semibold text-primary-700 hover:underline">
+                <Link
+                  to="/transparenz"
+                  className="text-sm font-semibold text-primary-700 hover:underline"
+                >
                   Transparenz ansehen
                 </Link>
-                <Link to="/impressum" className="text-sm font-semibold text-primary-700 hover:underline">
+                <Link
+                  to="/impressum"
+                  className="text-sm font-semibold text-primary-700 hover:underline"
+                >
                   Impressum
                 </Link>
-                <Link to="/datenschutz" className="text-sm font-semibold text-primary-700 hover:underline">
+                <Link
+                  to="/datenschutz"
+                  className="text-sm font-semibold text-primary-700 hover:underline"
+                >
                   Datenschutz
                 </Link>
-                <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-primary-700 hover:underline">
+                <a
+                  href={WHATSAPP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm font-semibold text-primary-700 hover:underline"
+                >
                   WhatsApp
                 </a>
               </div>
@@ -204,17 +233,21 @@ export default function HomePage() {
               Unsere Schwerpunkte
             </h2>
             <p className="text-secondary-500 max-w-lg mx-auto leading-relaxed">
-              Sechs Kernbereiche, in denen wir aktiv für eine bessere und gerechtere Gesellschaft in Österreich eintreten.
+              Sechs Kernbereiche, in denen wir aktiv für eine bessere und gerechtere Gesellschaft in
+              Österreich eintreten.
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {topics.map((t) => (
+            {topics.map(t => (
               <div
                 key={t.title}
                 className={`rounded-2xl border p-6 ${t.color} hover:shadow-md transition-all duration-200 hover:-translate-y-1 group`}
                 data-testid={`topic.${t.title}`}
               >
-                <div className={`w-12 h-12 rounded-xl ${t.iconBg} flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform`} aria-hidden="true">
+                <div
+                  className={`w-12 h-12 rounded-xl ${t.iconBg} flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform`}
+                  aria-hidden="true"
+                >
                   {t.icon}
                 </div>
                 <h3 className="text-base font-bold text-secondary-900 mb-2">{t.title}</h3>
@@ -226,19 +259,29 @@ export default function HomePage() {
 
         {/* CTA Banner */}
         <section
-          className="mb-16 relative overflow-hidden rounded-3xl p-8 md:p-12 border border-red-100"
-          style={{ background: 'linear-gradient(135deg, #fff5f5 0%, #fff7ed 100%)' }}
+          className="relative mb-16 overflow-hidden rounded-3xl border border-secondary-100 bg-secondary-50 p-8 md:p-12"
           aria-labelledby="join-title"
         >
-          <div className="absolute -right-8 -top-8 opacity-10 text-[8rem] leading-none select-none" aria-hidden="true">🌳</div>
+          <div
+            className="absolute -right-8 -top-8 opacity-10 text-[8rem] leading-none select-none"
+            aria-hidden="true"
+          >
+            🌳
+          </div>
           <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
             <div className="max-w-lg">
-              <span className="inline-block px-2.5 py-0.5 rounded-full bg-primary-100 text-primary-700 text-xs font-semibold mb-4">Mitmachen</span>
-              <h2 id="join-title" className="text-2xl md:text-3xl font-bold text-secondary-900 mb-3">
+              <span className="inline-block px-2.5 py-0.5 rounded-full bg-primary-100 text-primary-700 text-xs font-semibold mb-4">
+                Mitmachen
+              </span>
+              <h2
+                id="join-title"
+                className="text-2xl md:text-3xl font-bold text-secondary-900 mb-3"
+              >
                 Werde Teil der Bewegung
               </h2>
-              <p className="text-secondary-600 leading-relaxed">
-                Als Mitglied gestaltest du aktiv mit und stärkst unsere Gemeinschaft. Gemeinsam setzen wir uns für ein gerechtes und solidarisches Österreich ein.
+              <p className="text-secondary-800 leading-relaxed">
+                Als Mitglied gestaltest du aktiv mit und stärkst unsere Gemeinschaft. Gemeinsam
+                setzen wir uns für ein gerechtes und solidarisches Österreich ein.
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 shrink-0">
@@ -270,16 +313,34 @@ export default function HomePage() {
         <section className="mb-14 grid md:grid-cols-2 gap-5">
           <Card className="p-6 rounded-2xl border border-secondary-100 hover:shadow-md transition-all hover:-translate-y-0.5">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-2xl shrink-0" aria-hidden="true">📋</div>
+              <div
+                className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center text-2xl shrink-0"
+                aria-hidden="true"
+              >
+                📋
+              </div>
               <div>
                 <h3 className="font-bold text-secondary-900 mb-1.5">Über den Verein</h3>
                 <p className="text-sm text-secondary-600 mb-3 leading-relaxed">
-                  Gegründet am 28. Mai 2025. Wir vertreten die Interessen aller Menschen in Österreich, unabhängig von Herkunft, Status oder Überzeugung.
+                  Gegründet am 28. Mai 2025. Wir vertreten die Interessen aller Menschen in
+                  Österreich, unabhängig von Herkunft, Status oder Überzeugung.
                 </p>
-                <Link to="/ueber-uns" className="inline-flex items-center gap-1 text-sm font-semibold text-primary-700 hover:text-primary-800 transition-colors group">
+                <Link
+                  to="/ueber-uns"
+                  className="inline-flex items-center gap-1 text-sm font-semibold text-primary-700 hover:text-primary-800 transition-colors group"
+                >
                   Mehr erfahren
-                  <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                  <svg
+                    className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </Link>
               </div>
@@ -288,16 +349,34 @@ export default function HomePage() {
 
           <Card className="p-6 rounded-2xl border border-secondary-100 hover:shadow-md transition-all hover:-translate-y-0.5">
             <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center text-2xl shrink-0" aria-hidden="true">❤️</div>
+              <div
+                className="w-12 h-12 rounded-xl bg-secondary-50 flex items-center justify-center text-2xl shrink-0"
+                aria-hidden="true"
+              >
+                ❤️
+              </div>
               <div>
                 <h3 className="font-bold text-secondary-900 mb-1.5">Spenden & Unterstützen</h3>
                 <p className="text-sm text-secondary-600 mb-3 leading-relaxed">
-                  Deine Unterstützung ermöglicht es uns, Projekte für soziale Gerechtigkeit und demokratische Teilhabe umzusetzen.
+                  Deine Unterstützung ermöglicht es uns, Projekte für soziale Gerechtigkeit und
+                  demokratische Teilhabe umzusetzen.
                 </p>
-                <Link to="/spenden" className="inline-flex items-center gap-1 text-sm font-semibold text-primary-700 hover:text-primary-800 transition-colors group">
+                <Link
+                  to="/spenden"
+                  className="inline-flex items-center gap-1 text-sm font-semibold text-primary-700 hover:text-primary-800 transition-colors group"
+                >
                   Jetzt spenden
-                  <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                  <svg
+                    className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </Link>
               </div>
@@ -307,19 +386,28 @@ export default function HomePage() {
 
         {/* Legal Links */}
         <section className="border-t border-secondary-100 pt-6" aria-labelledby="legal-title">
-          <h2 id="legal-title" className="text-xs font-semibold text-secondary-400 uppercase tracking-wider mb-3">Rechtliches &amp; Datenschutz</h2>
+          <h2
+            id="legal-title"
+            className="text-xs font-semibold text-secondary-600 uppercase tracking-wider mb-3"
+          >
+            Rechtliches &amp; Datenschutz
+          </h2>
           <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
             {[
-              { to: '/datenschutz#betroffenenrechte', label: 'Betroffenenrechte nach DSGVO', testId: 'link.privacy' },
+              {
+                to: '/datenschutz#betroffenenrechte',
+                label: 'Betroffenenrechte nach DSGVO',
+                testId: 'link.privacy',
+              },
               { to: '/statuten', label: 'Statuten' },
               { to: '/beitragsordnung', label: 'Beitragsordnung' },
               { to: '/impressum', label: 'Impressum' },
-            ].map((l) => (
+            ].map(l => (
               <Link
                 key={l.to}
                 to={l.to}
                 data-testid={l.testId}
-                className="text-secondary-500 hover:text-primary-700 transition-colors hover:underline underline-offset-2"
+                className="text-secondary-700 hover:text-primary-700 transition-colors hover:underline underline-offset-2"
               >
                 {l.label}
               </Link>

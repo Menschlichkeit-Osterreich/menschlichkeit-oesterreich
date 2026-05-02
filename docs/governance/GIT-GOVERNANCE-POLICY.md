@@ -365,29 +365,16 @@ echo "npx --no -- commitlint --edit \$1" > .husky/commit-msg
 
 ### 3.3 CODEOWNERS
 
-**`.github/CODEOWNERS`:**
+**Operative Quelle:** `.github/CODEOWNERS`
+
+Die operative Ownership fuer Review-Zustaendigkeiten wird ausschliesslich in `.github/CODEOWNERS` gepflegt.
+Organisatorische Rollen (z. B. Board, Tech Lead, Security) bleiben in Governance-/RACI-Dokumenten beschrieben,
+werden aber nicht als unbestaetigte GitHub-Handles in der operativen Ownership simuliert.
+
+**Kanonischer Einstieg:**
 
 ```
-# Global Owners
-* @peschull
-
-# Frontend
-/frontend/ @peschull @ux-team
-/figma-design-system/ @peschull @design-team
-
-# API
-/api.menschlichkeit-oesterreich.at/ @peschull @backend-team
-
-# CRM
-/crm.menschlichkeit-oesterreich.at/ @peschull @crm-team
-
-# Security-kritische Dateien
-/secrets/ @peschull @security-team
-/.github/workflows/ @peschull @devops-team
-/docs/security/ @peschull @security-team
-
-# Legal/Compliance
-/docs/legal/ @peschull @legal-team
+# siehe .github/CODEOWNERS (operativer Stand)
 ```
 
 **Enforcement:**

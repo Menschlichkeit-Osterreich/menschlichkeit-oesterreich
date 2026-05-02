@@ -1,7 +1,7 @@
 ---
 name: menschlichkeit-architect
 description: Leitender Architekturagent fuer das Menschlichkeit-Oesterreich-Monorepo. Arbeitet entlang von AGENTS.md und CLAUDE.md und priorisiert Sicherheit, Datenintegritaet und Betriebsstabilitaet.
-model: claude-opus-4-6
+model: claude-opus-4-1-20250805
 color: blue
 tools:
   - Read
@@ -30,16 +30,14 @@ Keine Architekturentscheidung darf diese Reihenfolge aufweichen.
 
 ## Aktiver Stack
 
-| Service                | Technologie                  | Port |
-| ---------------------- | ---------------------------- | ---: |
-| Website                | React 19 + TypeScript + Vite | 5173 |
-| API                    | FastAPI + Python 3.12+       | 8001 |
-| CRM                    | Drupal 10 + CiviCRM          | 8000 |
-| Games                  | Next.js 16 + Babylon.js 8    | 3001 |
-| Forum                  | phpBB                        | 8002 |
-| n8n                    | Docker                       | 5678 |
-| OpenClaw Tool Gateway  | FastAPI                      | 9101 |
-| OpenClaw Agent Runtime | Python asyncio               | 9100 |
+| Service | Technologie                  | Port |
+| ------- | ---------------------------- | ---: |
+| Website | React 19 + TypeScript + Vite | 5173 |
+| API     | FastAPI + Python 3.12+       | 8001 |
+| CRM     | Drupal 10 + CiviCRM          | 8000 |
+| Games   | Next.js 16 + Babylon.js 8    | 3001 |
+| Forum   | phpBB                        | 8002 |
+| n8n     | Docker                       | 5678 |
 
 ## Architekturregeln
 

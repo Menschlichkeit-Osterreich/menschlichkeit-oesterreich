@@ -1,169 +1,27 @@
 {
   "services": [
     {
-      "assumptions": [
-        "client endpoint consumption inferred from npm scripts and repository layout"
-      ],
-      "consumes_endpoints": [
-        "/api"
-      ],
+      "assumptions": ["client endpoint consumption inferred from npm scripts and repository layout"],
+      "consumes_endpoints": ["/api"],
       "data_stores": [],
-      "depends_on": [
-        "apps-api"
-      ],
+      "depends_on": ["apps-api"],
       "entrypoint": "apps/website/package.json",
       "exposes_endpoints": [],
       "name": "@moe/frontend",
       "path": "apps/website",
-      "ports": [
-        "5173"
-      ],
+      "ports": ["5173"],
       "runtime": "node",
       "status": "active",
       "trust_boundary": "public-edge",
       "type": "frontend"
     },
     {
-      "assumptions": [
-        "client endpoint consumption inferred from npm scripts and repository layout"
-      ],
-      "consumes_endpoints": [
-        "/api"
-      ],
-      "data_stores": [],
-      "depends_on": [
-        "apps-api"
-      ],
-      "entrypoint": "website/package.json",
-      "exposes_endpoints": [],
-      "name": "@moe/website",
-      "path": "website",
-      "ports": [
-        "5173"
-      ],
-      "runtime": "node",
-      "status": "active",
-      "trust_boundary": "public-edge",
-      "type": "frontend"
-    },
-    {
-      "assumptions": [
-        "data_stores inferred from compose and repository scripts"
-      ],
+      "assumptions": ["data_stores inferred from compose and repository scripts"],
       "consumes_endpoints": [],
-      "data_stores": [
-        "postgresql",
-        "redis"
-      ],
-      "depends_on": [
-        "redis"
-      ],
-      "entrypoint": "api.menschlichkeit-oesterreich.at/app/gateway.py",
-      "exposes_endpoints": [
-        "/openapi.json"
-      ],
-      "name": "api.menschlichkeit-oesterreich.at",
-      "path": "api.menschlichkeit-oesterreich.at",
-      "ports": [
-        "8000:8000"
-      ],
-      "runtime": "python",
-      "status": "active",
-      "trust_boundary": "internal-api",
-      "type": "fastapi"
-    },
-    {
-      "assumptions": [
-        "data_stores inferred from compose and repository scripts"
-      ],
-      "consumes_endpoints": [],
-      "data_stores": [
-        "postgresql",
-        "redis"
-      ],
-      "depends_on": [
-        "redis"
-      ],
-      "entrypoint": "api.menschlichkeit-oesterreich.at/app/main.py",
-      "exposes_endpoints": [
-        "/openapi.json"
-      ],
-      "name": "api.menschlichkeit-oesterreich.at",
-      "path": "api.menschlichkeit-oesterreich.at",
-      "ports": [
-        "8000:8000"
-      ],
-      "runtime": "python",
-      "status": "active",
-      "trust_boundary": "internal-api",
-      "type": "fastapi"
-    },
-    {
-      "assumptions": [
-        "data_stores inferred from compose and repository scripts"
-      ],
-      "consumes_endpoints": [],
-      "data_stores": [
-        "postgresql",
-        "redis"
-      ],
-      "depends_on": [
-        "redis"
-      ],
-      "entrypoint": "api.menschlichkeit-oesterreich.at/app/main_example.py",
-      "exposes_endpoints": [
-        "/openapi.json"
-      ],
-      "name": "api.menschlichkeit-oesterreich.at",
-      "path": "api.menschlichkeit-oesterreich.at",
-      "ports": [
-        "8000:8000"
-      ],
-      "runtime": "python",
-      "status": "active",
-      "trust_boundary": "internal-api",
-      "type": "fastapi"
-    },
-    {
-      "assumptions": [
-        "data_stores inferred from compose and repository scripts"
-      ],
-      "consumes_endpoints": [],
-      "data_stores": [
-        "postgresql",
-        "redis"
-      ],
-      "depends_on": [
-        "redis"
-      ],
-      "entrypoint": "api.menschlichkeit-oesterreich.at/app/middleware/pii_middleware.py",
-      "exposes_endpoints": [
-        "/openapi.json"
-      ],
-      "name": "api.menschlichkeit-oesterreich.at",
-      "path": "api.menschlichkeit-oesterreich.at",
-      "ports": [
-        "8000:8000"
-      ],
-      "runtime": "python",
-      "status": "active",
-      "trust_boundary": "internal-api",
-      "type": "fastapi"
-    },
-    {
-      "assumptions": [
-        "data_stores inferred from compose and repository scripts"
-      ],
-      "consumes_endpoints": [],
-      "data_stores": [
-        "postgresql",
-        "redis"
-      ],
+      "data_stores": ["postgresql", "redis"],
       "depends_on": [],
       "entrypoint": "apps/api/app/main.py",
-      "exposes_endpoints": [
-        "/api/openapi.json"
-      ],
+      "exposes_endpoints": ["/api/openapi.json"],
       "name": "apps-api",
       "path": "apps/api",
       "ports": [],
@@ -173,67 +31,27 @@
       "type": "fastapi"
     },
     {
-      "assumptions": [
-        "data_stores inferred from compose and repository scripts"
-      ],
+      "assumptions": ["CiviCRM is hosted inside the Drupal runtime"],
       "consumes_endpoints": [],
-      "data_stores": [
-        "postgresql",
-        "redis"
-      ],
-      "depends_on": [],
-      "entrypoint": "apps/api/app/middleware/pii_middleware.py",
-      "exposes_endpoints": [
-        "/openapi.json"
-      ],
-      "name": "apps-api",
-      "path": "apps/api",
-      "ports": [],
-      "runtime": "python",
-      "status": "active",
-      "trust_boundary": "internal-api",
-      "type": "fastapi"
-    },
-    {
-      "assumptions": [
-        "CiviCRM is hosted inside the Drupal runtime"
-      ],
-      "consumes_endpoints": [],
-      "data_stores": [
-        "mariadb"
-      ],
-      "depends_on": [
-        "db"
-      ],
+      "data_stores": ["mariadb"],
+      "depends_on": ["db"],
       "entrypoint": "apps/crm/docker-compose.yml",
-      "exposes_endpoints": [
-        "/"
-      ],
+      "exposes_endpoints": ["/"],
       "name": "apps-crm-drupal",
       "path": "apps/crm",
-      "ports": [
-        "8000",
-        "8080:80"
-      ],
+      "ports": ["8000", "8080:80"],
       "runtime": "php",
       "status": "active",
       "trust_boundary": "public-edge",
       "type": "drupal"
     },
     {
-      "assumptions": [
-        "data_stores inferred from compose and repository scripts"
-      ],
+      "assumptions": ["data_stores inferred from compose and repository scripts"],
       "consumes_endpoints": [],
-      "data_stores": [
-        "postgresql",
-        "redis"
-      ],
+      "data_stores": ["postgresql", "redis"],
       "depends_on": [],
       "entrypoint": "openclaw-system/api/fastapi_gateway/main.py",
-      "exposes_endpoints": [
-        "/openapi.json"
-      ],
+      "exposes_endpoints": ["/openapi.json"],
       "name": "openclaw-system-api",
       "path": "openclaw-system/api",
       "ports": [],
@@ -243,19 +61,12 @@
       "type": "fastapi"
     },
     {
-      "assumptions": [
-        "data_stores inferred from compose and repository scripts"
-      ],
+      "assumptions": ["data_stores inferred from compose and repository scripts"],
       "consumes_endpoints": [],
-      "data_stores": [
-        "postgresql",
-        "redis"
-      ],
+      "data_stores": ["postgresql", "redis"],
       "depends_on": [],
       "entrypoint": "openclaw-system/core/agent_runtime/main.py",
-      "exposes_endpoints": [
-        "/openapi.json"
-      ],
+      "exposes_endpoints": ["/openapi.json"],
       "name": "openclaw-system-core",
       "path": "openclaw-system/core",
       "ports": [],
@@ -265,16 +76,10 @@
       "type": "fastapi"
     },
     {
-      "assumptions": [
-        "client endpoint consumption inferred from npm scripts and repository layout"
-      ],
-      "consumes_endpoints": [
-        "/api"
-      ],
+      "assumptions": ["client endpoint consumption inferred from npm scripts and repository layout"],
+      "consumes_endpoints": ["/api"],
       "data_stores": [],
-      "depends_on": [
-        "apps-api"
-      ],
+      "depends_on": ["apps-api"],
       "entrypoint": "./package.json",
       "exposes_endpoints": [],
       "name": "workspace-development-tools",

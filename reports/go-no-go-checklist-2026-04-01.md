@@ -236,7 +236,6 @@ Er spiegelt nicht den aktuellen Repo-Zustand wider (Monorepo-Umstrukturierung, H
 - 🔵 **PRODUCTION-READINESS-REPORT.json** aktualisieren oder durch aktuellen Bericht ersetzen
 - 🔵 **`logging@`-Mailbox** archivieren (war laut CRITICAL-TODOS.md Okt 2025 bei 79% Kapazität — aktuellen Stand prüfen)
 - 🔵 **Staging-Workflow** (`deploy-staging.yml`) auf Parität mit `deploy-plesk.yml` bringen
-- 🔵 **OpenClaw** (`openclaw-system/`) in Produktions-Health-Monitoring aufnehmen, wenn produktiv
 
 ---
 
@@ -260,24 +259,22 @@ Er spiegelt nicht den aktuellen Repo-Zustand wider (Monorepo-Umstrukturierung, H
 
 ### Pflicht-Secrets für Produktion (aus `secrets.manifest.json`)
 
-| Variable                    | Service  | Sensitive     |
-| --------------------------- | -------- | ------------- |
-| `DATABASE_URL`              | api      | ✅            |
-| `JWT_SECRET_KEY`            | api      | ✅            |
-| `MOE_API_TOKEN`             | api      | ✅            |
-| `N8N_WEBHOOK_SECRET`        | api      | ✅            |
-| `CIVICRM_SITE_KEY`          | api      | ✅            |
-| `CIVICRM_API_KEY`           | api      | ✅            |
-| `MAIL_PASSWORD`             | api      | ✅            |
-| `STRIPE_SECRET_KEY`         | api      | ✅            |
-| `STRIPE_WEBHOOK_SECRET`     | api      | ✅            |
-| `SEPA_CREDITOR_IBAN`        | api      | ✅ (nur prod) |
-| `SEPA_CREDITOR_ID`          | api      | ✅ (nur prod) |
-| `SEPA_CREDITOR_BIC`         | api      | ✅ (nur prod) |
-| `N8N_ENCRYPTION_KEY`        | n8n      | ✅            |
-| `N8N_USER` / `N8N_PASSWORD` | n8n      | ✅            |
-| `OC_OPENAI_API_KEY`         | openclaw | ✅            |
-| `OC_GITHUB_TOKEN`           | openclaw | ✅            |
+| Variable                    | Service | Sensitive     |
+| --------------------------- | ------- | ------------- |
+| `DATABASE_URL`              | api     | ✅            |
+| `JWT_SECRET_KEY`            | api     | ✅            |
+| `MOE_API_TOKEN`             | api     | ✅            |
+| `N8N_WEBHOOK_SECRET`        | api     | ✅            |
+| `CIVICRM_SITE_KEY`          | api     | ✅            |
+| `CIVICRM_API_KEY`           | api     | ✅            |
+| `MAIL_PASSWORD`             | api     | ✅            |
+| `STRIPE_SECRET_KEY`         | api     | ✅            |
+| `STRIPE_WEBHOOK_SECRET`     | api     | ✅            |
+| `SEPA_CREDITOR_IBAN`        | api     | ✅ (nur prod) |
+| `SEPA_CREDITOR_ID`          | api     | ✅ (nur prod) |
+| `SEPA_CREDITOR_BIC`         | api     | ✅ (nur prod) |
+| `N8N_ENCRYPTION_KEY`        | n8n     | ✅            |
+| `N8N_USER` / `N8N_PASSWORD` | n8n     | ✅            |
 
 ### GitHub Actions Secrets (Pflicht für Deploy-Workflow)
 

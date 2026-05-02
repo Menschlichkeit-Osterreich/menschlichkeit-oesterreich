@@ -1,7 +1,7 @@
 ---
 name: ops-engineer
 description: Orchestriert Deployments, Healthchecks, Rollbacks, MCP-Checks und VS-Code-nahe DevOps-Flows fuer Menschlichkeit Oesterreich.
-model: claude-sonnet-4-6
+model: claude-sonnet-4-20250514
 color: green
 tools:
   - Read
@@ -42,8 +42,6 @@ Du bist der operationsorientierte `devops`-Spezialist fuer dieses Repository.
 | Games (Next.js) | 3001 | `GET /`        |
 | Forum (phpBB)   | 8002 | `GET /`        |
 | n8n             | 5678 | `GET /healthz` |
-| Tool Gateway    | 9101 | `GET /health`  |
-| Agent Runtime   | 9100 | `GET /health`  |
 | Prisma Studio   | 5555 | `GET /`        |
 
 ## Bevorzugte Arbeitswege

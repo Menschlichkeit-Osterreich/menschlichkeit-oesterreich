@@ -18,23 +18,26 @@
     "ghcr.io/devcontainers/features/git:1": {}
   },
   "onCreateCommand": "bash .devcontainer/onCreate-setup.sh",
-  "postCreateCommand": "bash .devcontainer/setup.sh && bash scripts/dev/codespace-ssh-setup.sh",
+  "postCreateCommand": "bash .devcontainer/setup.sh && if [ -f scripts/dev/codespace-ssh-setup.sh ]; then bash scripts/dev/codespace-ssh-setup.sh; fi",
   "postStartCommand": "pwsh .devcontainer/setup-powershell.ps1 || true",
   "customizations": {
     "vscode": {
       "extensions": [
         "ms-python.python",
-        "ms-python.flake8",
-        "ms-python.pylint",
         "ms-vscode.vscode-typescript-next",
         "esbenp.prettier-vscode",
-        "ms-eslint.vscode-eslint",
+        "dbaeumer.vscode-eslint",
         "bmewburn.vscode-intelephense-client",
         "ms-playwright.playwright",
         "bradlc.vscode-tailwindcss",
         "GitHub.copilot",
         "GitHub.copilot-chat",
-        "ms-vscode.powershell"
+        "ms-vscode.powershell",
+        "ms-vscode.azure-account",
+        "Prisma.prisma",
+        "redhat.vscode-yaml",
+        "ms-azuretools.vscode-docker",
+        "EditorConfig.EditorConfig"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
@@ -49,8 +52,6 @@
           }
         },
         "python.defaultInterpreterPath": "/usr/local/python/current/bin/python",
-        "python.linting.enabled": true,
-        "python.linting.pylintEnabled": true,
         "php.validate.executablePath": "/usr/local/php/current/bin/php",
         "github.copilot.enable": {
           "*": true,
@@ -67,20 +68,15 @@
         "github.copilot.chat.codeGeneration.useInstructionFiles": true,
         "chat.instructionsFilesLocations": {
           ".github/instructions": true,
-          "docs/ai-instructions": true
+          "docs/AI-INSTRUCTIONS": true
         },
         "telemetry.telemetryLevel": "off"
       }
     }
   },
-  "forwardPorts": [
-    3000,
-    5173,
-    8000,
-    8001
-  ],
+  "forwardPorts": [5173, 8000, 8001, 3001, 8002],
   "portsAttributes": {
-    "3000": {
+    "3001": {
       "label": "Games Server",
       "onAutoForward": "notify"
     },
@@ -94,6 +90,10 @@
     },
     "8001": {
       "label": "API Server",
+      "onAutoForward": "notify"
+    },
+    "8002": {
+      "label": "Forum Server",
       "onAutoForward": "notify"
     }
   },

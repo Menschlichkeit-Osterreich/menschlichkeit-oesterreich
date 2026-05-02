@@ -4,7 +4,10 @@
 
 set -euo pipefail
 
-blocked=$(git diff --cached --name-only | grep -E '(^|/)\.env($|[^a-z])' | grep -v '\.example' || true)
+staged_paths=$(git diff --cached --name-only)
+
+# Block real runtime env files, but allow versioned templates/examples.
+blocked=$(echo "$staged_paths" | grep -E '(^|/)\.env($|[^a-z])|(^|/)[^/]+\.env($|[^a-z])' | grep -Ev '(^|/)\.env(\.[^/]+)?\.(example|template)$|(^|/)[^/]+\.env\.(example|template)$' || true)
 
 if [ -n "$blocked" ]; then
   echo "❌ COMMIT ABGEBROCHEN: Echte .env-Dateien gefunden (Secrets-Schutz)!"
@@ -14,11 +17,22 @@ if [ -n "$blocked" ]; then
   echo ""
   echo "Lösung:"
   echo "  1. git reset HEAD <datei>  # Unstage .env"
-  echo "  2. Prüfe .gitignore (muss .env enthalten)"
-  echo "  3. Nutze .env.example für Templates"
+  echo "  2. Prüfe .gitignore (muss echte .env-Dateien enthalten)"
+  echo "  3. Nutze erlaubte Templates: .env*.template oder *.env.example"
+  echo ""
+  echo "Hinweis: .env*.template und *.env.example sind erlaubt, echte Laufzeit-.env bleiben blockiert."
   echo ""
   exit 1
 fi
 
 echo "✅ Keine echten .env-Dateien im Commit (Secrets-Check passed)"
+
+if command -v npx >/dev/null 2>&1; then
+  echo "▶️ lint-staged läuft…"
+  npx --no -- lint-staged
+else
+  echo "⚠️ npx nicht gefunden – lint-staged übersprungen."
+fi
+
+echo "✅ Pre-Commit erfolgreich"
 exit 0

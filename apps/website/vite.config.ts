@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import { defineConfig } from 'vite';
 
 export default defineConfig(({ isSsrBuild }) => ({
   plugins: [react()],
@@ -17,15 +17,30 @@ export default defineConfig(({ isSsrBuild }) => ({
   },
   build: {
     sourcemap: false,
-    chunkSizeWarningLimit: 1200,
+    chunkSizeWarningLimit: 900,
     rollupOptions: {
       output: {
         // manualChunks must be disabled for SSR: React/Three are externalized in SSR mode
         // and Rollup rejects manual chunks for externalized modules.
         manualChunks: isSsrBuild
           ? undefined
-          : {
-              react: ['react', 'react-dom'],
+          : (id: string) => {
+              if (!id.includes('node_modules')) {
+                return undefined;
+              }
+              if (id.includes('react-router')) {
+                return 'vendor-router';
+              }
+              if (/node_modules\/(react|react-dom|scheduler)\//.test(id.replace(/\\/g, '/'))) {
+                return 'vendor-react';
+              }
+              if (id.includes('date-fns') || id.includes('dayjs') || id.includes('luxon')) {
+                return 'vendor-date';
+              }
+              if (id.includes('zod') || id.includes('axios') || id.includes('qs')) {
+                return 'vendor-data';
+              }
+              return 'vendor-misc';
             },
       },
     },

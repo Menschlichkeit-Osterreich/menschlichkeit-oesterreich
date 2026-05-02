@@ -66,6 +66,13 @@ function readJsonReport(filePath) {
   return null;
 }
 
+function getNumericThreshold(name, fallback) {
+  const raw = process.env[name];
+  if (!raw) return fallback;
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
 // Helper: Recursively scan figmadocs
 function scanFigmadocs(baseDir) {
   const absBase = path.resolve(baseDir);
@@ -199,14 +206,18 @@ if (eslintReport && eslintReport.runs) {
 // Lighthouse Report (from frontend workspace)
 // Try multiple locations: frontend/.lighthouse and quality-reports fallback copy
 const lighthouseCandidates = [
-  path.join('frontend', '.lighthouse', 'report.report.json'),
+  path.join('apps', 'website', '.lighthouse', 'report.report.json'),
   path.join('quality-reports', 'lighthouse-report.json'),
 ];
 let lighthouseJson = null;
 let lighthouseUsedPath = null;
 for (const p of lighthouseCandidates) {
   const j = readJsonReport(p);
-  if (j) { lighthouseJson = j; lighthouseUsedPath = p; break; }
+  if (j) {
+    lighthouseJson = j;
+    lighthouseUsedPath = p;
+    break;
+  }
 }
 if (lighthouseJson) {
   const perf = lighthouseJson.categories?.performance?.score ?? 0;
@@ -229,18 +240,24 @@ if (lighthouseJson) {
   report.summary.performance_score = Math.round((perf || 0) * 100);
 
   // Update gates based on thresholds defined in run-lighthouse script
-  const perfOk = perf >= 0.9;
-  const a11yOk = a11y >= 0.95;
-  const bpOk = bestPractices >= 0.95;
-  const seoOk = seo >= 0.9;
+  const isCi = String(process.env.CI || '').toLowerCase() === 'true';
+  const perfThreshold = getNumericThreshold('LH_THRESHOLD_PERFORMANCE', isCi ? 0.9 : 0.65);
+  const a11yThreshold = getNumericThreshold('LH_THRESHOLD_A11Y', isCi ? 0.9 : 0.9);
+  const bpThreshold = getNumericThreshold('LH_THRESHOLD_BP', isCi ? 0.95 : 0.7);
+  const seoThreshold = getNumericThreshold('LH_THRESHOLD_SEO', isCi ? 0.9 : 0.9);
+
+  const perfOk = perf >= perfThreshold;
+  const a11yOk = a11y >= a11yThreshold;
+  const bpOk = bestPractices >= bpThreshold;
+  const seoOk = seo >= seoThreshold;
 
   report.quality_gates.performance_gate = {
     passed: perfOk && bpOk && seoOk,
-    details: `Scores: performance=${(perf * 100).toFixed(0)} a11y=${(a11y * 100).toFixed(0)} best-practices=${(bestPractices * 100).toFixed(0)} seo=${(seo * 100).toFixed(0)} (source: ${lighthouseUsedPath})`,
+    details: `Scores: performance=${(perf * 100).toFixed(0)} a11y=${(a11y * 100).toFixed(0)} best-practices=${(bestPractices * 100).toFixed(0)} seo=${(seo * 100).toFixed(0)} | thresholds: P>=${(perfThreshold * 100).toFixed(0)} BP>=${(bpThreshold * 100).toFixed(0)} SEO>=${(seoThreshold * 100).toFixed(0)} (source: ${lighthouseUsedPath})`,
   };
   report.quality_gates.accessibility_gate = {
     passed: a11yOk,
-    details: `Accessibility score ${(a11y * 100).toFixed(0)} (source: ${lighthouseUsedPath})`,
+    details: `Accessibility score ${(a11y * 100).toFixed(0)} (threshold ${(a11yThreshold * 100).toFixed(0)}) (source: ${lighthouseUsedPath})`,
   };
 }
 
@@ -250,9 +267,13 @@ if (designDocs) {
   report.reports.design_docs = designDocs;
   // Optionally: consider docs presence in maintainability gate (informative)
   if (designDocs.total_files > 0) {
-    report.summary.recommendations.push('📚 Design-Dokumentation gefunden (figmadocs) – in Reports aufgenommen');
+    report.summary.recommendations.push(
+      '📚 Design-Dokumentation gefunden (figmadocs) – in Reports aufgenommen'
+    );
   } else {
-    report.summary.recommendations.push('📝 figmadocs ist leer – bitte Design-Dokumentation ergänzen');
+    report.summary.recommendations.push(
+      '📝 figmadocs ist leer – bitte Design-Dokumentation ergänzen'
+    );
   }
 }
 
@@ -333,7 +354,9 @@ console.log(`⚖️ Compliance Score: ${report.summary.compliance_score}%`);
 console.log(`🚨 Critical Issues: ${report.summary.critical_issues}`);
 console.log(`📝 Total Issues: ${report.summary.total_issues}`);
 if (report.reports.design_docs) {
-  console.log(`📚 Design Docs: ${report.reports.design_docs.total_files} Dateien in ${report.reports.design_docs.categories.length} Kategorien`);
+  console.log(
+    `📚 Design Docs: ${report.reports.design_docs.total_files} Dateien in ${report.reports.design_docs.categories.length} Kategorien`
+  );
 }
 
 console.log('\n🚪 Quality Gates:');

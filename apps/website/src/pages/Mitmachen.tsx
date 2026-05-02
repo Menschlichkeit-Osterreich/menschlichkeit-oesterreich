@@ -1,18 +1,18 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
 import {
-  Users,
-  Heart,
-  Monitor,
+  AlertTriangle,
   BookOpen,
-  Mail,
+  ChevronRight,
   Construction,
   Globe,
+  Heart,
+  Mail,
   MessageCircle,
+  Monitor,
   Palette,
-  ChevronRight,
-  AlertTriangle,
+  Users,
 } from 'lucide-react';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import SeoHead from '../components/seo/SeoHead';
 import SpendenCTA from '../components/SpendenCTA';
 
@@ -75,24 +75,25 @@ const FREIWILLIGEN_BEREICHE: FreiwilligenBereich[] = [
   {
     id: 'content',
     title: 'Content-Erstellung',
-    description:
-      'Texte, Grafiken und Social-Media-Inhalte, die unsere Themen sichtbar machen.',
+    description: 'Texte, Grafiken und Social-Media-Inhalte, die unsere Themen sichtbar machen.',
     icon: <Palette className="w-6 h-6" />,
     beispiele: ['Blog-Artikel & Berichte', 'Grafik-Design', 'Social-Media-Beiträge'],
   },
   {
     id: 'technik',
     title: 'Technische Unterstützung',
-    description:
-      'Mithilfe bei Webentwicklung, IT-Infrastruktur und Datenpflege.',
+    description: 'Mithilfe bei Webentwicklung, IT-Infrastruktur und Datenpflege.',
     icon: <Monitor className="w-6 h-6" />,
-    beispiele: ['Webentwicklung (React, TypeScript)', 'IT-Support & Hosting', 'Datenbank- & Datenpflege'],
+    beispiele: [
+      'Webentwicklung (React, TypeScript)',
+      'IT-Support & Hosting',
+      'Datenbank- & Datenpflege',
+    ],
   },
   {
     id: 'bildung-veranstaltungen',
     title: 'Bildungs- und Veranstaltungsformate',
-    description:
-      'Mitwirkung an Workshops, Vorträgen und Bildungsmaterialien.',
+    description: 'Mitwirkung an Workshops, Vorträgen und Bildungsmaterialien.',
     icon: <BookOpen className="w-6 h-6" />,
     beispiele: ['Workshop-Moderation', 'Lernmaterial-Erstellung', 'Veranstaltungsplanung'],
   },
@@ -111,7 +112,7 @@ function ProjektCard({ projekt }: { projekt: Projekt }) {
       <h3 className="text-lg font-bold text-secondary-900 mb-2">{projekt.title}</h3>
       <p className="text-sm text-secondary-600 leading-relaxed mb-4">{projekt.description}</p>
       <div className="flex flex-wrap gap-2">
-        {projekt.tags.map((tag) => (
+        {projekt.tags.map(tag => (
           <span
             key={tag}
             className="text-xs font-medium px-2.5 py-1 rounded-full bg-secondary-100 text-secondary-600"
@@ -133,7 +134,7 @@ function FreiwilligenCard({ bereich }: { bereich: FreiwilligenBereich }) {
       <h3 className="text-lg font-bold text-secondary-900 mb-2">{bereich.title}</h3>
       <p className="text-sm text-secondary-600 leading-relaxed mb-4">{bereich.description}</p>
       <ul className="space-y-2">
-        {bereich.beispiele.map((beispiel) => (
+        {bereich.beispiele.map(beispiel => (
           <li key={beispiel} className="flex items-start gap-2 text-sm text-secondary-600">
             <span className="w-1.5 h-1.5 rounded-full bg-primary-400 flex-shrink-0 mt-1.5" />
             {beispiel}
@@ -157,17 +158,23 @@ export default function Mitmachen() {
       />
 
       {/* === AUFBAU-BANNER — ENTFERNEN WENN NICHT MEHR BENÖTIGT === */}
-      <section className="bg-amber-50 border-b border-amber-200" aria-label="Hinweis: Seite im Aufbau">
+      <section
+        className="bg-amber-50 border-b border-amber-200"
+        aria-label="Hinweis: Seite im Aufbau"
+      >
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" aria-hidden="true" />
+          <AlertTriangle
+            className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5"
+            aria-hidden="true"
+          />
           <div>
             <p className="text-sm font-semibold text-amber-800">
               Diese Seite befindet sich noch im Aufbau.
             </p>
             <p className="text-sm text-amber-700 mt-1">
               Unser Verein und unsere Strukturen werden laufend weiterentwickelt. Inhalte und
-              Möglichkeiten erweitern sich kontinuierlich. Bei Interesse oder Fragen erreichen
-              Sie uns vorerst unter{' '}
+              Möglichkeiten erweitern sich kontinuierlich. Bei Interesse oder Fragen erreichen Sie
+              uns vorerst unter{' '}
               <a
                 href="mailto:office@menschlichkeit-oesterreich.at"
                 className="font-semibold underline hover:text-amber-900 transition-colors"
@@ -188,11 +195,13 @@ export default function Mitmachen() {
             Gemeinsam mehr bewirken
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-            Engagieren Sie sich<br />bei Menschlichkeit Österreich
+            Engagieren Sie sich
+            <br />
+            bei Menschlichkeit Österreich
           </h1>
           <p className="text-xl text-primary-100 max-w-2xl mx-auto mb-8">
-            Es gibt viele Wege, sich bei uns einzubringen — ob mit wenig oder viel Zeit,
-            mit fachlichen Kenntnissen oder einfach mit dem Wunsch, etwas zu bewegen.
+            Es gibt viele Wege, sich bei uns einzubringen — ob mit wenig oder viel Zeit, mit
+            fachlichen Kenntnissen oder einfach mit dem Wunsch, etwas zu bewegen.
           </p>
           <a
             href="mailto:office@menschlichkeit-oesterreich.at"
@@ -202,6 +211,66 @@ export default function Mitmachen() {
             Jetzt Kontakt aufnehmen
             <ChevronRight className="w-4 h-4" />
           </a>
+        </div>
+      </section>
+
+      {/* Schnellstart */}
+      <section className="max-w-6xl mx-auto px-4 py-10" aria-label="Schnell starten">
+        <div className="rounded-2xl border border-primary-200 bg-primary-50 p-5 md:p-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-secondary-900">Schnell starten</h2>
+              <p className="mt-2 text-sm text-secondary-700 max-w-2xl">
+                Wenn Sie direkt aktiv werden möchten, wählen Sie den Weg, der am besten zu Ihrer
+                aktuellen Situation passt.
+              </p>
+            </div>
+            <div className="text-xs text-secondary-600">
+              ZVR 1182213083 • transparente Vereinsarbeit • datenschutzkonform
+            </div>
+          </div>
+
+          <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
+            <Link
+              to="/mitglied-werden"
+              className="rounded-xl border border-primary-300 bg-white p-4 hover:shadow-sm transition-all"
+            >
+              <div className="font-semibold text-secondary-900">Mitglied werden</div>
+              <p className="mt-1 text-sm text-secondary-600">
+                Regelmäßig mittragen und mitgestalten.
+              </p>
+            </Link>
+            <Link
+              to="/spenden"
+              className="rounded-xl border border-primary-300 bg-white p-4 hover:shadow-sm transition-all"
+            >
+              <div className="font-semibold text-secondary-900">Jetzt spenden</div>
+              <p className="mt-1 text-sm text-secondary-600">
+                Projekte sofort und konkret unterstützen.
+              </p>
+            </Link>
+            <Link
+              to="/veranstaltungen"
+              className="rounded-xl border border-primary-300 bg-white p-4 hover:shadow-sm transition-all"
+            >
+              <div className="font-semibold text-secondary-900">Veranstaltung besuchen</div>
+              <p className="mt-1 text-sm text-secondary-600">
+                Unverbindlich kennenlernen und austauschen.
+              </p>
+            </Link>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-4 text-sm">
+            <Link to="/transparenz" className="font-medium text-primary-700 hover:underline">
+              Transparenz
+            </Link>
+            <Link to="/datenschutz" className="font-medium text-primary-700 hover:underline">
+              Datenschutz
+            </Link>
+            <Link to="/statuten" className="font-medium text-primary-700 hover:underline">
+              Statuten
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -221,7 +290,7 @@ export default function Mitmachen() {
           </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {PROJEKTE.map((projekt) => (
+          {PROJEKTE.map(projekt => (
             <ProjektCard key={projekt.id} projekt={projekt} />
           ))}
         </div>
@@ -235,12 +304,12 @@ export default function Mitmachen() {
               So können Sie sich einbringen
             </h2>
             <p className="text-secondary-600 max-w-2xl mx-auto">
-              Freiwillige können sich bei uns flexibel und projektbezogen engagieren,
-              z.&nbsp;B. in folgenden Bereichen:
+              Freiwillige können sich bei uns flexibel und projektbezogen engagieren, z.&nbsp;B. in
+              folgenden Bereichen:
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {FREIWILLIGEN_BEREICHE.map((bereich) => (
+            {FREIWILLIGEN_BEREICHE.map(bereich => (
               <FreiwilligenCard key={bereich.id} bereich={bereich} />
             ))}
           </div>
@@ -248,8 +317,8 @@ export default function Mitmachen() {
           {/* Philosophie-Hinweis */}
           <div className="mt-10 text-center">
             <p className="text-secondary-600 max-w-2xl mx-auto italic">
-              Uns ist wichtig, dass Engagement niederschwellig, sinnvoll und
-              entsprechend der individuellen Fähigkeiten möglich ist.
+              Uns ist wichtig, dass Engagement niederschwellig, sinnvoll und entsprechend der
+              individuellen Fähigkeiten möglich ist.
             </p>
           </div>
         </div>
@@ -258,13 +327,11 @@ export default function Mitmachen() {
       {/* Kontakt-CTA */}
       <section className="py-16 px-4">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-2xl font-bold text-secondary-900 mb-4">
-            Interesse geweckt?
-          </h2>
+          <h2 className="text-2xl font-bold text-secondary-900 mb-4">Interesse geweckt?</h2>
           <p className="text-secondary-600 mb-8 leading-relaxed">
-            Egal ob Sie regelmäßig oder punktuell mitarbeiten möchten — melden Sie sich
-            einfach bei uns. Wir freuen uns über jede helfende Hand und finden gemeinsam
-            den passenden Einsatzbereich für Sie.
+            Egal ob Sie regelmäßig oder punktuell mitarbeiten möchten — melden Sie sich einfach bei
+            uns. Wir freuen uns über jede helfende Hand und finden gemeinsam den passenden
+            Einsatzbereich für Sie.
           </p>
           <a
             href="mailto:office@menschlichkeit-oesterreich.at"

@@ -4,7 +4,8 @@ Dieses Repository wird von Codex und Claude Code gemeinsam mit derselben Betrieb
 
 ## Repo Identity
 
-- Lokaler Repo-Root: `E:\Menschlichkeit-Osterreich\menschlichkeit-oesterreich`
+- Workspace-Root: Repository-Checkout von `Menschlichkeit-Osterreich/menschlichkeit-oesterreich`
+- Beispiel Windows-Checkout: `E:\Dev\menschlichkeit-oesterreich\menschlichkeit-oesterreich`
 - Git-Remote: `https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich`
 - Aktive Entwicklungsstruktur: `apps/<service>/`
 
@@ -13,25 +14,22 @@ Historische Root-Snapshots duerfen im Repository noch vorkommen, sind aber keine
 ## Prioritaeten
 
 1. Sicherheit
-2. Datenintegritaet
-3. Stabilitaet
-4. Velocity
+1. Datenintegritaet
+1. Stabilitaet
+1. Velocity
 
 Alle UI-Texte bleiben in oesterreichischem Deutsch.
 
 ## Aktive Services
 
-| Service                | Pfad                                   |  Port | Hinweis                 |
-| ---------------------- | -------------------------------------- | ----: | ----------------------- |
-| Website                | `apps/website/`                        |  5173 | React 19 + Vite         |
-| API                    | `apps/api/`                            |  8001 | FastAPI, `app.main:app` |
-| CRM                    | `apps/crm/`                            |  8000 | Drupal 10 + CiviCRM     |
-| Games                  | `apps/babylon-game/`                   |  3001 | Next.js + Babylon.js    |
-| Forum                  | `apps/forum/`                          |  8002 | phpBB                   |
-| n8n                    | `automation/n8n/`                      |  5678 | Automatisierung         |
-| OpenClaw Tool Gateway  | `openclaw-system/api/fastapi_gateway/` |  9101 | Produkt-Runtime         |
-| OpenClaw Agent Runtime | `openclaw-system/core/agent_runtime/`  |  9100 | Produkt-Runtime         |
-| Windows Bridge         | `openclaw-system/windows-bridge/`      | 18790 | Produkt-Runtime         |
+| Service | Pfad                 | Port | Hinweis                 |
+| ------- | -------------------- | ---: | ----------------------- |
+| Website | `apps/website/`      | 5173 | React 19 + Vite         |
+| API     | `apps/api/`          | 8001 | FastAPI, `app.main:app` |
+| CRM     | `apps/crm/`          | 8000 | Drupal 10 + CiviCRM     |
+| Games   | `apps/babylon-game/` | 3001 | Next.js + Babylon.js    |
+| Forum   | `apps/forum/`        | 8002 | phpBB                   |
+| n8n     | `automation/n8n/`    | 5678 | Automatisierung         |
 
 ## Standardbefehle
 
@@ -52,12 +50,12 @@ npm run governance:check
 ## Agentenauswahl im Repo
 
 1. Lies zuerst `AGENTS.md`.
-2. Lies fuer Analyse und Planung danach `.github/instructions/core/analysis-planning.instructions.md`.
-3. Nutze `.github/ai-registry.json`, wenn du den Status von Agents, Skills, Prompts, Plugins oder Legacy-Artefakten klaeren musst.
-4. Pruefe bei groesseren Plaenen den offenen Backlog mit `state:open repo:${owner}/${repository} sort:updated-desc`.
-5. Waehle dann die passende Rolle: `architect`, `developer`, `devops`, `security` oder `qa`.
-6. Ziehe nur die zugehoerigen Chatmodes, Prompt-Dateien und Agenten hinzu.
-7. Vermische Repo-Contributor-Agents nie mit OpenClaw-Runtime-Rollen.
+1. Lies fuer Analyse und Planung danach `.github/instructions/core/analysis-planning.instructions.md`.
+1. Nutze `.github/ai-registry.json`, wenn du den Status von Agents, Skills, Prompts, Plugins oder Legacy-Artefakten klaeren musst.
+1. Pruefe bei groesseren Plaenen den offenen Backlog mit `state:open repo:${owner}/${repository} sort:updated-desc`.
+1. Waehle dann die passende Rolle: `architect`, `developer`, `devops`, `security` oder `qa`.
+1. Ziehe nur die zugehoerigen Chatmodes, Prompt-Dateien und Agenten hinzu.
+1. Vermische Repo-Contributor-Agents nie mit produktiven Laufzeitrollen ausserhalb der Repo-Governance.
 
 Kurzregel:
 
@@ -74,6 +72,9 @@ Kurzregel:
 - Neue API-Endpunkte muessen in `apps/api/openapi.yaml` reflektiert werden.
 - Design-Tokens stammen aus `figma-design-system/00_design-tokens.json` sowie den abgeleiteten CSS-Tokens.
 - Brand-Arbeit nutzt die Quellen aus `.claude/plugins/moe-brand/`.
+- Bei dateibasierten Copilot- oder MCP-Toolaufrufen absolute Workspace-Pfade verwenden, wenn das Tool keine relativen Pfade akzeptiert.
+- Geteilte Repo-Konfigurationen bleiben portabel und nutzen `${workspaceFolder}`, repo-relative Pfade oder npm Scripts.
+- Aenderungen an Dot-Folder-, MCP-, Agenten- oder Workflow-Konfigurationen muessen `npm run workspace:config:check` bestehen.
 - Keine Secrets in Code, Logs oder Beispielen.
 - Keine PII in Logs; DSGVO-Regeln aus den Core-Instructions sind bindend.
 
@@ -97,24 +98,25 @@ Kurzregel:
 - PRs zurueck auf `main`
 - Keine aktive `develop`-Integrationslinie
 
-## OpenClaw ist Produkt-Runtime
+## Repo-Agenten
 
-OpenClaw in `openclaw-system/` ist ein Produkt-Subsystem mit eigenen Rollen, Budgets und Tool-Freigaben. Diese Rollen werden nicht fuer die Repo-Governance verwendet.
+Repo-Arbeitsagenten sind in `AGENTS.md` dokumentiert und werden ueber Codex, Claude Code und Copilot ausgefuehrt.
 
-Repo-Arbeitsagenten:
+Sichtbare Copilot-Repo-Agenten:
 
-- dokumentiert in `AGENTS.md`
-- ausgefuehrt ueber Codex, Claude Code und Copilot
+- `.github/agents/task-planner.agent.md`
+- `.github/agents/developer.agent.md`
+- `.github/agents/devops-expert.agent.md`
+- `.github/agents/security-reviewer.agent.md`
+- `.github/agents/qa-reviewer.agent.md`
 
-Produkt-Runtime-Agenten:
-
-- konfiguriert in `openclaw-system/configs/agent_roles.yaml`
-- nur fuer den laufenden Multi-Agent-Betrieb
+Archivierte oder deprecated Copilot-Agents liegen unter `.github/archive/agents/` und werden ueber `.github/ai-registry.json` einem sichtbaren Replacement zugeordnet.
 
 ## MCP
 
 - Projektweite MCP-Server liegen in `mcp.json`
 - Editor-spezifische MCP-Ergaenzungen liegen in `.vscode/mcp.json`
+- Spezialisierte MCP-Reparaturen sind Teil von `.github/agents/devops-expert.agent.md`
 - Lokale Checks: `npm run mcp:check` und `npm run mcp:health`
 
 ## Brand-Kurzvertrag

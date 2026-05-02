@@ -38,8 +38,6 @@ PLACEHOLDER_PATTERNS = [
 
 REAL_SECRET_PATTERNS = {
     "GH_TOKEN": r"^(ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{20,})$",
-    "OC_GITHUB_TOKEN": r"^(ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{20,})$",
-    "OC_OPENAI_API_KEY": r"^sk-[A-Za-z0-9]{20,}$",
     "JWT_SECRET_KEY": r"^.{32,}$",
     "MOE_API_TOKEN": r"^.{20,}$",
     "N8N_WEBHOOK_SECRET": r"^.{20,}$",
@@ -47,7 +45,6 @@ REAL_SECRET_PATTERNS = {
     "STRIPE_SECRET_KEY": r"^sk_(test|live)_[A-Za-z0-9]{16,}$",
     "STRIPE_WEBHOOK_SECRET": r"^whsec_[A-Za-z0-9]{16,}$",
     "MAIL_PASSWORD": r"^.{12,}$",
-    "PAYPAL_CLIENT_SECRET": r"^.{12,}$",
 }
 
 FORMAT_PATTERNS = {
@@ -66,7 +63,6 @@ FORMAT_PATTERNS = {
     "VITE_API_BASE_URL": r"^https?:\/\/.+$",
     "VITE_CIVICRM_BASE_URL": r"^https?:\/\/.+$",
     "VITE_CIVICRM_API_ENDPOINT": r"^\/.+$",
-    "VITE_OPENCLAW_BRIDGE_URL": r"^https?:\/\/.+$",
     "STRIPE_SECRET_KEY": r"^(sk_test_PLACEHOLDER|sk_live_PLACEHOLDER|sk_(test|live)_[A-Za-z0-9]{16,})$",
     "STRIPE_WEBHOOK_SECRET": r"^(whsec_PLACEHOLDER|whsec_[A-Za-z0-9]{16,})$",
     "VITE_STRIPE_PUBLISHABLE_KEY": r"^(pk_test_PLACEHOLDER|pk_live_PLACEHOLDER|pk_(test|live)_[A-Za-z0-9]{16,})$",
@@ -101,21 +97,6 @@ PROFILES: dict[str, TemplateProfile] = {
             "LOCAL_WEBROOT",
             "SSH_AUTH_MODE",
             "SSH_KEY_NAME",
-            "OC_ENV",
-            "OC_NATS_URL",
-            "OC_REDIS_URL",
-            "OC_PG_DSN",
-            "OC_QDRANT_URL",
-            "OC_TOOL_GATEWAY_URL",
-            "OC_AGENT_RUNTIME_URL",
-            "OC_OPENAI_API_KEY",
-            "OC_GITHUB_TOKEN",
-            "OC_DEFAULT_MODEL",
-            "OC_FALLBACK_MODEL",
-            "OC_MAX_TOOL_CALLS",
-            "OC_MAX_MINUTES",
-            "OC_MAX_COST_EUR",
-            "OC_WORKSPACE_ROOT",
         },
         forbidden_keys={
             "DATABASE_URL",
@@ -153,10 +134,6 @@ PROFILES: dict[str, TemplateProfile] = {
             "DEPLOY_STRATEGY",
             "GPG_KEY_ID",
             "GH_TOKEN",
-            "OC_ENV",
-            "OC_TOOL_GATEWAY_URL",
-            "OC_AGENT_RUNTIME_URL",
-            "OC_WORKSPACE_ROOT",
         },
         forbidden_keys={
             "APP_ENV",
@@ -201,15 +178,17 @@ PROFILES: dict[str, TemplateProfile] = {
             "N8N_WEBHOOK_BASE_URL",
             "STRIPE_SECRET_KEY",
             "STRIPE_WEBHOOK_SECRET",
-            "PAYPAL_CLIENT_ID",
-            "PAYPAL_CLIENT_SECRET",
-            "PAYPAL_BASE_URL",
             "SEPA_CREDITOR_NAME",
             "SEPA_CREDITOR_ID",
             "SEPA_CREDITOR_IBAN",
             "SEPA_CREDITOR_BIC",
         },
-        forbidden_keys={"APP_ENV", "JWT_SECRET", "INTERNAL_API_TOKEN", "INTERNAL_API_SECRET"},
+        forbidden_keys={
+            "APP_ENV",
+            "JWT_SECRET",
+            "INTERNAL_API_TOKEN",
+            "INTERNAL_API_SECRET",
+        },
         forbidden_prefixes=("VITE_", "TEST_"),
     ),
     "apps/website/.env.example": TemplateProfile(
@@ -222,8 +201,6 @@ PROFILES: dict[str, TemplateProfile] = {
             "VITE_CIVICRM_BASE_URL",
             "VITE_CIVICRM_API_ENDPOINT",
             "VITE_STRIPE_PUBLISHABLE_KEY",
-            "VITE_PAYPAL_CLIENT_ID",
-            "VITE_OPENCLAW_BRIDGE_URL",
         },
         forbidden_keys={"JWT_SECRET", "JWT_SECRET_KEY", "DATABASE_URL", "N8N_USER"},
     ),
@@ -288,7 +265,7 @@ PROFILES: dict[str, TemplateProfile] = {
             "TEST_INAKTIV_PASSWORD",
         },
         forbidden_keys={"APP_ENV", "JWT_SECRET"},
-        forbidden_prefixes=("MAIL_", "EMAIL_", "N8N_", "OC_"),
+        forbidden_prefixes=("MAIL_", "EMAIL_", "N8N_"),
     ),
 }
 
@@ -318,7 +295,9 @@ def infer_profile(path: Path) -> TemplateProfile | None:
     if path.name == ".env":
         candidate = path.parent / ".env.example"
         try:
-            rel_candidate = candidate.resolve().relative_to(Path.cwd().resolve()).as_posix()
+            rel_candidate = (
+                candidate.resolve().relative_to(Path.cwd().resolve()).as_posix()
+            )
         except ValueError:
             rel_candidate = candidate.as_posix()
         return PROFILES.get(rel_candidate)
@@ -326,7 +305,9 @@ def infer_profile(path: Path) -> TemplateProfile | None:
 
 
 def is_placeholder(value: str) -> bool:
-    return any(re.search(pattern, value, re.IGNORECASE) for pattern in PLACEHOLDER_PATTERNS)
+    return any(
+        re.search(pattern, value, re.IGNORECASE) for pattern in PLACEHOLDER_PATTERNS
+    )
 
 
 def validate_common(

@@ -19,6 +19,7 @@
   { "path": "/kontakt", "changefreq": "yearly", "priority": 0.7, "prerender": true },
   { "path": "/impressum", "changefreq": "yearly", "priority": 0.4, "prerender": true },
   { "path": "/datenschutz", "changefreq": "yearly", "priority": 0.4, "prerender": true },
+  { "path": "/barrierefreiheit", "changefreq": "monthly", "priority": 0.6, "prerender": true },
   { "path": "/forum", "changefreq": "weekly", "priority": 0.7, "prerender": true },
   { "path": "/blog", "changefreq": "weekly", "priority": 0.8, "prerender": true }
 ]

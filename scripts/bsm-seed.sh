@@ -27,6 +27,20 @@ done
 
 # ── Voraussetzungen ─────────────────────────────────────────
 
+if [[ -z "${BSM_ACCESS_TOKEN:-}" ]]; then
+    if [[ -n "${BWS_ACCESS_TOKEN:-}" ]]; then
+        export BSM_ACCESS_TOKEN="$BWS_ACCESS_TOKEN"
+    elif [[ -n "${BW_ACCESS_TOKEN:-}" ]]; then
+        export BSM_ACCESS_TOKEN="$BW_ACCESS_TOKEN"
+    fi
+fi
+if [[ -z "${BSM_ORGANIZATION_ID:-}" ]]; then
+    if [[ -n "${BWS_ORGANIZATION_ID:-}" ]]; then
+        export BSM_ORGANIZATION_ID="$BWS_ORGANIZATION_ID"
+    elif [[ -n "${BW_ORGANIZATION_ID:-}" ]]; then
+        export BSM_ORGANIZATION_ID="$BW_ORGANIZATION_ID"
+    fi
+fi
 [[ -z "${BSM_ACCESS_TOKEN:-}" ]] && { echo "[ERROR] BSM_ACCESS_TOKEN nicht gesetzt" >&2; exit 1; }
 [[ -z "${BSM_ORGANIZATION_ID:-}" ]] && { echo "[ERROR] BSM_ORGANIZATION_ID nicht gesetzt" >&2; exit 1; }
 command -v bws &>/dev/null || { echo "[ERROR] bws CLI nicht gefunden" >&2; exit 1; }
@@ -86,7 +100,6 @@ get_bsm_key() {
 
     # Root .env: Heuristik
     case "$env_var" in
-        OC_*)    echo "openclaw/${env_var}" ;;
         GH_*|GPG_*) echo "shared/${env_var}" ;;
         SSH_*|PLESK_*) echo "infra/${env_var}" ;;
         *)       echo "shared/${env_var}" ;;
@@ -124,7 +137,7 @@ process_env_file() {
             local env_value="${BASH_REMATCH[2]}"
 
             # Placeholder ueberspringen
-            if [[ "$env_value" =~ ^(CHANGE_ME|PLACEHOLDER|sk_test_PLACEHOLDER|whsec_PLACEHOLDER) ]]; then
+            if [[ "$env_value" =~ ^(CHANGE_ME|PLACEHOLDER|([ps]k)_(test|live)_PLACEHOLDER|whsec_PLACEHOLDER|PAYPAL_CLIENT_ID_PLACEHOLDER) ]]; then
                 echo "  [SKIP] $env_var (Placeholder)"
                 ((SKIPPED++)) || true
                 continue
@@ -158,8 +171,8 @@ process_env_file() {
 
 process_env_file ".env" ""
 process_env_file "apps/api/.env" "api"
+process_env_file "apps/website/.env.local" "website"
 process_env_file "automation/n8n/.env" "n8n"
-process_env_file "automation/openclaw/config/.env" "openclaw"
 
 # ── Zusammenfassung ─────────────────────────────────────────
 

@@ -44,17 +44,19 @@ def _require_admin(current_user: dict) -> None:
 
 # ── Invoice-Modelle ─────────────────────────────────────────────────────────
 
+
 class InvoiceSendRequest(BaseModel):
     email: str | None = None  # Wenn None: an recipient_email der Rechnung
 
 
 class SepaBatchCreate(BaseModel):
-    collection_date: str   # ISO-Date: YYYY-MM-DD
-    batch_type:      str = "RCUR"
-    mandate_ids:     list[int]
+    collection_date: str  # ISO-Date: YYYY-MM-DD
+    batch_type: str = "RCUR"
+    mandate_ids: list[int]
 
 
 # ── Rechnungen ───────────────────────────────────────────────────────────────
+
 
 @router.get("/invoices", summary="Rechnungen auflisten")
 async def list_invoices(
@@ -107,7 +109,7 @@ async def list_invoices(
 
 @router.get("/invoices/{invoice_id}", summary="Einzelne Rechnung")
 async def get_invoice(
-    invoice_id: int,
+    invoice_id: str,
     current_user: Annotated[dict, Depends(get_current_user)],
 ):
     row = await fetchrow(
@@ -134,7 +136,7 @@ async def get_invoice(
 
 @router.get("/invoices/{invoice_id}/download", summary="PDF-Download-URL")
 async def download_invoice(
-    invoice_id: int,
+    invoice_id: str,
     current_user: Annotated[dict, Depends(get_current_user)],
 ):
     """Gibt eine vorzeichnete URL für das Rechnungs-PDF zurück."""
@@ -146,20 +148,24 @@ async def download_invoice(
         raise HTTPException(status_code=404, detail="Rechnung nicht gefunden.")
 
     is_admin = current_user["role"] in ADMIN_ROLES
-    if not is_admin and row["civicrm_contact_id"] != current_user.get("civicrm_contact_id"):
+    if not is_admin and row["civicrm_contact_id"] != current_user.get(
+        "civicrm_contact_id"
+    ):
         raise HTTPException(status_code=403, detail="Zugriff verweigert.")
 
     if not row["pdf_path"]:
         raise HTTPException(status_code=404, detail="Kein PDF verfügbar.")
 
     # In Produktion: vorgezeichnete S3/MinIO-URL generieren
-    base_url = os.getenv("STORAGE_BASE_URL", "https://api.menschlichkeit-oesterreich.at/storage")
+    base_url = os.getenv(
+        "STORAGE_BASE_URL", "https://api.menschlichkeit-oesterreich.at/storage"
+    )
     return {"url": f"{base_url}/{row['pdf_path']}", "expires_in": 3600}
 
 
 @router.post("/invoices/{invoice_id}/send", summary="Rechnung per E-Mail versenden")
 async def send_invoice(
-    invoice_id: int,
+    invoice_id: str,
     body: InvoiceSendRequest,
     background_tasks: BackgroundTasks,
     current_user: Annotated[dict, Depends(get_current_user)],
@@ -181,6 +187,7 @@ async def send_invoice(
 
 # ── Spenden ──────────────────────────────────────────────────────────────────
 
+
 @router.get("/donations", summary="Spenden auflisten (Admin)")
 async def list_donations(
     current_user: Annotated[dict, Depends(get_current_user)],
@@ -198,14 +205,15 @@ async def list_donations(
         ORDER BY donation_date DESC
         LIMIT $1 OFFSET $2
         """,
-        per_page, offset,
+        per_page,
+        offset,
     )
     return {"donations": [dict(r) for r in rows], "page": page}
 
 
 @router.get("/donations/{donation_id}", summary="Einzelne Spende")
 async def get_donation(
-    donation_id: int,
+    donation_id: str,
     current_user: Annotated[dict, Depends(get_current_user)],
 ):
     _require_admin(current_user)
@@ -216,6 +224,7 @@ async def get_donation(
 
 
 # ── SEPA ─────────────────────────────────────────────────────────────────────
+
 
 @router.get("/sepa/mandates", summary="SEPA-Mandate (Admin)")
 async def list_sepa_mandates(
@@ -255,8 +264,11 @@ async def list_sepa_batches(
     return {"batches": [dict(r) for r in rows]}
 
 
-@router.post("/sepa/batches", status_code=status.HTTP_201_CREATED,
-             summary="Neuen SEPA-Batch anlegen")
+@router.post(
+    "/sepa/batches",
+    status_code=status.HTTP_201_CREATED,
+    summary="Neuen SEPA-Batch anlegen",
+)
 async def create_sepa_batch(
     body: SepaBatchCreate,
     current_user: Annotated[dict, Depends(get_current_user)],
@@ -268,7 +280,9 @@ async def create_sepa_batch(
     _require_admin(current_user)
 
     if not body.mandate_ids:
-        raise HTTPException(status_code=400, detail="Mindestens ein Mandat erforderlich.")
+        raise HTTPException(
+            status_code=400, detail="Mindestens ein Mandat erforderlich."
+        )
 
     # Mandate validieren
     mandates = await fetch(
@@ -282,7 +296,10 @@ async def create_sepa_batch(
         )
 
     import secrets
-    batch_ref = f"MOE-{body.collection_date.replace('-', '')}-{secrets.token_hex(4).upper()}"
+
+    batch_ref = (
+        f"MOE-{body.collection_date.replace('-', '')}-{secrets.token_hex(4).upper()}"
+    )
 
     batch_id = await fetchval(
         """
@@ -290,7 +307,10 @@ async def create_sepa_batch(
         VALUES ($1, $2, $3, 0, $4, 'pending')
         RETURNING id
         """,
-        batch_ref, body.batch_type, body.collection_date, len(body.mandate_ids),
+        batch_ref,
+        body.batch_type,
+        body.collection_date,
+        len(body.mandate_ids),
     )
 
     logger.info(
@@ -298,25 +318,32 @@ async def create_sepa_batch(
         f"mandate={len(body.mandate_ids)} datum={body.collection_date}"
     )
     return {
-        "id":              batch_id,
+        "id": batch_id,
         "batch_reference": batch_ref,
-        "message":         "SEPA-Batch angelegt. PAIN.008-XML wird generiert.",
+        "message": "SEPA-Batch angelegt. PAIN.008-XML wird generiert.",
     }
 
 
 # ── Hintergrund-Tasks ────────────────────────────────────────────────────────
 
+
 async def _send_invoice_email(invoice: dict, recipient_email: str) -> None:
     """Sendet Rechnung via n8n-Webhook."""
     import httpx
+
     n8n_url = os.getenv("N8N_WEBHOOK_URL", "http://localhost:5678")
     try:
         async with httpx.AsyncClient(timeout=10) as client:
-            await client.post(f"{n8n_url}/webhook/send-invoice", json={
-                "invoice_id":     invoice["id"],
-                "invoice_number": invoice["invoice_number"],
-                "recipient_email": recipient_email,
-                "recipient_name":  invoice["recipient_name"],
-            })
+            await client.post(
+                f"{n8n_url}/webhook/send-invoice",
+                json={
+                    "invoice_id": invoice["id"],
+                    "invoice_number": invoice["invoice_number"],
+                    "recipient_email": recipient_email,
+                    "recipient_name": invoice["recipient_name"],
+                },
+            )
     except Exception as exc:
-        logger.error(f"Fehler beim Senden der Rechnung {invoice['invoice_number']}: {exc}")
+        logger.error(
+            f"Fehler beim Senden der Rechnung {invoice['invoice_number']}: {exc}"
+        )

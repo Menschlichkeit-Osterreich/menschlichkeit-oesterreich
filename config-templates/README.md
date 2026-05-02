@@ -6,11 +6,11 @@ Enthält Konfigurations-Templates für Produktionsdeployments. Diese Dateien wer
 
 ## Dateien
 
-| Datei | Ziel auf Server | Verwendung |
-|-------|----------------|-----------|
-| `laravel-env-production.env` | `/subdomains/api/httpdocs/.env` | FastAPI API Service (.env Template). Name historisch bedingt – aktueller Stack ist FastAPI/Python. |
-| `civicrm-settings.php` | `/subdomains/crm/httpdocs/sites/default/` | CiviCRM-Konfiguration für Drupal/CiviCRM |
-| `mcp-hosts.json` | Referenziert von `scripts/mcp-connect.ps1` | MCP-Host-Konfiguration |
+| Datei                            | Ziel auf Server                            | Verwendung                                                                                                                                                                                                   |
+| -------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ~~`laravel-env-production.env`~~ | ~~`/subdomains/api/httpdocs/.env`~~        | **[DEPRECATED 2026-04-04]** Enthält ausschliesslich Laravel-spezifische Variablen (SESSION*DRIVER, PUSHER*\*, BCRYPT_ROUNDS). Ersatz: `apps/api/.env.example`. Nur noch als historische Referenz archiviert. |
+| `civicrm-settings.php`           | `/subdomains/crm/httpdocs/sites/default/`  | CiviCRM-Konfiguration für Drupal/CiviCRM                                                                                                                                                                     |
+| `mcp-hosts.json`                 | Referenziert von `scripts/mcp-connect.ps1` | MCP-Host-Konfiguration                                                                                                                                                                                       |
 
 ## Deployment
 
