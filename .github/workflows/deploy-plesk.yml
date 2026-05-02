@@ -473,7 +473,11 @@ jobs:
           eval "$(ssh-agent -s)"
           echo "SSH_AUTH_SOCK=${SSH_AUTH_SOCK}" >> "$GITHUB_ENV"
           echo "SSH_AGENT_PID=${SSH_AGENT_PID}" >> "$GITHUB_ENV"
-          echo "${PLESK_SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add -
+          mkdir -p ~/.ssh
+          printf '%s\n' "${PLESK_SSH_PRIVATE_KEY}" | tr -d '\r' > ~/.ssh/plesk_deploy_key
+          chmod 600 ~/.ssh/plesk_deploy_key
+          ssh-keygen -y -f ~/.ssh/plesk_deploy_key >/dev/null
+          ssh-add ~/.ssh/plesk_deploy_key
 
       - name: known_hosts aus Secret eintragen
         run: |
@@ -494,6 +498,10 @@ jobs:
             HostName ${RESOLVED_PLESK_HOST}
             Port ${RESOLVED_PLESK_PORT}
             User ${RESOLVED_PLESK_USER}
+            IdentityFile ~/.ssh/plesk_deploy_key
+            IdentitiesOnly yes
+            PreferredAuthentications publickey
+            PubkeyAuthentication yes
             StrictHostKeyChecking yes
             BatchMode yes
             ConnectTimeout 15
