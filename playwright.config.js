@@ -14,7 +14,7 @@ export default defineConfig({
     ['junit', { outputFile: 'playwright-results/junit.xml' }],
   ],
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: process.env.FRONTEND_URL || 'http://localhost:5173',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -44,8 +44,9 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: 'cd web && python -m http.server 3000',
-    port: 3000,
+    command: 'npm run dev:frontend',
+    port: 5173,
+    timeout: 120000,
     reuseExistingServer: !process.env.CI,
   },
 });

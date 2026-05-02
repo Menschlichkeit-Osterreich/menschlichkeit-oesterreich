@@ -76,11 +76,29 @@ jobs:
             echo "- **Security Issues:** $SECURITY_ISSUES" >> insights-report.md
           fi
 
-          # Test Coverage (if available)
-          if [ -f "coverage/coverage-summary.json" ]; then
-            COVERAGE=$(jq -r '.total.lines.pct' coverage/coverage-summary.json 2>/dev/null || echo "N/A")
-            echo "- **Test Coverage:** ${COVERAGE}%" >> insights-report.md
+          # Test Coverage (Website, Games, API)
+          WEBSITE_COVERAGE="N/A"
+          GAMES_COVERAGE="N/A"
+          API_COVERAGE="N/A"
+
+          if [ -f "apps/website/coverage/coverage-summary.json" ]; then
+            WEBSITE_COVERAGE=$(jq -r '.total.lines.pct' apps/website/coverage/coverage-summary.json 2>/dev/null || echo "N/A")
           fi
+
+          if [ -f "apps/babylon-game/coverage/coverage-summary.json" ]; then
+            GAMES_COVERAGE=$(jq -r '.total.lines.pct' apps/babylon-game/coverage/coverage-summary.json 2>/dev/null || echo "N/A")
+          fi
+
+          if [ -f "quality-reports/api-coverage.xml" ]; then
+            API_LINE_RATE=$(grep -o 'line-rate="[0-9.]*"' quality-reports/api-coverage.xml | head -1 | sed -E 's/.*="([0-9.]+)"/\1/' || true)
+            if [ -n "${API_LINE_RATE:-}" ]; then
+              API_COVERAGE=$(awk "BEGIN { printf \"%.2f\", ${API_LINE_RATE} * 100 }")
+            fi
+          fi
+
+          echo "- **Coverage Website (Lines):** ${WEBSITE_COVERAGE}%" >> insights-report.md
+          echo "- **Coverage Games (Lines):** ${GAMES_COVERAGE}%" >> insights-report.md
+          echo "- **Coverage API (Lines):** ${API_COVERAGE}%" >> insights-report.md
 
           echo "- **ESLint Config:** $([ -f '.eslintrc.js' ] || [ -f 'eslint.config.js' ] && echo '✅ Configured' || echo '❌ Missing')" >> insights-report.md
           echo "- **Prettier Config:** $([ -f '.prettierrc' ] || [ -f '.prettierrc.json' ] && echo '✅ Configured' || echo '❌ Missing')" >> insights-report.md

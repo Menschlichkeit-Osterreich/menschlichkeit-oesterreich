@@ -19,6 +19,7 @@
     "lint:fix": "eslint . --ext .ts,.tsx,.js,.jsx --fix",
     "type-check": "tsc --noEmit",
     "test:unit": "vitest",
+    "test:unit:coverage": "vitest --run --coverage",
     "tokens:build": "node ./scripts/generate-design-tokens.mjs",
     "lh:ci": "node ./scripts/run-lighthouse.mjs",
     "a11y:test": "node ./scripts/run-pa11y-audit.mjs",

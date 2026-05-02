@@ -92,6 +92,42 @@
       "problemMatcher": []
     },
     {
+      "label": "Test: Website Coverage",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:website:coverage"],
+      "group": "test",
+      "presentation": {
+        "panel": "shared",
+        "group": "test"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: Games Unit",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:games"],
+      "group": "test",
+      "presentation": {
+        "panel": "shared",
+        "group": "test"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: Games Coverage",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:games:coverage"],
+      "group": "test",
+      "presentation": {
+        "panel": "shared",
+        "group": "test"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Test: API",
       "type": "shell",
       "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
@@ -99,6 +135,30 @@
       "options": {
         "cwd": "${workspaceFolder}/apps/api"
       },
+      "group": "test",
+      "presentation": {
+        "panel": "shared",
+        "group": "test"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: API Coverage",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:api:coverage"],
+      "group": "test",
+      "presentation": {
+        "panel": "shared",
+        "group": "test"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: Coverage All",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:coverage"],
       "group": "test",
       "presentation": {
         "panel": "shared",
