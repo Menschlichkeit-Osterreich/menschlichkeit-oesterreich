@@ -118,7 +118,7 @@ jobs:
 
       - name: Build container image
         if: steps.api_changes.outputs.relevant == 'true'
-        uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25 # v6.14.0
+        uses: docker/build-push-action@d08e5c354a6adb9ed34480a06d141179aa583294 # v6.14.0
         with:
           context: ./apps/api
           file: ./apps/api/Dockerfile
