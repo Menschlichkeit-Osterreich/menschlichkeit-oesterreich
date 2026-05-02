@@ -481,6 +481,94 @@ function checkDevcontainer(devcontainerData, docsAiInstructionsExists) {
   }
 }
 
+function checkVscodeCopilotSettings(settingsData) {
+  if (!settingsData) {
+    return;
+  }
+
+  const file = '.vscode/settings.json';
+  const requiredTrueSettings = [
+    'github.copilot.chat.codeGeneration.useInstructionFiles',
+    'chat.useAgentsMdFile',
+    'chat.useClaudeMdFile',
+    'chat.includeApplyingInstructions',
+    'chat.includeReferencedInstructions',
+  ];
+
+  for (const key of requiredTrueSettings) {
+    if (settingsData[key] !== true) {
+      addError('COPILOT_SETTING_REQUIRED', file, `${key} must be true.`);
+    }
+  }
+
+  if (settingsData['github.copilot.chat.organizationCustomAgents.enabled'] !== false) {
+    addError(
+      'COPILOT_ORG_AGENTS_ENABLED',
+      file,
+      'github.copilot.chat.organizationCustomAgents.enabled must be false.'
+    );
+  }
+
+  const instructionLocations = settingsData['chat.instructionsFilesLocations'];
+  if (!instructionLocations || typeof instructionLocations !== 'object') {
+    addError(
+      'COPILOT_INSTRUCTION_LOCATIONS',
+      file,
+      'chat.instructionsFilesLocations must be configured.'
+    );
+  } else {
+    if (instructionLocations['.github/instructions'] !== true) {
+      addError(
+        'COPILOT_INSTRUCTION_LOCATIONS',
+        file,
+        'chat.instructionsFilesLocations must enable .github/instructions.'
+      );
+    }
+
+    for (const forbiddenLocation of ['AGENTS.md', 'CLAUDE.md']) {
+      if (forbiddenLocation in instructionLocations) {
+        addError(
+          'COPILOT_INSTRUCTION_LOCATIONS',
+          file,
+          `${forbiddenLocation} must not be added to chat.instructionsFilesLocations; VS Code detects it separately.`
+        );
+      }
+    }
+  }
+
+  const agentLocations = settingsData['chat.agentFilesLocations'];
+  if (!agentLocations || typeof agentLocations !== 'object') {
+    addError('COPILOT_AGENT_LOCATIONS', file, 'chat.agentFilesLocations must be configured.');
+    return;
+  }
+
+  if (agentLocations['.github/agents'] !== true) {
+    addError('COPILOT_AGENT_LOCATIONS', file, 'chat.agentFilesLocations must enable .github/agents.');
+  }
+
+  for (const [location, enabled] of Object.entries(agentLocations)) {
+    if (enabled === true && location !== '.github/agents') {
+      addError(
+        'COPILOT_AGENT_LOCATIONS',
+        file,
+        `chat.agentFilesLocations must not enable additional agent source ${location}.`
+      );
+    }
+  }
+}
+
+function hasExplicitNpxPackageVersion(packageSpec) {
+  if (typeof packageSpec !== 'string') {
+    return false;
+  }
+
+  if (packageSpec.startsWith('@')) {
+    return /^@[^/]+\/[^@]+@[^@]+$/.test(packageSpec);
+  }
+
+  return /^[^@/]+@[^@]+$/.test(packageSpec);
+}
+
 async function checkMcp(repoMcpData) {
   if (!repoMcpData) {
     return;
@@ -493,7 +581,27 @@ async function checkMcp(repoMcpData) {
     if (Array.isArray(config?.args)) {
       for (const arg of config.args) {
         if (typeof arg === 'string' && /@latest\b/i.test(arg)) {
-          addWarning('MCP_LATEST_TAG', file, `${name}: '${arg}' uses @latest.`);
+          addError('MCP_LATEST_TAG', file, `${name}: '${arg}' uses @latest.`);
+        }
+      }
+
+      if (config.command === 'npx') {
+        const packageSpec = config.args.find(
+          arg =>
+            typeof arg === 'string' &&
+            !arg.startsWith('-') &&
+            arg !== '.' &&
+            !arg.includes('${')
+        );
+
+        if (!packageSpec) {
+          addError('MCP_NPX_PACKAGE_MISSING', file, `${name}: npx server has no package spec.`);
+        } else if (!hasExplicitNpxPackageVersion(packageSpec)) {
+          addError(
+            'MCP_NPX_UNPINNED',
+            file,
+            `${name}: external npx MCP package must be explicitly versioned (${packageSpec}).`
+          );
         }
       }
 
@@ -529,6 +637,24 @@ async function checkMcp(repoMcpData) {
         }
       }
     }
+  }
+}
+
+function checkVscodeMcpOverlay(vscodeMcpData) {
+  if (!vscodeMcpData) {
+    return;
+  }
+
+  const file = '.vscode/mcp.json';
+  const servers = vscodeMcpData.servers;
+  if (!servers || typeof servers !== 'object' || Array.isArray(servers)) {
+    addError('VSCODE_MCP_SERVERS', file, '.vscode/mcp.json must define a servers object.');
+    return;
+  }
+
+  const serverIds = Object.keys(servers);
+  if (serverIds.length !== 1 || serverIds[0] !== 'github') {
+    addError('VSCODE_MCP_OVERLAY', file, '.vscode/mcp.json must only contain the github overlay server.');
   }
 }
 
@@ -611,9 +737,11 @@ async function main() {
 
   const packageJson = await readMaybeJson('package.json');
   const tasksJson = await readMaybeJson('.vscode/tasks.json');
+  const settingsJson = await readMaybeJson('.vscode/settings.json');
   const extensionsJson = await readMaybeJson('.vscode/extensions.json');
   const devcontainerJson = await readMaybeJson('.devcontainer/devcontainer.json');
   const mcpJson = await readMaybeJson('mcp.json');
+  const vscodeMcpJson = await readMaybeJson('.vscode/mcp.json');
 
   const editorConfigMatches = await fs
     .readdir(root, { withFileTypes: true })
@@ -627,9 +755,11 @@ async function main() {
 
   await checkGovernanceDocs();
   await checkPackageAndTasks(packageJson.parsed, tasksJson.parsed);
+  checkVscodeCopilotSettings(settingsJson.parsed);
   checkExtensions(extensionsJson.parsed, editorConfigMatches);
   checkDevcontainer(devcontainerJson.parsed, docsAiInstructionsExists);
   await checkMcp(mcpJson.parsed);
+  checkVscodeMcpOverlay(vscodeMcpJson.parsed);
   await checkTrackedHelperFilesAndActiveContexts();
   await checkWorkspaceConfigWorkflowTriggerCoverage();
 
