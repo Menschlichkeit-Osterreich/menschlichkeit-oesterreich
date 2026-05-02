@@ -15,9 +15,7 @@
       "trust_boundary_crossing": true
     },
     {
-      "assumptions": [
-        "webhook integration inferred from n8n presence and scripts"
-      ],
+      "assumptions": ["webhook integration inferred from n8n presence and scripts"],
       "auth_context": "basic-auth-or-token",
       "evidence": "automation/n8n/docker-compose.yml",
       "flow_id": "api-to-n8n-webhooks",
@@ -31,9 +29,7 @@
       "trust_boundary_crossing": true
     },
     {
-      "assumptions": [
-        "personal_data flag inferred from member/CRM platform domain"
-      ],
+      "assumptions": ["personal_data flag inferred from member/CRM platform domain"],
       "auth_context": "jwt-or-session",
       "evidence": "api.menschlichkeit-oesterreich.at/app/gateway.py:FastAPI",
       "flow_id": "public-to-api.menschlichkeit-oesterreich.at",
@@ -47,9 +43,7 @@
       "trust_boundary_crossing": true
     },
     {
-      "assumptions": [
-        "personal_data flag inferred from member/CRM platform domain"
-      ],
+      "assumptions": ["personal_data flag inferred from member/CRM platform domain"],
       "auth_context": "jwt-or-session",
       "evidence": "api.menschlichkeit-oesterreich.at/app/main.py:FastAPI",
       "flow_id": "public-to-api.menschlichkeit-oesterreich.at",
@@ -63,9 +57,7 @@
       "trust_boundary_crossing": true
     },
     {
-      "assumptions": [
-        "personal_data flag inferred from member/CRM platform domain"
-      ],
+      "assumptions": ["personal_data flag inferred from member/CRM platform domain"],
       "auth_context": "jwt-or-session",
       "evidence": "api.menschlichkeit-oesterreich.at/app/main_example.py:FastAPI",
       "flow_id": "public-to-api.menschlichkeit-oesterreich.at",
@@ -79,9 +71,7 @@
       "trust_boundary_crossing": true
     },
     {
-      "assumptions": [
-        "personal_data flag inferred from member/CRM platform domain"
-      ],
+      "assumptions": ["personal_data flag inferred from member/CRM platform domain"],
       "auth_context": "jwt-or-session",
       "evidence": "api.menschlichkeit-oesterreich.at/app/middleware/pii_middleware.py:FastAPI",
       "flow_id": "public-to-api.menschlichkeit-oesterreich.at",
@@ -95,9 +85,7 @@
       "trust_boundary_crossing": true
     },
     {
-      "assumptions": [
-        "personal_data flag inferred from member/CRM platform domain"
-      ],
+      "assumptions": ["personal_data flag inferred from member/CRM platform domain"],
       "auth_context": "jwt-or-session",
       "evidence": "apps/api/app/main.py:FastAPI",
       "flow_id": "public-to-apps-api",
@@ -111,9 +99,7 @@
       "trust_boundary_crossing": true
     },
     {
-      "assumptions": [
-        "personal_data flag inferred from member/CRM platform domain"
-      ],
+      "assumptions": ["personal_data flag inferred from member/CRM platform domain"],
       "auth_context": "jwt-or-session",
       "evidence": "apps/api/app/middleware/pii_middleware.py:FastAPI",
       "flow_id": "public-to-apps-api",
@@ -124,38 +110,6 @@
       "source": "public-clients",
       "special_category_data": false,
       "target": "apps-api",
-      "trust_boundary_crossing": true
-    },
-    {
-      "assumptions": [
-        "personal_data flag inferred from member/CRM platform domain"
-      ],
-      "auth_context": "jwt-or-session",
-      "evidence": "openclaw-system/api/fastapi_gateway/main.py:FastAPI",
-      "flow_id": "public-to-openclaw-system-api",
-      "interface": "https-rest",
-      "payload_class": "application-json",
-      "personal_data": true,
-      "retention_notes": "Application logs and records follow project retention policies.",
-      "source": "public-clients",
-      "special_category_data": false,
-      "target": "openclaw-system-api",
-      "trust_boundary_crossing": true
-    },
-    {
-      "assumptions": [
-        "personal_data flag inferred from member/CRM platform domain"
-      ],
-      "auth_context": "jwt-or-session",
-      "evidence": "openclaw-system/core/agent_runtime/main.py:FastAPI",
-      "flow_id": "public-to-openclaw-system-core",
-      "interface": "https-rest",
-      "payload_class": "application-json",
-      "personal_data": true,
-      "retention_notes": "Application logs and records follow project retention policies.",
-      "source": "public-clients",
-      "special_category_data": false,
-      "target": "openclaw-system-core",
       "trust_boundary_crossing": true
     }
   ]

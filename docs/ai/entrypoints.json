@@ -179,24 +179,6 @@
       "port": 6379,
       "public_or_internal": "internal",
       "service": "compose:redis"
-    },
-    {
-      "command": "uvicorn app.main:app",
-      "entrypoint_type": "python-module",
-      "evidence": "openclaw-system/api/fastapi_gateway/main.py:FastAPI",
-      "path_or_module": "openclaw-system/api/fastapi_gateway/main.py",
-      "port": 8000,
-      "public_or_internal": "internal",
-      "service": "openclaw-system-api"
-    },
-    {
-      "command": "uvicorn app.main:app",
-      "entrypoint_type": "python-module",
-      "evidence": "openclaw-system/core/agent_runtime/main.py:FastAPI",
-      "path_or_module": "openclaw-system/core/agent_runtime/main.py",
-      "port": 8000,
-      "public_or_internal": "internal",
-      "service": "openclaw-system-core"
     }
   ]
 }

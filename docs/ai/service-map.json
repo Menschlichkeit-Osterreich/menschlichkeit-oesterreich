@@ -46,36 +46,6 @@
       "type": "drupal"
     },
     {
-      "assumptions": ["data_stores inferred from compose and repository scripts"],
-      "consumes_endpoints": [],
-      "data_stores": ["postgresql", "redis"],
-      "depends_on": [],
-      "entrypoint": "openclaw-system/api/fastapi_gateway/main.py",
-      "exposes_endpoints": ["/openapi.json"],
-      "name": "openclaw-system-api",
-      "path": "openclaw-system/api",
-      "ports": [],
-      "runtime": "python",
-      "status": "active",
-      "trust_boundary": "internal-api",
-      "type": "fastapi"
-    },
-    {
-      "assumptions": ["data_stores inferred from compose and repository scripts"],
-      "consumes_endpoints": [],
-      "data_stores": ["postgresql", "redis"],
-      "depends_on": [],
-      "entrypoint": "openclaw-system/core/agent_runtime/main.py",
-      "exposes_endpoints": ["/openapi.json"],
-      "name": "openclaw-system-core",
-      "path": "openclaw-system/core",
-      "ports": [],
-      "runtime": "python",
-      "status": "active",
-      "trust_boundary": "internal-api",
-      "type": "fastapi"
-    },
-    {
       "assumptions": ["client endpoint consumption inferred from npm scripts and repository layout"],
       "consumes_endpoints": ["/api"],
       "data_stores": [],
