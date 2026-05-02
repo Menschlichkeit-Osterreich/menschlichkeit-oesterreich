@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - "v*.*.*"
+      - 'v*.*.*'
 
 jobs:
   sign:
@@ -13,7 +13,7 @@ jobs:
       contents: write
     steps:
       - name: 📥 Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: 🔑 Import GPG key
         run: |
@@ -42,21 +42,21 @@ jobs:
           gpg --verify artifact.tar.gz.asc artifact.tar.gz
 
       - name: 🚀 Upload release
-        uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe  # v2.2.1
+        uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe # v2.2.1
         with:
           files: |
             artifact.tar.gz
             artifact.tar.gz.asc
           body: |
             ## 🔐 GPG-signiertes Release
-            
+
             **Verifikation:**
             ```bash
             # Public Key importieren (falls noch nicht geschehen):
             curl -sL https://github.com/peschull.gpg | gpg --import
-            
+
             # Signatur prüfen:
             gpg --verify artifact.tar.gz.asc artifact.tar.gz
             ```
-            
+
             **Erwarteter Fingerprint:** siehe `docs/security/GPG-KEYS.md`
