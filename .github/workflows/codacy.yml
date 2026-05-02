@@ -21,6 +21,10 @@ jobs:
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.2.0
         with:
           node-version: 22
+          cache: npm
+
+      - name: Install workspace dependencies
+        run: npm ci
 
       - name: Ensure fresh Codacy CLI JAR
         run: |
