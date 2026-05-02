@@ -1,38 +1,33 @@
 #!/usr/bin/env bash
-# Pre-Push-Hook: Repo-Baseline vor Push validieren
-# Aktivieren: git config core.hooksPath .githooks && chmod +x .githooks/pre-push
+# Pre-push hook: validate repo baseline before push.
 
 set -euo pipefail
 
-echo "[pre-push] Governance-Check läuft…"
+export CODACY_SARIF_PATH="quality-reports/codacy-analysis.sarif"
+
+echo "[pre-push] Running governance check..."
 npm run governance:check
 
-echo "[pre-push] MCP-Check läuft…"
+echo "[pre-push] Running MCP check..."
 npm run mcp:check
 
-echo "[pre-push] API-Tests laufen…"
+echo "[pre-push] Running API tests..."
 npm run test:api
 
-# Skip Codacy analysis if Docker is not available
-if ! docker info >/dev/null 2>&1; then
-  echo "[pre-push] Docker nicht verfügbar – Codacy-Analyse übersprungen."
-  exit 0
-fi
-
-echo "[pre-push] Codacy Analyse läuft…"
+echo "[pre-push] Running Codacy analysis..."
 LOG_FILE="${TMPDIR:-/tmp}/codacy-run.log"
-node ./scripts/ci/run-codacy.mjs >"$LOG_FILE" 2>&1 || {
-  echo "[pre-push] Codacy-Analyse fehlgeschlagen. Log-Auszug:"
+if ! node ./scripts/ci/run-codacy.mjs >"$LOG_FILE" 2>&1; then
+  echo "[pre-push] Codacy analysis failed. Log excerpt:"
   tail -n 200 "$LOG_FILE" || true
   exit 1
-}
+fi
 
-COUNT=$(node -e "const fs=require('fs');try{const s=fs.readFileSync('codacy-analysis.sarif','utf8');const j=JSON.parse(s);const c=(j.runs||[]).reduce((a,r)=>a+((r.results||[]).length||0),0);console.log(String(c));}catch(e){console.log('0')}")
+COUNT=$(node -e "const fs=require('fs'); const reportPath=process.env.CODACY_SARIF_PATH || 'quality-reports/codacy-analysis.sarif'; try { const s=fs.readFileSync(reportPath,'utf8'); const j=JSON.parse(s); const c=(j.runs||[]).reduce((a,r)=>a+((r.results||[]).length||0),0); console.log(String(c)); } catch (e) { console.log('0'); }")
 
-echo "[pre-push] Findings gesamt: ${COUNT}"
+echo "[pre-push] Findings total: ${COUNT}"
 if [ "${CODACY_FAIL_ON_FINDINGS:-true}" = "true" ] && [ "$COUNT" -gt 0 ]; then
-  echo "[pre-push] ❌ Push gestoppt (Findings > 0). Setze CODACY_FAIL_ON_FINDINGS=false um lokal zu überbrücken."
+  echo "[pre-push] Push blocked (findings > 0). Set CODACY_FAIL_ON_FINDINGS=false to bypass locally."
   exit 2
 fi
 
-echo "[pre-push] ✅ OK – keine blockierenden Findings."
+echo "[pre-push] OK - no blocking findings."

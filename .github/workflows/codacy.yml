@@ -10,6 +10,10 @@ permissions:
   contents: read
   security-events: write
 
+env:
+  CODACY_SARIF_PATH: quality-reports/codacy-analysis.sarif
+  CODACY_FINDINGS_THRESHOLD: '25'
+
 jobs:
   codacy:
     runs-on: ubuntu-latest
@@ -41,27 +45,24 @@ jobs:
       - name: Upload SARIF to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@45775bd8235c68ba998cffa5171334d58593da47 # v3.28.1
         with:
-          sarif_file: codacy-analysis.sarif
+          sarif_file: ${{ env.CODACY_SARIF_PATH }}
           category: codacy
 
       - name: Fail if findings exceed threshold
         id: gate
-        # Threshold konfigurierbar via Repository-Variable CODACY_FINDINGS_THRESHOLD.
         # Default: 25 — erlaubt Style/Warning-Findings ohne CI-Block.
         # Kritische Security-Findings werden weiterhin geblockt wenn Codacy
         # diese als HIGH/CRITICAL einstuft und der Threshold überschritten wird.
-        env:
-          CODACY_FINDINGS_THRESHOLD: ${{ vars.CODACY_FINDINGS_THRESHOLD || '25' }}
         run: |
-          sudo apt-get update -y && sudo apt-get install -y jq
-          COUNT=$(jq -r '[.runs[].results|length] | add // 0' codacy-analysis.sarif || echo 0)
+          THRESHOLD="${CODACY_FINDINGS_THRESHOLD:-25}"
+          COUNT=$(node -e "const fs=require('fs');try{const s=fs.readFileSync(process.env.CODACY_SARIF_PATH,'utf8');const j=JSON.parse(s);const c=(j.runs||[]).reduce((a,r)=>a+((r.results||[]).length||0),0);console.log(String(c));}catch(e){console.log('0')}")
           echo "findings=$COUNT" >> $GITHUB_OUTPUT
           echo "Findings: $COUNT"
-          if [ "$COUNT" -gt "$CODACY_FINDINGS_THRESHOLD" ]; then
-            echo "::error::Codacy findings ($COUNT) exceed threshold ($CODACY_FINDINGS_THRESHOLD). Bitte Findings beheben."
+          if [ "$COUNT" -gt "$THRESHOLD" ]; then
+            echo "::error::Codacy findings ($COUNT) exceed threshold ($THRESHOLD). Bitte Findings beheben."
             exit 1
           else
-            echo "::notice::Codacy findings: $COUNT (Threshold: $CODACY_FINDINGS_THRESHOLD) — OK"
+            echo "::notice::Codacy findings: $COUNT (Threshold: $THRESHOLD) — OK"
           fi
 
       - name: Summary

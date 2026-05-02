@@ -32,4 +32,4 @@ categories:
   Performance:
     enabled: true
 
-max-allowed-issues: 0
+max-allowed-issues: 25
