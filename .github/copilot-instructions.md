@@ -33,8 +33,12 @@ Nutze das Rollenmodell aus `AGENTS.md`:
 Copilot-spezifische Einstiegspunkte:
 
 - `.github/agents/task-planner.agent.md`
+- `.github/agents/developer.agent.md`
 - `.github/agents/devops-expert.agent.md`
-- `.github/agents/mentor.agent.md`
+- `.github/agents/security-reviewer.agent.md`
+- `.github/agents/qa-reviewer.agent.md`
+
+Archivierte oder deprecated Copilot-Agents liegen unter `.github/archive/agents/` und sind nicht als sichtbare Einstiegspunkte zu verwenden.
 
 Kanonischer Analyse-Einstieg:
 

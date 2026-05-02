@@ -102,11 +102,21 @@ Kurzregel:
 
 Repo-Arbeitsagenten sind in `AGENTS.md` dokumentiert und werden ueber Codex, Claude Code und Copilot ausgefuehrt.
 
+Sichtbare Copilot-Repo-Agenten:
+
+- `.github/agents/task-planner.agent.md`
+- `.github/agents/developer.agent.md`
+- `.github/agents/devops-expert.agent.md`
+- `.github/agents/security-reviewer.agent.md`
+- `.github/agents/qa-reviewer.agent.md`
+
+Archivierte oder deprecated Copilot-Agents liegen unter `.github/archive/agents/` und werden ueber `.github/ai-registry.json` einem sichtbaren Replacement zugeordnet.
+
 ## MCP
 
 - Projektweite MCP-Server liegen in `mcp.json`
 - Editor-spezifische MCP-Ergaenzungen liegen in `.vscode/mcp.json`
-- Spezialisierte MCP-Reparaturen koennen ueber `.github/agents/mcp-operations.agent.md` als Copilot-Adapter gebuendelt werden
+- Spezialisierte MCP-Reparaturen sind Teil von `.github/agents/devops-expert.agent.md`
 - Lokale Checks: `npm run mcp:check` und `npm run mcp:health`
 
 ## Brand-Kurzvertrag

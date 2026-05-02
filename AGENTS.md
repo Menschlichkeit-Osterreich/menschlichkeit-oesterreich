@@ -51,7 +51,13 @@ Wenn mehrere Clients beteiligt sind, bleibt diese Kette die einzige fuehrende Wa
 ## Aktive Artefakte
 
 - Machine-readable Registry: `.github/ai-registry.json`
-- Copilot-Agents: `.github/agents/*.agent.md`
+- Copilot-Agents: exakt fuenf sichtbare Dateien unter `.github/agents/`
+  - `.github/agents/task-planner.agent.md`
+  - `.github/agents/developer.agent.md`
+  - `.github/agents/devops-expert.agent.md`
+  - `.github/agents/security-reviewer.agent.md`
+  - `.github/agents/qa-reviewer.agent.md`
+- Archivierte Copilot-Agents: `.github/archive/agents/*.agent.md`
 - Claude-Agents: `.claude/agents/*.md` und `.claude/plugins/*/agents/*.md`
 - Aktive Chatmodes: `.github/chatmodes/**/*.chatmode.md`
 - Kanonische Skill-Schicht: `.github/skills/*/SKILL.md`
@@ -97,6 +103,7 @@ Trigger:
 Primaere Quellen:
 
 - `.github/skills/*/SKILL.md`
+- `.github/agents/developer.agent.md`
 - `.github/chatmodes/development/*.chatmode.md`
 - aktive `.github/prompts/*.prompt.md` laut `.github/ai-registry.json`
 - betroffene App unter `apps/`
@@ -144,6 +151,7 @@ Trigger:
 
 Primaere Quellen:
 
+- `.github/agents/security-reviewer.agent.md`
 - `.github/chatmodes/general/SicherheitsAudit_DE.chatmode.md`
 - `.github/instructions/core/dsgvo-compliance.instructions.md`
 - `.claude/agents/security-reviewer.md`
@@ -165,6 +173,7 @@ Trigger:
 
 Primaere Quellen:
 
+- `.github/agents/qa-reviewer.agent.md`
 - `.github/chatmodes/general/CodeReview_DE.chatmode.md`
 - `.github/chatmodes/general/BarrierefreiheitAudit_DE.chatmode.md`
 - `.github/chatmodes/general/PerformanceOptimierung_DE.chatmode.md`
@@ -183,7 +192,7 @@ Diese Rollen bauen auf den Core-Rollen auf und erweitern sie nur fuer klar abgeg
 - `brand` ueber `.claude/plugins/moe-brand/`
 - `github-audit` ueber `.claude/agents/github-auditor.md`
 - `civicrm` ueber `apps/crm/` und CRM-spezifische Betriebsdoku
-- `mcp-operations` ueber `.github/agents/mcp-operations.agent.md` als Copilot-Adapter fuer MCP-Checks, Overlay-Drift und Agenten-Maintenance
+- `mcp-operations` als DevOps-Faehigkeit im sichtbaren Copilot-Agent `.github/agents/devops-expert.agent.md`
 
 Spezialrollen duerfen keine parallele Repo-Governance einfuehren.
 
@@ -215,7 +224,8 @@ Geteilte Konfigurationen duerfen keine absoluten lokalen Pfade enthalten. Erlaub
 - `AGENTS.md`, `CLAUDE.md` und `.github/copilot-instructions.md` bleiben konsistent.
 - der einzige aktive Analyse-Einstieg bleibt `.github/instructions/core/analysis-planning.instructions.md`.
 - `.github/ai-registry.json` klassifiziert aktive, Adapter-, Vendor- und Legacy-Artefakte vollstaendig.
-- `.github/agents/*.agent.md`, `.github/chatmodes/**/*.chatmode.md` und relevante `.claude`-Agents zeigen auf reale Pfade.
+- `.github/agents/*.agent.md` enthaelt exakt die fuenf sichtbaren Copilot-Agents; archivierte Copilot-Agents liegen unter `.github/archive/agents/`.
+- `.github/chatmodes/**/*.chatmode.md` und relevante `.claude`-Agents zeigen auf reale Pfade.
 - `.github/prompts/chatmodes/*.yaml` bleiben explizit als Legacy markiert.
 - `.vscode/*`, `.claude/launch.json`, `mcp.json` und die Workspace-Datei passen zum aktiven Repo-Root.
 - `npm run governance:check` bleibt gruen.
