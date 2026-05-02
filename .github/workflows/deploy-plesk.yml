@@ -52,6 +52,7 @@ env:
   GAMES_REMOTE_PATH: ${{ vars.PLESK_GAMES_PATH || 'subdomains/games/httpdocs' }}
   MAIN_DOMAIN: ${{ vars.MAIN_DOMAIN || 'menschlichkeit-oesterreich.at' }}
   NODE_VERSION: '22'
+  LIVE_NOTIFICATION_PROBE: ${{ vars.LIVE_NOTIFICATION_PROBE || 'false' }}
   TARGET_SERVICE: ${{ github.event_name == 'push' && 'all' || github.event.inputs.service || 'all' }}
 
 jobs:
@@ -388,31 +389,71 @@ jobs:
           profile: deploy-production
           access_token: ${{ secrets.BW_ACCESS_TOKEN }}
 
+      - name: API Evidence Status initialisieren (redigiert)
+        if: >
+          env.TARGET_SERVICE == 'all' ||
+          env.TARGET_SERVICE == 'api'
+        run: |
+          {
+            echo "API_HANDOFF_CONTRACT_STATUS=not-run"
+            echo "API_SECRET_RUNTIME_STATUS=not-run"
+            echo "API_GRAPH_CHANNEL_CONFIG_STATUS=unknown"
+            echo "API_SLACK_CHANNEL_CONFIG_STATUS=unknown"
+            echo "API_GRAPH_CHANNEL_PROBE_STATUS=not-run"
+            echo "API_SLACK_CHANNEL_PROBE_STATUS=not-run"
+            echo "API_NOTIFICATION_PROBE_STATUS=not-run"
+            echo "API_NOTIFICATION_PROBE_BREAKPOINT=none"
+            echo "API_EVIDENCE_BREAKPOINT=none"
+            echo "API_OPEN_EVIDENCE_GAP=none"
+          } >> "$GITHUB_ENV"
+
       - name: Plesk-Infra-Kontext aus BSM aufloesen (fail-fast)
         run: |
           set -euo pipefail
-          required_keys=(PLESK_HOST PLESK_USER PLESK_PORT PLESK_SSH_PRIVATE_KEY PLESK_KNOWN_HOSTS)
-          for key in "${required_keys[@]}"; do
-            value="${!key:-}"
-            if [ -z "$value" ]; then
-              echo "✗ ${key} fehlt in BSM-Injection"
-              exit 1
-            fi
-            if [[ "$value" =~ ^(CHANGE_ME|PLACEHOLDER|UPDATE_VALUE_IN_VAULT|YOUR_|REPLACE_) ]]; then
-              echo "✗ ${key} enthaelt einen Platzhalterwert"
-              exit 1
-            fi
-            echo "✓ ${key}"
-          done
+          placeholder_re='^(CHANGE_ME|PLACEHOLDER|UPDATE_VALUE_IN_VAULT|YOUR_|REPLACE_|TODO)'
 
-          if ! [[ "${PLESK_PORT}" =~ ^[0-9]+$ ]]; then
-            echo "✗ PLESK_PORT ist nicht numerisch: ${PLESK_PORT}"
+          fail() {
+            echo "✗ $1"
             exit 1
-          fi
+          }
 
-          echo "SSH_HOST=${PLESK_HOST}" >> "$GITHUB_ENV"
-          echo "SSH_USER=${PLESK_USER}" >> "$GITHUB_ENV"
-          echo "SSH_PORT=${PLESK_PORT}" >> "$GITHUB_ENV"
+          has_placeholder_prefix() {
+            local value=$1
+            [[ "$value" =~ $placeholder_re ]]
+          }
+
+          [ -n "${PLESK_HOST:-}" ] || fail "PLESK_HOST fehlt in BSM-Injection"
+          ! has_placeholder_prefix "${PLESK_HOST}" || fail "PLESK_HOST enthaelt einen Platzhalterwert"
+          echo "✓ PLESK_HOST"
+
+          [ -n "${PLESK_USER:-}" ] || fail "PLESK_USER fehlt in BSM-Injection"
+          ! has_placeholder_prefix "${PLESK_USER}" || fail "PLESK_USER enthaelt einen Platzhalterwert"
+          [[ "${PLESK_USER}" =~ ^[A-Za-z0-9_][A-Za-z0-9._-]{0,63}$ ]] || fail "PLESK_USER hat ein ungueltiges Format"
+          echo "✓ PLESK_USER"
+
+          [ -n "${PLESK_PORT:-}" ] || fail "PLESK_PORT fehlt in BSM-Injection"
+          ! has_placeholder_prefix "${PLESK_PORT}" || fail "PLESK_PORT enthaelt einen Platzhalterwert"
+          [[ "${PLESK_PORT}" =~ ^[0-9]+$ ]] || fail "PLESK_PORT ist nicht numerisch"
+          if (( 10#${PLESK_PORT} < 1 || 10#${PLESK_PORT} > 65535 )); then
+            fail "PLESK_PORT liegt ausserhalb des erlaubten Bereichs 1..65535"
+          fi
+          echo "✓ PLESK_PORT"
+
+          [ -n "${PLESK_SSH_PRIVATE_KEY:-}" ] || fail "PLESK_SSH_PRIVATE_KEY fehlt in BSM-Injection"
+          if grep -Eq '(CHANGE_ME|PLACEHOLDER|UPDATE_VALUE_IN_VAULT|YOUR_|REPLACE_|TODO)' <<< "${PLESK_SSH_PRIVATE_KEY}"; then
+            fail "PLESK_SSH_PRIVATE_KEY enthaelt einen Platzhalterwert"
+          fi
+          echo "✓ PLESK_SSH_PRIVATE_KEY"
+
+          [ -n "${PLESK_KNOWN_HOSTS:-}" ] || fail "PLESK_KNOWN_HOSTS fehlt in BSM-Injection"
+          ! has_placeholder_prefix "${PLESK_KNOWN_HOSTS}" || fail "PLESK_KNOWN_HOSTS enthaelt einen Platzhalterwert"
+          if [[ "${PLESK_KNOWN_HOSTS}" == *$'\n'* || "${PLESK_KNOWN_HOSTS}" == *$'\r'* ]]; then
+            fail "PLESK_KNOWN_HOSTS muss genau eine OpenSSH-known_hosts-Zeile enthalten"
+          fi
+          if ! [[ "${PLESK_KNOWN_HOSTS}" =~ ^[^[:space:]]+[[:space:]]+(ssh-ed25519|ecdsa-sha2-nistp256)[[:space:]]+[A-Za-z0-9+/=]+$ ]]; then
+            fail "PLESK_KNOWN_HOSTS hat kein vollstaendiges OpenSSH-known_hosts-Format"
+          fi
+          echo "✓ PLESK_KNOWN_HOSTS"
 
       - name: Node.js ${{ env.NODE_VERSION }} einrichten
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.2.0
@@ -438,17 +479,15 @@ jobs:
 
       - name: SSH-Config schreiben
         run: |
-          RESOLVED_SSH_HOST="${PLESK_HOST}"
-          RESOLVED_SSH_PORT="${PLESK_PORT}"
-          RESOLVED_SSH_USER="${PLESK_USER}"
-          echo "SSH_HOST=${RESOLVED_SSH_HOST}" >> "$GITHUB_ENV"
-          echo "SSH_PORT=${RESOLVED_SSH_PORT}" >> "$GITHUB_ENV"
-          echo "SSH_USER=${RESOLVED_SSH_USER}" >> "$GITHUB_ENV"
+          set -euo pipefail
+          RESOLVED_PLESK_HOST="${PLESK_HOST}"
+          RESOLVED_PLESK_PORT="${PLESK_PORT}"
+          RESOLVED_PLESK_USER="${PLESK_USER}"
           cat >> ~/.ssh/config <<EOF
           Host plesk-prod
-            HostName ${RESOLVED_SSH_HOST}
-            Port ${RESOLVED_SSH_PORT}
-            User ${RESOLVED_SSH_USER}
+            HostName ${RESOLVED_PLESK_HOST}
+            Port ${RESOLVED_PLESK_PORT}
+            User ${RESOLVED_PLESK_USER}
             StrictHostKeyChecking yes
             BatchMode yes
             ConnectTimeout 15
@@ -576,8 +615,9 @@ jobs:
           env.TARGET_SERVICE == 'api'
         run: |
           set -euo pipefail
-          echo "=== Preflight: BSM Secret Validation ==="
+          echo "=== API Preflight: Runtime-Secrets ==="
           ERRORS=0
+          placeholder_re='^(CHANGE_ME|PLACEHOLDER|UPDATE_VALUE_IN_VAULT|YOUR_|REPLACE_|TODO)'
 
           required_keys=(
             DATABASE_URL
@@ -597,12 +637,17 @@ jobs:
 
           for key in "${required_keys[@]}"; do
             value="${!key:-}"
-            if [ -n "$value" ]; then
-              echo "✓ ${key}"
-            else
+            if [ -z "$value" ]; then
               echo "✗ ${key} fehlt"
               ERRORS=$((ERRORS+1))
+              continue
             fi
+            if [[ "$value" =~ $placeholder_re ]]; then
+              echo "✗ ${key} enthaelt einen Platzhalterwert"
+              ERRORS=$((ERRORS+1))
+              continue
+            fi
+            echo "✓ ${key}"
           done
 
           if [ "${ERRORS}" -gt 0 ]; then
@@ -636,6 +681,60 @@ jobs:
             printf 'ALERTS_SLACK_WEBHOOK=%s\n' "${ALERTS_SLACK_WEBHOOK}"
           } > /tmp/api-runtime.env
 
+          echo "=== Verifiziere Secret-Handoff-Artefakt (.env.deploy) ==="
+          required_keys=(
+            MAIL_TRANSPORT
+            DATABASE_URL
+            JWT_SECRET_KEY
+            STRIPE_SECRET_KEY
+            STRIPE_WEBHOOK_SECRET
+            MOE_API_TOKEN
+            N8N_WEBHOOK_SECRET
+            CIVICRM_SITE_KEY
+            CIVICRM_API_KEY
+            MICROSOFT_TENANT_ID
+            MICROSOFT_CLIENT_ID
+            MICROSOFT_CLIENT_SECRET
+            MICROSOFT_GRAPH_SENDER
+            ALERTS_SLACK_WEBHOOK
+          )
+          expected_key_count="${#required_keys[@]}"
+          actual_key_count=$(grep -Ec '^[A-Z0-9_]+=' /tmp/api-runtime.env || true)
+          if [ "${actual_key_count}" -ne "${expected_key_count}" ]; then
+            echo "API_HANDOFF_CONTRACT_STATUS=failed" >> "$GITHUB_ENV"
+            echo "API_EVIDENCE_BREAKPOINT=handoff_local_key_count_mismatch" >> "$GITHUB_ENV"
+            echo "✗ Handoff-Artefakt-Key-Anzahl ungültig (expected=${expected_key_count}, actual=${actual_key_count})"
+              echo "API_OPEN_EVIDENCE_GAP=handoff_failed" >> "$GITHUB_ENV"
+            exit 1
+          fi
+          placeholder_re='^(CHANGE_ME|PLACEHOLDER|UPDATE_VALUE_IN_VAULT|YOUR_|REPLACE_|TODO)'
+          handoff_errors=0
+          for key in "${required_keys[@]}"; do
+            value=$(grep -E "^${key}=" /tmp/api-runtime.env | sed -E "s/^${key}=//" || true)
+            if [ -z "${value}" ]; then
+              echo "✗ Handoff-Secret fehlt in .env.deploy: ${key}"
+              handoff_errors=$((handoff_errors+1))
+              continue
+            fi
+            if [[ "${value}" =~ ${placeholder_re} ]]; then
+              echo "✗ Handoff-Secret enthält Platzhalter in .env.deploy: ${key}"
+              handoff_errors=$((handoff_errors+1))
+              continue
+            fi
+            echo "✓ Handoff-Secret vorhanden: ${key}"
+          done
+
+          if [ "${handoff_errors}" -gt 0 ]; then
+            echo "API_HANDOFF_CONTRACT_STATUS=failed" >> "$GITHUB_ENV"
+            echo "API_EVIDENCE_BREAKPOINT=handoff_local_artifact_invalid" >> "$GITHUB_ENV"
+            echo "✗ Secret-Handoff-Artefakt ist ungültig (${handoff_errors} Fehler)."
+              echo "API_OPEN_EVIDENCE_GAP=handoff_failed" >> "$GITHUB_ENV"
+            exit 1
+          fi
+          echo "API_HANDOFF_CONTRACT_STATUS=ok" >> "$GITHUB_ENV"
+          echo "API_EVIDENCE_BREAKPOINT=none" >> "$GITHUB_ENV"
+          echo "✓ Secret-Handoff-Artefakt vollständig und ohne Platzhalter."
+
           # Pfad relativ zum Chroot-Home
           tar --exclude=".git" --exclude="__pycache__" --exclude="*.pyc" \
               --exclude=".venv" --exclude="venv" --exclude=".env" --exclude="*.log" \
@@ -659,39 +758,102 @@ jobs:
             fi
             chmod 600 \"\$ENV_FILE\" || true
           "
-          ssh plesk-prod "
+          if ! ssh plesk-prod "
             set -e
-            API_PATH='${{ env.API_REMOTE_PATH }}'
-            PYTHON=''
-            if [ -x \"\$API_PATH/venv/bin/python\" ]; then
-              PYTHON=\"\$API_PATH/venv/bin/python\"
-              echo '✓ Interpreter: venv/bin/python'
-            elif [ -x \"\$API_PATH/.venv/bin/python\" ]; then
-              PYTHON=\"\$API_PATH/.venv/bin/python\"
-              echo '✓ Interpreter: .venv/bin/python'
-            elif command -v python3 >/dev/null 2>&1; then
-              PYTHON=\$(command -v python3)
-              echo \"⚠️  Kein venv; System-Python3: \$PYTHON\"
-            elif command -v python >/dev/null 2>&1; then
-              PYTHON=\$(command -v python)
-              echo \"⚠️  Kein venv; System-Python: \$PYTHON\"
-            else
-              echo '✗ Kein Python-Interpreter gefunden (venv/bin/python, .venv/bin/python, python3, python)'
-              exit 1
-            fi
-            PIP_INSTALL_LOG=\"\$(mktemp \"\${API_PATH}/.pip-install.\${GITHUB_RUN_ID:-manual}.XXXXXX.log\")\"
-            if \"\$PYTHON\" -m pip install -r \"\$API_PATH/requirements.txt\" --quiet >\"\$PIP_INSTALL_LOG\" 2>&1; then
-              tail -5 \"\$PIP_INSTALL_LOG\"
-            else
-              echo '✗ pip install fehlgeschlagen. Letzte Log-Zeilen:'
-              tail -5 \"\$PIP_INSTALL_LOG\"
-              rm -f \"\$PIP_INSTALL_LOG\"
-              exit 1
-            fi
-            rm -f \"\$PIP_INSTALL_LOG\"
-          "
+            ENV_FILE='${{ env.API_REMOTE_PATH }}/.env'
+            required_keys='MAIL_TRANSPORT DATABASE_URL JWT_SECRET_KEY STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET MOE_API_TOKEN N8N_WEBHOOK_SECRET CIVICRM_SITE_KEY CIVICRM_API_KEY MICROSOFT_TENANT_ID MICROSOFT_CLIENT_ID MICROSOFT_CLIENT_SECRET MICROSOFT_GRAPH_SENDER ALERTS_SLACK_WEBHOOK'
+            for key in \$required_keys; do
+              grep -q \"^\${key}=\" \"\$ENV_FILE\" || { echo \"missing_key:\${key}\"; exit 19; }
+            done
+          "; then
+            echo "API_HANDOFF_CONTRACT_STATUS=failed" >> "$GITHUB_ENV"
+            echo "API_EVIDENCE_BREAKPOINT=handoff_remote_merge_missing_key" >> "$GITHUB_ENV"
+            echo "✗ Remote-Handoff-Merge fehlgeschlagen oder Pflichtschlüssel fehlen nach Merge."
+              echo "API_OPEN_EVIDENCE_GAP=handoff_failed" >> "$GITHUB_ENV"
+            exit 1
+          fi
           ssh plesk-prod \
             "printf '%s\n' '${{ steps.release.outputs.marker }}' > '${{ env.API_REMOTE_PATH }}/.deploy_release'"
+          ssh plesk-prod "API_PATH='${{ env.API_REMOTE_PATH }}' EXPECTED_COMMIT='commit=${GITHUB_SHA::8}' bash -s" <<'REMOTE'
+            set -euo pipefail
+
+            fail() {
+              echo "✗ $1"
+              exit 1
+            }
+
+            cd "$API_PATH" || fail "API_REMOTE_PATH ist kein Directory"
+            API_ABS_PATH="$(pwd -P)"
+            RELEASE_FILE="$API_ABS_PATH/.deploy_release"
+
+            [ -s "$API_ABS_PATH/.env" ] || fail ".env fehlt oder ist leer"
+            [ -f "$API_ABS_PATH/app/main.py" ] || fail "app/main.py fehlt"
+            [ -f "$API_ABS_PATH/requirements.txt" ] || fail "requirements.txt fehlt"
+            [ -s "$RELEASE_FILE" ] || fail ".deploy_release fehlt oder ist leer"
+            grep -Fq "$EXPECTED_COMMIT" "$RELEASE_FILE" || fail ".deploy_release enthaelt nicht den erwarteten Commit"
+
+            PYTHON=""
+            if [ -x "$API_ABS_PATH/venv/bin/python" ]; then
+              PYTHON="$API_ABS_PATH/venv/bin/python"
+            elif [ -x "$API_ABS_PATH/.venv/bin/python" ]; then
+              PYTHON="$API_ABS_PATH/.venv/bin/python"
+            elif command -v python3 >/dev/null 2>&1; then
+              PYTHON="$(command -v python3)"
+            elif command -v python >/dev/null 2>&1; then
+              PYTHON="$(command -v python)"
+            else
+              fail "Kein Python-Interpreter verfuegbar"
+            fi
+
+            [ -x "$PYTHON" ] || fail "Python-Interpreter ist nicht ausfuehrbar"
+            "$PYTHON" --version >/dev/null 2>&1 || fail "python --version fehlgeschlagen"
+            "$PYTHON" -m pip --version >/dev/null 2>&1 || fail "pip fuer Interpreter nicht verfuegbar"
+            PIP_INSTALL_LOG="$(mktemp "${API_ABS_PATH}/.pip-install.${GITHUB_RUN_ID:-manual}.XXXXXX.log")"
+            if "$PYTHON" -m pip install -r requirements.txt --quiet >"$PIP_INSTALL_LOG" 2>&1; then
+              tail -5 "$PIP_INSTALL_LOG"
+            else
+              echo "✗ pip install fehlgeschlagen. Letzte Log-Zeilen:"
+              tail -5 "$PIP_INSTALL_LOG"
+              rm -f "$PIP_INSTALL_LOG"
+              exit 1
+            fi
+            rm -f "$PIP_INSTALL_LOG"
+            "$PYTHON" -m uvicorn --version >/dev/null 2>&1 || fail "uvicorn fuer Interpreter nicht verfuegbar"
+            printf '%s\n' "$PYTHON" > "$API_ABS_PATH/.deploy_python_interpreter"
+            chmod 600 "$API_ABS_PATH/.deploy_python_interpreter" || true
+            echo "✓ API-Handoff und Interpreter validiert"
+          REMOTE
+          API_USED_PYTHON=$(ssh plesk-prod "API_PATH='${{ env.API_REMOTE_PATH }}' bash -s" <<'REMOTE'
+            set -euo pipefail
+            cd "$API_PATH"
+            API_ABS_PATH="$(pwd -P)"
+            sed -n '1p' "$API_ABS_PATH/.deploy_python_interpreter"
+          REMOTE
+          )
+          if [ -z "${API_USED_PYTHON}" ]; then
+            echo "API_HANDOFF_CONTRACT_STATUS=failed" >> "$GITHUB_ENV"
+            echo "API_EVIDENCE_BREAKPOINT=handoff_missing_interpreter_marker" >> "$GITHUB_ENV"
+            echo "✗ Gespeicherter API-Python-Interpreter ist leer"
+              echo "API_OPEN_EVIDENCE_GAP=handoff_failed" >> "$GITHUB_ENV"
+            exit 1
+          fi
+          API_RELEASE_MARKER_COMMIT=$(ssh plesk-prod "API_PATH='${{ env.API_REMOTE_PATH }}' bash -s" <<'REMOTE'
+            set -euo pipefail
+            cd "$API_PATH"
+            API_ABS_PATH="$(pwd -P)"
+            RELEASE_FILE="$API_ABS_PATH/.deploy_release"
+            grep -oE 'commit=[^ ]+' "$RELEASE_FILE" | head -1 | cut -d= -f2
+          REMOTE
+          )
+          if [ "${API_RELEASE_MARKER_COMMIT}" != "${GITHUB_SHA::8}" ]; then
+            echo "API_HANDOFF_CONTRACT_STATUS=failed" >> "$GITHUB_ENV"
+            echo "API_EVIDENCE_BREAKPOINT=handoff_release_marker_mismatch" >> "$GITHUB_ENV"
+            echo "✗ API-Release-Marker zeigt nicht auf den erwarteten Commit."
+              echo "API_OPEN_EVIDENCE_GAP=handoff_failed" >> "$GITHUB_ENV"
+            exit 1
+          fi
+          echo "API_USED_PYTHON=${API_USED_PYTHON}" >> "$GITHUB_ENV"
+          echo "API_RELEASE_MARKER_COMMIT=${API_RELEASE_MARKER_COMMIT}" >> "$GITHUB_ENV"
           echo "✓ API deployt."
 
       - name: API Runtime Reload triggern
@@ -699,47 +861,71 @@ jobs:
           env.TARGET_SERVICE == 'all' ||
           env.TARGET_SERVICE == 'api'
         run: |
-          ssh plesk-prod "
-            set -e
-            API_PATH='${{ env.API_REMOTE_PATH }}'
-            cd \"\$API_PATH\"
+          set -euo pipefail
+          echo "API_RESTART_STATUS=running" >> "$GITHUB_ENV"
+          if ssh plesk-prod "API_PATH='${{ env.API_REMOTE_PATH }}' bash -s" <<'REMOTE'
+            set -euo pipefail
 
-            # --- Interpreter deterministisch auflösen ---
-            PYTHON=''
-            if [ -x \"\$API_PATH/venv/bin/python\" ]; then
-              PYTHON=\"\$API_PATH/venv/bin/python\"
-              echo '✓ Interpreter: venv/bin/python'
-            elif [ -x \"\$API_PATH/.venv/bin/python\" ]; then
-              PYTHON=\"\$API_PATH/.venv/bin/python\"
-              echo '✓ Interpreter: .venv/bin/python'
-            elif command -v python3 >/dev/null 2>&1; then
-              PYTHON=\$(command -v python3)
-              echo \"⚠️  Kein venv; System-Python3: \$PYTHON\"
-            elif command -v python >/dev/null 2>&1; then
-              PYTHON=\$(command -v python)
-              echo \"⚠️  Kein venv; System-Python: \$PYTHON\"
-            else
-              echo '✗ Kein Python-Interpreter gefunden (venv/bin/python, .venv/bin/python, python3, python)'
+            fail() {
+              echo "✗ $1"
               exit 1
-            fi
+            }
 
-            # --- uvicorn über Interpreter prüfen (PATH-unabhängig) ---
-            if ! \"\$PYTHON\" -m uvicorn --version >/dev/null 2>&1; then
-              echo \"✗ uvicorn nicht für Interpreter \$PYTHON installiert\"
-              exit 1
-            fi
-            echo \"✓ uvicorn verfügbar (\$PYTHON)\"
+            cd "$API_PATH" || fail "API_REMOTE_PATH nicht erreichbar"
+            API_ABS_PATH="$(pwd -P)"
+            INTERPRETER_FILE="$API_ABS_PATH/.deploy_python_interpreter"
+            [ -s "$INTERPRETER_FILE" ] || fail ".deploy_python_interpreter fehlt oder ist leer"
+            PYTHON="$(sed -n '1p' "$INTERPRETER_FILE")"
+            [ -n "$PYTHON" ] || fail "Gespeicherter Python-Interpreter ist leer"
+            [ -x "$PYTHON" ] || fail "Gespeicherter Python-Interpreter ist nicht ausfuehrbar"
+            "$PYTHON" --version >/dev/null 2>&1 || fail "python --version fehlgeschlagen"
+            "$PYTHON" -m pip --version >/dev/null 2>&1 || fail "pip fuer gespeicherten Interpreter nicht verfuegbar"
+            "$PYTHON" -m uvicorn --version >/dev/null 2>&1 || fail "uvicorn fuer gespeicherten Interpreter nicht verfuegbar"
 
             pkill -f 'uvicorn app.main:app' || true
             sleep 1
-            nohup \"\$PYTHON\" -m uvicorn app.main:app --host 0.0.0.0 --port 8001 --log-level warning >/dev/null 2>&1 &
-            sleep 2
-            pgrep -f 'uvicorn app.main:app' >/dev/null 2>&1 || {
-              echo '✗ uvicorn-Prozess nach Restart nicht gefunden'
-              exit 1
-            }
-            echo '✓ API-Restart erfolgreich angestoßen'
-          "
+            nohup "$PYTHON" -m uvicorn app.main:app --host 0.0.0.0 --port 8001 --log-level warning >/dev/null 2>&1 &
+
+            FOUND_PROCESS=0
+            for _ in 1 2 3 4 5; do
+              if pgrep -f 'uvicorn app.main:app' >/dev/null 2>&1; then
+                FOUND_PROCESS=1
+                break
+              fi
+              sleep 1
+            done
+            [ "$FOUND_PROCESS" -eq 1 ] || fail "uvicorn-Prozess nach Restart nicht gefunden"
+
+            PORT_TOOL="none"
+            PORT_OK="unknown"
+            if command -v ss >/dev/null 2>&1; then
+              PORT_TOOL="ss"
+              ss -ltn 2>/dev/null | awk '{print $4}' | grep -Eq '(^|:)8001$' && PORT_OK="yes" || PORT_OK="no"
+            elif command -v lsof >/dev/null 2>&1; then
+              PORT_TOOL="lsof"
+              lsof -nP -iTCP:8001 -sTCP:LISTEN >/dev/null 2>&1 && PORT_OK="yes" || PORT_OK="no"
+            elif command -v netstat >/dev/null 2>&1; then
+              PORT_TOOL="netstat"
+              netstat -ltn 2>/dev/null | awk '{print $4}' | grep -Eq '(^|:)8001$' && PORT_OK="yes" || PORT_OK="no"
+            fi
+
+            if [ "$PORT_OK" = "no" ]; then
+              fail "Port 8001 ist laut ${PORT_TOOL} nicht im LISTEN-Status"
+            fi
+            if [ "$PORT_TOOL" = "none" ]; then
+              echo "⚠️ Kein Port-Prueftool vorhanden; externer 30s-Verify entscheidet hart."
+            else
+              echo "✓ Port 8001 geprueft via ${PORT_TOOL}"
+            fi
+
+            echo "✓ API-Restart erfolgreich"
+          REMOTE
+          then
+            echo "API_RESTART_STATUS=ok" >> "$GITHUB_ENV"
+          else
+            echo "API_RESTART_STATUS=failed" >> "$GITHUB_ENV"
+            exit 1
+          fi
           echo "Warte 12 Sekunden auf Runtime-Warm-up ..."
           sleep 12
 
@@ -910,31 +1096,267 @@ jobs:
             exit 1;
           }
 
-      - name: Healthcheck — API Liveness
+      - name: API Verify — Health + Readiness
         if: >
           env.TARGET_SERVICE == 'all' ||
           env.TARGET_SERVICE == 'api'
         run: |
-          HTTP=$(curl --silent --max-time 15 --output /dev/null --write-out "%{http_code}" \
-            "https://api.${{ env.MAIN_DOMAIN }}/healthz" || echo "000")
-          echo "API Liveness HTTP: ${HTTP}"
-          [[ "${HTTP}" =~ ^[23] ]] || {
-            echo "✗ API Liveness fehlgeschlagen (${HTTP}) auf /healthz. Deployment wird abgebrochen.";
-            exit 1;
+          set -euo pipefail
+
+          verify_endpoint() {
+            local path=$1
+            local env_name=$2
+            local label=$3
+            local url="https://api.${{ env.MAIN_DOMAIN }}${path}"
+            local deadline=$((SECONDS + 30))
+            local last_http="000"
+            local last_reason="nicht erreicht"
+
+            while (( SECONDS < deadline )); do
+              local remaining=$((deadline - SECONDS))
+              local curl_timeout=5
+              if (( remaining < curl_timeout )); then
+                curl_timeout=$remaining
+              fi
+              if (( curl_timeout < 1 )); then
+                break
+              fi
+
+              local body_file
+              body_file=$(mktemp)
+              local http
+              http=$(curl --silent --show-error --max-time "${curl_timeout}" \
+                --output "${body_file}" \
+                --write-out "%{http_code}" \
+                "${url}" 2>/dev/null || true)
+              last_http="${http:-000}"
+
+              local body_compact
+              body_compact=$(tr -d '\r\n\t ' < "${body_file}" || true)
+              local body_lower
+              body_lower=$(tr '[:upper:]' '[:lower:]' < "${body_file}" || true)
+              rm -f "${body_file}"
+
+              if [ -n "${body_compact}" ] && [[ "${body_lower}" =~ (unhealthy|error|failed|unavailable|not[[:space:]_-]*ready|\"ready\"[[:space:]]*:[[:space:]]*false|ready[[:space:]]*:[[:space:]]*false|\"ok\"[[:space:]]*:[[:space:]]*false|ok[[:space:]]*:[[:space:]]*false|\"status\"[[:space:]]*:[[:space:]]*\"?(error|failed|unavailable)|status[[:space:]]*:[[:space:]]*\"?(error|failed|unavailable)) ]]; then
+                echo "${env_name}=failed (${last_http})" >> "$GITHUB_ENV"
+                echo "✗ ${label} meldet negatives Health-/Readiness-Signal"
+                exit 1
+              elif ! [[ "${last_http}" =~ ^[23][0-9][0-9]$ ]]; then
+                last_reason="HTTP ${last_http}"
+              elif [ -z "${body_compact}" ]; then
+                last_reason="Body leer"
+              elif ! [[ "${body_lower}" =~ (\{|\[|\"status\"|status|ok|healthy|ready|live|true) ]]; then
+                last_reason="Body ohne erwartbares Status-Signal"
+              else
+                echo "✓ ${label}: HTTP ${last_http}"
+                echo "${env_name}=HTTP ${last_http}" >> "$GITHUB_ENV"
+                return 0
+              fi
+
+              remaining=$((deadline - SECONDS))
+              if (( remaining > 2 )); then
+                sleep 2
+              elif (( remaining > 0 )); then
+                sleep "${remaining}"
+              fi
+            done
+
+            echo "${env_name}=failed (${last_http})" >> "$GITHUB_ENV"
+            echo "✗ ${label} fehlgeschlagen nach 30 Sekunden: ${last_reason}"
+            exit 1
           }
 
-      - name: Healthcheck — API Readiness
+          verify_endpoint "/healthz" "API_HEALTHZ_STATUS" "API /healthz"
+          verify_endpoint "/readyz" "API_READYZ_STATUS" "API /readyz"
+
+      - name: API Runtime Secret-Contract Report (redigiert)
         if: >
           env.TARGET_SERVICE == 'all' ||
           env.TARGET_SERVICE == 'api'
         run: |
-          HTTP=$(curl --silent --max-time 15 --output /dev/null --write-out "%{http_code}" \
-            "https://api.${{ env.MAIN_DOMAIN }}/readyz" || echo "000")
-          echo "API Readiness HTTP: ${HTTP}"
-          [[ "${HTTP}" =~ ^[23] ]] || {
-            echo "✗ API Readiness fehlgeschlagen (${HTTP}) auf /readyz. Deployment wird abgebrochen.";
-            exit 1;
-          }
+          set -euo pipefail
+
+          CONTRACT_JSON=$(ssh plesk-prod "API_PATH='${{ env.API_REMOTE_PATH }}' bash -s" <<'REMOTE'
+            set -euo pipefail
+            cd "$API_PATH"
+            API_ABS_PATH="$(pwd -P)"
+            INTERPRETER_FILE="$API_ABS_PATH/.deploy_python_interpreter"
+            [ -s "$INTERPRETER_FILE" ] || { echo "{\"error\":\"missing_interpreter_file\"}"; exit 1; }
+            PYTHON="$(sed -n '1p' "$INTERPRETER_FILE")"
+            [ -x "$PYTHON" ] || { echo "{\"error\":\"interpreter_not_executable\"}"; exit 1; }
+            cd "$API_ABS_PATH"
+            "$PYTHON" -c "import json,os; from app.runtime_secret_contract import runtime_secret_contract_report; environment=(os.getenv('ENVIRONMENT') or os.getenv('APP_ENV') or 'development').strip() or 'development'; report=runtime_secret_contract_report(environment); print(json.dumps(report, separators=(',', ':'), ensure_ascii=True))"
+          REMOTE
+          )
+
+          if [ -z "$CONTRACT_JSON" ]; then
+            echo "✗ Runtime-Secret-Contract-Report leer"
+            exit 1
+          fi
+
+          echo "RUNTIME_SECRET_CONTRACT_JSON=$CONTRACT_JSON" >> "$GITHUB_ENV"
+
+          CONTRACT_OK=$(printf '%s' "$CONTRACT_JSON" | jq -r '.contract_ok // false')
+          GRAPH_OK=$(printf '%s' "$CONTRACT_JSON" | jq -r '.channels.graph_mail_configured // false')
+          SLACK_OK=$(printf '%s' "$CONTRACT_JSON" | jq -r '.channels.slack_webhook_configured // false')
+
+          if [ "$GRAPH_OK" = "true" ]; then
+            echo "API_GRAPH_CHANNEL_CONFIG_STATUS=configured" >> "$GITHUB_ENV"
+          else
+            echo "API_GRAPH_CHANNEL_CONFIG_STATUS=not_configured" >> "$GITHUB_ENV"
+          fi
+          if [ "$SLACK_OK" = "true" ]; then
+            echo "API_SLACK_CHANNEL_CONFIG_STATUS=configured" >> "$GITHUB_ENV"
+          else
+            echo "API_SLACK_CHANNEL_CONFIG_STATUS=not_configured" >> "$GITHUB_ENV"
+          fi
+
+          if [ "$CONTRACT_OK" != "true" ] || [ "$GRAPH_OK" != "true" ] || [ "$SLACK_OK" != "true" ]; then
+            echo "✗ Runtime-Secret-Contract verletzt (contract_ok=$CONTRACT_OK, graph_mail=$GRAPH_OK, slack=$SLACK_OK)"
+            echo "API_SECRET_RUNTIME_STATUS=failed" >> "$GITHUB_ENV"
+            echo "API_EVIDENCE_BREAKPOINT=runtime_contract_failed" >> "$GITHUB_ENV"
+              echo "API_OPEN_EVIDENCE_GAP=runtime_contract_failed" >> "$GITHUB_ENV"
+            exit 1
+          fi
+
+          echo "API_SECRET_RUNTIME_STATUS=ok" >> "$GITHUB_ENV"
+          printf '%s\n' "$CONTRACT_JSON" > /tmp/api-runtime-secret-contract.json
+          echo "✓ Runtime-Secret-Contract inkl. Graph/Slack-Kanäle ist valide."
+
+      - name: Notification Live-Probe (Graph/Slack) oder manueller nächster Schritt
+        if: >
+          env.TARGET_SERVICE == 'all' ||
+          env.TARGET_SERVICE == 'api'
+        run: |
+          set -euo pipefail
+
+          if [ "${LIVE_NOTIFICATION_PROBE}" != "true" ]; then
+            echo "API_NOTIFICATION_PROBE_STATUS=manual-step-required" >> "$GITHUB_ENV"
+            echo "API_NOTIFICATION_PROBE_BREAKPOINT=live_probe_disabled" >> "$GITHUB_ENV"
+            echo "API_GRAPH_CHANNEL_PROBE_STATUS=not_probed" >> "$GITHUB_ENV"
+            echo "API_SLACK_CHANNEL_PROBE_STATUS=not_probed" >> "$GITHUB_ENV"
+            echo "API_OPEN_EVIDENCE_GAP=live_probe_not_executed" >> "$GITHUB_ENV"
+            echo "LIVE-Probe deaktiviert (vars.LIVE_NOTIFICATION_PROBE != true)."
+            echo "Manueller Nachweis: Stripe-Test-Webhook \`payment_intent.payment_failed\` gegen den bestehenden Endpunkt auslösen — bestätigt Admin-Mail (Graph) und Slack-Alert in einem einzigen produktionsnahen Pfad." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          PROBE_RESULT=$(ssh plesk-prod "API_PATH='${{ env.API_REMOTE_PATH }}' bash -s" <<'REMOTE'
+            set -euo pipefail
+            cd "$API_PATH"
+            API_ABS_PATH="$(pwd -P)"
+            INTERPRETER_FILE="$API_ABS_PATH/.deploy_python_interpreter"
+            [ -s "$INTERPRETER_FILE" ] || { echo "{\"probe\":\"failed\",\"breakpoint\":\"missing_interpreter\"}"; exit 0; }
+            PYTHON="$(sed -n '1p' "$INTERPRETER_FILE")"
+            [ -x "$PYTHON" ] || { echo "{\"probe\":\"failed\",\"breakpoint\":\"interpreter_not_executable\"}"; exit 0; }
+            cd "$API_ABS_PATH"
+            "$PYTHON" -c "import json; from app.runtime_notification_probe import run_live_notification_probe; print(json.dumps(run_live_notification_probe(), separators=(',', ':'), ensure_ascii=True))"
+          REMOTE
+          )
+
+          echo "API_NOTIFICATION_PROBE_JSON=$PROBE_RESULT" >> "$GITHUB_ENV"
+          PROBE_OK=$(printf '%s' "$PROBE_RESULT" | jq -r '.probe == "ok"')
+          GRAPH_PROBE_OK=$(printf '%s' "$PROBE_RESULT" | jq -r '.graph_token_probe // false')
+          SLACK_PROBE_OK=$(printf '%s' "$PROBE_RESULT" | jq -r '.slack_webhook_probe // false')
+
+          if [ "$GRAPH_PROBE_OK" = "true" ]; then
+            echo "API_GRAPH_CHANNEL_PROBE_STATUS=ok" >> "$GITHUB_ENV"
+          else
+            echo "API_GRAPH_CHANNEL_PROBE_STATUS=failed" >> "$GITHUB_ENV"
+          fi
+          if [ "$SLACK_PROBE_OK" = "true" ]; then
+            echo "API_SLACK_CHANNEL_PROBE_STATUS=ok" >> "$GITHUB_ENV"
+          else
+            echo "API_SLACK_CHANNEL_PROBE_STATUS=failed" >> "$GITHUB_ENV"
+          fi
+
+          if [ "$PROBE_OK" != "true" ]; then
+            BREAKPOINT=$(printf '%s' "$PROBE_RESULT" | jq -r '.breakpoint // "unknown"')
+            echo "API_NOTIFICATION_PROBE_STATUS=failed" >> "$GITHUB_ENV"
+            echo "API_NOTIFICATION_PROBE_BREAKPOINT=$BREAKPOINT" >> "$GITHUB_ENV"
+            echo "API_EVIDENCE_BREAKPOINT=notification_probe_failed" >> "$GITHUB_ENV"
+            echo "✗ LIVE-Notification-Probe fehlgeschlagen am Bruchpunkt: $BREAKPOINT"
+            echo "Bruchpunkt '$BREAKPOINT': Stripe-Test-Webhook \`payment_intent.payment_failed\` auslösen — deckt Graph-Mail und Slack in einem Pfad ab." >> "$GITHUB_STEP_SUMMARY"
+              echo "API_OPEN_EVIDENCE_GAP=probe_failed" >> "$GITHUB_ENV"
+            exit 1
+          fi
+
+          echo "API_NOTIFICATION_PROBE_STATUS=ok" >> "$GITHUB_ENV"
+          echo "API_NOTIFICATION_PROBE_BREAKPOINT=none" >> "$GITHUB_ENV"
+          echo "API_OPEN_EVIDENCE_GAP=none" >> "$GITHUB_ENV"
+          echo "✓ LIVE-Notification-Probe abgeschlossen: Graph-Credentials gültig (Token-Erwerb verifiziert, kein Test-Mail gesendet), Slack-Webhook erreichbar und hat geantwortet."
+
+      - name: API Produktionsnachweis-JSON erzeugen (redigiert)
+        if: >
+          always() && (
+            env.TARGET_SERVICE == 'all' ||
+            env.TARGET_SERVICE == 'api'
+          )
+        run: |
+          set -euo pipefail
+          if [ "${API_OPEN_EVIDENCE_GAP:-none}" = "live_probe_not_executed" ]; then
+            DECISION_BASIS="live_probe_disabled_allows_success_with_explicit_gap"
+          elif [ "${API_NOTIFICATION_PROBE_STATUS:-not-run}" = "ok" ]; then
+            DECISION_BASIS="live_probe_executed_and_passed"
+          elif [ "${API_NOTIFICATION_PROBE_STATUS:-not-run}" = "failed" ]; then
+            DECISION_BASIS="live_probe_executed_and_failed"
+          else
+            DECISION_BASIS="probe_not_reached_prior_step_failed"
+          fi
+          TS=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
+          EVIDENCE_FILE="/tmp/api-production-evidence-${GITHUB_SHA}.json"
+          jq -n \
+            --arg run_id "${GITHUB_RUN_ID}" \
+            --arg sha "${GITHUB_SHA}" \
+            --arg timestamp "${TS}" \
+            --arg target_service "${TARGET_SERVICE}" \
+            --arg handoff_status "${API_HANDOFF_CONTRACT_STATUS:-not-run}" \
+            --arg runtime_contract_status "${API_SECRET_RUNTIME_STATUS:-not-run}" \
+            --arg graph_config_status "${API_GRAPH_CHANNEL_CONFIG_STATUS:-unknown}" \
+            --arg slack_config_status "${API_SLACK_CHANNEL_CONFIG_STATUS:-unknown}" \
+            --arg graph_probe_status "${API_GRAPH_CHANNEL_PROBE_STATUS:-not-run}" \
+            --arg slack_probe_status "${API_SLACK_CHANNEL_PROBE_STATUS:-not-run}" \
+            --arg notification_probe_status "${API_NOTIFICATION_PROBE_STATUS:-not-run}" \
+            --arg notification_probe_breakpoint "${API_NOTIFICATION_PROBE_BREAKPOINT:-none}" \
+            --arg evidence_breakpoint "${API_EVIDENCE_BREAKPOINT:-none}" \
+            --arg open_evidence_gap "${API_OPEN_EVIDENCE_GAP:-none}" \
+            --arg decision_basis "${DECISION_BASIS}" \
+            '{
+              run_id: $run_id,
+              sha: $sha,
+              timestamp: $timestamp,
+              target_service: $target_service,
+              handoff_status: $handoff_status,
+              runtime_contract_status: $runtime_contract_status,
+              graph_channel: {
+                configured: $graph_config_status,
+                probe: $graph_probe_status
+              },
+              slack_channel: {
+                configured: $slack_config_status,
+                probe: $slack_probe_status
+              },
+              notification_probe_status: $notification_probe_status,
+              notification_probe_breakpoint: $notification_probe_breakpoint,
+              evidence_breakpoint: $evidence_breakpoint,
+              open_evidence_gap: $open_evidence_gap,
+              decision_basis: $decision_basis
+            }' > "$EVIDENCE_FILE"
+
+      - name: API Produktionsnachweis-Artefakt hochladen
+        if: >
+          always() && (
+            env.TARGET_SERVICE == 'all' ||
+            env.TARGET_SERVICE == 'api'
+          )
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        with:
+          name: api-production-evidence-${{ github.sha }}
+          path: |
+            /tmp/api-production-evidence-${{ github.sha }}.json
+            /tmp/api-runtime-secret-contract.json
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Healthcheck — CRM-Portal
         if: >
@@ -1032,3 +1454,34 @@ jobs:
           echo "| 📋 CRM | https://crm.${{ env.MAIN_DOMAIN }}/ |" >> "$GITHUB_STEP_SUMMARY"
           echo "| 🧭 CRM Native | https://crm.${{ env.MAIN_DOMAIN }}/native/ |" >> "$GITHUB_STEP_SUMMARY"
           echo "| 🎮 Games | https://games.${{ env.MAIN_DOMAIN }}/ |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| API Deploy-Vertrag | Wert |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Ziel-Service | ${{ env.TARGET_SERVICE }} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| API_REMOTE_PATH | \`${{ env.API_REMOTE_PATH }}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| PLESK_HOST | ${PLESK_HOST:-nicht gesetzt} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| PLESK_USER | ${PLESK_USER:-nicht gesetzt} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Secret-Handoff (.env.deploy) | ${API_HANDOFF_CONTRACT_STATUS:-nicht geprueft} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Runtime-Secret-Contract | ${API_SECRET_RUNTIME_STATUS:-nicht geprueft} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Notification-Probe | ${API_NOTIFICATION_PROBE_STATUS:-nicht ausgefuehrt} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Probe-Bruchpunkt | ${API_NOTIFICATION_PROBE_BREAKPOINT:-n/a} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Evidenz-Bruchpunkt | ${API_EVIDENCE_BREAKPOINT:-n/a} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Python-Interpreter | \`${API_USED_PYTHON:-nicht ausgefuehrt}\` |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Restart-Status | ${API_RESTART_STATUS:-nicht ausgefuehrt} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| /healthz Status | ${API_HEALTHZ_STATUS:-nicht ausgefuehrt} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| /readyz Status | ${API_READYZ_STATUS:-nicht ausgefuehrt} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Release-Marker-Commit | ${API_RELEASE_MARKER_COMMIT:-nicht geprueft} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### ✅ Produktionsnachweis (redigiert)" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Nachweis | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Secret-Handoff | ${API_HANDOFF_CONTRACT_STATUS:-not-run} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Runtime-Secret-Contract | ${API_SECRET_RUNTIME_STATUS:-not-run} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Graph-Kanal (Konfiguration) | ${API_GRAPH_CHANNEL_CONFIG_STATUS:-unknown} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Slack-Kanal (Konfiguration) | ${API_SLACK_CHANNEL_CONFIG_STATUS:-unknown} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Graph-Kanal (Probe) | ${API_GRAPH_CHANNEL_PROBE_STATUS:-not-run} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Slack-Kanal (Probe) | ${API_SLACK_CHANNEL_PROBE_STATUS:-not-run} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Probe-Bruchpunkt | ${API_NOTIFICATION_PROBE_BREAKPOINT:-none} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Evidenz-Bruchpunkt | ${API_EVIDENCE_BREAKPOINT:-none} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Offene Restlücke | ${API_OPEN_EVIDENCE_GAP:-none} |" >> "$GITHUB_STEP_SUMMARY"

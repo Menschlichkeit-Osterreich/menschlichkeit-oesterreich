@@ -83,8 +83,10 @@ const allowedOwners = new Set(['shared', 'copilot', 'claude', 'vendor']);
 const allowedStatuses = new Set(['active', 'adapter', 'vendor', 'legacy', 'deprecated']);
 const activeGithubAgents = new Set([
   '.github/agents/task-planner.agent.md',
+  '.github/agents/developer.agent.md',
   '.github/agents/devops-expert.agent.md',
-  '.github/agents/mentor.agent.md',
+  '.github/agents/security-reviewer.agent.md',
+  '.github/agents/qa-reviewer.agent.md',
 ]);
 
 const requiredPathZones = {
@@ -286,6 +288,104 @@ async function validateRegistry(registry, errors) {
 
   if (activeAnalysisEntries !== 1) {
     errors.push(`Exactly one active analysisEntry is required, found ${activeAnalysisEntries}`);
+  }
+}
+
+async function validateVisibleCopilotAgents(registry, errors) {
+  const agentDir = '.github/agents';
+  const entries = await fs.readdir(toAbsolute(agentDir), { withFileTypes: true });
+  const visibleAgents = entries
+    .filter(entry => entry.isFile() && entry.name.endsWith('.agent.md'))
+    .map(entry => `${agentDir}/${entry.name}`)
+    .sort();
+
+  if (visibleAgents.length !== activeGithubAgents.size) {
+    errors.push(
+      `.github/agents/ must contain exactly ${activeGithubAgents.size} visible Copilot agents, found ${visibleAgents.length}`
+    );
+  }
+
+  for (const expectedPath of activeGithubAgents) {
+    if (!visibleAgents.includes(expectedPath)) {
+      errors.push(`Missing canonical visible Copilot agent: ${expectedPath}`);
+    }
+  }
+
+  for (const relPath of visibleAgents) {
+    if (!activeGithubAgents.has(relPath)) {
+      errors.push(`Unexpected visible Copilot agent: ${relPath}`);
+    }
+    if (
+      relPath === '.github/agents/mentor.agent.md' ||
+      relPath === '.github/agents/mcp-operations.agent.md'
+    ) {
+      errors.push(`Deprecated Copilot agent must not stay visible: ${relPath}`);
+    }
+  }
+
+  const registryAgentPaths = new Set((registry.agents ?? []).map(agent => agent.path));
+  for (const relPath of visibleAgents) {
+    if (!registryAgentPaths.has(relPath)) {
+      errors.push(`Visible Copilot agent is missing from registry: ${relPath}`);
+    }
+  }
+
+  const activeCopilotEntries = (registry.agents ?? []).filter(
+    agent => agent.owner === 'copilot' && agent.status === 'active'
+  );
+
+  if (activeCopilotEntries.length !== activeGithubAgents.size) {
+    errors.push(
+      `Registry must mark exactly ${activeGithubAgents.size} active Copilot agents, found ${activeCopilotEntries.length}`
+    );
+  }
+
+  for (const agent of activeCopilotEntries) {
+    if (!activeGithubAgents.has(agent.path)) {
+      errors.push(`Registry active Copilot agent is not canonical: ${agent.path}`);
+    }
+  }
+
+  for (const relPath of activeGithubAgents) {
+    const content = await readText(relPath);
+    if (content.includes('.copilot-tracking')) {
+      errors.push(`Active Copilot agent must not require .copilot-tracking paths: ${relPath}`);
+    }
+  }
+}
+
+async function validateCopilotGovernanceDocs(errors) {
+  const docs = [
+    'AGENTS.md',
+    'CLAUDE.md',
+    '.github/copilot-instructions.md',
+    '.github/instructions/copilot-workflow.md',
+  ];
+
+  for (const relPath of docs) {
+    const content = await readText(relPath);
+    for (const agentPath of activeGithubAgents) {
+      if (!content.includes(agentPath)) {
+        errors.push(`${relPath} must mention canonical Copilot agent ${agentPath}`);
+      }
+    }
+
+    for (const deprecatedPath of [
+      '.github/agents/mentor.agent.md',
+      '.github/agents/mcp-operations.agent.md',
+    ]) {
+      if (content.includes(deprecatedPath)) {
+        errors.push(`${relPath} still references deprecated visible agent ${deprecatedPath}`);
+      }
+    }
+
+    if (
+      content.includes('.github/agents/task-planner.agent.md') &&
+      content.includes('.github/agents/devops-expert.agent.md') &&
+      content.includes('.github/agents/mentor.agent.md')
+    ) {
+      errors.push(`${relPath} still contains the old three-agent Copilot list`);
+    }
   }
 }
 
@@ -559,9 +659,11 @@ async function main() {
 
   const registry = JSON.parse(await readText(registryPath));
   await validateRegistry(registry, errors);
+  await validateVisibleCopilotAgents(registry, errors);
   await validatePathZones(registry, errors);
   await validatePromptStates(registry, errors);
   await validateDocs(errors);
+  await validateCopilotGovernanceDocs(errors);
   await validateMigrationFiles(errors);
   await validatePluginMetadata(errors);
   await validateMcpConfiguration(errors);

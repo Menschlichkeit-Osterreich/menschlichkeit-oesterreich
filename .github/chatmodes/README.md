@@ -9,6 +9,7 @@
 - `CLAUDE.md` und `.github/copilot-instructions.md` verweisen auf diese Struktur.
 - `.github/ai-registry.json` klassifiziert den Status der Artefakte.
 - Chatmodes sind aktiv; YAML-Varianten unter `.github/prompts/chatmodes/` sind Legacy.
+- Chatmodes sind keine zusaetzliche sichtbare Copilot-Agentenquelle; sichtbare Copilot-Agents liegen ausschliesslich unter `.github/agents/`.
 
 ## Struktur
 
