@@ -18,7 +18,7 @@ exclude_paths:
   - 'analysis/archive/**'
   - 'crm.menschlichkeit-oesterreich.at/web/core/tests/**'
   - 'docs/archive/**'
-  - 'figma-design-system/components/**'
+  - 'figma-design-system/**'
   - 'quality-reports/**'
   - 'reports/**'
 

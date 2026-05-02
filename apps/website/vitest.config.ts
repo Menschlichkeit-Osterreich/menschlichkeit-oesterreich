@@ -1,6 +1,6 @@
-import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
-import path from 'path'
+import react from '@vitejs/plugin-react';
+import path from 'path';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [react()],
@@ -25,13 +25,14 @@ export default defineConfig({
         'dist/',
         'scripts/',
         'src/entry-server.tsx',
-        'src/main.tsx'
-      ]
-    }
+        'src/main.tsx',
+        'src/figma-assets/**'
+      ],
+    },
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
   },
-})
+});

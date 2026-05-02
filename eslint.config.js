@@ -18,9 +18,11 @@ export default [
       'api.menschlichkeit-oesterreich.at/dist/**',
       'api.menschlichkeit-oesterreich.at/.venv/**',
       '**/.venv/**',
+      '**/.pytest_cache/**',
       '**/__pycache__/**',
       '**/coverage/**',
       '**/test-results/**',
+      '.tmp/**',
       '**/vendor/**',
       'crm.menschlichkeit-oesterreich.at/vendor/**',
       'crm.menschlichkeit-oesterreich.at/web/core/**',
@@ -29,17 +31,17 @@ export default [
       '**/sw.js',
       '**/*.config.{js,ts}',
       'generated/**',
+      'figma-design-system/**',
       '.agents/**',
       '.browser-pilot/**',
       '.blender-toolkit/**',
       // Vendor / external tooling – not linted
       'codacy-analysis-cli-master/**',
       'codacy-analysis-cli/**',
+      '_codacy_worktree/**',
       // Game assets – legacy browser-global scripts (THREE.js etc.)
       'apps/game/**',
       'web/**',
-      // Generated Figma design-system components
-      'figma-design-system/components/**',
       // Legacy website assets (non-bundled)
       'website/assets/**',
       // Build outputs

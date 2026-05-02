@@ -20,6 +20,7 @@ ignore:
   - 'apps/website/dist/**'
   - 'apps/website/dist-ssr/**'
   - 'apps/website/scripts/**'
+  - 'apps/website/src/figma-assets/**'
   - 'apps/website/src/test/**'
   - 'crm.menschlichkeit-oesterreich.at/**'
   - 'docs/archive/**'

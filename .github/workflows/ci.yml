@@ -88,7 +88,6 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           files: apps/website/coverage/lcov.info,quality-reports/api-coverage.xml
           flags: website,api
           fail_ci_if_error: false
