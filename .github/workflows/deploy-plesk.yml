@@ -374,10 +374,12 @@ jobs:
     needs: [bsm-secrets, preflight, build-frontend, build-games, test]
     environment: production
     if: >-
+      always() &&
       (github.event_name != 'workflow_dispatch' || github.event.inputs.normalize_test_case == 'none') &&
       (github.event_name == 'push' ||
         (github.event_name == 'workflow_dispatch' &&
           github.event.inputs.dry_run != 'true')) &&
+      needs.bsm-secrets.result == 'success' &&
       needs.build-frontend.result == 'success' &&
       (needs.build-games.result == 'success' || needs.build-games.result == 'skipped') &&
       needs.test.result == 'success' &&
