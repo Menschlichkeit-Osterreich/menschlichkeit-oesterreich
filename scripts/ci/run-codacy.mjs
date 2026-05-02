@@ -118,6 +118,9 @@ async function runViaWslOnWindows(analyzeArgs) {
 
 async function main() {
   try {
+    // Ensure SARIF target directory exists for both native CLI and java -jar fallback.
+    mkdirSync(REPORTS_DIR, { recursive: true });
+
     const analyzeArgs = [
       'analyze',
       '--format',
