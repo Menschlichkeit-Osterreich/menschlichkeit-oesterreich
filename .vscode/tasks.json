@@ -345,7 +345,14 @@
       "label": "Bitwarden: Projects Check",
       "type": "shell",
       "command": "pwsh",
-      "args": ["-NoLogo", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "scripts/check-bws.ps1"],
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/scripts/check-bws.ps1"
+      ],
       "isBackground": false,
       "group": "none"
     },

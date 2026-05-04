@@ -62,9 +62,8 @@ Wenn mehrere Clients beteiligt sind, bleibt diese Kette die einzige fuehrende Wa
 - Aktive Chatmodes: `.github/chatmodes/**/*.chatmode.md`
 - Kanonische Skill-Schicht: `.github/skills/*/SKILL.md`
 - Ergaenzende Task-Prompts: `.github/prompts/*.prompt.md`
-- Legacy-Archiv fuer alte YAML-Chatmodes: `.github/prompts/chatmodes/*.yaml`
 
-Die aktive Mode-Ebene ist `.github/chatmodes`. `.github/prompts/chatmodes` bleibt nur als klar markiertes Legacy-Archiv und ist nicht die fuehrende Wahrheit.
+Die aktive Mode-Ebene ist `.github/chatmodes`. Es gibt kein aktives YAML-Chatmode-Archiv mehr unter `.github/prompts/chatmodes`.
 
 ## Core-Rollen
 
@@ -226,6 +225,6 @@ Geteilte Konfigurationen duerfen keine absoluten lokalen Pfade enthalten. Erlaub
 - `.github/ai-registry.json` klassifiziert aktive, Adapter-, Vendor- und Legacy-Artefakte vollstaendig.
 - `.github/agents/*.agent.md` enthaelt exakt die fuenf sichtbaren Copilot-Agents; archivierte Copilot-Agents liegen unter `.github/archive/agents/`.
 - `.github/chatmodes/**/*.chatmode.md` und relevante `.claude`-Agents zeigen auf reale Pfade.
-- `.github/prompts/chatmodes/*.yaml` bleiben explizit als Legacy markiert.
+- es gibt keine aktiven YAML-Chatmode-Artefakte unter `.github/prompts/chatmodes/`.
 - `.vscode/*`, `.claude/launch.json`, `mcp.json` und die Workspace-Datei passen zum aktiven Repo-Root.
 - `npm run governance:check` bleibt gruen.

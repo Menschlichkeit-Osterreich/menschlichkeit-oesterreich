@@ -29,8 +29,8 @@
         "params": {
           "contact_id": "={{ $json.donor.civicrm_id }}",
           "total_amount": "={{ $json.amount }}",
-          "financial_type_id": 1, // Donation
-          "contribution_status_id": 2, // Pending
+          "financial_type_id": 1,
+          "contribution_status_id": 2,
           "source": "={{ $json.source || 'Website' }}"
         }
       },
@@ -113,7 +113,7 @@
         "attachments": {
           "attachments": [
             {
-              "content": "={{ $node[\'API: Generate Receipt PDF\'].json.body.pdf_path }}',
+              "content": "={{ $node['API: Generate Receipt PDF'].json.body.pdf_path }}",
               "name": "Spendenquittung-{{ $now.toFormat('yyyy-MM-dd') }}.pdf"
             }
           ]

@@ -8,7 +8,7 @@
 - `.github/instructions/core/analysis-planning.instructions.md` ist der kanonische Analyse-Einstieg.
 - `CLAUDE.md` und `.github/copilot-instructions.md` verweisen auf diese Struktur.
 - `.github/ai-registry.json` klassifiziert den Status der Artefakte.
-- Chatmodes sind aktiv; YAML-Varianten unter `.github/prompts/chatmodes/` sind Legacy.
+- Chatmodes sind aktiv; es gibt keine fuehrenden YAML-Varianten mehr.
 - Chatmodes sind keine zusaetzliche sichtbare Copilot-Agentenquelle; sichtbare Copilot-Agents liegen ausschliesslich unter `.github/agents/`.
 
 ## Struktur

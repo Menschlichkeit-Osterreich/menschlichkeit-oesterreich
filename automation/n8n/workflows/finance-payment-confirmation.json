@@ -49,7 +49,7 @@
         "operation": "update",
         "contributionId": "={{ $json.body.civicrm_contribution_id }}",
         "params": {
-          "contribution_status_id": 1, // Completed
+          "contribution_status_id": 1,
           "receive_date": "{{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}"
         }
       },

@@ -411,16 +411,16 @@ Structure each step invocation with:
 
 ```text
 Step 1: Transform raw input data
-Agent: data-processor
-Spec: .github/agents/data-processor.agent.md
+Agent: developer
+Spec: .github/agents/developer.agent.md
 Context: projectName=${projectName}, basePath=${basePath}
 Input: ${basePath}/raw/
 Output: ${basePath}/processed/
 Expected: write ${basePath}/processed/summary.md
 
 Step 2: Analyze processed data (depends on Step 1 output)
-Agent: data-analyst
-Spec: .github/agents/data-analyst.agent.md
+Agent: qa-reviewer
+Spec: .github/agents/qa-reviewer.agent.md
 Context: projectName=${projectName}, basePath=${basePath}
 Input: ${basePath}/processed/
 Output: ${basePath}/analysis/
@@ -607,7 +607,7 @@ When invoking a sub-agent, pass all context through substituted variables in the
 Example (prompt template):
 
 ```text
-This phase must be performed as the agent "documentation-writer" defined in ".github/agents/documentation-writer.agent.md".
+This phase must be performed as the agent "developer" defined in ".github/agents/developer.agent.md".
 
 IMPORTANT:
 - Read and apply the entire .agent.md spec.
@@ -644,14 +644,14 @@ Context: repositoryName=${repositoryName}, prNumber=${prNumber}, basePath=projec
 Output: projects/${repositoryName}/pr-${prNumber}/security-review.md
 
 Step 2: Test Coverage
-Agent: test-coverage
-Spec: .github/agents/test-coverage.agent.md
+Agent: qa-reviewer
+Spec: .github/agents/qa-reviewer.agent.md
 Context: repositoryName=${repositoryName}, prNumber=${prNumber}, basePath=projects/${repositoryName}/pr-${prNumber}
 Output: projects/${repositoryName}/pr-${prNumber}/coverage-report.md
 
 Step 3: Aggregate
-Agent: review-aggregator
-Spec: .github/agents/review-aggregator.agent.md
+Agent: task-planner
+Spec: .github/agents/task-planner.agent.md
 Context: repositoryName=${repositoryName}, prNumber=${prNumber}, basePath=projects/${repositoryName}/pr-${prNumber}
 Output: projects/${repositoryName}/pr-${prNumber}/final-review.md
 ```

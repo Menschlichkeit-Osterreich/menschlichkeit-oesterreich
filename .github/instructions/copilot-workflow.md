@@ -32,7 +32,6 @@ Copilot soll im Repo aktiv dieselbe Governance nutzen wie Codex und Claude Code,
 - Chatmodes sind ergaenzende Arbeitsmodi, aber keine zusaetzliche sichtbare Copilot-Agentenquelle.
 - Der bevorzugte Analyse-Chatmode ist `.github/chatmodes/general/AnalysePlanung_DE.chatmode.md`.
 - `.github/prompts/*.prompt.md` sind Zusatzwerkzeuge fuer konkrete Aufgaben.
-- `.github/prompts/chatmodes/*.yaml` sind Legacy und nicht mehr fuehrend.
 
 ## Operative Regeln
 

@@ -61,7 +61,7 @@ Kanonische Skill-Schicht:
 
 Nicht aktiv:
 
-- `.github/prompts/chatmodes/*.yaml` sind Legacy und nicht die fuehrende Wahrheit.
+- Legacy-Chatmode-YAMLs unter `.github/prompts/chatmodes/` sind entfernt; aktiv sind nur `.github/chatmodes/**/*.chatmode.md`.
 
 ## Arbeitsregeln
 
