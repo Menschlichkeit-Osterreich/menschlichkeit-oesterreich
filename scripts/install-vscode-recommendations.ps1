@@ -14,10 +14,15 @@ if (-not (Test-Path -LiteralPath $extensionsConfig)) {
     throw "Extensions-Konfiguration nicht gefunden: $extensionsConfig"
 }
 
-$codeCommand = Get-Command code -ErrorAction SilentlyContinue
+$codeCommand = Get-Command code.cmd -ErrorAction SilentlyContinue
+if (-not $codeCommand) {
+    $codeCommand = Get-Command code -ErrorAction SilentlyContinue
+}
 if (-not $codeCommand) {
     throw "Die VS Code CLI 'code' wurde nicht gefunden. Bitte in VS Code 'Shell Command: Install code command in PATH' ausfuehren."
 }
+
+$codeCli = $codeCommand.Source
 
 $config = Get-Content -LiteralPath $extensionsConfig -Raw | ConvertFrom-Json
 $recommendations = @($config.recommendations)
@@ -27,7 +32,7 @@ if ($recommendations.Count -eq 0) {
     exit 0
 }
 
-$current = & code --list-extensions
+$current = & $codeCli --list-extensions
 $installed = @{}
 foreach ($extension in $current) {
     if (-not [string]::IsNullOrWhiteSpace($extension)) {
@@ -53,9 +58,19 @@ foreach ($extension in $recommendations) {
 
     $installId = $extension.ToLowerInvariant()
     Write-Host "[install] $extension" -ForegroundColor Cyan
-    & code --install-extension $installId --force
+    $installOutput = & $codeCli --install-extension $installId --force 2>&1
     if ($LASTEXITCODE -ne 0) {
+        $installText = if ($installOutput) { ($installOutput | Out-String).Trim() } else { '' }
+        if ($installText -match 'is a built-in extension' -and $installText -match 'cannot be downgraded') {
+            Write-Host "[skip] $extension (bereits als built-in verfuegbar)" -ForegroundColor DarkGray
+            $skippedCount++
+            continue
+        }
+
         Write-Host "[warn] Installation fehlgeschlagen fuer $extension" -ForegroundColor Yellow
+        if ($installText) {
+            Write-Host $installText -ForegroundColor DarkYellow
+        }
         $failed += $extension
         continue
     }
