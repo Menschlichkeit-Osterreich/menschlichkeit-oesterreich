@@ -330,24 +330,18 @@ Vielen Dank, dass Sie zu unserem Projekt beitragen möchten! Bitte folgen Sie di
 
 ### Prompts & Chatmodes
 
-- Lege neue Chatmodes als YAML in `.github/prompts/chatmodes/` an (kebab_case id, SemVer).
-- Erzeuge/aktualisiere passende `_examples.md`.
+- Lege neue Chatmodes als Markdown-Datei unter `.github/chatmodes/` an (`*.chatmode.md`).
+- Aktualisiere die zugehoerige Governance-Dokumentation (`AGENTS.md`, `.github/copilot-instructions.md`, `.github/ai-registry.json`) wenn sich aktive Artefakte aendern.
 - Halte dich an `global/01_style_guide.md` und `global/02_guardrails.md`.
-- Füge Assertions unter `tests:` hinzu (Form: `assertion`, `expected`).
-- Lokale Validierung optional:
-
-```bash
-for f in .github/prompts/chatmodes/*.yaml; do yq -o=json "$f" > "$f.json"; done
-ajv validate -s .github/prompts/chatmodes/_schema.json -d ".github/prompts/chatmodes/*.yaml.json"
-```
+- Fuehre die Repo-Checks aus: `npm run workspace:config:check` und `npm run governance:check`.
 
 #### Workflow für Prompt-Änderungen
 
 1. Mapping prüfen/anpassen in `.github/prompts/MIGRATION_MAP.md` (Alt → Neu).
-2. YAML aktualisieren (Version nach SemVer anheben) und `_examples.md` pflegen.
-3. `tests:` Assertions ergänzen/prüfen (id/semver, ggf. domänenspezifisch).
-4. CI laufen lassen (Prompt CI muss grün sein).
-5. PR mit Checkliste in `PULL_REQUEST_TEMPLATE.md` erstellen und `CHANGELOG.md` ergänzen (`docs(prompts): ...`).
+1. Aktive Chatmode-/Instruction-Dateien aktualisieren.
+1. Registry und Verweise auf Konsistenz pruefen.
+1. CI laufen lassen (Governance-Checks muessen gruen sein).
+1. PR mit Checkliste in `PULL_REQUEST_TEMPLATE.md` erstellen und `CHANGELOG.md` ergänzen (`docs(prompts): ...`).
 
 ---
 

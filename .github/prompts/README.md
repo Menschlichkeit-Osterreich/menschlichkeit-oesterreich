@@ -15,9 +15,9 @@
 - **Führende Arbeitsmodi:** `.github/chatmodes/**/*.chatmode.md`
 - **Führende Anweisungen:** `.github/instructions/**/*.instructions.md`
 - **Supplementäre Task-Prompts (aktiv):** `.github/prompts/*.prompt.md` mit Registry-Status `active`
-- **Legacy (deprecated, read-only):** Migrierte `.prompt.md`-Dateien + `.github/prompts/chatmodes/*.yaml`
+- **Legacy (deprecated, read-only):** migrierte `.prompt.md`-Dateien
 
-Die YAML-Chatmodes und migrierte Prompt-Dateien bleiben nur als historische Referenz bestehen. Sie sind **nicht** die führende Governance-Ebene.
+Migrierte Prompt-Dateien bleiben nur als historische Referenz bestehen. Sie sind **nicht** die führende Governance-Ebene.
 
 ## Governance-Hierarchie
 
@@ -38,7 +38,6 @@ Die YAML-Chatmodes und migrierte Prompt-Dateien bleiben nur als historische Refe
 - Neue Anweisungen unter `.github/instructions/`
 - Supplementäre Prompt-Vorlagen unter `.github/prompts/` (nur für Artefakte ohne chatmode-Äquivalent)
 - Der Status jeder Prompt-Datei wird in `.github/ai-registry.json` gefuehrt
-- Legacy-YAMLs nicht reaktivieren
 - Migrierte `.prompt.md`-Dateien nicht als führend verwenden — immer den chatmode/instruction-Nachfolger nutzen
 - Keine neuen Repo- oder Rollenwahrheiten hier duplizieren; immer auf `AGENTS.md` und die Core-Instructions referenzieren
 

@@ -89,7 +89,6 @@ Kurzregel:
 - Aktiver Analyse-Chatmode: `.github/chatmodes/general/AnalysePlanung_DE.chatmode.md`
 - Kanonische Skill-Schicht: `.github/skills/*/SKILL.md`
 - Ergaenzende Prompts: `.github/prompts/*.prompt.md`
-- Legacy-YAML-Chatmodes: `.github/prompts/chatmodes/*.yaml` nur als Archiv
 
 ## Branch- und Review-Modell
 
