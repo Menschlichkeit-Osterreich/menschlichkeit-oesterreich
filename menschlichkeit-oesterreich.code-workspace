@@ -1,10 +1,11 @@
 {
-	"folders": [
-		{
-			"path": "."
-		}
-	],
-	"settings": {
-		"github.copilot.chat.codeGeneration.useInstructionFiles": true
-	}
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+    "git.ignoreLimitWarning": true
+  }
 }
