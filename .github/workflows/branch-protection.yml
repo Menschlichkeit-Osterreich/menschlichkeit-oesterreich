@@ -87,7 +87,8 @@ jobs:
                 "Gitleaks Secret Scan",
                 "Validate Secrets Gate",
                 "Lint & Checks",
-                "Build & Test"
+                "Build & Test",
+                "Validate n8n Workflow JSON"
               ]
             },
             "enforce_admins": true,

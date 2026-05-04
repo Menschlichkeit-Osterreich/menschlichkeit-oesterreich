@@ -35,12 +35,12 @@
         "operation": "getAll",
         "filters": {
           "return": "membership_id.membership_type_id,contact_id",
-          "contribution_status_id": 1, // Completed
+          "contribution_status_id": 1,
           "receive_date": {
             "after": "{{ $now.minus({months: 1}).startOf('month').toFormat('yyyy-MM-dd') }}",
             "before": "{{ $now.minus({months: 1}).endOf('month').toFormat('yyyy-MM-dd') }}"
           },
-          "financial_type_id": 2 // Member Dues
+          "financial_type_id": 2
         },
         "options": {
           "limit": 5000
@@ -126,9 +126,7 @@
         "method": "POST",
         "sendBody": true,
         "contentType": "json",
-        "body": "={{ JSON.stringify({\n  contact: $json,\n  invoice_type: 'membership',\n  items: [{\n    description: `Mitgliedsbeitrag ${$now.toFormat('yyyy')}`,
-    quantity: 1,\n    unit_price: 120.00 // TODO: Get price from membership type
-  }]\n}) }}",
+        "body": "={{ JSON.stringify({\n  contact: $json,\n  invoice_type: 'membership',\n  items: [{\n    description: `Mitgliedsbeitrag ${$now.toFormat('yyyy')}`,\n    quantity: 1,\n    unit_price: 120.00\n  }]\n}) }}",
         "options": {}
       },
       "id": "create-invoice-api",

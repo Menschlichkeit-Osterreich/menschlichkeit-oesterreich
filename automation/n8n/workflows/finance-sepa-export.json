@@ -54,7 +54,7 @@
         "method": "POST",
         "sendBody": true,
         "contentType": "json",
-        "body": "={{ JSON.stringify({ transactions: $json.transactions, collection_date: $now.plus({days: 7}).toFormat(\'yyyy-MM-dd\') }) }}",
+        "body": "={{ JSON.stringify({ transactions: $json.transactions, collection_date: $now.plus({days: 7}).toFormat('yyyy-MM-dd') }) }}",
         "options": {}
       },
       "id": "export-sepa-batch",
@@ -72,7 +72,7 @@
     {
       "parameters": {
         "to": "buchhaltung@menschlichkeit-oesterreich.at",
-        "subject": "SEPA-Sammellastschrift für KW {{ $now.toFormat(\'WW’) }}",
+        "subject": "SEPA-Sammellastschrift für KW {{ $now.toFormat('WW') }}",
         "html": "<h1>SEPA-Sammellastschrift</h1><p>Im Anhang befindet sich die SEPA-XML-Datei für die Einreichung bei der Bank.</p>",
         "attachments": {
           "attachments": [

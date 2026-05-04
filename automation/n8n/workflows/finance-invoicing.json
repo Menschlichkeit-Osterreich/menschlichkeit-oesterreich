@@ -20,7 +20,7 @@
     },
     {
       "parameters": {
-        "url": "={{ $secrets.CIVICRM_URL }}/api/v4/Membership?select=["contact_id.display_name","contact_id.email","start_date"]&where=[["start_date","=","-1 day"]",["status_id.name","=","New"]",["financial_type_id.name","=","Member Dues"]",["contribution.id","IS NULL"]]
+        "url": "={{ $secrets.CIVICRM_URL }}/api/v4/Membership?select=[\"contact_id.display_name\",\"contact_id.email\",\"start_date\"]&where=[[\"start_date\",\"=\",\"-1 day\"],[\"status_id.name\",\"=\",\"New\"],[\"financial_type_id.name\",\"=\",\"Member Dues\"],[\"contribution.id\",\"IS NULL\"]]"
       },
       "name": "Get New Members from CiviCRM",
       "type": "n8n-nodes-base.httpRequest",
