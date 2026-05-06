@@ -60,6 +60,21 @@
       "command": "npx",
       "args": ["-y", "@playwright/mcp@0.0.73"]
     },
+    "postgres": {
+      "command": "node",
+      "args": ["scripts/mcp/wrapper-postgres.mjs"],
+      "env": {
+        "DATABASE_URL": "${DATABASE_URL}"
+      }
+    },
+    "n8n-mcp": {
+      "command": "node",
+      "args": ["scripts/mcp/wrapper-n8n-mcp.mjs"],
+      "env": {
+        "N8N_API_URL": "${N8N_API_URL}",
+        "N8N_API_KEY": "${N8N_API_KEY}"
+      }
+    },
     "codacy-mcp-server": {
       "command": "npx",
       "args": ["-y", "@codacy/codacy-mcp@0.6.21"],
