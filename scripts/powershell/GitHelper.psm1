@@ -32,9 +32,7 @@ function Invoke-QualityCheck {
 function Invoke-SafeCommit {
     param(
         [Parameter(Mandatory=$true)]
-        [string]$Message,
-
-        [switch]$IncludeUntracked
+        [string]$Message
     )
     
     # Pre-commit checks
@@ -42,40 +40,10 @@ function Invoke-SafeCommit {
     Invoke-QualityCheck
     
     if ($LASTEXITCODE -eq 0) {
-        $gitSyncScript = Join-Path $PSScriptRoot "..\git-sync.ps1"
-        & pwsh -File $gitSyncScript -Action commit -Message $Message -IncludeUntracked:$IncludeUntracked
+        git add .
+        git commit -m $Message
         Write-Host "✅ Commit erfolgreich!" -ForegroundColor Green
     }
 }
 
-function Invoke-RegularSync {
-    param(
-        [string]$Message,
-
-        [switch]$IncludeUntracked,
-
-        [switch]$SkipPull,
-
-        [switch]$SkipPush
-    )
-
-    $gitSyncScript = Join-Path $PSScriptRoot "..\git-sync.ps1"
-    $args = @("-File", $gitSyncScript, "-Action", "sync")
-
-    if (-not [string]::IsNullOrWhiteSpace($Message)) {
-        $args += @("-Message", $Message)
-    }
-    if ($IncludeUntracked) {
-        $args += "-IncludeUntracked"
-    }
-    if ($SkipPull) {
-        $args += "-SkipPull"
-    }
-    if ($SkipPush) {
-        $args += "-SkipPush"
-    }
-
-    & pwsh @args
-}
-
-Export-ModuleMember -Function New-FeatureBranch, Invoke-QualityCheck, Invoke-SafeCommit, Invoke-RegularSync
+Export-ModuleMember -Function New-FeatureBranch, Invoke-QualityCheck, Invoke-SafeCommit
