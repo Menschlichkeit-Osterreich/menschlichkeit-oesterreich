@@ -47,7 +47,7 @@ function shouldAllowNetwork() {
 }
 
 function getTimeoutMs() {
-  const raw = (process.env.CODACY_TIMEOUT_SECONDS || '900').trim();
+  const raw = (process.env.CODACY_TIMEOUT_SECONDS || '1800').trim();
   const seconds = Number(raw);
   if (!Number.isFinite(seconds) || seconds <= 0) {
     return 15 * 60 * 1000;

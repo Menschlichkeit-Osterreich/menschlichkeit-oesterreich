@@ -24,27 +24,42 @@
     },
     {
       "parameters": {
-        "resource": "contribution",
-        "operation": "create",
-        "params": {
-          "contact_id": "={{ $json.donor.civicrm_id }}",
-          "total_amount": "={{ $json.amount }}",
-          "financial_type_id": 1,
-          "contribution_status_id": 2,
-          "source": "={{ $json.source || 'Website' }}"
-        }
+        "url": "={{ $env.CIVICRM_API_URL || 'https://crm.menschlichkeit-oesterreich.at' }}/civicrm/ajax/api4/Contribution/create",
+        "method": "POST",
+        "sendBody": true,
+        "contentType": "application/json",
+        "authentication": "genericCredentialType",
+        "genericCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Civi-Auth",
+              "value": "Bearer {{ $env.CIVICRM_API_KEY }}"
+            },
+            {
+              "name": "X-Requested-With",
+              "value": "XMLHttpRequest"
+            }
+          ]
+        },
+        "body": {
+          "values": {
+            "contact_id": "={{ $json.donor.civicrm_id }}",
+            "total_amount": "={{ $json.amount }}",
+            "financial_type_id": 1,
+            "contribution_status_id": 1,
+            "receive_date": "={{ now.format('YYYY-MM-DD') }}",
+            "source": "={{ $json.source || 'Website Donation' }}"
+          }
+        },
+        "options": {}
       },
       "id": "create-contribution-civicrm",
-      "name": "CiviCRM: Create Contribution",
-      "type": "n8n-nodes-base.civicrm",
-      "typeVersion": 1,
-      "position": [680, 300],
-      "credentials": {
-        "civiCRM": {
-          "id": "civicrm-prod",
-          "name": "CiviCRM Prod"
-        }
-      }
+      "name": "CiviCRM: Create Contribution (v4 REST API)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [680, 300]
     },
     {
       "parameters": {
@@ -52,7 +67,7 @@
         "method": "POST",
         "sendBody": true,
         "contentType": "json",
-        "body": "={{ JSON.stringify({ ...$json, civicrm_contribution_id: $('CiviCRM: Create Contribution').first().json.id }) }}",
+        "body": "={{ JSON.stringify({ ...$json, civicrm_contribution_id: $('CiviCRM: Create Contribution').first().json.values?.[0]?.id }) }}",
         "options": {}
       },
       "id": "log-donation-api",
