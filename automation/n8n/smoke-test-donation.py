@@ -24,17 +24,16 @@ import hashlib
 import hmac
 import json
 import os
-import sys
 import time
 from typing import Any, Dict, Optional, Tuple
 
 
 import urllib.request
 
-
 # ---------------------------------------------------------------------------
 # HTTP helpers
 # ---------------------------------------------------------------------------
+
 
 def post_json(
     url: str,
@@ -71,6 +70,7 @@ def _hmac_signature(secret: str, payload: Dict[str, Any]) -> str:
 # Assertion helpers
 # ---------------------------------------------------------------------------
 
+
 def _accepted(code: int, body: str) -> bool:
     """n8n returns 200 or 202 with a JSON body containing status accepted."""
     normalized = body.replace(" ", "").replace("\n", "")
@@ -86,6 +86,7 @@ def _accepted(code: int, body: str) -> bool:
 # ---------------------------------------------------------------------------
 # Test cases
 # ---------------------------------------------------------------------------
+
 
 def _build_payload(receipt_eligible: bool, tag: str) -> Dict[str, Any]:
     return {
@@ -128,6 +129,7 @@ def run_test(
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
 
 def main() -> int:
     base = os.getenv("N8N_BASE_URL", "http://localhost:5678").rstrip("/")
