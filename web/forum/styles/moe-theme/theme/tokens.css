@@ -1,0 +1,150 @@
+/*
+ * Menschlichkeit Österreich – phpBB Design-Token-Bridge
+ * Automatisch generiert: 2026-03-10T07:21:36.677Z
+ * Quelle: figma-design-system/00_design-tokens.json
+ * Issue #173: Design-Token-Synchronisation Figma → Forum Theme
+ * NICHT manuell bearbeiten – Änderungen werden überschrieben.
+ */
+
+:root {
+  /* ── primary ── */
+  --ds-primary-50: #f0f9ff;
+  --ds-primary-100: #e0f2fe;
+  --ds-primary-200: #bae6fd;
+  --ds-primary-300: #7dd3fc;
+  --ds-primary-400: #38bdf8;
+  --ds-primary-500: #0ea5e9;
+  --ds-primary-600: #0284c7;
+  --ds-primary-700: #0369a1;
+  --ds-primary-800: #075985;
+  --ds-primary-900: #0c4a6e;
+
+  /* ── secondary ── */
+  --ds-secondary-50: #f8fafc;
+  --ds-secondary-100: #f1f5f9;
+  --ds-secondary-200: #e2e8f0;
+  --ds-secondary-300: #cbd5e1;
+  --ds-secondary-400: #94a3b8;
+  --ds-secondary-500: #64748b;
+  --ds-secondary-600: #475569;
+  --ds-secondary-700: #334155;
+  --ds-secondary-800: #1e293b;
+  --ds-secondary-900: #0f172a;
+
+  /* ── accent ── */
+  --ds-accent-50: #fef7ff;
+  --ds-accent-100: #fdeef9;
+  --ds-accent-200: #fde6f4;
+  --ds-accent-300: #fcceeb;
+  --ds-accent-400: #f9a8d4;
+  --ds-accent-500: #f472b6;
+  --ds-accent-600: #ec4899;
+  --ds-accent-700: #db2777;
+  --ds-accent-800: #be185d;
+  --ds-accent-900: #9d174d;
+
+  /* ── success ── */
+  --ds-success-50: #f0fdf4;
+  --ds-success-100: #dcfce7;
+  --ds-success-200: #bbf7d0;
+  --ds-success-300: #86efac;
+  --ds-success-400: #4ade80;
+  --ds-success-500: #22c55e;
+  --ds-success-600: #16a34a;
+  --ds-success-700: #15803d;
+  --ds-success-800: #166534;
+  --ds-success-900: #14532d;
+
+  /* ── warning ── */
+  --ds-warning-50: #fffbeb;
+  --ds-warning-100: #fef3c7;
+  --ds-warning-200: #fde68a;
+  --ds-warning-300: #fcd34d;
+  --ds-warning-400: #fbbf24;
+  --ds-warning-500: #f59e0b;
+  --ds-warning-600: #d97706;
+  --ds-warning-700: #b45309;
+  --ds-warning-800: #92400e;
+  --ds-warning-900: #78350f;
+
+  /* ── error ── */
+  --ds-error-50: #fef2f2;
+  --ds-error-100: #fee2e2;
+  --ds-error-200: #fecaca;
+  --ds-error-300: #fca5a5;
+  --ds-error-400: #f87171;
+  --ds-error-500: #ef4444;
+  --ds-error-600: #dc2626;
+  --ds-error-700: #b91c1c;
+  --ds-error-800: #991b1b;
+  --ds-error-900: #7f1d1d;
+
+  /* ── Semantisch ── */
+  --ds-background: #ffffff;
+  --ds-surface: #f8fafc;
+  --ds-overlay: rgba(0, 0, 0, 0.5);
+  --ds-text-primary: #0f172a;
+  --ds-text-secondary: #64748b;
+  --ds-text-inverse: #ffffff;
+  --ds-border: #e2e8f0;
+  --ds-border-focus: #0ea5e9;
+  --ds-disabled: #f1f5f9;
+
+  /* ── Schriftfamilien ── */
+  --ds-font-primary: 'Inter,system-ui,sans-serif';
+  --ds-font-secondary: 'Merriweather,Georgia,serif';
+  --ds-font-mono: 'JetBrains Mono,Monaco,monospace';
+
+  /* ── Schriftgrößen ── */
+  --ds-text-xs: 0.75rem;
+  --ds-text-sm: 0.875rem;
+  --ds-text-base: 1rem;
+  --ds-text-lg: 1.125rem;
+  --ds-text-xl: 1.25rem;
+  --ds-text-2xl: 1.5rem;
+  --ds-text-3xl: 1.875rem;
+  --ds-text-4xl: 2.25rem;
+  --ds-text-5xl: 3rem;
+  --ds-text-6xl: 3.75rem;
+  --ds-text-7xl: 4.5rem;
+
+  /* ── Abstände ── */
+  --ds-space-0: 0px;
+  --ds-space-1: 0.25rem;
+  --ds-space-2: 0.5rem;
+  --ds-space-3: 0.75rem;
+  --ds-space-4: 1rem;
+  --ds-space-5: 1.25rem;
+  --ds-space-6: 1.5rem;
+  --ds-space-8: 2rem;
+  --ds-space-10: 2.5rem;
+  --ds-space-12: 3rem;
+  --ds-space-16: 4rem;
+  --ds-space-20: 5rem;
+  --ds-space-24: 6rem;
+  --ds-space-32: 8rem;
+  --ds-space-40: 10rem;
+  --ds-space-48: 12rem;
+  --ds-space-56: 14rem;
+  --ds-space-64: 16rem;
+
+  /* ── Radien ── */
+  --ds-radius-none: 0px;
+  --ds-radius-xs: 0.125rem;
+  --ds-radius-sm: 0.25rem;
+  --ds-radius-md: 0.375rem;
+  --ds-radius-lg: 0.5rem;
+  --ds-radius-xl: 0.75rem;
+  --ds-radius-2xl: 1rem;
+  --ds-radius-3xl: 1.5rem;
+  --ds-radius-full: 9999px;
+
+  /* ── Schatten ── */
+  --ds-shadow-none: none;
+  --ds-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --ds-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --ds-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --ds-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --ds-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --ds-shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+}

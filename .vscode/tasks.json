@@ -1,0 +1,427 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Dev: All Services",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dev:all"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "group": "dev"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: Frontend",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dev:frontend"],
+      "group": "build",
+      "presentation": {
+        "panel": "shared",
+        "group": "dev"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: API",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dev:api"],
+      "group": "build",
+      "presentation": {
+        "panel": "shared",
+        "group": "dev"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: CRM",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dev:crm"],
+      "group": "build",
+      "presentation": {
+        "panel": "shared",
+        "group": "dev"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: Games",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dev:games"],
+      "group": "build",
+      "presentation": {
+        "panel": "shared",
+        "group": "dev"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Dev: Forum",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "dev:forum"],
+      "group": "build",
+      "presentation": {
+        "panel": "shared",
+        "group": "dev"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: Website Unit",
+      "type": "shell",
+      "command": "npm",
+      "args": ["--prefix", "apps/website", "run", "test:unit", "--", "--run"],
+      "group": "test",
+      "presentation": {
+        "panel": "shared",
+        "group": "test"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: Website Coverage",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:website:coverage"],
+      "group": "test",
+      "presentation": {
+        "panel": "shared",
+        "group": "test"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: Games Unit",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:games"],
+      "group": "test",
+      "presentation": {
+        "panel": "shared",
+        "group": "test"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: Games Coverage",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:games:coverage"],
+      "group": "test",
+      "presentation": {
+        "panel": "shared",
+        "group": "test"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: API",
+      "type": "shell",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "args": ["-m", "pytest", "tests", "-q"],
+      "options": {
+        "cwd": "${workspaceFolder}/apps/api"
+      },
+      "group": "test",
+      "presentation": {
+        "panel": "shared",
+        "group": "test"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: API Coverage",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:api:coverage"],
+      "group": "test",
+      "presentation": {
+        "panel": "shared",
+        "group": "test"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test: Coverage All",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "test:coverage"],
+      "group": "test",
+      "presentation": {
+        "panel": "shared",
+        "group": "test"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Quality: Gates",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "quality:gates"],
+      "group": "test",
+      "presentation": {
+        "panel": "shared",
+        "group": "quality"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Quality: Governance",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "governance:check"],
+      "group": "test",
+      "presentation": {
+        "panel": "shared",
+        "group": "quality"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Security: Scan",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "security:scan"],
+      "group": "test",
+      "presentation": {
+        "panel": "shared",
+        "group": "security"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "MCP: Check",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "mcp:check"],
+      "group": "none",
+      "presentation": {
+        "panel": "shared",
+        "group": "ops"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "MCP: Health",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "mcp:health"],
+      "group": "none",
+      "presentation": {
+        "panel": "shared",
+        "group": "ops"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "GitHub: Auth Status",
+      "type": "shell",
+      "command": "gh",
+      "args": ["auth", "status"],
+      "group": "none",
+      "presentation": {
+        "panel": "shared",
+        "group": "ops"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "GitHub: Login HTTPS",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "git:auth:github"],
+      "group": "none",
+      "presentation": {
+        "panel": "shared",
+        "group": "ops"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Git: Hooks Enable",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "git:hooks:enable"],
+      "group": "none",
+      "presentation": {
+        "panel": "shared",
+        "group": "ops"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Git: Sync Status",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "git:sync:status"],
+      "group": "none",
+      "presentation": {
+        "panel": "shared",
+        "group": "ops"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Git: Commit + Sync",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-File",
+        "${workspaceFolder}/scripts/git-sync.ps1",
+        "-Action",
+        "sync",
+        "-Message",
+        "${input:gitSyncMessage}"
+      ],
+      "group": "none",
+      "presentation": {
+        "panel": "shared",
+        "group": "ops"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "GitHub: Validate Token",
+      "type": "shell",
+      "command": "pwsh",
+      "args": ["-File", "${workspaceFolder}/scripts/gh/Run-GitHubTokenValidation.ps1"],
+      "group": "none",
+      "presentation": {
+        "panel": "shared",
+        "group": "ops"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Workspace: Config Check",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "workspace:config:check"],
+      "group": "none",
+      "presentation": {
+        "panel": "shared",
+        "group": "ops"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Workspace: Bootstrap",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "workspace:bootstrap"],
+      "group": "none",
+      "presentation": {
+        "panel": "shared",
+        "group": "ops"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "VSCode: Install Recommended Extensions",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "vscode:extensions:install"],
+      "group": "none",
+      "presentation": {
+        "panel": "shared",
+        "group": "ops"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Bitwarden: Projects Check",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "${workspaceFolder}/scripts/check-bws.ps1"
+      ],
+      "isBackground": false,
+      "group": "none"
+    },
+    {
+      "label": "Bitwarden: Python SDK Check",
+      "type": "shell",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "args": ["-c", "import bitwarden_sdk; print('OK', bitwarden_sdk.__file__)"],
+      "isBackground": false,
+      "group": "none"
+    },
+    {
+      "label": "Pytest: Payment Regression",
+      "type": "shell",
+      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "args": [
+        "-m",
+        "pytest",
+        "apps/api/tests/test_donation_service.py",
+        "apps/api/tests/test_payment_flow.py",
+        "apps/api/tests/test_paypal_flow.py",
+        "apps/api/tests/test_newsletter_flow.py",
+        "-q"
+      ],
+      "isBackground": false,
+      "group": "test"
+    },
+    {
+      "label": "Verify: Payment Secret Wiring",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "scripts/verify-payment-secret-wiring.ps1"
+      ],
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": "test"
+    },
+    {
+      "label": "Verify: BW Payment Env Sync",
+      "type": "shell",
+      "command": "pwsh",
+      "args": [
+        "-NoLogo",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "scripts/sync-payment-env-from-bw.ps1",
+        "-DryRun",
+        "-StripeMode",
+        "test"
+      ],
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": "test"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "gitSyncMessage",
+      "type": "promptString",
+      "description": "Conventional-Commit-Message fuer den Sync",
+      "default": "chore(repo): sync workspace"
+    }
+  ]
+}

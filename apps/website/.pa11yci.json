@@ -1,0 +1,44 @@
+{
+  "defaults": {
+    "runner": "axe",
+    "standard": "WCAG2AA",
+    "timeout": 30000,
+    "chromeLaunchConfig": {
+      "args": ["--no-sandbox", "--disable-dev-shm-usage"]
+    }
+  },
+  "urls": [
+    {
+      "url": "http://127.0.0.1:4173/",
+      "actions": ["wait for element body to be visible"]
+    },
+    {
+      "url": "http://127.0.0.1:4173/kontakt",
+      "actions": ["wait for element body to be visible"]
+    },
+    {
+      "url": "http://127.0.0.1:4173/mitglied-werden",
+      "actions": ["wait for element body to be visible"]
+    },
+    {
+      "url": "http://127.0.0.1:4173/spenden",
+      "actions": ["wait for element body to be visible"]
+    },
+    {
+      "url": "http://127.0.0.1:4173/forum",
+      "actions": ["wait for element body to be visible"]
+    },
+    {
+      "url": "http://127.0.0.1:4173/spiel",
+      "actions": ["wait for element body to be visible"]
+    },
+    {
+      "url": "http://127.0.0.1:4173/login",
+      "actions": ["wait for element body to be visible"]
+    },
+    {
+      "url": "http://127.0.0.1:4173/barrierefreiheit",
+      "actions": ["wait for element body to be visible"]
+    }
+  ]
+}

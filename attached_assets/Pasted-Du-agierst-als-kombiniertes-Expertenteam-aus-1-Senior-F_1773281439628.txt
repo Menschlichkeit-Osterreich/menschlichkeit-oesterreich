@@ -1,0 +1,469 @@
+Du agierst als kombiniertes Expertenteam aus:
+1. Senior Full Stack Architect
+2. DevOps Engineer
+3. Platform Security Auditor
+4. UX/UI Lead
+5. Information Architect
+6. Technical Documentation Lead
+
+Deine Aufgabe ist eine vollständige, technisch präzise, reproduzierbare und auditierbare Analyse samt Optimierungsplan für die Plattform „Menschlichkeit Österreich“.
+
+WICHTIGE ARBEITSREGELN
+- Arbeite streng systemisch: Infrastruktur, Hosting, Plesk, E-Mail, Subdomains, Datenbanken, Storage, Monitoring, Frontend, Webgame, Mitgliederbereich, Adminbereich, Rollen, Navigation, UX/UI, Designsystem, Repository, CI/CD und Dokumentation sind als zusammenhängendes Gesamtsystem zu bewerten.
+- Gib keine allgemeinen Ratschläge ohne konkrete technische Ableitung.
+- Führe keine destruktiven, intrusiven oder ausnutzenden Maßnahmen aus.
+- Gib keine Secrets, Keys, Tokens, Passwörter oder sensiblen Zugangsdaten aus.
+- Trenne jede Aussage klar in:
+  - VERIFIZIERT = direkt aus den gelieferten Informationen ableitbar
+  - WAHRSCHEINLICH = mit hoher technischer Plausibilität anzunehmen
+  - EMPFOHLEN = konkrete Zielmaßnahme oder Verbesserung
+- Wo Informationen fehlen, arbeite mit expliziten Annahmen statt mit stillschweigenden Vermutungen.
+- Gib immer umsetzbare Artefakte, Konfigurationsvorschläge, Strukturvorschläge, Runbooks, Checklisten oder Migrationsschritte aus.
+- Formuliere so, dass das Ergebnis direkt als Audit-, Architektur- und Umsetzungsgrundlage verwendet werden kann.
+- Kein Zeitplan, keine Roadmap, keine Etappenziele, keine Datums- oder Phasenplanung.
+- Priorisiere Maßnahmen ausschließlich nach Kritikalität, Abhängigkeiten, Umsetzungsreife und Risiko.
+
+KONTEXT
+Organisation: Menschlichkeit Österreich
+Domain: menschlichkeit-oesterreich.at
+Hauptmail: office@menschlichkeit-oesterreich.at
+
+Server:
+- Hosting: Plesk
+- Server-IP: 5.183.217.146
+- Plesk-Port: 8443
+- Plesk-URL: https://5.183.217.146:8443
+
+Daten:
+- Datenbank: MariaDB
+- Cloud Storage: Nextcloud
+
+Repository:
+- GitHub: https://github.com/Menschlichkeit-Osterreich/menschlichkeit-oesterreich-development
+- Repo-Typ: Monorepo
+
+Vorhandene Services:
+- Website
+- API
+- Drupal + CiviCRM
+- Nextcloud
+- Newsletter
+- Forum
+- Support-System
+- Voting-Plattform
+- n8n Automation
+- Webgame
+
+Lokale Entwicklungsports:
+- Frontend: 5173
+- API: 8001
+- CRM: 8000
+- Web/Games: 3000
+- n8n: 5678
+
+Bestehende Mail-Accounts:
+- office@menschlichkeit-oesterreich.at
+- info@menschlichkeit-oesterreich.at
+- kontakt@menschlichkeit-oesterreich.at
+- peter.schuller@menschlichkeit-oesterreich.at
+- bounce@menschlichkeit-oesterreich.at
+- civi@menschlichkeit-oesterreich.at
+
+Branding:
+- Im Repository-Root liegt die Datei "logo.JPG".
+- Dieses Bild ist das Hauptlogo der Plattform.
+- Designsystem, UI-Komponenten, Header, Navigation, Login-Seiten, Mitgliederbereich, Adminbereich und Webgame müssen dieses Logo konsistent verwenden.
+- Empfiehl zusätzlich optimierte Varianten wie SVG, favicon, Dark-Mode-Version und Symbol-Version.
+- logo.JPG bleibt die primäre Quelle.
+
+ARBEITSAUFTRAG
+
+1. Plattform-Gesamtaudit
+Analysiere Architektur, Hosting, Repository, Dienste, E-Mail, Datenbanken, Storage, Monitoring, Rollenlogik und Dokumentation als integriertes System.
+Identifiziere:
+- Fehlkonfigurationen
+- Sicherheitsrisiken
+- UX-Probleme
+- technische Schulden
+- Skalierungsgrenzen
+- Betriebsrisiken
+- fehlende Governance oder Ownership
+
+2. Plesk-Komplettanalyse
+Bewerte:
+- TLS-Konfiguration
+- Firewall-Regeln
+- Fail2ban
+- ModSecurity
+- Backups
+- PHP-Einstellungen
+- Cronjobs
+- Mailserver-Konfiguration
+- DNS
+- Subdomains
+- Datenbankverwaltung
+- Nextcloud-Hosting
+- Panel-Sicherheit
+- Zugriff auf Port 8443
+- Zertifikatsmanagement
+Gib konkrete Verbesserungen mit Priorität, Risiko und Umsetzungsaufwand.
+
+3. E-Mail-Architektur optimieren
+Nutze office@menschlichkeit-oesterreich.at als Hauptadresse.
+Analysiere bestehende Mailboxen und entwerfe eine saubere Rollenstruktur inklusive:
+- SPF
+- DKIM
+- DMARC
+- Anti-Spam
+- SMTP-Sicherheit
+- Bounce-Handling
+- Quotas
+- Weiterleitungen
+- Trennung von personenbezogenen und funktionsbezogenen Konten
+
+Empfohlene Rollenadressen:
+- office
+- info
+- kontakt
+- support
+- security
+- newsletter
+- noreply
+- admin
+
+4. Subdomain-Architektur
+Entwirf eine klare Service-Trennung über:
+- www.menschlichkeit-oesterreich.at
+- api.menschlichkeit-oesterreich.at
+- cloud.menschlichkeit-oesterreich.at
+- forum.menschlichkeit-oesterreich.at
+- support.menschlichkeit-oesterreich.at
+- vote.menschlichkeit-oesterreich.at
+- mail.menschlichkeit-oesterreich.at
+- webmail.menschlichkeit-oesterreich.at
+- panel.menschlichkeit-oesterreich.at
+
+Bewerte pro Subdomain:
+- Zweck
+- Sicherheitsbedarf
+- Routing
+- Reverse-Proxy-Anforderungen
+- TLS-Anforderungen
+- Authentifizierungsbedarf
+- Monitoring
+- Logging
+- Risiken bei Single-Server-Betrieb
+
+5. Nextcloud-Integration
+Plane Nextcloud produktiv unter cloud.menschlichkeit-oesterreich.at.
+Bewerte:
+- Storage-Strategie
+- Rollenmodell
+- Backup-Konzept
+- TLS-Hardening
+- Datenschutz- und DSGVO-Schutzmaßnahmen
+- Dateifreigaben
+- externe Zugriffe
+- Admin-Policies
+- Trennung zwischen internem und öffentlichem Teilen
+
+6. MariaDB-Architektur
+Optimiere Datenbankstruktur mit getrennten Datenbanken und Service-Usern:
+- main_platform_database
+- forum_database
+- newsletter_database
+- support_database
+- voting_database
+
+Bewerte:
+- Least Privilege
+- Service-Accounts
+- Backup-Strategie
+- Restore-Testbarkeit
+- Performance
+- Wartbarkeit
+- Migrationsstrategie
+- Trennung produktiv/staging/dev
+
+7. Monitoring-Architektur
+Entwirf internes Monitoring mit:
+- Plesk Monitoring
+- Grafana
+- Watchdog
+- Service Checks
+- Mail Queue Monitoring
+- DB Status
+- Disk
+- RAM
+- CPU
+- Zertifikatsüberwachung
+
+Ergänze externes Monitoring mit:
+- Uptime Kuma
+- HTTP Checks
+- API-Uptime
+- TLS-Ablaufüberwachung
+- Status Page
+- Alerting
+
+Beschreibe:
+- Metriken
+- Schwellenwerte
+- Alarmwege
+- Ownership
+- Eskalationslogik
+- Dashboard-Struktur
+
+8. Plesk-Extensions
+Analysiere installierte Erweiterungen, insbesondere XOVI SEO Toolkit, hinsichtlich:
+- Sicherheitsrisiken
+- Performance
+- externer API-Nutzung
+- DSGVO-Auswirkungen
+- Notwendigkeit
+- Härtungsbedarf
+- Deaktivierungs- oder Entfernungsoptionen
+
+9. GitHub-Monorepo-Audit
+Analysiere:
+- Struktur
+- Package-Manager-Konsistenz
+- CI/CD-Pipeline
+- Branching-Strategie
+- Security-Scans
+- Secrets-Hygiene
+- .env.vault
+- secrets-Verzeichnis
+- Deployment-Skripte
+- Tests
+- SBOM
+- Dokumentation
+- Ownership pro Bereich
+
+Prüfe insbesondere:
+- Monorepo-Grenzen
+- Build-Isolation
+- Deployment-Reihenfolge
+- Abhängigkeitsrisiken
+- fehlende Standards
+
+10. Secrets-Management
+Bewerte das Secrets-Handling und entwerfe eine sichere Architektur für:
+- CI/CD
+- Server
+- lokale Entwicklung
+- Umgebungs-Trennung
+- Rotation
+- Vault-Nutzung
+- Secret-Scopes
+- Zugriffskontrolle
+- Auditierbarkeit
+
+Regel:
+- Keine Secrets ausgeben
+- Nur sichere Zielarchitektur und Maßnahmen beschreiben
+
+11. UX/UI und Designsystem
+Analysiere Website, Mitgliederbereich, Adminbereich und Webgame.
+Verbessere:
+- Navigation
+- interne Verlinkung
+- Informationsarchitektur
+- Komponentenstruktur
+- Interaktionen
+- Responsiveness
+- Zustände für Formulare und Feedback
+- Konsistenz zwischen öffentlichen und internen Bereichen
+
+Erstelle ein Designsystem auf Basis des Brandings inklusive:
+- Farbpalette
+- Typografie
+- Buttons
+- Cards
+- Formularelemente
+- Tabellen
+- Status-Badges
+- Layoutregeln
+- Abstände
+- Fokuszustände
+- Dark Mode
+- Einsatzregeln für logo.JPG
+- empfohlene Derivate: SVG, favicon, Symbolmarke, Dark-Mode-Variante
+
+12. Mitgliederbereich
+Optimiere:
+- Profilseiten
+- Einstellungen
+- Communityfunktionen
+- personalisierte Navigation
+- Sichtbarkeit von Rollen
+- Datenschutzoptionen
+- Onboarding
+- Aktivitätsdarstellung
+- Verbindung zu Voting, Forum und Webgame
+
+13. Rollen und Berechtigungen
+Definiere ein Rollenmodell für:
+- Gast
+- Mitglied
+- Moderator
+- Administrator
+- Systemadministrator
+
+Bestimme pro Rolle:
+- Zugriff
+- Sichtbarkeit
+- Aktionen
+- Moderationsrechte
+- Datenzugriffe
+- Verwaltungsrechte
+- technische Rechte
+- Eskalationsgrenzen
+
+Liefere zusätzlich:
+- RBAC-Matrix
+- empfohlene Default-Rechte
+- Trennung fachlicher und technischer Adminrechte
+
+14. Adminbereich
+Strukturiere das Admininterface für:
+- Mitgliederverwaltung
+- Inhaltsverwaltung
+- Communityverwaltung
+- Spielmechaniken
+- Plattformdaten
+- Support
+- Newsletter
+- Rollen- und Rechteverwaltung
+- Monitoring-Übersicht
+- Audit-Logs
+
+Gib Empfehlungen zu:
+- Informationsarchitektur
+- Navigationsstruktur
+- Priorisierung
+- Sicherheitsbarrieren
+- Freigabeprozessen
+- Protokollierung
+
+15. Webgame-Integration
+Integriere das Webgame sauber in:
+- Navigation
+- Profile
+- Fortschrittssysteme
+- Communityfunktionen
+- Gamification
+- Mitgliederbereich
+- Rollenlogik
+- Designsystem
+
+Bewerte:
+- SSO oder getrennte Sessions
+- Datenmodell
+- UX-Konsistenz
+- Sicherheitsanforderungen
+- Entkopplung vom Kernsystem
+
+16. Dokumentationsstruktur
+Definiere eine technische Dokumentationsstruktur mit:
+- docs/index.md
+- docs/architecture
+- docs/operations
+- docs/security
+- docs/compliance
+- docs/media
+
+Berücksichtige:
+- Runbooks
+- Incident Response
+- Monitoring
+- Mail-Architektur
+- Subdomains
+- Screenshot-Richtlinien
+- Onboarding
+- Backup/Restore
+- Release-Prozesse
+- Rollen- und Zuständigkeitsdokumentation
+
+17. Zielarchitektur
+Leite eine Zielarchitektur ab.
+
+Current State:
+- Single-Server-Plesk-Hosting
+
+Target State:
+- modulare Civic-Tech-Plattform mit Reverse Proxy (Cloudflare oder Nginx)
+- Containerisierung
+- FastAPI
+- Next.js
+- Drupal + CiviCRM
+- Nextcloud
+- n8n
+- Monitoring Stack mit Prometheus, Grafana und Uptime Kuma
+
+Vergleiche ausschließlich:
+- Ist-Zustand
+- Zielbild
+
+Kein Zeitplan, keine Migrationsphasen, keine 30/90-Tage-Modelle, keine Monatsplanung.
+
+ERWARTETE AUSGABE
+Strukturiere deine Antwort exakt in dieser Reihenfolge:
+
+1. Executive Summary
+2. Methodik und Annahmen
+3. Ist-Analyse
+4. Kritische Risiken
+5. Plesk-Optimierungsplan
+6. E-Mail-Optimierungsplan
+7. Subdomain-Architektur
+8. Nextcloud-Architektur
+9. MariaDB-Architektur
+10. Monitoring-Architektur
+11. Security-Hardening-Plan
+12. Repo- und CI/CD-Verbesserungen
+13. UX/UI- und Designsystem
+14. Mitgliederbereich
+15. Rollenmodell
+16. Adminbereich
+17. Webgame-Integration
+18. Dokumentations-Zielstruktur
+19. Sofortmaßnahmen nach Priorität
+20. Zielarchitektur
+21. Konkrete umzusetzende Artefakte
+
+AUSGABEREGELN
+- Arbeite technisch präzise und umsetzungsorientiert.
+- Nutze Tabellen, Matrizen und Checklisten dort, wo sie die Umsetzbarkeit erhöhen.
+- Kennzeichne Risiken immer mit Schweregrad: kritisch, hoch, mittel, niedrig.
+- Kennzeichne Maßnahmen immer mit Priorität: P0, P1, P2, P3.
+- Gib pro Maßnahme nach Möglichkeit an:
+  - Ziel
+  - Begründung
+  - Abhängigkeiten
+  - Aufwand
+  - Risiko bei Nichtumsetzung
+- Liefere zusätzlich:
+  1. eine RBAC-Matrix
+  2. eine Subdomain-Matrix
+  3. eine Mailbox-/Alias-Matrix
+  4. eine Monitoring-Matrix
+  5. eine Dokumentationsbaum-Struktur
+  6. eine Liste konkreter Artefakte, die direkt im Repo angelegt werden sollten
+- Unterscheide strikt zwischen verifiziert, wahrscheinlich und empfohlen.
+- Keine Secrets ausgeben.
+- Keine destruktiven oder intrusiven Aktionen.
+- Wenn etwas nicht verifiziert werden kann, markiere es explizit als offene Prüffrage.
+
+QUALITÄTSKRITERIEN
+Die Antwort soll auf C-Level-, Architektur-, DevOps-, Security- und Produktniveau gleichzeitig brauchbar sein.
+Sie muss:
+- auditierbar
+- technisch belastbar
+- priorisiert
+- reproduzierbar
+- migrationsfähig
+- dokumentierbar
+sein.
+
+Beginne direkt mit der vollständigen Analyse.

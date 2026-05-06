@@ -1,0 +1,10 @@
+---
+- name: Provision Menschlichkeit Österreich CRM stack
+  hosts: crm_hosts
+  become: true
+  vars:
+    drupal_root: /var/www/crm
+    drupal_webroot: /var/www/crm/web
+    drupal_user: www-data
+  roles:
+    - role: drupal

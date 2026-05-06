@@ -1,0 +1,260 @@
+{
+  "name": "Social Media Crosspost – News & Events",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "social-crosspost",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.type }}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "validate-input",
+      "name": "Validate Input",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "functionCode": "const data = $input.first().json;\nconst type = data.type || 'news';\nconst title = data.title || '';\nconst body = data.body || data.excerpt || '';\nconst url = data.url || 'https://menschlichkeit-oesterreich.at';\nconst imageUrl = data.image_url || '';\nconst tags = data.tags || [];\n\nconst defaultHashtags = ['MenschlichkeitÖsterreich', 'Österreich', 'Zivilgesellschaft'];\nconst hashtags = [...new Set([...tags, ...defaultHashtags])].slice(0, 8);\nconst hashtagStr = hashtags.map(h => '#' + h.replace(/[^a-zA-ZäöüÄÖÜß0-9]/g, '')).join(' ');\n\n// Platform-spezifische Texte\nconst instagramCaption = `${title}\\n\\n${body.slice(0, 1800)}\\n\\n🔗 Link in Bio\\n\\n${hashtagStr}`;\nconst facebookMessage = `${title}\\n\\n${body.slice(0, 2000)}\\n\\n${url}\\n\\n${hashtagStr}`;\nconst xTweet = `${title}\\n\\n${body.slice(0, 180)}…\\n\\n${url}\\n\\n${hashtags.slice(0,3).map(h => '#'+h).join(' ')}`;\nconst linkedinPost = `${title}\\n\\n${body.slice(0, 2800)}\\n\\n${url}\\n\\n${hashtagStr}`;\n\nreturn [{\n  json: {\n    type, title, body, url, imageUrl,\n    instagram: { caption: instagramCaption, imageUrl },\n    facebook: { message: facebookMessage, link: url },\n    x_twitter: { text: xTweet.slice(0, 280) },\n    linkedin: { text: linkedinPost },\n    platforms: data.platforms || ['instagram', 'facebook', 'x_twitter', 'linkedin'],\n    originalData: data\n  }\n}];"
+      },
+      "id": "prepare-content",
+      "name": "Prepare Platform Content",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.platforms.includes('instagram') }}",
+              "value2": "true"
+            }
+          ]
+        }
+      },
+      "id": "check-instagram",
+      "name": "Post to Instagram?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [900, 180]
+    },
+    {
+      "parameters": {
+        "url": "https://graph.facebook.com/v19.0/={{ $env.INSTAGRAM_USER_ID }}/media",
+        "authentication": "none",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "image_url", "value": "={{ $json.instagram.imageUrl }}" },
+            { "name": "caption", "value": "={{ $json.instagram.caption }}" },
+            { "name": "access_token", "value": "={{ $env.INSTAGRAM_ACCESS_TOKEN }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "instagram-container",
+      "name": "Instagram: Create Container",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1120, 120]
+    },
+    {
+      "parameters": {
+        "url": "https://graph.facebook.com/v19.0/={{ $env.INSTAGRAM_USER_ID }}/media_publish",
+        "authentication": "none",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "creation_id", "value": "={{ $json.id }}" },
+            { "name": "access_token", "value": "={{ $env.INSTAGRAM_ACCESS_TOKEN }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "instagram-publish",
+      "name": "Instagram: Publish",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1340, 120]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('Prepare Platform Content').first().json.platforms.includes('facebook') }}",
+              "value2": "true"
+            }
+          ]
+        }
+      },
+      "id": "check-facebook",
+      "name": "Post to Facebook?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "url": "https://graph.facebook.com/v19.0/={{ $env.FACEBOOK_PAGE_ID }}/feed",
+        "authentication": "none",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "message", "value": "={{ $('Prepare Platform Content').first().json.facebook.message }}" },
+            { "name": "link", "value": "={{ $('Prepare Platform Content').first().json.facebook.link }}" },
+            { "name": "access_token", "value": "={{ $env.FACEBOOK_PAGE_ACCESS_TOKEN }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "facebook-post",
+      "name": "Facebook: Post to Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('Prepare Platform Content').first().json.platforms.includes('x_twitter') }}",
+              "value2": "true"
+            }
+          ]
+        }
+      },
+      "id": "check-x",
+      "name": "Post to X?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [900, 420]
+    },
+    {
+      "parameters": {
+        "url": "https://api.twitter.com/2/tweets",
+        "authentication": "oAuth1Api",
+        "method": "POST",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ text: $('Prepare Platform Content').first().json.x_twitter.text }) }}",
+        "options": {}
+      },
+      "id": "x-tweet",
+      "name": "X: Post Tweet",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1120, 420]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('Prepare Platform Content').first().json.platforms.includes('linkedin') }}",
+              "value2": "true"
+            }
+          ]
+        }
+      },
+      "id": "check-linkedin",
+      "name": "Post to LinkedIn?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [900, 540]
+    },
+    {
+      "parameters": {
+        "url": "https://api.linkedin.com/v2/ugcPosts",
+        "authentication": "none",
+        "method": "POST",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer {{ $env.LINKEDIN_ACCESS_TOKEN }}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "X-Restli-Protocol-Version", "value": "2.0.0" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ author: 'urn:li:organization:' + $env.LINKEDIN_ORG_ID, lifecycleState: 'PUBLISHED', specificContent: { 'com.linkedin.ugc.ShareContent': { shareCommentary: { text: $('Prepare Platform Content').first().json.linkedin.text }, shareMediaCategory: 'NONE' } }, visibility: { 'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC' } }) }}",
+        "options": {}
+      },
+      "id": "linkedin-post",
+      "name": "LinkedIn: Post Update",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1120, 540]
+    },
+    {
+      "parameters": {
+        "functionCode": "const results = [];\nconst nodes = ['Instagram: Publish', 'Facebook: Post to Page', 'X: Post Tweet', 'LinkedIn: Post Update'];\nconst platforms = ['instagram', 'facebook', 'x_twitter', 'linkedin'];\n\nfor (let i = 0; i < platforms.length; i++) {\n  try {\n    const nodeData = $node[nodes[i]]?.json;\n    results.push({\n      platform: platforms[i],\n      status: nodeData ? 'published' : 'skipped',\n      id: nodeData?.id || nodeData?.data?.id || null\n    });\n  } catch(e) {\n    results.push({ platform: platforms[i], status: 'error', error: e.message });\n  }\n}\n\nreturn [{ json: { success: true, results, timestamp: new Date().toISOString() } }];"
+      },
+      "id": "aggregate-results",
+      "name": "Aggregate Results",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [1560, 340]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "id": "respond",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1780, 340]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": { "main": [[{ "node": "Validate Input", "type": "main", "index": 0 }]] },
+    "Validate Input": { "main": [[{ "node": "Prepare Platform Content", "type": "main", "index": 0 }]] },
+    "Prepare Platform Content": {
+      "main": [[
+        { "node": "Post to Instagram?", "type": "main", "index": 0 },
+        { "node": "Post to Facebook?", "type": "main", "index": 0 },
+        { "node": "Post to X?", "type": "main", "index": 0 },
+        { "node": "Post to LinkedIn?", "type": "main", "index": 0 }
+      ]]
+    },
+    "Post to Instagram?": { "main": [[{ "node": "Instagram: Create Container", "type": "main", "index": 0 }]] },
+    "Instagram: Create Container": { "main": [[{ "node": "Instagram: Publish", "type": "main", "index": 0 }]] },
+    "Instagram: Publish": { "main": [[{ "node": "Aggregate Results", "type": "main", "index": 0 }]] },
+    "Post to Facebook?": { "main": [[{ "node": "Facebook: Post to Page", "type": "main", "index": 0 }]] },
+    "Facebook: Post to Page": { "main": [[{ "node": "Aggregate Results", "type": "main", "index": 0 }]] },
+    "Post to X?": { "main": [[{ "node": "X: Post Tweet", "type": "main", "index": 0 }]] },
+    "X: Post Tweet": { "main": [[{ "node": "Aggregate Results", "type": "main", "index": 0 }]] },
+    "Post to LinkedIn?": { "main": [[{ "node": "LinkedIn: Post Update", "type": "main", "index": 0 }]] },
+    "LinkedIn: Post Update": { "main": [[{ "node": "Aggregate Results", "type": "main", "index": 0 }]] },
+    "Aggregate Results": { "main": [[{ "node": "Respond to Webhook", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": ["social-media", "automation", "crosspost"]
+}

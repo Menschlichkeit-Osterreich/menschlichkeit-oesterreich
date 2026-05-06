@@ -1,0 +1,16 @@
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+*.pyc
+*.pyo
+*.log
+.env
+.env.*
+tests/
+htmlcov/
+coverage/
+quality-reports/
+node_modules/
+.git/

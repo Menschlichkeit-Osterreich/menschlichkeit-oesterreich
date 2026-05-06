@@ -1,0 +1,331 @@
+{
+  "name": "MOE CRM Integration & Member Management",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "crm-event",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-crm",
+      "name": "Webhook - CRM Event",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "crm-event-webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "event-type-check",
+              "leftValue": "={{ $json.eventType }}",
+              "rightValue": "member_added",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-new-member",
+      "name": "New Member?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "payment-received",
+              "leftValue": "={{ $json.eventType }}",
+              "rightValue": "payment_received",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "if-payment-received",
+      "name": "Payment Received?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [460, 500]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "{{ $json.MOE_API_URL }}/contacts/sync-from-crm",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $json.API_TOKEN }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "crmContactId",
+              "value": "={{ $('Webhook - CRM Event').item.json.data.contactId }}"
+            },
+            {
+              "name": "memberData",
+              "value": "={{ $('Webhook - CRM Event').item.json.data }}"
+            },
+            {
+              "name": "syncType",
+              "value": "new_member"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "sync-member-to-api",
+      "name": "Sync Member to API Database",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 200]
+    },
+    {
+      "parameters": {
+        "to": "welcome@menschlichkeit-oesterreich.at",
+        "subject": "Willkommen bei Menschlichkeit Österreich - {{ $('Webhook - CRM Event').item.json.data.firstName }} {{ $('Webhook - CRM Event').item.json.data.lastName }}",
+        "emailType": "html",
+        "message": "<!DOCTYPE html>\\n<html>\\n<head>\\n    <meta charset=\\\"UTF-8\\\">\\n    <title>Willkommen bei Menschlichkeit Österreich</title>\\n</head>\\n<body style=\\\"font-family: Arial, sans-serif; line-height: 1.6; color: #333;\\\">\\n    <div style=\\\"max-width: 600px; margin: 0 auto; padding: 20px;\\\">\\n        <div style=\\\"background: linear-gradient(135deg, #C41E3A, #FFFFFF); color: white; padding: 30px; text-align: center;\\\">\\n            <h1>Willkommen bei Menschlichkeit Österreich!</h1>\\n        </div>\\n        \\n        <div style=\\\"padding: 30px; background: #f9f9f9;\\\">\\n            <p>Liebe/r {{ $('Webhook - CRM Event').item.json.data.firstName }} {{ $('Webhook - CRM Event').item.json.data.lastName }},</p>\\n            \\n            <p>herzlich willkommen als neues Mitglied bei <strong>Menschlichkeit Österreich</strong>!</p>\\n            \\n            <p>Mit Ihrer Mitgliedschaft unterstützen Sie unsere humanitäre Arbeit und tragen dazu bei, Menschen in Not zu helfen.</p>\\n            \\n            <h3 style=\\\"color: #C41E3A;\\\">Ihre nächsten Schritte:</h3>\\n            <ul>\\n                <li>🔐 <a href=\\\"https://crm.menschlichkeit-oesterreich.at/user/login\\\">Einloggen ins Mitgliederportal</a></li>\\n                <li>🎮 <a href=\\\"https://games.menschlichkeit-oesterreich.at\\\">Demokratie-Spiele entdecken</a></li>\\n                <li>📧 Newsletter-Einstellungen anpassen</li>\\n                <li>📋 Freiwilligenarbeit kennenlernen</li>\\n            </ul>\\n            \\n            <p>Bei Fragen wenden Sie sich gerne an: <a href=\\\"mailto:mitglieder@menschlichkeit-oesterreich.at\\\">mitglieder@menschlichkeit-oesterreich.at</a></p>\\n            \\n            <p>Vielen Dank für Ihr Vertrauen!</p>\\n            <p><strong>Ihr Team von Menschlichkeit Österreich</strong></p>\\n        </div>\\n        \\n        <div style=\\\"padding: 20px; text-align: center; background: #C41E3A; color: white;\\\">\\n            <p style=\\\"margin: 0;\\\">Menschlichkeit Österreich | Humanitäre Hilfe mit Herz</p>\\n        </div>\\n    </div>\\n</body>\\n</html>",
+        "options": {
+          "ccEmail": "mitglieder@menschlichkeit-oesterreich.at"
+        }
+      },
+      "id": "send-welcome-email",
+      "name": "Send Welcome Email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [680, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "{{ $json.MOE_API_URL }}/payments/process-sepa",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $json.API_TOKEN }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "memberId",
+              "value": "={{ $('Webhook - CRM Event').item.json.data.memberId }}"
+            },
+            {
+              "name": "amount",
+              "value": "={{ $('Webhook - CRM Event').item.json.data.amount }}"
+            },
+            {
+              "name": "paymentType",
+              "value": "membership_fee"
+            },
+            {
+              "name": "crmPaymentId",
+              "value": "={{ $('Webhook - CRM Event').item.json.data.paymentId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "process-payment-api",
+      "name": "Process Payment in API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 600]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "{{ $json.SLACK_WEBHOOK_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "text",
+              "value": "💰 *Payment Received!*\\n\\n👤 **Member:** {{ $('Webhook - CRM Event').item.json.data.firstName }} {{ $('Webhook - CRM Event').item.json.data.lastName }}\\n💵 **Amount:** €{{ $('Webhook - CRM Event').item.json.data.amount }}\\n📅 **Date:** {{ $('Webhook - CRM Event').item.json.timestamp }}\\n🏦 **Type:** {{ $('Webhook - CRM Event').item.json.data.paymentType || 'Membership Fee' }}"
+            },
+            {
+              "name": "channel",
+              "value": "#moe-finances"
+            },
+            {
+              "name": "username",
+              "value": "MOE Finance Bot"
+            },
+            {
+              "name": "icon_emoji",
+              "value": ":money_with_wings:"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "slack-payment-notification",
+      "name": "Slack - Payment Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 600]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"status\": \"processed\", \"webhook\": \"crm-event\", \"eventType\": $('Webhook - CRM Event').item.json.eventType, \"timestamp\": new Date().toISOString() } }}"
+      },
+      "id": "respond-crm-webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1120, 400]
+    }
+  ],
+  "connections": {
+    "Webhook - CRM Event": {
+      "main": [
+        [
+          {
+            "node": "New Member?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Payment Received?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Member?": {
+      "main": [
+        [
+          {
+            "node": "Sync Member to API Database",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Welcome Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Payment Received?": {
+      "main": [
+        [
+          {
+            "node": "Process Payment in API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sync Member to API Database": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Welcome Email": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Payment in API": {
+      "main": [
+        [
+          {
+            "node": "Slack - Payment Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack - Payment Notification": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-09-27T10:00:00.000Z",
+      "updatedAt": "2025-09-27T10:00:00.000Z",
+      "id": "moe-crm",
+      "name": "MOE CRM"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2025-09-27T10:00:00.000Z",
+  "versionId": "1"
+}

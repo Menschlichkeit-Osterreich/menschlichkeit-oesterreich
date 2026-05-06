@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+commit_msg_file="${1}"
+
+if [ ! -f "${commit_msg_file}" ]; then
+  echo "❌ Commit-Message-Datei nicht gefunden: ${commit_msg_file}"
+  exit 1
+fi
+
+npx --no -- commitlint --edit "${commit_msg_file}"

@@ -1,0 +1,3 @@
+# Gitleaks ignore fingerprints only.
+# Path-based exclusions live in .gitleaks.toml.
+# Add concrete finding fingerprints here only when triaged and approved.

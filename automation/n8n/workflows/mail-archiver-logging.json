@@ -1,0 +1,251 @@
+{
+  "name": "📧 Mail-Archivierung: logging@menschlichkeit-oesterreich.at",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 3
+            }
+          ]
+        }
+      },
+      "id": "1",
+      "name": "Täglich 03:00 Uhr",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "host": "menschlichkeit-oesterreich.at",
+        "user": "logging@menschlichkeit-oesterreich.at",
+        "ssl": true,
+        "port": 993,
+        "format": "resolved",
+        "options": {
+          "allowUnauthorizedCerts": false,
+          "forceReconnect": 5
+        }
+      },
+      "id": "2",
+      "name": "IMAP: logging@ abrufen",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2.1,
+      "position": [470, 300],
+      "credentials": {
+        "imap": {
+          "id": "logging_mailbox",
+          "name": "logging@menschlichkeit-oesterreich.at"
+        }
+      },
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.date }}",
+              "operation": "isNotEmpty"
+            },
+            {
+              "value1": "={{ new Date($json.date).getTime() }}",
+              "operation": "smaller",
+              "value2": "={{ new Date().setDate(new Date().getDate() - 90) }}"
+            }
+          ]
+        },
+        "combineOperation": "all"
+      },
+      "id": "3",
+      "name": "Filter: Älter als 90 Tage",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [690, 300]
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "={{ 'archive/' + new Date($json.date).getFullYear() + '/' + (new Date($json.date).getMonth() + 1).toString().padStart(2, '0') + '/' + $json.messageId + '.eml' }}",
+        "dataPropertyName": "raw",
+        "options": {
+          "createDirs": true,
+          "encoding": "utf8"
+        }
+      },
+      "id": "4",
+      "name": "Speichern: ELK-Archive",
+      "type": "n8n-nodes-base.writeBinaryFile",
+      "typeVersion": 1,
+      "position": [910, 200],
+      "notesInFlow": true,
+      "notes": "Struktur: archive/2025/10/message-id.eml"
+    },
+    {
+      "parameters": {
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api",
+        "operation": "delete",
+        "host": "menschlichkeit-oesterreich.at",
+        "user": "logging@menschlichkeit-oesterreich.at",
+        "ssl": true,
+        "port": 993,
+        "messageId": "={{ $json.messageId }}",
+        "options": {
+          "allowUnauthorizedCerts": false
+        }
+      },
+      "id": "5",
+      "name": "IMAP: Nachricht löschen",
+      "type": "n8n-nodes-base.emailReadImap",
+      "typeVersion": 2.1,
+      "position": [1130, 200],
+      "credentials": {
+        "imap": {
+          "id": "logging_mailbox",
+          "name": "logging@menschlichkeit-oesterreich.at"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.N8N_WEBHOOK_BASE_URL }}/webhook/mail-archive-report",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "archived_count",
+              "value": "={{ $runIndex }}"
+            },
+            {
+              "name": "mailbox",
+              "value": "logging@menschlichkeit-oesterreich.at"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ new Date().toISOString() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6",
+      "name": "Webhook: Archiv-Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1350, 200]
+    },
+    {
+      "parameters": {},
+      "id": "7",
+      "name": "Keine alten Nachrichten",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [910, 400],
+      "notesInFlow": true,
+      "notes": "Alle Nachrichten jünger als 90 Tage"
+    }
+  ],
+  "connections": {
+    "Täglich 03:00 Uhr": {
+      "main": [
+        [
+          {
+            "node": "IMAP: logging@ abrufen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IMAP: logging@ abrufen": {
+      "main": [
+        [
+          {
+            "node": "Filter: Älter als 90 Tage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter: Älter als 90 Tage": {
+      "main": [
+        [
+          {
+            "node": "Speichern: ELK-Archive",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Keine alten Nachrichten",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Speichern: ELK-Archive": {
+      "main": [
+        [
+          {
+            "node": "IMAP: Nachricht löschen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IMAP: Nachricht löschen": {
+      "main": [
+        [
+          {
+            "node": "Webhook: Archiv-Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "n8n-error-handler"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-10-18T00:00:00.000Z",
+      "updatedAt": "2025-10-18T00:00:00.000Z",
+      "id": "mail-archiving",
+      "name": "Mail-Archiving"
+    },
+    {
+      "createdAt": "2025-10-18T00:00:00.000Z",
+      "updatedAt": "2025-10-18T00:00:00.000Z",
+      "id": "critical",
+      "name": "CRITICAL"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2025-10-18T00:00:00.000Z",
+  "versionId": "1"
+}

@@ -1,0 +1,105 @@
+---
+- name: Install required apt packages
+  apt:
+    name:
+      - php8.2-fpm
+      - php8.2-cli
+      - php8.2-mysql
+      - php8.2-xml
+      - php8.2-gd
+      - php8.2-mbstring
+      - php8.2-curl
+      - php8.2-zip
+      - unzip
+      - git
+    state: present
+    update_cache: true
+
+- name: Ensure Drupal root directories exist
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ drupal_user }}"
+    group: "{{ drupal_user }}"
+    mode: '0750'
+  loop:
+    - "{{ drupal_root }}"
+    - "{{ drupal_webroot }}"
+    - "{{ drupal_webroot }}/sites/default/files"
+
+- name: Copy release artifact into place
+  synchronize:
+    src: "{{ playbook_dir }}/../../crm.menschlichkeit-oesterreich.at/"
+    dest: "{{ drupal_root }}/"
+    delete: false
+    recursive: true
+    rsync_opts:
+      - "--exclude=.git"
+      - "--exclude=vendor"
+      - "--exclude=node_modules"
+      - "--exclude=web/sites/default/files"
+
+- name: Install composer dependencies
+  command: composer install --no-dev --optimize-autoloader
+  args:
+    chdir: "{{ drupal_root }}"
+    creates: "{{ drupal_root }}/vendor/autoload.php"
+  environment:
+    COMPOSER_ALLOW_SUPERUSER: '1'
+
+- name: Ensure settings.local.php symlink is present
+  file:
+    src: /etc/opt/moe/settings.local.php
+    dest: "{{ drupal_webroot }}/sites/default/settings.local.php"
+    state: link
+    owner: "{{ drupal_user }}"
+    group: "{{ drupal_user }}"
+
+- name: Generate Starterkit subtheme
+  command: drush --root={{ drupal_webroot }} theme:generate menschlichkeit_theme --starterkit --description="Menschlichkeit Österreich"
+  args:
+    creates: "{{ drupal_root }}/themes/custom/menschlichkeit_theme/menschlichkeit_theme.info.yml"
+  become_user: "{{ drupal_user }}"
+
+- name: Enable subtheme and performance modules
+  command: drush --root={{ drupal_webroot }} pm:enable {{ item }} -y
+  loop:
+    - menschlichkeit_theme
+    - big_pipe
+    - dynamic_page_cache
+    - imagemagick
+    - responsive_image
+    - advagg
+    - webp
+    - blazy
+  become_user: "{{ drupal_user }}"
+
+- name: Set Menschlichkeit theme as default
+  command: drush --root={{ drupal_webroot }} config-set system.theme default menschlichkeit_theme -y
+  become_user: "{{ drupal_user }}"
+
+- name: Enable aggregation and cache settings
+  blockinfile:
+    path: "{{ drupal_webroot }}/sites/default/services.local.yml"
+    create: true
+    owner: "{{ drupal_user }}"
+    group: "{{ drupal_user }}"
+    mode: '0640'
+    block: |
+      parameters:
+        twig.config:
+          cache: true
+        renderer.config:
+          auto_placeholder_threshold: 2
+        http.response.debug_cacheability_headers: false
+      services:
+        cache.page:
+          class: Drupal\Core\Cache\ChainCacheBackend
+
+- name: Run database updates
+  command: drush --root={{ drupal_webroot }} updatedb -y
+  become_user: "{{ drupal_user }}"
+
+- name: Clear Drupal caches
+  command: drush --root={{ drupal_webroot }} cr
+  become_user: "{{ drupal_user }}"

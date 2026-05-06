@@ -1,0 +1,60 @@
+name: API OpenAPI Export
+# Exportiert die OpenAPI-Spezifikation aus apps/api/ (primäre Quelle).
+# Historische Root-Snapshots werden nicht exportiert; Quelle der Wahrheit ist apps/api/openapi.yaml.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/api/**'
+      - 'scripts/export-openapi.py'
+      - '.github/workflows/api-openapi-export.yml'
+  workflow_dispatch: {}
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  export-openapi:
+    name: OpenAPI Export (apps/api)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Python
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        with:
+          python-version: '3.12'
+
+      - name: Install FastAPI minimal deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install fastapi pydantic uvicorn
+
+      - name: Export OpenAPI JSON
+        continue-on-error: true
+        run: |
+          python3 scripts/export-openapi.py \
+            --file apps/api/app/main.py \
+            --app app \
+            --out apps/api/openapi.generated.json
+
+      - name: Upload OpenAPI (generated JSON)
+        if: hashFiles('apps/api/openapi.generated.json') != ''
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        with:
+          name: api-openapi
+          path: apps/api/openapi.generated.json
+          retention-days: 7
+
+      - name: Upload OpenAPI (fallback committed YAML)
+        if: hashFiles('apps/api/openapi.generated.json') == '' && hashFiles('apps/api/openapi.yaml') != ''
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        with:
+          name: api-openapi
+          path: apps/api/openapi.yaml
+          retention-days: 7

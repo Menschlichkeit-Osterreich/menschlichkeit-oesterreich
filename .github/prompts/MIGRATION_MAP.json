@@ -1,0 +1,11 @@
+{
+  "updated": "2026-05-04T00:00:00.000Z",
+  "status": "ACTIVE",
+  "deprecated_count": 0,
+  "mappings": {},
+  "sourceOfTruth": ".github/ai-registry.json",
+  "notes": [
+    "Legacy chatmode artifacts under .github/prompts/chatmodes were removed.",
+    "Active chatmodes are maintained under .github/chatmodes/**/*.chatmode.md."
+  ]
+}

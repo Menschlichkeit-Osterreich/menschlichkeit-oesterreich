@@ -1,0 +1,76 @@
+[tool.black]
+line-length = 88
+target-version = ['py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    menschlichkeit-oesterreich-monorepo/
+    | wp-content/
+    | vendor/
+    | node_modules/
+    | \.git/
+    | \.venv/
+    | venv/
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["mcp"]
+skip_glob = ["menschlichkeit-oesterreich-monorepo/**", "wp-content/**", "vendor/**"]
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+exclude = [
+    "menschlichkeit-oesterreich-monorepo/",
+    "wp-content/",
+    "vendor/",
+    "node_modules/",
+    ".git/",
+    ".venv/",
+    "venv/"
+]
+per-file-ignores = [
+    "__init__.py:F401"
+]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "mcp.*",
+    "anthropic.*",
+    "fastapi.*",
+    "uvicorn.*"
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --strict-markers"
+cache_dir = "apps/api/.pytest_cache"
+testpaths = [
+    "apps/api/tests"
+]
+python_files = "test_*.py *_test.py"
+python_functions = "test_*"
+markers = [
+    "slow: marks tests as slow",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests"
+]

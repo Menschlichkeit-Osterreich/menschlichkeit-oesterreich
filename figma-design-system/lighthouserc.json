@@ -1,0 +1,47 @@
+{
+  "ci": {
+    "collect": {
+      "numberOfRuns": 3,
+      "startServerCommand": "npm run preview",
+      "startServerReadyPattern": "Local:",
+      "url": [
+        "http://localhost:3000",
+        "http://localhost:3000/democracy-hub",
+        "http://localhost:3000/democracy-game",
+        "http://localhost:3000/democracy-metaverse"
+      ],
+      "settings": {
+        "chromeFlags": "--no-sandbox --headless",
+        "preset": "desktop",
+        "throttling": {
+          "rttMs": 40,
+          "throughputKbps": 10240,
+          "cpuSlowdownMultiplier": 1,
+          "requestLatencyMs": 0,
+          "downloadThroughputKbps": 0,
+          "uploadThroughputKbps": 0
+        },
+        "auditMode": false,
+        "gatherMode": false,
+        "disableStorageReset": false,
+        "emulatedFormFactor": "desktop",
+        "locale": "de-AT",
+        "skipAudits": [
+          "uses-http2"
+        ]
+      }
+    },
+    "assert": {
+      "assertions": {
+        "categories:performance": ["error", {"minScore": 0.9}],
+        "categories:accessibility": ["error", {"minScore": 0.9}],
+        "categories:best-practices": ["error", {"minScore": 0.95}],
+        "categories:seo": ["error", {"minScore": 0.9}],
+        "categories:pwa": ["warn", {"minScore": 0.8}]
+      }
+    },
+    "upload": {
+      "target": "temporary-public-storage"
+    }
+  }
+}

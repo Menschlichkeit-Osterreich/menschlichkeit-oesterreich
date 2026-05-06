@@ -1,0 +1,72 @@
+name: AI Artifacts
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'scripts/ai/**'
+      - 'docs/ai/**'
+      - 'docker-compose*.yml'
+      - '.github/workflows/ai-artifacts.yml'
+  pull_request:
+    paths:
+      - 'scripts/ai/**'
+      - 'docs/ai/**'
+      - 'docker-compose*.yml'
+      - '.github/workflows/ai-artifacts.yml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  build-ai-artifacts:
+    name: AI Artifact Generation & Validation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      - name: Setup Python
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b  # v5.3.0
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml jsonschema
+
+      - name: Generate AI artifacts
+        run: |
+          python3 scripts/ai/generate_repo_manifest.py
+          python3 scripts/ai/generate_service_map.py
+          python3 scripts/ai/generate_dependency_graph.py
+          python3 scripts/ai/generate_data_flows.py
+          python3 scripts/ai/generate_entrypoints.py
+
+      - name: Validate artifacts against schemas
+        run: python3 scripts/ai/validate_ai_artifacts.py
+
+      - name: Check for unstaged diffs
+        run: |
+          # repo-manifest.json ausgeschlossen: enthält commit_sha via HEAD^ (inhärent dynamisch).
+          # Semantische Artefakte werden geprüft.
+          SEMANTIC_FILES="docs/ai/service-map.json docs/ai/dependency-graph.json docs/ai/entrypoints.json docs/ai/data-flows.json"
+          if ! git diff --quiet -- $SEMANTIC_FILES; then
+            echo "AI-Artefakte wurden geändert. Bitte docs/ai/-Outputs committen."
+            git --no-pager diff -- $SEMANTIC_FILES
+            exit 1
+          fi
+
+      - name: Upload AI artifacts
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
+        with:
+          name: ai-read-layer-artifacts
+          path: |
+            docs/ai/*.json
+            docs/ai/llms.txt
+            docs/ai/schemas/*.json
+          retention-days: 7

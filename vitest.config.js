@@ -1,0 +1,50 @@
+// Vitest Configuration
+import { resolve } from 'path';
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./tests/setup.js'],
+    include: ['**/unit/**/*.{test,spec}.{js,ts}', 'tests/**/*.test.{js,ts}'],
+    exclude: [
+      'node_modules',
+      'dist',
+      '.next',
+      'coverage',
+      '.tmp/**',
+      '_codacy_worktree/**',
+      'figma-design-system/**',
+      '**/e2e/**',
+      '**/playwright/**',
+      '.trunk/**',
+      'crm.menschlichkeit-oesterreich.at/web/**',
+    ],
+    coverage: {
+      reportsDirectory: './coverage',
+      reporter: ['text', 'json', 'json-summary', 'html', 'lcovonly'],
+      exclude: [
+        'node_modules/',
+        'test/',
+        '**/*.d.ts',
+        '**/*.config.*',
+        '**/dist/**',
+        '**/coverage/**',
+        '.tmp/**',
+        '_codacy_worktree/**',
+        'figma-design-system/**',
+      ],
+    },
+  },
+  resolve: {
+    alias: {
+      '@/game': resolve(__dirname, './apps/babylon-game/src/game'),
+      '@': resolve(__dirname, './'),
+      '@web': resolve(__dirname, './web'),
+      '@games': resolve(__dirname, './web/games'),
+      '@api': resolve(__dirname, './api.menschlichkeit-oesterreich.at'),
+      '@crm': resolve(__dirname, './crm.menschlichkeit-oesterreich.at'),
+    },
+  },
+});

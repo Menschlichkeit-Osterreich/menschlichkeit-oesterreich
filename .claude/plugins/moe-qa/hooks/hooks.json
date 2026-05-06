@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo $TOOL_INPUT | grep -qiE 'routers/[a-z_]+\\.py' && echo '[!] MOe-QA: Neuer/geaenderter API-Router - bitte zugehoerige Tests in apps/api/tests/ erstellen!' || true"
+          }
+        ]
+      }
+    ]
+  }
+}

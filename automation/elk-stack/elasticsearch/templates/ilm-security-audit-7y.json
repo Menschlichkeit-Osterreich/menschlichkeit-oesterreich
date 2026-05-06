@@ -1,0 +1,66 @@
+{
+  "policy": "security-audit-retention-7y",
+  "phases": {
+    "hot": {
+      "min_age": "0ms",
+      "actions": {
+        "rollover": {
+          "max_age": "1d",
+          "max_primary_shard_size": "50gb"
+        },
+        "set_priority": {
+          "priority": 100
+        }
+      }
+    },
+    "warm": {
+      "min_age": "30d",
+      "actions": {
+        "set_priority": {
+          "priority": 50
+        },
+        "allocate": {
+          "number_of_replicas": 2
+        },
+        "forcemerge": {
+          "max_num_segments": 1
+        }
+      }
+    },
+    "cold": {
+      "min_age": "180d",
+      "actions": {
+        "set_priority": {
+          "priority": 0
+        },
+        "searchable_snapshot": {
+          "snapshot_repository": "security_backups"
+        }
+      }
+    },
+    "delete": {
+      "min_age": "2555d",
+      "actions": {
+        "delete": {
+          "delete_searchable_snapshot": true
+        }
+      }
+    }
+  },
+  "_meta": {
+    "description": "ILM policy for security audit logs (7-year retention)",
+    "version": "1.0.0",
+    "managed_by": "F-03 Phase 4 - Centralized Log Aggregation",
+    "compliance": {
+      "gdpr_article": "Article 5(2) - Accountability, Article 32 - Security",
+      "retention_period": "2555 days (7 years)",
+      "purpose": "Long-term security incident investigation and forensics",
+      "lifecycle": {
+        "hot": "0-30 days (active indexing, high availability)",
+        "warm": "30-180 days (reduce costs, maintain searchability)",
+        "cold": "180-2555 days (searchable snapshots, archival storage)",
+        "delete": "After 7 years (permanent deletion)"
+      }
+    }
+  }
+}

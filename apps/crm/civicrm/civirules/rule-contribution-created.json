@@ -1,0 +1,53 @@
+{
+  "_comment": "Issue #140 – CiviRules: Kern-Automatismus #1 – Neue Zahlung/Spende eingegangen",
+  "rule": {
+    "name": "MOE: Neue Contribution eingegangen",
+    "label": "MOE: Neue Zahlung / Spende verarbeiten",
+    "description": "Wird ausgelöst wenn eine neue Contribution (Spende oder Mitgliedsbeitrag) mit Status 'Completed' angelegt wird. Setzt Tags, legt Aktivität an und sendet Dankes-E-Mail.",
+    "trigger": "civicrm_post",
+    "trigger_params": {
+      "entity": "Contribution",
+      "action": "create"
+    },
+    "is_active": true
+  },
+  "conditions": [
+    {
+      "condition": "CRM_Civirules_Condition_Contribution_ContributionStatus",
+      "params": {
+        "contribution_status_id": [1],
+        "operator": "in"
+      }
+    }
+  ],
+  "actions": [
+    {
+      "action": "CRM_CivirulesActions_Contact_Tag",
+      "label": "Tag 'Spender:in' setzen",
+      "params": {
+        "tag_id": "Spender:in",
+        "action": "add"
+      }
+    },
+    {
+      "action": "CRM_CivirulesActions_Activity_Add",
+      "label": "Aktivität 'Zahlung eingegangen' anlegen",
+      "params": {
+        "activity_type_id": "Contribution",
+        "subject": "Zahlung eingegangen",
+        "details": "Automatisch erstellt durch CiviRules bei Contribution {contribution.id} über {contribution.total_amount} {contribution.currency}.",
+        "status_id": "Completed",
+        "source_contact_id": "{contribution.contact_id}"
+      }
+    },
+    {
+      "action": "CRM_CivirulesActions_Contact_SendEmail",
+      "label": "Dankes-E-Mail senden",
+      "params": {
+        "template_id": "MOE Spendenbestätigung",
+        "from_email": "noreply@menschlichkeit-oesterreich.at",
+        "from_name": "Menschlichkeit Österreich"
+      }
+    }
+  ]
+}

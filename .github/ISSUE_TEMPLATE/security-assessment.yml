@@ -1,0 +1,162 @@
+name: 🛡️ Security Assessment
+description: Comprehensive security audit for the multi-technology environment
+title: "Security Assessment durchführen"
+labels: ["security", "audit", "critical"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🛡️ Comprehensive Security Assessment
+
+        Systematischer Security Audit für das Multi-Technology Development Environment mit Focus auf API-Keys, Environment Variables, Docker-Security und Drupal/CiviCRM Vulnerabilities.
+
+  - type: checkboxes
+    id: api-security
+    attributes:
+      label: 🔐 API Keys & Secrets Management
+      description: Analyse und Sicherung von API-Zugangsdaten
+      options:
+        - label: "Stripe API Keys Security Audit"
+        - label: "Mailchimp API Token Rotation"
+        - label: "Google Services Credentials Review"
+        - label: "Drupal/CiviCRM API Key Management"
+        - label: "Plesk OpenAPI Authentication Check"
+        - label: ".env Files auf Commit-History prüfen"
+        - label: "GitHub Secrets Konfiguration optimieren"
+
+  - type: checkboxes
+    id: environment-security
+    attributes:
+      label: 🌐 Environment Variables Security
+      description: Sichere Konfiguration von Umgebungsvariablen
+      options:
+        - label: "Production vs Development Environment Separation"
+        - label: "Environment Variable Encryption"
+        - label: "Sensitive Data in Logs eliminieren"
+        - label: "Docker Environment Security"
+        - label: "VS Code Settings Security Review"
+
+  - type: checkboxes
+    id: docker-security
+    attributes:
+      label: 🐳 Docker Container Security
+      description: Container-Sicherheit und Best Practices
+      options:
+        - label: "Multi-Stage Build Security Review"
+        - label: "Base Image Vulnerability Scanning"
+        - label: "Container User Privileges Audit"
+        - label: "Docker Network Security Configuration"
+        - label: "Volume Mount Security Analysis"
+        - label: "Docker Secrets vs Environment Variables"
+
+  - type: checkboxes
+    id: drupal-security
+    attributes:
+      label: 🌐 Drupal/CiviCRM Security Audit
+      description: Drupal/CiviCRM-spezifische Sicherheitsanalyse
+      options:
+        - label: "Module Vulnerability Scanning (drupal.org advisories)"
+        - label: "Theme Security Review (Drupal Starterkit)"
+        - label: "Drupal Core Version Audit"
+        - label: "Database Security Configuration"
+        - label: "File Permissions Check"
+        - label: "Admin User Security Review"
+        - label: "settings.php / civicrm.settings.php Hardening"
+
+  - type: checkboxes
+    id: dependency-security
+    attributes:
+      label: 📦 Dependency Security Analysis
+      description: Third-Party-Pakete Sicherheitsanalyse
+      options:
+        - label: "npm audit für alle package.json Files"
+        - label: "Python Safety Check für requirements.txt"
+        - label: "Composer Security Advisories Check"
+        - label: "Automated Dependency Updates (Dependabot)"
+        - label: "License Compliance Check"
+        - label: "Supply Chain Attack Prevention"
+
+  - type: checkboxes
+    id: network-security
+    attributes:
+      label: 🌐 Network & Communication Security
+      description: Netzwerk- und Kommunikationssicherheit
+      options:
+        - label: "HTTPS/SSL Certificate Management"
+        - label: "MCP Server Communication Security"
+        - label: "API Rate Limiting Implementation"
+        - label: "CORS Configuration Review"
+        - label: "Webhook Security (Stripe, Mailchimp)"
+
+  - type: textarea
+    id: vulnerability-findings
+    attributes:
+      label: 🚨 Vulnerability Findings
+      description: Identifizierte Sicherheitslücken
+      placeholder: |
+        **High Priority:**
+        - mailchimp-api-v3@1.13.1 has known vulnerabilities
+        - form-data@2.3.3 contains security issues
+
+        **Medium Priority:**
+        - Drupal modules need updates
+        - Docker base images have minor vulnerabilities
+
+        **Low Priority:**
+        - Development dependencies with non-critical issues
+
+  - type: textarea
+    id: remediation-plan
+    attributes:
+      label: 🔧 Remediation Plan
+      description: Maßnahmen zur Behebung der Sicherheitslücken
+      placeholder: |
+        1. **Immediate Actions (24h):**
+           - Update critical npm packages
+           - Rotate exposed API keys
+
+        2. **Short Term (1 week):**
+           - Implement GitHub Secrets
+           - Update Drupal modules & extensions
+
+        3. **Long Term (1 month):**
+           - Security monitoring setup
+           - Penetration testing schedule
+
+  - type: dropdown
+    id: risk-level
+    attributes:
+      label: ⚠️ Overall Risk Level
+      description: Gesamtrisikobewertung
+      options:
+        - "🔴 Critical - Immediate action required"
+        - "🟠 High - Action needed within 48h"
+        - "🟡 Medium - Action needed within 1 week"
+        - "🟢 Low - Monitor and plan improvements"
+      default: 1
+
+  - type: checkboxes
+    id: compliance-requirements
+    attributes:
+      label: 📋 Compliance & Standards
+      description: Compliance-Anforderungen
+      options:
+        - label: "GDPR Data Protection Compliance"
+        - label: "OWASP Top 10 Vulnerability Check"
+        - label: "ISO 27001 Security Standards"
+        - label: "PCI DSS for Payment Processing (Stripe)"
+        - label: "Austrian Data Protection Laws"
+
+  - type: checkboxes
+    id: acceptance-criteria
+    attributes:
+      label: ✅ Security Acceptance Criteria
+      description: Definition of Done für Security Assessment
+      options:
+        - label: "Alle Critical und High Vulnerabilities behoben"
+        - label: "Automated Security Scanning implementiert"
+        - label: "Security Documentation aktualisiert"
+        - label: "Team Security Training durchgeführt"
+        - label: "Incident Response Plan erstellt"
+        - label: "Regular Security Review Schedule etabliert"

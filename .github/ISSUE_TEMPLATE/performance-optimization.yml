@@ -1,0 +1,186 @@
+name: ⚡ Performance Optimization
+description: Analyze and optimize performance across the MCP server architecture
+title: "Performance-Optimierung der MCP Server-Architektur"
+labels: ["performance", "optimization", "mcp-servers"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ⚡ Performance-Optimierung
+
+        Systematische Leistungsanalyse und Optimierung der MCP Server-Architektur, Python/TypeScript/PHP Performance-Profiling und Implementierung von Optimierungsempfehlungen.
+
+  - type: checkboxes
+    id: mcp-server-performance
+    attributes:
+      label: 🔧 MCP Server Architecture Performance
+      description: Analyse der MCP Server-Leistung
+      options:
+        - label: "Essential Stack (Stripe, Mailchimp, Google) Response Times"
+        - label: "Web Experience (Drupal Frontend, Portal) Throughput Analysis"
+        - label: "MCP Bridge WebSocket Performance"
+        - label: "MCP Search Engine Query Performance"
+        - label: "Inter-Server Communication Latency"
+        - label: "Memory Usage Pattern Analysis"
+        - label: "CPU Utilization Profiling"
+
+  - type: checkboxes
+    id: language-specific-profiling
+    attributes:
+      label: 🔍 Language-Specific Performance Profiling
+      description: Sprachspezifische Performance-Analyse
+      options:
+        - label: "**TypeScript/Node.js Profiling:**"
+        - label: "V8 Memory Heap Analysis"
+        - label: "Event Loop Performance Monitoring"
+        - label: "npm Package Bundle Size Optimization"
+        - label: "TypeScript Compilation Performance"
+        - label: "**Python Performance Analysis:**"
+        - label: "FastMCP Server Response Time Profiling"
+        - label: "Python Memory Management (GC Analysis)"
+        - label: "Async/Await Performance Patterns"
+        - label: "uv Package Manager Performance vs pip"
+        - label: "**PHP Performance (Drupal/CiviCRM):**"
+        - label: "Drupal Module Performance Impact"
+        - label: "PHP-FPM Configuration Optimization"
+        - label: "Database Query Performance (MySQL)"
+        - label: "PHP OpCache Configuration"
+
+  - type: checkboxes
+    id: docker-optimization
+    attributes:
+      label: 🐳 Docker Performance Optimization
+      description: Container-Performance und Multi-Stage-Build-Optimierung
+      options:
+        - label: "Multi-Stage Build Layer Caching Optimization"
+        - label: "Container Startup Time Reduction"
+        - label: "Image Size Minimization"
+        - label: "Docker Network Performance"
+        - label: "Volume Mount Performance Analysis"
+        - label: "Container Resource Limits Tuning"
+
+  - type: checkboxes
+    id: database-optimization
+    attributes:
+      label: 🗄️ Database & Storage Performance
+      description: Datenbank- und Speicher-Performance
+      options:
+        - label: "Drupal MySQL Query Optimization"
+        - label: "Database Indexing Analysis"
+        - label: "Connection Pool Configuration"
+        - label: "Caching Strategy (Redis/Memcached)"
+        - label: "File System Performance (Drupal media uploads)"
+
+  - type: checkboxes
+    id: monitoring-setup
+    attributes:
+      label: 📊 Performance Monitoring Setup
+      description: Performance-Monitoring und Alerting
+      options:
+        - label: "Application Performance Monitoring (APM) Setup"
+        - label: "Custom Metrics Dashboard (Grafana)"
+        - label: "Real-time Performance Alerts"
+        - label: "Load Testing Framework Setup"
+        - label: "Performance Regression Detection"
+
+  - type: textarea
+    id: performance-issues
+    attributes:
+      label: 🐌 Identified Performance Issues
+      description: Gefundene Performance-Probleme
+      placeholder: |
+        **Critical Issues:**
+        - MCP Essential Stack: Stripe API calls taking >2s
+        - CRM portal loading time >3s on mobile
+
+        **Notable Issues:**
+        - Python MCP Search: High memory usage during bulk operations
+        - Docker builds taking 5+ minutes per service
+
+        **Minor Issues:**
+        - TypeScript compilation slow in development mode
+        - Large bundle sizes in production builds
+
+  - type: textarea
+    id: benchmarks
+    attributes:
+      label: 📈 Performance Benchmarks
+      description: Aktuelle Performance-Metriken
+      placeholder: |
+        **Current Benchmarks:**
+        - MCP Server Response Time: ~500ms average
+        - CRM Portal Page Load: 2.8s (desktop), 4.2s (mobile)
+        - Docker Build Time: Essential Stack 3m, Frontend Stack 4m
+        - Bundle Sizes: Essential 2.1MB, Web 3.4MB
+        - Memory Usage: Node.js 150MB, Python 80MB average
+
+        **Target Benchmarks:**
+        - MCP Response: <200ms
+        - CRM Page Load: <2s (desktop), <3s (mobile)
+        - Build Time: <2m per service
+        - Bundle Size: <1.5MB per stack
+
+  - type: textarea
+    id: optimization-recommendations
+    attributes:
+      label: 🚀 Optimization Recommendations
+      description: Konkrete Optimierungsvorschläge
+      placeholder: |
+        **High Impact Optimizations:**
+        1. Implement Redis caching for MCP Server responses
+        2. Enable Brotli compression for static assets
+        3. Optimize Docker layer caching strategy
+        4. Database query optimization and indexing
+
+        **Medium Impact Optimizations:**
+        1. Code splitting for JavaScript bundles
+        2. Image optimization pipeline
+        3. HTTP/2 and resource preloading
+        4. Service worker caching strategy
+
+        **Low Impact / Long-term:**
+        1. CDN implementation
+        2. Server-side rendering (SSR) evaluation
+        3. Microservice architecture evolution
+
+  - type: dropdown
+    id: performance-priority
+    attributes:
+      label: ⚡ Optimization Priority
+      description: Priorität der Performance-Optimierung
+      options:
+        - "🔴 Critical - User experience severely impacted"
+        - "🟠 High - Performance bottlenecks affecting productivity"
+        - "🟡 Medium - Noticeable improvements needed"
+        - "🟢 Low - Fine-tuning and monitoring"
+      default: 1
+
+  - type: checkboxes
+    id: testing-strategy
+    attributes:
+      label: 🧪 Performance Testing Strategy
+      description: Test-Strategie für Performance-Optimierungen
+      options:
+        - label: "Load Testing (Apache Bench, k6)"
+        - label: "Stress Testing für MCP Servers"
+        - label: "Memory Leak Detection"
+        - label: "Database Performance Testing"
+        - label: "Mobile Performance Testing"
+        - label: "Network Latency Simulation"
+        - label: "Continuous Performance Monitoring"
+
+  - type: checkboxes
+    id: acceptance-criteria
+    attributes:
+      label: ✅ Performance Acceptance Criteria
+      description: Definition of Done für Performance-Optimierung
+      options:
+        - label: "MCP Server Response Times <200ms (95th percentile)"
+        - label: "CRM Portal Page Load <2s desktop, <3s mobile"
+        - label: "Docker Build Times <2 minutes per service"
+        - label: "Memory Usage reduced by 25%"
+        - label: "Performance monitoring dashboard active"
+        - label: "Load testing suite implemented"
+        - label: "Performance documentation updated"
+        - label: "Team trained on performance best practices"

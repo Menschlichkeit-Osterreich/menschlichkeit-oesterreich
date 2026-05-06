@@ -1,0 +1,18 @@
+# phpBB generierte Dateien – nicht im Repo
+config.php
+cache/*
+!cache/index.htm
+files/*
+!files/index.htm
+store/*
+!store/index.htm
+images/avatars/upload/*
+!images/avatars/upload/index.htm
+
+# phpBB-Kern (wird direkt auf dem Server installiert, nicht im Repo)
+# Nur Anpassungen (styles/, ext/, language/) werden hier verwaltet
+phpbb/
+includes/
+bin/
+vendor/
+*.log

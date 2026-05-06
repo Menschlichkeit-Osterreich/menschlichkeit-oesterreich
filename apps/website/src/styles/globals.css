@@ -1,0 +1,106 @@
+/* Legacy-Kompatibilitaetsdatei.
+   Diese Datei wird von apps/website/src/main.tsx nicht importiert.
+   Aktive Runtime-Quelle ist index.css plus tokens.css.
+   Falls externe Tools oder alte Doku diese Datei referenzieren, sollen die
+   Variablen bewusst dieselbe Moe-Brand-Wahrheit spiegeln statt ein zweites Farbsystem. */
+
+:root {
+  --brand-gradient: linear-gradient(135deg, #1b4965 0%, #d4611e 100%);
+  --brand-austria-red: #d4611e;
+  --brand-austria-white: #ffffff;
+
+  --background: var(--ds-colors-semantic-background);
+  --background-alt: var(--ds-colors-secondary-50);
+  --surface: var(--ds-colors-semantic-background);
+  --surface-elevated: var(--ds-colors-semantic-background);
+  --surface-hover: var(--ds-colors-secondary-50);
+
+  --foreground: var(--ds-colors-semantic-text-primary);
+  --foreground-muted: var(--ds-colors-semantic-text-secondary);
+  --foreground-subtle: var(--ds-colors-secondary-500);
+
+  --primary: var(--ds-colors-primary-500);
+  --primary-hover: var(--ds-colors-primary-600);
+  --primary-active: var(--ds-colors-primary-700);
+  --primary-foreground: var(--ds-colors-semantic-text-inverse);
+
+  --secondary: var(--ds-colors-accent-500);
+  --secondary-hover: var(--ds-colors-accent-600);
+  --secondary-active: var(--ds-colors-accent-700);
+  --secondary-foreground: var(--ds-colors-semantic-text-inverse);
+
+  --accent: var(--ds-colors-secondary-50);
+  --accent-foreground: var(--ds-colors-semantic-text-primary);
+  --accent-hover: var(--ds-colors-secondary-100);
+
+  --muted: var(--ds-colors-secondary-50);
+  --muted-foreground: var(--ds-colors-secondary-600);
+  --muted-hover: var(--ds-colors-secondary-100);
+
+  --border: var(--ds-colors-semantic-border);
+  --border-muted: var(--ds-colors-secondary-100);
+  --input: transparent;
+  --input-background: var(--ds-colors-semantic-background);
+  --input-border: var(--ds-colors-semantic-border);
+  --input-border-focus: var(--ds-colors-semantic-border-focus);
+  --switch-background: var(--ds-colors-secondary-300);
+
+  --destructive: var(--ds-colors-error-500);
+  --destructive-foreground: var(--ds-colors-semantic-text-inverse);
+  --success: var(--ds-colors-success-500);
+  --success-foreground: var(--ds-colors-semantic-text-inverse);
+  --warning: var(--ds-colors-warning-500);
+  --warning-foreground: var(--ds-colors-semantic-text-inverse);
+
+  --card: var(--ds-colors-semantic-background);
+  --card-foreground: var(--ds-colors-semantic-text-primary);
+  --card-border: var(--ds-colors-semantic-border);
+  --card-shadow: var(--ds-shadows-sm);
+  --card-shadow-lg: var(--ds-shadows-lg);
+
+  --popover: var(--ds-colors-semantic-background);
+  --popover-foreground: var(--ds-colors-semantic-text-primary);
+  --popover-border: var(--ds-colors-semantic-border);
+  --popover-shadow: var(--ds-shadows-xl);
+
+  --ring: var(--ds-colors-semantic-border-focus);
+  --ring-offset: var(--ds-colors-semantic-background);
+
+  --radius: var(--ds-border-radius-xl);
+  --radius-sm: var(--ds-border-radius-md);
+  --radius-lg: var(--ds-border-radius-2xl);
+  --radius-xl: var(--ds-border-radius-3xl);
+}
+
+.dark {
+  --background: var(--ds-colors-accent-900);
+  --background-alt: var(--ds-colors-accent-800);
+  --surface: var(--ds-colors-accent-800);
+  --surface-elevated: var(--ds-colors-accent-700);
+  --surface-hover: color-mix(in srgb, var(--ds-colors-accent-700) 88%, white 12%);
+
+  --foreground: var(--ds-colors-semantic-text-inverse);
+  --foreground-muted: var(--ds-colors-secondary-100);
+  --foreground-subtle: var(--ds-colors-secondary-300);
+
+  --accent: color-mix(in srgb, var(--ds-colors-accent-800) 88%, white 12%);
+  --accent-foreground: var(--ds-colors-semantic-text-inverse);
+  --accent-hover: color-mix(in srgb, var(--ds-colors-accent-700) 82%, white 18%);
+
+  --muted: color-mix(in srgb, var(--ds-colors-accent-800) 92%, white 8%);
+  --muted-foreground: var(--ds-colors-secondary-200);
+  --muted-hover: color-mix(in srgb, var(--ds-colors-accent-700) 88%, white 12%);
+
+  --border: color-mix(in srgb, var(--ds-colors-accent-700) 78%, white 22%);
+  --border-muted: color-mix(in srgb, var(--ds-colors-accent-800) 82%, white 18%);
+  --input-background: var(--ds-colors-accent-800);
+  --input-border: color-mix(in srgb, var(--ds-colors-accent-700) 78%, white 22%);
+  --ring-offset: var(--ds-colors-accent-900);
+
+  --card: var(--ds-colors-accent-800);
+  --card-foreground: var(--ds-colors-semantic-text-inverse);
+  --card-border: color-mix(in srgb, var(--ds-colors-accent-700) 78%, white 22%);
+  --popover: var(--ds-colors-accent-800);
+  --popover-foreground: var(--ds-colors-semantic-text-inverse);
+  --popover-border: color-mix(in srgb, var(--ds-colors-accent-700) 78%, white 22%);
+}

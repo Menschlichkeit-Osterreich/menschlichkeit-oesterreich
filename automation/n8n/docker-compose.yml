@@ -1,0 +1,78 @@
+# n8n Integration für Menschlichkeit Österreich
+# Integriert mit bestehender Multi-Service Architektur
+
+version: "3.8"
+
+services:
+  # n8n Workflow Automation
+  n8n:
+    image: n8nio/n8n:1.72.1
+    container_name: moe-n8n
+    restart: unless-stopped
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD:?N8N_PASSWORD muss in .env gesetzt sein}
+      - N8N_HOST=${N8N_HOST:-localhost}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:5678
+      - GENERIC_TIMEZONE=Europe/Vienna
+      - N8N_METRICS=true
+      - N8N_DIAGNOSTICS_ENABLED=false
+      # Integration mit bestehenden Services
+      - MOE_API_URL=http://host.docker.internal:8001
+      - MOE_CRM_URL=http://host.docker.internal:8000
+      - MOE_FRONTEND_URL=http://host.docker.internal:3000
+      - PLESK_HOST=${PLESK_HOST:-plesk}
+      - PLESK_USER=${PLESK_USER:-dmpl20230054}
+    ports:
+      - "5678:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./workflows:/home/node/.n8n/workflows:ro
+      - ./credentials:/home/node/.n8n/credentials:ro
+      - ../scripts:/scripts:ro # Zugriff auf bestehende Deployment-Scripts
+    networks:
+      - moe-automation
+      - moe-network # Verbindung zum bestehenden CRM/API Netzwerk
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Redis für n8n Caching und Queue
+  redis-n8n:
+    image: redis:7-alpine
+    container_name: moe-n8n-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:?REDIS_PASSWORD muss in .env gesetzt sein}
+    volumes:
+      - redis_n8n_data:/data
+    networks:
+      - moe-automation
+
+  # PostgreSQL für n8n Datenbank (getrennt von Gaming DB)
+  postgres-n8n:
+    image: postgres:15-alpine
+    container_name: moe-n8n-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=n8n
+      - POSTGRES_USER=n8n_user
+      - POSTGRES_PASSWORD=${N8N_DB_PASSWORD:?N8N_DB_PASSWORD muss in .env gesetzt sein}
+    volumes:
+      - postgres_n8n_data:/var/lib/postgresql/data
+    networks:
+      - moe-automation
+
+volumes:
+  n8n_data:
+  redis_n8n_data:
+  postgres_n8n_data:
+
+networks:
+  moe-automation:
+    driver: bridge
+  moe-network:
+    external: true   # Verbindung zum bestehenden CRM Docker Netzwerk
+    # Wenn moe-network noch nicht existiert, n8n ohne CRM-Netzanbindung starten:
+    # docker network create moe-network  (einmalig, vor docker compose up)

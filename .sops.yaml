@@ -1,0 +1,47 @@
+# SOPS Configuration for Menschlichkeit Österreich
+# Secrets management configuration for different environments
+
+creation_rules:
+  # OpenAI and AI Services API Keys (for Codex repair)
+  - path_regex: secrets/ai/.*\.(yaml|json|env)$
+    age: "age15j0zn7w48avs2h793ell53eqnhte8rk65qkn2zl78xl3zg2k4d9s2cce2y"
+    encrypted_regex: '^(.*api.*key|.*token|.*secret|.*credential)$'
+    
+  # VS Code Extension Secrets
+  - path_regex: \.vscode/secrets/.*\.(yaml|json|env)$
+    age: "age15j0zn7w48avs2h793ell53eqnhte8rk65qkn2zl78xl3zg2k4d9s2cce2y"
+    encrypted_regex: '^(.*api.*key|.*token|.*secret|.*credential)$'
+
+  # Production Environment (highest security) 
+  - path_regex: secrets/production/.*\.yaml$
+    age: "age15j0zn7w48avs2h793ell53eqnhte8rk65qkn2zl78xl3zg2k4d9s2cce2y"
+    encrypted_regex: '^(data|stringData|.*(password|secret|key|token|url|host|user|pass|api|db|database|redis|smtp|mail))$'
+
+  # Staging Environment  
+  - path_regex: secrets/staging/.*\.yaml$
+    age: "age15j0zn7w48avs2h793ell53eqnhte8rk65qkn2zl78xl3zg2k4d9s2cce2y"
+    encrypted_regex: '^(data|stringData|.*(password|secret|key|token|url|host|user|pass|api|db|database|redis|smtp|mail))$'
+    
+  # Development Environment (local development)
+  - path_regex: secrets/development/.*\.yaml$
+    age: "age15j0zn7w48avs2h793ell53eqnhte8rk65qkn2zl78xl3zg2k4d9s2cce2y"
+    encrypted_regex: '^(data|stringData|.*(password|secret|key|token|url|host|user|pass|api|db|database|redis|smtp|mail))$'
+    
+  # Environment-specific .env files
+  - path_regex: \.env\..*\.encrypted$
+    age: "age15j0zn7w48avs2h793ell53eqnhte8rk65qkn2zl78xl3zg2k4d9s2cce2y"
+    
+  # Config directory .env files (existing rule enhanced)
+  - path_regex: ^config[\\/]\.env$
+    age: "age15j0zn7w48avs2h793ell53eqnhte8rk65qkn2zl78xl3zg2k4d9s2cce2y"
+    encrypted_regex: '^(?!SOPS_).*'
+
+  # Docker secrets
+  - path_regex: docker/secrets/.*\.yaml$
+    age: "age15j0zn7w48avs2h793ell53eqnhte8rk65qkn2zl78xl3zg2k4d9s2cce2y"
+    encrypted_regex: '^(data|stringData|.*(password|secret|key|token|url|host|user|pass|api|db|database|redis|smtp|mail))$'
+
+  # Kubernetes secrets
+  - path_regex: k8s/secrets/.*\.yaml$
+    age: "age15j0zn7w48avs2h793ell53eqnhte8rk65qkn2zl78xl3zg2k4d9s2cce2y"
+    encrypted_regex: '^(data|stringData|.*(password|secret|key|token|url|host|user|pass|api|db|database|redis|smtp|mail))$'

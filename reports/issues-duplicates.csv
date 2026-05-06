@@ -1,0 +1,95 @@
+# Issue Duplicates Analysis
+# Repository: menschlichkeit-oesterreich-development
+# Branch: chore/repo-docs-issues-reorg
+# Snapshot: 2025-10-17
+# Method: Title similarity analysis (when API data available)
+# Status: PLACEHOLDER - Requires GitHub API Access
+
+# ========================================
+# EXECUTIVE SUMMARY
+# ========================================
+
+# This analysis identifies duplicate or near-duplicate GitHub issues based on:
+# 1. Identical titles
+# 2. Similar titles (Levenshtein distance <3 characters)
+# 3. Identical body text (first 500 characters)
+# 4. Same labels + similar keywords
+
+# REQUIREMENTS:
+# - GitHub CLI authenticated (gh auth login)
+# - Issue data fetched (gh issue list --state all --json ...)
+# - Text similarity library (Python: fuzzywuzzy, PowerShell: custom function)
+
+# ========================================
+# COLUMN SCHEMA (When Complete)
+# ========================================
+# issue1_number|issue1_title|issue2_number|issue2_title|similarity_score|match_type|recommendation|priority
+
+# ========================================
+# ALGORITHM (To Implement)
+# ========================================
+
+# STEP 1: Fetch all issues
+# gh issue list --state all --json number,title,body,labels --limit 1000 > issues.json
+
+# STEP 2: Compare titles (O(n²) complexity - optimize for large repos)
+# For each pair of issues:
+#   Calculate Levenshtein distance
+#   If distance <= 3: Flag as potential duplicate
+#   If distance == 0: Flag as exact duplicate
+
+# STEP 3: Compare body text
+# Extract first 500 characters of body
+# Calculate cosine similarity or Jaccard index
+# If similarity > 0.85: Flag as duplicate content
+
+# STEP 4: Label intersection
+# If issues share 80%+ labels AND similar keywords: Flag as duplicate
+
+# ========================================
+# EXPECTED OUTPUT (Sample)
+# ========================================
+
+# issue1_number|issue1_title|issue2_number|issue2_title|similarity_score|match_type|recommendation|priority
+# 123|"Fix: Login button not working"|145|"Fix: Login button broken"|0.92|title_similar|MERGE_OR_CLOSE_ONE|P2-Medium
+# 234|"Feature: Add dark mode"|256|"Feature: Implement dark theme"|0.88|title_similar|MERGE_OR_CLOSE_ONE|P2-Medium
+# 345|"Bug: Database connection timeout"|345|"Bug: Database connection timeout"|1.00|exact_duplicate|INVESTIGATE_REOPEN|P1-High
+
+# ========================================
+# IMPLEMENTATION SCRIPT (PowerShell)
+# ========================================
+
+# Script: scripts/detect-issue-duplicates.ps1
+# Usage: pwsh -File scripts/detect-issue-duplicates.ps1 reports/issues-raw.json reports/issues-duplicates.csv
+
+# Pseudocode:
+# $issues = Get-Content reports/issues-raw.json | ConvertFrom-Json
+# $duplicates = @()
+# 
+# for ($i = 0; $i -lt $issues.Count; $i++) {
+#     for ($j = $i + 1; $j -lt $issues.Count; $j++) {
+#         $similarity = Calculate-Levenshtein $issues[$i].title $issues[$j].title
+#         if ($similarity / $issues[$i].title.Length < 0.15) {  # <15% difference
+#             $duplicates += [PSCustomObject]@{
+#                 Issue1 = $issues[$i].number
+#                 Title1 = $issues[$i].title
+#                 Issue2 = $issues[$j].number
+#                 Title2 = $issues[$j].title
+#                 Score = 1 - ($similarity / $issues[$i].title.Length)
+#             }
+#         }
+#     }
+# }
+# 
+# $duplicates | Export-Csv reports/issues-duplicates.csv -NoTypeInformation
+
+# ========================================
+# COMPLETION STATUS
+# ========================================
+
+# Status: INCOMPLETE - Awaiting GitHub API data
+# Blocker: issues-inventory.csv must be completed first
+# Next step: Implement scripts/detect-issue-duplicates.ps1
+# Estimated time: 1 hour (script development + execution)
+
+# END OF ISSUE DUPLICATES ANALYSIS (PLACEHOLDER)

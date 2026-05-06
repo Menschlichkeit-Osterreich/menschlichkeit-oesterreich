@@ -1,0 +1,115 @@
+name: PAT Expiry Reminder
+on:
+  schedule:
+    - cron: '0 7 * * *' # Täglich 07:00 UTC (09:00 CEST)
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  check-expiry:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Calculate days until expiry
+        id: calc
+        run: |
+          EXPIRY="2027-03-26"
+          CURRENT=$(date -u +%s)
+          EXPIRY_TIMESTAMP=$(date -u -d "$EXPIRY" +%s)
+          DAYS=$(( ( $EXPIRY_TIMESTAMP - $CURRENT ) / 86400 ))
+          echo "days=$DAYS" >> $GITHUB_OUTPUT
+          echo "📅 Tage bis PAT-Ablauf: $DAYS"
+
+      - name: Create issue if ≤30 days
+        if: steps.calc.outputs.days <= 30 && steps.calc.outputs.days >= 0
+        run: |
+          DAYS=${{ steps.calc.outputs.days }}
+
+          # Prüfe, ob bereits ein Issue existiert
+          EXISTING=$(gh issue list \
+            --repo $GITHUB_REPOSITORY \
+            --search "PAT läuft" \
+            --state open \
+            --json number \
+            --jq '.[0].number')
+
+          if [ -n "$EXISTING" ]; then
+            echo "ℹ️  Issue #$EXISTING existiert bereits"
+            exit 0
+          fi
+
+          gh issue create \
+            --repo $GITHUB_REPOSITORY \
+            --title "🚨 PAT läuft in $DAYS Tagen ab" \
+            --label "P0-Critical,security,automation" \
+            --body "**Aktion erforderlich:** GitHub Personal Access Token läuft bald ab!
+
+          ## 📋 Ablauf-Information
+
+          - **Aktuelles Datum:** $(date -u +%Y-%m-%d)
+          - **Ablaufdatum:** 2027-03-26
+          - **Verbleibende Tage:** $DAYS
+          - **Token-Name:** \`claud code full\` (GH_TOKEN)
+
+          ## ✅ Rotation-Schritte
+
+          1. **Neuen PAT erstellen:** https://github.com/settings/tokens?type=beta
+             - Scopes: \`repo\`, \`workflow\`, \`admin:org\`, \`codespace\`
+             - Ablauf: 1 Jahr (bis 2028-03-26)
+
+          2. **Secret aktualisieren:**
+             \`\`\`bash
+             # GitHub UI: Settings → Secrets → GH_TOKEN → Update
+             # Oder via gh CLI:
+             echo \"NEW_TOKEN\" | gh secret set GH_TOKEN
+             \`\`\`
+
+          3. **.env.local aktualisieren** (lokal):
+             \`\`\`bash
+             nano .env.local  # GH_TOKEN=github_pat_NEW...
+             gh auth status   # Test
+             \`\`\`
+
+          4. **Test-Workflow starten:**
+             \`\`\`bash
+             gh workflow run ci.yml --ref main
+             gh run list --workflow=ci.yml --limit 1
+             \`\`\`
+
+          5. **Alten PAT widerrufen:**
+             - URL: https://github.com/settings/tokens
+             - Token finden → **Delete** → Bestätigen ✅
+
+          6. **Dokumentation:**
+             - Rotation-Datum in \`SECRETS-INVENTORY.md\` eintragen
+             - Dieses Issue schließen
+
+          ## 📚 Dokumentation
+
+          - **Rotation-Playbook:** \`docs/security/GH-PAT-ROTATION.md\`
+          - **Usage-Guide:** \`docs/security/GH-TOKEN-USAGE.md\`
+          - **Instructions:** \`.github/instructions/gh-pat-integration.instructions.md\`
+
+          ## ⚠️ Wichtig
+
+          - **NICHT** alten Token vor Test-Phase widerrufen (24h Wartezeit!)
+          - **NICHT** Token in Logs/Chat/E-Mail teilen
+          - Bei Problemen: Rollback auf alten Token möglich (siehe Playbook)
+
+          ---
+          *Auto-generiert von \`.github/workflows/pat-expiry-reminder.yml\`*"
+        env:
+          # GITHUB_TOKEN reicht für Issue-Erstellung im selben Repo; PAT nicht nötig
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Issue already exists or too early
+        if: steps.calc.outputs.days > 30 || steps.calc.outputs.days < 0
+        run: |
+          DAYS=${{ steps.calc.outputs.days }}
+          if [ $DAYS -lt 0 ]; then
+            echo "❌ PAT ist bereits abgelaufen!"
+            exit 1
+          else
+            echo "✅ PAT noch gültig ($DAYS Tage)"
+          fi

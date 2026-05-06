@@ -1,0 +1,135 @@
+{
+  "name": "DLQ Admin Tools",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [200, 240]
+    },
+    {
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            { "name": "API_BASE", "value": "={{ $env.MOE_API_URL || 'http://host.docker.internal:8000' }}", "type": "string", "id": "api-base" },
+            { "name": "API_TOKEN", "value": "={{ $env.MOE_API_TOKEN }}", "type": "string", "id": "api-token" },
+            { "name": "ACTION", "value": "list", "type": "string", "id": "action" },
+            { "name": "DLQ_ID", "value": "", "type": "string", "id": "dlq-id" },
+            { "name": "DELAY_SECONDS", "value": 60, "type": "number", "id": "delay" }
+          ]
+        }
+      },
+      "id": "set",
+      "name": "Set Admin Params",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [420, 240]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict" },
+          "conditions": [
+            { "leftValue": "={{ $json.ACTION }}", "rightValue": "list", "operator": { "type": "string", "operation": "equals" }, "id": "is-list" }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-list",
+      "name": "Action = list?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [640, 160]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict" },
+          "conditions": [
+            { "leftValue": "={{ $json.ACTION }}", "rightValue": "requeue", "operator": { "type": "string", "operation": "equals" }, "id": "is-requeue" }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-requeue",
+      "name": "Action = requeue?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [640, 240]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "strict" },
+          "conditions": [
+            { "leftValue": "={{ $json.ACTION }}", "rightValue": "purge", "operator": { "type": "string", "operation": "equals" }, "id": "is-purge" }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "if-purge",
+      "name": "Action = purge?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [640, 320]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.API_BASE }}/queue/dlq/list",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [ { "name": "Authorization", "value": "Bearer {{ $json.API_TOKEN }}" } ] },
+        "queryParameters": { "parameters": [ { "name": "limit", "value": 100 } ] }
+      },
+      "id": "dlq-list",
+      "name": "DLQ List",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [860, 160]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.API_BASE }}/queue/dlq/requeue",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [ { "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ $json.API_TOKEN }}" } ] },
+        "sendBody": true,
+        "jsonBody": true,
+        "bodyParametersJson": "={{ { id: $json.DLQ_ID, delay_seconds: Number($json.DELAY_SECONDS || 0) } }}"
+      },
+      "id": "dlq-requeue",
+      "name": "DLQ Requeue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [860, 240]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.API_BASE }}/queue/dlq/purge",
+        "sendHeaders": true,
+        "headerParameters": { "parameters": [ { "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ $json.API_TOKEN }}" } ] },
+        "sendBody": true,
+        "jsonBody": true,
+        "bodyParametersJson": "={{ { id: $json.DLQ_ID || undefined } }}"
+      },
+      "id": "dlq-purge",
+      "name": "DLQ Purge",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [860, 320]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": { "main": [[ { "node": "Set Admin Params", "type": "main", "index": 0 } ]] },
+    "Set Admin Params": { "main": [[ { "node": "Action = list?", "type": "main", "index": 0 }, { "node": "Action = requeue?", "type": "main", "index": 0 }, { "node": "Action = purge?", "type": "main", "index": 0 } ]] },
+    "Action = list?": { "main": [[ { "node": "DLQ List", "type": "main", "index": 0 } ]] },
+    "Action = requeue?": { "main": [[ { "node": "DLQ Requeue", "type": "main", "index": 0 } ]] },
+    "Action = purge?": { "main": [[ { "node": "DLQ Purge", "type": "main", "index": 0 } ]] }
+  }
+}
+

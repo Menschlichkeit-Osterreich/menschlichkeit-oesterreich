@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://menschlichkeit-oesterreich.at/schemas/dependency-graph.schema.json",
+  "title": "Dependency Graph",
+  "type": "object",
+  "required": ["nodes", "edges"],
+  "properties": {
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "path"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string" },
+          "path": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["edge_type", "source", "target", "evidence", "assumptions"],
+        "properties": {
+          "edge_type": {
+            "type": "string",
+            "enum": [
+              "imports",
+              "depends_on",
+              "calls",
+              "reads_from",
+              "writes_to",
+              "triggers",
+              "builds",
+              "deploys"
+            ]
+          },
+          "source": { "type": "string" },
+          "target": { "type": "string" },
+          "evidence": { "type": "string" },
+          "assumptions": { "type": "array", "items": { "type": "string" } }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

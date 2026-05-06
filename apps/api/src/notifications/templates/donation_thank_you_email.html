@@ -1,0 +1,92 @@
+{% extends "_base.html" %}
+
+{% block title %}Vielen Dank für Ihre Spende!{% endblock %}
+
+{% block content %}
+<h1 style="margin:0 0 16px;font-size:24px;color:#2B231D;font-family:'Nunito Sans',Arial,sans-serif;font-weight:700;">
+  Vielen herzlichen Dank!
+</h1>
+<p style="margin:0 0 8px;font-size:15px;color:#4A4039;line-height:1.6;">
+  Liebe/r {{ contact.first_name }},
+</p>
+<p style="margin:0 0 24px;font-size:15px;color:#4A4039;line-height:1.6;">
+  Ihre großzügige Spende ist bei uns angekommen und wir sind tief berührt von Ihrer Unterstützung.
+  Mit Ihrer Hilfe können wir unsere Mission für Demokratie, Menschlichkeit und ein respektvolles
+  Miteinander in Österreich weiter vorantreiben.
+</p>
+
+<!-- Spenden-Betrag Highlight -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;">
+  <tr>
+    <td style="background-color:#EEF4F8;border-radius:8px;padding:28px;text-align:center;">
+      <p style="margin:0 0 4px;font-size:38px;font-weight:800;color:#1B4965;font-family:'Nunito Sans',Arial,sans-serif;line-height:1.1;">
+        {{ donation.amount }} EUR
+      </p>
+      <p style="margin:0;font-size:14px;color:#6B6560;">
+        Ihre Spende vom {{ donation.date }}
+      </p>
+    </td>
+  </tr>
+</table>
+
+<!-- Wirkungsbox -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F5F1ED;border-radius:6px;margin:0 0 24px;">
+  <tr>
+    <td style="padding:20px 24px;">
+      <p style="margin:0 0 14px;font-size:14px;color:#2B231D;font-weight:700;font-family:'Nunito Sans',Arial,sans-serif;">
+        Was Ihre Spende bewirkt:
+      </p>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+        <tr>
+          <td style="padding:0 0 10px;font-size:14px;color:#4A4039;line-height:1.6;">
+            &bull;&nbsp; Finanziert den Betrieb unseres Demokratie-Bildungsspiels für Schulen und Jugendgruppen
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0 0 10px;font-size:14px;color:#4A4039;line-height:1.6;">
+            &bull;&nbsp; Ermöglicht Workshops und Veranstaltungen in Schulen und Gemeinden
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0;font-size:14px;color:#4A4039;line-height:1.6;">
+            &bull;&nbsp; Unterstützt unsere Öffentlichkeitsarbeit für mehr Menschlichkeit in der Gesellschaft
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+{% if donation.receipt_eligible %}
+<!-- Spendenquittung Hinweis -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F0FDF4;border-left:4px solid #22C55E;border-radius:0 6px 6px 0;margin:0 0 24px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0;font-size:13px;color:#4A4039;line-height:1.5;">
+        <strong>Spendenquittung:</strong> Da Ihre Spende den Betrag von 50 EUR übersteigt,
+        erhalten Sie im Anhang eine steuerlich absetzbare Spendenquittung.
+        Bitte bewahren Sie diese für Ihre Steuererklärung auf.
+      </p>
+    </td>
+  </tr>
+</table>
+{% endif %}
+
+<p style="margin:0 0 28px;font-size:15px;color:#4A4039;line-height:1.6;">
+  Wenn Sie möchten, können Sie uns auch in Zukunft regelmäßig unterstützen —
+  jeder Beitrag, egal wie groß oder klein, hilft uns, unsere Arbeit fortzuführen.
+</p>
+
+<!-- CTA -->
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 28px;">
+  <tr>
+    <td style="background-color:#D84A1B;border-radius:6px;">
+      <a href="https://www.menschlichkeit-oesterreich.at/spenden" style="display:inline-block;padding:14px 36px;color:#FFFFFF;font-family:'Nunito Sans',Arial,sans-serif;font-size:16px;font-weight:700;text-decoration:none;">
+        Erneut spenden
+      </a>
+    </td>
+  </tr>
+</table>
+{% endblock %}
+
+{% block footer_reason %}Sie erhalten diese E-Mail als Bestätigung Ihrer Spende an Menschlichkeit Österreich.{% endblock %}

@@ -1,0 +1,49 @@
+## Menschlichkeit Österreich – LLM & AI Crawler Index
+# Version: 1.0
+# Stand: 2026-02-28
+
+## Über uns & Mission
+# Unser Ziel ist die Förderung von Demokratie, Menschenrechten und Zivilgesellschaft in Österreich.
+# Diese Datei hilft KI-Modellen, unsere Inhalte korrekt zu verstehen und zu zitieren.
+
+## Hauptinhalte (Markdown-Versionen für LLMs)
+# Diese Endpunkte liefern sauberes Markdown, optimiert für das Training und die Inferenz von KI-Modellen.
+
+- /api/llm/home (Startseite & Mission)
+- /api/llm/ueber-uns (Über den Verein, Team, Geschichte)
+- /api/llm/statuten (Vereinsstatuten)
+- /api/llm/beitragsordnung (Beitragsordnung)
+- /api/llm/kontakt (Kontaktinformationen & Ansprechpartner)
+
+## Bildungsressourcen
+# Unsere Lernmodule und Materialien sind das Herzstück unserer Bildungsarbeit.
+
+- /api/llm/bildung (Übersicht aller Lernmodule)
+- /api/llm/materialien (Übersicht aller herunterladbaren Materialien)
+
+## Demokratie-Spiel "Brücken Bauen"
+# Das Spiel ist eine interaktive Lernerfahrung. Die folgenden Endpunkte liefern die Spielinhalte in textbasierter Form.
+
+- /api/llm/game/story (Gesamte Spielhandlung und alle Dialoge)
+- /api/llm/game/scenarios (Alle 100 Spiel-Szenarien mit Entscheidungen und Konsequenzen)
+- /api/llm/game/roles (Beschreibung der 6 spielbaren Rollen)
+
+## Veranstaltungen
+# Aktuelle und vergangene Veranstaltungen.
+
+- /api/llm/veranstaltungen (Liste aller Events mit Beschreibung)
+
+## FAQ & Hilfe
+# Häufig gestellte Fragen zum Verein, zur Mitgliedschaft und zum Spiel.
+
+- /api/llm/faq
+
+## Rechtliches
+- /api/llm/impressum
+- /api/llm/datenschutz
+
+## Anweisungen für Crawler
+# Bitte cachen Sie diese Inhalte für maximal 24 Stunden. Unsere Inhalte werden regelmäßig aktualisiert.
+# Bei der Zitierung unserer Inhalte, verweisen Sie bitte auf die entsprechende HTML-Seite auf https://menschlichkeit-oesterreich.at.
+# User-Agent: *
+# Allow: /api/llm/

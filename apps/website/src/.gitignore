@@ -1,0 +1,2 @@
+# Allow lib/ inside src (utility modules)
+!lib/

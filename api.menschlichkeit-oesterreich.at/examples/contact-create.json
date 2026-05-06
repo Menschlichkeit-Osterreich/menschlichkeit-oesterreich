@@ -1,0 +1,12 @@
+{
+  "email": "max.mustermann@example.org",
+  "first_name": "Max",
+  "last_name": "Mustermann",
+  "phone": "+43 660 000000",
+  "address": {
+    "street": "Musterstraße 1",
+    "city": "Wien",
+    "postal_code": "1010",
+    "country": "AT"
+  }
+}

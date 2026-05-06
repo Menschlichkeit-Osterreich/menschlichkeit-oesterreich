@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://menschlichkeit-oesterreich.at/schemas/service-map.schema.json",
+  "title": "Service Map",
+  "type": "object",
+  "required": ["services"],
+  "properties": {
+    "services": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "type",
+          "path",
+          "entrypoint",
+          "runtime",
+          "ports",
+          "depends_on",
+          "exposes_endpoints",
+          "consumes_endpoints",
+          "data_stores",
+          "trust_boundary",
+          "status",
+          "assumptions"
+        ],
+        "properties": {
+          "name": { "type": "string" },
+          "type": { "type": "string" },
+          "path": { "type": "string" },
+          "entrypoint": { "type": "string" },
+          "runtime": { "type": "string" },
+          "ports": { "type": "array", "items": { "type": "string" } },
+          "depends_on": { "type": "array", "items": { "type": "string" } },
+          "exposes_endpoints": { "type": "array", "items": { "type": "string" } },
+          "consumes_endpoints": { "type": "array", "items": { "type": "string" } },
+          "data_stores": { "type": "array", "items": { "type": "string" } },
+          "trust_boundary": { "type": "string" },
+          "status": { "type": "string" },
+          "assumptions": { "type": "array", "items": { "type": "string" } }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

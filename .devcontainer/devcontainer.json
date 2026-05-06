@@ -1,0 +1,101 @@
+{
+  "name": "Menschlichkeit Österreich Development",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts"
+    },
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.12"
+    },
+    "ghcr.io/devcontainers/features/php:1": {
+      "version": "8.1"
+    },
+    "ghcr.io/devcontainers/features/powershell:1": {
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+  "onCreateCommand": "bash .devcontainer/onCreate-setup.sh",
+  "postCreateCommand": "bash .devcontainer/setup.sh && if [ -f scripts/dev/codespace-ssh-setup.sh ]; then bash scripts/dev/codespace-ssh-setup.sh; fi",
+  "postStartCommand": "pwsh .devcontainer/setup-powershell.ps1 || true",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-vscode.vscode-typescript-next",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "bmewburn.vscode-intelephense-client",
+        "ms-playwright.playwright",
+        "bradlc.vscode-tailwindcss",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "ms-vscode.powershell",
+        "ms-vscode.azure-account",
+        "Prisma.prisma",
+        "redhat.vscode-yaml",
+        "ms-azuretools.vscode-docker",
+        "EditorConfig.EditorConfig"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "/bin/bash",
+            "icon": "terminal-bash"
+          },
+          "pwsh": {
+            "path": "pwsh",
+            "icon": "terminal-powershell"
+          }
+        },
+        "python.defaultInterpreterPath": "/usr/local/python/current/bin/python",
+        "php.validate.executablePath": "/usr/local/php/current/bin/php",
+        "github.copilot.enable": {
+          "*": true,
+          "markdown": false,
+          "yaml": false,
+          "json": false,
+          "scminput": false,
+          "dotenv": false
+        },
+        "github.copilot.nextEditSuggestions.enabled": true,
+        "editor.inlineSuggest.edits.allowCodeShifting": "never",
+        "github.copilot.chat.localeOverride": "de",
+        "github.copilot.chat.codesearch.enabled": true,
+        "github.copilot.chat.codeGeneration.useInstructionFiles": true,
+        "chat.instructionsFilesLocations": {
+          ".github/instructions": true,
+          "docs/AI-INSTRUCTIONS": true
+        },
+        "telemetry.telemetryLevel": "off"
+      }
+    }
+  },
+  "forwardPorts": [5173, 8000, 8001, 3001, 8002],
+  "portsAttributes": {
+    "3001": {
+      "label": "Games Server",
+      "onAutoForward": "notify"
+    },
+    "5173": {
+      "label": "Frontend (Vite)",
+      "onAutoForward": "openBrowser"
+    },
+    "8000": {
+      "label": "CRM Server",
+      "onAutoForward": "notify"
+    },
+    "8001": {
+      "label": "API Server",
+      "onAutoForward": "notify"
+    },
+    "8002": {
+      "label": "Forum Server",
+      "onAutoForward": "notify"
+    }
+  },
+  "remoteUser": "codespace"
+}

@@ -1,0 +1,206 @@
+{
+  "website": "menschlichkeit-oesterreich.at",
+  "auditType": "technical-seo-static-site",
+  "score": 6,
+  "summary": {
+    "totalFindings": 32,
+    "critical": 0,
+    "high": 15,
+    "medium": 17,
+    "low": 0
+  },
+  "findings": [
+    {
+      "severity": "high",
+      "code": "CANONICAL_MISSING",
+      "message": "Canonical fehlt",
+      "file": "website/beitraege.html"
+    },
+    {
+      "severity": "high",
+      "code": "CANONICAL_MISSING",
+      "message": "Canonical fehlt",
+      "file": "website/datenschutz.html"
+    },
+    {
+      "severity": "high",
+      "code": "CANONICAL_MISSING",
+      "message": "Canonical fehlt",
+      "file": "website/impressum.html"
+    },
+    {
+      "severity": "high",
+      "code": "CANONICAL_MISSING",
+      "message": "Canonical fehlt",
+      "file": "website/kontakt.html"
+    },
+    {
+      "severity": "high",
+      "code": "CANONICAL_MISSING",
+      "message": "Canonical fehlt",
+      "file": "website/login.html"
+    },
+    {
+      "severity": "high",
+      "code": "CANONICAL_MISSING",
+      "message": "Canonical fehlt",
+      "file": "website/member-area.html"
+    },
+    {
+      "severity": "high",
+      "code": "CANONICAL_MISSING",
+      "message": "Canonical fehlt",
+      "file": "website/mitmachen.html"
+    },
+    {
+      "severity": "high",
+      "code": "CANONICAL_MISSING",
+      "message": "Canonical fehlt",
+      "file": "website/offline.html"
+    },
+    {
+      "severity": "high",
+      "code": "CANONICAL_MISSING",
+      "message": "Canonical fehlt",
+      "file": "website/ueber-uns.html"
+    },
+    {
+      "severity": "high",
+      "code": "CANONICAL_MISSING",
+      "message": "Canonical fehlt",
+      "file": "website/verein.html"
+    },
+    {
+      "severity": "high",
+      "code": "META_DESCRIPTION_MISSING",
+      "message": "Meta-Description fehlt",
+      "file": "website/datenschutz.html"
+    },
+    {
+      "severity": "high",
+      "code": "META_DESCRIPTION_MISSING",
+      "message": "Meta-Description fehlt",
+      "file": "website/impressum.html"
+    },
+    {
+      "severity": "high",
+      "code": "META_DESCRIPTION_MISSING",
+      "message": "Meta-Description fehlt",
+      "file": "website/login.html"
+    },
+    {
+      "severity": "high",
+      "code": "META_DESCRIPTION_MISSING",
+      "message": "Meta-Description fehlt",
+      "file": "website/member-area.html"
+    },
+    {
+      "severity": "high",
+      "code": "META_DESCRIPTION_MISSING",
+      "message": "Meta-Description fehlt",
+      "file": "website/offline.html"
+    },
+    {
+      "severity": "medium",
+      "code": "BROKEN_INTERNAL_LINK",
+      "message": "Interner Link zeigt auf fehlende Datei: assets/images/favicon.ico",
+      "file": "website/beitraege.html"
+    },
+    {
+      "severity": "medium",
+      "code": "BROKEN_INTERNAL_LINK",
+      "message": "Interner Link zeigt auf fehlende Datei: vereinsstatuten.pdf",
+      "file": "website/beitritt.html"
+    },
+    {
+      "severity": "medium",
+      "code": "BROKEN_INTERNAL_LINK",
+      "message": "Interner Link zeigt auf fehlende Datei: assets/icons/apple-touch-icon.png",
+      "file": "website/index-optimized.html"
+    },
+    {
+      "severity": "medium",
+      "code": "BROKEN_INTERNAL_LINK",
+      "message": "Interner Link zeigt auf fehlende Datei: assets/icons/favicon-32x32.png",
+      "file": "website/index-optimized.html"
+    },
+    {
+      "severity": "medium",
+      "code": "BROKEN_INTERNAL_LINK",
+      "message": "Interner Link zeigt auf fehlende Datei: assets/icons/favicon-16x16.png",
+      "file": "website/index-optimized.html"
+    },
+    {
+      "severity": "medium",
+      "code": "BROKEN_INTERNAL_LINK",
+      "message": "Interner Link zeigt auf fehlende Datei: assets/icons/site.webmanifest",
+      "file": "website/index-optimized.html"
+    },
+    {
+      "severity": "medium",
+      "code": "BROKEN_INTERNAL_LINK",
+      "message": "Interner Link zeigt auf fehlende Datei: assets/icons/safari-pinned-tab.svg",
+      "file": "website/index-optimized.html"
+    },
+    {
+      "severity": "medium",
+      "code": "BROKEN_INTERNAL_LINK",
+      "message": "Interner Link zeigt auf fehlende Datei: assets/css/styles.css",
+      "file": "website/kontakt.html"
+    },
+    {
+      "severity": "medium",
+      "code": "BROKEN_INTERNAL_LINK",
+      "message": "Interner Link zeigt auf fehlende Datei: assets/images/favicon.ico",
+      "file": "website/kontakt.html"
+    },
+    {
+      "severity": "medium",
+      "code": "BROKEN_INTERNAL_LINK",
+      "message": "Interner Link zeigt auf fehlende Datei: assets/images/favicon.ico",
+      "file": "website/mitmachen.html"
+    },
+    {
+      "severity": "medium",
+      "code": "BROKEN_INTERNAL_LINK",
+      "message": "Interner Link zeigt auf fehlende Datei: assets/images/favicon.ico",
+      "file": "website/ueber-uns.html"
+    },
+    {
+      "severity": "medium",
+      "code": "BROKEN_INTERNAL_LINK",
+      "message": "Interner Link zeigt auf fehlende Datei: assets/images/favicon.ico",
+      "file": "website/verein.html"
+    },
+    {
+      "severity": "medium",
+      "code": "CANONICAL_HOST_MISMATCH",
+      "message": "Canonical ohne www-Host: https://menschlichkeit-oesterreich.at/mitgliedschaft.html",
+      "file": "website/beitritt.html"
+    },
+    {
+      "severity": "medium",
+      "code": "CANONICAL_HOST_MISMATCH",
+      "message": "Canonical ohne www-Host: https://menschlichkeit-oesterreich.at/",
+      "file": "website/index-optimized.html"
+    },
+    {
+      "severity": "medium",
+      "code": "CANONICAL_HOST_MISMATCH",
+      "message": "Canonical ohne www-Host: https://menschlichkeit-oesterreich.at/",
+      "file": "website/index.html"
+    },
+    {
+      "severity": "medium",
+      "code": "H1_MISSING",
+      "message": "H1 fehlt",
+      "file": "website/login.html"
+    },
+    {
+      "severity": "medium",
+      "code": "H1_MISSING",
+      "message": "H1 fehlt",
+      "file": "website/member-area.html"
+    }
+  ]
+}

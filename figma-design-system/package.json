@@ -1,0 +1,89 @@
+{
+  "name": "@menschlichkeit/design-system",
+  "version": "4.1.0",
+  "description": "Austrian Red Design System für Menschlichkeit Österreich - Tailwind 4.0 + React Components",
+  "type": "module",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./components/*": "./components/*.tsx",
+    "./components/ui/*": "./components/ui/*.tsx",
+    "./tokens": "./00_design-tokens.json",
+    "./styles/*": "./styles/*"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint . --ext ts,tsx --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "test:a11y": "playwright test",
+    "lighthouse": "lhci autorun",
+    "analyze": "vite-bundle-visualizer"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "motion": "^10.18.0",
+    "lucide-react": "^0.424.0",
+    "sonner": "^2.0.3",
+    "react-hook-form": "^7.55.0",
+    "react-slick": "^0.30.2",
+    "react-responsive-masonry": "^2.2.0",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
+    "recharts": "^2.12.7",
+    "date-fns": "^3.6.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.5.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@types/react-slick": "^0.23.13",
+    "@typescript-eslint/eslint-plugin": "^7.13.1",
+    "@typescript-eslint/parser": "^7.13.1",
+    "@vitejs/plugin-react": "^4.3.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-refresh": "^0.4.7",
+    "typescript": "^5.2.2",
+    "vite": "^5.3.1",
+    "vite-plugin-pwa": "^0.20.0",
+    "vite-plugin-compression": "^0.5.1",
+    "vite-bundle-visualizer": "^1.2.1",
+    "@playwright/test": "^1.45.0",
+    "@lhci/cli": "^0.14.0",
+    "prettier": "^3.3.2",
+    "tailwindcss": "^4.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "keywords": [
+    "ngo",
+    "österreich",
+    "austria",
+    "menschenrechte",
+    "demokratie",
+    "social-justice",
+    "democracy-games",
+    "pwa",
+    "react",
+    "tailwindcss"
+  ],
+  "author": "Menschlichkeit Österreich <kontakt@menschlichkeit-oesterreich.at>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/menschlichkeit-oesterreich/website.git"
+  },
+  "bugs": {
+    "url": "https://github.com/menschlichkeit-oesterreich/website/issues"
+  },
+  "homepage": "https://menschlichkeit-oesterreich.at"
+}

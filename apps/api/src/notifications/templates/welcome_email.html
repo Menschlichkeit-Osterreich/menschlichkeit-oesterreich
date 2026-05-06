@@ -1,0 +1,65 @@
+{% extends "_base.html" %}
+
+{% block title %}Willkommen bei Menschlichkeit Österreich{% endblock %}
+
+{% block content %}
+<h1 style="margin:0 0 16px;font-size:24px;color:#2B231D;font-family:'Nunito Sans',Arial,sans-serif;font-weight:700;">
+  Herzlich Willkommen!
+</h1>
+<p style="margin:0 0 8px;font-size:15px;color:#4A4039;line-height:1.6;">
+  Hallo {{ contact.first_name }},
+</p>
+<p style="margin:0 0 24px;font-size:15px;color:#4A4039;line-height:1.6;">
+  wir freuen uns sehr, Sie als neues Mitglied bei <strong>Menschlichkeit Österreich</strong> begrüßen zu dürfen!
+  Sie sind jetzt Teil einer wachsenden Gemeinschaft von Menschen, die sich für Demokratie,
+  Menschenrechte und ein respektvolles Miteinander in Österreich einsetzen.
+</p>
+
+<!-- Highlight-Box -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#EEF4F8;border-left:4px solid #1B4965;border-radius:0 6px 6px 0;margin:0 0 24px;">
+  <tr>
+    <td style="padding:20px 24px;">
+      <p style="margin:0 0 10px;font-size:14px;color:#1B4965;font-weight:700;font-family:'Nunito Sans',Arial,sans-serif;">
+        Was Sie als Mitglied erwartet:
+      </p>
+      <p style="margin:0;font-size:14px;color:#4A4039;line-height:1.8;">
+        &bull; Zugang zum exklusiven Mitgliederbereich<br/>
+        &bull; Einladungen zu Veranstaltungen und Workshops<br/>
+        &bull; Regelmäßige Newsletter mit aktuellen Projekten<br/>
+        &bull; Mitspracherecht bei Vereinsentscheidungen<br/>
+        &bull; Zugang zu unserem Demokratie-Bildungsspiel
+      </p>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 24px;font-size:15px;color:#4A4039;line-height:1.6;">
+  Ihre Mitgliedsnummer lautet: <strong style="color:#2B231D;">{{ member.membership_number }}</strong>.
+  Bitte bewahren Sie diese Nummer für Ihre Unterlagen auf.
+</p>
+
+<!-- CTA -->
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 28px;">
+  <tr>
+    <td style="background-color:#D84A1B;border-radius:6px;">
+      <a href="https://www.menschlichkeit-oesterreich.at/mitglieder" style="display:inline-block;padding:14px 36px;color:#FFFFFF;font-family:'Nunito Sans',Arial,sans-serif;font-size:16px;font-weight:700;text-decoration:none;">
+        Zum Mitgliederbereich
+      </a>
+    </td>
+  </tr>
+</table>
+
+<!-- Trennlinie -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 20px;">
+  <tr><td style="border-top:1px solid #E8E0D8;font-size:0;">&nbsp;</td></tr>
+</table>
+
+<p style="margin:0;font-size:13px;color:#6B6560;line-height:1.6;">
+  Ihr erster Mitgliedsbeitrag in Höhe von <strong>{{ invoice.amount }} EUR</strong> wird in Kürze per
+  separater Rechnung zugestellt. Bei Fragen stehen wir Ihnen jederzeit unter
+  <a href="mailto:office@menschlichkeit-oesterreich.at" style="color:#1B4965;">office@menschlichkeit-oesterreich.at</a>
+  zur Verfügung.
+</p>
+{% endblock %}
+
+{% block footer_reason %}Sie erhalten diese E-Mail, weil Sie Mitglied bei Menschlichkeit Österreich sind.{% endblock %}

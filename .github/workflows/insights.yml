@@ -1,0 +1,226 @@
+name: 📊 Repository Insights
+on:
+  schedule:
+    # Weekly on Sundays at 6 AM UTC
+    - cron: '0 6 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  insights:
+    name: 📈 Generate Repository Insights
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.2.0
+        with:
+          node-version: '22'
+
+      - name: 📊 Repository Statistics
+        run: |
+          set -euo pipefail
+          echo "# 📊 Repository Insights Report" > insights-report.md
+          echo "**Generated:** $(date)" >> insights-report.md
+          echo "" >> insights-report.md
+
+          # Commit Statistics
+          echo "## 📈 Commit Activity" >> insights-report.md
+          echo "- **Total Commits:** $(git rev-list --all --count)" >> insights-report.md
+          echo "- **Contributors:** $(git shortlog -sn | wc -l)" >> insights-report.md
+          echo "- **Last Week:** $(git rev-list --since='1 week ago' --count HEAD)" >> insights-report.md
+          echo "- **Last Month:** $(git rev-list --since='1 month ago' --count HEAD)" >> insights-report.md
+          echo "" >> insights-report.md
+
+          # File Statistics
+          echo "## 📁 Codebase Overview" >> insights-report.md
+          echo "- **Total Files:** $(find . -type f -not -path './.git/*' -not -path './node_modules/*' | wc -l)" >> insights-report.md
+          echo "- **Lines of Code:** $(find . -name '*.js' -o -name '*.ts' -o -name '*.php' -o -name '*.py' | xargs wc -l | tail -1 | awk '{print $1}')" >> insights-report.md
+          echo "" >> insights-report.md
+
+          # Language Breakdown
+          echo "## 🗣️ Languages" >> insights-report.md
+          echo "\`\`\`" >> insights-report.md
+          find . \( -name '*.js' -o -name '*.ts' \) | wc -l | xargs echo "JavaScript/TypeScript files:" >> insights-report.md
+          find . -name '*.php' | wc -l | xargs echo "PHP files:" >> insights-report.md
+          find . -name '*.py' | wc -l | xargs echo "Python files:" >> insights-report.md
+          find . -name '*.md' | wc -l | xargs echo "Documentation files:" >> insights-report.md
+          echo "\`\`\`" >> insights-report.md
+          echo "" >> insights-report.md
+
+      - name: 🏆 Top Contributors
+        run: |
+          echo "## 👥 Top Contributors (Last 3 Months)" >> insights-report.md
+          echo "\`\`\`" >> insights-report.md
+          git shortlog -sn --since="3 months ago" | head -10 >> insights-report.md
+          echo "\`\`\`" >> insights-report.md
+          echo "" >> insights-report.md
+
+      - name: 📊 Quality Metrics
+        run: |
+          echo "## 📊 Quality Metrics" >> insights-report.md
+          echo "" >> insights-report.md
+
+          # Check for quality tools output
+          if [ -f "quality-reports/trivy-security.sarif" ]; then
+            SECURITY_ISSUES=$(jq -r '.runs[0].results | length' quality-reports/trivy-security.sarif 2>/dev/null || echo "N/A")
+            echo "- **Security Issues:** $SECURITY_ISSUES" >> insights-report.md
+          fi
+
+          # Test Coverage (Website, Games, API)
+          WEBSITE_COVERAGE="N/A"
+          GAMES_COVERAGE="N/A"
+          API_COVERAGE="N/A"
+
+          if [ -f "apps/website/coverage/coverage-summary.json" ]; then
+            WEBSITE_COVERAGE=$(jq -r '.total.lines.pct' apps/website/coverage/coverage-summary.json 2>/dev/null || echo "N/A")
+          fi
+
+          if [ -f "apps/babylon-game/coverage/coverage-summary.json" ]; then
+            GAMES_COVERAGE=$(jq -r '.total.lines.pct' apps/babylon-game/coverage/coverage-summary.json 2>/dev/null || echo "N/A")
+          fi
+
+          if [ -f "quality-reports/api-coverage.xml" ]; then
+            API_LINE_RATE=$(grep -o 'line-rate="[0-9.]*"' quality-reports/api-coverage.xml | head -1 | sed -E 's/.*="([0-9.]+)"/\1/' || true)
+            if [ -n "${API_LINE_RATE:-}" ]; then
+              API_COVERAGE=$(awk "BEGIN { printf \"%.2f\", ${API_LINE_RATE} * 100 }")
+            fi
+          fi
+
+          echo "- **Coverage Website (Lines):** ${WEBSITE_COVERAGE}%" >> insights-report.md
+          echo "- **Coverage Games (Lines):** ${GAMES_COVERAGE}%" >> insights-report.md
+          echo "- **Coverage API (Lines):** ${API_COVERAGE}%" >> insights-report.md
+
+          echo "- **ESLint Config:** $([ -f '.eslintrc.js' ] || [ -f 'eslint.config.js' ] && echo '✅ Configured' || echo '❌ Missing')" >> insights-report.md
+          echo "- **Prettier Config:** $([ -f '.prettierrc' ] || [ -f '.prettierrc.json' ] && echo '✅ Configured' || echo '❌ Missing')" >> insights-report.md
+          echo "- **GitHub Actions:** $(find .github/workflows -name '*.yml' | wc -l) workflows" >> insights-report.md
+          echo "" >> insights-report.md
+
+      - name: 🔐 Security Overview
+        run: |
+          echo "## 🔐 Security Status" >> insights-report.md
+          echo "" >> insights-report.md
+
+          # Check for security configurations
+          echo "- **Dependabot:** $([ -f '.github/dependabot.yml' ] && echo '✅ Enabled' || echo '❌ Disabled')" >> insights-report.md
+          echo "- **CodeQL:** $(find .github/workflows -name '*.yml' -exec grep -l 'codeql' {} \; | wc -l | xargs echo) workflows" >> insights-report.md
+          echo "- **Secret Scanning:** $([ -f '.gitignore' ] && grep -q '.env' .gitignore && echo '✅ Protected' || echo '⚠️ Review needed')" >> insights-report.md
+          echo "- **SECURITY.md:** $([ -f 'SECURITY.md' ] && echo '✅ Present' || echo '❌ Missing')" >> insights-report.md
+          echo "" >> insights-report.md
+
+      - name: 📱 Multi-Service Status
+        run: |
+          echo "## 🏗️ Multi-Service Architecture" >> insights-report.md
+          echo "" >> insights-report.md
+
+          services=("website" "api" "crm" "games" "automation/n8n")
+
+          for service in "${services[@]}"; do
+            if [ -d "$service" ]; then
+              echo "### 📂 $service" >> insights-report.md
+
+              # Package.json info
+              if [ -f "$service/package.json" ]; then
+                VERSION=$(jq -r '.version // "N/A"' "$service/package.json")
+                echo "- **Version:** $VERSION" >> insights-report.md
+
+                SCRIPTS=$(jq -r '.scripts | keys | length' "$service/package.json")
+                echo "- **NPM Scripts:** $SCRIPTS" >> insights-report.md
+              fi
+
+              # Composer.json info
+              if [ -f "$service/composer.json" ]; then
+                NAME=$(jq -r '.name // "N/A"' "$service/composer.json")
+                echo "- **Composer Package:** $NAME" >> insights-report.md
+              fi
+
+              # File count
+              FILES=$(find "$service" -type f | wc -l)
+              echo "- **Files:** $FILES" >> insights-report.md
+              echo "" >> insights-report.md
+            fi
+          done
+
+      - name: 🎯 Austrian NGO Metrics
+        run: |
+          echo "## 🇦🇹 Austrian NGO Specific" >> insights-report.md
+          echo "" >> insights-report.md
+
+          # DSGVO compliance indicators
+          echo "### 🔐 DSGVO Compliance" >> insights-report.md
+          echo "- **Privacy Policy:** $(find . -name '*privacy*' -o -name '*datenschutz*' | wc -l | xargs echo) files" >> insights-report.md
+          echo "- **DSGVO Scripts:** $(find . -name '*dsgvo*' -o -name '*gdpr*' | wc -l | xargs echo) files" >> insights-report.md
+          echo "- **Cookie Consent:** $(grep -r 'cookie.*consent' . --exclude-dir=node_modules --exclude-dir=.git | wc -l | xargs echo) references" >> insights-report.md
+          echo "" >> insights-report.md
+
+          # Educational content
+          echo "### 🎓 Educational Content" >> insights-report.md
+          echo "- **Games Directory:** $([ -d 'web/games' ] && echo '✅ Present' || echo '❌ Missing')" >> insights-report.md
+          echo "- **Educational Scripts:** $(find . -name '*education*' -o -name '*learning*' | wc -l | xargs echo) files" >> insights-report.md
+          echo "" >> insights-report.md
+
+          # Accessibility
+          echo "### ♿ Accessibility" >> insights-report.md
+          echo "- **A11y References:** $(grep -r 'accessibility\|a11y\|aria-' . --exclude-dir=node_modules --exclude-dir=.git | wc -l | xargs echo) instances" >> insights-report.md
+          echo "- **WCAG References:** $(grep -r 'wcag' . --exclude-dir=node_modules --exclude-dir=.git | wc -l | xargs echo) instances" >> insights-report.md
+
+      - name: 📈 Issue & PR Stats
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          echo "## 📋 Issues & Pull Requests" >> insights-report.md
+          echo "" >> insights-report.md
+
+          # Get GitHub API stats
+          OPEN_ISSUES=$(gh api repos/${{ github.repository }} --jq '.open_issues_count')
+          echo "- **Open Issues:** $OPEN_ISSUES" >> insights-report.md
+
+          # Recent activity
+          RECENT_PRS=$(gh pr list --state=closed --limit=100 --json=createdAt | jq '[.[] | select(.createdAt | fromdateiso8601 > (now - 7*24*3600))] | length')
+          echo "- **PRs Last Week:** $RECENT_PRS" >> insights-report.md
+
+          RECENT_ISSUES=$(gh issue list --state=closed --limit=100 --json=createdAt | jq '[.[] | select(.createdAt | fromdateiso8601 > (now - 7*24*3600))] | length')
+          echo "- **Issues Closed Last Week:** $RECENT_ISSUES" >> insights-report.md
+
+      - name: 📤 Upload Insights Report
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        with:
+          name: repository-insights
+          path: insights-report.md
+          retention-days: 30
+
+      - name: 📊 Update Repository Description
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Update repository topics/tags based on analysis
+          TOPICS=("austrian-ngo" "multi-service" "educational-platform" "dsgvo-compliant" "accessibility" "democracy-education")
+
+          echo "Updating repository topics..."
+          for topic in "${TOPICS[@]}"; do
+            echo "Adding topic: $topic"
+          done
+
+      - name: Notify via n8n
+        if: always()
+        env:
+          N8N_WEBHOOK_URL: ${{ secrets.N8N_WEBHOOK_URL }}
+        run: |
+          if [ -z "${N8N_WEBHOOK_URL}" ]; then
+            echo "N8N_WEBHOOK_URL nicht gesetzt, Benachrichtigung wird übersprungen."
+            exit 0
+          fi
+
+          curl -fsSL -X POST "${N8N_WEBHOOK_URL}" \
+            -H "Content-Type: application/json" \
+            -d '{"type":"repository-insights","repository":"${{ github.repository }}","date":"'"$(date)"'","workflow_status":"${{ job.status }}"}'

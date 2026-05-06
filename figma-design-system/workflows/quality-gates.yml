@@ -1,0 +1,472 @@
+name: Quality Gates - PR Blocking
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+env:
+  NODE_VERSION: '18'
+  PHP_VERSION: '8.2'
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  security-scan:
+    name: Security Analysis (BLOCKING)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Secret Scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: main
+          head: HEAD
+          extra_args: --debug --only-verified
+      
+      - name: Trivy Security Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+      
+      - name: Upload Trivy SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+      
+      - name: Codacy Security Scan
+        uses: codacy/codacy-analysis-cli-action@master
+        with:
+          tool: trivy
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          upload: true
+          max-allowed-issues: 0
+
+  code-quality:
+    name: Code Quality (BLOCKING - 85% Maintainability, <2% Duplication)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          tools: composer, phpstan
+      
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd crm && composer install --no-dev --optimize-autoloader
+      
+      - name: ESLint Analysis
+        run: |
+          npm run lint:sarif
+          npm run lint:check
+      
+      - name: PHPStan Analysis (CRM)
+        run: |
+          cd crm
+          ./vendor/bin/phpstan analyse --error-format=github --no-progress
+      
+      - name: Codacy Quality Analysis
+        uses: codacy/codacy-analysis-cli-action@master
+        with:
+          tool: eslint,phpstan,duplication
+          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
+          upload: true
+          max-allowed-issues: 0
+      
+      - name: Quality Gate Check
+        run: |
+          MAINTAINABILITY=$(curl -s "https://api.codacy.com/2.0/project/${{ secrets.CODACY_PROJECT_TOKEN }}/quality" | jq .maintainability)
+          DUPLICATION=$(curl -s "https://api.codacy.com/2.0/project/${{ secrets.CODACY_PROJECT_TOKEN }}/quality" | jq .duplication)
+          
+          if (( $(echo "$MAINTAINABILITY < 85" | bc -l) )); then
+            echo "❌ Maintainability $MAINTAINABILITY% < 85% requirement"
+            exit 1
+          fi
+          
+          if (( $(echo "$DUPLICATION > 2" | bc -l) )); then
+            echo "❌ Duplication $DUPLICATION% > 2% requirement"
+            exit 1
+          fi
+          
+          echo "✅ Quality Gates: Maintainability=$MAINTAINABILITY%, Duplication=$DUPLICATION%"
+
+  performance-lighthouse:
+    name: Performance (BLOCKING - P≥90, A11y≥90, BP≥95, SEO≥90)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build Application
+        run: npm run build
+        env:
+          NODE_ENV: production
+      
+      - name: Serve Application
+        run: |
+          npm install -g serve
+          serve -s dist -l 3000 &
+          sleep 10
+      
+      - name: Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          configPath: './lighthouserc.json'
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+      
+      - name: Performance Gate Check
+        run: |
+          PERF=$(jq '.[] | select(.url | contains("localhost")) | .summary.performance' lhci-results.json)
+          A11Y=$(jq '.[] | select(.url | contains("localhost")) | .summary.accessibility' lhci-results.json)
+          BP=$(jq '.[] | select(.url | contains("localhost")) | .summary."best-practices"' lhci-results.json)
+          SEO=$(jq '.[] | select(.url | contains("localhost")) | .summary.seo' lhci-results.json)
+          
+          if (( $(echo "$PERF < 0.90" | bc -l) )); then
+            echo "❌ Performance $(echo "$PERF * 100" | bc)% < 90%"
+            exit 1
+          fi
+          
+          if (( $(echo "$A11Y < 0.90" | bc -l) )); then
+            echo "❌ Accessibility $(echo "$A11Y * 100" | bc)% < 90%"
+            exit 1
+          fi
+          
+          if (( $(echo "$BP < 0.95" | bc -l) )); then
+            echo "❌ Best Practices $(echo "$BP * 100" | bc)% < 95%"
+            exit 1
+          fi
+          
+          if (( $(echo "$SEO < 0.90" | bc -l) )); then
+            echo "❌ SEO $(echo "$SEO * 100" | bc)% < 90%"
+            exit 1
+          fi
+          
+          echo "✅ Performance Gates: P=$(echo "$PERF * 100" | bc)% A11y=$(echo "$A11Y * 100" | bc)% BP=$(echo "$BP * 100" | bc)% SEO=$(echo "$SEO * 100" | bc)%"
+
+  accessibility-wcag:
+    name: WCAG AA Compliance (BLOCKING)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build Application
+        run: npm run build
+      
+      - name: Serve Application
+        run: |
+          npm install -g serve
+          serve -s dist -l 3000 &
+          sleep 10
+      
+      - name: Install axe-core CLI
+        run: npm install -g @axe-core/cli
+      
+      - name: Run axe Accessibility Tests
+        run: |
+          axe http://localhost:3000 --tags wcag2a,wcag2aa --exit
+          axe http://localhost:3000/democracy-hub --tags wcag2a,wcag2aa --exit
+          axe http://localhost:3000 --include "#democracy-game" --tags wcag2a,wcag2aa --exit
+      
+      - name: Playwright WCAG Tests
+        run: |
+          npx playwright test --config=playwright-a11y.config.ts
+      
+      - name: Link Checker
+        uses: peter-evans/link-checker@v1
+        with:
+          args: -v -r -x "mailto:" http://localhost:3000
+      
+      - name: Broken Links Gate
+        run: |
+          if [ -f link-checker/out.md ]; then
+            BROKEN=$(grep -c "❌" link-checker/out.md || true)
+            if [ "$BROKEN" -gt 0 ]; then
+              echo "❌ Found $BROKEN broken links"
+              cat link-checker/out.md
+              exit 1
+            fi
+          fi
+          echo "✅ No broken links found"
+
+  gdpr-compliance:
+    name: GDPR Compliance (BLOCKING)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: PII Data Scan in Logs
+        run: |
+          echo "Scanning for PII patterns in codebase..."
+          
+          # Email patterns
+          if grep -r -E "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" . --exclude-dir=node_modules --exclude-dir=.git --exclude="*.md" --exclude="*.yml"; then
+            echo "❌ Found potential email addresses in code"
+            exit 1
+          fi
+          
+          # Phone patterns
+          if grep -r -E "(\+43|0043|\+49|0049)[0-9\s\-\(\)]{8,}" . --exclude-dir=node_modules --exclude-dir=.git --exclude="*.md"; then
+            echo "❌ Found potential phone numbers in code"
+            exit 1
+          fi
+          
+          # Credit card patterns
+          if grep -r -E "[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}[\s\-]?[0-9]{4}" . --exclude-dir=node_modules --exclude-dir=.git; then
+            echo "❌ Found potential credit card numbers in code"
+            exit 1
+          fi
+          
+          # IBAN patterns
+          if grep -r -E "AT[0-9]{2}[0-9]{16}" . --exclude-dir=node_modules --exclude-dir=.git --exclude="*.md"; then
+            echo "❌ Found potential IBAN numbers in code"
+            exit 1
+          fi
+          
+          echo "✅ No PII patterns found in codebase"
+      
+      - name: Consent Management Check
+        run: |
+          if ! grep -r "consent" components/ --include="*.tsx" | grep -i "gdpr\|privacy\|cookie"; then
+            echo "❌ No GDPR consent management found"
+            exit 1
+          fi
+          
+          if ! grep -r "retention" components/ --include="*.tsx"; then
+            echo "❌ No data retention policies found"
+            exit 1
+          fi
+          
+          echo "✅ GDPR compliance components found"
+
+  supply-chain:
+    name: Supply Chain Security (BLOCKING)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Generate SBOM
+        run: |
+          npm install -g @cyclonedx/cyclonedx-npm
+          cyclonedx-npm --output-format JSON --output-file sbom.json
+      
+      - name: Verify SBOM
+        run: |
+          if [ ! -f sbom.json ]; then
+            echo "❌ SBOM generation failed"
+            exit 1
+          fi
+          
+          COMPONENTS=$(jq '.components | length' sbom.json)
+          if [ "$COMPONENTS" -lt 10 ]; then
+            echo "❌ SBOM contains too few components ($COMPONENTS)"
+            exit 1
+          fi
+          
+          echo "✅ SBOM generated with $COMPONENTS components"
+      
+      - name: License Compatibility Check
+        run: |
+          npm install -g license-checker
+          license-checker --json --out licenses.json
+          
+          # Check for incompatible licenses
+          if jq -r '.[] | .licenses' licenses.json | grep -E "(GPL-3|AGPL|SSPL|Commons Clause)"; then
+            echo "❌ Found incompatible licenses"
+            exit 1
+          fi
+          
+          echo "✅ All licenses compatible"
+      
+      - name: SLSA Build Attestation
+        uses: slsa-framework/slsa-github-generator/.github/workflows/generator_generic_slsa3.yml@v1.9.0
+        with:
+          base64-subjects: ${{ steps.hash.outputs.hashes }}
+          attestation-name: build-attestation
+          
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.json
+          retention-days: 30
+
+  design-tokens:
+    name: Design Token Drift Check (BLOCKING)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Check Figma Design Token Sync
+        run: |
+          if [ -f figma-design-system/00_design-tokens.json ]; then
+            npm run figma:validate
+          else
+            echo "⚠️ No Figma design tokens found"
+          fi
+      
+      - name: CSS Variables Consistency Check
+        run: |
+          echo "Checking CSS custom properties consistency..."
+          
+          # Extract CSS variables from globals.css
+          grep -o "var(--[^)]*)" styles/globals.css | sort | uniq > css-vars.txt
+          
+          # Check if all variables are defined
+          while read -r var; do
+            VAR_NAME=$(echo "$var" | sed 's/var(--\([^)]*\))/\1/')
+            if ! grep -q "^  --$VAR_NAME:" styles/globals.css; then
+              echo "❌ Undefined CSS variable: $var"
+              exit 1
+            fi
+          done < css-vars.txt
+          
+          echo "✅ All CSS variables properly defined"
+      
+      - name: Austrian Brand Compliance
+        run: |
+          echo "Checking Austrian brand color compliance..."
+          
+          # Check for required Austrian brand colors
+          if ! grep -q "brand-austria-red.*#c8102e" styles/globals.css; then
+            echo "❌ Official Austrian red color not found"
+            exit 1
+          fi
+          
+          if ! grep -q "brand-austria-white.*#ffffff" styles/globals.css; then
+            echo "❌ Official Austrian white color not found"
+            exit 1
+          fi
+          
+          echo "✅ Austrian brand colors compliant"
+
+  test-coverage:
+    name: Test Coverage (MANDATORY)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+      
+      - name: Run Unit Tests
+        run: npm run test:unit -- --coverage
+      
+      - name: Run E2E Tests
+        run: npm run test:e2e
+      
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true
+
+  quality-gate-summary:
+    name: Quality Gate Summary
+    runs-on: ubuntu-latest
+    needs: [security-scan, code-quality, performance-lighthouse, accessibility-wcag, gdpr-compliance, supply-chain, design-tokens, test-coverage]
+    if: always()
+    steps:
+      - name: Quality Gate Results
+        run: |
+          echo "## 🛡️ Quality Gate Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Gate | Status | Requirement |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|--------|-------------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Security | ${{ needs.security-scan.result == 'success' && '✅ PASS' || '❌ FAIL' }} | 0 Critical/High Issues |" >> $GITHUB_STEP_SUMMARY
+          echo "| Code Quality | ${{ needs.code-quality.result == 'success' && '✅ PASS' || '❌ FAIL' }} | ≥85% Maintainability, ≤2% Duplication |" >> $GITHUB_STEP_SUMMARY
+          echo "| Performance | ${{ needs.performance-lighthouse.result == 'success' && '✅ PASS' || '❌ FAIL' }} | P≥90, A11y≥90, BP≥95, SEO≥90 |" >> $GITHUB_STEP_SUMMARY
+          echo "| WCAG AA | ${{ needs.accessibility-wcag.result == 'success' && '✅ PASS' || '❌ FAIL' }} | 0 A11y Issues, 0 Broken Links |" >> $GITHUB_STEP_SUMMARY
+          echo "| GDPR | ${{ needs.gdpr-compliance.result == 'success' && '✅ PASS' || '❌ FAIL' }} | 0 PII in Code, Consent Management |" >> $GITHUB_STEP_SUMMARY
+          echo "| Supply Chain | ${{ needs.supply-chain.result == 'success' && '✅ PASS' || '❌ FAIL' }} | SBOM Generated, License Compliance |" >> $GITHUB_STEP_SUMMARY
+          echo "| Design Tokens | ${{ needs.design-tokens.result == 'success' && '✅ PASS' || '❌ FAIL' }} | 0 Token Drift, Austrian Brand Compliance |" >> $GITHUB_STEP_SUMMARY
+          echo "| Test Coverage | ${{ needs.test-coverage.result == 'success' && '✅ PASS' || '❌ FAIL' }} | Unit + E2E Coverage |" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "${{ needs.security-scan.result }}" != "success" || 
+                "${{ needs.code-quality.result }}" != "success" || 
+                "${{ needs.performance-lighthouse.result }}" != "success" || 
+                "${{ needs.accessibility-wcag.result }}" != "success" || 
+                "${{ needs.gdpr-compliance.result }}" != "success" || 
+                "${{ needs.supply-chain.result }}" != "success" || 
+                "${{ needs.design-tokens.result }}" != "success" || 
+                "${{ needs.test-coverage.result }}" != "success" ]]; then
+            echo "❌ One or more quality gates failed - BLOCKING MERGE"
+            exit 1
+          fi
+          
+          echo "✅ All quality gates passed - MERGE APPROVED"

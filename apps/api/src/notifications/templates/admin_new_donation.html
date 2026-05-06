@@ -1,0 +1,89 @@
+{% extends "_base.html" %}
+
+{% block title %}Neue Spende eingegangen{% endblock %}
+
+{% block header %}
+<tr>
+  <td style="background-color:#2B231D;padding:20px 32px;text-align:center;">
+    <span style="color:#D84A1B;font-family:'Nunito Sans',Arial,sans-serif;font-size:14px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;">
+      Admin-Benachrichtigung
+    </span>
+  </td>
+</tr>
+{% endblock %}
+
+{% block content %}
+<h1 style="margin:0 0 16px;font-size:20px;color:#2B231D;font-family:'Nunito Sans',Arial,sans-serif;font-weight:700;">
+  Neue Spende eingegangen
+</h1>
+
+<!-- Spenden-Übersicht -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#EEF4F8;border-radius:6px;margin:0 0 24px;">
+  <tr>
+    <td style="padding:20px 24px;text-align:center;">
+      <p style="margin:0 0 4px;font-size:13px;color:#6B6560;">Spendenbetrag</p>
+      <p style="margin:0;font-size:36px;font-weight:800;color:#1B4965;font-family:'Nunito Sans',Arial,sans-serif;line-height:1.1;">
+        {{ donation.amount }} EUR
+      </p>
+      <p style="margin:4px 0 0;font-size:13px;color:#6B6560;">{{ donation.date }} · {{ donation.payment_method }}</p>
+    </td>
+  </tr>
+</table>
+
+<!-- Spendendetails -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #E8E0D8;border-radius:6px;margin:0 0 24px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0 0 10px;font-size:12px;color:#6B6560;text-transform:uppercase;letter-spacing:0.05em;font-family:'Nunito Sans',Arial,sans-serif;">
+        Spendendetails
+      </p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:13px;">
+        <tr>
+          <td style="padding:4px 0;color:#6B6560;width:160px;">Spender/in</td>
+          <td style="padding:4px 0;color:#2B231D;font-weight:600;">{{ contact.first_name }} {{ contact.last_name }}</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0;color:#6B6560;">E-Mail</td>
+          <td style="padding:4px 0;color:#4A4039;">{{ contact.email }}</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0;color:#6B6560;">Betrag</td>
+          <td style="padding:4px 0;color:#4A4039;">{{ donation.amount }} EUR</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0;color:#6B6560;">Zahlungsmethode</td>
+          <td style="padding:4px 0;color:#4A4039;">{{ donation.payment_method }}</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0;color:#6B6560;">Transaktions-ID</td>
+          <td style="padding:4px 0;color:#4A4039;font-family:monospace;">{{ donation.transaction_id }}</td>
+        </tr>
+        <tr>
+          <td style="padding:4px 0;color:#6B6560;">Zeitpunkt</td>
+          <td style="padding:4px 0;color:#4A4039;">{{ donation.date }}</td>
+        </tr>
+        {% if donation.receipt_eligible %}
+        <tr>
+          <td style="padding:4px 0;color:#6B6560;">Quittung</td>
+          <td style="padding:4px 0;color:#22C55E;font-weight:600;">Erforderlich (&gt;50 EUR)</td>
+        </tr>
+        {% endif %}
+      </table>
+    </td>
+  </tr>
+</table>
+
+{% if related_id %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F5F1ED;border-radius:6px;margin:0 0 16px;">
+  <tr>
+    <td style="padding:12px 20px;">
+      <p style="margin:0;font-size:13px;color:#6B6560;">
+        Interne Referenz-ID: <strong style="color:#2B231D;font-family:monospace;">{{ related_id }}</strong>
+      </p>
+    </td>
+  </tr>
+</table>
+{% endif %}
+{% endblock %}
+
+{% block footer_reason %}Interne Benachrichtigung für das Administrationsteam von Menschlichkeit Österreich.{% endblock %}

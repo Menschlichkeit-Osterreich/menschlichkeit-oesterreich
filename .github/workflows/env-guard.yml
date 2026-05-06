@@ -1,0 +1,65 @@
+name: ENV Guard (Secrets Protection)
+
+on:
+  push:
+    branches: [main, develop, staging, chore/**, feature/**]
+  pull_request:
+    branches: [main, develop, staging, chore/**, feature/**]
+
+permissions:
+  contents: read
+
+jobs:
+  check-env:
+    name: Verify .env.example & Block Real .env
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        with:
+          fetch-depth: 0
+      
+      - name: Verify .env.example exists and is non-empty
+        run: |
+          if [ ! -s .env.example ]; then
+            echo "❌ .env.example fehlt oder ist leer!"
+            echo "Lösung: Pflege zentrale .env.example im Repo-Root"
+            exit 1
+          fi
+          echo "✅ .env.example vorhanden ($(wc -l < .env.example) Zeilen)"
+      
+      - name: Ensure no real .env committed
+        run: |
+          # Exclude explicitly allowed .env variants (see .gitignore negation rules)
+          found=$(git ls-files | grep -E '(^|/)\.env($|[^a-z])' | grep -Ev '\.(example|production\.template|project|test)$' || true)
+          if [ -n "$found" ]; then
+            echo "❌ ECHTE .ENV IM REPO GEFUNDEN (SECRETS-LEAK!):"
+            echo "$found"
+            echo ""
+            echo "Lösung:"
+            echo "  1. git rm --cached <datei>"
+            echo "  2. Secrets rotieren (GitHub Secrets, dotenv-vault)"
+            echo "  3. .gitignore prüfen"
+            exit 1
+          fi
+          echo "✅ Keine echten .env-Dateien im Repo (Secrets-Check passed)"
+
+      - name: Block tracked .env.vault
+        run: |
+          if git ls-files --error-unmatch .env.vault >/dev/null 2>&1; then
+            echo "❌ .env.vault darf nicht im öffentlichen Repository versioniert sein."
+            echo "Lösung: lokal verwalten oder via Secret-Store injizieren."
+            exit 1
+          fi
+          echo "✅ .env.vault ist nicht im Repo getrackt"
+      
+      - name: Check .env in .gitignore
+        run: |
+          if ! grep -q '^\.env$' .gitignore; then
+            echo "⚠️ WARNING: .env nicht in .gitignore gefunden!"
+            echo "Empfehlung: .gitignore ergänzen"
+          else
+            echo "✅ .env in .gitignore geschützt"
+          fi

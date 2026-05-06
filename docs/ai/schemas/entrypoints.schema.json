@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://menschlichkeit-oesterreich.at/schemas/entrypoints.schema.json",
+  "title": "Entrypoints",
+  "type": "object",
+  "required": ["entrypoints"],
+  "properties": {
+    "entrypoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "service",
+          "entrypoint_type",
+          "path_or_module",
+          "command",
+          "port",
+          "public_or_internal",
+          "evidence"
+        ],
+        "properties": {
+          "service": { "type": "string" },
+          "entrypoint_type": { "type": "string" },
+          "path_or_module": { "type": "string" },
+          "command": { "type": "string" },
+          "port": { "type": "integer", "minimum": 0 },
+          "public_or_internal": { "type": "string", "enum": ["public", "internal"] },
+          "evidence": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

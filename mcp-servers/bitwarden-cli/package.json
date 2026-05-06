@@ -1,0 +1,14 @@
+{
+  "name": "@menschlichkeit/mcp-bitwarden-cli",
+  "version": "1.0.0",
+  "description": "MCP Server fuer Bitwarden CLI Vault-Zugriff und Secret-Management",
+  "main": "index.js",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.20.1"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --inspect index.js",
+    "test": "node --test tests/"
+  }
+}

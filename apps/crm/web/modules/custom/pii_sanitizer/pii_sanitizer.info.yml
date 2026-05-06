@@ -1,0 +1,22 @@
+name: 'PII Sanitizer'
+type: module
+description: 'DSGVO-compliant PII sanitization for logs and activity records'
+core_version_requirement: ^10 || ^11
+package: Security
+
+# Dependencies
+dependencies:
+  - drupal:system
+
+# Configuration
+configure: pii_sanitizer.settings
+
+# Version
+version: '1.0.0'
+
+# Authors
+authors:
+  - 'Menschlichkeit Österreich DevOps Team'
+
+# License
+license: 'GPL-2.0-or-later'

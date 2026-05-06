@@ -1,0 +1,86 @@
+# CiviCRM Development Environment
+# Docker-basierte Entwicklung für crm.menschlichkeit-oesterreich.at
+# Integriert mit bestehender Ordnerstruktur
+
+version: '3.8'
+
+services:
+  # MariaDB Database
+  mariadb:
+    image: mariadb:10.11
+    container_name: moe-crm-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_dev
+      MYSQL_DATABASE: menschlichkeit_crm
+      MYSQL_USER: civicrm_user
+      MYSQL_PASSWORD: civicrm_dev_pass
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./docker/mariadb/init:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+    networks:
+      - moe-network
+
+  # PHP-FPM with Drupal 10 + CiviCRM
+  drupal:
+    build:
+      context: ./docker/drupal
+      dockerfile: Dockerfile
+    container_name: moe-crm-drupal
+    volumes:
+      - ./src:/var/www/html
+      - ./docker/drupal/php.ini:/usr/local/etc/php/conf.d/custom.ini
+    environment:
+      DB_HOST: mariadb
+      DB_NAME: menschlichkeit_crm
+      DB_USER: civicrm_user
+      DB_PASS: civicrm_dev_pass
+      DRUPAL_SITE_NAME: "Menschlichkeit Österreich CRM (Dev)"
+      CIVICRM_SITE_KEY: "dev_site_key_12345"
+    depends_on:
+      - mariadb
+    networks:
+      - moe-network
+
+  # Nginx Web Server
+  nginx:
+    image: nginx:alpine
+    container_name: moe-crm-nginx
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./src:/var/www/html
+      - ./docker/nginx/ssl:/etc/nginx/ssl
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - drupal
+    networks:
+      - moe-network
+
+  # Redis Cache (optional für Performance)
+  redis:
+    image: redis:7-alpine
+    container_name: moe-crm-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - moe-network
+
+  # MailHog (lokaler Mail-Server für Testing)
+  mailhog:
+    image: mailhog/mailhog
+    container_name: moe-crm-mailhog
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
+    networks:
+      - moe-network
+
+volumes:
+  mariadb_data:
+
+networks:
+  moe-network:
+    driver: bridge

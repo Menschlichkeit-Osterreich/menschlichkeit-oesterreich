@@ -1,0 +1,7 @@
+services:
+    moe.csp.event.listener:
+        class: moe\csp\event\listener
+        arguments:
+            - '@request'
+        tags:
+            - { name: event.listener }

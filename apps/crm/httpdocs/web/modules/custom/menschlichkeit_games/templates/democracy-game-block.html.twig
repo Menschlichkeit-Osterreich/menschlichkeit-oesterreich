@@ -1,0 +1,166 @@
+{#
+/**
+ * @file
+ * Default theme implementation for the Democracy Game block.
+ *
+ * Available variables:
+ * - game_url: URL to the democracy game.
+ * - show_preview: Boolean indicating if preview should be shown.
+ * - block_style: The selected block style ('card', 'banner', 'minimal', 'feature').
+ *
+ * @ingroup themeable
+ */
+#}
+
+<div class="democracy-game-block democracy-game-block--{{ block_style }}{{ custom_css_class ? ' ' ~ custom_css_class : '' }}"{{ attributes }}>
+  
+  {% if block_style == 'card' %}
+    {# Card Style - Default #}
+    <div class="democracy-game-card">
+      <div class="game-card-header">
+        <div class="game-icon">
+          <svg width="48" height="48" viewBox="0 0 48 48" aria-hidden="true">
+            <circle cx="24" cy="24" r="22" fill="#b80000" opacity="0.1"/>
+            <path d="M12 24 L24 18 L36 24 L24 30 Z" fill="#b80000"/>
+            <circle cx="24" cy="24" r="4" fill="#ffffff"/>
+          </svg>
+        </div>
+        <div class="game-title">
+          <h3>{{ 'Brücken Bauen'|t }}</h3>
+          <p class="game-subtitle">{{ 'Interactive Democracy Game'|t }}</p>
+        </div>
+      </div>
+
+      {% if show_preview %}
+        <div class="game-preview">
+          <p class="game-description">
+            {{ 'Ein interaktives Lernspiel über Empathie, Menschenrechte und demokratischen Zusammenhalt. Treffe Entscheidungen in realistischen gesellschaftlichen Situationen.'|t }}
+          </p>
+          
+          <div class="game-features">
+            <div class="feature-item">
+              <span class="feature-icon">🎯</span>
+              <span>{{ '8 realistische Szenarien'|t }}</span>
+            </div>
+            <div class="feature-item">
+              <span class="feature-icon">⏱️</span>
+              <span>{{ '20-30 Minuten Spieldauer'|t }}</span>
+            </div>
+            <div class="feature-item">
+              <span class="feature-icon">📱</span>
+              <span>{{ 'Als App installierbar'|t }}</span>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="game-actions">
+        <a href="{{ game_url }}" class="btn btn-primary btn-game-start"{{ analytics_tracking ? ' data-analytics="democracy_game_start"' : '' }}>
+          <svg class="btn-icon" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+            <path d="M6 4l8 6-8 6V4z" fill="currentColor"/>
+          </svg>
+          {{ 'Spiel starten'|t }}
+        </a>
+      </div>
+    </div>
+
+  {% elseif block_style == 'banner' %}
+    {# Banner Style - Full width with background #}
+    <div class="democracy-game-banner">
+      <div class="banner-background">
+        <div class="banner-pattern" aria-hidden="true"></div>
+      </div>
+      <div class="banner-content">
+        <div class="banner-text">
+          <h2 class="banner-title">{{ 'Demokratie erleben mit Brücken Bauen'|t }}</h2>
+          <p class="banner-description">
+            {{ 'Entdecke in 8 interaktiven Szenarien, wie demokratische Werte im Alltag gelebt werden können.'|t }}
+          </p>
+        </div>
+        <div class="banner-action">
+          <a href="{{ game_url }}" class="btn btn-large btn-primary"{{ analytics_tracking ? ' data-analytics="democracy_game_banner_start"' : '' }}>
+            {{ 'Jetzt spielen'|t }}
+            <svg class="btn-icon" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 5v14l11-7z" fill="currentColor"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+  {% elseif block_style == 'minimal' %}
+    {# Minimal Style - Simple link with icon #}
+    <div class="democracy-game-minimal">
+      <a href="{{ game_url }}" class="game-link-minimal"{{ analytics_tracking ? ' data-analytics="democracy_game_minimal_start"' : '' }}>
+        <div class="game-link-content">
+          <span class="game-link-icon">🌉</span>
+          <div class="game-link-text">
+            <strong>{{ 'Brücken Bauen'|t }}</strong>
+            <span>{{ 'Democracy Game spielen'|t }}</span>
+          </div>
+          <svg class="game-link-arrow" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
+            <path d="M10.707 2.293a1 1 0 00-1.414 1.414L13.586 8H3a1 1 0 000 2h10.586l-4.293 4.293a1 1 0 101.414 1.414l6-6a1 1 0 000-1.414l-6-6z" fill="currentColor"/>
+          </svg>
+        </div>
+      </a>
+    </div>
+
+  {% elseif block_style == 'feature' %}
+    {# Featured Style - Prominent with statistics #}
+    <div class="democracy-game-feature">
+      <div class="feature-header">
+        <div class="feature-badge">{{ 'Neu'|t }}</div>
+        <h2 class="feature-title">{{ 'Brücken Bauen'|t }}</h2>
+        <p class="feature-tagline">{{ 'Das interaktive Demokratie-Lernspiel'|t }}</p>
+      </div>
+
+      {% if show_preview %}
+        <div class="feature-content">
+          <div class="feature-description">
+            <p>{{ 'Erlebe Demokratie hautnah! In 8 realistischen Szenarien lernst du, wie demokratische Werte im Alltag angewendet werden. Von Nachbarschaftskonflikten bis zu gesellschaftlichen Herausforderungen – treffe Entscheidungen, die zählen.'|t }}</p>
+          </div>
+          
+          <div class="feature-stats">
+            <div class="stat-item">
+              <strong class="stat-number">8</strong>
+              <span class="stat-label">{{ 'Szenarien'|t }}</span>
+            </div>
+            <div class="stat-item">
+              <strong class="stat-number">25</strong>
+              <span class="stat-label">{{ 'Minuten'|t }}</span>
+            </div>
+            <div class="stat-item">
+              <strong class="stat-number">100%</strong>
+              <span class="stat-label">{{ 'Kostenlos'|t }}</span>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      <div class="feature-actions">
+        <a href="{{ game_url }}" class="btn btn-primary btn-xl"{{ analytics_tracking ? ' data-analytics="democracy_game_feature_start"' : '' }}>
+          <svg class="btn-icon" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 5v14l11-7z" fill="currentColor"/>
+          </svg>
+          {{ 'Spiel starten'|t }}
+        </a>
+        <div class="feature-meta">
+          <span class="meta-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" fill="currentColor"/>
+              <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" fill="currentColor"/>
+            </svg>
+            {{ 'Keine Anmeldung erforderlich'|t }}
+          </span>
+          <span class="meta-item">
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" fill="currentColor"/>
+            </svg>
+            {{ 'Als PWA installierbar'|t }}
+          </span>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+</div>

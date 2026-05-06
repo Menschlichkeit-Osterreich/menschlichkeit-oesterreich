@@ -1,0 +1,55 @@
+name: OSV Scanner (Nightly)
+# Nightly Crosscheck aller Lockfiles über alle Ökosysteme (npm, pip, composer).
+# PR-Scope wird durch dependency-review.yml abgedeckt; dieser Scan ergänzt
+# als breiter täglicher Sweep ohne Redundanz zu Dependency Review.
+
+on:
+  schedule:
+    # Täglich 05:30 UTC (Versatz zu anderen Nightly-Scans)
+    - cron: '30 5 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  osv-scan:
+    name: OSV Vulnerability Scanner
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      - name: Run OSV Scanner (container)
+        run: |
+          docker run --rm \
+            -v "$PWD":/src \
+            -w /src \
+            ghcr.io/google/osv-scanner:v2.2.2 \
+            scan \
+            --recursive \
+            --format sarif \
+            --output osv-results.sarif \
+            /src
+        continue-on-error: true
+
+      - name: Upload OSV results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@45775bd8235c68ba998cffa5171334d58593da47  # v3.28.1
+        if: >-
+          always() &&
+          hashFiles('osv-results.sarif') != ''
+        with:
+          sarif_file: osv-results.sarif
+          category: osv-scanner
+
+      - name: Upload results as artifact
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
+        if: always() && hashFiles('osv-results.sarif') != ''
+        with:
+          name: osv-scanner-results
+          path: osv-results.sarif
+          retention-days: 30

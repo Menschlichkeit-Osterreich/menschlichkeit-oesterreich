@@ -1,0 +1,41 @@
+{
+  "version": "0.0.2",
+  "configurations": [
+    {
+      "name": "frontend-vite",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd /d \"${workspaceFolder}\" && npm run dev:frontend"],
+      "port": 5173
+    },
+    {
+      "name": "api-fastapi",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd /d \"${workspaceFolder}\" && npm run dev:api"],
+      "port": 8001
+    },
+    {
+      "name": "crm-drupal",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd /d \"${workspaceFolder}\" && npm run dev:crm"],
+      "port": 8000
+    },
+    {
+      "name": "games-nextjs",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd /d \"${workspaceFolder}\" && npm run dev:games"],
+      "port": 3001
+    },
+    {
+      "name": "forum-phpbb",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd /d \"${workspaceFolder}\" && npm run dev:forum"],
+      "port": 8002
+    },
+    {
+      "name": "prisma-studio",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd /d \"${workspaceFolder}\" && npm run db:studio"],
+      "port": 5555
+    }
+  ]
+}

@@ -1,0 +1,226 @@
+name: 📊 Technical Debt Identification
+description: Systematic analysis and categorization of technical debt across the project
+title: "Technical Debt Assessment und Refactoring-Planung"
+labels: ["technical-debt", "refactoring", "architecture"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 📊 Technical Debt Identification
+
+        Systematische Identifikation und Kategorisierung von Technical Debt in der MCP Server-Architektur und Drupal/CiviCRM Plattform, einschließlich Priorisierung und Refactoring-Strategien.
+
+  - type: checkboxes
+    id: code-structure-debt
+    attributes:
+      label: 🏗️ Code Structure & Architecture Debt
+      description: Strukturelle und architektonische Technical Debt
+      options:
+        - label: "**MCP Server Architecture Issues:**"
+        - label: "Monolithic server implementations need microservice split"
+        - label: "Inconsistent error handling across MCP servers"
+        - label: "Missing abstraction layers for common operations"
+        - label: "Hard-coded configuration values"
+        - label: "**Drupal CMS Issues:**"
+        - label: "Custom module interdependencies creating tight coupling"
+        - label: "Legacy PHP code not following Drupal coding standards (PSR-12)"
+        - label: "Missing composer autoloading in custom modules"
+        - label: "Inconsistent Drupal coding standards (Coder module)"
+
+  - type: checkboxes
+    id: dependency-debt
+    attributes:
+      label: 📦 Dependency Management Debt
+      description: Abhängigkeits- und Package-Management-Probleme
+      options:
+        - label: "**Outdated Dependencies:**"
+        - label: "34x package.json files with varying Node.js versions"
+        - label: "8x pyproject.toml files with inconsistent Python versions"
+        - label: "18x composer.json files with legacy PHP packages"
+        - label: "**Security Vulnerabilities:**"
+        - label: "mailchimp-api-v3 @1.13.1 (known vulnerabilities)"
+        - label: "form-data dependency security issues"
+        - label: "Drupal modules/extensions with security advisories"
+        - label: "**Version Inconsistencies:**"
+        - label: "Multiple TypeScript versions across projects"
+        - label: "ESLint configuration drift"
+        - label: "Inconsistent testing frameworks"
+
+  - type: checkboxes
+    id: documentation-debt
+    attributes:
+      label: 📚 Documentation & Knowledge Debt
+      description: Dokumentations- und Wissens-Schulden
+      options:
+        - label: "Missing API documentation for MCP servers"
+        - label: "Outdated installation/setup instructions"
+        - label: "No architectural decision records (ADRs)"
+        - label: "Missing code comments for complex logic"
+        - label: "Drupal module functionality undocumented"
+        - label: "Development workflow not documented"
+        - label: "Deployment procedures unclear"
+        - label: "Missing troubleshooting guides"
+
+  - type: checkboxes
+    id: testing-debt
+    attributes:
+      label: 🧪 Testing & Quality Assurance Debt
+      description: Test-Coverage und Qualitätssicherungs-Probleme
+      options:
+        - label: "**Missing Test Coverage:**"
+        - label: "MCP servers have no automated tests"
+        - label: "Drupal modules lack automated tests"
+        - label: "Integration tests missing"
+        - label: "End-to-end tests not implemented"
+        - label: "**Quality Tools Not Configured:**"
+        - label: "ESLint 9.x migration incomplete"
+        - label: "PHPStan Level 8 not enforced"
+        - label: "Python type checking (mypy) missing"
+        - label: "Code coverage reporting absent"
+
+  - type: checkboxes
+    id: performance-debt
+    attributes:
+      label: ⚡ Performance & Scalability Debt
+      description: Performance- und Skalierbarkeits-Schulden
+      options:
+        - label: "MCP servers not optimized for concurrent requests"
+        - label: "Drupal/CiviCRM database queries not optimized"
+        - label: "Missing caching strategies"
+        - label: "Docker images not optimized for size"
+        - label: "Asset bundling inefficient"
+        - label: "No performance monitoring"
+        - label: "Load balancing not implemented"
+
+  - type: checkboxes
+    id: security-debt
+    attributes:
+      label: 🔒 Security & Compliance Debt
+      description: Sicherheits- und Compliance-Schulden
+      options:
+        - label: "Hardcoded API keys in configuration"
+        - label: "Missing environment variable validation"
+        - label: "Drupal/CiviCRM security headers not configured"
+        - label: "HTTPS enforcement incomplete"
+        - label: "User input validation inconsistent"
+        - label: "Audit logging not implemented"
+        - label: "GDPR compliance review needed"
+
+  - type: checkboxes
+    id: operational-debt
+    attributes:
+      label: 🚀 Operational & DevOps Debt
+      description: Betriebliche und DevOps-Schulden
+      options:
+        - label: "CI/CD pipelines not comprehensive"
+        - label: "Deployment automation incomplete"
+        - label: "Monitoring and alerting missing"
+        - label: "Backup strategies not documented"
+        - label: "Disaster recovery plans absent"
+        - label: "Log aggregation not centralized"
+        - label: "Infrastructure as Code not implemented"
+
+  - type: textarea
+    id: technical-debt-inventory
+    attributes:
+      label: 📝 Technical Debt Inventory
+      description: Detaillierte Auflistung der identifizierten Technical Debt
+      placeholder: |
+        **Critical Technical Debt:**
+        1. MCP Essential Stack: No error handling for Stripe API failures
+        2. Drupal Security: Hardcoded database credentials in settings.php
+        3. Dependencies: 15+ packages with known security vulnerabilities
+
+        **High Priority Technical Debt:**
+        1. TypeScript: Inconsistent compiler configurations across 34 projects
+        2. Testing: Zero test coverage for critical MCP server functions
+        3. Documentation: API documentation completely missing
+
+        **Medium Priority Technical Debt:**
+        1. Performance: No caching layer implemented
+        2. Code Quality: ESLint 9.x migration incomplete
+        3. Architecture: Monolithic server structure needs refactoring
+
+  - type: textarea
+    id: refactoring-strategy
+    attributes:
+      label: 🔧 Refactoring Strategy & Timeline
+      description: Refactoring-Strategie und Zeitplan
+      placeholder: |
+        **Phase 1 (Critical - 4 weeks):**
+        - Security vulnerability remediation
+        - Essential error handling implementation
+        - Critical bug fixes
+
+        **Phase 2 (High Priority - 8 weeks):**
+        - Testing framework implementation
+        - Documentation overhaul
+        - Dependency standardization
+
+        **Phase 3 (Long-term - 16 weeks):**
+        - Architectural improvements
+        - Performance optimization
+        - Advanced monitoring implementation
+
+  - type: textarea
+    id: business-impact
+    attributes:
+      label: 💼 Business Impact Assessment
+      description: Geschäftliche Auswirkungen der Technical Debt
+      placeholder: |
+        **Current Business Impact:**
+        - Development velocity reduced by ~40% due to context switching
+        - Bug fix time increased due to inconsistent code structure
+        - Onboarding new developers takes 2-3 weeks instead of days
+
+        **Risk Assessment:**
+        - High: Security vulnerabilities could compromise user data
+        - Medium: Performance issues affecting user experience
+        - Low: Documentation debt slowing development but not critical
+
+        **ROI of Refactoring:**
+        - Estimated 25% increase in development velocity
+        - 50% reduction in bug investigation time
+        - Improved developer satisfaction and retention
+
+  - type: dropdown
+    id: debt-severity
+    attributes:
+      label: 🚨 Technical Debt Severity
+      description: Schweregrad der Technical Debt
+      options:
+        - "🔴 Critical - Blocking development/deployment"
+        - "🟠 High - Significantly impacting productivity"
+        - "🟡 Medium - Noticeable but manageable impact"
+        - "🟢 Low - Minor cleanup needed"
+      default: 1
+
+  - type: checkboxes
+    id: measurement-criteria
+    attributes:
+      label: 📏 Technical Debt Measurement
+      description: Messbare Kriterien für Technical Debt
+      options:
+        - label: "Code complexity metrics (cyclomatic complexity)"
+        - label: "Test coverage percentage"
+        - label: "Dependency freshness score"
+        - label: "Security vulnerability count"
+        - label: "Documentation coverage ratio"
+        - label: "Code duplication percentage"
+        - label: "Build/deployment time metrics"
+
+  - type: checkboxes
+    id: acceptance-criteria
+    attributes:
+      label: ✅ Technical Debt Resolution Criteria
+      description: Definition of Done für Technical Debt-Beseitigung
+      options:
+        - label: "All critical security vulnerabilities resolved"
+        - label: "Test coverage >80% for core functionality"
+        - label: "API documentation complete and up-to-date"
+        - label: "Consistent tooling across all projects"
+        - label: "Code quality standards enforced in CI/CD"
+        - label: "Performance benchmarks established"
+        - label: "Refactoring roadmap documented and approved"
+        - label: "Team trained on new patterns and practices"

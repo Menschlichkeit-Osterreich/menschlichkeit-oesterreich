@@ -1,0 +1,536 @@
+{
+  "metadata": {
+    "project": "Menschlichkeit Österreich Website-Entwicklung",
+    "version": "1.0.0",
+    "generated": "2025-09-25",
+    "methodology": "Forensische Analyse nach akademischen Standards",
+    "total_items": 25,
+    "critical_items": 8,
+    "estimated_effort": "36-52 Entwicklerwochen"
+  },
+  "items": [
+    {
+      "id": "T-001",
+      "title": "Website-HTML reparieren und konsolidieren",
+      "description": "Defektes Markup, doppelte Blöcke und Inline-Fragmente in index.html beseitigen; saubere Struktur, korrekter Viewport, Scripts defer.",
+      "references": [
+        {
+          "path": "website/index.html:1",
+          "note": "Neu erstellt, strukturelle Fehler behoben"
+        }
+      ],
+      "priority_moscow": "Must",
+      "impact": "High",
+      "effort": "S",
+      "eisenhower": "Do",
+      "critical_path": true,
+      "size": "S",
+      "owner_roles": ["Frontend Developer"],
+      "dor": ["Zugriff auf website/", "Reviewkriterien definiert"],
+      "dod": ["HTML W3C valid", "Lighthouse DOM errors = 0"],
+      "dependencies": [],
+      "status": "done"
+    },
+    {
+      "id": "T-002",
+      "title": "Website→API-Wiring an FastAPI-Schema anpassen",
+      "description": "Login verarbeitet ApiResponse{data:{token}}, Register-Fallback via /contacts/create; Fehler-Handling standardisieren.",
+      "references": [
+        {
+          "path": "website/assets/js/crm-api.js:1",
+          "note": "Login/Health/Contact angepasst"
+        },
+        {
+          "path": "api.menschlichkeit-oesterreich.at/app/main.py:110",
+          "note": "/auth/login Antwortschema"
+        }
+      ],
+      "priority_moscow": "Must",
+      "impact": "High",
+      "effort": "S",
+      "eisenhower": "Do",
+      "critical_path": true,
+      "size": "S",
+      "owner_roles": ["Frontend Developer", "Backend Developer"],
+      "dor": ["Aktuelles API-Schema verifiziert"],
+      "dod": ["Login funktioniert gegen Dev-API", "Fehlerbotschaften nutzerfreundlich"],
+      "dependencies": ["T-001"],
+      "status": "done"
+    },
+    {
+      "id": "T-003",
+      "title": "CSP & Security-Header serverseitig setzen",
+      "description": "CSP, HSTS, Referrer-, Permissions-Policy als Server-Header konfigurieren; kein unsafe-inline; Richtlinie dokumentieren.",
+      "references": [
+        {
+          "path": "servers/SECURITY-HEADERS-WEBSITE.md:1",
+          "note": "Empfohlene Header"
+        }
+      ],
+      "priority_moscow": "Must",
+      "impact": "High",
+      "effort": "M",
+      "eisenhower": "Do",
+      "critical_path": true,
+      "size": "M",
+      "owner_roles": ["DevOps", "Security"],
+      "dor": ["Plesk-Zugriff vorhanden"],
+      "dod": ["Header aktiv auf Prod & Staging", "CSP Violations 0 in Report-Only"],
+      "dependencies": [],
+      "status": "done",
+      "completed_at": "2025-09-28",
+      "notes": ["Abgeschlossen nach Umsetzung der Sicherheits-/CORS-Konfiguration (2025-09-28)."]
+    },
+    {
+      "id": "T-004",
+      "title": "Externe Ressourcen härten (SRI/Self-Hosting)",
+      "description": "Bootstrap/Icons/Google Fonts mit SRI oder self-hosted; Fonts mit font-display: swap und Preload optimieren.",
+      "references": [
+        {
+          "path": "website/index.html:20",
+          "note": "CDN-Links"
+        }
+      ],
+      "priority_moscow": "Should",
+      "impact": "High",
+      "effort": "M",
+      "eisenhower": "Plan",
+      "critical_path": false,
+      "size": "M",
+      "owner_roles": ["Frontend Developer", "DevOps"],
+      "dor": ["Auswahl: SRI vs Self-Host"],
+      "dod": ["Keine externen Fonts ohne SRI", "Layout stabil"],
+      "dependencies": ["T-003"],
+      "status": "todo",
+      "notes": [
+        "Nächster Schritt: CDN-Ressourcen in website/index.html inventarisieren und Entscheidung SRI vs. Self-Hosting dokumentieren (2025-09-28)."
+      ]
+    },
+    {
+      "id": "T-005",
+      "title": "Bildoptimierung Website (WebP/AVIF + LazyLoad)",
+      "description": "Alle Bilder in moderne Formate, responsive srcset/sizes, lazy-loading; Größenlimits einhalten.",
+      "references": [
+        {
+          "path": "website/index.html:120",
+          "note": "Hero/Icons exemplarisch"
+        }
+      ],
+      "priority_moscow": "Should",
+      "impact": "High",
+      "effort": "M",
+      "eisenhower": "Plan",
+      "critical_path": false,
+      "size": "M",
+      "owner_roles": ["Frontend Developer", "Designer"],
+      "dor": ["Bildquellen verfügbar"],
+      "dod": ["Lighthouse Performance ≥ 0.9"],
+      "dependencies": [],
+      "status": "todo",
+      "notes": [
+        "Nächster Schritt: Hero-/Mitmachen-Bilder als WebP/AVIF exportieren und srcset/LazyLoading für website/*.html vorbereiten (2025-09-28)."
+      ]
+    },
+    {
+      "id": "T-006",
+      "title": "Website Lighthouse CI einführen",
+      "description": "Automatischer Build/Serve + Lighthouse mit Budgets; Fail unter Grenzwerten.",
+      "references": [
+        {
+          "path": "website/lighthouse.config.cjs:1",
+          "note": "Budgets"
+        },
+        {
+          "path": "website/scripts/run-lighthouse.mjs:1",
+          "note": "Runner"
+        }
+      ],
+      "priority_moscow": "Must",
+      "impact": "Medium",
+      "effort": "S",
+      "eisenhower": "Do",
+      "critical_path": false,
+      "size": "S",
+      "owner_roles": ["DevOps"],
+      "dor": ["Node im CI"],
+      "dod": ["CI-Job grün bei Score ≥ Grenzwerten"],
+      "dependencies": [],
+      "status": "todo",
+      "notes": [
+        "Nächster Schritt: CI-Job für website/scripts/run-lighthouse.mjs in GitHub Actions entwerfen und Budgets aus lighthouse.config.cjs übernehmen (2025-09-28)."
+      ]
+    },
+    {
+      "id": "T-007",
+      "title": "API Endpunkte ergänzen (Register/Refresh/GET/PUT)",
+      "description": "FastAPI um /auth/register, /auth/refresh, GET /contacts/{id}, PUT /contacts/{id}, GET /memberships/contact/{id}, PUT /memberships/{id} erweitern; einheitliches ApiResponse.",
+      "references": [
+        {
+          "path": "api.menschlichkeit-oesterreich.at/app/main.py:110",
+          "note": "Nur /auth/login vorhanden"
+        },
+        {
+          "path": "website/assets/js/crm-api.js:154",
+          "note": "Website erwartet weitere Routen"
+        }
+      ],
+      "priority_moscow": "Must",
+      "impact": "High",
+      "effort": "L",
+      "eisenhower": "Plan",
+      "critical_path": true,
+      "size": "L",
+      "owner_roles": ["Backend Developer"],
+      "dor": ["CiviCRM APIv4 Mapping definiert", "Auth-Strategie festgelegt"],
+      "dod": ["Endpoints dokumentiert", "Tests grün"],
+      "dependencies": [],
+      "status": "todo",
+      "notes": [
+        "Nächster Schritt: API-Schema und Payload-Struktur (Register/Refresh/Contacts/Memberships) im FastAPI-Projekt app/main.py definieren, Testfälle skizzieren und CiviCRM-Mapping verifizieren (2025-09-28)."
+      ]
+    },
+    {
+      "id": "T-008",
+      "title": "API CORS härten & Konfiguration externalisieren",
+      "description": "FRONTEND_ORIGINS für Prod minimal, Methoden/Headers whitelisten, Credentials prüfen; Stage/Prod getrennt.",
+      "references": [
+        {
+          "path": "api.menschlichkeit-oesterreich.at/app/main.py:22",
+          "note": "CORS dev-friendly"
+        }
+      ],
+      "priority_moscow": "Must",
+      "impact": "High",
+      "effort": "S",
+      "eisenhower": "Do",
+      "critical_path": false,
+      "size": "S",
+      "owner_roles": ["Backend Developer", "Security"],
+      "dor": ["Origin-Liste bekannt"],
+      "dod": ["Nur erlaubte Origins", "Preflight OK"],
+      "dependencies": [],
+      "status": "done",
+      "completed_at": "2025-09-28",
+      "notes": ["Abgeschlossen nach Umsetzung der Sicherheits-/CORS-Konfiguration (2025-09-28)."]
+    },
+    {
+      "id": "T-009",
+      "title": "API Secrets/Config validieren (ENV, Startfehler)",
+      "description": "Pflicht-ENV (JWT_SECRET, CIVI_API_KEY, CIVI_SITE_KEY) validieren und Fail-fast starten.",
+      "references": [
+        {
+          "path": "api.menschlichkeit-oesterreich.at/app/main.py:11",
+          "note": "ENV genutzt"
+        }
+      ],
+      "priority_moscow": "Must",
+      "impact": "Medium",
+      "effort": "S",
+      "eisenhower": "Do",
+      "critical_path": false,
+      "size": "S",
+      "owner_roles": ["Backend Developer"],
+      "dor": ["ENV Namen final"],
+      "dod": ["Start bricht mit klarer Meldung bei fehlenden Variablen ab"],
+      "dependencies": [],
+      "status": "done",
+      "completed_at": "2025-09-28",
+      "notes": ["Abgeschlossen nach Umsetzung der Sicherheits-/CORS-Konfiguration (2025-09-28)."]
+    },
+    {
+      "id": "T-010",
+      "title": "Python Requirements konsolidieren",
+      "description": "Doppelte/inkonsistente Requirements zwischen app/requirements.txt und root requirements.txt bereinigen.",
+      "references": [
+        {
+          "path": "api.menschlichkeit-oesterreich.at/app/requirements.txt:1",
+          "note": "PyJWT/httpx Versionen"
+        },
+        {
+          "path": "api.menschlichkeit-oesterreich.at/requirements.txt:1",
+          "note": "abweichende Pakete"
+        }
+      ],
+      "priority_moscow": "Should",
+      "impact": "Medium",
+      "effort": "S",
+      "eisenhower": "Plan",
+      "critical_path": false,
+      "size": "S",
+      "owner_roles": ["Backend Developer"],
+      "dor": ["Ziel-Laufzeit definiert"],
+      "dod": ["Ein Source of Truth", "Lock/Hashes optional"],
+      "dependencies": [],
+      "status": "todo",
+      "notes": [
+        "Nächster Schritt: requirements.txt vs. app/requirements.txt diffen und Zielumgebung festlegen (2025-09-28)."
+      ]
+    },
+    {
+      "id": "T-011",
+      "title": "Drupal/CiviCRM Security Review & Updates",
+      "description": "Core/Extensions auf sichere Versionen, Härtung, SEPA/Jobs prüfen.",
+      "references": [
+        {
+          "path": "crm.menschlichkeit-oesterreich.at/httpdocs/composer.json:1",
+          "note": "Abhängigkeiten"
+        },
+        {
+          "path": "enterprise-upgrade/03_php-drupal-hardening.md:1",
+          "note": "Härtung"
+        }
+      ],
+      "priority_moscow": "Must",
+      "impact": "High",
+      "effort": "M",
+      "eisenhower": "Plan",
+      "critical_path": false,
+      "size": "M",
+      "owner_roles": ["PHP Developer", "Security"],
+      "dor": ["Composer/Drush verfügbar"],
+      "dod": ["composer audit clean", "Security advisories 0"],
+      "dependencies": [],
+      "status": "todo",
+      "notes": [
+        "Nächster Schritt: composer outdated & security:check im crm-Verzeichnis vorbereiten und Update-Plan festhalten (2025-09-28)."
+      ]
+    },
+    {
+      "id": "T-012",
+      "title": "CI/CD für Frontend & Website ergänzen",
+      "description": "Workflows für frontend/ und website/ (Build, Lint, Lighthouse) hinzufügen; bestehende WP‑Jobs guarden oder entfernen.",
+      "references": [
+        {
+          "path": ".github/workflows/ci.yml:1",
+          "note": "keine frontend/website Jobs"
+        }
+      ],
+      "priority_moscow": "Must",
+      "impact": "High",
+      "effort": "M",
+      "eisenhower": "Plan",
+      "critical_path": true,
+      "size": "M",
+      "owner_roles": ["DevOps"],
+      "dor": ["CI Runner Kapazität"],
+      "dod": ["Pipelines grün, Gates aktiv"],
+      "dependencies": ["T-006"],
+      "status": "todo",
+      "notes": [
+        "Nächster Schritt: Pipeline-Entwurf für frontend + website (Build/Lint/Test) in .github/workflows anlegen; Abhängigkeit zu T-006 beachten (2025-09-28)."
+      ]
+    },
+    {
+      "id": "T-013",
+      "title": "Website Bilder/Assets Caching-Header setzen",
+      "description": "HTML kurz cachen/no-cache; Assets immutable 1y.",
+      "references": [
+        {
+          "path": "servers/SECURITY-HEADERS-WEBSITE.md:1",
+          "note": "Caching Abschnitt"
+        }
+      ],
+      "priority_moscow": "Should",
+      "impact": "Medium",
+      "effort": "S",
+      "eisenhower": "Plan",
+      "critical_path": false,
+      "size": "S",
+      "owner_roles": ["DevOps"],
+      "dor": ["Plesk Zugriff"],
+      "dod": ["Header live verifiziert"],
+      "dependencies": ["T-003"],
+      "status": "todo",
+      "notes": [
+        "Nächster Schritt: Nach CSP-Rollout Header-Template für Asset-Caching in Plesk vorbereiten (2025-09-28)."
+      ]
+    },
+    {
+      "id": "T-014",
+      "title": "React‑Migration: Login & Member‑Area portieren",
+      "description": "Website-Seiten Login/Member in React mit Tokens/A11y umsetzen; AuthContext nutzen.",
+      "references": [
+        {
+          "path": "frontend/src/pages/Login.tsx:1",
+          "note": "Vorlage vorhanden"
+        },
+        {
+          "path": "frontend/src/pages/MemberArea.tsx:1",
+          "note": "Demo-Aktionen"
+        }
+      ],
+      "priority_moscow": "Should",
+      "impact": "Medium",
+      "effort": "M",
+      "eisenhower": "Plan",
+      "critical_path": false,
+      "size": "M",
+      "owner_roles": ["Frontend Developer"],
+      "dor": ["API-Endpoints final (T-007)"],
+      "dod": ["Funktional identisch zur Website", "Lighthouse ≥90"],
+      "dependencies": ["T-007"],
+      "status": "todo",
+      "notes": [
+        "Nächster Schritt: Auth-Flow-Anforderungen mit Backend (T-007) abstimmen und React-Komponentenplanung erstellen (2025-09-28)."
+      ]
+    },
+    {
+      "id": "T-015",
+      "title": "Sicherer Token-Speicher & Logout Flows",
+      "description": "SessionStorage statt LocalStorage (Website bereits angepasst), spätere Umstellung auf HttpOnly Cookies evaluieren.",
+      "references": [
+        {
+          "path": "website/assets/js/crm-api.js:18",
+          "note": "Token aus localStorage"
+        },
+        {
+          "path": "frontend/src/auth/AuthContext.tsx:1",
+          "note": "sessionStorage Nutzung"
+        }
+      ],
+      "priority_moscow": "Should",
+      "impact": "Medium",
+      "effort": "S",
+      "eisenhower": "Plan",
+      "critical_path": false,
+      "size": "S",
+      "owner_roles": ["Frontend Developer", "Security"],
+      "dor": ["Auth Strategie beschlossen"],
+      "dod": ["Keine Tokens im LocalStorage auf Prod"],
+      "dependencies": [],
+      "status": "todo",
+      "notes": [
+        "Nächster Schritt: Token-Speicherstrategie reviewen (sessionStorage vs. Cookies) und Migrationsplan für website/frontend festhalten (2025-09-28)."
+      ]
+    },
+    {
+      "id": "T-016",
+      "title": "Secrets-Scanning & Policy",
+      "description": "Automatisches Secret-Scanning in CI (trufflehog/gitleaks), Richtlinie & Schulung.",
+      "references": [
+        {
+          "path": ".gitignore_sensitive:1",
+          "note": "Sensibel-Policy Datei vorhanden"
+        }
+      ],
+      "priority_moscow": "Must",
+      "impact": "High",
+      "effort": "S",
+      "eisenhower": "Do",
+      "critical_path": false,
+      "size": "S",
+      "owner_roles": ["Security", "DevOps"],
+      "dor": ["Toolauswahl"],
+      "dod": ["CI bricht bei Leaks"],
+      "dependencies": ["T-012"],
+      "status": "todo",
+      "notes": [
+        "Nächster Schritt: Toolauswahl (gitleaks/trufflehog) finalisieren und CI-Integration nach T-012 planen (2025-09-28)."
+      ]
+    },
+    {
+      "id": "T-017",
+      "title": "Monitoring/Observability einführen",
+      "description": "Uptime-Checks, zentralisiertes Logging, Sentry/GlitchTip (Frontend & API), Health Endpoints geprüft.",
+      "references": [
+        {
+          "path": "api.menschlichkeit-oesterreich.at/app/main.py:74",
+          "note": "/health vorhanden"
+        }
+      ],
+      "priority_moscow": "Should",
+      "impact": "High",
+      "effort": "M",
+      "eisenhower": "Plan",
+      "critical_path": false,
+      "size": "M",
+      "owner_roles": ["DevOps"],
+      "dor": ["Tooling gewählt"],
+      "dod": ["Alerts eingerichtet"],
+      "dependencies": [],
+      "status": "todo",
+      "notes": [
+        "Nächster Schritt: Monitoring-Stack (Sentry/Uptime/Logging) auswählen und Ressourcenbedarf erfassen (2025-09-28)."
+      ]
+    },
+    {
+      "id": "T-018",
+      "title": "CI-Workflows bereinigen (Dead Paths & Flakes)",
+      "description": "WordPress-spezifische Jobs conditionieren oder entfernen; neue Jobs für frontend/website ergänzen.",
+      "references": [
+        {
+          "path": ".github/workflows/wordpress.yml:1",
+          "note": "Bezug auf nicht vorhandene Pfade"
+        }
+      ],
+      "priority_moscow": "Must",
+      "impact": "Medium",
+      "effort": "S",
+      "eisenhower": "Do",
+      "critical_path": false,
+      "size": "S",
+      "owner_roles": ["DevOps"],
+      "dor": ["Stakeholder-Entscheid zu WP"],
+      "dod": ["CI ohne falsche Fehlalarme"],
+      "dependencies": ["T-012"],
+      "status": "todo",
+      "notes": [
+        "Nächster Schritt: Bestehende .github/workflows prüfen und nicht genutzte WP-Jobs kennzeichnen (2025-09-28)."
+      ]
+    },
+    {
+      "id": "T-019",
+      "title": "Lizenz-Compliance prüfen (Composer/Node)",
+      "description": "Kompatibilität GPL-3.0+ (CRM) mit angrenzenden Code-/Deployment-Artefakten sicherstellen; Lizenz-Hinweise/Third-Party Notices pflegen.",
+      "references": [
+        {
+          "path": "crm.menschlichkeit-oesterreich.at/httpdocs/composer.json:1",
+          "note": "GPL-3.0+"
+        },
+        {
+          "path": "package.json:1",
+          "note": "MIT"
+        }
+      ],
+      "priority_moscow": "Should",
+      "impact": "Medium",
+      "effort": "S",
+      "eisenhower": "Plan",
+      "critical_path": false,
+      "size": "S",
+      "owner_roles": ["Legal", "DevOps"],
+      "dor": ["Policy verfügbar"],
+      "dod": ["Notice-Datei vorhanden", "Lizenzen dokumentiert"],
+      "dependencies": [],
+      "status": "todo",
+      "notes": [
+        "Nächster Schritt: Lizenzliste aus composer.json & package.json exportieren und Kompatibilitätsprüfung starten (2025-09-28)."
+      ]
+    },
+    {
+      "id": "T-020",
+      "title": "DSGVO/PII-Review (Logs & Telemetrie)",
+      "description": "Logging/Monitoring/Analytics auf PII prüfen; Data Retention/Consent implementieren.",
+      "references": [
+        {
+          "path": "website/assets/js/main.js:1",
+          "note": "Vitals → Analytics"
+        }
+      ],
+      "priority_moscow": "Should",
+      "impact": "High",
+      "effort": "M",
+      "eisenhower": "Plan",
+      "critical_path": false,
+      "size": "M",
+      "owner_roles": ["Security", "Legal"],
+      "dor": ["Prozess definiert"],
+      "dod": ["Datenminimierung nachgewiesen", "Consent Flow beschrieben"],
+      "dependencies": [],
+      "status": "todo",
+      "notes": [
+        "Nächster Schritt: Datenflüsse (Logs/Analytics) mappen und Consent-/Retention-Anforderungen notieren (2025-09-28)."
+      ]
+    }
+  ]
+}

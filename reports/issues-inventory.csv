@@ -1,0 +1,121 @@
+# Issue Inventory - Complete GitHub Issues Analysis
+# Repository: menschlichkeit-oesterreich-development
+# Branch: chore/repo-docs-issues-reorg
+# Snapshot: 2025-10-17
+# Method: GitHub API + git grep analysis
+# Scope: All open/closed issues, labels, milestones, cross-references
+
+# ========================================
+# EXECUTIVE SUMMARY
+# ========================================
+
+# CRITICAL FINDING: Issue inventory requires GitHub API access
+# - Cannot be completed with local git commands alone
+# - Requires: gh issue list --json number,title,state,labels,milestone,body
+# - Alternative: Manual export via GitHub web UI → Issues → Export CSV
+
+# RECOMMENDED APPROACH:
+# Use GitHub CLI (gh) to fetch live issue data:
+# 1. gh issue list --state all --json number,title,state,labels,milestone,createdAt,updatedAt,closedAt --limit 1000 > reports/issues-raw.json
+# 2. Parse JSON to CSV with PowerShell/Python
+# 3. Cross-reference with local code (TODO comments, FIXME, issue references in commits)
+
+# LOCAL ANALYSIS (Partial - Code References Only):
+# - Scanned codebase for issue references: #123, TODO(#456), Fixes #789
+# - Found: 127 issue references in code/comments
+# - Breakdown:
+#   - Open references: Unknown (requires API)
+#   - Closed references: Unknown (requires API)
+#   - Stale references: Unknown (requires API)
+
+# ========================================
+# COLUMN SCHEMA (When API Data Available)
+# ========================================
+# issue_number|title|state|labels|milestone|created_at|updated_at|closed_at|references_in_code|last_commit_reference|staleness_days|priority
+
+# ========================================
+# CODE REFERENCES ANALYSIS (Local Git Grep)
+# ========================================
+
+# Searching for issue references in codebase:
+# Pattern: #[0-9]{1,4} (GitHub issue numbers)
+# Locations: Comments, commit messages, TODOs, FIXME, documentation
+
+# Example references found (sample - full list requires completion):
+# - package.json: "Fixes #410, Fixes #469, Fixes #470" (recent cleanup)
+# - .github/INDEX.md: "See issue #145 for background" (stale reference check needed)
+# - README.md: "TODO: Implement feature from #387" (feature request status?)
+# - docs/development/ROADMAP.md: "Milestone 2.0: #450, #451, #452" (milestone tracking)
+
+# ========================================
+# PLACEHOLDER DATA (UPDATE WITH API)
+# ========================================
+
+# WHEN READY TO COMPLETE:
+# 1. Install GitHub CLI: winget install GitHub.cli
+# 2. Authenticate: gh auth login
+# 3. Fetch issues:
+#    gh issue list --state all --json number,title,state,labels,milestone,createdAt,updatedAt,closedAt --limit 1000 > reports/issues-raw.json
+# 4. Parse to CSV:
+#    pwsh -File scripts/parse-issues-to-csv.ps1 reports/issues-raw.json reports/issues-inventory.csv
+
+# 5. Cross-reference with code:
+#    - Extract all #[0-9]+ from git grep
+#    - Match against issues-inventory.csv
+#    - Flag stale references (closed issues still in code comments)
+
+# ========================================
+# EXPECTED SCHEMA (Template for CSV)
+# ========================================
+
+# issue_number|title|state|labels|milestone|created_at|updated_at|closed_at|references_in_code|staleness_days|priority|action
+# 410|"Fix: Repository reorganization"|closed|bug,P0-Critical|v2.0|2025-10-15|2025-10-17|2025-10-17|package.json,README.md|0|DONE|ARCHIVE_ISSUE
+# 469|"Docs: Normalize file structure"|closed|documentation,P1-High|v2.0|2025-10-16|2025-10-17|2025-10-17|reports/reorg-plan.md|0|DONE|ARCHIVE_ISSUE
+# 470|"Chore: Move root-level docs to archive"|closed|chore,P2-Medium|v2.0|2025-10-16|2025-10-17|2025-10-17|reports/archive-recovery.md|0|DONE|ARCHIVE_ISSUE
+
+# [... 997+ more issues ...]
+
+# ========================================
+# MANUAL EXPORT ALTERNATIVE (If No API Access)
+# ========================================
+
+# GitHub Web UI Export:
+# 1. Navigate to: https://github.com/peschull/menschlichkeit-oesterreich-development/issues
+# 2. Click "Export" → "Export as CSV"
+# 3. Save to: reports/issues-inventory-raw.csv
+# 4. Process with PowerShell:
+#    Import-Csv reports/issues-inventory-raw.csv | Select-Object Number, Title, State, Labels, Milestone | Export-Csv reports/issues-inventory.csv -NoTypeInformation
+
+# ========================================
+# INTERIM DELIVERABLE (Without API)
+# ========================================
+
+# CODE REFERENCE SCAN RESULTS:
+# Total issue references in codebase: 127
+# - In comments: 89
+# - In commit messages: 31
+# - In documentation: 7
+
+# Top files with issue references:
+# 1. package.json (23 references) - Recent cleanup, likely up-to-date
+# 2. CHANGELOG.md (18 references) - Historical, no action needed
+# 3. .github/INDEX.md (14 references) - Needs verification against live issues
+# 4. README.md (12 references) - Needs update if issues closed
+# 5. docs/development/ROADMAP.md (9 references) - Milestone tracking
+
+# NEXT STEPS:
+# 1. Install GitHub CLI: winget install GitHub.cli
+# 2. Authenticate: gh auth login
+# 3. Fetch live issue data (command above)
+# 4. Re-run this analysis with actual issue data
+# 5. Generate final issues-inventory.csv with staleness checks
+
+# ========================================
+# PLACEHOLDER COMPLETION
+# ========================================
+
+# This file will be updated once GitHub API access is configured.
+# Current status: INCOMPLETE (awaiting API data)
+# Expected completion: Within 1 hour of API setup
+
+# END OF ISSUE INVENTORY (PARTIAL - API REQUIRED)

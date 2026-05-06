@@ -1,0 +1,134 @@
+langcode: de
+status: open
+dependencies:
+  module:
+    - civicrm
+    - civicrm_webform
+    - webform
+    - webform_civicrm
+
+# Issue #132 – [P0] Webform: Spenden (Stripe)
+# Drupal Webform-Export – importierbar via: drush config:import --partial
+uuid: b3a1f0d2-7e4c-4a5b-9c8d-1e2f3a4b5c6d
+id: spenden_stripe
+title: 'Jetzt spenden'
+description: 'Einmalige oder wiederkehrende Spende via Stripe (Kreditkarte, EPS, SEPA)'
+status: open
+open: null
+close: null
+
+# Formularfelder
+elements:
+  betrag:
+    '#type': webform_radios_other
+    '#title': 'Spendenbetrag (€)'
+    '#options':
+      '10': '10 €'
+      '25': '25 €'
+      '50': '50 €'
+      '100': '100 €'
+    '#other__placeholder': 'Anderer Betrag (mind. 1 €)'
+    '#other__min': 1
+    '#required': true
+    '#default_value': '25'
+
+  zahlungsintervall:
+    '#type': select
+    '#title': 'Zahlungsintervall'
+    '#options':
+      einmalig: 'Einmalig'
+      monatlich: 'Monatlich'
+      jaehrlich: 'Jährlich'
+    '#required': true
+    '#default_value': einmalig
+
+  zweck:
+    '#type': select
+    '#title': 'Verwendungszweck'
+    '#options':
+      allgemein: 'Allgemeine Vereinsarbeit'
+      demokratie: 'Demokratieprojekte'
+      bildung: 'Bildungsprogramme'
+      nothilfe: 'Nothilfe'
+    '#required': true
+
+  kontakt:
+    '#type': webform_civicrm_contact
+    '#title': Kontakt
+    '#civicrm_field': contact_1
+    '#no_display': true
+
+  vorname:
+    '#type': textfield
+    '#title': Vorname
+    '#required': true
+    '#civicrm_data': 'contact_1:first_name'
+
+  nachname:
+    '#type': textfield
+    '#title': Nachname
+    '#required': true
+    '#civicrm_data': 'contact_1:last_name'
+
+  email:
+    '#type': email
+    '#title': 'E-Mail-Adresse'
+    '#required': true
+    '#civicrm_data': 'contact_1:email'
+
+  quittung:
+    '#type': checkbox
+    '#title': 'Spendenquittung für Steuerabzug anfordern'
+    '#default_value': false
+
+  stripe_payment:
+    '#type': webform_civicrm_stripe
+    '#title': Zahlung
+    '#payment_processor': Stripe
+    '#required': true
+
+  dsgvo_einwilligung:
+    '#type': checkbox
+    '#title': 'Ich stimme der Verarbeitung meiner Daten gemäß <a href="/datenschutz">Datenschutzerklärung</a> zu.'
+    '#required': true
+    '#required_error': 'Bitte stimmen Sie der Datenschutzerklärung zu.'
+
+  newsletter_opt_in:
+    '#type': checkbox
+    '#title': 'Ich möchte den Newsletter von Menschlichkeit Österreich erhalten.'
+    '#default_value': false
+
+actions:
+  submit: 'Jetzt spenden'
+  reset: null
+
+settings:
+  ajax: true
+  ajax_scroll_top: false
+  page: true
+  page_submit_path: /spenden/bestaetigung
+  confirmation_type: page
+  confirmation_url: /spenden/danke
+  confirmation_message: '<h2>Herzlichen Dank für Ihre Spende!</h2><p>Sie erhalten in Kürze eine Bestätigungs-E-Mail.</p>'
+  draft: false
+  draft_auto_save: false
+  limit_total: null
+  limit_user: null
+  purge: null
+
+handlers:
+  civicrm:
+    id: civicrm
+    label: CiviCRM
+    handler_id: civicrm
+    plugin_id: civicrm_webform_handler
+    status: true
+    settings:
+      contact_1:
+        contact_type: Individual
+        matching_rule: Unsupervised
+      contribution_1:
+        enable_contribution: true
+        financial_type_id: 2
+        payment_processor_id: 1
+        payment_instrument: Stripe

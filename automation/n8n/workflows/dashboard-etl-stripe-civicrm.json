@@ -1,0 +1,328 @@
+{
+  "name": "Dashboard ETL – Stripe & CiviCRM (Payments + Members)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 2 * * *"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "resource": "charge",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 1000,
+        "filters": {
+          "created": {
+            "gte": "={{ $now.minus({ days: 1 }).toUnixInteger() }}"
+          }
+        }
+      },
+      "id": "stripe-get-charges",
+      "name": "Stripe: Get Charges (Last 24h)",
+      "type": "n8n-nodes-base.stripe",
+      "typeVersion": 1,
+      "position": [460, 200],
+      "credentials": {
+        "stripeApi": {
+          "id": "1",
+          "name": "Stripe API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Transform Stripe Charges → payments table format\nconst items = $input.all();\nconst transformed = [];\n\nfor (const item of items) {\n  const charge = item.json;\n  \n  transformed.push({\n    source: 'stripe',\n    external_id: charge.id,\n    payer_type: charge.metadata?.payer_type || 'donor',\n    member_id: charge.metadata?.member_id ? parseInt(charge.metadata.member_id) : null,\n    amount_cents: charge.amount,\n    currency: charge.currency.toUpperCase(),\n    method: charge.payment_method_details?.type || 'card',\n    is_recurring: charge.metadata?.recurring === 'true',\n    payment_type: charge.metadata?.payment_type || 'donation',\n    campaign: charge.metadata?.campaign || null,\n    booked_at: new Date(charge.created * 1000).toISOString()\n  });\n}\n\nreturn transformed.map(t => ({ json: t }));"
+      },
+      "id": "transform-stripe-to-payments",
+      "name": "Transform: Stripe → Payments",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 200]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO payments (source, external_id, payer_type, member_id, amount_cents, currency, method, is_recurring, payment_type, campaign, booked_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\nON CONFLICT (source, external_id) \nDO UPDATE SET \n  amount_cents = EXCLUDED.amount_cents,\n  booked_at = EXCLUDED.booked_at,\n  updated_at = NOW()\nRETURNING payment_id;",
+        "additionalFields": {}
+      },
+      "id": "postgres-upsert-payments",
+      "name": "PostgreSQL: UPSERT Payments",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [900, 200],
+      "credentials": {
+        "postgres": {
+          "id": "2",
+          "name": "PostgreSQL Dashboard DB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "contact",
+        "operation": "getAll",
+        "returnAll": false,
+        "limit": 1000,
+        "filters": {
+          "modified_date": {
+            "BETWEEN": [
+              "={{ $now.minus({ days: 1 }).toFormat('yyyy-MM-dd') }}",
+              "={{ $now.toFormat('yyyy-MM-dd') }}"
+            ]
+          }
+        }
+      },
+      "id": "civicrm-get-contacts",
+      "name": "CiviCRM: Get Contacts (Modified Last 24h)",
+      "type": "n8n-nodes-base.civicrm",
+      "typeVersion": 1,
+      "position": [460, 400],
+      "credentials": {
+        "civicrmApi": {
+          "id": "3",
+          "name": "CiviCRM API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Transform CiviCRM Contacts → members table format\nconst items = $input.all();\nconst transformed = [];\n\nfor (const item of items) {\n  const contact = item.json;\n  \n  // Status-Mapping (CiviCRM → PostgreSQL)\n  let status = 'active';\n  if (contact.contact_sub_type?.includes('pending')) status = 'pending';\n  if (contact.is_deceased || contact.is_opt_out) status = 'cancelled';\n  \n  // Fee-Plan aus Custom Field (CiviCRM: custom_123)\n  const feePlan = contact.custom_123 || 'Standard';\n  \n  transformed.push({\n    external_id: `CIV${contact.id}`,\n    status: status,\n    fee_plan: feePlan,\n    joined_at: contact.created_date?.split(' ')[0] || new Date().toISOString().split('T')[0],\n    cancelled_at: contact.deceased_date || null,\n    consent_dsgvo: contact.custom_124 === '1', // Custom Field für DSGVO-Consent\n    consent_ts: contact.custom_125 || null // Custom Field für Consent-Timestamp\n  });\n}\n\nreturn transformed.map(t => ({ json: t }));"
+      },
+      "id": "transform-civicrm-to-members",
+      "name": "Transform: CiviCRM → Members",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 400]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO members (external_id, status, fee_plan, joined_at, cancelled_at, consent_dsgvo, consent_ts)\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nON CONFLICT (external_id)\nDO UPDATE SET\n  status = EXCLUDED.status,\n  fee_plan = EXCLUDED.fee_plan,\n  cancelled_at = EXCLUDED.cancelled_at,\n  consent_dsgvo = EXCLUDED.consent_dsgvo,\n  consent_ts = EXCLUDED.consent_ts,\n  updated_at = NOW()\nRETURNING member_id;",
+        "additionalFields": {}
+      },
+      "id": "postgres-upsert-members",
+      "name": "PostgreSQL: UPSERT Members",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [900, 400],
+      "credentials": {
+        "postgres": {
+          "id": "2",
+          "name": "PostgreSQL Dashboard DB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT refresh_dashboard_kpis();",
+        "additionalFields": {}
+      },
+      "id": "postgres-refresh-kpis",
+      "name": "PostgreSQL: Refresh KPIs",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [1120, 300],
+      "credentials": {
+        "postgres": {
+          "id": "2",
+          "name": "PostgreSQL Dashboard DB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO etl_log (source, job_name, started_at, finished_at, records_processed, records_inserted, records_updated, records_failed, status)\nVALUES ($1, $2, $3, NOW(), $4, $5, $6, $7, 'success');",
+        "additionalFields": {}
+      },
+      "id": "postgres-log-success",
+      "name": "PostgreSQL: Log Success",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [1340, 300],
+      "credentials": {
+        "postgres": {
+          "id": "2",
+          "name": "PostgreSQL Dashboard DB"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "channelName": "=#alerts-dashboard-etl",
+        "text": "=🚨 **Dashboard ETL Failed**\n\n**Job:** {{ $json.job_name }}\n**Source:** {{ $json.source }}\n**Error:** {{ $json.error_message }}\n**Started:** {{ $json.started_at }}\n\nCheck n8n logs: {{ $execution.id }}",
+        "attachments": []
+      },
+      "id": "slack-alert-error",
+      "name": "Slack: Alert on Error",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.1,
+      "position": [1340, 500],
+      "credentials": {
+        "slackApi": {
+          "id": "4",
+          "name": "Slack API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO etl_log (source, job_name, started_at, finished_at, records_processed, records_failed, error_message, status)\nVALUES ($1, $2, $3, NOW(), 0, 1, $4, 'failed');",
+        "additionalFields": {}
+      },
+      "id": "postgres-log-error",
+      "name": "PostgreSQL: Log Error",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [1120, 500],
+      "credentials": {
+        "postgres": {
+          "id": "2",
+          "name": "PostgreSQL Dashboard DB"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Stripe: Get Charges (Last 24h)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "CiviCRM: Get Contacts (Modified Last 24h)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stripe: Get Charges (Last 24h)": {
+      "main": [
+        [
+          {
+            "node": "Transform: Stripe → Payments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform: Stripe → Payments": {
+      "main": [
+        [
+          {
+            "node": "PostgreSQL: UPSERT Payments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PostgreSQL: UPSERT Payments": {
+      "main": [
+        [
+          {
+            "node": "PostgreSQL: Refresh KPIs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CiviCRM: Get Contacts (Modified Last 24h)": {
+      "main": [
+        [
+          {
+            "node": "Transform: CiviCRM → Members",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transform: CiviCRM → Members": {
+      "main": [
+        [
+          {
+            "node": "PostgreSQL: UPSERT Members",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PostgreSQL: UPSERT Members": {
+      "main": [
+        [
+          {
+            "node": "PostgreSQL: Refresh KPIs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PostgreSQL: Refresh KPIs": {
+      "main": [
+        [
+          {
+            "node": "PostgreSQL: Log Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "",
+    "timezone": "Europe/Vienna",
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2025-10-17T12:00:00.000Z",
+      "updatedAt": "2025-10-17T12:00:00.000Z",
+      "id": "1",
+      "name": "dashboard"
+    },
+    {
+      "createdAt": "2025-10-17T12:00:00.000Z",
+      "updatedAt": "2025-10-17T12:00:00.000Z",
+      "id": "2",
+      "name": "etl"
+    }
+  ],
+  "triggerCount": 1,
+  "updatedAt": "2025-10-17T12:00:00.000Z",
+  "versionId": "1",
+  "meta": {
+    "instanceId": "menschlichkeit-oesterreich-n8n"
+  }
+}

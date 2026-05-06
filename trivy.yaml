@@ -1,0 +1,50 @@
+# Trivy Security Scanner Configuration
+# For Menschlichkeit Österreich Enterprise Security Gates
+
+# Scan Settings
+format: sarif
+output: quality-reports/trivy-security.sarif
+timeout: 10m
+cache-dir: .trivycache/
+
+# Security Levels
+severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+
+# Skip specific checks (if needed)
+skip-files:
+  - "**/*.min.js"
+  - "**/node_modules/**"
+  - "**/vendor/**"
+  - "**/.git/**"
+  - "**/dist/**"
+  - "**/build/**"
+
+# Vulnerability Database
+skip-db-update: false
+db-repository: ghcr.io/aquasecurity/trivy-db
+
+# License Scanning
+scanners: vuln,secret,config,license
+
+# Secret Detection Patterns
+secret:
+  config: |
+    providers:
+      - aws
+      - gcp
+      - github
+      - gitlab
+      - slack
+      - generic
+
+# Exit Code Policy
+exit-code: 1  # Exit with error if vulnerabilities found
+
+# Include License Issues
+include-license: true
+
+# Ignore unfixed vulnerabilities
+ignore-unfixed: false
+
+# Offline mode (set to true for air-gapped environments)
+offline-scan: false

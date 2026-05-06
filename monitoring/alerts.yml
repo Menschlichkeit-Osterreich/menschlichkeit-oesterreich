@@ -1,0 +1,68 @@
+groups:
+  - name: system
+    rules:
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Hohe CPU-Auslastung auf {{ $labels.instance }}"
+          description: "CPU-Auslastung > 80% für mehr als 5 Minuten ({{ $value }}%)"
+
+      - alert: HighMemoryUsage
+        expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 90
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Kritische RAM-Auslastung auf {{ $labels.instance }}"
+          description: "RAM-Nutzung > 90% ({{ $value }}%)"
+
+      - alert: DiskSpaceRunningLow
+        expr: (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) * 100 < 15
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk-Speicher kritisch niedrig"
+          description: "Weniger als 15% freier Speicher auf / ({{ $value }}%)"
+
+  - name: tls
+    rules:
+      - alert: SSLCertExpiringSoon
+        expr: probe_ssl_earliest_cert_expiry - time() < 14 * 24 * 3600
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "TLS-Zertifikat läuft bald ab: {{ $labels.instance }}"
+          description: "Zertifikat läuft in weniger als 14 Tagen ab"
+
+      - alert: SSLCertExpiredOrInvalid
+        expr: probe_ssl_earliest_cert_expiry - time() < 0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "TLS-Zertifikat abgelaufen: {{ $labels.instance }}"
+
+  - name: services
+    rules:
+      - alert: ServiceDown
+        expr: probe_success == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service nicht erreichbar: {{ $labels.instance }}"
+          description: "{{ $labels.instance }} ist seit mehr als 2 Minuten nicht erreichbar"
+
+      - alert: HighAPIErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) / rate(http_requests_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Hohe API-Fehlerrate"
+          description: "API-Fehlerrate > 5% ({{ $value }})"

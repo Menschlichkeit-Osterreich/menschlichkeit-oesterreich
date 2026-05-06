@@ -1,0 +1,194 @@
+/*
+ * Menschlichkeit Österreich – phpBB Colour Override
+ * Überschreibt prosilver-Farben mit MOE-Design-Tokens
+ * Issue #173: Design-Token-Synchronisation Figma → Forum Theme
+ */
+@import url('tokens.css');
+
+/* ── phpBB Standard-Farbvariablen (prosilver-kompatibel) ─────────── */
+
+/* Header / Navigationsleiste */
+.headerbar {
+  background-color: var(--ds-secondary-800);
+  border-bottom: 2px solid var(--ds-primary-500);
+}
+
+.headerbar .logo a,
+.headerbar .site-name a {
+  color: var(--ds-background);
+  font-family: var(--ds-font-sans);
+  font-size: var(--ds-text-xl);
+  font-weight: 700;
+}
+
+/* Navigationslinks */
+.navlinks a,
+.navlinks .breadcrumbs a {
+  color: var(--ds-primary-400);
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+
+.navlinks a:hover {
+  color: var(--ds-primary-300);
+}
+
+/* ── Foren-Index / Kategorie-Leisten ─────────────────────────────── */
+.forums .row .row-item {
+  background: var(--ds-background);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-md);
+}
+
+.forums .row .row-item:hover {
+  background: var(--ds-surface);
+}
+
+.forums .catbar .forum-title,
+.forums .catbar dt a {
+  background: var(--ds-secondary-800);
+  color: var(--ds-background);
+  font-family: var(--ds-font-sans);
+  font-size: var(--ds-text-lg);
+  font-weight: 600;
+  padding: var(--ds-space-3) var(--ds-space-4);
+  border-radius: var(--ds-radius-md) var(--ds-radius-md) 0 0;
+}
+
+/* ── Beiträge ─────────────────────────────────────────────────────── */
+.post .inner {
+  background: var(--ds-background);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-lg);
+  box-shadow: var(--ds-shadow-sm);
+  margin-bottom: var(--ds-space-4);
+}
+
+.post .postbody .content {
+  font-family: var(--ds-font-sans);
+  font-size: var(--ds-text-base);
+  color: var(--ds-text-primary);
+  line-height: 1.75;
+}
+
+.post-author .username,
+.post-author .username-coloured {
+  color: var(--ds-primary-600);
+  font-weight: 600;
+}
+
+/* Neuer Beitrag / Antwort Buttons */
+.post-buttons .button,
+.topic-actions .button {
+  background: var(--ds-primary-500);
+  color: var(--ds-background);
+  border: none;
+  border-radius: var(--ds-radius-md);
+  padding: var(--ds-space-2) var(--ds-space-4);
+  font-family: var(--ds-font-sans);
+  font-size: var(--ds-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.post-buttons .button:hover,
+.topic-actions .button:hover {
+  background: var(--ds-primary-600);
+}
+
+/* ── Seitenleiste / Statistik ────────────────────────────────────── */
+.sidebar-moderators,
+.forum-statistics {
+  background: var(--ds-surface);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-lg);
+  padding: var(--ds-space-4);
+  font-size: var(--ds-text-sm);
+  color: var(--ds-text-secondary);
+}
+
+/* ── Suchbereich ─────────────────────────────────────────────────── */
+.search-form input[type="text"],
+.search-form input[type="search"] {
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-md);
+  padding: var(--ds-space-2) var(--ds-space-3);
+  font-family: var(--ds-font-sans);
+  font-size: var(--ds-text-sm);
+  color: var(--ds-text-primary);
+  background: var(--ds-background);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.search-form input[type="text"]:focus,
+.search-form input[type="search"]:focus {
+  outline: none;
+  border-color: var(--ds-border-focus);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+}
+
+/* ── Meldungsboxen (Erfolg / Fehler / Warnung) ───────────────────── */
+.successbox {
+  background: #f0fdf4;
+  border: 1px solid var(--ds-success);
+  border-radius: var(--ds-radius-md);
+  color: #15803d;
+  padding: var(--ds-space-3) var(--ds-space-4);
+}
+
+.errorbox {
+  background: #fef2f2;
+  border: 1px solid var(--ds-error);
+  border-radius: var(--ds-radius-md);
+  color: #b91c1c;
+  padding: var(--ds-space-3) var(--ds-space-4);
+}
+
+.warningbox {
+  background: #fffbeb;
+  border: 1px solid var(--ds-warning);
+  border-radius: var(--ds-radius-md);
+  color: #b45309;
+  padding: var(--ds-space-3) var(--ds-space-4);
+}
+
+/* ── Paginierung ─────────────────────────────────────────────────── */
+.pagination .page-sep,
+.pagination li a {
+  color: var(--ds-primary-600);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-sm);
+  padding: var(--ds-space-1) var(--ds-space-2);
+  font-size: var(--ds-text-sm);
+}
+
+.pagination li.active a,
+.pagination li a:hover {
+  background: var(--ds-primary-500);
+  color: var(--ds-background);
+  border-color: var(--ds-primary-500);
+}
+
+/* ── Footer ──────────────────────────────────────────────────────── */
+#page-footer {
+  background: var(--ds-secondary-800);
+  color: var(--ds-secondary-300);
+  font-size: var(--ds-text-sm);
+  padding: var(--ds-space-6) var(--ds-space-4);
+  text-align: center;
+}
+
+#page-footer a {
+  color: var(--ds-primary-400);
+}
+
+/* ── WCAG AA: Fokus-Sichtbarkeit ─────────────────────────────────── */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--ds-border-focus);
+  outline-offset: 2px;
+  border-radius: var(--ds-radius-sm);
+}

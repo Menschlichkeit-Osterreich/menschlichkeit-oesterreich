@@ -1,0 +1,74 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:956ab292-0067-424a-ad89-92cf6940be9d",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2025-10-03T20:09:17Z",
+    "tools": {
+      "components": [
+        {
+          "group": "@cyclonedx",
+          "name": "cdxgen",
+          "version": "11.8.0",
+          "purl": "pkg:npm/%40cyclonedx/cdxgen@11.8.0",
+          "type": "application",
+          "bom-ref": "pkg:npm/@cyclonedx/cdxgen@11.8.0",
+          "publisher": "OWASP Foundation",
+          "authors": [
+            {
+              "name": "OWASP Foundation"
+            }
+          ]
+        }
+      ]
+    },
+    "authors": [
+      {
+        "name": "OWASP Foundation"
+      }
+    ],
+    "lifecycles": [
+      {
+        "phase": "build"
+      }
+    ],
+    "component": {
+      "name": "frontend",
+      "group": "@moe",
+      "version": "0.1.0",
+      "purl": "pkg:npm/%40moe/frontend@0.1.0",
+      "bom-ref": "pkg:npm/@moe/frontend@0.1.0",
+      "type": "application"
+    },
+    "properties": []
+  },
+  "components": [],
+  "dependencies": [],
+  "annotations": [
+    {
+      "bom-ref": "metadata-annotations",
+      "subjects": [
+        "pkg:npm/@moe/frontend@0.1.0"
+      ],
+      "annotator": {
+        "component": {
+          "group": "@cyclonedx",
+          "name": "cdxgen",
+          "version": "11.8.0",
+          "purl": "pkg:npm/%40cyclonedx/cdxgen@11.8.0",
+          "type": "application",
+          "bom-ref": "pkg:npm/@cyclonedx/cdxgen@11.8.0",
+          "publisher": "OWASP Foundation",
+          "authors": [
+            {
+              "name": "OWASP Foundation"
+            }
+          ]
+        }
+      },
+      "timestamp": "2025-10-03T20:09:17Z",
+      "text": "This Software Bill-of-Materials (SBOM) document was created on Friday, October 3, 2025 with cdxgen. The data was captured during the build lifecycle phase. The document describes an application named 'frontend' with version '0.1.0'. BOM file is empty without components."
+    }
+  ]
+}

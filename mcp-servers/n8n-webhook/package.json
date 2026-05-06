@@ -1,0 +1,12 @@
+{
+  "name": "@menschlichkeit/mcp-n8n-webhook",
+  "version": "1.0.0",
+  "description": "MCP Server für n8n Workflow-Trigger und Status",
+  "main": "index.js",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.20.1"
+  },
+  "scripts": {
+    "start": "node index.js"
+  }
+}

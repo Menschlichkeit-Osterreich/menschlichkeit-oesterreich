@@ -1,0 +1,115 @@
+{
+  "index_patterns": ["logs-compliance-*"],
+  "priority": 100,
+  "template": {
+    "settings": {
+      "number_of_shards": 2,
+      "number_of_replicas": 2,
+      "index.lifecycle.name": "compliance-retention-1y",
+      "index.lifecycle.rollover_alias": "logs-compliance",
+      "index.refresh_interval": "60s",
+      "index.codec": "best_compression"
+    },
+    "mappings": {
+      "properties": {
+        "@timestamp": {
+          "type": "date"
+        },
+        "timestamp": {
+          "type": "date"
+        },
+        "level": {
+          "type": "keyword"
+        },
+        "service": {
+          "type": "keyword"
+        },
+        "environment": {
+          "type": "keyword"
+        },
+        "audit_event": {
+          "type": "keyword"
+        },
+        "message": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "user_id": {
+          "type": "integer"
+        },
+        "action": {
+          "type": "keyword"
+        },
+        "resource_type": {
+          "type": "keyword"
+        },
+        "resource_id": {
+          "type": "keyword"
+        },
+        "data_before": {
+          "type": "object",
+          "enabled": false
+        },
+        "data_after": {
+          "type": "object",
+          "enabled": false
+        },
+        "consent_granted": {
+          "type": "boolean"
+        },
+        "consent_timestamp": {
+          "type": "date"
+        },
+        "retention_period_days": {
+          "type": "integer"
+        },
+        "drupal_module": {
+          "type": "keyword"
+        },
+        "workflow_id": {
+          "type": "keyword"
+        },
+        "pii_emails_redacted": {
+          "type": "integer"
+        },
+        "pii_cards_redacted": {
+          "type": "integer"
+        },
+        "pii_ibans_redacted": {
+          "type": "integer"
+        },
+        "pii_phones_redacted": {
+          "type": "integer"
+        },
+        "pii_total_detected": {
+          "type": "integer"
+        },
+        "tags": {
+          "type": "keyword"
+        },
+        "host": {
+          "properties": {
+            "name": {
+              "type": "keyword"
+            }
+          }
+        }
+      }
+    }
+  },
+  "_meta": {
+    "description": "Template for DSGVO compliance logs (1-year retention)",
+    "version": "1.0.0",
+    "managed_by": "F-03 Phase 4 - Centralized Log Aggregation",
+    "compliance": {
+      "gdpr_article": "Article 5(2) - Accountability",
+      "retention_period": "365 days",
+      "purpose": "DSGVO audit trail"
+    }
+  }
+}

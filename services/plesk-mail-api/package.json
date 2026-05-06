@@ -1,0 +1,11 @@
+{
+  "name": "@moe/plesk-mail-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Plesk Obsidian XML API Client — Mail Provisioning",
+  "main": "pleskClient.mjs",
+  "dependencies": {
+    "fast-xml-parser": "^5.0.0"
+  }
+}

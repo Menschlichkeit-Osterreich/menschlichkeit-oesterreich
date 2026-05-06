@@ -1,0 +1,36 @@
+# Sensible Daten - NIEMALS in Git committen!
+.env
+config/.env
+config/.env.local
+config/.env.production
+
+# Backup-Dateien mit potentiell sensiblen Daten
+*.backup
+*.sql
+backup/
+backups/
+dumps/
+
+# Temporäre Config-Dateien
+config/temp*
+config/local*
+*.local.conf
+
+# Logs mit potentiell sensiblen Daten
+logs/
+*.log
+error.log
+access.log
+
+# Deployment-spezifische Dateien
+deploy.conf
+sftp.conf
+.sftp-config.json
+
+# IDE und Editor-spezifische Dateien
+.vscode/settings.json
+.idea/
+
+# OS-spezifische Dateien
+Thumbs.db
+.DS_Store

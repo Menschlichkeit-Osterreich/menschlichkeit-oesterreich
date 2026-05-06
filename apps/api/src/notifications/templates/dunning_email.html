@@ -1,0 +1,147 @@
+{% extends "_base.html" %}
+
+{% block title %}{{ dunning.subject_line }} – Menschlichkeit Österreich{% endblock %}
+
+{% block header %}
+{% if dunning.level == 3 %}
+<tr>
+  <td style="background-color:#991B1B;padding:24px 32px;text-align:center;">
+    <span style="display:inline-block;background:rgba(255,255,255,0.2);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">
+      {{ dunning.level_label }}
+    </span><br/>
+    <span style="color:#FFFFFF;font-family:'Nunito Sans',Arial,sans-serif;font-size:20px;font-weight:700;">
+      {{ dunning.subject_line }}
+    </span><br/>
+    <span style="color:rgba(255,255,255,0.85);font-size:13px;">
+      Rechnung {{ invoice.number }} – Fällig seit {{ invoice.due_date }}
+    </span>
+  </td>
+</tr>
+{% elif dunning.level == 2 %}
+<tr>
+  <td style="background-color:#C0392B;padding:24px 32px;text-align:center;">
+    <span style="display:inline-block;background:rgba(255,255,255,0.2);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">
+      {{ dunning.level_label }}
+    </span><br/>
+    <span style="color:#FFFFFF;font-family:'Nunito Sans',Arial,sans-serif;font-size:20px;font-weight:700;">
+      {{ dunning.subject_line }}
+    </span><br/>
+    <span style="color:rgba(255,255,255,0.85);font-size:13px;">
+      Rechnung {{ invoice.number }} – Fällig seit {{ invoice.due_date }}
+    </span>
+  </td>
+</tr>
+{% else %}
+<tr>
+  <td style="background-color:#E67E22;padding:24px 32px;text-align:center;">
+    <span style="display:inline-block;background:rgba(255,255,255,0.2);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:8px;">
+      {{ dunning.level_label }}
+    </span><br/>
+    <span style="color:#FFFFFF;font-family:'Nunito Sans',Arial,sans-serif;font-size:20px;font-weight:700;">
+      {{ dunning.subject_line }}
+    </span><br/>
+    <span style="color:rgba(255,255,255,0.9);font-size:13px;">
+      Rechnung {{ invoice.number }} – Fällig seit {{ invoice.due_date }}
+    </span>
+  </td>
+</tr>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<p style="margin:0 0 8px;font-size:15px;color:#4A4039;line-height:1.6;">
+  Hallo {{ contact.first_name }},
+</p>
+<p style="margin:0 0 24px;font-size:15px;color:#4A4039;line-height:1.6;">
+  {{ dunning.intro_text }}
+</p>
+
+<!-- Offener Betrag -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 24px;">
+  <tr>
+    <td style="background-color:#FFF3ED;border-radius:6px;padding:20px;text-align:center;">
+      <p style="margin:0 0 4px;font-size:13px;color:#6B6560;">Offener Betrag</p>
+      <p style="margin:0;font-size:32px;font-weight:800;color:#C0392B;font-family:'Nunito Sans',Arial,sans-serif;line-height:1.1;">
+        {{ invoice.amount_total }} EUR
+      </p>
+    </td>
+  </tr>
+</table>
+
+<!-- Warnungsbox -->
+{% if dunning.level >= 2 %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#FFEAEA;border-left:4px solid #C0392B;border-radius:0 6px 6px 0;margin:0 0 24px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0 0 6px;font-size:14px;color:#C0392B;font-weight:700;">{{ dunning.warning_title }}</p>
+      <p style="margin:0;font-size:13px;color:#4A4039;line-height:1.5;">{{ dunning.warning_text }}</p>
+    </td>
+  </tr>
+</table>
+{% else %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#FFF8E1;border-left:4px solid #E67E22;border-radius:0 6px 6px 0;margin:0 0 24px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0 0 6px;font-size:14px;color:#E67E22;font-weight:700;">{{ dunning.warning_title }}</p>
+      <p style="margin:0;font-size:13px;color:#4A4039;line-height:1.5;">{{ dunning.warning_text }}</p>
+    </td>
+  </tr>
+</table>
+{% endif %}
+
+<!-- Zahlungsinformationen -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F5F1ED;border-radius:6px;margin:0 0 24px;">
+  <tr>
+    <td style="padding:20px 24px;">
+      <p style="margin:0 0 12px;font-size:12px;color:#2B231D;font-weight:700;font-family:'Nunito Sans',Arial,sans-serif;text-transform:uppercase;letter-spacing:0.05em;">
+        Zahlungsinformationen
+      </p>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="font-size:13px;">
+        <tr>
+          <td style="padding:3px 0;color:#6B6560;width:150px;">Empfänger</td>
+          <td style="padding:3px 0;color:#4A4039;">Menschlichkeit Österreich</td>
+        </tr>
+        <tr>
+          <td style="padding:3px 0;color:#6B6560;">IBAN</td>
+          <td style="padding:3px 0;color:#4A4039;">AT{{ bank.iban }}</td>
+        </tr>
+        <tr>
+          <td style="padding:3px 0;color:#6B6560;">BIC</td>
+          <td style="padding:3px 0;color:#4A4039;">{{ bank.bic }}</td>
+        </tr>
+        <tr>
+          <td style="padding:3px 0;color:#6B6560;">Verwendungszweck</td>
+          <td style="padding:3px 0;color:#4A4039;">{{ invoice.number }} – {{ contact.last_name }}</td>
+        </tr>
+        <tr>
+          <td style="padding:3px 0;color:#6B6560;">Betrag</td>
+          <td style="padding:3px 0;color:#2B231D;font-weight:700;">{{ invoice.amount_total }} EUR</td>
+        </tr>
+        <tr>
+          <td style="padding:3px 0;color:#6B6560;">Bitte zahlen bis</td>
+          <td style="padding:3px 0;color:#C0392B;font-weight:700;">{{ dunning.new_due_date }}</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 28px;font-size:13px;color:#6B6560;line-height:1.6;">
+  Sollten Sie den Betrag bereits überwiesen haben, bitten wir Sie, diese Nachricht zu ignorieren.
+  Bei Fragen oder Zahlungsschwierigkeiten wenden Sie sich bitte an
+  <a href="mailto:buchhaltung@menschlichkeit-oesterreich.at" style="color:#1B4965;">buchhaltung@menschlichkeit-oesterreich.at</a>.
+</p>
+
+<!-- CTA -->
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 8px;">
+  <tr>
+    <td style="background-color:#D84A1B;border-radius:6px;">
+      <a href="https://www.menschlichkeit-oesterreich.at/mitglieder/rechnungen/{{ invoice.id }}" style="display:inline-block;padding:14px 36px;color:#FFFFFF;font-family:'Nunito Sans',Arial,sans-serif;font-size:16px;font-weight:700;text-decoration:none;">
+        Jetzt bezahlen
+      </a>
+    </td>
+  </tr>
+</table>
+{% endblock %}
+
+{% block footer_reason %}Sie erhalten diese E-Mail, weil für Ihre Mitgliedschaft bei Menschlichkeit Österreich ein offener Betrag besteht.{% endblock %}

@@ -1,0 +1,7 @@
+
+asset_family,item_list,count,composition_rules,notes
+icons_values,"empathy_heart,humanrights_scales,participation_ballotbox,courage_lion",4,"centered icon, no background, 12% padding","Example: generate four core value icons"
+map_regions,"neighborhood,school_work,digital,diversity,local_politics,crisis,climate,global,democracy_under_pressure,2050",10,"isometric tile 1024x1024, bridge anchor points N/E/S/W","Example: generate 10 worldboard regions"
+minigames_bridge_puzzle,"piece_01,piece_02,piece_03,piece_04,piece_05,piece_06,piece_07,piece_08",8,"puzzle piece, flat isometric, transparent padding 10%","Bridge puzzle pieces"
+ui_buttons,"primary,secondary,ghost",3,"button, flat isometric, states default/hover/active","UI buttons"
+characters,"adult,teen,elder",3,"character base, isometric, no background, 8% padding","Character bases"

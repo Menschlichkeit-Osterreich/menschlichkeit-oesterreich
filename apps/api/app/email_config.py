@@ -1,0 +1,42 @@
+import os
+
+DOMAIN = "menschlichkeit-oesterreich.at"
+
+EMAIL_KONTAKT = os.getenv("EMAIL_KONTAKT", f"office@{DOMAIN}")
+EMAIL_OFFICE = os.getenv("EMAIL_OFFICE", EMAIL_KONTAKT)
+EMAIL_INFO = os.getenv("EMAIL_INFO", f"info@{DOMAIN}")
+EMAIL_ADMIN = os.getenv("EMAIL_ADMIN", f"admin@{DOMAIN}")
+EMAIL_NOREPLY = os.getenv("EMAIL_NOREPLY", f"noreply@{DOMAIN}")
+EMAIL_LOGGING = os.getenv("EMAIL_LOGGING", f"logging@{DOMAIN}")
+EMAIL_CIVIMAIL = os.getenv("EMAIL_CIVIMAIL", f"civimail@{DOMAIN}")
+EMAIL_BOUNCE = os.getenv("EMAIL_BOUNCE", f"bounce@{DOMAIN}")
+EMAIL_SUPPORT = os.getenv("EMAIL_SUPPORT", f"support@{DOMAIN}")
+EMAIL_FINANZEN = os.getenv("EMAIL_FINANZEN", f"finanzen@{DOMAIN}")
+EMAIL_VORSTAND = os.getenv("EMAIL_VORSTAND", f"vorstand@{DOMAIN}")
+EMAIL_DATENSCHUTZ = os.getenv("EMAIL_DATENSCHUTZ", f"datenschutz@{DOMAIN}")
+
+# Standard: Microsoft 365 Business / Exchange Online via STARTTLS.
+# Kann pro Umgebung weiterhin über MAIL_HOST überschrieben werden.
+SMTP_HOST = os.getenv("MAIL_HOST", "smtp.office365.com")
+SMTP_PORT = int(os.getenv("MAIL_PORT", "587"))
+SMTP_ENCRYPTION = os.getenv("MAIL_ENCRYPTION", "tls")
+MAIL_TRANSPORT = os.getenv("MAIL_TRANSPORT", "graph").lower()
+MAIL_FROM_ADDRESS = os.getenv("MAIL_FROM_ADDRESS", EMAIL_OFFICE)
+MAIL_FROM_NAME = os.getenv("MAIL_FROM_NAME", "Verein Menschlichkeit Österreich")
+MAIL_REPLY_TO_ADDRESS = os.getenv("MAIL_REPLY_TO_ADDRESS", EMAIL_OFFICE)
+
+# Microsoft Graph (OAuth Client Credentials)
+MICROSOFT_TENANT_ID = os.getenv("MICROSOFT_TENANT_ID", "")
+MICROSOFT_CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID", "")
+MICROSOFT_CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET", "")
+MICROSOFT_GRAPH_SENDER = os.getenv("MICROSOFT_GRAPH_SENDER", MAIL_FROM_ADDRESS)
+GRAPH_TOKEN_CACHE_TTL = int(os.getenv("GRAPH_TOKEN_CACHE_TTL", "3300"))
+
+ORGANIZATION = {
+    "name": "Verein Menschlichkeit Österreich",
+    "zvr": "1182213083",
+    "gruendung": "28.05.2025",
+    "adresse": "Pottenbrunner Hauptstraße 108/Top 1, 3140 Pottenbrunn",
+    "vereinsbehoerde": "LPD Niederösterreich",
+    "website": f"https://{DOMAIN}",
+}

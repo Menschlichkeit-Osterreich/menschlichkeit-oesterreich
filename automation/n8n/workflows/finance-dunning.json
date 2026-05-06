@@ -1,0 +1,129 @@
+{
+  "name": "Finance: Dunning (Mahnwesen)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "unit": "days",
+              "value": 1
+            }
+          ]
+        }
+      },
+      "id": "daily-trigger",
+      "name": "Run Daily",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.API_BASE_URL }}/finance/invoices/overdue",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "id": "get-overdue-invoices",
+      "name": "API: Get Overdue Invoices",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [460, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-backend-auth",
+          "name": "API Backend Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.API_BASE_URL }}/finance/dunning/run",
+        "method": "POST",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ invoices: $input.all().map(i => i.json) }) }}",
+        "options": {}
+      },
+      "id": "run-dunning-check",
+      "name": "API: Run Dunning Check",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [680, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-backend-auth",
+          "name": "API Backend Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "const notices = $input.first().json.body.notices;\nreturn notices.map(notice => ({ json: notice }));"
+      },
+      "id": "split-notices",
+      "name": "Split Notices",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.API_BASE_URL }}/finance/dunning/generate-pdf",
+        "method": "POST",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "generate-dunning-pdf",
+      "name": "API: Generate Dunning PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [1120, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "api-backend-auth",
+          "name": "API Backend Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "to": "={{ $json.email }}",
+        "subject": "Zahlungserinnerung für Rechnung {{ $json.invoice_data.invoice_number }}",
+        "html": "<h1>Hallo {{ $json.invoice_data.recipient_name }},</h1><p>dies ist eine freundliche Erinnerung an die offene Rechnung {{ $json.invoice_data.invoice_number }}.</p>",
+        "attachments": {
+          "attachments": [
+            {
+              "content": "={{ $node[\"API: Generate Dunning PDF\"].json.body.pdf_path }}",
+              "name": "Mahnung-{{ $json.invoice_data.invoice_number }}.pdf"
+            }
+          ]
+        }
+      },
+      "id": "send-dunning-email",
+      "name": "Send Dunning Email",
+      "type": "n8n-nodes-base.sendEmail",
+      "typeVersion": 1,
+      "position": [1340, 300],
+      "credentials": {
+        "smtp": {
+          "id": "smtp-prod",
+          "name": "SMTP Prod"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "daily-trigger": { "main": [[{ "node": "API: Get Overdue Invoices", "type": "main", "index": 0 }]] },
+    "get-overdue-invoices": { "main": [[{ "node": "API: Run Dunning Check", "type": "main", "index": 0 }]] },
+    "run-dunning-check": { "main": [[{ "node": "Split Notices", "type": "main", "index": 0 }]] },
+    "split-notices": { "main": [[{ "node": "API: Generate Dunning PDF", "type": "main", "index": 0 }]] },
+    "generate-dunning-pdf": { "main": [[{ "node": "Send Dunning Email", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" },
+  "tags": ["finance", "dunning", "automation"]
+}

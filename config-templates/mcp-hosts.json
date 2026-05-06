@@ -1,0 +1,48 @@
+{
+  "defaultUser": "deploy",
+  "sshKeyPath": "~/.ssh/id_rsa",
+  "hosts": [
+    {
+      "id": "dev",
+      "name": "Development",
+      "host": "mcp-dev.example.com",
+      "port": 22,
+      "localForwards": [
+        {
+          "localPort": 8080,
+          "remoteHost": "localhost",
+          "remotePort": 80,
+          "description": "Dev Web"
+        }
+      ]
+    },
+    {
+      "id": "stage",
+      "name": "Staging",
+      "host": "mcp-stage.example.com",
+      "port": 22,
+      "localForwards": [
+        {
+          "localPort": 8081,
+          "remoteHost": "localhost",
+          "remotePort": 80,
+          "description": "Stage Web"
+        }
+      ]
+    },
+    {
+      "id": "prod",
+      "name": "Production",
+      "host": "mcp.example.com",
+      "port": 22,
+      "localForwards": [
+        {
+          "localPort": 8443,
+          "remoteHost": "localhost",
+          "remotePort": 443,
+          "description": "Prod HTTPS"
+        }
+      ]
+    }
+  ]
+}

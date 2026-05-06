@@ -1,0 +1,8 @@
+<!doctype html>
+<html lang="de">
+  <body>
+    <h1>Mahnung {{ dunning.level }}</h1>
+    <p>Rechnung: {{ dunning.invoice.invoice_number }}</p>
+    <p>Betrag offen: {{ dunning.invoice.total_amount|currency }}</p>
+  </body>
+</html>

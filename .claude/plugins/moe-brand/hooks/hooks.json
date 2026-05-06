@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|Create",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // .tool_input.path // empty' | grep -qiE '\\.(html|svg|css|jsx|tsx|md)$' && echo '⚠️ MOe-Brand: Datei erstellt – bitte Brand-Checkliste prüfen: Farben (#D4611E/#B54A0F/#1B4965), Schriften (Nunito Sans/Source Sans 3), Kontrast WCAG AA, 60-30-10-Regel' || true"
+          }
+        ]
+      }
+    ]
+  }
+}

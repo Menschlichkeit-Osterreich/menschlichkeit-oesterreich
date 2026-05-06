@@ -1,0 +1,91 @@
+{
+  "_comment": "Issue #130 – SearchKit: members_status_board – Mitgliederstatus-Board",
+  "version": 1,
+  "name": "members_status_board",
+  "label": "Mitgliederstatus-Board",
+  "description": "Echtzeit-Übersicht aller Mitgliedschaften nach Typ, Status und Beitragszahlung. Für Vorstand und Verwaltung.",
+  "type": "table",
+  "entity": "Membership",
+  "select": [
+    "id",
+    "contact_id.display_name AS mitglied_name",
+    "contact_id.email_primary.email AS mitglied_email",
+    "contact_id.address_primary.city AS ort",
+    "membership_type_id:label AS typ",
+    "status_id:label AS status",
+    "start_date AS beitritt",
+    "end_date AS ablauf",
+    "is_override AS manuell_gesetzt",
+    "source",
+    "JOIN_Contribution.total_amount AS letzter_beitrag",
+    "JOIN_Contribution.receive_date AS beitrag_bezahlt_am"
+  ],
+  "joins": [
+    {
+      "entity": "Contribution",
+      "alias": "JOIN_Contribution",
+      "type": "LEFT",
+      "bridge": "MembershipPayment",
+      "on": []
+    }
+  ],
+  "where": [
+    ["contact_id.is_deleted", "=", false]
+  ],
+  "orderBy": {
+    "status_id": "ASC",
+    "end_date": "ASC"
+  },
+  "limit": 200,
+  "filters": [
+    {
+      "field": "status_id:label",
+      "label": "Mitgliedschaftsstatus",
+      "type": "select",
+      "op": "IN",
+      "options": ["Current", "Grace", "Expired", "Pending", "Cancelled", "Deceased"]
+    },
+    {
+      "field": "membership_type_id:label",
+      "label": "Mitgliedschaftstyp",
+      "type": "select",
+      "op": "="
+    },
+    {
+      "field": "end_date",
+      "label": "Ablauf zwischen",
+      "type": "date_range",
+      "op": "BETWEEN"
+    },
+    {
+      "field": "contact_id.display_name",
+      "label": "Name",
+      "type": "text",
+      "op": "CONTAINS"
+    }
+  ],
+  "aggregations": [
+    {"label": "Aktive Mitglieder", "field": "id", "fn": "COUNT", "where": [["status_id:name", "=", "Current"]]},
+    {"label": "Ablaufend (30 Tage)", "field": "id", "fn": "COUNT", "where": [["end_date", "BETWEEN", ["now", "+30 days"]]]}
+  ],
+  "display": {
+    "columns": [
+      {"field": "mitglied_name", "label": "Mitglied", "link": {"entity": "Contact", "action": "view"}},
+      {"field": "mitglied_email", "label": "E-Mail"},
+      {"field": "ort", "label": "Ort"},
+      {"field": "typ", "label": "Typ"},
+      {"field": "status", "label": "Status", "badges": true, "badgeColors": {
+        "Current": "green", "Grace": "yellow", "Expired": "red",
+        "Pending": "blue", "Cancelled": "grey"
+      }},
+      {"field": "beitritt", "label": "Beigetreten", "type": "date"},
+      {"field": "ablauf", "label": "Ablauf", "type": "date"},
+      {"field": "letzter_beitrag", "label": "Letzter Beitrag (€)", "type": "currency"},
+      {"field": "beitrag_bezahlt_am", "label": "Bezahlt am", "type": "date"}
+    ],
+    "actions": [
+      {"label": "Mitgliedschaft verlängern", "action": "renew"},
+      {"label": "Kontakt öffnen", "action": "view_contact"}
+    ]
+  }
+}

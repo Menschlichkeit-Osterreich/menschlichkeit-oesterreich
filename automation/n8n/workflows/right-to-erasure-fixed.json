@@ -1,0 +1,110 @@
+{
+  "name": "GDPR Right to Erasure Audit",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "right-to-erasure",
+        "responseMode": "lastNode"
+      },
+      "name": "Webhook - Erasure Intake",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.0,
+      "position": [220, 280],
+      "webhookId": "moe-gdpr-right-to-erasure"
+    },
+    {
+      "parameters": {
+        "functionCode": "// HMAC Signature Validation\nconst crypto = require('crypto');\nconst secret = $env.N8N_WEBHOOK_SECRET || '';\n\n// If no secret configured, skip validation (dev mode)\nif (!secret) {\n  return items;\n}\n\nconst incoming = $headers['x-webhook-signature'];\nif (!incoming) {\n  throw new Error('Missing webhook signature header');\n}\n\nconst payload = JSON.stringify(items[0].json);\nconst expected = crypto\n  .createHmac('sha256', secret)\n  .update(payload)\n  .digest('hex');\n\nif (incoming !== expected) {\n  throw new Error('Invalid webhook signature');\n}\n\nreturn items;"
+      },
+      "name": "Validate Signature",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [500, 280]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "name": "event",
+              "value": "right_to_erasure"
+            },
+            {
+              "name": "request_id",
+              "value": "={{$json.requestId}}"
+            },
+            {
+              "name": "subject_email",
+              "value": "={{$json.subjectEmail}}"
+            },
+            {
+              "name": "mode",
+              "value": "={{$json.mode || 'external_orchestrated'}}"
+            },
+            {
+              "name": "scope",
+              "value": "={{$json.scope || 'full'}}"
+            }
+          ]
+        }
+      },
+      "name": "Prepare Audit Payload",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [780, 280]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{{\n  \"status\": \"accepted\",\n  \"request_id\": $json.request_id\n}}}",
+        "options": {
+          "responseCode": 202
+        }
+      },
+      "name": "Respond",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1040, 280]
+    }
+  ],
+  "connections": {
+    "Webhook - Erasure Intake": {
+      "main": [
+        [
+          {
+            "node": "Validate Signature",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Signature": {
+      "main": [
+        [
+          {
+            "node": "Prepare Audit Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Audit Payload": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "1"
+}

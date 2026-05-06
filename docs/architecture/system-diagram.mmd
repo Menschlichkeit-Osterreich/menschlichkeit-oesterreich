@@ -1,0 +1,35 @@
+
+graph TD
+    subgraph User Facing
+        A[Website] --> B(API);
+        C[Webgame v2] --> B;
+        D[CiviCRM] --> B;
+    end
+
+    subgraph Backend Services
+        B --> E[Database];
+        B --> F[n8n Workflows];
+        B --> G[Email Service];
+    end
+
+    subgraph Infrastructure
+        H[Plesk Server] --> I{Docker};
+        I --> B;
+        I --> E;
+        I --> F;
+        J[GitHub] --> K[GitHub Actions];
+        K --> H;
+    end
+
+    style A fill:#cde4ff
+    style C fill:#cde4ff
+    style D fill:#cde4ff
+    style B fill:#e5d5ff
+    style F fill:#e5d5ff
+    style G fill:#e5d5ff
+    style E fill:#f9f9f9
+    style H fill:#d4edda
+    style J fill:#d4edda
+
+
+

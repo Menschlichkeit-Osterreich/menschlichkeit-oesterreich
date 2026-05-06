@@ -1,0 +1,19 @@
+parameters:
+    level: 8
+    paths:
+        - menschlichkeit-oesterreich-monorepo/api.menschlichkeit-oesterreich.at
+        - menschlichkeit-oesterreich-monorepo/crm.menschlichkeit-oesterreich.at/crm.menschlichkeit-oesterreich.at
+    excludePaths:
+        - */vendor/*
+        - */storage/*
+        - */bootstrap/cache/*
+        - */node_modules/*
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+    ignoreErrors: []
+    symfony:
+        console:
+            application_loader: menschlichkeit-oesterreich-monorepo/api.menschlichkeit-oesterreich.at/bootstrap/app.php
+    laravel:
+        additionalConfigFiles:
+            - menschlichkeit-oesterreich-monorepo/api.menschlichkeit-oesterreich.at/config/*.php

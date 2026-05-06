@@ -1,0 +1,60 @@
+name: Governance Warnings
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  governance-warnings:
+    name: Governance (Warn Only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run governance checks (warn only)
+        id: governance
+        shell: bash
+        run: |
+          set +e
+          npm run governance:check
+          GOV_EXIT=$?
+          npm run mcp:check
+          MCP_EXIT=$?
+          npm run mcp:health
+          HEALTH_EXIT=$?
+
+          echo "governance_exit=${GOV_EXIT}" >> "$GITHUB_OUTPUT"
+          echo "mcp_exit=${MCP_EXIT}" >> "$GITHUB_OUTPUT"
+          echo "health_exit=${HEALTH_EXIT}" >> "$GITHUB_OUTPUT"
+
+          # Warn-only: Nie mit Fehlercode aussteigen.
+          exit 0
+
+      - name: Summarize warnings
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Governance Warn-Only Ergebnis"
+            echo ""
+            echo "- governance:check Exit-Code: ${{ steps.governance.outputs.governance_exit }}"
+            echo "- mcp:check Exit-Code: ${{ steps.governance.outputs.mcp_exit }}"
+            echo "- mcp:health Exit-Code: ${{ steps.governance.outputs.health_exit }}"
+            echo ""
+            echo "Hinweis: Dieser Workflow ist absichtlich *warn-only* und blockiert keinen Merge."
+          } >> "$GITHUB_STEP_SUMMARY"
