@@ -1,6 +1,8 @@
 {
   "name": "Menschlichkeit Österreich Development",
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
       "version": "lts"
@@ -17,6 +19,14 @@
     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
     "ghcr.io/devcontainers/features/git:1": {}
   },
+  "overrideFeatureInstallOrder": [
+    "ghcr.io/devcontainers/features/node:1",
+    "ghcr.io/devcontainers/features/python:1",
+    "ghcr.io/devcontainers/features/php:1",
+    "ghcr.io/devcontainers/features/powershell:1",
+    "ghcr.io/devcontainers/features/git:1",
+    "ghcr.io/devcontainers/features/docker-in-docker:2"
+  ],
   "onCreateCommand": "bash .devcontainer/onCreate-setup.sh",
   "postCreateCommand": "bash .devcontainer/setup.sh && if [ -f scripts/dev/codespace-ssh-setup.sh ]; then bash scripts/dev/codespace-ssh-setup.sh; fi",
   "postStartCommand": "pwsh .devcontainer/setup-powershell.ps1 || true",
