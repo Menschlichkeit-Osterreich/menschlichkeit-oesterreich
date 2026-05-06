@@ -1,6 +1,6 @@
 {
   "name": "DLQ Admin Tools",
-  "active": false,
+  "active": false
   "nodes": [
     {
       "parameters": {},
