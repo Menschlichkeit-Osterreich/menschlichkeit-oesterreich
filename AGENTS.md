@@ -51,12 +51,18 @@ Wenn mehrere Clients beteiligt sind, bleibt diese Kette die einzige fuehrende Wa
 ## Aktive Artefakte
 
 - Machine-readable Registry: `.github/ai-registry.json`
-- Copilot-Agents: exakt fuenf sichtbare Dateien unter `.github/agents/`
+- Copilot-Agents: elf kuratierte sichtbare Dateien unter `.github/agents/`
   - `.github/agents/task-planner.agent.md`
   - `.github/agents/developer.agent.md`
   - `.github/agents/devops-expert.agent.md`
   - `.github/agents/security-reviewer.agent.md`
   - `.github/agents/qa-reviewer.agent.md`
+  - `.github/agents/website-frontend.agent.md`
+  - `.github/agents/api-fastapi.agent.md`
+  - `.github/agents/crm-drupal-civicrm.agent.md`
+  - `.github/agents/automation-n8n.agent.md`
+  - `.github/agents/games-babylon.agent.md`
+  - `.github/agents/forum-phpbb.agent.md`
 - Archivierte Copilot-Agents: `.github/archive/agents/*.agent.md`
 - Claude-Agents: `.claude/agents/*.md` und `.claude/plugins/*/agents/*.md`
 - Aktive Chatmodes: `.github/chatmodes/**/*.chatmode.md`
@@ -223,7 +229,7 @@ Geteilte Konfigurationen duerfen keine absoluten lokalen Pfade enthalten. Erlaub
 - `AGENTS.md`, `CLAUDE.md` und `.github/copilot-instructions.md` bleiben konsistent.
 - der einzige aktive Analyse-Einstieg bleibt `.github/instructions/core/analysis-planning.instructions.md`.
 - `.github/ai-registry.json` klassifiziert aktive, Adapter-, Vendor- und Legacy-Artefakte vollstaendig.
-- `.github/agents/*.agent.md` enthaelt exakt die fuenf sichtbaren Copilot-Agents; archivierte Copilot-Agents liegen unter `.github/archive/agents/`.
+- `.github/agents/*.agent.md` enthaelt genau die elf kuratierten sichtbaren Copilot-Agents; archivierte Copilot-Agents liegen unter `.github/archive/agents/`.
 - `.github/chatmodes/**/*.chatmode.md` und relevante `.claude`-Agents zeigen auf reale Pfade.
 - es gibt keine aktiven YAML-Chatmode-Artefakte unter `.github/prompts/chatmodes/`.
 - `.vscode/*`, `.claude/launch.json`, `mcp.json` und die Workspace-Datei passen zum aktiven Repo-Root.

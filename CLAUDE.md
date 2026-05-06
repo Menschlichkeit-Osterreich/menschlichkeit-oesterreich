@@ -101,13 +101,19 @@ Kurzregel:
 
 Repo-Arbeitsagenten sind in `AGENTS.md` dokumentiert und werden ueber Codex, Claude Code und Copilot ausgefuehrt.
 
-Sichtbare Copilot-Repo-Agenten:
+Sichtbare Copilot-Repo-Agenten sind die elf kuratierten Core- und Service-Agenten:
 
 - `.github/agents/task-planner.agent.md`
 - `.github/agents/developer.agent.md`
 - `.github/agents/devops-expert.agent.md`
 - `.github/agents/security-reviewer.agent.md`
 - `.github/agents/qa-reviewer.agent.md`
+- `.github/agents/website-frontend.agent.md`
+- `.github/agents/api-fastapi.agent.md`
+- `.github/agents/crm-drupal-civicrm.agent.md`
+- `.github/agents/automation-n8n.agent.md`
+- `.github/agents/games-babylon.agent.md`
+- `.github/agents/forum-phpbb.agent.md`
 
 Archivierte oder deprecated Copilot-Agents liegen unter `.github/archive/agents/` und werden ueber `.github/ai-registry.json` einem sichtbaren Replacement zugeordnet.
 

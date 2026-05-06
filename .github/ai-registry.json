@@ -1,7 +1,7 @@
 {
   "meta": {
     "version": 1,
-    "updated": "2026-05-02",
+    "updated": "2026-05-06",
     "repository": "Menschlichkeit-Osterreich/menschlichkeit-oesterreich",
     "pathZones": {
       "active": ["apps/", "automation/", "mcp-servers/", "figma-design-system/"],
@@ -84,6 +84,66 @@
       "path": ".github/agents/qa-reviewer.agent.md",
       "role": "qa",
       "sourceOfTruth": ".github/agents/qa-reviewer.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "website-frontend.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/website-frontend.agent.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/agents/website-frontend.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "api-fastapi.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/api-fastapi.agent.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/agents/api-fastapi.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "crm-drupal-civicrm.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/crm-drupal-civicrm.agent.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/agents/crm-drupal-civicrm.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "automation-n8n.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/automation-n8n.agent.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/agents/automation-n8n.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "games-babylon.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/games-babylon.agent.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/agents/games-babylon.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "forum-phpbb.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/forum-phpbb.agent.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/agents/forum-phpbb.agent.md",
       "replacement": null
     },
     {

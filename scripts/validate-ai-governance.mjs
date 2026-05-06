@@ -87,6 +87,12 @@ const activeGithubAgents = new Set([
   '.github/agents/devops-expert.agent.md',
   '.github/agents/security-reviewer.agent.md',
   '.github/agents/qa-reviewer.agent.md',
+  '.github/agents/website-frontend.agent.md',
+  '.github/agents/api-fastapi.agent.md',
+  '.github/agents/crm-drupal-civicrm.agent.md',
+  '.github/agents/automation-n8n.agent.md',
+  '.github/agents/games-babylon.agent.md',
+  '.github/agents/forum-phpbb.agent.md',
 ]);
 
 const requiredPathZones = {
