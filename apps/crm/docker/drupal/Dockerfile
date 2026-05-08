@@ -8,17 +8,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libonig-dev \
     libxml2-dev \
     libzip-dev \
+    libicu-dev \
     zip \
     unzip \
     wget \
     mariadb-client \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip intl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Imagick
-RUN apt-get install -y libmagickwand-dev --no-install-recommends \
-    && pecl install imagick \
-    && docker-php-ext-enable imagick
+# Install Imagick (optional - commented out due to unavailable libmagickwand-dev)
+# RUN apt-get install -y libmagickwand-dev --no-install-recommends \
+#     && pecl install imagick \
+#     && docker-php-ext-enable imagick
+
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -31,16 +33,13 @@ COPY php.ini /usr/local/etc/php/conf.d/custom.ini
 
 # Install Drupal and CiviCRM via Composer
 RUN composer create-project drupal/recommended-project:10.x . --no-interaction \
+    && composer config allow-plugins.civicrm/civicrm-asset-plugin true \
     && composer require drush/drush --no-interaction \
-    && composer require civicrm/civicrm-asset-plugin:"^1.1" \
-    && composer require civicrm/civicrm-setup:"^0.11" \
-    && composer require civicrm/cv:^0.4 --dev --no-interaction \
-    && composer config allow-plugins.civicrm/civicrm-asset-plugin true
+    && composer require civicrm/civicrm-asset-plugin:"^1.1" --no-interaction
 
-# Set proper permissions
+# Set proper permissions without stripping executable bits from vendor/bin
 RUN chown -R www-data:www-data /var/www/html \
-    && find /var/www/html -type d -exec chmod 755 {} \; \
-    && find /var/www/html -type f -exec chmod 644 {} \;
+    && chmod -R u+rwX,go+rX /var/www/html
 
 # Create files directory
 RUN mkdir -p /var/www/html/web/sites/default/files \
