@@ -26,6 +26,7 @@ test.describe('Donation Payment Flow E2E Tests', () => {
    */
   test('Browse donate page and select amount', async ({ page }) => {
     // Navigate to donate page
+    await page.goto(`${BASE_URL}/spenden`);
 
     // Verify donate page elements
     await expect(page.locator('h1')).toContainText(/donate|spende|spenden/i);

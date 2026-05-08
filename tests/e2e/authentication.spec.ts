@@ -38,6 +38,7 @@ test.describe('Authentication E2E Tests', () => {
    */
   test('Valid login with existing credentials should redirect to dashboard', async ({ page }) => {
     // Navigate to login page
+    await page.goto(`${BASE_URL}/login`);
 
     // On public host, /login renders cross-host redirect/fallback instead of form
     if (await isPortalFallbackVisible(page)) {
