@@ -2,8 +2,6 @@
 # Docker-basierte Entwicklung für crm.menschlichkeit-oesterreich.at
 # Integriert mit bestehender Ordnerstruktur
 
-version: '3.8'
-
 services:
   # MariaDB Database
   mariadb:
@@ -29,7 +27,6 @@ services:
       dockerfile: Dockerfile
     container_name: moe-crm-drupal
     volumes:
-      - ./src:/var/www/html
       - ./docker/drupal/php.ini:/usr/local/etc/php/conf.d/custom.ini
     environment:
       DB_HOST: mariadb
@@ -49,11 +46,9 @@ services:
     container_name: moe-crm-nginx
     volumes:
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - ./src:/var/www/html
       - ./docker/nginx/ssl:/etc/nginx/ssl
     ports:
       - "80:80"
-      - "443:443"
     depends_on:
       - drupal
     networks:
