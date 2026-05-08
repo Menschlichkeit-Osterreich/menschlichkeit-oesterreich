@@ -3,7 +3,15 @@ set -euo pipefail
 
 # Wait for database to be ready
 echo "Waiting for database..."
+DB_WAIT_TIMEOUT_SECONDS=90
+DB_WAIT_START_TS=$(date +%s)
 while ! mysqladmin ping -h"$DB_HOST" -u"$DB_USER" -p"$DB_PASS" --silent --skip-ssl 2>/dev/null; do
+    DB_WAIT_NOW_TS=$(date +%s)
+    DB_WAIT_ELAPSED=$((DB_WAIT_NOW_TS - DB_WAIT_START_TS))
+    if [[ "$DB_WAIT_ELAPSED" -ge "$DB_WAIT_TIMEOUT_SECONDS" ]]; then
+        echo "ERROR: Database was not ready within ${DB_WAIT_TIMEOUT_SECONDS}s. Aborting bootstrap." >&2
+        exit 1
+    fi
     sleep 1
 done
 echo "Database is ready!"
