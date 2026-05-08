@@ -18,34 +18,29 @@ if [ ! -f "/var/www/html/web/sites/default/settings.php" ]; then
         --site-name="$DRUPAL_SITE_NAME" \
         --account-name="admin" \
         --account-pass="admin123" \
-        --db-url="mysql://$DB_USER:$DB_PASS@$DB_HOST/$DB_NAME" \
-        --extra=--ssl-mode=DISABLED
-    
+        --db-url="mysql://$DB_USER:$DB_PASS@$DB_HOST/$DB_NAME"
+
     echo "Drupal installation completed!"
-    
-    # Install CiviCRM
-    # Note: CiviCRM setup will be handled separately or via manual configuration
-    echo "CiviCRM assets prepared - manual setup required"
-    
-    # Configure CiviCRM
-    CIVI_SETTINGS="/var/www/html/web/sites/default/civicrm.settings.php"
-    if [ -f "$CIVI_SETTINGS" ]; then
-        echo "Configuring CiviCRM settings..."
-        
-        # Set site key
-        if grep -q "CIVICRM_SITE_KEY" "$CIVI_SETTINGS"; then
-            sed -ri "s|define\('CIVICRM_SITE_KEY',[^)]*\)|define('CIVICRM_SITE_KEY', '$CIVICRM_SITE_KEY')|" "$CIVI_SETTINGS"
-        else
-            echo "define('CIVICRM_SITE_KEY', '$CIVICRM_SITE_KEY');" >> "$CIVI_SETTINGS"
-        fi
-        
-        # Set base URL
-        if ! grep -q "CIVICRM_UF_BASEURL" "$CIVI_SETTINGS"; then
-            echo "if (!defined('CIVICRM_UF_BASEURL')) define('CIVICRM_UF_BASEURL', 'http://localhost/');" >> "$CIVI_SETTINGS"
-        fi
+
+    echo "Installing and enabling CiviCRM Drupal module..."
+    # Drupal hardens permissions during install; CiviCRM needs temporary write access
+    # to generate sites/default/civicrm.settings.php on first bootstrap.
+    chmod u+w /var/www/html/web/sites/default
+
+    vendor/bin/drush -l http://localhost en civicrm -y
+    vendor/bin/drush -l http://localhost cr
+
+    if ! vendor/bin/drush -l http://localhost pm:list --type=module --status=enabled --format=list | grep -qx 'civicrm'; then
+        echo "ERROR: civicrm module is not enabled after bootstrap"
+        exit 1
     fi
-    
-    echo "CiviCRM configuration completed!"
+
+    if [ ! -f "/var/www/html/web/sites/default/civicrm.settings.php" ]; then
+        echo "ERROR: civicrm.settings.php was not created"
+        exit 1
+    fi
+
+    echo "CiviCRM bootstrap completed!"
     
 else
     echo "Drupal already installed, skipping installation..."

@@ -4,6 +4,7 @@ FROM php:8.2-fpm@sha256:2509cda8128e084b8cbb9e560dffae5f53e24e0cd90355414d57ed9a
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
+    libcurl4-openssl-dev \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
@@ -13,7 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     unzip \
     wget \
     mariadb-client \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip intl \
+    && docker-php-ext-install pdo_mysql mysqli mbstring exif pcntl bcmath gd zip intl curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Imagick (optional - commented out due to unavailable libmagickwand-dev)
@@ -31,11 +32,19 @@ WORKDIR /var/www/html
 # Copy custom PHP configuration
 COPY php.ini /usr/local/etc/php/conf.d/custom.ini
 
-# Install Drupal and CiviCRM via Composer
+# Install Drupal and CiviCRM via Composer (fully automated, non-interactive)
 RUN composer create-project drupal/recommended-project:10.x . --no-interaction \
+    && composer config allow-plugins.composer/installers true \
     && composer config allow-plugins.civicrm/civicrm-asset-plugin true \
+    && composer config allow-plugins.civicrm/composer-downloads-plugin true \
+    && composer config allow-plugins.cweagans/composer-patches true \
+    && composer config allow-plugins.civicrm/composer-compile-plugin true \
     && composer require drush/drush --no-interaction \
-    && composer require civicrm/civicrm-asset-plugin:"^1.1" --no-interaction
+    && COMPOSER_COMPILE=none composer require \
+        civicrm/civicrm-core:^6.14 \
+        civicrm/civicrm-drupal-8:^6.14 \
+        civicrm/civicrm-packages:^6.14 \
+        --no-interaction
 
 # Set proper permissions without stripping executable bits from vendor/bin
 RUN chown -R www-data:www-data /var/www/html \
