@@ -20,11 +20,19 @@ jobs:
       - uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b  # v5.3.0
         with:
           python-version: '3.12'
-      - name: Run smoke test (skips if N8N_BASE_URL unset)
+
+      - name: Validate required n8n smoke config
+        env:
+          N8N_BASE_URL: ${{ secrets.N8N_BASE_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${N8N_BASE_URL}" ]; then
+            echo "::error::N8N_BASE_URL fehlt. Smoke-Test wird fail-closed abgebrochen."
+            exit 1
+          fi
+
+      - name: Run smoke test
         env:
           N8N_BASE_URL: ${{ secrets.N8N_BASE_URL }}
           N8N_WEBHOOK_SECRET: ${{ secrets.N8N_WEBHOOK_SECRET }}
-        run: |
-          if [ -z "${N8N_BASE_URL}" ]; then
-            echo "N8N_BASE_URL not set; skipping."; exit 0; fi
-          python3 automation/n8n/smoke-test.py
+        run: python3 automation/n8n/smoke-test.py

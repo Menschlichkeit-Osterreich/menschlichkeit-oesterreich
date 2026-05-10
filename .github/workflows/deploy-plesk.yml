@@ -1245,14 +1245,15 @@ jobs:
           set -euo pipefail
 
           if [ "${LIVE_NOTIFICATION_PROBE}" != "true" ]; then
-            echo "API_NOTIFICATION_PROBE_STATUS=manual-step-required" >> "$GITHUB_ENV"
+            echo "API_NOTIFICATION_PROBE_STATUS=failed" >> "$GITHUB_ENV"
             echo "API_NOTIFICATION_PROBE_BREAKPOINT=live_probe_disabled" >> "$GITHUB_ENV"
+            echo "API_EVIDENCE_BREAKPOINT=notification_probe_disabled" >> "$GITHUB_ENV"
             echo "API_GRAPH_CHANNEL_PROBE_STATUS=not_probed" >> "$GITHUB_ENV"
             echo "API_SLACK_CHANNEL_PROBE_STATUS=not_probed" >> "$GITHUB_ENV"
-            echo "API_OPEN_EVIDENCE_GAP=live_probe_not_executed" >> "$GITHUB_ENV"
-            echo "LIVE-Probe deaktiviert (vars.LIVE_NOTIFICATION_PROBE != true)."
-            echo "Manueller Nachweis: Stripe-Test-Webhook \`payment_intent.payment_failed\` gegen den bestehenden Endpunkt auslösen — bestätigt Admin-Mail (Graph) und Slack-Alert in einem einzigen produktionsnahen Pfad." >> "$GITHUB_STEP_SUMMARY"
-            exit 0
+            echo "API_OPEN_EVIDENCE_GAP=probe_not_executed" >> "$GITHUB_ENV"
+            echo "✗ LIVE-Probe deaktiviert (vars.LIVE_NOTIFICATION_PROBE != true) — fail-closed aktiviert."
+            echo "Deploy abgebrochen: Live-Nachweis fuer Graph/Slack ist verpflichtend. Aktiviere vars.LIVE_NOTIFICATION_PROBE=true und wiederhole den Deploy." >> "$GITHUB_STEP_SUMMARY"
+            exit 1
           fi
 
           PROBE_RESULT=$(ssh plesk-prod "API_PATH='${{ env.API_REMOTE_PATH }}' bash -s" <<'REMOTE'
@@ -1308,10 +1309,10 @@ jobs:
           )
         run: |
           set -euo pipefail
-          if [ "${API_OPEN_EVIDENCE_GAP:-none}" = "live_probe_not_executed" ]; then
-            DECISION_BASIS="live_probe_disabled_allows_success_with_explicit_gap"
-          elif [ "${API_NOTIFICATION_PROBE_STATUS:-not-run}" = "ok" ]; then
+          if [ "${API_NOTIFICATION_PROBE_STATUS:-not-run}" = "ok" ]; then
             DECISION_BASIS="live_probe_executed_and_passed"
+          elif [ "${API_NOTIFICATION_PROBE_BREAKPOINT:-none}" = "live_probe_disabled" ]; then
+            DECISION_BASIS="live_probe_disabled_and_blocked"
           elif [ "${API_NOTIFICATION_PROBE_STATUS:-not-run}" = "failed" ]; then
             DECISION_BASIS="live_probe_executed_and_failed"
           else
@@ -1356,6 +1357,22 @@ jobs:
               open_evidence_gap: $open_evidence_gap,
               decision_basis: $decision_basis
             }' > "$EVIDENCE_FILE"
+
+      - name: API Evidence-Gap Gate (fail-closed)
+        if: >
+          always() && (
+            env.TARGET_SERVICE == 'all' ||
+            env.TARGET_SERVICE == 'api'
+          )
+        run: |
+          set -euo pipefail
+          GAP="${API_OPEN_EVIDENCE_GAP:-none}"
+          if [ "$GAP" != "none" ]; then
+            echo "✗ Offene API-Evidenzlücke erkannt: ${GAP}"
+            echo "Deploy blockiert: API_OPEN_EVIDENCE_GAP=${GAP}" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          echo "✓ API-Evidenz vollständig (API_OPEN_EVIDENCE_GAP=none)."
 
       - name: API Produktionsnachweis-Artefakt hochladen
         if: >

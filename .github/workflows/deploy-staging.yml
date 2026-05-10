@@ -9,6 +9,10 @@ on:
 permissions:
   contents: read
 
+env:
+  MAIN_DOMAIN: ${{ vars.MAIN_DOMAIN || 'menschlichkeit-oesterreich.at' }}
+  STAGING_FRONTEND_REMOTE_PATH: ${{ vars.STAGING_FRONTEND_PATH || 'httpdocs' }}
+
 jobs:
   # ── BSM Secret Injection (optional, wenn BW_ACCESS_TOKEN gesetzt) ──
   bsm-secrets:
@@ -46,6 +50,13 @@ jobs:
 
       - name: Build workspace
         run: npm run build:all
+
+      - name: Archive staging frontend build
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        with:
+          name: staging-frontend-dist-${{ github.sha }}
+          path: apps/website/dist/
+          retention-days: 3
 
       - name: Verify staging secrets
         env:
@@ -88,11 +99,56 @@ jobs:
           printf '%s\n' "${{ secrets.STAGING_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
-      - name: Deploy to staging
+      - name: Configure SSH host alias
         env:
-          SAFE_DEPLOY_AUTO_CONFIRM: 'true'
-          SAFE_DEPLOY_LOCAL_BASE: ${{ github.workspace }}
-          SAFE_DEPLOY_REMOTE_HOST: ${{ secrets.STAGING_REMOTE_HOST }}
-          SAFE_DEPLOY_REMOTE_USER: ${{ secrets.STAGING_REMOTE_USER }}
-          SAFE_DEPLOY_REMOTE_PORT: ${{ secrets.STAGING_REMOTE_PORT }}
-        run: ./scripts/safe-deploy.sh
+          STAGING_REMOTE_HOST: ${{ secrets.STAGING_REMOTE_HOST }}
+          STAGING_REMOTE_USER: ${{ secrets.STAGING_REMOTE_USER }}
+          STAGING_REMOTE_PORT: ${{ secrets.STAGING_REMOTE_PORT || '22' }}
+        run: |
+          set -euo pipefail
+          cat > ~/.ssh/config <<EOF
+          Host plesk-staging
+            HostName ${STAGING_REMOTE_HOST}
+            User ${STAGING_REMOTE_USER}
+            Port ${STAGING_REMOTE_PORT}
+            IdentitiesOnly yes
+            StrictHostKeyChecking yes
+          EOF
+          chmod 600 ~/.ssh/config
+
+      - name: Download staging frontend artifact
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
+        with:
+          name: staging-frontend-dist-${{ github.sha }}
+          path: _dist_staging_frontend/
+
+      - name: Deploy frontend to staging (deterministisch, non-interaktiv)
+        env:
+          STAGING_REMOTE_HOST: ${{ secrets.STAGING_REMOTE_HOST }}
+          STAGING_REMOTE_USER: ${{ secrets.STAGING_REMOTE_USER }}
+          STAGING_REMOTE_PORT: ${{ secrets.STAGING_REMOTE_PORT || '22' }}
+        run: |
+          set -euo pipefail
+
+          test -d _dist_staging_frontend || { echo "::error::Frontend-Artefakt fehlt"; exit 1; }
+          ssh -F ~/.ssh/config plesk-staging "mkdir -p '${STAGING_FRONTEND_REMOTE_PATH}'"
+          find _dist_staging_frontend -name "*.map" -delete
+
+          scp -r -F ~/.ssh/config \
+            _dist_staging_frontend/. \
+            "plesk-staging:${STAGING_FRONTEND_REMOTE_PATH}/"
+
+          TS=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
+          MARKER="service=frontend commit=${GITHUB_SHA::8} timestamp=${TS} actor=${GITHUB_ACTOR}"
+          ssh -F ~/.ssh/config plesk-staging \
+            "printf '%s\n' '${MARKER}' > '${STAGING_FRONTEND_REMOTE_PATH}/.deploy_release'"
+
+      - name: Verify staging release marker
+        run: |
+          set -euo pipefail
+          MARKER=$(ssh -F ~/.ssh/config plesk-staging "cat '${STAGING_FRONTEND_REMOTE_PATH}/.deploy_release'" || true)
+          echo "${MARKER}"
+          echo "${MARKER}" | grep -q "commit=${GITHUB_SHA::8}" || {
+            echo "::error::Staging Release-Marker zeigt nicht auf den erwarteten Commit";
+            exit 1;
+          }

@@ -36,7 +36,7 @@ scrape_configs:
     static_configs:
       - targets:
           - https://menschlichkeit-oesterreich.at
-          - https://api.menschlichkeit-oesterreich.at/health
+          - https://api.menschlichkeit-oesterreich.at/healthz
           - https://crm.menschlichkeit-oesterreich.at
           - https://n8n.menschlichkeit-oesterreich.at/healthz
           - https://forum.menschlichkeit-oesterreich.at

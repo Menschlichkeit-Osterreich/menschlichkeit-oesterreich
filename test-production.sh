@@ -45,7 +45,7 @@ test_health_checks() {
     
     # Test API Health
     log "Testing API health endpoint..."
-    if curl -f -s "https://${API_DOMAIN}/health" > /dev/null; then
+    if curl -f -s "https://${API_DOMAIN}/healthz" > /dev/null; then
         success "API health check passed"
     else
         error "API health check failed"
@@ -241,7 +241,7 @@ test_performance() {
     
     # Test API response time
     log "Testing API response time..."
-    api_time=$(curl -o /dev/null -s -w '%{time_total}' "https://${API_DOMAIN}/health")
+    api_time=$(curl -o /dev/null -s -w '%{time_total}' "https://${API_DOMAIN}/healthz")
     if (( $(echo "$api_time < 2.0" | bc -l) )); then
         success "API response time: ${api_time}s (< 2s)"
     else
