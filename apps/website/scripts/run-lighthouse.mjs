@@ -47,10 +47,22 @@ function getThreshold(name, fallback) {
 function run(cmd, args, opts = {}) {
   return new Promise((resolvePromise, reject) => {
     const p = spawn(cmd, args, { stdio: 'inherit', shell: process.platform === 'win32', ...opts });
+    const timeoutMs = Number.isFinite(Number(process.env.LH_COMMAND_TIMEOUT_MS))
+      ? Number(process.env.LH_COMMAND_TIMEOUT_MS)
+      : 8 * 60 * 1000;
+    const timer = setTimeout(() => {
+      try {
+        p.kill('SIGTERM');
+      } catch {
+        // ignore kill errors
+      }
+      reject(new Error(`${cmd} timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
     p.on('error', reject);
-    p.on('exit', code =>
-      code === 0 ? resolvePromise(code) : reject(new Error(`${cmd} exited ${code}`))
-    );
+    p.on('exit', code => {
+      clearTimeout(timer);
+      code === 0 ? resolvePromise(code) : reject(new Error(`${cmd} exited ${code}`));
+    });
   });
 }
 
