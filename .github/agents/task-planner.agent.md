@@ -42,6 +42,21 @@ Fuer kleine Antworten, lokale Bugfixes oder eng begrenzte Reviewfragen reicht di
 - Keine Secrets, Tokens oder PII in Beispielen, Plaenen oder Logs.
 - Wenn der Auftrag direkt um Umsetzung bittet, gib nur dann einen Plan aus, wenn Planungsarbeit wirklich verlangt ist oder die Aenderung riskant/mehrdeutig ist.
 
+## Skill-First Routing
+
+Bevor du einen groesseren Plan ausgibst, priorisiere passende Skills.
+
+Reihenfolge:
+
+1. `context-map` fuer schnelle Kontextsammlung zu betroffenen Dateien.
+1. `what-context-needed` wenn der Scope noch unscharf ist.
+1. `refactor-plan` bei mehrstufigen Refactorings.
+1. `devops-rollout-plan` bei Rollout-, Deploy- oder CI/CD-Scopes.
+1. `dsgvo-audit` oder `secret-scanning` bei Datenschutz- oder Secret-Risiko.
+1. `find-skills` nur dann, wenn keine passende lokale Skill-Abdeckung sichtbar ist.
+
+Skill-Nutzung bleibt repo-treu: keine Skill-Auswahl, die den aktiven Pfaden, Governance-Dateien oder Quality-Gates widerspricht.
+
 ## Ergebnisformat
 
 Antworte in oesterreichischem Deutsch und fuehre nur die Abschnitte, die fuer den Auftrag gebraucht werden:

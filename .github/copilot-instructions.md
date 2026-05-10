@@ -78,6 +78,7 @@ Nicht aktiv:
 - Nutzertexte bleiben in oesterreichischem Deutsch.
 - Keine Secrets oder PII in Code, Logs, Beispielen oder Prompts.
 - Brand-Arbeit folgt den Token- und Plugin-Quellen im Repo.
+- Bei Arbeiten an `.github/bsm-secret-ids.json` zuerst read-only BSM-Metadatencheck fahren und im Bericht nur `id`, `key`, `projectId`, `revisionDate` verwenden.
 
 ## Configuration Reliability Rule
 

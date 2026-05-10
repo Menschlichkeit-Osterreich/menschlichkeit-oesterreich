@@ -317,6 +317,16 @@
       "replacement": ".github/agents/task-planner.agent.md"
     },
     {
+      "id": "secret-drift-auditor.agent",
+      "kind": "agent",
+      "status": "deprecated",
+      "owner": "copilot",
+      "path": ".github/archive/agents/secret-drift-auditor.agent.md",
+      "role": "security",
+      "sourceOfTruth": ".github/archive/agents/secret-drift-auditor.agent.md",
+      "replacement": ".github/agents/security-reviewer.agent.md"
+    },
+    {
       "id": "doublecheck.agent",
       "kind": "agent",
       "status": "deprecated",
@@ -928,6 +938,16 @@
       "path": ".github/instructions/core/style-guide.instructions.md",
       "role": "architect",
       "sourceOfTruth": ".github/instructions/core/style-guide.instructions.md",
+      "replacement": null
+    },
+    {
+      "id": "secret-mapping-verification.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/secret-mapping-verification.instructions.md",
+      "role": "security",
+      "sourceOfTruth": ".github/instructions/secret-mapping-verification.instructions.md",
       "replacement": null
     },
     {
@@ -2165,6 +2185,16 @@
       "role": "developer",
       "sourceOfTruth": ".github/ai-registry.json",
       "replacement": ".github/chatmodes/general/TestGeneration_DE.chatmode.md"
+    },
+    {
+      "id": "bsm-readonly-audit.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/bsm-readonly-audit.prompt.md",
+      "role": "security",
+      "sourceOfTruth": ".github/prompts/bsm-readonly-audit.prompt.md",
+      "replacement": null
     },
     {
       "id": "Vereinsplattform.prompt",

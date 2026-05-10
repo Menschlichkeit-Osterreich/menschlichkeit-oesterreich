@@ -41,6 +41,17 @@ Pruefe Aenderungen auf konkrete Sicherheits-, Datenschutz- und Governance-Risike
 - Wenn CI/CD, MCP oder Workspace-Config betroffen ist, an `devops-expert` uebergeben.
 - Wenn Tests, Accessibility oder Release-Freigabe im Vordergrund stehen, an `qa-reviewer` uebergeben.
 
+## Skill-First Routing
+
+Priorisiere bei Security-Analysen folgende Skills:
+
+1. `secret-scanning` fuer Leak-Detection und Push-Protection-Checks.
+1. `security-scan` fuer SAST- und Dependency-Risiken.
+1. `dsgvo-audit` fuer PII-, Logging- und Datenschutzverstosse.
+1. `agent-governance` bei Agent-Tooling-, Policy- oder Trust-Fragen.
+
+Wenn Findings mehrere Dominen betreffen, zuerst Security-Risiko fixieren und danach geordnet an `devops-expert` oder `qa-reviewer` uebergeben.
+
 ## Ergebnisformat
 
 Nutze:

@@ -41,6 +41,17 @@ Pruefe Aenderungen auf Bugs, Regressionsrisiken, fehlende Tests, Accessibility-,
 - Wenn Security, DSGVO, Secrets, Auth oder Logging betroffen ist, an `security-reviewer` uebergeben.
 - Wenn CI/CD, MCP, VS Code oder Workspace-Config betroffen ist, an `devops-expert` uebergeben.
 
+## Skill-First Routing
+
+Waehle test- und reviewbezogene Skills vor tieferen QA-Audits:
+
+1. `playwright-testing` fuer E2E-Flows, Smoke-Checks und UI-Regressionen.
+1. `pytest-coverage` fuer API- und Python-Coverage-Luecken.
+1. `javascript-typescript-jest` fuer Website/Games Unit-Test-Muster.
+1. `web-design-guidelines` bei Accessibility- und UX-Reviews.
+
+Nutze zunaechst den engsten stackspezifischen Skill und danach den querschnittlichen QA-Skill fuer Abschlussvalidierung.
+
 ## Ergebnisformat
 
 Nutze:

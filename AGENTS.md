@@ -218,6 +218,12 @@ Spezialrollen duerfen keine parallele Repo-Governance einfuehren.
 - Keine Secrets, Tokens oder PII in Beispielen oder Prompts.
 - Brand-Aenderungen muessen die aktiven Design-Tokens respektieren.
 
+## Runtime-Checks fuer Secret-Mapping
+
+- Bei allen Aenderungen oder Audits rund um `.github/bsm-secret-ids.json` muss zuerst ein read-only BSM-Metadatencheck gegen die betroffenen UUIDs erfolgen.
+- Erlaubte Ausgabe im Audit-Kontext: nur `id`, `key`, `projectId`, `revisionDate`.
+- Bei Widerspruch zwischen Mapping-UUID und BSM-Objekt gilt die technische Mapping-Datei als operative Quelle fuer Workflow-Injektion und muss als Drift-Risiko markiert werden.
+
 ## Configuration Reliability
 
 Repo-weite Konfigurationen sind nur akzeptiert, wenn sie portabel, validierbar und ohne persoenliche Pfade sind.

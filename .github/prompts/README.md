@@ -41,6 +41,26 @@ Migrierte Prompt-Dateien bleiben nur als historische Referenz bestehen. Sie sind
 - Migrierte `.prompt.md`-Dateien nicht als führend verwenden — immer den chatmode/instruction-Nachfolger nutzen
 - Keine neuen Repo- oder Rollenwahrheiten hier duplizieren; immer auf `AGENTS.md` und die Core-Instructions referenzieren
 
+## Skill-First Nutzung
+
+Prompts unter `.github/prompts/` sollen Skills gezielt vorbereiten und nicht ersetzen.
+
+Priorisierte Nutzung fuer diesen Repo-Stack:
+
+1. Planung und Scope: `context-map`, `what-context-needed`, `refactor-plan`
+1. Frontend Website: `react-vite-best-practices`
+1. API/FastAPI: `fastapi-python`
+1. CRM/Drupal: `drupal-development`
+1. Automation/n8n: `n8n-workflow-automation`
+1. E2E und QA: `playwright-testing`, `pytest-coverage`
+1. Datenbank: `postgresql-optimization`
+1. Security: `secret-scanning`, `security-scan`, `dsgvo-audit`
+1. CI/CD und Deploy: `github-actions-docs`, `deploy-checklist`, `devops-rollout-plan`
+
+Wenn ein Prompt eine Aufgabe startet, die keinem vorhandenen Skill klar zuordenbar ist, zuerst `find-skills` ausfuehren und nur danach generische Freitextarbeit beginnen.
+
+Skill-Empfehlungen muessen immer mit den aktiven Repo-Guardrails kompatibel bleiben; bei Konflikten haben `AGENTS.md`, `CLAUDE.md` und Core-Instructions Vorrang.
+
 ## Siehe auch
 
 - [MIGRATION.md](MIGRATION.md) — Vollständige Migrations-Tabelle

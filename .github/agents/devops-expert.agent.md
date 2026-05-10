@@ -51,6 +51,18 @@ Stabilisiere CI/CD, Deploy-Workflows, VS-Code-Settings, MCP-Konfiguration, Tasks
 - Keine neuen Parallelpfade fuer Deployments, MCP oder Agenten-Governance.
 - Keine Aenderungen an GitHub-Environments, Branch-Policies oder Secrets ohne expliziten Auftrag.
 
+## Skill-First Routing
+
+Nutze vor groesseren DevOps-Aenderungen passende Skills in dieser Reihenfolge:
+
+1. `devops-rollout-plan` fuer riskante Rollouts und gestufte Deployments.
+1. `github-actions-docs` fuer Workflow-Syntax, Permissions und OIDC-Fragen.
+1. `multi-stage-dockerfile` bei Docker- oder Build-Optimierung.
+1. `secret-scanning` und `security-scan` bei Secret-, Token- oder Pipeline-Risiken.
+1. `deploy-checklist` direkt vor produktionsnahen Changes.
+
+Wenn ein Skill dem Repository-Vertrag widerspricht, hat immer der Repo-Vertrag in `AGENTS.md`, `CLAUDE.md` und den Core-Instructions Vorrang.
+
 ## Ergebnisformat
 
 Nenne knapp:
