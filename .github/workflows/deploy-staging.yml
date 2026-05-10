@@ -17,7 +17,6 @@ jobs:
   # ── BSM Secret Injection (optional, wenn BW_ACCESS_TOKEN gesetzt) ──
   bsm-secrets:
     name: 'BSM: Staging Secrets laden'
-    if: ${{ secrets.BW_ACCESS_TOKEN != '' }}
     uses: ./.github/workflows/reusable-bsm-secrets.yml
     with:
       profile: deploy-staging
