@@ -5,6 +5,20 @@
 **Commit Reference**: d7361f4b (all four file modifications)
 **Owner**: DevOps Engineer
 
+## Addendum (Owner-Abgleich 2026-05-09)
+
+Dieser Runbook-Stand bleibt als technische Umsetzungsvorlage gueltig, aber die Bewertungslogik wurde um den owner-validierten Abgleich vom 2026-05-09 erweitert.
+
+| Block | Owner-Referenz 2026-05-09 | Repo-Stand | Einstufung |
+|---|---|---|---|
+| BWS-Projekt/Projekt-ID | bestaetigt | bestaetigt | Gesichert |
+| GitHub-Variablen `BSM_API_*` (7) | vorhanden und korrekt bestaetigt | Workflow-/Doku-seitig konsistent | Gesichert |
+| Stripe UUIDs in BWS | `cf24082c-6256-4644-9fe7-b445006cd3a5`, `e1719ed3-2487-445d-88f7-b44500700d04` | `.github/bsm-secret-ids.json` fuehrt noch `3ee3dcf1-f25a-4497-9f8b-b4360118ba37` und `f4533ec6-adfc-4033-905a-b4360118ba7a` | Widerspruechlich |
+| Microsoft UUIDs (Tenant/Client/Secret/Sender) | bestaetigt | konsistent dokumentiert | Gesichert |
+| Stripe/Slack/Entra Zielsystemtests | owner-bestaetigt | kein unabhaengiger Repo-Testbeleg im Runbook selbst | Nicht pruefbar |
+
+Drift-Regel: Die Stripe-UUID-Abweichung wird explizit dokumentiert und nicht stillschweigend harmonisiert. Technische Mapping-Dateien werden in diesem Runbook nicht rueckwirkend umgeschrieben.
+
 ---
 
 ## Overview

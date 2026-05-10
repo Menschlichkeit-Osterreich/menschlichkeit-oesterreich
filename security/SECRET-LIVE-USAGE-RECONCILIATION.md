@@ -51,6 +51,27 @@ Dieses Artefakt dient **ausschliesslich** dazu, pro Fund den operativ belastbare
 - Live-Nutzung, letzte Verwendung, Gueltigkeit oder Inhaberschaft der 8 Funde ohne Zugriff auf die jeweiligen Zielsysteme oder den Quell-Rechner.
 - Ob ein Fund rotationspflichtig oder loeschbar ist, bevor der Live-Usage-Abgleich erfolgt.
 
+## Konservative Abgleichsmatrix (Owner-Referenz 2026-05-09)
+
+Quelle: Owner-Formular `# Secret-Pruef- und Anlageformular` (Stand 2026-05-09, Bearbeiter Peter Schuller Owner).
+
+Regel: BWS-Metadaten, GitHub-Variablen und Zielsystem-Nachweise werden getrennt bewertet. Kein Zielsystem-Status wird allein aus BWS-Metadaten abgeleitet.
+
+| Aussageblock | Referenzdatei | Repo-/Primaerquelle | Einstufung | Hinweis |
+|---|---|---|---|---|
+| BWS-Projekt-ID `9bf8d744-58fd-4bca-8459-b386001f3d06` | bestaetigt | mehrfach im Repo dokumentiert | Gesichert | konsistent |
+| S1 `api/STRIPE_SECRET_KEY` Objekt-ID `cf24082c-6256-4644-9fe7-b445006cd3a5` | bestaetigt | in `.github/bsm-secret-ids.json` steht `3ee3dcf1-f25a-4497-9f8b-b4360118ba37` | Widerspruechlich | Drift markieren, nicht still harmonisieren |
+| S2 `api/STRIPE_WEBHOOK_SECRET` Objekt-ID `e1719ed3-2487-445d-88f7-b44500700d04` | bestaetigt | in `.github/bsm-secret-ids.json` steht `f4533ec6-adfc-4033-905a-b4360118ba7a` | Widerspruechlich | Drift markieren, nicht still harmonisieren |
+| S3/S4/S6/Graph-Sender UUIDs | bestaetigt | in Repo-Doku und Mapping vorhanden | Gesichert | konsistent |
+| S4 Restluecke (`Ja` vs `keine`) | intern widerspruechlich | keine aufloesende Primaerquelle im Repo | Widerspruechlich | Form-interne Drift sichtbar lassen |
+| GitHub-Variablen `BSM_API_*` (7 Eintraege) | vorhanden/korrekt bestaetigt | in Workflow-/Doku-Kontext plausibel | Gesichert | Variablenstatus ist kein Zielsystembeweis |
+| Stripe Zielsystempruefung erfolgreich | owner-bestaetigt | im Repo kein unabhaengiger technischer Testbeleg abgelegt | Nicht pruefbar | als owner-validiert fuehren |
+| Slack Testnachricht erfolgreich | owner-bestaetigt | im Repo kein unabhaengiger technischer Testbeleg abgelegt | Nicht pruefbar | als owner-validiert fuehren |
+| Entra/Graph Testmail erfolgreich | owner-bestaetigt | im Repo kein unabhaengiger technischer Testbeleg abgelegt | Nicht pruefbar | als owner-validiert fuehren |
+| PAT-Direct-Live-Nachweis | nicht enthalten | kein direkter PAT-Live-Beleg im Repo | Offen | getrennt von GitHub-Variablenstatus |
+| S6 konkrete Quellwert-/Fingerprint-Zuordnung | nicht vollstaendig | ohne Quellrechner nicht aufloesbar | Offen | extern pruefen |
+| S8 konkrete UUID-Kette vollstaendig aufgeloest | nicht vollstaendig | Script-Referenzcharakter vorhanden | Offen | extern pruefen |
+
 ---
 
 ## Startmenge — Uebersicht
@@ -324,8 +345,8 @@ Diese Punkte erfordern Zugriff auf Systeme ausserhalb des Repositories und koenn
 - [x] Kein Scope-Drift Richtung Rotation, Rewrite oder Ignore-Regeln
 - [x] Keine Ueberschneidung mit Funden aus `rotation-evidence-pr0/` oder Production-Tracking
 - [x] Alle 32 ausgeschlossenen Findings sind mit Kategorie-Begruendung dokumentiert
-- [x] Zulaessige Evidenzstatus-Werte verwendet: gesichert, plausibel, offen, nicht pruefbar
-- [x] Zulaessige Entscheidungsstatus-Werte verwendet: live-nachweis-offen, typ-klassifikation-offen, bsm-referenz-bestaetigt, zielsystem-pruefen
+- [x] Zulaessige Evidenzstatus-Werte verwendet: gesichert, plausibel, offen, nicht pruefbar sowie owner-validiert-basierte Kennzeichnung in den Fundbloecken
+- [x] Zulaessige Entscheidungsstatus-Werte verwendet: owner-validiert, teilweise owner-validiert, live-nachweis-offen, bsm-referenz-bestaetigt
 - [x] Kein Vorkommen von: rotationspflichtig, loeschbar, bereinigt, rewrite-noetig
 - [x] Das Artefakt trifft keine Produktivbehauptung ohne externen Nachweis
 - [x] BWS-Recon-Nachweise sind dokumentiert (nur Metadaten, kein Secret-Wert)

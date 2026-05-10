@@ -5,6 +5,17 @@
 **Methode:** Repository-Scan + Funktionalitätstests + Schema-Validierung
 **Status:** 🔴 **CRITICAL** – 8/8 Core-Secrets fehlgeschlagen
 
+## Historischer Hinweis (Supersede-Kontext 2026-05-09)
+
+Dieses Dokument bleibt ein historischer Snapshot des Teststandes vom 2025-10-18 und ist keine alleinige Aussage ueber den owner-validierten Stand vom 2026-05-09.
+
+Konservative Einordnung zur Vermeidung stiller Harmonisierung:
+
+- Die Aussage `0/8 Core-Secrets funktionsfaehig` ist historisch fuer den damaligen Testlauf und wird nicht als aktueller Endstatus fuer 2026 interpretiert.
+- Der owner-validierte Abgleich 2026-05-09 bestaetigt BWS-Metadaten fuer die 8 Kernsecrets sowie Zielsystem-Nachweise fuer Stripe, Slack, Microsoft Entra/Graph und GitHub-Variablen.
+- Weiterhin offen bleiben Punkte, die im Owner-Formular nicht als direkter technischer Repo-Nachweis enthalten sind (z. B. direkter PAT-Live-Nachweis, vollstaendige S6-/S8-Aufloesung).
+- BWS-Metadaten, GitHub-Variablen und Zielsystembeweise sind getrennt zu lesen; aus einem Block wird kein anderer automatisch abgeleitet.
+
 ---
 
 ## Executive Summary
@@ -775,7 +786,7 @@ SMTP_PORT=1025
 # 10. Stripe Test-Keys
 # → Stripe Dashboard → Developers → API keys → Test keys
 STRIPE_PUBLISHABLE_KEY=pk_test_XXX...
-STRIPE_SECRET_KEY=sk_test_XXX...
+STRIPE_SECRET_KEY=***REDACTED_TEST_KEY***
 
 # 11. Test
 .\scripts\Test-SecretFunctionality.ps1
