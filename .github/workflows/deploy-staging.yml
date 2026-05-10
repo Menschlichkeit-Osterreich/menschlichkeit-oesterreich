@@ -76,12 +76,12 @@ jobs:
             exit 1
           fi
 
-      - name: Configure SSH agent
-        # webfactory/ssh-agent hält den Key im SSH-Agent (kein Schreiben auf Disk).
-        # Das ist sicherer als echo "$KEY" > ~/.ssh/id_ed25519.
-        uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
-        with:
-          ssh-private-key: ${{ secrets.STAGING_DEPLOY_KEY }}
+      - name: Prepare SSH key (native, policy-konform)
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.STAGING_DEPLOY_KEY }}" > ~/.ssh/staging_deploy_key
+          chmod 600 ~/.ssh/staging_deploy_key
 
       - name: Add host to known_hosts
         run: |
@@ -110,6 +110,7 @@ jobs:
             HostName ${STAGING_REMOTE_HOST}
             User ${STAGING_REMOTE_USER}
             Port ${STAGING_REMOTE_PORT}
+            IdentityFile ~/.ssh/staging_deploy_key
             IdentitiesOnly yes
             StrictHostKeyChecking yes
           EOF
