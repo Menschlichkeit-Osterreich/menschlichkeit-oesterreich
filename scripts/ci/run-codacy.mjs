@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 import { spawn } from 'node:child_process';
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const REPORTS_DIR = resolve(process.cwd(), 'quality-reports');
 const OUTPUT_SARIF = resolve(REPORTS_DIR, 'codacy-analysis.sarif');
 const LOCAL_CODACY_JAR = resolve(process.cwd(), '.codacy', 'codacy-analysis-cli-assembly.jar');
+const CODACY_JAR_URL =
+  process.env.CODACY_JAR_URL ||
+  'https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli-assembly.jar';
+const MIN_JAR_BYTES = 1024 * 1024;
 
 function isStrictMode() {
   const fallback = process.env.CI ? '1' : '0';
@@ -53,6 +57,39 @@ function getTimeoutMs() {
     return 15 * 60 * 1000;
   }
   return seconds * 1000;
+}
+
+function isValidJarFile(jarPath) {
+  if (!existsSync(jarPath)) {
+    return false;
+  }
+  try {
+    const size = statSync(jarPath).size;
+    if (size < MIN_JAR_BYTES) {
+      return false;
+    }
+    const header = readFileSync(jarPath, { encoding: null }).subarray(0, 2);
+    // JAR-Dateien sind ZIP-Container und starten mit "PK".
+    return header[0] === 0x50 && header[1] === 0x4b;
+  } catch {
+    return false;
+  }
+}
+
+async function ensureValidLocalJar() {
+  if (isValidJarFile(LOCAL_CODACY_JAR)) {
+    return;
+  }
+  if (!shouldAllowNetwork()) {
+    throw new Error('Lokale Codacy-JAR ist ungültig und Netzwerkzugriff ist deaktiviert');
+  }
+
+  mkdirSync(resolve(process.cwd(), '.codacy'), { recursive: true });
+  await run('curl', ['-fsSL', '--retry', '3', '--retry-delay', '2', '-o', LOCAL_CODACY_JAR, CODACY_JAR_URL]);
+
+  if (!isValidJarFile(LOCAL_CODACY_JAR)) {
+    throw new Error('Heruntergeladene Codacy-JAR ist ungültig oder unvollständig');
+  }
 }
 
 function run(cmd, args = [], timeoutMs = getTimeoutMs()) {
@@ -140,10 +177,11 @@ async function main() {
       process.exit(0);
       return;
     } catch (pathError) {
-      if (!existsSync(LOCAL_CODACY_JAR)) {
+      if (!existsSync(LOCAL_CODACY_JAR) && !shouldAllowNetwork()) {
         throw pathError;
       }
 
+      await ensureValidLocalJar();
       await run('java', ['-jar', LOCAL_CODACY_JAR, ...analyzeArgs]);
       process.exit(0);
       return;
