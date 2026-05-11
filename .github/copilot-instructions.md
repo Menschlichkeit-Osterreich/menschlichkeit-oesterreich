@@ -103,6 +103,13 @@ Lokale absolute Pfade sind in geteilten Konfigurationen nicht erlaubt.
 - `npm run governance:check`
 - `npm run workspace:config:check`
 
+## Staging Smoke Gate (Donation Pilot)
+
+- Autoritative Quelle fuer Donation-Smoke ist nur Staging n8n/CiviCRM.
+- Kein lokaler n8n-Container gilt als Erfolgsnachweis.
+- N8N_BASE_URL fuer Staging: `https://n8n.menschlichkeit-oesterreich.at`
+- Donation APIv4 Refactor bleibt eingefroren, bis der Staging-Smoke explizit gruen ist.
+
 ## Dokumentationsregel
 
 Wenn eine Aenderung aktive Ablaeufe, Rollen, Pfade oder Tooling betrifft, muessen mindestens die betroffenen Governance-Dateien mitgezogen werden:

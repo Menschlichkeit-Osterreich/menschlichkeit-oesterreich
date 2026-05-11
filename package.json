@@ -108,6 +108,7 @@
     "mcp:health": "node scripts/mcp-health-simple.mjs",
     "diagnose:copilot": "node scripts/diagnose-copilot-claude-warnings.mjs",
     "workspace:config:check": "node scripts/validate-workspace-config.mjs",
+    "workspace:extensions:verify:online": "node scripts/verify-vscode-extensions-online.mjs",
     "governance:workspace": "npm run workspace:config:check",
     "docs:link-check": "node scripts/validate-docs-governance.mjs --mode=links",
     "docs:governance": "node scripts/validate-docs-governance.mjs --mode=all",

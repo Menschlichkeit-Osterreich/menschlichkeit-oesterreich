@@ -1,204 +1,77 @@
-# GitHub Codespace Setup - Menschlichkeit Österreich
+# Devcontainer Setup (Codespaces + Azure Remote SSH)
 
-## 🚀 Quick Start
+Diese Devcontainer-Umgebung ist strikt auf die aktive Repo-Struktur ausgerichtet:
 
-When your Codespace starts, it will automatically run a **3-phase setup**:
+- apps/api
+- apps/website
+- apps/crm
+- apps/babylon-game
+- automation/n8n
 
-### Phase 1: onCreate Setup (Critical - ~2 minutes)
+## Start
 
-1. ✅ Install npm dependencies (with 300s timeout protection)
-2. ✅ Create environment files from `.env.example` templates
-3. ✅ Install critical Python dependencies (FastAPI, Uvicorn, python-dotenv)
-4. ✅ Make scripts executable
-5. ✅ Resource monitoring (shows available memory, disk, CPU)
+Der Container führt automatisch aus:
 
-### Phase 2: postCreate Setup (~1 minute)
+1. onCreate: `.devcontainer/onCreate-setup.sh`
+2. postCreate: `.devcontainer/setup.sh`
+3. postStart: `.devcontainer/setup-powershell.ps1` (optional, non-blocking)
 
-1. ✅ Install additional Python dependencies (full requirements.txt)
-2. ✅ Install PHP dependencies (if composer.json exists)
-3. ✅ Final environment verification
+## Harte Mindestversionen
 
-### Phase 3: postStart Setup (Optional, non-blocking)
+- Node.js >= 22.19.0
+- npm >= 11 (Ziel: 11.4.2)
 
-1. ✅ PowerShell module installation (optional, doesn't block)
-2. ✅ PowerShell profile setup
-3. ✅ Helper scripts creation
+Die Mindestversionen werden in `.devcontainer/setup.sh` und `.devcontainer/test-setup.sh` geprüft.
 
-**Total Setup Time**: ~3-5 minutes
+## Kritische vs. optionale Tools
 
-**Key Improvements (2025-10-14):**
+Kritisch (Fail bei Fehlen):
 
-- ✅ **Network connectivity detection** - Scripts now detect offline environments (CI/tests)
-- ✅ **Graceful offline fallback** - Setup works even without internet
-- ✅ **Node version compatibility** - Using LTS instead of specific version 22
-- ✅ **Python version updated** - Matches actual system Python 3.12
-- ✅ **onCreate now creates .env files** - Critical fix
-- ✅ **Python dependencies installed in onCreate** - No more missing FastAPI/Uvicorn
-- ✅ **Timeout protection** - All long-running operations (300s npm, 120-180s pip)
-- ✅ **Graceful degradation** - Setup continues even if individual steps fail
-- ✅ **No blocking operations** - Codespace opens reliably
+- node, npm, git
+- docker, docker compose
+- python3, pip
+- php, composer
+- jq, yq
 
-## 🧪 Verify Setup
+Optional (nur Warn):
 
-After Codespace starts, verify everything is working:
+- az, gh, pwsh, stripe, bws
+
+## Ports
+
+Vorwärtsweiterleitungen im Devcontainer:
+
+- 3000 (Games Local)
+- 3001 (Games Server)
+- 5173 (Frontend)
+- 5678 (n8n)
+- 8000 (CRM)
+- 8001 (API)
+- 8002 (Forum)
+
+## Verifikation
+
+Nach Containerstart:
 
 ```bash
-# Run automated tests
 bash .devcontainer/test-setup.sh
-
-# Expected output: "✅ All critical tests passed!"
+npm run workspace:config:check
+docker compose config
 ```
 
-## 🌐 Development Servers
-
-After setup, you can start the development environment:
+Optional:
 
 ```bash
-# Start all services
-npm run dev:all
-
-# Or start individual services:
-npm run dev:frontend    # Frontend (React) - http://localhost:5173
-npm run dev:api        # API (FastAPI) - http://localhost:8001
-npm run dev:crm        # CRM (PHP) - http://localhost:8000
-npm run dev:games      # Games (Python) - http://localhost:3000
+npm run mcp:check
 ```
 
-## 🔧 Troubleshooting
+## Login & Secrets
 
-### Common Issues (Updated 2025-10-12)
+- Kein automatisches `stripe login`
+- Keine automatische Secret-Schreiboperation
+- Keine Tokens/Secrets in Repo-Dateien committen
+- Secrets nur über Environment-Secrets oder sichere Secret Stores injizieren
 
-**Quick Diagnostics:**
+Zusätzlicher nicht-sensitiver Default im Container:
 
-```bash
-# Run comprehensive diagnostics
-bash .devcontainer/diagnose.sh
-
-# Run test suite
-bash .devcontainer/test-setup.sh
-
-# For detailed help
-cat .devcontainer/TROUBLESHOOTING.md
-```
-
-**Setup hangs or times out:**
-
-- ✅ The setup now has automatic timeout protection (120-180 seconds per operation)
-- ✅ PowerShell module installation is optional and won't block the setup
-- ✅ Comprehensive logging available at `/tmp/devcontainer-onCreate-setup.log`
-- Check the terminal output for specific error messages
-
-### Python Dependencies Issue
-
-If the API service fails to start due to missing dependencies:
-
-```bash
-cd apps/api
-# With timeout protection (recommended)
-timeout 120 pip install --user fastapi uvicorn python-dotenv
-# OR for full requirements:
-timeout 180 pip install --user -r requirements.txt
-# OR for minimal setup:
-pip install --user -r requirements-minimal.txt
-```
-
-### PowerShell Setup Issues
-
-PowerShell setup is now optional and runs in the background:
-
-```bash
-# PowerShell setup runs automatically but won't block Codespace startup
-# To manually retry if needed:
-pwsh .devcontainer/setup-powershell.ps1
-
-# Codespace works fine without PowerShell modules
-```
-
-### Network/Timeout Issues
-
-If pip installation times out during setup:
-
-```bash
-cd apps/api
-# The setup script now uses timeout automatically
-timeout 300 pip install --user --timeout 300 -r requirements.txt
-# OR install essentials only:
-pip install --user -r requirements-minimal.txt
-```
-
-### Environment Configuration
-
-The setup automatically creates `.env` files from examples. To customize:
-
-1. **API Configuration**: Edit `apps/api/.env`
-2. **Website Configuration**: Edit `apps/website/.env.local`
-3. **CRM Configuration**: Review the Drupal/CiviCRM settings under `apps/crm/`
-
-## 📊 Quality & Testing
-
-```bash
-# Run quality gates
-npm run quality:gates
-
-# Run linting
-npm run lint:all
-
-# Run tests
-npm run test:all
-```
-
-## 🐳 Docker Services
-
-For advanced features requiring Docker:
-
-```bash
-# Start n8n automation
-npm run n8n:start
-
-# View n8n logs
-npm run n8n:logs
-```
-
-## 🆘 Getting Help
-
-### Quick Status Check
-
-```bash
-# Check all services and pull requests status
-npm run status:check
-
-# Detailed information with system resources
-npm run status:verbose
-
-# Export status as JSON
-npm run status:json
-```
-
-### Manual Troubleshooting
-
-If services won't start:
-
-1. Check the terminal output for specific error messages
-2. Verify prerequisites: `node --version`, `python3 --version`, `php --version`
-3. Try restarting individual services
-4. Check the `.env` files are properly configured
-
-For more help, see:
-
-- [Devcontainer Diagnostics](.devcontainer/diagnose.sh) - Run: `bash .devcontainer/diagnose.sh`
-- [Troubleshooting Guide](.devcontainer/TROUBLESHOOTING.md) - Comprehensive troubleshooting
-- [Visual Summary](../DEVCONTAINER-FIX-VISUAL.md) - Overview of all improvements
-- [Detailed Changes](../DEVCONTAINER-IMPROVEMENTS.md) - Technical documentation
-- [Codespace Status Checker](../docs/archive/bulk/CODESPACE-STATUS-CHECKER.md)
-- [Codespace Troubleshooting](../docs/archive/bulk/CODESPACE-TROUBLESHOOTING.md)
-
-## 📁 Project Structure
-
-- `apps/website/` - React/TypeScript frontend
-- `apps/api/` - FastAPI Python backend
-- `apps/crm/` - Drupal 10 + CiviCRM
-- `apps/babylon-game/` - Educational games
-- `automation/n8n/` - Workflow automation
-- `scripts/` - Development and deployment scripts
-
-Hinweis: Domain- oder Mirror-Pfade wie `api.menschlichkeit-oesterreich.at/` und `crm.menschlichkeit-oesterreich.at/` sind keine aktiven lokalen Entwicklungsziele in diesem Repository.
+- `BWS_SERVER_URL=https://api.bitwarden.com`

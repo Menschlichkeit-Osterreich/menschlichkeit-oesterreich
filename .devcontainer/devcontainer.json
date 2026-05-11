@@ -5,7 +5,7 @@
   },
   "features": {
     "ghcr.io/devcontainers/features/node:1": {
-      "version": "lts"
+      "version": "22"
     },
     "ghcr.io/devcontainers/features/python:1": {
       "version": "3.12"
@@ -13,6 +13,8 @@
     "ghcr.io/devcontainers/features/php:1": {
       "version": "8.1"
     },
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/azure-cli:1": {},
     "ghcr.io/devcontainers/features/powershell:1": {
       "version": "latest"
     },
@@ -23,10 +25,17 @@
     "ghcr.io/devcontainers/features/node:1",
     "ghcr.io/devcontainers/features/python:1",
     "ghcr.io/devcontainers/features/php:1",
+    "ghcr.io/devcontainers/features/github-cli:1",
+    "ghcr.io/devcontainers/features/azure-cli:1",
     "ghcr.io/devcontainers/features/powershell:1",
     "ghcr.io/devcontainers/features/git:1",
     "ghcr.io/devcontainers/features/docker-in-docker:2"
   ],
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "7gb",
+    "storage": "32gb"
+  },
   "onCreateCommand": "bash .devcontainer/onCreate-setup.sh",
   "postCreateCommand": "bash .devcontainer/setup.sh && if [ -f scripts/dev/codespace-ssh-setup.sh ]; then bash scripts/dev/codespace-ssh-setup.sh; fi",
   "postStartCommand": "pwsh .devcontainer/setup-powershell.ps1 || true",
@@ -34,20 +43,19 @@
     "vscode": {
       "extensions": [
         "ms-python.python",
-        "ms-vscode.vscode-typescript-next",
+        "ms-python.vscode-pylance",
         "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint",
         "bmewburn.vscode-intelephense-client",
         "ms-playwright.playwright",
         "bradlc.vscode-tailwindcss",
-        "GitHub.copilot",
-        "GitHub.copilot-chat",
+        "github.copilot-chat",
+        "github.vscode-pull-request-github",
         "ms-vscode.powershell",
-        "ms-vscode.azure-account",
-        "Prisma.prisma",
+        "ms-azuretools.vscode-azureresourcegroups",
+        "prisma.prisma",
         "redhat.vscode-yaml",
-        "ms-azuretools.vscode-docker",
-        "EditorConfig.EditorConfig"
+        "ms-azuretools.vscode-containers"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
@@ -84,8 +92,16 @@
       }
     }
   },
-  "forwardPorts": [5173, 8000, 8001, 3001, 8002],
+  "containerEnv": {
+    "BWS_SERVER_URL": "https://api.bitwarden.com",
+    "N8N_BASE_URL": "https://n8n.menschlichkeit-oesterreich.at"
+  },
+  "forwardPorts": [3000, 3001, 5173, 5678, 8000, 8001, 8002],
   "portsAttributes": {
+    "3000": {
+      "label": "Games Local",
+      "onAutoForward": "notify"
+    },
     "3001": {
       "label": "Games Server",
       "onAutoForward": "notify"
@@ -93,6 +109,10 @@
     "5173": {
       "label": "Frontend (Vite)",
       "onAutoForward": "openBrowser"
+    },
+    "5678": {
+      "label": "n8n",
+      "onAutoForward": "notify"
     },
     "8000": {
       "label": "CRM Server",

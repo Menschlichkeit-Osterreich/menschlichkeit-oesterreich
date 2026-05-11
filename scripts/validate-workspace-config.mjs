@@ -11,7 +11,6 @@ const root = process.cwd();
 const filesToValidate = [
   '.vscode/tasks.json',
   '.vscode/extensions.json',
-  '.vscode/settings.json',
   '.devcontainer/devcontainer.json',
   '.claude/launch.json',
   'mcp.json',
@@ -54,6 +53,40 @@ const forbiddenSecretPatterns = [
 ];
 
 const servicePorts = [5173, 8000, 8001, 3001, 8002];
+
+const canonicalExtensionReplacements = new Map([
+  ['github.copilot', 'github.copilot-chat'],
+  ['ms-vscode.azure-account', 'ms-azuretools.vscode-azureresourcegroups'],
+  ['ms-azuretools.vscode-docker', 'ms-azuretools.vscode-containers'],
+  ['ms-vscode.vscode-jupyter', 'ms-toolsai.jupyter'],
+  ['ms-eslint.vscode-eslint', 'dbaeumer.vscode-eslint'],
+]);
+
+const blockedActiveExtensionIds = new Set([
+  'github.copilot',
+  'ms-vscode.azure-account',
+  'ms-azuretools.vscode-docker',
+  'ms-vscode.vscode-jupyter',
+  'ms-vscode.vscode-typescript-next',
+  'ms-eslint.vscode-eslint',
+]);
+
+const requiredWorkspaceExtensionIds = new Set([
+  'github.copilot-chat',
+  'ms-azuretools.vscode-azureresourcegroups',
+  'ms-azuretools.vscode-containers',
+  'dbaeumer.vscode-eslint',
+]);
+
+const coreDevcontainerExtensionIds = new Set([
+  'github.copilot-chat',
+  'dbaeumer.vscode-eslint',
+  'esbenp.prettier-vscode',
+  'ms-python.python',
+  'ms-python.vscode-pylance',
+  'ms-azuretools.vscode-containers',
+  'ms-azuretools.vscode-azureresourcegroups',
+]);
 
 const warnings = [];
 const errors = [];
@@ -159,6 +192,11 @@ async function getTrackedFiles() {
     addWarning('GIT_LS_FILES_FAILED', 'scripts/validate-workspace-config.mjs', error.message);
     return [];
   }
+}
+
+async function hasTrackedNotebookFiles() {
+  const trackedFiles = await getTrackedFiles();
+  return trackedFiles.some(file => file.endsWith('.ipynb'));
 }
 
 function isActiveConfigContext(file) {
@@ -377,30 +415,132 @@ async function checkPackageAndTasks(packageData, taskData) {
   }
 }
 
-function checkExtensions(extensionsData, editorConfigExists) {
+function checkExtensionList(file, key, value, { active = false } = {}) {
+  if (!Array.isArray(value)) {
+    addError('EXTENSION_LIST_INVALID', file, `${key} must be an array.`);
+    return [];
+  }
+
+  const normalized = [];
+  const seen = new Set();
+
+  for (const extensionId of value) {
+    if (typeof extensionId !== 'string') {
+      addError('EXTENSION_ID_INVALID', file, `${key} contains a non-string extension id.`);
+      continue;
+    }
+
+    const lowerId = extensionId.toLowerCase();
+    normalized.push(lowerId);
+
+    if (extensionId !== lowerId) {
+      addError('EXTENSION_ID_CASE', file, `${key} must use lowercase extension id '${lowerId}'.`);
+    }
+
+    if (!/^[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9-]*$/.test(lowerId)) {
+      addError('EXTENSION_ID_FORMAT', file, `${key} contains invalid extension id '${extensionId}'.`);
+    }
+
+    if (seen.has(lowerId)) {
+      addError('EXTENSION_ID_DUPLICATE', file, `${key} contains duplicate extension id '${lowerId}'.`);
+    }
+    seen.add(lowerId);
+
+    if (active && blockedActiveExtensionIds.has(lowerId)) {
+      const replacement = canonicalExtensionReplacements.get(lowerId);
+      const replacementText = replacement ? ` Use '${replacement}' instead.` : '';
+      addError(
+        'EXTENSION_ID_BLOCKED',
+        file,
+        `${key} must not actively use blocked extension id '${lowerId}'.${replacementText}`
+      );
+    }
+  }
+
+  return normalized;
+}
+
+function checkExtensionPolicy(extensionsData, devcontainerData, editorConfigExists, hasNotebookFiles) {
+  const workspaceFile = '.vscode/extensions.json';
+  const devcontainerFile = '.devcontainer/devcontainer.json';
+
   if (!extensionsData) {
     return;
   }
 
-  const file = '.vscode/extensions.json';
-  const recommendations = Array.isArray(extensionsData.recommendations)
-    ? extensionsData.recommendations
-    : [];
+  const recommendations = checkExtensionList(
+    workspaceFile,
+    'recommendations',
+    extensionsData.recommendations,
+    { active: true }
+  );
+  const unwantedRecommendations = checkExtensionList(
+    workspaceFile,
+    'unwantedRecommendations',
+    extensionsData.unwantedRecommendations,
+    { active: false }
+  );
+  const devcontainerExtensions = checkExtensionList(
+    devcontainerFile,
+    'customizations.vscode.extensions',
+    devcontainerData?.customizations?.vscode?.extensions ?? [],
+    { active: true }
+  );
 
-  const recSet = new Set(recommendations);
+  const recommendationSet = new Set(recommendations);
+  const unwantedSet = new Set(unwantedRecommendations);
+  const devcontainerSet = new Set(devcontainerExtensions);
 
-  if (recSet.has('ms-eslint.vscode-eslint')) {
-    addError(
-      'WRONG_ESLINT_EXTENSION',
-      file,
-      'Use dbaeumer.vscode-eslint instead of ms-eslint.vscode-eslint.'
-    );
+  for (const extensionId of recommendations) {
+    if (unwantedSet.has(extensionId)) {
+      addError(
+        'EXTENSION_RECOMMENDATION_OVERLAP',
+        workspaceFile,
+        `${extensionId} must not appear in both recommendations and unwantedRecommendations.`
+      );
+    }
   }
 
-  if (!editorConfigExists && recSet.has('EditorConfig.EditorConfig')) {
+  for (const extensionId of requiredWorkspaceExtensionIds) {
+    if (!recommendationSet.has(extensionId)) {
+      addError('EXTENSION_REQUIRED', workspaceFile, `recommendations must include '${extensionId}'.`);
+    }
+  }
+
+  for (const extensionId of coreDevcontainerExtensionIds) {
+    if (!recommendationSet.has(extensionId)) {
+      addError('EXTENSION_CORE_MISSING', workspaceFile, `recommendations must include '${extensionId}'.`);
+    }
+    if (!devcontainerSet.has(extensionId)) {
+      addError(
+        'EXTENSION_CORE_MISSING',
+        devcontainerFile,
+        `customizations.vscode.extensions must include '${extensionId}'.`
+      );
+    }
+  }
+
+  if (!hasNotebookFiles) {
+    if (recommendationSet.has('ms-toolsai.jupyter') || devcontainerSet.has('ms-toolsai.jupyter')) {
+      addError(
+        'JUPYTER_POLICY',
+        workspaceFile,
+        'ms-toolsai.jupyter must not be actively recommended unless tracked .ipynb files exist.'
+      );
+    }
+    if (!unwantedSet.has('ms-toolsai.jupyter')) {
+      addError(
+        'JUPYTER_POLICY',
+        workspaceFile,
+        'unwantedRecommendations must include ms-toolsai.jupyter when no tracked .ipynb files exist.'
+      );
+    }
+  }
+
+  if (!editorConfigExists && recommendationSet.has('editorconfig.editorconfig')) {
     addWarning(
       'EDITORCONFIG_WITHOUT_FILE',
-      file,
+      workspaceFile,
       'EditorConfig extension is recommended but no .editorconfig file was found in the repository.'
     );
   }
@@ -486,7 +626,7 @@ function checkVscodeCopilotSettings(settingsData) {
     return;
   }
 
-  const file = '.vscode/settings.json';
+  const file = 'menschlichkeit-oesterreich.code-workspace';
   const requiredTrueSettings = [
     'github.copilot.chat.codeGeneration.useInstructionFiles',
     'chat.useAgentsMdFile',
@@ -737,7 +877,7 @@ async function main() {
 
   const packageJson = await readMaybeJson('package.json');
   const tasksJson = await readMaybeJson('.vscode/tasks.json');
-  const settingsJson = await readMaybeJson('.vscode/settings.json');
+  const workspaceJson = await readMaybeJson('menschlichkeit-oesterreich.code-workspace');
   const extensionsJson = await readMaybeJson('.vscode/extensions.json');
   const devcontainerJson = await readMaybeJson('.devcontainer/devcontainer.json');
   const mcpJson = await readMaybeJson('mcp.json');
@@ -752,11 +892,17 @@ async function main() {
     .access(path.join(root, 'docs', 'AI-INSTRUCTIONS'))
     .then(() => true)
     .catch(() => false);
+  const hasNotebookFiles = await hasTrackedNotebookFiles();
 
   await checkGovernanceDocs();
   await checkPackageAndTasks(packageJson.parsed, tasksJson.parsed);
-  checkVscodeCopilotSettings(settingsJson.parsed);
-  checkExtensions(extensionsJson.parsed, editorConfigMatches);
+  checkVscodeCopilotSettings(workspaceJson.parsed?.settings);
+  checkExtensionPolicy(
+    extensionsJson.parsed,
+    devcontainerJson.parsed,
+    editorConfigMatches,
+    hasNotebookFiles
+  );
   checkDevcontainer(devcontainerJson.parsed, docsAiInstructionsExists);
   await checkMcp(mcpJson.parsed);
   checkVscodeMcpOverlay(vscodeMcpJson.parsed);

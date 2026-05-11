@@ -49,6 +49,10 @@ npm run dev:frontend
 npm run dev:api
 ```
 
+## Devcontainer
+
+Die kanonische Anleitung fuer Codespaces und Azure Remote SSH liegt in [`.devcontainer/README.md`](.devcontainer/README.md).
+
 ## Wichtige Befehle
 
 ```bash
