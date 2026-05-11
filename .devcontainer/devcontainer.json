@@ -4,6 +4,11 @@
     "dockerfile": "Dockerfile"
   },
   "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "username": "codespace",
+      "installZsh": false,
+      "upgradePackages": false
+    },
     "ghcr.io/devcontainers/features/node:1": {
       "version": "lts"
     },
@@ -16,19 +21,39 @@
     "ghcr.io/devcontainers/features/powershell:1": {
       "version": "latest"
     },
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-    "ghcr.io/devcontainers/features/git:1": {}
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/azure-cli:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "moby": true
+    }
   },
   "overrideFeatureInstallOrder": [
+    "ghcr.io/devcontainers/features/common-utils:2",
     "ghcr.io/devcontainers/features/node:1",
     "ghcr.io/devcontainers/features/python:1",
     "ghcr.io/devcontainers/features/php:1",
     "ghcr.io/devcontainers/features/powershell:1",
     "ghcr.io/devcontainers/features/git:1",
+    "ghcr.io/devcontainers/features/github-cli:1",
+    "ghcr.io/devcontainers/features/azure-cli:1",
     "ghcr.io/devcontainers/features/docker-in-docker:2"
   ],
+  "hostRequirements": {
+    "cpus": 2,
+    "memory": "8gb",
+    "storage": "32gb"
+  },
+  "containerEnv": {
+    "BWS_SERVER_URL": "https://vault.bitwarden.eu",
+    "COMPOSE_DOCKER_CLI_BUILD": "1",
+    "DOCKER_BUILDKIT": "1",
+    "PIP_DISABLE_PIP_VERSION_CHECK": "1",
+    "PYTHONUNBUFFERED": "1"
+  },
   "onCreateCommand": "bash .devcontainer/onCreate-setup.sh",
-  "postCreateCommand": "bash .devcontainer/setup.sh && if [ -f scripts/dev/codespace-ssh-setup.sh ]; then bash scripts/dev/codespace-ssh-setup.sh; fi",
+  "postCreateCommand": "bash .devcontainer/setup.sh && bash .devcontainer/test-setup.sh",
   "postStartCommand": "pwsh .devcontainer/setup-powershell.ps1 || true",
   "customizations": {
     "vscode": {
@@ -42,12 +67,16 @@
         "bradlc.vscode-tailwindcss",
         "GitHub.copilot",
         "GitHub.copilot-chat",
+        "GitHub.vscode-pull-request-github",
+        "GitHub.remotehub",
         "ms-vscode.powershell",
         "ms-vscode.azure-account",
         "Prisma.prisma",
         "redhat.vscode-yaml",
         "ms-azuretools.vscode-docker",
-        "EditorConfig.EditorConfig"
+        "EditorConfig.EditorConfig",
+        "tamasfe.even-better-toml",
+        "streetsidesoftware.code-spell-checker"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
@@ -80,14 +109,23 @@
           ".github/instructions": true,
           "docs/AI-INSTRUCTIONS": true
         },
+        "files.exclude": {
+          "**/.pytest_cache": true,
+          "**/.mypy_cache": true,
+          "**/__pycache__": true
+        },
         "telemetry.telemetryLevel": "off"
       }
     }
   },
-  "forwardPorts": [5173, 8000, 8001, 3001, 8002],
+  "forwardPorts": [5173, 8000, 8001, 3000, 3001, 8002, 5678, 8025],
   "portsAttributes": {
+    "3000": {
+      "label": "Games / App Server",
+      "onAutoForward": "notify"
+    },
     "3001": {
-      "label": "Games Server",
+      "label": "Games Server (fallback)",
       "onAutoForward": "notify"
     },
     "5173": {
@@ -104,6 +142,14 @@
     },
     "8002": {
       "label": "Forum Server",
+      "onAutoForward": "notify"
+    },
+    "5678": {
+      "label": "n8n",
+      "onAutoForward": "notify"
+    },
+    "8025": {
+      "label": "MailHog UI",
       "onAutoForward": "notify"
     }
   },
