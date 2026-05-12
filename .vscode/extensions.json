@@ -25,6 +25,9 @@
     "github.vscode-pull-request-github",
     "github.vscode-github-actions",
     "codacy-app.codacy",
+    "openai.chatgpt",
+    "openai.codex",
+    "anthropic.claude-code",
     "eamodio.gitlens"
   ],
   "unwantedRecommendations": [

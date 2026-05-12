@@ -46,14 +46,6 @@
       "env": {
         "DATABASE_URL": "${DATABASE_URL}"
       }
-    },
-    "n8n-mcp": {
-      "command": "node",
-      "args": ["scripts/mcp/wrapper-n8n-mcp.mjs"],
-      "env": {
-        "N8N_API_URL": "${N8N_API_URL}",
-        "N8N_API_KEY": "${N8N_API_KEY}"
-      }
     }
   }
 }

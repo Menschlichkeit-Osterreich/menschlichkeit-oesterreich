@@ -81,14 +81,23 @@
         },
         "github.copilot.nextEditSuggestions.enabled": true,
         "editor.inlineSuggest.edits.allowCodeShifting": "never",
-        "github.copilot.chat.localeOverride": "de",
-        "github.copilot.chat.codesearch.enabled": true,
-        "github.copilot.chat.codeGeneration.useInstructionFiles": true,
-        "chat.instructionsFilesLocations": {
-          ".github/instructions": true,
-          "docs/AI-INSTRUCTIONS": true
-        },
-        "telemetry.telemetryLevel": "off"
+        "files.watcherExclude": {
+          "**/.cache/**": true,
+          "**/.git/objects/**": true,
+          "**/.git/subtree-cache/**": true,
+          "**/.mypy_cache/**": true,
+          "**/.next/**": true,
+          "**/.pnpm-store/**": true,
+          "**/.pytest_cache/**": true,
+          "**/.ruff_cache/**": true,
+          "**/.venv/**": true,
+          "**/__pycache__/**": true,
+          "**/build/**": true,
+          "**/coverage/**": true,
+          "**/dist/**": true,
+          "**/node_modules/**": true,
+          "**/vendor/**": true
+        }
       }
     }
   },
@@ -96,12 +105,8 @@
     "BWS_SERVER_URL": "https://api.bitwarden.com",
     "N8N_BASE_URL": "https://n8n.menschlichkeit-oesterreich.at"
   },
-  "forwardPorts": [3000, 3001, 5173, 5678, 8000, 8001, 8002],
+  "forwardPorts": [3001, 5173, 5678, 8000, 8001, 8002],
   "portsAttributes": {
-    "3000": {
-      "label": "Games Local",
-      "onAutoForward": "notify"
-    },
     "3001": {
       "label": "Games Server",
       "onAutoForward": "notify"

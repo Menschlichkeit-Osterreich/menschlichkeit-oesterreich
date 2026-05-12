@@ -739,12 +739,7 @@ Erfasse via MCP:
     "build-pipeline",
     "n8n-webhook",
     "bitwarden-cli",
-    "context7",
-    "filesystem",
-    "memory",
-    "sequential-thinking",
-    "playwright",
-    "codacy-mcp-server"
+    "postgres"
   ],
   ".vscode/mcp.json": ["github"]
 }
@@ -777,7 +772,7 @@ export BRAVE_API_KEY="${BRAVE_API_KEY}"
 ```markdown
 FULLY IMPLEMENTED:
 
-- ✅ Repo-lokale MCP-Server fuer Files, Reports, Build-Pipeline, n8n und Bitwarden
+- ✅ Repo-lokale MCP-Server fuer Files, Reports, Build-Pipeline, n8n, Bitwarden und PostgreSQL
 - ✅ Copilot-Overlay fuer GitHub MCP in `.vscode/mcp.json`
 
 ADVANCED FEATURES ACTIVE:

@@ -2,18 +2,27 @@
 
 Diese Repo nutzt nur stabile, lokal gebundene MCP-Server. Community-Server werden strikt versioniert und isoliert.
 
-## Aktive Server (Stand: 2026-04-10)
+## Aktive Server im Default-Setup (Stand: 2026-05-11)
 
-- github (Copilot MCP, HTTP)
-- filesystem (workspace-scoped stdio)
-- memory (persistenter Sitzungskontext)
-- sequential-thinking (strukturierte Analyse)
-- playwright (Browser-Automatisierung)
-- context7 (Live-Dokumentation)
+- file-server (Repo-Dateioperationen)
+- quality-reporter (Qualitätsberichte und Aggregation)
+- build-pipeline (Build- und Pipeline-Kontext)
+- n8n-webhook (n8n-Webhook-Integration)
 - bitwarden-cli (lokale Secret-Helfer)
-- n8n-webhook (Node Client)
-- build-pipeline (Node)
-- quality-reporter (Node)
+- postgres (PostgreSQL-Kontext für DB-Operationen)
+
+## Overlay
+
+- github (Copilot MCP, HTTP) in `.vscode/mcp.json`
+
+## Nicht mehr standardmäßig aktiv
+
+- context7
+- filesystem
+- memory
+- sequential-thinking
+- playwright
+- n8n-mcp
 
 > Design-Tokens bleiben im Repo committed. Ein Live-Figma-MCP-Server ist fuer Build, CI und Deploy nicht mehr Teil der aktiven Basis.
 

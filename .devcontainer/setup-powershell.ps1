@@ -14,6 +14,22 @@
 # Set error action to continue (don't stop on errors)
 $ErrorActionPreference = 'Continue'
 
+$markerDir = Join-Path $HOME ".devcontainer"
+$markerFile = Join-Path $markerDir "powershell-setup.done"
+
+if (Test-Path $markerFile) {
+    Write-Host "PowerShell setup already completed ($markerFile) - skipping." -ForegroundColor Gray
+    exit 0
+}
+
+try {
+    if (!(Test-Path $markerDir)) {
+        New-Item -ItemType Directory -Path $markerDir -Force | Out-Null
+    }
+} catch {
+    Write-Host "  ⚠️ Marker directory could not be created: $($_.Exception.Message)" -ForegroundColor Yellow
+}
+
 Write-Host "🚀 PowerShell Setup für Menschlichkeit Österreich" -ForegroundColor Cyan
 Write-Host "=" * 60
 
@@ -391,6 +407,12 @@ Write-Host "  - PowerShell-Module sind optional und beeinträchtigen nicht die H
 Write-Host "  - Bei Problemen: Setup läuft im Hintergrund und stoppt Codespace nicht" -ForegroundColor White
 Write-Host "  - Dokumentation: '.devcontainer/POWERSHELL.md'" -ForegroundColor White
 Write-Host "`n🎯 Viel Erfolg mit PowerShell! 🇦🇹" -ForegroundColor Green
+
+try {
+    Set-Content -Path $markerFile -Value (Get-Date -Format "yyyy-MM-dd HH:mm:ss") -Force
+} catch {
+    Write-Host "  ⚠️ Marker file could not be written: $($_.Exception.Message)" -ForegroundColor Yellow
+}
 
 # Exit with success even if some steps failed
 exit 0
