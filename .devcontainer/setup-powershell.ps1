@@ -55,15 +55,15 @@ foreach ($module in $modules) {
     try {
         if (!(Get-Module -ListAvailable -Name $module -ErrorAction SilentlyContinue)) {
             Write-Host "  ⏳ Installiere $module (timeout: 30s)..." -ForegroundColor Gray
-            
+
             # Use timeout with job to prevent hanging
             $job = Start-Job -ScriptBlock {
                 param($moduleName)
                 Install-Module -Name $moduleName -Force -Scope CurrentUser -SkipPublisherCheck -ErrorAction Stop
             } -ArgumentList $module
-            
+
             $completed = Wait-Job -Job $job -Timeout 30
-            
+
             if ($completed) {
                 Receive-Job -Job $job
                 Write-Host "  ✅ $module installiert" -ForegroundColor Green
@@ -144,14 +144,14 @@ Set-Alias -Name security -Value Start-SecurityScan
 function prompt {{
     $path = (Get-Location).Path.Replace($HOME, "~")
     $branch = ""
-    
+
     if (Get-Command git -ErrorAction SilentlyContinue) {{
         $gitBranch = git branch --show-current 2>$null
         if ($gitBranch) {{
             $branch = " [$gitBranch]"
         }}
     }}
-    
+
     Write-Host "🇦🇹 " -NoNewline -ForegroundColor Red
     Write-Host "$path" -NoNewline -ForegroundColor Blue
     Write-Host "$branch" -NoNewline -ForegroundColor Green
@@ -205,11 +205,11 @@ function New-FeatureBranch {
     param(
         [Parameter(Mandatory=$true)]
         [string]$IssueNumber,
-        
+
         [Parameter(Mandatory=$true)]
         [string]$Description
     )
-    
+
     $branchName = "feature/$IssueNumber-$Description"
     git checkout -b $branchName
     Write-Host "✅ Branch erstellt: $branchName" -ForegroundColor Green
@@ -218,7 +218,7 @@ function New-FeatureBranch {
 function Invoke-QualityCheck {
     Write-Host "🔍 Führe Quality Gates aus..." -ForegroundColor Cyan
     npm run quality:gates
-    
+
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✅ Alle Quality Gates bestanden!" -ForegroundColor Green
     } else {
@@ -232,11 +232,11 @@ function Invoke-SafeCommit {
         [Parameter(Mandatory=$true)]
         [string]$Message
     )
-    
+
     # Pre-commit checks
     Write-Host "🔍 Pre-commit checks..." -ForegroundColor Yellow
     Invoke-QualityCheck
-    
+
     if ($LASTEXITCODE -eq 0) {
         git add .
         git commit -m $Message
@@ -261,21 +261,21 @@ function Start-StagingDeployment {
     param(
         [switch]$SkipTests
     )
-    
+
     Write-Host "🚀 Starte Staging Deployment..." -ForegroundColor Cyan
-    
+
     $args = @("staging")
     if ($SkipTests) {
         $args += "--skip-tests"
     }
-    
+
     & ./build-pipeline.sh @args
 }
 
 function Start-ProductionDeployment {
     Write-Host "🚀 Starte Production Deployment..." -ForegroundColor Cyan
     Write-Host "⚠️  ACHTUNG: Production Deployment!" -ForegroundColor Yellow
-    
+
     $confirmation = Read-Host "Fortfahren? (yes/no)"
     if ($confirmation -eq "yes") {
         & ./build-pipeline.sh production
@@ -289,7 +289,7 @@ function Invoke-Rollback {
         [Parameter(Mandatory=$true)]
         [string]$Version
     )
-    
+
     Write-Host "⏮️  Führe Rollback aus..." -ForegroundColor Yellow
     & ./deployment-scripts/rollback.sh $Version
 }
