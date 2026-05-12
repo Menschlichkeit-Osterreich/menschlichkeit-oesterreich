@@ -1,19 +1,16 @@
 {
-  "$schema": "https://raw.githubusercontent.com/modelcontextprotocol/servers/main/schema/mcp.schema.json",
-  "version": "2.0",
-  "description": "Repo-approved MCP overlay fuer VS Code und GitHub Copilot",
-  "servers": {
-    "github": {
-      "name": "GitHub",
-      "type": "http",
-      "url": "https://api.githubcopilot.com/mcp/",
-      "gallery": "https://api.mcp.github.com/2025-09-15",
-      "version": "0.13.0",
-      "description": "GitHub Copilot MCP fuer Issues, PRs und Repo-Metadaten",
-      "metadata": {
-        "repository": "Menschlichkeit-Osterreich/menschlichkeit-oesterreich",
-        "branch": "main"
-      }
-    }
-  }
+	"servers": {
+		"github": {
+			"name": "GitHub",
+			"type": "http",
+			"url": "https://api.githubcopilot.com/mcp/",
+			"gallery": "https://api.mcp.github.com/2025-09-15",
+			"version": "0.13.0",
+			"description": "GitHub Copilot MCP fuer Issues, PRs und Repo-Metadaten",
+			"metadata": {
+				"repository": "Menschlichkeit-Osterreich/menschlichkeit-oesterreich",
+				"branch": "main"
+			}
+		}
+	}
 }

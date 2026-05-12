@@ -34,9 +34,12 @@ $ErrorActionPreference = "Stop"
 $RepoRoot = Split-Path -Parent $PSScriptRoot
 Set-Location $RepoRoot
 
-$wingetLinks = Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Links"
-if ((Test-Path $wingetLinks) -and ($env:Path -notlike "*$wingetLinks*")) {
-    $env:Path += ";$wingetLinks"
+$localAppData = $env:LOCALAPPDATA
+if (-not [string]::IsNullOrWhiteSpace($localAppData)) {
+    $wingetLinks = Join-Path $localAppData "Microsoft\WinGet\Links"
+    if ((Test-Path $wingetLinks) -and ($env:Path -notlike "*$wingetLinks*")) {
+        $env:Path += ";$wingetLinks"
+    }
 }
 
 . (Join-Path $PSScriptRoot "bitwarden-common.ps1")

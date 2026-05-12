@@ -37,7 +37,7 @@
     "storage": "32gb"
   },
   "onCreateCommand": "bash .devcontainer/onCreate-setup.sh",
-  "postCreateCommand": "bash .devcontainer/setup.sh && if [ -f scripts/dev/codespace-ssh-setup.sh ]; then bash scripts/dev/codespace-ssh-setup.sh; fi",
+  "postCreateCommand": "bash .devcontainer/setup.sh && if [ -f scripts/dev/codespace-ssh-setup.sh ]; then bash scripts/dev/codespace-ssh-setup.sh; fi && curl -LsSf https://astral.sh/uv/install.sh | sh",
   "postStartCommand": "pwsh .devcontainer/setup-powershell.ps1 || true",
   "customizations": {
     "vscode": {
@@ -55,7 +55,8 @@
         "ms-azuretools.vscode-azureresourcegroups",
         "prisma.prisma",
         "redhat.vscode-yaml",
-        "ms-azuretools.vscode-containers"
+        "ms-azuretools.vscode-containers",
+        "codacy-app.codacy"
       ],
       "settings": {
         "terminal.integrated.defaultProfile.linux": "bash",
