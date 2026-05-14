@@ -1,81 +1,99 @@
-# Implementation Plan: Azure n8n Bereitstellungspfad
+# Implementation Plan: n8n Workflow Validitaets-Gate
 
-**Branch**: `20260514-azure-n8n-bereitstellung` | **Date**: 2026-05-14 | **Spec**: [specs/20260514-azure-n8n-bereitstellung/spec.md](specs/20260514-azure-n8n-bereitstellung/spec.md)
+**Branch**: `20260515-before-specify-hook` | **Date**: 2026-05-14 | **Spec**: [spec.md](./spec.md)
 
 **Input**: Feature specification from `/specs/20260514-azure-n8n-bereitstellung/spec.md`
 
-**Note**: This plan is the phase-gated planning artifact for the Azure pre-deployment path. It keeps the current scope strictly before DNS/HTTPS cutover, reverse proxy, production n8n rollout, queue mode, and backup expansion.
+**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/plan-template.md` for the execution workflow.
 
 ## Summary
 
-Prepare a governed Azure pre-deployment path for `n8n.menschlichkeit-oesterreich.at` with explicit Grant/Billing validation, a documented Single-Main operating contract, a hardened Ubuntu 24.04 VM baseline, a static public IP and minimal NSG surface, plus Docker Compose readiness. The plan intentionally stops before DNS cutover, HTTPS acceptance, reverse proxy, and productiv n8n deployment.
+Dieser Block fuehrt ein belastbares Validitaets-Gate fuer produktionsnahe n8n-Workflows unter `automation/n8n` ein. Kern ist eine explizite Inventarisierung der relevanten Workflow-Dateien, ein reproduzierbarer lokaler JSON-Validierungscheck und ein CI-Gate, das bei Syntaxfehlern fehlschlaegt. Der bekannte Sonderfall `finance-donation-processing.json` bleibt bis zu einem spaeteren Import- oder Dry-Run-Nachweis explizit sichtbar markiert.
 
 ## Technical Context
 
-**Language/Version**: Markdown planning artefacts; Azure VM target is Ubuntu 24.04 LTS; shell hardening and validation via Bash/Azure CLI if later executed
+<!--
+  ACTION REQUIRED: Replace the content in this section with the technical details
+  for the project. The structure here is presented in advisory capacity to guide
+  the iteration process.
+-->
 
-**Primary Dependencies**: Azure subscription governance, Azure VM, static Public IP, NSG, SSH, UFW, Docker Engine, Docker Compose plugin, Microsoft nonprofit/grant and billing evidence
+**Language/Version**: JavaScript (Node.js >=22.19.0), YAML (GitHub Actions)
 
-**Storage**: Azure managed disk for the VM; Docker volumes for future runtime state; documentation files under `specs/20260514-azure-n8n-bereitstellung/`
+**Primary Dependencies**: Node.js Built-ins (`fs/promises`, `path`), npm Script-Runner, GitHub Actions (`actions/checkout`, `actions/setup-node`)
 
-**Testing**: Manual governance checks, Azure portal/CLI evidence, SSH hardening checks, UFW validation, Docker/Compose health checks
+**Storage**: Repository-Dateien (Workflow-JSON und Inventar-Datei), keine Datenbank
 
-**Target Platform**: Azure Linux VM deployment path for a single host
+**Testing**: `npm run n8n:validate` lokal und identischer Check in `.github/workflows/n8n-json-gate.yml`
 
-**Project Type**: infrastructure/runbook planning
+**Target Platform**: Linux-Entwicklungsumgebung und GitHub Actions (`ubuntu-latest`)
 
-**Performance Goals**: Minimal attack surface and deterministic gate transitions; no exposure of ports beyond 22/80/443 during this block
+**Project Type**: Monorepo-Automation (Script + CI-Gate + Doku)
 
-**Constraints**: No DNS cutover, no HTTPS acceptance, no reverse proxy, no production n8n container deployment, no queue mode, no public 5678/5432/6379 ports, no secret material in docs
+**Performance Goals**: Validierungslauf fuer aktuellen Scope (26 Dateien) in wenigen Sekunden; klare Fehlerausgabe pro Datei
 
-**Scale/Scope**: One Azure Resource Group, one Ubuntu 24.04 VM, one static Public IP, one NSG, one deploy user, one Docker Compose base path
+**Constraints**: Strikte JSON-Syntaxpruefung, expliziter Scope unter `automation/n8n`, keine Legacy-/Mirror-Pfade, keine Erweiterung auf Azure/Deployment-Themen
+
+**Scale/Scope**: Start mit 26 produktionsnahen Workflows; erwartete moderate Erweiterung ueber Inventarpflege
 
 ## Constitution Check
 
-_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- Security first: PASS, because the plan keeps the surface minimal and explicitly blocks public service ports and password/root login.
-- Data integrity: PASS, because there is no implicit production status without live evidence for Grant/Billing and the next gate is explicit.
-- Stability: PASS, because Single-Main is the only allowed operating mode in this block.
-- Governance clarity: PASS, because each Azure step must name target object, purpose, risk, and success criterion.
-- Repo hygiene: PASS, because the active plan reference is centralized under `specs/20260514-azure-n8n-bereitstellung/`.
+- Verfassungsstatus: `.specify/memory/constitution.md` ist ein Platzhalter ohne verbindliche Prinzipien.
+- Gate C1 (Governance): PASS mit Hinweis - verbindliche Repo-Governance kommt aus `AGENTS.md`, `CLAUDE.md` und Core-Instructions.
+- Gate C2 (Scope-Disziplin): PASS - Nicht-Ziele (Azure, DNS/HTTPS, Reverse Proxy, Queue-Mode, Fachlogikverschiebung) bleiben explizit ausgeschlossen.
+- Gate C3 (Qualitaets-Gate): PASS - lokaler und CI-validierter, reproduzierbarer Check wird als Merge-Blocker definiert.
+
+**Post-Design Re-Check**: PASS. Design-Artefakte bleiben im Scope des P0-Gates und enthalten keine verbotenen Infrastruktur-/Runtime-Erweiterungen.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/20260514-azure-n8n-bereitstellung/
+specs/[###-feature]/
 ├── plan.md              # This file (/speckit.plan command output)
 ├── research.md          # Phase 0 output (/speckit.plan command)
 ├── data-model.md        # Phase 1 output (/speckit.plan command)
 ├── quickstart.md        # Phase 1 output (/speckit.plan command)
-├── contracts/
-└── tasks.md             # Phase 2 output (/speckit.tasks command - not created here)
+├── contracts/           # Phase 1 output (/speckit.plan command)
+└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
 ```
 
 ### Source Code (repository root)
+<!--
+  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
+  for this feature. Delete unused options and expand the chosen structure with
+  real paths (e.g., apps/admin, packages/something). The delivered plan must
+  not include Option labels.
+-->
 
 ```text
-automation/n8n/
-├── docker-compose.yml
-├── docker-compose.https.yml
-├── deploy-https.sh
-└── README.md
+automation/
+└── n8n/
+  ├── README.md
+  ├── workflows/
+  └── workflow-inventory.production.json
 
-deployment-scripts/
-├── deploy-crm-plesk.sh
-└── deploy-api-plesk.sh
+scripts/
+└── validate-n8n-workflows.mjs
 
-docs/
-├── architecture/
-│   └── azure-database-setup.md
-└── backend-audit/
-    └── N8N_WORKFLOW_AUDIT_AND_PLAN.md
+.github/
+└── workflows/
+  └── n8n-json-gate.yml
+```
+ios/ or android/
+└── [platform-specific structure: feature modules, UI flows, platform tests]
 ```
 
-**Structure Decision**: This block is documentation-first and operationally anchored to the existing `automation/n8n/` and `deployment-scripts/` paths. No new runtime code tree is introduced in this planning pass.
+**Structure Decision**: Diese Umsetzung ist ein Automation/CI-Doku-Change ohne App-Code-Aenderung. Die fachliche Struktur konzentriert sich auf `automation/n8n`, `scripts` und `.github/workflows`.
 
 ## Complexity Tracking
 
-> No constitution violations require justification for this planning block.
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
