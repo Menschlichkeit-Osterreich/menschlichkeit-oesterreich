@@ -63,18 +63,20 @@ specs/[###-feature]/
 
 ### Source Code (repository root)
 
+```text
 automation/
 └── n8n/
-├── README.md
-├── workflows/
-└── workflow-inventory.production.json
+  ├── README.md
+  ├── workflows/
+  └── workflow-inventory.production.json
 
 scripts/
 └── validate-n8n-workflows.mjs
 
 .github/
 └── workflows/
-└── n8n-json-gate.yml
+  └── n8n-json-gate.yml
+```
 
 **Structure Decision**: Diese Umsetzung ist ein Automation/CI-Doku-Change ohne App-Code-Aenderung. Die fachliche Struktur konzentriert sich auf `automation/n8n`, `scripts` und `.github/workflows`.
 
