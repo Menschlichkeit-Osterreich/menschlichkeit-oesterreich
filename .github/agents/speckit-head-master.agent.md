@@ -2,6 +2,7 @@
 name: 'Speckit Head Master'
 description: 'Zentraler Speckit-Orchestrator, der Anforderungen bewertet und gezielt an Speckit- sowie MOE-Fachagenten delegiert.'
 tools: ['read', 'search']
+target: 'vscode'
 user-invocable: true
 handoffs:
   - label: Spezifikation erstellen

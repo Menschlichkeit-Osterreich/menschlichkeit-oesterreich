@@ -51,7 +51,7 @@ Wenn mehrere Clients beteiligt sind, bleibt diese Kette die einzige fuehrende Wa
 ## Aktive Artefakte
 
 - Machine-readable Registry: `.github/ai-registry.json`
-- Copilot-Agents: elf kuratierte Core-/Service-Agents plus aktive Spec-Kit-Workflow-Agents unter `.github/agents/`
+- Copilot-Agents: elf kuratierte Core-/Service-Agents plus Speckit Head Master und aktive Spec-Kit-Workflow-Agents unter `.github/agents/`
   - `.github/agents/task-planner.agent.md`
   - `.github/agents/developer.agent.md`
   - `.github/agents/devops-expert.agent.md`
@@ -63,6 +63,7 @@ Wenn mehrere Clients beteiligt sind, bleibt diese Kette die einzige fuehrende Wa
   - `.github/agents/automation-n8n.agent.md`
   - `.github/agents/games-babylon.agent.md`
   - `.github/agents/forum-phpbb.agent.md`
+  - `.github/agents/speckit-head-master.agent.md`
   - `.github/agents/speckit.analyze.agent.md`
   - `.github/agents/speckit.checklist.agent.md`
   - `.github/agents/speckit.clarify.agent.md`
@@ -249,7 +250,7 @@ Geteilte Konfigurationen duerfen keine absoluten lokalen Pfade enthalten. Erlaub
 - `AGENTS.md`, `CLAUDE.md` und `.github/copilot-instructions.md` bleiben konsistent.
 - der einzige aktive Analyse-Einstieg bleibt `.github/instructions/core/analysis-planning.instructions.md`.
 - `.github/ai-registry.json` klassifiziert aktive, Adapter-, Vendor- und Legacy-Artefakte vollstaendig.
-- `.github/agents/*.agent.md` enthaelt die elf kuratierten sichtbaren Core-/Service-Agents plus die aktiven `speckit.*`-Workflow-Agents; archivierte Copilot-Agents liegen unter `.github/archive/agents/`.
+- `.github/agents/*.agent.md` enthaelt die elf kuratierten sichtbaren Core-/Service-Agents plus `speckit-head-master.agent.md` und die aktiven `speckit.*`-Workflow-Agents; archivierte Copilot-Agents liegen unter `.github/archive/agents/`.
 - `.github/chatmodes/**/*.chatmode.md` und relevante `.claude`-Agents zeigen auf reale Pfade.
 - es gibt keine aktiven YAML-Chatmode-Artefakte unter `.github/prompts/chatmodes/`.
 - `.vscode/*`, `.claude/launch.json`, `mcp.json` und die Workspace-Datei passen zum aktiven Repo-Root.

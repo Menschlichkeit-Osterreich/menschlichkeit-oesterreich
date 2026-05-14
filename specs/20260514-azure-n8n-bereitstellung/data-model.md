@@ -9,7 +9,8 @@ Repraesentiert die explizite Liste der produktionsnahen Workflow-Dateien im Gate
 **Fields**
 
 - `version` - Inventarversion fuer nachvollziehbare Aenderungen
-- `scope_root` - Basisverzeichnis, erwartbar `automation/n8n/workflows`
+- `scope_roots[]` - zu pruefende Repository-Bereiche fuer Workflow-Discovery
+- `exclude_paths[]` - explizite Legacy-/Mirror-Excludes
 - `workflows[]` - Liste der inventarisierten relativen Dateipfade
 - `special_case`
   - `workflow_path`
@@ -21,8 +22,25 @@ Repraesentiert die explizite Liste der produktionsnahen Workflow-Dateien im Gate
 **Rules**
 
 - Jeder Eintrag muss ein relativer Pfad unterhalb von `scope_root` sein.
+- Jeder `workflows[]`-Eintrag muss innerhalb mindestens eines `scope_roots[]` liegen und darf nicht in `exclude_paths[]` liegen.
 - Doppelte Eintraege sind unzulaessig.
-- Nicht inventarisierte produktionsnahe Dateien gelten als Scope-Abweichung.
+- Nicht inventarisierte produktionsnahe Dateien gelten als Scope-Abweichung mit Warnstatus.
+
+### ScopeDeviation
+
+Repraesentiert eine Abweichung zwischen inventorybasierter Soll-Liste und repositoryweiter Scope-Discovery.
+
+**Fields**
+
+- `relative_path`
+- `deviation_type` - `unexpected_in_scope` oder `missing_from_scope`
+- `severity` - immer `warning`
+- `message`
+
+**Rules**
+
+- Scope-Abweichungen erzeugen Warnstatus und kein Lauf-Fail.
+- Scope-Abweichungen muessen im Laufreport vollstaendig ausgegeben werden.
 
 ### WorkflowFile
 
@@ -66,16 +84,20 @@ Repraesentiert einen lokalen oder CI-Lauf des Gates.
 - `checked_files_count`
 - `invalid_files_count`
 - `missing_files_count`
+- `scope_warning_count`
 - `status` - `pass` oder `fail`
 - `timestamp`
 
 **Rules**
 
 - `status=fail`, wenn mindestens eine Datei fehlt oder JSON-ungueltig ist.
+- `status=fail`, wenn mindestens eine inventarisierte Datei fehlt oder JSON-ungueltig ist.
+- Scope-Abweichungen erhoehen `scope_warning_count`, aendern aber den Status nicht auf `fail`.
 - `checked_files_count` muss exakt der Inventaranzahl entsprechen.
 
 ## Relationships
 
 - `WorkflowInventory` definiert den verbindlichen Scope fuer `WorkflowFile`.
+- `WorkflowInventory` plus repositoryweite Discovery erzeugen `ScopeDeviation`.
 - `SpecialCaseStatus` referenziert exakt einen Eintrag in `WorkflowInventory`.
-- `ValidationGateRun` aggregiert die Ergebnisse aller `WorkflowFile`-Pruefungen und enthaelt die Sonderfall-Sichtbarkeit.
+- `ValidationGateRun` aggregiert `WorkflowFile`-Pruefungen, `ScopeDeviation`-Warnungen und die Sonderfall-Sichtbarkeit.

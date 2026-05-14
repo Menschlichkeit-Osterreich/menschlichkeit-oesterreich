@@ -1,6 +1,6 @@
 # Implementation Plan: n8n Workflow Validitaets-Gate
 
-**Branch**: `20260515-before-specify-hook` | **Date**: 2026-05-14 | **Spec**: [spec.md](./spec.md)
+**Branch**: `20260516-spec-request-hook` | **Date**: 2026-05-14 | **Spec**: [spec.md](./spec.md)
 
 **Input**: Feature specification from `/specs/20260514-azure-n8n-bereitstellung/spec.md`
 
@@ -8,57 +8,53 @@
 
 ## Summary
 
-Dieser Block fuehrt ein belastbares Validitaets-Gate fuer produktionsnahe n8n-Workflows unter `automation/n8n` ein. Kern ist eine explizite Inventarisierung der relevanten Workflow-Dateien, ein reproduzierbarer lokaler JSON-Validierungscheck und ein CI-Gate, das bei Syntaxfehlern fehlschlaegt. Der bekannte Sonderfall `finance-donation-processing.json` bleibt bis zu einem spaeteren Import- oder Dry-Run-Nachweis explizit sichtbar markiert.
+Dieser Block etabliert ein belastbares Validitaets-Gate fuer produktionsnahe n8n-Workflows mit repositoryweitem Scope (inklusive expliziter Legacy-/Mirror-Excludes), strikter JSON-Syntaxpruefung fuer inventarisierte Dateien und expliziter Sonderfall-Sichtbarkeit fuer `finance-donation-processing.json`. Scope-Abweichungen werden sichtbar als Warnung reportet, ohne Merge-Blockade; Syntaxfehler und fehlende inventarisierte Dateien bleiben harte Fail-Kriterien.
 
 ## Technical Context
-
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
 
 **Language/Version**: JavaScript (Node.js >=22.19.0), YAML (GitHub Actions)
 
 **Primary Dependencies**: Node.js Built-ins (`fs/promises`, `path`), npm Script-Runner, GitHub Actions (`actions/checkout`, `actions/setup-node`)
 
-**Storage**: Repository-Dateien (Workflow-JSON und Inventar-Datei), keine Datenbank
+**Storage**: Repository-Dateien (Inventar, Workflow-JSON, Validator-Reportausgabe), keine Datenbank
 
-**Testing**: `npm run n8n:validate` lokal und identischer Check in `.github/workflows/n8n-json-gate.yml`
+**Testing**: Lokaler Check via `npm run n8n:validate`, identischer CI-Check in `.github/workflows/n8n-json-gate.yml`
 
 **Target Platform**: Linux-Entwicklungsumgebung und GitHub Actions (`ubuntu-latest`)
 
 **Project Type**: Monorepo-Automation (Script + CI-Gate + Doku)
 
-**Performance Goals**: Validierungslauf fuer aktuellen Scope (26 Dateien) in wenigen Sekunden; klare Fehlerausgabe pro Datei
+**Performance Goals**: Vollstaendige Scope-Auswertung mit deterministischer Ausgabe in wenigen Sekunden fuer den aktuellen Workflow-Bestand
 
-**Constraints**: Strikte JSON-Syntaxpruefung, expliziter Scope unter `automation/n8n`, keine Legacy-/Mirror-Pfade, keine Erweiterung auf Azure/Deployment-Themen
+**Constraints**: Harte Fehler nur fuer ungeltige/missing inventarisierte Workflows; Scope-Abweichungen als Warnung; keine Ausweitung auf Deployment/Infra-Themen
 
-**Scale/Scope**: Start mit 26 produktionsnahen Workflows; erwartete moderate Erweiterung ueber Inventarpflege
+**Scale/Scope**: Repositoryweiter Workflow-Scope mit expliziter Ausschlussliste fuer Legacy-/Mirror-Pfade; initiale produktionsnahe Inventarliste bleibt die normative Pruefmenge
 
 ## Constitution Check
 
 _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-- Verfassungsstatus: `.specify/memory/constitution.md` ist ein Platzhalter ohne verbindliche Prinzipien.
-- Gate C1 (Governance): PASS mit Hinweis - verbindliche Repo-Governance kommt aus `AGENTS.md`, `CLAUDE.md` und Core-Instructions.
-- Gate C2 (Scope-Disziplin): PASS - Nicht-Ziele (Azure, DNS/HTTPS, Reverse Proxy, Queue-Mode, Fachlogikverschiebung) bleiben explizit ausgeschlossen.
-- Gate C3 (Qualitaets-Gate): PASS - lokaler und CI-validierter, reproduzierbarer Check wird als Merge-Blocker definiert.
+- Verfassungsstatus: `.specify/memory/constitution.md` ist ein Platzhalter ohne ratifizierte Prinzipien.
+- Gate C1 (Governance-Konsistenz): PASS mit Hinweis - repo-weite Regeln aus `AGENTS.md`, `CLAUDE.md` und `.github/copilot-instructions.md` gelten als operative Leitplanken.
+- Gate C2 (Scope-Grenzen): PASS - Nicht-Ziele bleiben unveraendert (kein Azure-Provisioning, kein DNS/HTTPS, kein Queue-Mode, keine API-Logikmigration).
+- Gate C3 (Qualitaets-Gate): PASS - einheitlicher lokaler/CI-Pruefpfad mit reproduzierbarer Ergebnislogik.
 
-**Post-Design Re-Check**: PASS. Design-Artefakte bleiben im Scope des P0-Gates und enthalten keine verbotenen Infrastruktur-/Runtime-Erweiterungen.
+**Post-Design Re-Check**: PASS. Phase-1-Artefakte bilden den geklaerten Warnmodus fuer Scope-Abweichungen konsistent ab, ohne den harten JSON-Gate-Kern zu verwässern.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/[###-feature]/
-├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (/speckit.plan command)
-├── data-model.md        # Phase 1 output (/speckit.plan command)
-├── quickstart.md        # Phase 1 output (/speckit.plan command)
-├── contracts/           # Phase 1 output (/speckit.plan command)
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
+specs/20260514-azure-n8n-bereitstellung/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── workflow-validation-contract.md
+│   └── deployment-contract.md
+└── tasks.md
 ```
 
 ### Source Code (repository root)
@@ -66,25 +62,20 @@ specs/[###-feature]/
 ```text
 automation/
 └── n8n/
-  ├── README.md
-  ├── workflows/
-  └── workflow-inventory.production.json
+    ├── workflows/
+    ├── README.md
+    └── workflow-inventory.production.json
 
 scripts/
 └── validate-n8n-workflows.mjs
 
 .github/
 └── workflows/
-  └── n8n-json-gate.yml
+    └── n8n-json-gate.yml
 ```
 
-**Structure Decision**: Diese Umsetzung ist ein Automation/CI-Doku-Change ohne App-Code-Aenderung. Die fachliche Struktur konzentriert sich auf `automation/n8n`, `scripts` und `.github/workflows`.
+**Structure Decision**: Dieser Block ist ein Validator-/CI-/Dokumentationsvorhaben im bestehenden Monorepo. Die Implementierung bleibt auf `automation/n8n`, `scripts` und `.github/workflows` begrenzt; kein App-Service-Code wird erweitert.
 
 ## Complexity Tracking
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
-
-| Violation                  | Why Needed         | Simpler Alternative Rejected Because |
-| -------------------------- | ------------------ | ------------------------------------ |
-| [e.g., 4th project]        | [current need]     | [why 3 projects insufficient]        |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient]  |
+Keine Verfassungsverletzungen identifiziert; kein zusaetzliches Tracking erforderlich.
