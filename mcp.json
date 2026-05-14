@@ -49,10 +49,7 @@
     },
     "sequential-thinking": {
       "command": "node",
-      "args": [
-        "scripts/mcp/uvx-stdio.mjs",
-        "@modelcontextprotocol/server-sequential-thinking==2025.12.18"
-      ]
+      "args": ["scripts/mcp/uvx-stdio.mjs", "@modelcontextprotocol/server-sequential-thinking==2025.12.18"]
     }
   }
 }

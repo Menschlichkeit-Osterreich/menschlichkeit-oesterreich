@@ -6,21 +6,21 @@ Diese Datei dokumentiert den aktiven Inhalt aus `mcp.json`. Sie ist keine Wunsch
 
 ## Aktive Server aus `mcp.json`
 
-| Server                | Start                                                     | Typ    | Zweck                                              |
-| --------------------- | --------------------------------------------------------- | ------ | -------------------------------------------------- |
-| `file-server`         | `node mcp-servers/file-server/index.js`                   | lokal  | Repo-Dateioperationen                              |
-| `quality-reporter`    | `node mcp-servers/quality-reporter/index.js`              | lokal  | Qualitätsberichte und Aggregation                  |
-| `build-pipeline`      | `node mcp-servers/build-pipeline/index.js`                | lokal  | Build- und Pipeline-Kontext                        |
-| `n8n-webhook`         | `node mcp-servers/n8n-webhook/index.js`                   | lokal  | n8n-Webhook-Integration                            |
-| `bitwarden-cli`       | `node mcp-servers/bitwarden-cli/index.js`                 | lokal  | Secrets- und Vault-Workflows                       |
-| `postgres`            | `node scripts/mcp/wrapper-postgres.mjs`                   | lokal  | PostgreSQL-Kontext fuer Datenbankoperationen        |
-| `sequential-thinking` | `node scripts/mcp/uvx-stdio.mjs @modelcontextprotocol/server-sequential-thinking==2025.12.18` | lokal  | Sequenzielle Analyse, Zerlegung und Priorisierung |
+| Server                | Start                                                                                         | Typ   | Zweck                                             |
+| --------------------- | --------------------------------------------------------------------------------------------- | ----- | ------------------------------------------------- |
+| `file-server`         | `node mcp-servers/file-server/index.js`                                                       | lokal | Repo-Dateioperationen                             |
+| `quality-reporter`    | `node mcp-servers/quality-reporter/index.js`                                                  | lokal | Qualitätsberichte und Aggregation                 |
+| `build-pipeline`      | `node mcp-servers/build-pipeline/index.js`                                                    | lokal | Build- und Pipeline-Kontext                       |
+| `n8n-webhook`         | `node mcp-servers/n8n-webhook/index.js`                                                       | lokal | n8n-Webhook-Integration                           |
+| `bitwarden-cli`       | `node mcp-servers/bitwarden-cli/index.js`                                                     | lokal | Secrets- und Vault-Workflows                      |
+| `postgres`            | `node scripts/mcp/wrapper-postgres.mjs`                                                       | lokal | PostgreSQL-Kontext fuer Datenbankoperationen      |
+| `sequential-thinking` | `node scripts/mcp/uvx-stdio.mjs @modelcontextprotocol/server-sequential-thinking==2025.12.18` | lokal | Sequenzielle Analyse, Zerlegung und Priorisierung |
 
 ## Overlay aus `.vscode/mcp.json`
 
-| Server   | Start                                 | Typ  | Zweck                     |
-| -------- | ------------------------------------- | ---- | ------------------------- |
-| `github` | `https://api.githubcopilot.com/mcp/`  | HTTP | Issues, PRs und Metadaten |
+| Server   | Start                                | Typ  | Zweck                     |
+| -------- | ------------------------------------ | ---- | ------------------------- |
+| `github` | `https://api.githubcopilot.com/mcp/` | HTTP | Issues, PRs und Metadaten |
 
 ## Analyse- und Planungsregel
 
@@ -50,6 +50,6 @@ Wenn `mcp.json` geaendert wird, muessen mindestens diese Artefakte mitgeprueft w
 - In den aktiven Repo-Konfigurationen (`mcp.json`, `.vscode/mcp.json`, `.devcontainer/*`, `.vscode/*`) ist kein MCP- oder Service-Eintrag mit Port `1455` definiert.
 - Ein Fehler auf `127.0.0.1:1455` stammt daher sehr wahrscheinlich von einem lokalen Bridge-/Proxy-Prozess in der Editor- oder Extension-Laufzeit und nicht aus der hier versionierten MCP-Konfiguration.
 - Diagnose-Schritte im Codespace:
-	- VS Code Output oeffnen und die Kanaele fuer GitHub Copilot bzw. MCP pruefen.
-	- `npm run mcp:check` und `npm run mcp:health` ausfuehren.
-	- Falls der Fehler bleibt: VS Code Fenster neu laden und betroffene Erweiterung neu starten.
+  - VS Code Output oeffnen und die Kanaele fuer GitHub Copilot bzw. MCP pruefen.
+  - `npm run mcp:check` und `npm run mcp:health` ausfuehren.
+  - Falls der Fehler bleibt: VS Code Fenster neu laden und betroffene Erweiterung neu starten.
