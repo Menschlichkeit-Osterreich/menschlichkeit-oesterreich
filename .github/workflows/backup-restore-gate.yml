@@ -1,0 +1,18 @@
+name: Backup Restore Gate
+
+'on':
+  workflow_dispatch:
+  push:
+    paths:
+      - 'docs/operations/backup-restore.md'
+      - 'runbooks/operations-masterplan/restore-runbook.md'
+      - 'reports/masterplan/backup-restore-evidence.md'
+      - 'scripts/masterplan/run-backup-restore.sh'
+
+jobs:
+  backup-restore-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Backup/Restore Check
+        run: bash scripts/masterplan/run-backup-restore.sh

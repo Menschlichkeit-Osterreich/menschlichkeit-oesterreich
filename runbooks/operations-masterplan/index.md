@@ -21,3 +21,6 @@ Diese Datei verlinkt alle Runbooks, Policies und Reports des Infrastruktur- und 
 - [Backup/Restore-Evidence](../../reports/masterplan/backup-restore-evidence.md)
 - [Final Readiness Report](../../reports/masterplan/final-readiness-report.md)
 - [Go-/No-Go-Final-Check](../../reports/masterplan/go-no-go-final-check.md)
+
+## Gates
+- [Backup Restore Gate](../../.github/workflows/backup-restore-gate.yml)

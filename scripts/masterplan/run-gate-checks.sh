@@ -14,6 +14,9 @@ DATA_CLASSIFICATION_POLICY="runbooks/operations-masterplan/data-classification-p
 SECRET_OWNERSHIP_MAP="runbooks/operations-masterplan/secret-ownership-map.md"
 DSGVO_LOG_REDACTION_CHECKLIST="runbooks/operations-masterplan/dsgvo-log-redaction-checklist.md"
 BACKUP_EVIDENCE="reports/masterplan/backup-restore-evidence.md"
+BACKUP_RESTORE_DOC="docs/operations/backup-restore.md"
+RESTORE_RUNBOOK="runbooks/operations-masterplan/restore-runbook.md"
+BACKUP_RESTORE_GATE=".github/workflows/backup-restore-gate.yml"
 FINAL_READINESS="reports/masterplan/final-readiness-report.md"
 GO_NO_GO_FINAL="reports/masterplan/go-no-go-final-check.md"
 DONATION_REPORT="reports/masterplan/donation-e2e-evidence.md"
@@ -125,6 +128,9 @@ ensure_contains "$FINAL_READINESS" "Monitoring" "US1" "NG-003 Monitoring" "Monit
 # NG-004: Backup-Strategie fehlt oder nicht getestet
 ensure_contains "$GO_NO_GO_CHECKLIST" "Backup- und Restore-Strategie dokumentiert und getestet" "US1" "NG-004 Backup" "Backup/Restore-Kriterium dokumentiert"
 ensure_contains "$BACKUP_EVIDENCE" "Restore-Test" "US1" "NG-004 Backup" "Restore-Test nachgewiesen"
+ensure_contains "$BACKUP_RESTORE_DOC" "Monatlicher Restore-Test" "US6" "Backup/Restore" "Backup/Restore-Dokumentation vorhanden"
+ensure_contains "$RESTORE_RUNBOOK" "Restore-Test (Pflicht)" "US6" "Backup/Restore" "Restore-Runbook vorhanden"
+ensure_file "$BACKUP_RESTORE_GATE" "US6" "Backup/Restore" "Backup/Restore-Gate-Workflow vorhanden"
 
 # NG-005: DSGVO/Secret-Redaction nicht erfüllt
 ensure_contains "$LOGGING_POLICY" "Keine Klartext-Secrets oder Zugangsdaten in Logs" "US1" "NG-005 Compliance" "Secrets-Redaction-Regel vorhanden"
