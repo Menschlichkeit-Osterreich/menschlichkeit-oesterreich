@@ -18,3 +18,4 @@ Wiederherstellung von Daten und Konfiguration nach Datenverlust oder Test des Wi
 - Restore-Test: PASS
 - Keine Datenkorruption
 - Keine offenen Blocker im Go-/No-Go-Check
+- RTO <= 2 Stunden
