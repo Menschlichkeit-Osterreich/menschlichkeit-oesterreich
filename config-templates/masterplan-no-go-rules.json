@@ -1,0 +1,12 @@
+{
+  "no_go_rules": [
+    { "id": "NG-001", "description": "Terraform Apply mit Fehlern", "gate": "infra" },
+    { "id": "NG-002", "description": "Expositionsregel verletzt (API/n8n öffentlich)", "gate": "infra" },
+    { "id": "NG-003", "description": "Monitoring nicht aktiviert", "gate": "monitoring" },
+    { "id": "NG-004", "description": "Backup-Strategie fehlt oder nicht getestet", "gate": "backup" },
+    { "id": "NG-005", "description": "DSGVO/Secret-Redaction nicht erfüllt", "gate": "compliance" },
+    { "id": "NG-006", "description": "Donation-End-to-End-Test fehlgeschlagen", "gate": "donation" },
+    { "id": "NG-007", "description": "Evidence-Logs unvollständig", "gate": "governance" },
+    { "id": "NG-008", "description": "Betriebsübergabe-Checkliste nicht erfüllt", "gate": "handover" }
+  ]
+}

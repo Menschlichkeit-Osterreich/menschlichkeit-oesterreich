@@ -1,0 +1,21 @@
+name: Donation Gate
+
+'on':
+  workflow_dispatch:
+  push:
+    paths:
+      - 'config-templates/donation-gate-config.json'
+      - 'scripts/masterplan/run-donation-smoke.sh'
+      - 'scripts/masterplan/collect-receipt-evidence.sh'
+      - 'automation/n8n/workflows/donation-webhook-archive.json'
+      - 'reports/masterplan/donation-e2e-evidence.md'
+
+jobs:
+  donation-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Donation Smoke
+        run: bash scripts/masterplan/run-donation-smoke.sh
+      - name: Collect Receipt Evidence
+        run: bash scripts/masterplan/collect-receipt-evidence.sh

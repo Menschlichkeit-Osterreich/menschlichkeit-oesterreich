@@ -98,6 +98,17 @@ Hinweis:
 - Zusaetzlich existiert ein warnender Governance-Workflow (`.github/workflows/governance-warnings.yml`).
 - Dieser Workflow macht Drift sichtbar, blockiert aber keinen Merge.
 
+### Infrastruktur- und Governance-Masterplan
+
+- Der naechste Umsetzungsblock ist die Phase-1-Basis des Infrastruktur-, Donation- und Governance-Masterplans.
+- Phase 1 legt die Betriebsgrundlage fuer spaetere Gates an und konzentriert sich auf folgende Pfade:
+   - `runbooks/operations-masterplan/`
+   - `deployment-scripts/infra/terraform/`
+   - `monitoring/masterplan/`
+   - `reports/masterplan/`
+- Als erste Nachweise dienen Go-/No-Go-Vorlagen und das zentrale Evidence-Log.
+- Weitere Phasen bauen erst auf dieser Struktur auf und bleiben an die dokumentierten Gate-Kriterien gebunden.
+
 ### Lokaler Analyzer-Hinweis bei GitHub-Secrets
 
 - Fuer Deploy-Workflows bleiben sensitive Werte strikt im `secrets`-Kontext (nicht in `vars`).

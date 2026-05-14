@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+/* eslint-env node */
+
 import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';

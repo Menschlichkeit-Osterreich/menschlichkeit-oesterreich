@@ -1,0 +1,9 @@
+routes:
+  critical:
+    slack_channel: '#ops-alerts'
+    email: vorstand@menschlichkeit-oesterreich.at
+    ack_sla_minutes: 30
+  high:
+    slack_channel: '#ops-alerts'
+    email: vorstand@menschlichkeit-oesterreich.at
+    ack_sla_minutes: 60
