@@ -1,0 +1,54 @@
+version: "3.8"
+
+services:
+  postgres-drill:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${RESTORE_DRILL_DB_NAME:-n8n_drill}
+      - POSTGRES_USER=${RESTORE_DRILL_DB_USER:-n8n_user}
+      - POSTGRES_PASSWORD=${RESTORE_DRILL_DB_PASSWORD:-restore_drill_dev}
+    ports:
+      - "15432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${RESTORE_DRILL_DB_USER:-n8n_user} -d ${RESTORE_DRILL_DB_NAME:-n8n_drill}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - postgres_drill_data:/var/lib/postgresql/data
+
+  n8n-drill:
+    image: n8nio/n8n:1.72.1
+    restart: unless-stopped
+    depends_on:
+      postgres-drill:
+        condition: service_healthy
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=false
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - WEBHOOK_URL=http://localhost:15678
+      - GENERIC_TIMEZONE=Europe/Vienna
+      - N8N_METRICS=true
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres-drill
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=${RESTORE_DRILL_DB_NAME:-n8n_drill}
+      - DB_POSTGRESDB_USER=${RESTORE_DRILL_DB_USER:-n8n_user}
+      - DB_POSTGRESDB_PASSWORD=${RESTORE_DRILL_DB_PASSWORD:-restore_drill_dev}
+    ports:
+      - "15678:5678"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:5678/ || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - n8n_drill_data:/home/node/.n8n
+
+volumes:
+  postgres_drill_data:
+  n8n_drill_data:
