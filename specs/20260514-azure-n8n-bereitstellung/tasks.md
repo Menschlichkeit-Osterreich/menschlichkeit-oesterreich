@@ -1,106 +1,116 @@
-# Tasks: Azure n8n Bereitstellungspfad
+# Tasks: n8n Workflow Validitaets-Gate
 
 **Input**: Design documents from `/specs/20260514-azure-n8n-bereitstellung/`
 
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Organization**: Tasks are grouped by user story so each story can be implemented and verified independently.
+**Tests**: Keine separaten Test-Tasks angefordert; Validierung erfolgt ueber den lokalen/CI-Gate-Check `npm run n8n:validate`.
+
+**Organization**: Tasks sind nach User Story gruppiert, damit jede Story unabhaengig umsetzbar und pruefbar bleibt.
+
+## Format: `[ID] [P?] [Story] Description`
+
+- **[P]**: Parallelisierbar (andere Dateien, keine offenen Abhaengigkeiten)
+- **[Story]**: Zuordnung zur User Story (`US1`, `US2`, `US3`, `US4`)
+- Jede Task enthaelt einen konkreten Dateipfad
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Prepare the documentation and operational scaffold for the Azure pre-deployment block.
+**Purpose**: Bestehenden n8n-Gate-Baustein fuer den P0-Block vorbereiten.
 
-- [ ] T001 Create the feature scaffold under `specs/20260514-azure-n8n-bereitstellung/` and keep `plan.md`, `spec.md`, `research.md`, `data-model.md`, `quickstart.md`, and `contracts/deployment-contract.md` synchronized.
-- [ ] T002 [P] Add a durable evidence template for Grant/Billing verification in `specs/20260514-azure-n8n-bereitstellung/quickstart.md`.
-- [ ] T003 [P] Add a durable risk-and-blocker template in `specs/20260514-azure-n8n-bereitstellung/research.md`.
+- [ ] T001 Validiere Ausgangslage und Dateiscope in `automation/n8n/workflows/` gegen den geplanten Scope aus `specs/20260514-azure-n8n-bereitstellung/spec.md`.
+- [ ] T002 Lege eine explizite Inventar-Datei an in `automation/n8n/workflow-inventory.production.json`.
+- [ ] T003 [P] Ergaenze die Scope- und Gate-Absicht in `automation/n8n/README.md` als kurze Einleitung fuer den neuen Inventar-basierten Check.
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Establish the non-negotiable gates that must exist before any Azure resource work is considered ready.
+**Purpose**: Gemeinsame Gate-Mechanik herstellen, die alle Stories blockierungsfrei aufsetzen koennen.
 
-- [ ] T004 Capture the Microsoft Grant/Billing status and blocker classification in `specs/20260514-azure-n8n-bereitstellung/research.md`.
-- [ ] T005 [P] Record the responsible cost owner and Azure subscription mapping in `specs/20260514-azure-n8n-bereitstellung/data-model.md`.
-- [ ] T006 [P] Finalize the Single-Main operating contract in `specs/20260514-azure-n8n-bereitstellung/contracts/deployment-contract.md`.
-- [ ] T007 Add the explicit follow-up gate definition `DNS/HTTPS-Abnahme` to `specs/20260514-azure-n8n-bereitstellung/quickstart.md`.
+**⚠️ CRITICAL**: Keine Story-Implementierung startet vor Abschluss dieser Phase.
 
-**Checkpoint**: Governance and operating mode are fixed; Azure base work can now be prepared without scope creep.
+- [ ] T004 Refaktoriere den Validator-Grundpfad in `scripts/validate-n8n-workflows.mjs`, damit der Check das Inventar als Source of Truth einliest.
+- [ ] T005 [P] Stelle in `scripts/validate-n8n-workflows.mjs` einen harten Fail sicher, wenn inventarisierte Dateien fehlen oder JSON-ungueltig sind.
+- [ ] T006 [P] Halte den einheitlichen Ausfuehrungspfad in `package.json` ueber `n8n:validate` stabil und inventar-basiert.
+- [ ] T007 Schalte den CI-Job in `.github/workflows/n8n-json-gate.yml` auf den finalen inventar-basierten Check (gleicher Befehl wie lokal).
+
+**Checkpoint**: Einheitliches Gate laeuft lokal und in CI auf derselben Logik.
 
 ---
 
-## Phase 3: User Story 1 - Governance- und Kosten-Gate klaeren (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Relevante Workflows nachvollziehbar inventarisieren (Priority: P1) 🎯 MVP
 
-**Goal**: Grant/Billing status is either evidenced or classified as a hard blocker, with no silent assumption of approval.
+**Goal**: Der produktionsnahe Workflow-Scope ist explizit, nachvollziehbar und auditierbar.
 
-**Independent Test**: The feature is independently verifiable when the documentation contains a source, owner, status, and blocker reason for the Microsoft cost gate.
+**Independent Test**: Die Inventar-Datei benennt alle relevanten Workflow-Dateien, und Scope-Abweichungen werden als Fehler sichtbar.
 
 ### Implementation for User Story 1
 
-- [ ] T008 [P] [US1] Document the Grant status source and verification path in `specs/20260514-azure-n8n-bereitstellung/research.md`.
-- [ ] T009 [P] [US1] Document the Billing owner and subscription mapping in `specs/20260514-azure-n8n-bereitstellung/data-model.md`.
-- [ ] T010 [US1] Record the final blocker or approval verdict in `specs/20260514-azure-n8n-bereitstellung/contracts/deployment-contract.md`.
+- [ ] T008 [US1] Trage alle produktionsnahen Workflows explizit in `automation/n8n/workflow-inventory.production.json` ein.
+- [ ] T009 [P] [US1] Ergaenze Inventar-Metadaten (z. B. `version`, `scope_root`, `notes`) in `automation/n8n/workflow-inventory.production.json`.
+- [ ] T010 [US1] Implementiere in `scripts/validate-n8n-workflows.mjs` die Scope-Abweichungspruefung fuer nicht inventarisierte/fehlende Dateien.
+- [ ] T011 [US1] Dokumentiere den expliziten Scope und die Inventarpflege in `automation/n8n/README.md`.
 
-**Checkpoint**: The governance gate is unambiguous and can be audited without reading any other story.
+**Checkpoint**: Scope ist explizit und ohne implizite Dateisuche nachvollziehbar.
 
 ---
 
-## Phase 4: User Story 2 - Single-Main Betriebsmodus festziehen (Priority: P1)
+## Phase 4: User Story 2 - Strikte JSON-Validierung lokal reproduzierbar ausfuehren (Priority: P1)
 
-**Goal**: The operating contract clearly states Single-Main as the only current mode and blocks queue-mode drift.
+**Goal**: Lokaler Check ist reproduzierbar und liefert klare, dateibezogene Fehler.
 
-**Independent Test**: The contract can be read independently and the only allowed operating mode is Single-Main.
+**Independent Test**: `npm run n8n:validate` liefert bei identischem Stand reproduzierbar denselben Status.
 
 ### Implementation for User Story 2
 
-- [ ] T011 [P] [US2] Add the Single-Main mode definition and invariants to `specs/20260514-azure-n8n-bereitstellung/spec.md`.
-- [ ] T012 [P] [US2] Add the explicit non-goals for queue-mode, reverse proxy, DNS cutover, and HTTPS acceptance to `specs/20260514-azure-n8n-bereitstellung/contracts/deployment-contract.md`.
-- [ ] T013 [US2] Update `specs/20260514-azure-n8n-bereitstellung/quickstart.md` so the next gate is always DNS/HTTPS-Abnahme.
+- [ ] T012 [US2] Ergaenze in `scripts/validate-n8n-workflows.mjs` eine deterministische Validierungsreihenfolge fuer inventarisierte Dateien.
+- [ ] T013 [P] [US2] Ergaenze in `scripts/validate-n8n-workflows.mjs` eindeutige Fehlermeldungen je Datei (inklusive Parse-Kontext).
+- [ ] T014 [US2] Aktualisiere den lokalen Pruefablauf in `automation/n8n/README.md` mit erwarteten Erfolgs-/Fehlermustern.
 
-**Checkpoint**: Single-Main is the only documented operating posture for this block.
+**Checkpoint**: Lokaler Gate-Check ist stabil, strikt und nachvollziehbar.
 
 ---
 
-## Phase 5: User Story 3 - Azure-Basis und VM-Hardening vorbereiten (Priority: P1)
+## Phase 5: User Story 3 - CI blockiert ungueltige produktionsnahe Workflows (Priority: P1)
 
-**Goal**: The Azure base is prepared with a static IP, minimal NSG surface, and a hardened Ubuntu VM.
+**Goal**: PRs/Pushes auf `main` scheitern bei ungueltigen inventarisierten Workflows.
 
-**Independent Test**: The story is independently verifiable when the planned resource set, hardening baseline, and runtime prep are documented with clear success criteria.
+**Independent Test**: Ein absichtlich defekter Workflow in einem PR setzt den Job `n8n JSON Gate` auf rot.
 
 ### Implementation for User Story 3
 
-- [ ] T014 [P] [US3] Define the Azure resource set and naming in `specs/20260514-azure-n8n-bereitstellung/data-model.md`.
-- [ ] T015 [P] [US3] Define the NSG and port invariants in `specs/20260514-azure-n8n-bereitstellung/contracts/deployment-contract.md`.
-- [ ] T016 [P] [US3] Document the VM hardening baseline in `specs/20260514-azure-n8n-bereitstellung/data-model.md`.
-- [ ] T017 [P] [US3] Document the Docker Engine and Compose readiness baseline in `specs/20260514-azure-n8n-bereitstellung/quickstart.md`.
-- [ ] T018 [US3] Capture the blocked ports No-Go rule for 5678, 5432, and 6379 in `specs/20260514-azure-n8n-bereitstellung/contracts/deployment-contract.md`.
+- [ ] T015 [US3] Schaerfe Job- und Step-Benennung in `.github/workflows/n8n-json-gate.yml` auf den inventar-basierten Validitaets-Gate.
+- [ ] T016 [P] [US3] Halte Trigger und Laufbedingungen fuer den Merge-Blocker in `.github/workflows/n8n-json-gate.yml` konsistent.
+- [ ] T017 [US3] Dokumentiere CI-Verhalten und Fail-Bedingungen in `automation/n8n/README.md`.
 
-**Checkpoint**: The pre-deployment Azure base is ready to be executed later without widening the scope.
+**Checkpoint**: CI-Gate blockiert ungültige inventarisierte Workflow-JSON reproduzierbar.
 
-## Phase 6: User Story 4 - Nachweis, Restrisiken und Folge-Gate dokumentieren (Priority: P2)
+---
 
-**Goal**: The handoff clearly lists what exists, what remains blocked, and which follow-up gate comes next.
+## Phase 6: User Story 4 - Donation-Sonderfall explizit sichtbar halten (Priority: P2)
 
-**Independent Test**: The handoff can be checked independently by reading the evidence log and verifying that the next gate is DNS/HTTPS-Abnahme.
+**Goal**: `finance-donation-processing.json` bleibt als Known-Risk sichtbar, bis Nachweis vorliegt.
+
+**Independent Test**: Jeder Lauf gibt den Sonderfallstatus explizit aus; Doku und Inventar spiegeln den offenen Nachweisstatus.
 
 ### Implementation for User Story 4
 
-- [ ] T019 [P] [US4] Add the EvidenceLog structure and contents to `specs/20260514-azure-n8n-bereitstellung/data-model.md`.
-- [ ] T020 [P] [US4] Add the restriction that DNS, HTTPS, reverse proxy, production n8n, queue-mode, and backup expansion remain out of scope in `specs/20260514-azure-n8n-bereitstellung/contracts/deployment-contract.md`.
-- [ ] T021 [US4] Finalize the follow-up gate wording and handoff checklist in `specs/20260514-azure-n8n-bereitstellung/quickstart.md`.
-- [ ] T022 [US4] Review the final documentation set for consistency across `spec.md`, `plan.md`, `research.md`, `data-model.md`, `quickstart.md`, and `contracts/deployment-contract.md`.
+- [ ] T018 [US4] Hinterlege den Sonderfallstatus fuer `finance-donation-processing.json` in `automation/n8n/workflow-inventory.production.json`.
+- [ ] T019 [US4] Implementiere in `scripts/validate-n8n-workflows.mjs` die explizite Sonderfallausgabe ohne stilles Greenwashing.
+- [ ] T020 [US4] Dokumentiere den offenen Nachweisstatus und die Nicht-Ziele in `automation/n8n/README.md`.
 
-**Checkpoint**: The block is closed with a clean handoff and a clearly named next phase.
+**Checkpoint**: Donation-Sonderfall ist technisch und dokumentarisch explizit sichtbar.
 
 ---
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-**Purpose**: Clean up the documentation set and remove ambiguity.
+**Purpose**: Finaler Qualitaetsabgleich ueber alle geaenderten Artefakte.
 
-- [ ] T023 [P] Tighten wording so Single-Main remains explicit across all docs in `specs/20260514-azure-n8n-bereitstellung/`.
-- [ ] T024 [P] Ensure no doc in `specs/20260514-azure-n8n-bereitstellung/` implies DNS cutover or HTTPS acceptance.
-- [ ] T025 [P] Align the contract and quickstart with the non-goals already stated in `spec.md`.
+- [ ] T021 [P] Fuehre End-to-End-Validierung lokal aus via `package.json` (`npm run n8n:validate`) und pruefe konsistente Ausgabe.
+- [ ] T022 [P] Stelle sicher, dass keine Legacy-/Mirror-Pfade im Scope landen in `scripts/validate-n8n-workflows.mjs` und `automation/n8n/workflow-inventory.production.json`.
+- [ ] T023 Pruefe Konsistenz zwischen `automation/n8n/README.md`, `.github/workflows/n8n-json-gate.yml` und `scripts/validate-n8n-workflows.mjs`.
 
 ---
 
@@ -108,40 +118,96 @@
 
 ### Phase Dependencies
 
-- **Setup (Phase 1)**: No dependencies.
-- **Foundational (Phase 2)**: Depends on Setup completion and blocks all story work.
-- **User Stories (Phase 3+)**: Depend on the Foundational phase completion.
-- **Polish (Final Phase)**: Depends on all desired user stories being complete.
+- **Setup (Phase 1)**: Keine Abhaengigkeiten.
+- **Foundational (Phase 2)**: Haengt von Setup ab und blockiert alle User Stories.
+- **User Stories (Phase 3-6)**: Haengen von Phase 2 ab; danach koennen sie parallel oder nach Prioritaet umgesetzt werden.
+- **Polish (Phase 7)**: Nach allen gewuenschten User Stories.
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after the foundational governance scaffold is in place.
-- **User Story 2 (P1)**: Can start after the foundational governance scaffold is in place.
-- **User Story 3 (P1)**: Can start after the governance scaffold is in place.
-- **User Story 4 (P2)**: Can start after the earlier stories have established the evidence and block boundaries.
+- **US1 (P1)**: Startet nach Phase 2; liefert den verbindlichen Scope.
+- **US2 (P1)**: Startet nach Phase 2; nutzt den Scope aus US1, bleibt aber separat testbar.
+- **US3 (P1)**: Startet nach Phase 2; kann parallel zu US1/US2 umgesetzt werden.
+- **US4 (P2)**: Startet nach Phase 2; baut auf dem bestehenden Gate auf und erweitert um Sichtbarkeit.
+
+### Within Each User Story
+
+- Zuerst Scope/Vertrag der Story, dann Validator-Implementierung, dann Dokuabgleich.
+- Story gilt als fertig, wenn ihr Independent Test ohne andere Story-Aenderungen durchfuehrbar ist.
 
 ### Parallel Opportunities
 
-- Tasks marked [P] can be worked on in parallel if they touch different sections.
-- Governance, contract, and quickstart updates can be sequenced independently once the plan is stable.
+- T003 parallel zu T002
+- T005 und T006 parallel zu T004
+- US1: T009 parallel zu T010
+- US2: T013 parallel zu T012
+- US3: T016 parallel zu T015
+- Polish: T021 und T022 parallel
+
+---
+
+## Parallel Example: User Story 1
+
+```bash
+# Parallelisierbare US1-Arbeiten:
+Task: "T009 [P] [US1] Ergaenze Inventar-Metadaten in automation/n8n/workflow-inventory.production.json"
+Task: "T010 [US1] Implementiere Scope-Abweichungspruefung in scripts/validate-n8n-workflows.mjs"
+```
+
+## Parallel Example: User Story 2
+
+```bash
+# Parallelisierbare US2-Arbeiten:
+Task: "T012 [US2] Deterministische Validierungsreihenfolge in scripts/validate-n8n-workflows.mjs"
+Task: "T013 [P] [US2] Dateibezogene Fehlermeldungen in scripts/validate-n8n-workflows.mjs"
+```
+
+## Parallel Example: User Story 3
+
+```bash
+# Parallelisierbare US3-Arbeiten:
+Task: "T015 [US3] Job-/Step-Benennung in .github/workflows/n8n-json-gate.yml"
+Task: "T016 [P] [US3] Trigger/Laufbedingungen in .github/workflows/n8n-json-gate.yml"
+```
+
+## Parallel Example: User Story 4
+
+```bash
+# Parallelisierbare US4-Arbeiten:
+Task: "T018 [US4] Sonderfallstatus in automation/n8n/workflow-inventory.production.json"
+Task: "T020 [US4] Known-Risk-Doku in automation/n8n/README.md"
+```
+
+---
 
 ## Implementation Strategy
 
-### MVP First (User Stories 1 and 2)
+### MVP First (User Story 1)
 
-1. Complete Setup and Foundational phases.
-2. Complete User Story 1 and User Story 2.
-3. Stop and verify that the governance gate and Single-Main contract are explicit.
-4. Only then continue with Azure base and hardening work.
+1. Phase 1 und Phase 2 abschliessen.
+2. Nur US1 (Phase 3) umsetzen.
+3. Scope und Inventar unabhaengig verifizieren.
 
 ### Incremental Delivery
 
-1. Governance and cost gate.
-2. Single-Main operating contract.
-3. Azure base and VM hardening.
-4. Evidence log and follow-up gate.
+1. US1: Explizites Inventar
+2. US2: Reproduzierbarer lokaler Strict-Check
+3. US3: Blockierendes CI-Gate
+4. US4: Sonderfall-Sichtbarkeit
 
-### Notes
+### Parallel Team Strategy
 
-- The task list intentionally mirrors the phase-gated scope from the spec.
-- DNS/HTTPS, reverse proxy, production n8n, queue-mode, and backup expansion remain excluded until the next block.
+1. Team schliesst Phase 1-2 gemeinsam ab.
+2. Danach parallele Story-Arbeit:
+   - Dev A: US1
+   - Dev B: US2
+   - Dev C: US3
+   - Dev D: US4
+
+---
+
+## Notes
+
+- Alle Tasks folgen dem Pflichtformat `- [ ] T### [P] [US#] Beschreibung mit Dateipfad`.
+- Keine unbeteiligten Legacy-/Mirror-Pfade.
+- Nicht-Ziele (Azure, Deployment, Queue-Mode, DNS/HTTPS, Reverse Proxy, `apps/api`-Verlagerung) bleiben ausgeschlossen.

@@ -1,48 +1,50 @@
-# Research: Azure n8n Bereitstellungspfad
+# Research: n8n Workflow Validitaets-Gate
 
-## Entscheidung 1: Single-Main als verbindlicher Startmodus
+## Entscheidung 1: Explizites Inventar statt implizitem Dateiscan
 
-- **Decision**: Der Betriebsmodus bleibt in diesem Block explizit Single-Main.
-- **Rationale**: Das reduziert Komplexitaet, verhindert einen verfruehten Queue-Mode und macht den Betrieb ohne Redis-/Worker-Abhaengigkeiten planbar.
-- **Alternatives considered**: Queue-Mode, Hybridbetrieb, direkte Mehrknoten-Architektur. Alle wurden fuer diesen Block verworfen, weil sie andere Folgeentscheidungen voraussetzen.
+- **Decision**: Produktive bzw. produktionsnahe Workflows werden ueber eine explizite Inventardatei gefuehrt.
+- **Rationale**: Ein explizites Inventar macht den Scope revisionssicher und verhindert stilles Mitziehen oder Auslassen von Dateien.
+- **Alternatives considered**:
+  - Nur rekursiver `*.json`-Scan unter `automation/n8n/workflows`.
+  - Pattern-Scan mit manuellen Excludes.
+  - Beide Alternativen wurden verworfen, weil Scope-Drift schwerer nachvollziehbar ist.
 
-## Entscheidung 2: Azure-Basis nur mit minimaler Portflaeche
+## Entscheidung 2: Strikte JSON-Validierung bleibt der harte Gate-Kern
 
-- **Decision**: Die Azure-VM wird mit statischer Public IP und NSG nur fuer 22/80/443 vorbereitet.
-- **Rationale**: Die Angriffsoberflaeche bleibt klein und die spaetere Abnahme kann klar gegen die Sicherheitsgrenzen geprueft werden.
-- **Alternatives considered**: Offener 5678-Zugriff, direkte DB- oder Redis-Ports, breitere Inbound-Regeln. Diese Varianten sind fuer den Vorbereitungsblock ausgeschlossen.
+- **Decision**: Der Validator prueft jede inventarisierte Datei mit strikt parsebasiertem JSON-Check und liefert Exit-Code 1 bei Fehlern.
+- **Rationale**: Der P0-Auftrag fordert syntaktische Belastbarkeit vor allen weiteren n8n-Schritten.
+- **Alternatives considered**:
+  - Tolerante Parser oder automatische Reparatur.
+  - Semantische n8n-Importpruefung im selben Block.
+  - Beides verworfen, da dieser Block nur auf harte Syntaxvaliditaet zielt.
 
-## Entscheidung 3: Härtung vor Laufzeit
+## Entscheidung 3: Sonderfall `finance-donation-processing.json` als sichtbarer Risikostatus
 
-- **Decision**: Updates, Europe/Vienna-Zeitzone, Deploy-User, SSH-Key-only, deaktivierter Root-/Passwort-Login und UFW werden vor jeder produktionsnahen Laufzeit vorbereitet.
-- **Rationale**: Die VM ist damit reproduzierbar und auditierbar, bevor irgendetwas Produktives dazugeschaltet wird.
-- **Alternatives considered**: Erst runtime, spaeter hardening; Passwort-SSH als Uebergang; Firewall nur in Azure. Diese Optionen erzeugen zu viel Betriebsrisiko.
+- **Decision**: Der Sonderfall wird explizit markiert und in der Ausgabe sichtbar gehalten, solange kein Import-/Dry-Run-Nachweis vorliegt.
+- **Rationale**: Das verhindert stilles "gruen" bei einem bekannten Risikoobjekt.
+- **Alternatives considered**:
+  - Datei wie jeden anderen Workflow ohne Sonderhinweis behandeln.
+  - Datei aus dem Gate-Scope entfernen.
+  - Beide verworfen, da der Auftrag explizite Sichtbarkeit fordert.
 
-## Entscheidung 4: Docker-Compose-Basis ja, n8n-Deployment nein
+## Entscheidung 4: Ein Check, zwei Ausfuehrungsorte (lokal + CI)
 
-- **Decision**: Docker Engine und Compose werden als Basis vorbereitet, aber der n8n-Container wird in diesem Block nicht produktiv ausgerollt.
-- **Rationale**: Runtime-Bereitschaft laesst sich damit pruefen, ohne den Schritt in DNS/HTTPS/Reverse-Proxy vorwegzunehmen.
-- **Alternatives considered**: Direktes Production-Deployment des Stacks oder Queue-Mode-Vorgriff. Beide sind explizit Nicht-Ziele.
+- **Decision**: Lokal und CI verwenden denselben Befehl (`npm run n8n:validate`).
+- **Rationale**: Ein einziger Ausfuehrungspfad reduziert Abweichungen und erleichtert Reproduktion von Fehlern.
+- **Alternatives considered**:
+  - Eigenes CI-Skript separat vom lokalen Skript.
+  - Direkte JSON-Pruef-Commands nur in GitHub Actions.
+  - Verworfen wegen doppelter Wartung und Inkonsistenzrisiko.
 
-## Entscheidung 5: Grant- und Billing-Status bleibt externer Nachweisblocker
+## Entscheidung 5: Scope bleibt strikt auf n8n-Artefakte und CI-Gate begrenzt
 
-- **Decision**: Grant- und Billing-Status werden als externer Nachweis behandelt; ohne belastbaren Microsoft-Nachweis bleibt Provisioning blockiert.
-- **Rationale**: Kosten- und Zustandsfreigabe muessen vor jeder Ressourcenerstellung klar sein.
-- **Alternatives considered**: Implizite Annahme, dass Funding schon passt; Stillhalteposition ohne Dokumentation. Beides ist nicht zulässig.
+- **Decision**: Aenderungen beschraenken sich auf `automation/n8n`, `scripts` und `.github/workflows` plus minimal notwendige Doku.
+- **Rationale**: Der Auftrag schliesst Azure-Provisioning, Deployment, Queue-Mode und API-Fachlogik explizit aus.
+- **Alternatives considered**:
+  - Gleichzeitige technische Reparatur von Donation-Logik.
+  - Vorbereitung weiterer Betriebsfeatures (Queue, Reverse Proxy, DNS/HTTPS).
+  - Verworfen als Nicht-Ziel.
 
-## Entscheidung 6: IaC ist die bevorzugte Umsetzungsrichtung fuer spaetere Ausfuehrung
+## Ergebnis fuer Phase 1
 
-- **Decision**: Wenn der Block spater umgesetzt wird, soll Azure ueber reproduzierbare Infrastruktur-Definitionen oder gleichwertig kontrollierte Automatisierung entstehen.
-- **Rationale**: Das passt zu den Azure-Best-Practices im Repo und ermoeglicht kontrollierte, nachvollziehbare Aenderungen.
-- **Alternatives considered**: Nur manuelle Klickpfade im Portal oder lose Shell-Skripte ohne Gate. Diese Varianten sind fuer eine robuste Uebergabe schlechter geeignet.
-
-## Offene Blocker / externe Verifikation
-
-- Azure Grant aktiviert oder nicht?
-- Billing-Profil korrekt zugeordnet oder unklar?
-- Azure-Subscription und Kostenverantwortung eindeutig benannt?
-- Statische IP und VM-Provisioning live verifizierbar oder noch nicht?
-
-## Ergebnis fuer die Planung
-
-Der Block ist als vorbereitender, phasengetrennter Betriebspfad zu planen. Alles was DNS, HTTPS, Reverse Proxy, produktives n8n oder Queue-Mode voraussetzt, bleibt ausserhalb des Scopes und wird als Folge-Gate dokumentiert.
+Alle zuvor relevanten technischen Unklarheiten sind fuer diesen Block aufgeloest: Scope-Quelle, Validierungsstrategie, Sonderfallbehandlung und CI-Kopplung sind eindeutig festgelegt.

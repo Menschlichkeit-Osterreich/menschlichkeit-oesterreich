@@ -1,149 +1,81 @@
-# Data Model: Azure n8n Bereitstellungspfad
+# Data Model: n8n Workflow Validitaets-Gate
 
 ## Entities
 
-### GrantStatus
+### WorkflowInventory
 
-Repraesentiert den Stand der Microsoft-Freigabe fuer das Vorhaben.
-
-**Fields**
-
-- `source` - Woher der Nachweis stammt
-- `status` - `approved`, `blocked`, `unknown`
-- `blocker_reason` - Begruendung bei Blockade
-- `evidence_reference` - Verweis auf Dokument oder Portalnachweis
-- `last_checked_at` - Zeitpunkt der Pruefung
-
-**Rules**
-
-- Darf nicht als freigegeben markiert werden, ohne belastbaren Nachweis.
-- Ein unbekannter Zustand muss als Blocker behandelt werden.
-
-### BillingProfile
-
-Repraesentiert die Kostenfreigabe und Zuordnung.
+Repraesentiert die explizite Liste der produktionsnahen Workflow-Dateien im Gate-Scope.
 
 **Fields**
 
-- `owner` - Kostenverantwortliche Person oder Stelle
-- `subscription_reference` - Zuordnung zur Azure-Subscription
-- `budget_status` - `confirmed`, `pending`, `blocked`
-- `notes` - Zusatzhinweise zum Billing-Gate
+- `version` - Inventarversion fuer nachvollziehbare Aenderungen
+- `scope_root` - Basisverzeichnis, erwartbar `automation/n8n/workflows`
+- `workflows[]` - Liste der inventarisierten relativen Dateipfade
+- `special_case`
+  - `workflow_path`
+  - `special_case_flag`
+  - `evidence_status`
+  - `visibility_message`
+- `notes` - optionale Scope-Hinweise
 
 **Rules**
 
-- Ohne klares Billing-Owner-Mapping darf kein Provisioning erfolgen.
+- Jeder Eintrag muss ein relativer Pfad unterhalb von `scope_root` sein.
+- Doppelte Eintraege sind unzulaessig.
+- Nicht inventarisierte produktionsnahe Dateien gelten als Scope-Abweichung.
 
-### OperatingMode
+### WorkflowFile
 
-Repraesentiert den aktuellen Betriebsmodus des Vorhabens.
+Repraesentiert eine einzelne Workflow-JSON-Datei aus dem Scope.
 
 **Fields**
 
-- `mode` - nur `single-main`
-- `effective_from` - ab wann der Modus gilt
-- `approved_by` - dokumentierte Freigabe
+- `relative_path`
+- `exists` - boolescher Dateistatus
+- `json_valid` - boolesches Parse-Ergebnis
+- `error_message` - Fehlertext bei Parsefehlern
 
 **Rules**
 
-- Queue-Mode ist in diesem Block nicht erlaubt.
-- Jede spaetere Aenderung braucht ein separates Folge-Gate.
+- `json_valid` darf nur bewertet werden, wenn `exists=true`.
+- Bei `exists=false` muss der Lauf fehlschlagen.
 
-### AzureResourceSet
+### SpecialCaseStatus
 
-Repraesentiert die Vorbereitungs-Ressourcen in Azure.
+Repraesentiert den bekannten Sonderfall `finance-donation-processing.json`.
 
 **Fields**
 
-- `resource_group_name`
-- `vm_name`
-- `public_ip_name`
-- `nsg_name`
-- `region`
-- `size`
-- `ssh_port`
-- `allowed_inbound_ports`
+- `workflow_path` - fixer Verweis auf den Donation-Workflow
+- `special_case_flag` - immer `true` fuer diesen Eintrag
+- `evidence_status` - `pending_import_or_dry_run_proof` oder `verified`
+- `visibility_message` - auszugebender Hinweistext im Lauf
 
 **Rules**
 
-- Inbound-Ports sind auf 22, 80 und 443 begrenzt.
-- Public IP ist statisch.
-- Die VM gehoert zu genau einem Vorbereitungs-Setup.
+- Sonderfall darf nicht stillschweigend wie ein Standardfall behandelt werden.
+- Solange `evidence_status` auf `pending...` steht, muss die Sichtbarkeitsmeldung ausgegeben werden.
 
-### HardeningBaseline
+### ValidationGateRun
 
-Repraesentiert die Host-Hardening-Massnahmen.
+Repraesentiert einen lokalen oder CI-Lauf des Gates.
 
 **Fields**
 
-- `os_version`
-- `timezone`
-- `deploy_user`
-- `root_login_enabled`
-- `password_login_enabled`
-- `ufw_enabled`
-- `package_updates_applied`
+- `run_mode` - `local` oder `ci`
+- `checked_files_count`
+- `invalid_files_count`
+- `missing_files_count`
+- `status` - `pass` oder `fail`
+- `timestamp`
 
 **Rules**
 
-- `timezone` muss `Europe/Vienna` sein.
-- Root- und Passwort-Login muessen deaktiviert sein.
-- UFW muss aktiv sein und dieselbe Portgrenze wie die NSG abbilden.
-
-### RuntimePreparation
-
-Repraesentiert die Docker-Basis fuer spaetere Container.
-
-**Fields**
-
-- `docker_engine_installed`
-- `compose_plugin_installed`
-- `deploy_user_in_docker_group`
-- `target_stack_directory`
-- `compose_files_ready`
-
-**Rules**
-
-- Docker muss fuer den Deploy-User bedienbar sein.
-- Die Basis darf noch keinen produktiven n8n-Container voraussetzen.
-
-### EvidenceLog
-
-Repraesentiert die dokumentierte Uebergabe mit Nachweisen und Restrisiken.
-
-**Fields**
-
-- `resource_summary`
-- `validation_checks`
-- `risks`
-- `blockers`
-- `follow_up_gate`
-- `created_at`
-
-**Rules**
-
-- Muss explizit auf DNS/HTTPS-Abnahme als naechstes Gate verweisen.
-- Muss die Nicht-Ziele des Blocks nennen.
-
-### FollowUpGate
-
-Repraesentiert den naechsten klar definierten Block.
-
-**Fields**
-
-- `name` - muss `DNS/HTTPS-Abnahme` sein
-- `entry_criteria`
-- `out_of_scope_items`
-- `owner`
-
-**Rules**
-
-- Darf nicht still in den aktuellen Block hineinmischen.
+- `status=fail`, wenn mindestens eine Datei fehlt oder JSON-ungueltig ist.
+- `checked_files_count` muss exakt der Inventaranzahl entsprechen.
 
 ## Relationships
 
-- `GrantStatus` und `BillingProfile` steuern, ob `AzureResourceSet` ueberhaupt entstehen darf.
-- `OperatingMode` gilt fuer den gesamten Vorbereitungsblock.
-- `AzureResourceSet` wird erst nach der Governance-Freigabe umgesetzt.
-- `HardeningBaseline` und `RuntimePreparation` bauen auf `AzureResourceSet` auf.
-- `EvidenceLog` fasst alle anderen Entitaeten zusammen und leitet zu `FollowUpGate` ueber.
+- `WorkflowInventory` definiert den verbindlichen Scope fuer `WorkflowFile`.
+- `SpecialCaseStatus` referenziert exakt einen Eintrag in `WorkflowInventory`.
+- `ValidationGateRun` aggregiert die Ergebnisse aller `WorkflowFile`-Pruefungen und enthaelt die Sonderfall-Sichtbarkeit.

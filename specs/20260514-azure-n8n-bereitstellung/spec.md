@@ -1,126 +1,124 @@
-# Feature Specification: Azure n8n Bereitstellungspfad
+# Feature Specification: n8n Workflow Validitaets-Gate
 
-**Feature Branch**: `20260514-azure-n8n-bereitstellung`
+**Feature Branch**: `20260515-before-specify-hook`
 
 **Created**: 2026-05-14
 
 **Status**: Draft
 
-**Input**: User description: "Azure-n8n-Bereitstellungspfad mit Grant/Billing-Gate, Single-Main-Betriebsvertrag, geharteter VM-Basis und klarer Folge-Gate-Abgrenzung"
+**Input**: User description: "n8n-Workflow-Validitaet plus CI-Validierung fuer produktionsnahe Workflows mit explizitem Sonderfall finance-donation-processing.json"
 
 ## User Scenarios & Testing _(mandatory)_
 
-### User Story 1 - Governance- und Kosten-Gate klaeren (Priority: P1)
+### User Story 1 - Relevante Workflows nachvollziehbar inventarisieren (Priority: P1)
 
-Als verantwortliche Person will ich den Azure-Grant- und Billing-Status mit einer klaren Blocker- oder Freigabe-Klassifikation dokumentiert haben, damit keine Ressource ohne Kosten- und Zustandsfreigabe angelegt wird.
+Als verantwortliche Person fuer den n8n-Betrieb will ich eine explizite, nachvollziehbare Liste der produktionsnahen Workflow-Dateien haben, damit der Validitaets-Scope klar und auditierbar ist.
 
-**Why this priority**: Ohne geklaertes Kosten- und Zustandsgate darf kein Provisioning starten. Das ist der haerteste operative Blocker.
+**Why this priority**: Ohne expliziten Scope ist nicht belegbar, welche Workflows das Gate absichert und welche nicht.
 
-**Independent Test**: Kann unabhaengig getestet werden, indem ein Dokument oder Audit-Block vorliegt, der Grant/Billing, Zuständigkeit, Blockerstatus und Freigabeentscheidung nachvollziehbar ausweist.
+**Independent Test**: Kann unabhaengig getestet werden, indem die Inventarliste gegen den vorgesehenen Scope unter `automation/n8n` geprueft wird und jede gelistete Datei eindeutig aufloesbar ist.
 
 **Acceptance Scenarios**:
 
-1. **Given** der Microsoft-Status ist nachweisbar, **When** das Kosten-Gate geprueft wird, **Then** ist Grant/Billing entweder freigegeben oder mit sauberer Blocker-Klassifikation dokumentiert.
-2. **Given** der Microsoft-Status ist nicht nachweisbar, **When** das Kosten-Gate geprueft wird, **Then** bleibt Provisioning blockiert und der Grund ist dokumentiert.
+1. **Given** die Inventarliste ist vorhanden, **When** ein Reviewer den Scope prueft, **Then** ist die Liste der produktionsnahen Workflow-Dateien explizit und nachvollziehbar.
+2. **Given** eine relevante Workflow-Datei fehlt in der Inventarliste, **When** der Validierungscheck laeuft, **Then** wird dies als Abweichung sichtbar gemacht.
 
 ---
 
-### User Story 2 - Single-Main Betriebsmodus festziehen (Priority: P1)
+### User Story 2 - Strikte JSON-Validierung lokal reproduzierbar ausfuehren (Priority: P1)
 
-Als Betreiberin bzw. Betreiber will ich den initialen Betriebsmodus explizit als Single-Main festgelegt sehen, damit kein impliziter Wechsel zu Queue-Mode oder Mehrfachbetrieb stattfindet.
+Als Entwicklerin bzw. Entwickler will ich einen reproduzierbaren lokalen Validierungscheck fuer die inventarisierten Workflows haben, damit ich Fehler vor dem Push sicher erkenne.
 
-**Why this priority**: Der Betriebsmodus steuert alle spaeteren Architektur- und Betriebsentscheidungen. Single-Main minimiert Komplexitaet und verhindert Vorgriffe auf nicht freigegebene Skalierung.
+**Why this priority**: Das lokale Gate verhindert spaete CI-Fehlschlaege und reduziert Defekte in produktionsnahen Artefakten.
 
-**Independent Test**: Kann unabhaengig getestet werden, indem der Betriebsvertrag den Modus Single-Main, die Nicht-Ziele und das spaetere Folge-Gate eindeutig benennt.
+**Independent Test**: Kann unabhaengig getestet werden, indem der lokale Befehl auf gueltigen und absichtlich ungueltigen Workflow-Dateien ausgefuehrt wird und korrekt mit Erfolg bzw. Fehler endet.
 
 **Acceptance Scenarios**:
 
-1. **Given** der Betriebsvertrag wird gelesen, **When** der Modus gesucht wird, **Then** ist Single-Main explizit dokumentiert.
-2. **Given** eine spaetere Queue-Mode-Idee entsteht, **When** der aktuelle Vertrag geprueft wird, **Then** ist klar ersichtlich, dass Queue-Mode nicht Teil dieses Blocks ist.
+1. **Given** alle inventarisierten Workflows enthalten gueltiges JSON, **When** der lokale Validierungsbefehl ausgefuehrt wird, **Then** endet der Check erfolgreich.
+2. **Given** mindestens eine inventarisierte Workflow-Datei ist syntaktisch ungueltig, **When** der lokale Validierungsbefehl ausgefuehrt wird, **Then** endet der Check mit Fehler und nennt die betroffene Datei.
 
 ---
 
-### User Story 3 - Azure-Basis und VM-Hardening vorbereiten (Priority: P1)
+### User Story 3 - CI blockiert ungueltige produktionsnahe Workflows (Priority: P1)
 
-Als DevOps-Verantwortliche Person will ich eine gehartete Azure-VM mit statischer IP, minimaler Portflaeche und Docker-Compose-Basis vorbereitet sehen, damit der spaetere n8n-Betrieb auf einer belastbaren Grundlage aufsetzen kann.
+Als Maintainer will ich ein CI-Gate, das bei ungueltiger Workflow-JSON fehlschlaegt, damit defekte Artefakte nicht unbemerkt in Richtung Main gelangen.
 
-**Why this priority**: Diese Grundlage reduziert Angriffsflaeche, macht das Folge-Gate testbar und verhindert, dass Deployment und Hardening vermischt werden.
+**Why this priority**: Das ist das haerteste P0-Gate fuer belastbare Workflow-Artefakte vor allen weiteren n8n-Schritten.
 
-**Independent Test**: Kann unabhaengig getestet werden, indem die Azure-Ressourcen, NSG-Regeln, SSH-Hardening, UFW-Status und Docker-Compose-Verfuegbarkeit separat nachgewiesen werden.
+**Independent Test**: Kann unabhaengig getestet werden, indem ein PR mit absichtlich ungueltiger inventarisierter Workflow-Datei erstellt wird und der CI-Job reproduzierbar fehlschlaegt.
 
 **Acceptance Scenarios**:
 
-1. **Given** die Azure-Basis angelegt ist, **When** die Netz- und Host-Regeln geprueft werden, **Then** sind nur 22, 80 und 443 als Inbound-Ports vorgesehen.
-2. **Given** die VM ist gehartet, **When** SSH und UFW validiert werden, **Then** ist Root- und Passwort-Login deaktiviert und SSH laeuft nur per Key.
-3. **Given** Docker ist installiert, **When** der Deploy-User die Runtime prueft, **Then** sind Docker Engine und Compose nutzbar.
+1. **Given** ein PR enthaelt ungueltige JSON in einer inventarisierten Datei, **When** der CI-Workflow laeuft, **Then** ist der Job rot und blockiert den Merge.
+2. **Given** ein PR enthaelt nur gueltige inventarisierte Workflow-JSON, **When** der CI-Workflow laeuft, **Then** ist der Job gruen.
 
 ---
 
-### User Story 4 - Nachweis, Restrisiken und Folge-Gate dokumentieren (Priority: P2)
+### User Story 4 - Donation-Sonderfall explizit sichtbar halten (Priority: P2)
 
-Als Stakeholder will ich einen nachvollziehbaren Nachweis- und Risikoblock sehen, damit klar ist, was bereits vorbereitet wurde, was offen bleibt und wie der naechste Gate-Schritt heisst.
+Als Stakeholder will ich, dass `finance-donation-processing.json` als bekannter Sonderfall sichtbar bleibt, damit kein stilles Greenwashing ohne spaeteren Import- oder Dry-Run-Nachweis entsteht.
 
-**Why this priority**: Ohne saubere Uebergabe kann das Vorhaben still in den produktiven Zustand kippen, obwohl DNS/HTTPS noch nicht freigegeben sind.
+**Why this priority**: Der Sonderfall ist ein bekanntes Risikoobjekt und muss bis zum separaten Nachweis explizit markiert bleiben.
 
-**Independent Test**: Kann unabhaengig getestet werden, indem die Dokumentation alle erzeugten Objekte, offenen Risiken und das explizite Folge-Gate DNS/HTTPS-Abnahme enthaelt.
+**Independent Test**: Kann unabhaengig getestet werden, indem Validierungsausgabe und Doku den Sonderfall klar benennen und den offenen Nachweisstatus ausweisen.
 
 **Acceptance Scenarios**:
 
-1. **Given** die Vorbereitungsphase ist abgeschlossen, **When** das Abschlussdokument gelesen wird, **Then** sind Objektliste, Restrisiken und Folge-Gate eindeutig beschrieben.
-2. **Given** jemand versucht den naechsten Schritt vorzuziehen, **When** die Dokumentation geprueft wird, **Then** ist klar, dass DNS-Umschaltung, HTTPS-Abnahme und Reverse Proxy nicht Teil dieses Blocks sind.
+1. **Given** der Validierungscheck wird ausgefuehrt, **When** der Donation-Workflow verarbeitet wird, **Then** wird dessen Sonderfallstatus explizit ausgegeben.
+2. **Given** der Sonderfall hat noch keinen Import- oder Dry-Run-Nachweis, **When** die Doku geprueft wird, **Then** ist der offene Status klar sichtbar.
 
 ### Edge Cases
 
-- Grant vorhanden, aber nicht aktiviert: Provisioning bleibt blockiert.
-- Billing unklar oder falsch zugeordnet: Keine Ressourcenerstellung.
-- DNS zeigt noch auf Plesk: Azure-Vorbereitung ist erlaubt, Produktionsabnahme nicht.
-- VM vorhanden, aber Ports offen: Kein Go-Live.
-- SSH nur per Passwort: Hardening ist nicht erfuellt.
-- Docker laeuft, aber der Deploy-User kann es nicht bedienen: Basis ist nicht fertig.
+- Eine inventarisierte Datei wurde geloescht oder umbenannt.
+- Eine neue produktionsnahe Workflow-Datei wurde angelegt, aber nicht in die Inventarliste aufgenommen.
+- Eine Datei ist parsebar, aber leeres oder unvollstaendiges JSON-Objekt.
+- Sonderfall-Datei ist vorhanden, aber ungueltig.
+- Validierung wird versehentlich auf Legacy- oder Mirror-Pfade ausgeweitet.
 
 ## Requirements _(mandatory)_
 
 ### Functional Requirements
 
-- **FR-001**: Das System MUST den Grant- und Billing-Status mit Quelle, Zuständigkeit und Blocker- oder Freigabeklassifikation dokumentieren.
-- **FR-002**: Das System MUST den initialen Betriebsmodus als Single-Main festhalten.
-- **FR-003**: Das System MUST eine Azure-VM mit statischer Public IP und minimaler NSG-Flaeche fuer den Vorbereitungsblock definieren.
-- **FR-004**: Das System MUST die Host-Hardening-Basis mit Updates, Europe/Vienna-Zeitzone, Deploy-User, deaktiviertem Root-/Passwort-Login und aktivem UFW dokumentieren.
-- **FR-005**: Das System MUST Docker Engine und Docker Compose als Laufzeitbasis fuer den spaeteren n8n-Stack vorbereiten.
-- **FR-006**: Das System MUST Nachweise, Restrisiken und das naechste Gate in einer eigenen Abschlussdokumentation sammeln.
-- **FR-007**: Das System MUST DNS-Umschaltung, HTTPS-Abnahme, Reverse Proxy, produktives n8n-Deployment, Queue-Mode und erweiterten Backup-Ausbau fuer diesen Block explizit ausschliessen.
-- **FR-008**: Das System MUST bei jedem Azure-Schritt Zielobjekt, Zweck, Risiko und Erfolgskriterium nennen.
-- **FR-009**: Das System MUST klare No-Go-Bedingungen fuer offene 5678-, 5432- und 6379-Ports festhalten.
-- **FR-010**: Das System MUST das Folge-Gate als DNS/HTTPS-Abnahme benennen und nicht still vorziehen.
+- **FR-001**: Das System MUST eine explizite Inventarliste fuer produktionsnahe n8n-Workflow-Dateien unter `automation/n8n` bereitstellen.
+- **FR-002**: Das System MUST die JSON-Validierung ausschliesslich fuer inventarisierte produktionsnahe Workflow-Dateien ausfuehren.
+- **FR-002a**: Das System MUST zusaetzlich eine Scope-Abweichungspruefung zwischen Inventar und `scope_root` durchfuehren und fehlende oder unerwartete produktionsnahe Dateien als Abweichung sichtbar machen.
+- **FR-003**: Das System MUST jede inventarisierte Workflow-Datei auf strikte JSON-Syntax validieren.
+- **FR-004**: Das System MUST bei jeder ungueltigen inventarisierten Workflow-Datei mit Fehlerstatus fehlschlagen.
+- **FR-005**: Das System MUST die betroffenen Dateipfade bei Fehlern eindeutig ausgeben.
+- **FR-006**: Das System MUST einen lokalen, reproduzierbaren Pruefbefehl bereitstellen und dokumentieren.
+- **FR-007**: Das System MUST ein CI-Gate bereitstellen, das denselben Validierungscheck ausfuehrt und bei Fehlern fehlschlaegt.
+- **FR-008**: Das System MUST `finance-donation-processing.json` explizit als bekannten Sonderfall markieren, solange kein Import- oder Dry-Run-Nachweis vorliegt.
+- **FR-009**: Das System MUST den Sonderfallstatus nicht stillschweigend als regulare Validitaet ohne Hinweis behandeln.
+- **FR-010**: Das System MUST keine unbeteiligten Legacy- oder Mirror-Pfade in den Validierungsscope aufnehmen.
+- **FR-011**: Das System MUST fuer diesen Block produktives n8n-Deployment, Azure-Provisioning, DNS/HTTPS, Reverse Proxy, Queue-Mode und fachliche Verlagerung aus `apps/api` explizit ausschliessen.
+- **FR-012**: Das System MUST das Inventar gegen ein normatives Mindestschema validieren und bei fehlenden Pflichtfeldern fehlschlagen.
 
 ### Key Entities _(include if feature involves data)_
 
-- **GrantStatus**: Repräsentiert den Microsoft-Grant-Zustand, die Quelle des Nachweises und die Blocker- bzw. Freigabeklassifikation.
-- **BillingProfile**: Repräsentiert die Kostenfreigabe, Zuordnung, Verantwortlichkeit und offene Fragen zum Azure-Billing.
-- **OperatingMode**: Repräsentiert den verbindlichen Betriebsmodus; in diesem Block ist nur Single-Main erlaubt.
-- **AzureResourceSet**: Repräsentiert die geplante Gruppe aus Resource Group, VM, statischer Public IP und NSG.
-- **HardeningBaseline**: Repräsentiert die Pflichtmassnahmen auf dem Server wie Updates, Zeitzone, SSH-Policy und UFW.
-- **RuntimePreparation**: Repräsentiert die Docker-Engine-/Compose-Basis und die vorbereitete Verzeichnisstruktur fuer spaetere Stacks.
-- **EvidenceLog**: Repräsentiert den Nachweisblock mit Ressourcen, Tests, Restrisiken und Folge-Gate.
-- **FollowUpGate**: Repräsentiert den naechsten klar benannten Schritt nach diesem Block.
+- **WorkflowInventory**: Normative Inventardefinition mit Pflichtfeldern `version`, `scope_root`, `workflows` und `special_case`.
+  - `version`: String, semantische oder revisionsbezogene Inventarversion.
+  - `scope_root`: String, erwarteter Basisordner fuer Workflow-Dateien.
+  - `workflows`: Nicht-leere Liste relativer Dateipfade unterhalb von `scope_root`.
+  - `special_case`: Objekt fuer `finance-donation-processing.json` mit mindestens `workflow_path`, `special_case_flag`, `evidence_status`, `visibility_message`.
+- **WorkflowValidationResult**: Ergebnis je Workflow-Datei mit Status, Fehlermeldung und Dateipfad.
+- **SpecialCaseStatus**: Kennzeichnung und aktueller Nachweisstatus fuer den Donation-Sonderfall.
+- **ValidationGateRun**: Zusammenfassung eines lokalen oder CI-Laufs inklusive Gesamtstatus und Fehleranzahl.
 
 ## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 
-- **SC-001**: Grant/Billing ist entweder mit einem belastbaren Microsoft-Nachweis belegt oder als echter Blocker klassifiziert.
-- **SC-002**: Die Betriebsdokumentation enthaelt Single-Main als aktuellen Modus und keinen stillen Vorgriff auf Queue-Mode.
-- **SC-003**: VM, Public IP und NSG sind entweder nachweisbar vorhanden oder der Primärblocker ist sauber dokumentiert.
-- **SC-004**: Keine unzulaessigen Inbound-Ports sind fuer den Vorbereitungsblock freigegeben.
-- **SC-005**: SSH laeuft nur mit Schluessel, Root- und Passwort-Login sind deaktiviert.
-- **SC-006**: Docker Engine und Docker Compose sind fuer den Deploy-User nutzbar.
-- **SC-007**: Das Folge-Gate ist eindeutig als DNS/HTTPS-Abnahme benannt und wird nicht vorgezogen.
-- **SC-008**: Die Abschlussdokumentation enthaelt Restrisiken, offene Punkte und die explizite Abgrenzung der Nicht-Ziele.
+- **SC-001**: 100% der inventarisierten produktionsnahen Workflow-Dateien werden in jedem Lauf geprueft.
+- **SC-002**: Der CI-Job endet bei ungueltiger JSON-Syntax in einer inventarisierten Datei reproduzierbar mit Fehlerstatus.
+- **SC-003**: Die Workflow-Liste ist explizit dokumentiert und fuer Reviewer ohne implizite Annahmen nachvollziehbar.
+- **SC-004**: Der Donation-Sonderfall ist in Validierungsausgabe und Doku explizit sichtbar, solange der Nachweisstatus offen ist.
+- **SC-005**: Der lokale Pruefbefehl ist dokumentiert und liefert bei identischem Artefaktstand dasselbe Ergebnis wie die CI-Pruefung.
+- **SC-006**: Keine Legacy- oder Mirror-Pfade werden durch das Gate mitgeprueft.
 
 ## Assumptions
 
-- Die eigentliche Azure-Provisionierung wird erst nach Freigabe des Governance- und Kosten-Gates umgesetzt.
-- Fuer diesen Block reichen Dokumentations- und Vorbereitungsartefakte; produktiver n8n-Betrieb ist nicht Teil des Scopes.
-- DNS, HTTPS und Reverse Proxy werden in einem spateren Block separat behandelt.
-- Eine einzelne gehartete VM ist fuer den Vorbereitungsblock ausreichend; Hochverfuegbarkeit wird nicht vorgezogen.
-- Das Repo bleibt die Quelle fuer den Betriebsvertrag, die Nachweise und die Folge-Gates.
+- Produktive oder produktionsnahe Workflow-Artefakte liegen im vorgesehenen Bereich unter `automation/n8n`.
+- Die bestehende CI-Infrastruktur des Repositories kann den Validierungsbefehl als blockierenden Step ausfuehren.
+- Der Import- oder Dry-Run-Nachweis fuer `finance-donation-processing.json` wird in einem spaeteren, getrennten Block erbracht.
+- Dieser Block fokussiert ausschliesslich auf syntaktische Validitaet und Sichtbarkeit des Sonderfalls, nicht auf fachliche Workflow-Reparaturen.
