@@ -11,14 +11,14 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Parallelisierbar (andere Dateien, keine offenen Abhaengigkeiten)
-- **[Story]**: Zuordnung zur User Story (`US1`, `US2`, `US3`, `US4`)
+- **[Story]**: Zuordnung zur User Story (`US1`, `US2`, `US3`, `US4`, `US5`)
 - Jede Task enthaelt einen konkreten Dateipfad
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Bestehenden n8n-Gate-Baustein fuer den P0-Block vorbereiten.
 
-- [ ] T001 Validiere Ausgangslage und Dateiscope in `automation/n8n/workflows/` gegen den geplanten Scope aus `specs/20260514-azure-n8n-bereitstellung/spec.md`.
+- [ ] T001 Validiere den repositoryweiten Ausgangsscope inklusive Legacy-/Mirror-Exclude-Ansatz in `specs/20260514-azure-n8n-bereitstellung/spec.md`.
 - [ ] T002 Lege eine explizite Inventar-Datei an in `automation/n8n/workflow-inventory.production.json`.
 - [ ] T003 [P] Ergaenze die Scope- und Gate-Absicht in `automation/n8n/README.md` als kurze Einleitung fuer den neuen Inventar-basierten Check.
 
@@ -43,13 +43,13 @@
 
 **Goal**: Der produktionsnahe Workflow-Scope ist explizit, nachvollziehbar und auditierbar.
 
-**Independent Test**: Die Inventar-Datei benennt alle relevanten Workflow-Dateien, und Scope-Abweichungen werden als Fehler sichtbar.
+**Independent Test**: Die Inventar-Datei benennt alle relevanten Workflow-Dateien, und Scope-Abweichungen werden als Warnung sichtbar.
 
 ### Implementation for User Story 1
 
 - [ ] T008 [US1] Trage alle produktionsnahen Workflows explizit in `automation/n8n/workflow-inventory.production.json` ein.
-- [ ] T009 [P] [US1] Ergaenze Inventar-Metadaten (z. B. `version`, `scope_root`, `notes`) in `automation/n8n/workflow-inventory.production.json`.
-- [ ] T010 [US1] Implementiere in `scripts/validate-n8n-workflows.mjs` die Scope-Abweichungspruefung fuer nicht inventarisierte/fehlende Dateien.
+- [ ] T009 [P] [US1] Ergaenze Inventar-Metadaten (`version`, `scope_roots`, `exclude_paths`, `notes`) in `automation/n8n/workflow-inventory.production.json`.
+- [ ] T010 [US1] Implementiere in `scripts/validate-n8n-workflows.mjs` den repositoryweiten Scope-Abgleich gegen `scope_roots` und `exclude_paths`.
 - [ ] T011 [US1] Dokumentiere den expliziten Scope und die Inventarpflege in `automation/n8n/README.md`.
 
 **Checkpoint**: Scope ist explizit und ohne implizite Dateisuche nachvollziehbar.
@@ -66,7 +66,7 @@
 
 - [ ] T012 [US2] Ergaenze in `scripts/validate-n8n-workflows.mjs` eine deterministische Validierungsreihenfolge fuer inventarisierte Dateien.
 - [ ] T013 [P] [US2] Ergaenze in `scripts/validate-n8n-workflows.mjs` eindeutige Fehlermeldungen je Datei (inklusive Parse-Kontext).
-- [ ] T014 [US2] Aktualisiere den lokalen Pruefablauf in `automation/n8n/README.md` mit erwarteten Erfolgs-/Fehlermustern.
+- [ ] T014 [US2] Aktualisiere den lokalen Pruefablauf in `automation/n8n/README.md` mit erwarteten Erfolgs-/Fehlermustern fuer harte Fehler bei Inventarverletzungen.
 
 **Checkpoint**: Lokaler Gate-Check ist stabil, strikt und nachvollziehbar.
 
@@ -81,8 +81,8 @@
 ### Implementation for User Story 3
 
 - [ ] T015 [US3] Schaerfe Job- und Step-Benennung in `.github/workflows/n8n-json-gate.yml` auf den inventar-basierten Validitaets-Gate.
-- [ ] T016 [P] [US3] Halte Trigger und Laufbedingungen fuer den Merge-Blocker in `.github/workflows/n8n-json-gate.yml` konsistent.
-- [ ] T017 [US3] Dokumentiere CI-Verhalten und Fail-Bedingungen in `automation/n8n/README.md`.
+- [ ] T016 [P] [US3] Halte Trigger und Laufbedingungen fuer den Merge-Blocker bei Syntax-/Inventarfehlern in `.github/workflows/n8n-json-gate.yml` konsistent.
+- [ ] T017 [US3] Dokumentiere CI-Verhalten und Fail-Bedingungen fuer Syntax-/Inventarfehler in `automation/n8n/README.md`.
 
 **Checkpoint**: CI-Gate blockiert ungültige inventarisierte Workflow-JSON reproduzierbar.
 
@@ -104,13 +104,27 @@
 
 ---
 
-## Phase 7: Polish & Cross-Cutting Concerns
+## Phase 7: User Story 5 - Scope-Abweichungen sichtbar als Warnung reporten (Priority: P1)
+
+**Goal**: Scope-Abweichungen sind transparent sichtbar, ohne den Merge zu blockieren.
+
+**Independent Test**: Ein PR mit unerwarteter, parsebarer Workflow-Datei erzeugt Warnausgabe, aber keinen Fail-Status.
+
+### Implementation for User Story 5
+
+- [ ] T021 [US5] Implementiere in `scripts/validate-n8n-workflows.mjs` Warnstatus-Reporting fuer Scope-Abweichungen ohne Exit-Code-Fehler.
+- [ ] T022 [P] [US5] Erweitere die Ausgabe in `scripts/validate-n8n-workflows.mjs` um eindeutige Warnzeilen je `ScopeDeviation`.
+- [ ] T023 [US5] Dokumentiere Warnmodus und Nicht-Blockade in `automation/n8n/README.md`.
+
+---
+
+## Phase 8: Polish & Cross-Cutting Concerns
 
 **Purpose**: Finaler Qualitaetsabgleich ueber alle geaenderten Artefakte.
 
-- [ ] T021 [P] Fuehre End-to-End-Validierung lokal aus via `package.json` (`npm run n8n:validate`) und pruefe konsistente Ausgabe.
-- [ ] T022 [P] Stelle sicher, dass keine Legacy-/Mirror-Pfade im Scope landen in `scripts/validate-n8n-workflows.mjs` und `automation/n8n/workflow-inventory.production.json`.
-- [ ] T023 Pruefe Konsistenz zwischen `automation/n8n/README.md`, `.github/workflows/n8n-json-gate.yml` und `scripts/validate-n8n-workflows.mjs`.
+- [ ] T024 [P] Fuehre End-to-End-Validierung lokal aus via `package.json` (`npm run n8n:validate`) und pruefe konsistente Ausgabe.
+- [ ] T025 [P] Stelle sicher, dass keine Legacy-/Mirror-Pfade im Scope landen in `scripts/validate-n8n-workflows.mjs` und `automation/n8n/workflow-inventory.production.json`.
+- [ ] T026 Pruefe Konsistenz zwischen `automation/n8n/README.md`, `.github/workflows/n8n-json-gate.yml` und `scripts/validate-n8n-workflows.mjs`.
 
 ---
 
@@ -120,8 +134,8 @@
 
 - **Setup (Phase 1)**: Keine Abhaengigkeiten.
 - **Foundational (Phase 2)**: Haengt von Setup ab und blockiert alle User Stories.
-- **User Stories (Phase 3-6)**: Haengen von Phase 2 ab; danach koennen sie parallel oder nach Prioritaet umgesetzt werden.
-- **Polish (Phase 7)**: Nach allen gewuenschten User Stories.
+- **User Stories (Phase 3-7)**: Haengen von Phase 2 ab; danach koennen sie parallel oder nach Prioritaet umgesetzt werden.
+- **Polish (Phase 8)**: Nach allen gewuenschten User Stories.
 
 ### User Story Dependencies
 
@@ -129,6 +143,7 @@
 - **US2 (P1)**: Startet nach Phase 2; nutzt den Scope aus US1, bleibt aber separat testbar.
 - **US3 (P1)**: Startet nach Phase 2; kann parallel zu US1/US2 umgesetzt werden.
 - **US4 (P2)**: Startet nach Phase 2; baut auf dem bestehenden Gate auf und erweitert um Sichtbarkeit.
+- **US5 (P1)**: Startet nach Phase 2; setzt die Warnlogik fuer Scope-Abweichungen ohne Merge-Blockade um.
 
 ### Within Each User Story
 
@@ -142,7 +157,8 @@
 - US1: T009 parallel zu T010
 - US2: T013 parallel zu T012
 - US3: T016 parallel zu T015
-- Polish: T021 und T022 parallel
+- US5: T022 parallel zu T021
+- Polish: T024 und T025 parallel
 
 ---
 
@@ -178,6 +194,14 @@ Task: "T018 [US4] Sonderfallstatus in automation/n8n/workflow-inventory.producti
 Task: "T020 [US4] Known-Risk-Doku in automation/n8n/README.md"
 ```
 
+## Parallel Example: User Story 5
+
+```bash
+# Parallelisierbare US5-Arbeiten:
+Task: "T021 [US5] Warnstatus-Reporting in scripts/validate-n8n-workflows.mjs"
+Task: "T022 [P] [US5] ScopeDeviation-Warnzeilen in scripts/validate-n8n-workflows.mjs"
+```
+
 ---
 
 ## Implementation Strategy
@@ -193,7 +217,8 @@ Task: "T020 [US4] Known-Risk-Doku in automation/n8n/README.md"
 1. US1: Explizites Inventar
 2. US2: Reproduzierbarer lokaler Strict-Check
 3. US3: Blockierendes CI-Gate
-4. US4: Sonderfall-Sichtbarkeit
+4. US5: Warnmodus fuer Scope-Abweichungen
+5. US4: Sonderfall-Sichtbarkeit
 
 ### Parallel Team Strategy
 
@@ -202,7 +227,8 @@ Task: "T020 [US4] Known-Risk-Doku in automation/n8n/README.md"
    - Dev A: US1
    - Dev B: US2
    - Dev C: US3
-   - Dev D: US4
+   - Dev D: US5
+   - Dev E: US4
 
 ---
 

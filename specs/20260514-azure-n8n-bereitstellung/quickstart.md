@@ -21,6 +21,7 @@ Erwartetes Verhalten:
 - Exit-Code 0 bei gueltiger JSON in allen inventarisierten Workflows.
 - Exit-Code 1 bei fehlender oder ungueltiger inventarisierter Datei.
 - Dateipfadbezogene Fehlermeldung pro defektem Artefakt.
+- Scope-Abweichungen zwischen repositoryweitem Scan und Inventar werden als Warnung ausgegeben.
 - Sichtbare Sonderfallmeldung fuer `finance-donation-processing.json`, solange kein Import-/Dry-Run-Nachweis vorliegt.
 
 ## 2) CI-Validierung
@@ -36,6 +37,7 @@ npm run n8n:validate
 Erwartetes Verhalten:
 
 - Pull Requests auf `main` und Pushes auf `main` schlagen fehl, sobald eine inventarisierte Workflow-Datei syntaktisch ungueltig ist.
+- Scope-Abweichungen erscheinen als Warnungen, blockieren den Merge aber nicht.
 - Bei gueltigem Scope ist der Job gruen.
 
 ## 3) Scope-Pflege

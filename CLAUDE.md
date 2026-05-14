@@ -101,7 +101,7 @@ Kurzregel:
 
 Repo-Arbeitsagenten sind in `AGENTS.md` dokumentiert und werden ueber Codex, Claude Code und Copilot ausgefuehrt.
 
-Sichtbare Copilot-Repo-Agenten sind die elf kuratierten Core- und Service-Agenten plus die aktiven Spec-Kit-Workflow-Agents:
+Sichtbare Copilot-Repo-Agenten sind die elf kuratierten Core- und Service-Agenten plus Speckit Head Master und die aktiven Spec-Kit-Workflow-Agents:
 
 - `.github/agents/task-planner.agent.md`
 - `.github/agents/developer.agent.md`
@@ -114,6 +114,7 @@ Sichtbare Copilot-Repo-Agenten sind die elf kuratierten Core- und Service-Agente
 - `.github/agents/automation-n8n.agent.md`
 - `.github/agents/games-babylon.agent.md`
 - `.github/agents/forum-phpbb.agent.md`
+- `.github/agents/speckit-head-master.agent.md`
 - `.github/agents/speckit.analyze.agent.md`
 - `.github/agents/speckit.checklist.agent.md`
 - `.github/agents/speckit.clarify.agent.md`

@@ -43,6 +43,7 @@ Copilot-spezifische Einstiegspunkte:
 - `.github/agents/automation-n8n.agent.md`
 - `.github/agents/games-babylon.agent.md`
 - `.github/agents/forum-phpbb.agent.md`
+- `.github/agents/speckit-head-master.agent.md`
 - `.github/agents/speckit.analyze.agent.md`
 - `.github/agents/speckit.checklist.agent.md`
 - `.github/agents/speckit.clarify.agent.md`
@@ -138,6 +139,6 @@ Wenn eine Aenderung aktive Ablaeufe, Rollen, Pfade oder Tooling betrifft, muesse
 
 <!-- SPECKIT START -->
 
-For additional context about technologies to be used, project structure, shell commands, and other important information, read [specs/20260514-azure-n8n-bereitstellung/plan.md](specs/20260514-azure-n8n-bereitstellung/plan.md)
+For additional context about technologies to be used, project structure, shell commands, and other important information, read [specs/002-infrastruktur-donation-masterplan/plan.md](specs/002-infrastruktur-donation-masterplan/plan.md)
 
 <!-- SPECKIT END -->

@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const REPORTS_DIR = resolve(process.cwd(), 'quality-reports');
+const REPORTS_DIR = resolve(globalThis.process.cwd(), 'quality-reports');
 const OUTPUT_SARIF = resolve(REPORTS_DIR, 'trivy-security.sarif');
 
 function run(cmd, args = []) {
@@ -28,10 +28,10 @@ async function main() {
   try {
     await run('trivy', ['fs', '--format', 'sarif', '--output', OUTPUT_SARIF, '.']);
   } catch (e) {
-    console.warn('Trivy nicht verfügbar, schreibe leeren SARIF:', e.message);
+    globalThis.process.stderr.write(`Trivy nicht verfügbar, schreibe leeren SARIF: ${e.message}\n`);
     writeEmptySarif();
   }
-  process.exit(0);
+  globalThis.process.exit(0);
 }
 
 main();

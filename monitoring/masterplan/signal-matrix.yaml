@@ -1,0 +1,13 @@
+signals:
+  - name: proxy_https
+    source: reverse-proxy
+    severity: critical
+  - name: api_queue
+    source: api
+    severity: high
+  - name: donation_webhook
+    source: n8n
+    severity: critical
+  - name: disk_space
+    source: vm
+    severity: medium

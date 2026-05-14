@@ -147,6 +147,16 @@
       "replacement": null
     },
     {
+      "id": "speckit-head-master.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/speckit-head-master.agent.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/agents/speckit-head-master.agent.md",
+      "replacement": null
+    },
+    {
       "id": "speckit.analyze.agent",
       "kind": "agent",
       "status": "active",
@@ -1120,6 +1130,16 @@
       "path": ".github/skills/create-specification/SKILL.md",
       "role": "developer",
       "sourceOfTruth": ".github/skills/create-specification/SKILL.md",
+      "replacement": null
+    },
+    {
+      "id": "codacy-remediation",
+      "kind": "skill",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/skills/codacy-remediation/SKILL.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/skills/codacy-remediation/SKILL.md",
       "replacement": null
     },
     {

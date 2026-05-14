@@ -1,0 +1,16 @@
+{
+  "gate_name": "donation-e2e-gate",
+  "source_of_truth": "apps/api",
+  "receipt_eligibility_rules": [
+    "payment_confirmed",
+    "donation_metadata_complete",
+    "no_pii_in_logs"
+  ],
+  "required_evidence": [
+    "reports/masterplan/donation-e2e-evidence.md",
+    "reports/masterplan/evidence-log.md",
+    "automation/n8n/workflows/donation-webhook-archive.json"
+  ],
+  "webhook_archive": "automation/n8n/workflows/donation-webhook-archive.json",
+  "smoke_test_exit_code": 0
+}

@@ -1,15 +1,23 @@
 #!/usr/bin/env node
+/* eslint-env node */
+
 import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import process from 'node:process';
+import { clearTimeout, setTimeout } from 'node:timers';
 
 const REPORTS_DIR = resolve(process.cwd(), 'quality-reports');
 const OUTPUT_SARIF = resolve(REPORTS_DIR, 'codacy-analysis.sarif');
-const LOCAL_CODACY_JAR = resolve(process.cwd(), '.codacy', 'codacy-analysis-cli-assembly.jar');
+const LOCAL_CODACY_JAR = resolve(
+  process.cwd(),
+  process.env.CODACY_LOCAL_JAR || '.cache/codacy/codacy-analysis-cli-assembly.jar'
+);
 const CODACY_JAR_URL =
   process.env.CODACY_JAR_URL ||
   'https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli-assembly.jar';
 const MIN_JAR_BYTES = 1024 * 1024;
+const DEFAULT_TOOLS = 'eslint,trivy';
 
 function isStrictMode() {
   const fallback = process.env.CI ? '1' : '0';
@@ -34,8 +42,8 @@ function toWslPath(winPath) {
 }
 
 function parseToolArgsFromEnv() {
-  const rawTools = (process.env.CODACY_TOOLS || '').trim();
-  if (!rawTools) {
+  const rawTools = (process.env.CODACY_TOOLS || process.env.CODACY_DEFAULT_TOOLS || DEFAULT_TOOLS).trim();
+  if (!rawTools || ['all', 'full', '*'].includes(rawTools.toLowerCase())) {
     return [];
   }
   return rawTools
@@ -51,12 +59,24 @@ function shouldAllowNetwork() {
 }
 
 function getTimeoutMs() {
-  const raw = (process.env.CODACY_TIMEOUT_SECONDS || '1800').trim();
+  const raw = (process.env.CODACY_TIMEOUT_SECONDS || '300').trim();
   const seconds = Number(raw);
   if (!Number.isFinite(seconds) || seconds <= 0) {
-    return 15 * 60 * 1000;
+    return 5 * 60 * 1000;
   }
   return seconds * 1000;
+}
+
+function getAnalysisDirectory() {
+  return process.env.CODACY_DIRECTORY || '.';
+}
+
+function logStep(message) {
+  process.stderr.write(`[codacy] ${message}\n`);
+}
+
+function logError(message) {
+  process.stderr.write(`${message}\n`);
 }
 
 function isValidJarFile(jarPath) {
@@ -84,7 +104,8 @@ async function ensureValidLocalJar() {
     throw new Error('Lokale Codacy-JAR ist ungültig und Netzwerkzugriff ist deaktiviert');
   }
 
-  mkdirSync(resolve(process.cwd(), '.codacy'), { recursive: true });
+  mkdirSync(resolve(LOCAL_CODACY_JAR, '..'), { recursive: true });
+  logStep(`Downloading Codacy CLI JAR to ${LOCAL_CODACY_JAR}`);
   await run('curl', ['-fsSL', '--retry', '3', '--retry-delay', '2', '-o', LOCAL_CODACY_JAR, CODACY_JAR_URL]);
 
   if (!isValidJarFile(LOCAL_CODACY_JAR)) {
@@ -94,6 +115,7 @@ async function ensureValidLocalJar() {
 
 function run(cmd, args = [], timeoutMs = getTimeoutMs()) {
   return new Promise((resolveOk, reject) => {
+    logStep(`Running ${cmd} ${args.join(' ')} with timeout ${Math.round(timeoutMs / 1000)}s`);
     const p = spawn(cmd, args, { stdio: 'inherit', shell: false });
     const timeout = setTimeout(() => {
       try {
@@ -101,6 +123,13 @@ function run(cmd, args = [], timeoutMs = getTimeoutMs()) {
       } catch {
         // ignore
       }
+      setTimeout(() => {
+        try {
+          p.kill('SIGKILL');
+        } catch {
+          // ignore
+        }
+      }, 5000).unref();
       reject(new Error(`${cmd} timed out after ${timeoutMs}ms`));
     }, timeoutMs);
     p.on('error', reject);
@@ -165,7 +194,7 @@ async function main() {
       '--output',
       OUTPUT_SARIF,
       '--directory',
-      '.',
+      getAnalysisDirectory(),
       '--skip-uncommitted-files-check',
       'true',
       ...parseToolArgsFromEnv(),
@@ -177,11 +206,13 @@ async function main() {
       process.exit(0);
       return;
     } catch (pathError) {
+      logStep(`Native Codacy CLI unavailable or failed: ${pathError.message}`);
       if (!existsSync(LOCAL_CODACY_JAR) && !shouldAllowNetwork()) {
         throw pathError;
       }
 
       await ensureValidLocalJar();
+      logStep('Retrying with local Codacy CLI JAR fallback');
       await run('java', ['-jar', LOCAL_CODACY_JAR, ...analyzeArgs]);
       process.exit(0);
       return;
@@ -196,7 +227,7 @@ async function main() {
           '--output',
           OUTPUT_SARIF,
           '--directory',
-          '.',
+          getAnalysisDirectory(),
           '--skip-uncommitted-files-check',
           'true',
           ...parseToolArgsFromEnv(),
@@ -210,11 +241,11 @@ async function main() {
           `Lokale Codacy-Ausführung fehlgeschlagen (${localError.message}) und WSL-Fallback fehlgeschlagen (${wslError.message})`
         );
         if (isStrictMode()) {
-          console.error(combinedError.message);
+          logError(combinedError.message);
           process.exit(1);
           return;
         }
-        console.warn(`${combinedError.message}; schreibe leeren SARIF im non-strict Modus.`);
+        logError(`${combinedError.message}; schreibe leeren SARIF im non-strict Modus.`);
         writeEmptySarif();
         process.exit(0);
         return;
@@ -222,11 +253,11 @@ async function main() {
     }
 
     if (isStrictMode()) {
-      console.error(`Codacy-Ausführung fehlgeschlagen: ${localError.message}`);
+      logError(`Codacy-Ausführung fehlgeschlagen: ${localError.message}`);
       process.exit(1);
       return;
     }
-    console.warn(
+    logError(
       `Codacy CLI nicht verfügbar oder fehlgeschlagen, schreibe leeren SARIF (non-strict): ${localError.message}`
     );
     writeEmptySarif();

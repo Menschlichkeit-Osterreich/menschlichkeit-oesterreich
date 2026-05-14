@@ -1,6 +1,9 @@
 #!/usr/bin/env node
+/* eslint-env node */
+
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import process from 'node:process';
 
 const root = process.cwd();
 const registryPath = '.github/ai-registry.json';
@@ -17,6 +20,14 @@ const governanceDocs = [
   '.claude/prompts/PROMPT_ANALYSE.md',
   '.claude/plugins/menschlichkeit-dev-suite/hooks/session-start.js',
 ];
+
+function writeStdout(message) {
+  process.stdout.write(`${message}\n`);
+}
+
+function writeStderr(message) {
+  process.stderr.write(`${message}\n`);
+}
 
 const jsonFiles = [
   registryPath,
@@ -96,6 +107,7 @@ const curatedGithubAgents = new Set([
 ]);
 
 const speckitGithubAgents = new Set([
+  '.github/agents/speckit-head-master.agent.md',
   '.github/agents/speckit.analyze.agent.md',
   '.github/agents/speckit.checklist.agent.md',
   '.github/agents/speckit.clarify.agent.md',
@@ -709,18 +721,18 @@ async function main() {
   }
 
   if (errors.length > 0) {
-    console.error('AI governance validation failed:');
+    writeStderr('AI governance validation failed:');
     for (const error of errors) {
-      console.error(`- ${error}`);
+      writeStderr(`- ${error}`);
     }
     process.exitCode = 1;
     return;
   }
 
-  console.log('AI governance validation passed.');
+  writeStdout('AI governance validation passed.');
 }
 
 main().catch(error => {
-  console.error(error);
+  writeStderr(error instanceof Error ? error.stack || error.message : String(error));
   process.exitCode = 1;
 });

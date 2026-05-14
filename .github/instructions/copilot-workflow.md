@@ -21,7 +21,7 @@ Copilot soll im Repo aktiv dieselbe Governance nutzen wie Codex und Claude Code,
 - Copilot arbeitet repo-first und liest zuerst die aktive Monorepo-Struktur.
 - Rollen werden ueber `AGENTS.md` gewaehlt.
 - Analyse und Planung laufen immer ueber `.github/instructions/core/analysis-planning.instructions.md`.
-- Sichtbare Copilot-Agents sind die elf kuratierten Core- und Service-Agenten plus die aktiven Spec-Kit-Workflow-Agents:
+- Sichtbare Copilot-Agents sind die elf kuratierten Core- und Service-Agenten plus Speckit Head Master und die aktiven Spec-Kit-Workflow-Agents:
   - `.github/agents/task-planner.agent.md`
   - `.github/agents/developer.agent.md`
   - `.github/agents/devops-expert.agent.md`
@@ -33,6 +33,7 @@ Copilot soll im Repo aktiv dieselbe Governance nutzen wie Codex und Claude Code,
   - `.github/agents/automation-n8n.agent.md`
   - `.github/agents/games-babylon.agent.md`
   - `.github/agents/forum-phpbb.agent.md`
+  - `.github/agents/speckit-head-master.agent.md`
   - `.github/agents/speckit.analyze.agent.md`
   - `.github/agents/speckit.checklist.agent.md`
   - `.github/agents/speckit.clarify.agent.md`
@@ -78,7 +79,7 @@ Wenn Copilot Vorschlaege fuer Rollen, Prompts, Chatmodes, VS Code oder Repo-Work
 - aktive Referenzen zeigen nur auf existierende Dateien
 - alte Repo-Namen und tote Pfade sind entfernt
 - der Analyse-Einstieg ist eindeutig und verweist auf `analysis-planning.instructions.md`
-- `.github/agents/` enthaelt die elf kuratierten sichtbaren Core-/Service-Agents plus die aktiven `speckit.*`-Workflow-Agents
+- `.github/agents/` enthaelt die elf kuratierten sichtbaren Core-/Service-Agents plus `speckit-head-master.agent.md` und die aktiven `speckit.*`-Workflow-Agents
 - `mentor.agent.md`, `mcp-operations.agent.md` und alte Spezialagenten liegen nicht sichtbar aktiv unter `.github/agents/`
 - keine aktive Copilot-Anweisung erzwingt `.copilot-tracking`-Pflichtpfade
 - Chatmodes sind die ergaenzende Mode-Ebene

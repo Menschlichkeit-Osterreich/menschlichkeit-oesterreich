@@ -1,0 +1,8 @@
+{
+  "name": "Donation Webhook Archive",
+  "nodes": [],
+  "connections": {},
+  "settings": {
+    "notes": "Archive webhook responses for masterplan donation evidence."
+  }
+}
