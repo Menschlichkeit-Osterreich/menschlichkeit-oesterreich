@@ -81,7 +81,7 @@ const requiredIssueQuery = 'state:open repo:${owner}/${repository} sort:updated-
 
 const allowedOwners = new Set(['shared', 'copilot', 'claude', 'vendor']);
 const allowedStatuses = new Set(['active', 'adapter', 'vendor', 'legacy', 'deprecated']);
-const activeGithubAgents = new Set([
+const curatedGithubAgents = new Set([
   '.github/agents/task-planner.agent.md',
   '.github/agents/developer.agent.md',
   '.github/agents/devops-expert.agent.md',
@@ -94,6 +94,25 @@ const activeGithubAgents = new Set([
   '.github/agents/games-babylon.agent.md',
   '.github/agents/forum-phpbb.agent.md',
 ]);
+
+const speckitGithubAgents = new Set([
+  '.github/agents/speckit.analyze.agent.md',
+  '.github/agents/speckit.checklist.agent.md',
+  '.github/agents/speckit.clarify.agent.md',
+  '.github/agents/speckit.constitution.agent.md',
+  '.github/agents/speckit.git.commit.agent.md',
+  '.github/agents/speckit.git.feature.agent.md',
+  '.github/agents/speckit.git.initialize.agent.md',
+  '.github/agents/speckit.git.remote.agent.md',
+  '.github/agents/speckit.git.validate.agent.md',
+  '.github/agents/speckit.implement.agent.md',
+  '.github/agents/speckit.plan.agent.md',
+  '.github/agents/speckit.specify.agent.md',
+  '.github/agents/speckit.tasks.agent.md',
+  '.github/agents/speckit.taskstoissues.agent.md',
+]);
+
+const activeGithubAgents = new Set([...curatedGithubAgents, ...speckitGithubAgents]);
 
 const requiredPathZones = {
   active: ['apps/', 'automation/', 'mcp-servers/', 'figma-design-system/'],

@@ -414,6 +414,18 @@
       "isBackground": false,
       "problemMatcher": [],
       "group": "test"
+    },
+    {
+      "label": "Verify: N8N Staging Routing",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "scripts/run-python.mjs",
+        "automation/n8n/check-staging-routing.py"
+      ],
+      "isBackground": false,
+      "problemMatcher": [],
+      "group": "test"
     }
   ],
   "inputs": [

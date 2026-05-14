@@ -43,6 +43,20 @@ Copilot-spezifische Einstiegspunkte:
 - `.github/agents/automation-n8n.agent.md`
 - `.github/agents/games-babylon.agent.md`
 - `.github/agents/forum-phpbb.agent.md`
+- `.github/agents/speckit.analyze.agent.md`
+- `.github/agents/speckit.checklist.agent.md`
+- `.github/agents/speckit.clarify.agent.md`
+- `.github/agents/speckit.constitution.agent.md`
+- `.github/agents/speckit.git.commit.agent.md`
+- `.github/agents/speckit.git.feature.agent.md`
+- `.github/agents/speckit.git.initialize.agent.md`
+- `.github/agents/speckit.git.remote.agent.md`
+- `.github/agents/speckit.git.validate.agent.md`
+- `.github/agents/speckit.implement.agent.md`
+- `.github/agents/speckit.plan.agent.md`
+- `.github/agents/speckit.specify.agent.md`
+- `.github/agents/speckit.tasks.agent.md`
+- `.github/agents/speckit.taskstoissues.agent.md`
 
 Archivierte oder deprecated Copilot-Agents liegen unter `.github/archive/agents/` und sind nicht als sichtbare Einstiegspunkte zu verwenden.
 
@@ -121,3 +135,8 @@ Wenn eine Aenderung aktive Ablaeufe, Rollen, Pfade oder Tooling betrifft, muesse
 - `.github/instructions/copilot-workflow.md`
 - `.github/chatmodes/README.md`
 - `.github/prompts/README.md`
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+<!-- SPECKIT END -->

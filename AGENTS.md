@@ -51,7 +51,7 @@ Wenn mehrere Clients beteiligt sind, bleibt diese Kette die einzige fuehrende Wa
 ## Aktive Artefakte
 
 - Machine-readable Registry: `.github/ai-registry.json`
-- Copilot-Agents: elf kuratierte sichtbare Dateien unter `.github/agents/`
+- Copilot-Agents: elf kuratierte Core-/Service-Agents plus aktive Spec-Kit-Workflow-Agents unter `.github/agents/`
   - `.github/agents/task-planner.agent.md`
   - `.github/agents/developer.agent.md`
   - `.github/agents/devops-expert.agent.md`
@@ -63,6 +63,20 @@ Wenn mehrere Clients beteiligt sind, bleibt diese Kette die einzige fuehrende Wa
   - `.github/agents/automation-n8n.agent.md`
   - `.github/agents/games-babylon.agent.md`
   - `.github/agents/forum-phpbb.agent.md`
+  - `.github/agents/speckit.analyze.agent.md`
+  - `.github/agents/speckit.checklist.agent.md`
+  - `.github/agents/speckit.clarify.agent.md`
+  - `.github/agents/speckit.constitution.agent.md`
+  - `.github/agents/speckit.git.commit.agent.md`
+  - `.github/agents/speckit.git.feature.agent.md`
+  - `.github/agents/speckit.git.initialize.agent.md`
+  - `.github/agents/speckit.git.remote.agent.md`
+  - `.github/agents/speckit.git.validate.agent.md`
+  - `.github/agents/speckit.implement.agent.md`
+  - `.github/agents/speckit.plan.agent.md`
+  - `.github/agents/speckit.specify.agent.md`
+  - `.github/agents/speckit.tasks.agent.md`
+  - `.github/agents/speckit.taskstoissues.agent.md`
 - Archivierte Copilot-Agents: `.github/archive/agents/*.agent.md`
 - Claude-Agents: `.claude/agents/*.md` und `.claude/plugins/*/agents/*.md`
 - Aktive Chatmodes: `.github/chatmodes/**/*.chatmode.md`
@@ -235,7 +249,7 @@ Geteilte Konfigurationen duerfen keine absoluten lokalen Pfade enthalten. Erlaub
 - `AGENTS.md`, `CLAUDE.md` und `.github/copilot-instructions.md` bleiben konsistent.
 - der einzige aktive Analyse-Einstieg bleibt `.github/instructions/core/analysis-planning.instructions.md`.
 - `.github/ai-registry.json` klassifiziert aktive, Adapter-, Vendor- und Legacy-Artefakte vollstaendig.
-- `.github/agents/*.agent.md` enthaelt genau die elf kuratierten sichtbaren Copilot-Agents; archivierte Copilot-Agents liegen unter `.github/archive/agents/`.
+- `.github/agents/*.agent.md` enthaelt die elf kuratierten sichtbaren Core-/Service-Agents plus die aktiven `speckit.*`-Workflow-Agents; archivierte Copilot-Agents liegen unter `.github/archive/agents/`.
 - `.github/chatmodes/**/*.chatmode.md` und relevante `.claude`-Agents zeigen auf reale Pfade.
 - es gibt keine aktiven YAML-Chatmode-Artefakte unter `.github/prompts/chatmodes/`.
 - `.vscode/*`, `.claude/launch.json`, `mcp.json` und die Workspace-Datei passen zum aktiven Repo-Root.

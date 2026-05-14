@@ -8,6 +8,7 @@
 
 - **Fuehrende Arbeitsmodi:** ausgelagert nach `.github/chatmodes/` und `.github/instructions/`
 - **Aktive supplementaere Prompts:** nur explizit als `active` in `.github/ai-registry.json` klassifizierte Templates
+- **Spec-Kit-Integration:** aktive `speckit.*.prompt.md`-Wrapper bleiben sichtbar, wenn `.specify/` im Repo bewusst aktiviert ist
 - **Deprecated Prompt-Dateien:** bleiben als Referenz, sind aber nicht fuehrend
 
 ## Aktiv vs. Legacy
@@ -38,6 +39,7 @@ Migrierte Prompt-Dateien bleiben nur als historische Referenz bestehen. Sie sind
 - Neue Anweisungen unter `.github/instructions/`
 - Supplementäre Prompt-Vorlagen unter `.github/prompts/` (nur für Artefakte ohne chatmode-Äquivalent)
 - Der Status jeder Prompt-Datei wird in `.github/ai-registry.json` gefuehrt
+- Aktive `speckit.*.prompt.md`-Dateien sind zulaessig, wenn die zugehoerigen `speckit.*.agent.md`-Dateien sichtbar bleiben und die Registry beide Artefaktgruppen fuehrt
 - Migrierte `.prompt.md`-Dateien nicht als führend verwenden — immer den chatmode/instruction-Nachfolger nutzen
 - Keine neuen Repo- oder Rollenwahrheiten hier duplizieren; immer auf `AGENTS.md` und die Core-Instructions referenzieren
 

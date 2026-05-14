@@ -14,6 +14,7 @@ Diese Datei dokumentiert den aktiven Inhalt aus `mcp.json`. Sie ist keine Wunsch
 | `n8n-webhook`         | `node mcp-servers/n8n-webhook/index.js`                   | lokal  | n8n-Webhook-Integration                            |
 | `bitwarden-cli`       | `node mcp-servers/bitwarden-cli/index.js`                 | lokal  | Secrets- und Vault-Workflows                       |
 | `postgres`            | `node scripts/mcp/wrapper-postgres.mjs`                   | lokal  | PostgreSQL-Kontext fuer Datenbankoperationen        |
+| `sequential-thinking` | `node scripts/mcp/uvx-stdio.mjs @modelcontextprotocol/server-sequential-thinking==2025.12.18` | lokal  | Sequenzielle Analyse, Zerlegung und Priorisierung |
 
 ## Overlay aus `.vscode/mcp.json`
 
@@ -23,11 +24,11 @@ Diese Datei dokumentiert den aktiven Inhalt aus `mcp.json`. Sie ist keine Wunsch
 
 ## Analyse- und Planungsregel
 
-- `sequential-thinking` ist der bevorzugte MCP-Server fuer Analyse und Priorisierung.
+- `sequential-thinking` ist der bevorzugte MCP-Server fuer Analyse und Priorisierung und wird ueber `node scripts/mcp/uvx-stdio.mjs @modelcontextprotocol/server-sequential-thinking==2025.12.18` gestartet.
 - Die kanonische Governance dazu steht in `.github/instructions/core/analysis-planning.instructions.md`.
 - `scripts/mcp/wrapper-sequential-thinking.sh` bleibt nur Fallback fuer Umgebungen ohne MCP und ist nicht der primaere Produktionspfad.
 
-Hinweis: `sequential-thinking`, `memory`, `filesystem`, `context7` und `playwright` sind im aktuellen Default-Setup nicht mehr aktiv geladen; nutze sie nur in spezialisierten, zeitweise aktivierten Workflows, wenn sie wirklich gebraucht werden.
+Hinweis: `memory`, `filesystem`, `context7` und `playwright` sind im aktuellen Default-Setup nicht mehr aktiv geladen; nutze sie nur in spezialisierten, zeitweise aktivierten Workflows, wenn sie wirklich gebraucht werden.
 
 ## Minimale Validierung
 

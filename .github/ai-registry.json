@@ -1,7 +1,7 @@
 {
   "meta": {
     "version": 1,
-    "updated": "2026-05-06",
+    "updated": "2026-05-14",
     "repository": "Menschlichkeit-Osterreich/menschlichkeit-oesterreich",
     "pathZones": {
       "active": ["apps/", "automation/", "mcp-servers/", "figma-design-system/"],
@@ -144,6 +144,146 @@
       "path": ".github/agents/forum-phpbb.agent.md",
       "role": "developer",
       "sourceOfTruth": ".github/agents/forum-phpbb.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.analyze.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/speckit.analyze.agent.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/agents/speckit.analyze.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.checklist.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/speckit.checklist.agent.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/agents/speckit.checklist.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.clarify.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/speckit.clarify.agent.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/agents/speckit.clarify.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.constitution.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/speckit.constitution.agent.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/agents/speckit.constitution.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.git.commit.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/speckit.git.commit.agent.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/agents/speckit.git.commit.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.git.feature.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/speckit.git.feature.agent.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/agents/speckit.git.feature.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.git.initialize.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/speckit.git.initialize.agent.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/agents/speckit.git.initialize.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.git.remote.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/speckit.git.remote.agent.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/agents/speckit.git.remote.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.git.validate.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/speckit.git.validate.agent.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/agents/speckit.git.validate.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.implement.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/speckit.implement.agent.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/agents/speckit.implement.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.plan.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/speckit.plan.agent.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/agents/speckit.plan.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.specify.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/speckit.specify.agent.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/agents/speckit.specify.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.tasks.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/speckit.tasks.agent.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/agents/speckit.tasks.agent.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.taskstoissues.agent",
+      "kind": "agent",
+      "status": "active",
+      "owner": "copilot",
+      "path": ".github/agents/speckit.taskstoissues.agent.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/agents/speckit.taskstoissues.agent.md",
       "replacement": null
     },
     {
@@ -2204,6 +2344,156 @@
       "path": ".github/prompts/Vereinsplattform.prompt.md",
       "role": "developer",
       "sourceOfTruth": ".github/prompts/Vereinsplattform.prompt.md",
+      "replacement": null
+    },
+    {
+      "id": "SpecKitWorkflow_DE.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/SpecKitWorkflow_DE.prompt.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/prompts/SpecKitWorkflow_DE.prompt.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.analyze.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/speckit.analyze.prompt.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/prompts/speckit.analyze.prompt.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.checklist.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/speckit.checklist.prompt.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/prompts/speckit.checklist.prompt.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.clarify.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/speckit.clarify.prompt.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/prompts/speckit.clarify.prompt.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.constitution.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/speckit.constitution.prompt.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/prompts/speckit.constitution.prompt.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.git.commit.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/speckit.git.commit.prompt.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/prompts/speckit.git.commit.prompt.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.git.feature.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/speckit.git.feature.prompt.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/prompts/speckit.git.feature.prompt.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.git.initialize.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/speckit.git.initialize.prompt.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/prompts/speckit.git.initialize.prompt.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.git.remote.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/speckit.git.remote.prompt.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/prompts/speckit.git.remote.prompt.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.git.validate.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/speckit.git.validate.prompt.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/prompts/speckit.git.validate.prompt.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.implement.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/speckit.implement.prompt.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/prompts/speckit.implement.prompt.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.plan.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/speckit.plan.prompt.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/prompts/speckit.plan.prompt.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.specify.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/speckit.specify.prompt.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/prompts/speckit.specify.prompt.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.tasks.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/speckit.tasks.prompt.md",
+      "role": "architect",
+      "sourceOfTruth": ".github/prompts/speckit.tasks.prompt.md",
+      "replacement": null
+    },
+    {
+      "id": "speckit.taskstoissues.prompt",
+      "kind": "prompt",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/prompts/speckit.taskstoissues.prompt.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/prompts/speckit.taskstoissues.prompt.md",
       "replacement": null
     }
   ],

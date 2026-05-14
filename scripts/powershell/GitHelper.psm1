@@ -7,11 +7,11 @@ function New-FeatureBranch {
     param(
         [Parameter(Mandatory=$true)]
         [string]$IssueNumber,
-        
+
         [Parameter(Mandatory=$true)]
         [string]$Description
     )
-    
+
     $branchName = "feature/$IssueNumber-$Description"
     git checkout -b $branchName
     Write-Host "✅ Branch erstellt: $branchName" -ForegroundColor Green
@@ -20,7 +20,7 @@ function New-FeatureBranch {
 function Invoke-QualityCheck {
     Write-Host "🔍 Führe Quality Gates aus..." -ForegroundColor Cyan
     npm run quality:gates
-    
+
     if ($LASTEXITCODE -eq 0) {
         Write-Host "✅ Alle Quality Gates bestanden!" -ForegroundColor Green
     } else {
@@ -34,11 +34,11 @@ function Invoke-SafeCommit {
         [Parameter(Mandatory=$true)]
         [string]$Message
     )
-    
+
     # Pre-commit checks
     Write-Host "🔍 Pre-commit checks..." -ForegroundColor Yellow
     Invoke-QualityCheck
-    
+
     if ($LASTEXITCODE -eq 0) {
         git add .
         git commit -m $Message
