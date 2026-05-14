@@ -8,7 +8,7 @@
 
 **Input**: User description: "Azure-n8n-Bereitstellungspfad mit Grant/Billing-Gate, Single-Main-Betriebsvertrag, geharteter VM-Basis und klarer Folge-Gate-Abgrenzung"
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Governance- und Kosten-Gate klaeren (Priority: P1)
 
@@ -78,7 +78,7 @@ Als Stakeholder will ich einen nachvollziehbaren Nachweis- und Risikoblock sehen
 - SSH nur per Passwort: Hardening ist nicht erfuellt.
 - Docker laeuft, aber der Deploy-User kann es nicht bedienen: Basis ist nicht fertig.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -93,7 +93,7 @@ Als Stakeholder will ich einen nachvollziehbaren Nachweis- und Risikoblock sehen
 - **FR-009**: Das System MUST klare No-Go-Bedingungen fuer offene 5678-, 5432- und 6379-Ports festhalten.
 - **FR-010**: Das System MUST das Folge-Gate als DNS/HTTPS-Abnahme benennen und nicht still vorziehen.
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 - **GrantStatus**: Repräsentiert den Microsoft-Grant-Zustand, die Quelle des Nachweises und die Blocker- bzw. Freigabeklassifikation.
 - **BillingProfile**: Repräsentiert die Kostenfreigabe, Zuordnung, Verantwortlichkeit und offene Fragen zum Azure-Billing.
@@ -104,7 +104,7 @@ Als Stakeholder will ich einen nachvollziehbaren Nachweis- und Risikoblock sehen
 - **EvidenceLog**: Repräsentiert den Nachweisblock mit Ressourcen, Tests, Restrisiken und Folge-Gate.
 - **FollowUpGate**: Repräsentiert den naechsten klar benannten Schritt nach diesem Block.
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

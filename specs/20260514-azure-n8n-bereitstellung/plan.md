@@ -32,7 +32,7 @@ Prepare a governed Azure pre-deployment path for `n8n.menschlichkeit-oesterreich
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 - Security first: PASS, because the plan keeps the surface minimal and explicitly blocks public service ports and password/root login.
 - Data integrity: PASS, because there is no implicit production status without live evidence for Grant/Billing and the next gate is explicit.

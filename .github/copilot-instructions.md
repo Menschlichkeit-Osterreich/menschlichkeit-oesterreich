@@ -137,5 +137,7 @@ Wenn eine Aenderung aktive Ablaeufe, Rollen, Pfade oder Tooling betrifft, muesse
 - `.github/prompts/README.md`
 
 <!-- SPECKIT START -->
+
 For additional context about technologies to be used, project structure, shell commands, and other important information, read [specs/20260514-azure-n8n-bereitstellung/plan.md](specs/20260514-azure-n8n-bereitstellung/plan.md)
+
 <!-- SPECKIT END -->
