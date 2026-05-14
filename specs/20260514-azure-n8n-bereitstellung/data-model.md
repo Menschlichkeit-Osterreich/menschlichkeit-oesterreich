@@ -11,6 +11,11 @@ Repraesentiert die explizite Liste der produktionsnahen Workflow-Dateien im Gate
 - `version` - Inventarversion fuer nachvollziehbare Aenderungen
 - `scope_root` - Basisverzeichnis, erwartbar `automation/n8n/workflows`
 - `workflows[]` - Liste der inventarisierten relativen Dateipfade
+- `special_case`
+  - `workflow_path`
+  - `special_case_flag`
+  - `evidence_status`
+  - `visibility_message`
 - `notes` - optionale Scope-Hinweise
 
 **Rules**

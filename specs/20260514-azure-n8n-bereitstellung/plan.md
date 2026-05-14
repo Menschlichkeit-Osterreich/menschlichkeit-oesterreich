@@ -38,7 +38,7 @@ Dieser Block fuehrt ein belastbares Validitaets-Gate fuer produktionsnahe n8n-Wo
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 - Verfassungsstatus: `.specify/memory/constitution.md` ist ein Platzhalter ohne verbindliche Prinzipien.
 - Gate C1 (Governance): PASS mit Hinweis - verbindliche Repo-Governance kommt aus `AGENTS.md`, `CLAUDE.md` und Core-Instructions.
@@ -62,30 +62,19 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
 
-```text
 automation/
 └── n8n/
-  ├── README.md
-  ├── workflows/
-  └── workflow-inventory.production.json
+├── README.md
+├── workflows/
+└── workflow-inventory.production.json
 
 scripts/
 └── validate-n8n-workflows.mjs
 
 .github/
 └── workflows/
-  └── n8n-json-gate.yml
-```
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
-```
+└── n8n-json-gate.yml
 
 **Structure Decision**: Diese Umsetzung ist ein Automation/CI-Doku-Change ohne App-Code-Aenderung. Die fachliche Struktur konzentriert sich auf `automation/n8n`, `scripts` und `.github/workflows`.
 
@@ -93,7 +82,7 @@ ios/ or android/
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| Violation                  | Why Needed         | Simpler Alternative Rejected Because |
+| -------------------------- | ------------------ | ------------------------------------ |
+| [e.g., 4th project]        | [current need]     | [why 3 projects insufficient]        |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient]  |

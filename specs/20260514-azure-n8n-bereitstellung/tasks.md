@@ -199,10 +199,10 @@ Task: "T020 [US4] Known-Risk-Doku in automation/n8n/README.md"
 
 1. Team schliesst Phase 1-2 gemeinsam ab.
 2. Danach parallele Story-Arbeit:
-	- Dev A: US1
-	- Dev B: US2
-	- Dev C: US3
-	- Dev D: US4
+   - Dev A: US1
+   - Dev B: US2
+   - Dev C: US3
+   - Dev D: US4
 
 ---
 

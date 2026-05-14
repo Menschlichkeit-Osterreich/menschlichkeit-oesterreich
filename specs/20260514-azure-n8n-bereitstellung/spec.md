@@ -81,7 +81,8 @@ Als Stakeholder will ich, dass `finance-donation-processing.json` als bekannter 
 ### Functional Requirements
 
 - **FR-001**: Das System MUST eine explizite Inventarliste fuer produktionsnahe n8n-Workflow-Dateien unter `automation/n8n` bereitstellen.
-- **FR-002**: Das System MUST bei der Validierung ausschliesslich die inventarisierten produktionsnahen Workflow-Dateien pruefen.
+- **FR-002**: Das System MUST die JSON-Validierung ausschliesslich fuer inventarisierte produktionsnahe Workflow-Dateien ausfuehren.
+- **FR-002a**: Das System MUST zusaetzlich eine Scope-Abweichungspruefung zwischen Inventar und `scope_root` durchfuehren und fehlende oder unerwartete produktionsnahe Dateien als Abweichung sichtbar machen.
 - **FR-003**: Das System MUST jede inventarisierte Workflow-Datei auf strikte JSON-Syntax validieren.
 - **FR-004**: Das System MUST bei jeder ungueltigen inventarisierten Workflow-Datei mit Fehlerstatus fehlschlagen.
 - **FR-005**: Das System MUST die betroffenen Dateipfade bei Fehlern eindeutig ausgeben.
@@ -91,10 +92,15 @@ Als Stakeholder will ich, dass `finance-donation-processing.json` als bekannter 
 - **FR-009**: Das System MUST den Sonderfallstatus nicht stillschweigend als regulare Validitaet ohne Hinweis behandeln.
 - **FR-010**: Das System MUST keine unbeteiligten Legacy- oder Mirror-Pfade in den Validierungsscope aufnehmen.
 - **FR-011**: Das System MUST fuer diesen Block produktives n8n-Deployment, Azure-Provisioning, DNS/HTTPS, Reverse Proxy, Queue-Mode und fachliche Verlagerung aus `apps/api` explizit ausschliessen.
+- **FR-012**: Das System MUST das Inventar gegen ein normatives Mindestschema validieren und bei fehlenden Pflichtfeldern fehlschlagen.
 
 ### Key Entities _(include if feature involves data)_
 
-- **WorkflowInventory**: Explizite Liste der produktionsnahen Workflow-Dateipfade im Scope dieses Gates.
+- **WorkflowInventory**: Normative Inventardefinition mit Pflichtfeldern `version`, `scope_root`, `workflows` und `special_case`.
+  - `version`: String, semantische oder revisionsbezogene Inventarversion.
+  - `scope_root`: String, erwarteter Basisordner fuer Workflow-Dateien.
+  - `workflows`: Nicht-leere Liste relativer Dateipfade unterhalb von `scope_root`.
+  - `special_case`: Objekt fuer `finance-donation-processing.json` mit mindestens `workflow_path`, `special_case_flag`, `evidence_status`, `visibility_message`.
 - **WorkflowValidationResult**: Ergebnis je Workflow-Datei mit Status, Fehlermeldung und Dateipfad.
 - **SpecialCaseStatus**: Kennzeichnung und aktueller Nachweisstatus fuer den Donation-Sonderfall.
 - **ValidationGateRun**: Zusammenfassung eines lokalen oder CI-Laufs inklusive Gesamtstatus und Fehleranzahl.
