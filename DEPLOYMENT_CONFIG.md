@@ -28,6 +28,7 @@ panel: Plesk (Obsidian)
 | API      | FastAPI (Python 3.12+) | `pip install -r requirements.txt` | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/api/httpdocs/`   | `https://api.menschlichkeit-oesterreich.at/health` |
 | CRM      | Drupal 10 + CiviCRM    | `composer install --no-dev`       | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/crm/httpdocs/`   | `https://crm.menschlichkeit-oesterreich.at/`       |
 | Games    | Static Files           | _(kein Build)_                    | `/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/games/httpdocs/` | `https://games.menschlichkeit-oesterreich.at/`     |
+| n8n      | Docker (n8n + Caddy)   | `docker-compose build`            | Docker Container (Port 5678)                                               | `https://n8n.menschlichkeit-oesterreich.at/healthz` |
 
 ### Lokale Service-Verzeichnisse (Repository → Server)
 
