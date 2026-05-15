@@ -11,7 +11,11 @@ const OFFICIAL_MODEL_IDS = new Set([
   'claude-3-5-haiku-20241022',
   'claude-3-haiku-20240307',
   'claude-opus-4-0',
+  'claude-opus-4.6',
+  'claude-opus-4-6',
   'claude-sonnet-4-0',
+  'claude-haiku-4.5',
+  'claude-haiku-4-5-20251001',
   'claude-3-7-sonnet-latest',
   'claude-3-5-sonnet-latest',
   'claude-3-5-haiku-latest',
@@ -308,6 +312,23 @@ function inspectLogPatterns(report, logContent) {
   }
 
   const checks = [
+    {
+      severity: 'high',
+      category: 'log-analysis',
+      pattern:
+        /`?thinking`?\s+or\s+`?redacted_thinking`?\s+blocks in the latest assistant message cannot be modified/gi,
+      message: 'Claude lehnt einen veraenderten Thinking-Block im letzten Assistant-Message ab.',
+      detail:
+        'Das ist typischerweise ein defekter Copilot-Chat-State nach Retry oder ConversationHistorySummarizer-Compaction. Den betroffenen lokalen Copilot-Session-Verlauf quarantinen und mit einem neuen Chat oder einem nicht betroffenen Modell fortsetzen.',
+    },
+    {
+      severity: 'high',
+      category: 'log-analysis',
+      pattern: /\[ConversationHistorySummarizer\] background compaction failed/g,
+      message: 'Copilot ConversationHistorySummarizer scheitert bei der Hintergrund-Kompaktierung.',
+      detail:
+        'Wenn dies zusammen mit Thinking-Block-400ern erscheint, liegt der Fehler im lokalen Copilot/Claude-Session-State statt in Repo-Dateien.',
+    },
     {
       severity: 'high',
       category: 'log-analysis',
