@@ -96,6 +96,9 @@
   --ds-colors-warning-700: #a33800;
   --ds-colors-warning-800: #842e00;
   --ds-colors-warning-900: #5f2000;
+  --ds-grid-columns-default: 12;
+  --ds-grid-container-padding: 2rem;
+  --ds-grid-container-screens-2xl: 1400px;
   --ds-shadows-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
   --ds-shadows-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
   --ds-shadows-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);

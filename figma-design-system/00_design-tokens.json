@@ -2,7 +2,8 @@
   "meta": {
     "canonicalBrandSource": ".claude/plugins/moe-brand/BRAND-GUIDELINES-V1.0.md",
     "description": "Abgeleitete Build-Tokens fuer Website, CRM-Portal und Games-Landingpage. Kanonische Markenentscheidung liegt im Moe-Brand-Guide.",
-    "status": "derived-from-moe-brand"
+    "status": "derived-from-moe-brand",
+    "version": "1.1.0"
   },
   "designTokens": {
     "colors": {
@@ -188,6 +189,17 @@
       "xl": "1280px",
       "2xl": "1536px"
     },
+    "grid": {
+      "container": {
+        "padding": "2rem",
+        "screens": {
+          "2xl": "1400px"
+        }
+      },
+      "columns": {
+        "default": "12"
+      }
+    },
     "animation": {
       "duration": {
         "fast": "150ms",
@@ -219,6 +231,6 @@
       "tooltip": "1800"
     }
   },
-  "lastSync": "2026-04-13T00:00:00.000Z",
+  "lastSync": "2026-05-15T00:00:00.000Z",
   "source": "moe-brand-derived"
 }

@@ -1,4 +1,3 @@
- 
 const tokens = require('../../figma-design-system/00_design-tokens.json');
 
 const tt = tokens.designTokens;
@@ -18,6 +17,11 @@ module.exports = {
     { pattern: /(bg|text|border)-(primary|secondary|accent)-(50|100|200|300|400|500|600|700|800|900|950)/ },
   ],
   theme: {
+    container: {
+      center: true,
+      padding: tt.grid?.container?.padding ?? '2rem',
+      screens: tt.grid?.container?.screens ?? { '2xl': '1400px' },
+    },
     extend: {
       colors: tt.colors,
       fontFamily,
@@ -28,7 +32,18 @@ module.exports = {
       spacing: tt.spacing,
       borderRadius: tt.borderRadius,
       boxShadow: tt.shadows,
+      zIndex: tt.zIndex,
       screens: tt.breakpoints,
+      transitionDuration: tt.animation?.duration,
+      transitionTimingFunction: {
+        linear: tt.animation?.easing?.linear,
+        ease: tt.animation?.easing?.ease,
+        DEFAULT: tt.animation?.easing?.['ease-in-out'],
+        in: tt.animation?.easing?.['ease-in'],
+        out: tt.animation?.easing?.['ease-out'],
+        'in-out': tt.animation?.easing?.['ease-in-out'],
+        bounce: tt.animation?.easing?.bounce,
+      },
       backgroundImage: {
         'brand-gradient': 'var(--brand-gradient)',
         'hero-pattern': 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)',

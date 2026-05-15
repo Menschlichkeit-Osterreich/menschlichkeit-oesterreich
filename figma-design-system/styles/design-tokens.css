@@ -1,80 +1,94 @@
-
-/* 🎨 Auto-generated Design Tokens CSS Variables */
-/* Generated on: 2026-03-16T21:00:32.393Z */
+/* 🎨 Design Tokens (Referenz) */
+/* Quelle: figma-design-system/00_design-tokens.json */
+/* Version: 1.1.0 (lastSync: 2026-05-15) */
 
 :root {
-  /* Colors */
-  --color-primary-50: #fff5f5;
-  --color-primary-100: #ffe0e0;
-  --color-primary-200: #ffbdbd;
-  --color-primary-300: #ff8f8f;
-  --color-primary-400: #f85a5a;
-  --color-primary-500: #ef2c2c;
-  --color-primary-600: #dc2626;
-  --color-primary-700: #c01010;
-  --color-primary-800: #9b1313;
-  --color-primary-900: #7f1d1d;
-  --color-secondary-50: #f8fafc;
-  --color-secondary-100: #f1f5f9;
-  --color-secondary-200: #e2e8f0;
-  --color-secondary-300: #cbd5e1;
-  --color-secondary-400: #94a3b8;
-  --color-secondary-500: #64748b;
-  --color-secondary-600: #475569;
-  --color-secondary-700: #334155;
-  --color-secondary-800: #1e293b;
-  --color-secondary-900: #0f172a;
-  --color-accent-50: #fef7ff;
-  --color-accent-100: #fdeef9;
-  --color-accent-200: #fde6f4;
-  --color-accent-300: #fcceeb;
-  --color-accent-400: #f9a8d4;
-  --color-accent-500: #f472b6;
-  --color-accent-600: #ec4899;
-  --color-accent-700: #db2777;
-  --color-accent-800: #be185d;
-  --color-accent-900: #9d174d;
-  --color-success-50: #f0fdf4;
-  --color-success-100: #dcfce7;
-  --color-success-200: #bbf7d0;
-  --color-success-300: #86efac;
-  --color-success-400: #4ade80;
-  --color-success-500: #22c55e;
-  --color-success-600: #16a34a;
-  --color-success-700: #15803d;
-  --color-success-800: #166534;
-  --color-success-900: #14532d;
-  --color-warning-50: #fffbeb;
-  --color-warning-100: #fef3c7;
-  --color-warning-200: #fde68a;
-  --color-warning-300: #fcd34d;
-  --color-warning-400: #fbbf24;
-  --color-warning-500: #f59e0b;
-  --color-warning-600: #d97706;
-  --color-warning-700: #b45309;
-  --color-warning-800: #92400e;
-  --color-warning-900: #78350f;
-  --color-error-50: #fef2f2;
-  --color-error-100: #fee2e2;
-  --color-error-200: #fecaca;
-  --color-error-300: #fca5a5;
-  --color-error-400: #f87171;
-  --color-error-500: #ef4444;
-  --color-error-600: #dc2626;
-  --color-error-700: #b91c1c;
-  --color-error-800: #991b1b;
-  --color-error-900: #7f1d1d;
-  --color-semantic-background: #ffffff;
-  --color-semantic-surface: #f8fafc;
-  --color-semantic-overlay: rgba(0, 0, 0, 0.5);
-  --color-semantic-text-primary: #0f172a;
-  --color-semantic-text-secondary: #64748b;
-  --color-semantic-text-inverse: #ffffff;
-  --color-semantic-border: #e2e8f0;
-  --color-semantic-border-focus: #0ea5e9;
-  --color-semantic-disabled: #f1f5f9;
+  /* Colors — Paletten */
+  --color-primary-50: #fdf3ed;
+  --color-primary-100: #fae2d4;
+  --color-primary-200: #f6c5a8;
+  --color-primary-300: #eea06f;
+  --color-primary-400: #e27a3f;
+  --color-primary-500: #d4611e;
+  --color-primary-600: #b54a0f;
+  --color-primary-700: #973b10;
+  --color-primary-800: #7a3213;
+  --color-primary-900: #512311;
+  --color-primary-950: #2f1207;
+
+  --color-secondary-50: #faf7f5;
+  --color-secondary-100: #f0ebe6;
+  --color-secondary-200: #ddd5cc;
+  --color-secondary-300: #c8bdb2;
+  --color-secondary-400: #aa9d91;
+  --color-secondary-500: #7a6e62;
+  --color-secondary-600: #64574d;
+  --color-secondary-700: #4a4039;
+  --color-secondary-800: #382f29;
+  --color-secondary-900: #2b231d;
+  --color-secondary-950: #17120e;
+
+  --color-accent-50: #eef5f8;
+  --color-accent-100: #d7e7ef;
+  --color-accent-200: #b2d1e0;
+  --color-accent-300: #82b4cb;
+  --color-accent-400: #4f8bae;
+  --color-accent-500: #1b4965;
+  --color-accent-600: #163d55;
+  --color-accent-700: #143245;
+  --color-accent-800: #132a39;
+  --color-accent-900: #101f2a;
+  --color-accent-950: #091117;
+
+  --color-success-50: #eef7ef;
+  --color-success-100: #d5ead7;
+  --color-success-200: #add5b0;
+  --color-success-300: #82bc86;
+  --color-success-400: #5aa25f;
+  --color-success-500: #2e7d32;
+  --color-success-600: #286d2c;
+  --color-success-700: #215a25;
+  --color-success-800: #1b4a1f;
+  --color-success-900: #123116;
+
+  --color-warning-50: #fef2e8;
+  --color-warning-100: #fbd7bd;
+  --color-warning-200: #f8bb91;
+  --color-warning-300: #f39a5f;
+  --color-warning-400: #ed7b31;
+  --color-warning-500: #e65100;
+  --color-warning-600: #c64600;
+  --color-warning-700: #a33800;
+  --color-warning-800: #842e00;
+  --color-warning-900: #5f2000;
+
+  --color-error-50: #f9eaea;
+  --color-error-100: #efc9c9;
+  --color-error-200: #e5a6a6;
+  --color-error-300: #d97878;
+  --color-error-400: #cf5151;
+  --color-error-500: #c62828;
+  --color-error-600: #ab2222;
+  --color-error-700: #8d1c1c;
+  --color-error-800: #701616;
+  --color-error-900: #4e0f0f;
+
+  /* Colors — Semantisch */
+  --semantic-background: #ffffff;
+  --semantic-surface: #faf7f5;
+  --semantic-overlay: rgba(0, 0, 0, 0.5);
+  --semantic-text-primary: #2b231d;
+  --semantic-text-secondary: #4a4039;
+  --semantic-text-inverse: #ffffff;
+  --semantic-border: #ddd5cc;
+  --semantic-border-focus: #1b4965;
+  --semantic-disabled: #f0ebe6;
 
   /* Typography */
+  --font-family-primary: 'Nunito Sans', system-ui, sans-serif;
+  --font-family-secondary: 'Source Sans 3', 'Segoe UI', sans-serif;
+  --font-family-mono: 'JetBrains Mono', Monaco, monospace;
+
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
@@ -86,6 +100,30 @@
   --font-size-5xl: 3rem;
   --font-size-6xl: 3.75rem;
   --font-size-7xl: 4.5rem;
+
+  --font-weight-thin: 100;
+  --font-weight-extralight: 200;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+
+  --line-height-none: 1;
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+  --line-height-loose: 2;
+
+  --letter-spacing-tighter: -0.05em;
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0em;
+  --letter-spacing-wide: 0.025em;
+  --letter-spacing-wider: 0.05em;
+  --letter-spacing-widest: 0.1em;
 
   /* Spacing */
   --spacing-0: 0px;
@@ -107,16 +145,63 @@
   --spacing-56: 14rem;
   --spacing-64: 16rem;
 
+  /* Radii */
+  --border-radius-none: 0px;
+  --border-radius-xs: 0.125rem;
+  --border-radius-sm: 0.25rem;
+  --border-radius-md: 0.375rem;
+  --border-radius-lg: 0.5rem;
+  --border-radius-xl: 0.75rem;
+  --border-radius-2xl: 1rem;
+  --border-radius-3xl: 1.5rem;
+  --border-radius-full: 9999px;
 
-}
+  /* Shadow */
+  --shadow-none: none;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
 
-/* Dark mode variables */
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Dark mode overrides would go here */
-  }
-}
+  /* Breakpoints */
+  --breakpoint-xs: 320px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
 
-.dark {
-  /* Dark mode class overrides would go here */  
+  /* Grid */
+  --grid-container-padding: 2rem;
+  --grid-container-screen-2xl: 1400px;
+  --grid-columns-default: 12;
+
+  /* Motion */
+  --animation-duration-fast: 150ms;
+  --animation-duration-normal: 300ms;
+  --animation-duration-slow: 500ms;
+
+  --animation-easing-linear: linear;
+  --animation-easing-ease: ease;
+  --animation-easing-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --animation-easing-ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --animation-easing-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --animation-easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* Z-Index */
+  --z-index-hide: -1;
+  --z-index-auto: auto;
+  --z-index-base: 0;
+  --z-index-docked: 10;
+  --z-index-dropdown: 1000;
+  --z-index-sticky: 1100;
+  --z-index-banner: 1200;
+  --z-index-overlay: 1300;
+  --z-index-modal: 1400;
+  --z-index-popover: 1500;
+  --z-index-skip-link: 1600;
+  --z-index-toast: 1700;
+  --z-index-tooltip: 1800;
 }
