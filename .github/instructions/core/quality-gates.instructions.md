@@ -6,8 +6,9 @@ lastUpdated: 2025-10-08
 status: ACTIVE
 priority: critical
 category: core
-applyTo: **/*
+applyTo: 'apps/**,.github/workflows/**'
 ---
+
 # Quality Gates Instructions
 
 ## MANDATORY Quality Gates (PR-Blocking)
@@ -15,6 +16,7 @@ applyTo: **/*
 **KEINE AUSNAHMEN - Alle Gates müssen GRÜN sein vor Merge/Deployment**
 
 ### Gate 1: Security (CRITICAL)
+
 ```markdown
 Via GitHub MCP:
 □ Dependabot Alerts: 0 HIGH/CRITICAL
@@ -31,12 +33,14 @@ Via Brave Search MCP (bei Findings):
 "Find security patch for {PACKAGE}"
 
 BLOCKER wenn:
+
 - CVE CVSS ≥ 7.0
 - PII/Credentials exposed
 - Exploit in the wild
 ```
 
 ### Gate 2: DSGVO/Privacy (CRITICAL für NGO)
+
 ```markdown
 Via PostgreSQL MCP:
 □ PII fields encrypted
@@ -53,12 +57,14 @@ Via Brave Search MCP:
 "Find Austrian data protection law updates"
 
 BLOCKER wenn:
+
 - PII unverschlüsselt
 - No consent mechanism
 - Missing legal basis (Art. 6 DSGVO)
 ```
 
 ### Gate 3: Code Quality
+
 ```markdown
 Via Codacy MCP (automatisch):
 □ Maintainability ≥ 85%
@@ -72,12 +78,14 @@ Via Filesystem MCP:
 □ PHPStan level 6 passed
 
 BLOCKER wenn:
+
 - Maintainability < 85%
 - Duplication > 2%
 - CRITICAL issues exist
 ```
 
 ### Gate 4: Testing
+
 ```markdown
 Via Playwright MCP:
 □ E2E Tests: 100% passing
@@ -90,12 +98,14 @@ Via Filesystem MCP:
 □ Tests für neue Features
 
 BLOCKER wenn:
+
 - E2E Tests failing
 - Coverage < 80%
 - No tests für neue Features
 ```
 
 ### Gate 5: Performance
+
 ```markdown
 Via Playwright MCP:
 □ Lighthouse Performance ≥ 90
@@ -114,12 +124,14 @@ Via Filesystem MCP:
 □ Code-Splitting implemented
 
 BLOCKER wenn:
+
 - Lighthouse Score < 90
 - Query Time > 500ms
 - Bundle Size > 300KB
 ```
 
 ### Gate 6: Accessibility (WCAG AA)
+
 ```markdown
 Via Figma MCP:
 □ Design Token Kontrast ≥ 4.5:1
@@ -136,12 +148,14 @@ Via Filesystem MCP:
 □ Alt-Tags für Images
 
 BLOCKER wenn:
+
 - WCAG AA violations
 - Keyboard nav broken
 - Missing aria-labels
 ```
 
 ### Gate 7: Design System Compliance
+
 ```markdown
 Via Figma MCP:
 □ Design Token Drift = 0
@@ -156,12 +170,14 @@ Via Memory MCP:
 "Check design system version consistency"
 
 BLOCKER wenn:
+
 - Token Drift > 0
 - Hardcoded styles exist
 - Component mismatch with Figma
 ```
 
 ### Gate 8: Documentation
+
 ```markdown
 Via Filesystem MCP:
 □ README updated
@@ -175,6 +191,7 @@ Via GitHub MCP:
 □ Breaking Changes dokumentiert
 
 BLOCKER wenn:
+
 - API Changes undocumented
 - Breaking Changes without notice
 - Missing CHANGELOG entry
@@ -183,6 +200,7 @@ BLOCKER wenn:
 ## Automatische Enforcement
 
 ### Pre-Commit Hook
+
 ```bash
 # Nach jedem File-Edit (via Copilot Instructions):
 1. Codacy MCP analysiert automatisch
@@ -196,6 +214,7 @@ BLOCKER wenn:
 ```
 
 ### Pre-Push Validation
+
 ```bash
 # Vor jedem Push:
 npm run quality:gates
@@ -213,6 +232,7 @@ npm run quality:gates
 ```
 
 ### Pre-PR Checks
+
 ```bash
 # Automatisch via GitHub Actions:
 - Security Scan (Trivy, Gitleaks)
@@ -228,6 +248,7 @@ ALL_GATES_GREEN = true
 ## Service-Spezifische Gates
 
 ### CRM Service (Drupal + CiviCRM)
+
 ```markdown
 ZUSÄTZLICH:
 Via PostgreSQL MCP:
@@ -242,6 +263,7 @@ Via Filesystem MCP:
 ```
 
 ### API Backend (FastAPI)
+
 ```markdown
 ZUSÄTZLICH:
 Via Filesystem MCP:
@@ -256,6 +278,7 @@ Via PostgreSQL MCP:
 ```
 
 ### Frontend (React/TypeScript)
+
 ```markdown
 ZUSÄTZLICH:
 Via Figma MCP:
@@ -269,6 +292,7 @@ Via Playwright MCP:
 ```
 
 ### Gaming Platform
+
 ```markdown
 ZUSÄTZLICH:
 Via PostgreSQL MCP:
@@ -284,6 +308,7 @@ Via Playwright MCP:
 ## Gate Failure Response
 
 ### CRITICAL Failure (Security/DSGVO)
+
 ```markdown
 1. IMMEDIATE STOP all deployments
 2. Via GitHub MCP: Create CRITICAL issue
@@ -293,6 +318,7 @@ Via Playwright MCP:
 ```
 
 ### HIGH Failure (Quality/Performance)
+
 ```markdown
 1. Block PR merge
 2. Via GitHub MCP: Add review comments
@@ -302,6 +328,7 @@ Via Playwright MCP:
 ```
 
 ### MEDIUM Failure (Documentation/Tests)
+
 ```markdown
 1. Warning in PR
 2. Via GitHub MCP: Request changes
@@ -312,11 +339,13 @@ Via Playwright MCP:
 ## Monitoring & Reporting
 
 ### Daily Quality Report
+
 ```markdown
 Via Memory MCP:
 "Generate quality trend report"
 
 Metrics:
+
 - Gate Pass Rate (Target: 100%)
 - Average Fix Time
 - Recurring Issues
@@ -327,11 +356,13 @@ Via GitHub MCP:
 ```
 
 ### Sprint Quality Review
+
 ```markdown
 Via Memory MCP:
 "Analyze sprint quality metrics"
 
 Review:
+
 - Gates blocked how many PRs?
 - Most common failures?
 - Improvement areas?
@@ -343,14 +374,17 @@ Via Brave Search MCP:
 ## Quality Culture
 
 ### Team Guidelines
+
 ```markdown
 ✅ DO:
+
 - Run quality:gates before PR
 - Fix findings immediately
 - Ask for help wenn unclear
 - Document learnings
 
 ❌ DON'T:
+
 - Skip quality checks
 - Force push without validation
 - Ignore warnings
@@ -358,11 +392,13 @@ Via Brave Search MCP:
 ```
 
 ### Continuous Improvement
+
 ```markdown
 Via Memory MCP:
 "Track quality improvements over time"
 
 Monthly Review:
+
 - Gate effectiveness
 - False positives
 - Process optimizations

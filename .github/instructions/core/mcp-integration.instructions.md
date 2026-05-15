@@ -6,7 +6,7 @@ lastUpdated: 2025-10-07
 status: ACTIVE
 priority: critical
 category: core
-applyTo: **/*
+applyTo: 'mcp.json,.vscode/mcp.json,mcp-servers/**'
 ---
 
 # MCP Server Integration Instructions - Extended & Optimized

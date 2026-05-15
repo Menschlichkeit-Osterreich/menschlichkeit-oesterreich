@@ -6,8 +6,9 @@ lastUpdated: 2025-10-08
 status: ACTIVE
 priority: high
 category: core
-applyTo: **
+applyTo: 'apps/crm/**,apps/api/**,automation/**'
 ---
+
 # Beitragsordnung – Menschlichkeit Österreich (gültig ab 01.07.2025)
 
 Diese Anweisung konkretisiert die Beitragsordnung und operationalisiert Statuten (§§ 5, 7, 10, 11) für die Vereinsverwaltung. Rechtsgrundlagen: Vereinsgesetz 2002, BAO § 132 (Aufbewahrung 7 Jahre), DSGVO/DSG, TKG § 107 (Kommunikation).
@@ -16,7 +17,7 @@ Diese Anweisung konkretisiert die Beitragsordnung und operationalisiert Statuten
 
 - Standard: 36,00 EUR/Jahr (3,00 EUR/Monat)
 - Ermäßigt: 18,00 EUR/Jahr (1,50 EUR/Monat)
-  - Anspruch: Studierende, Arbeitssuchende, Pensionist*innen, prekäre Lebenslagen (Nachweis/Erklärung ausreichend)
+  - Anspruch: Studierende, Arbeitssuchende, Pensionist\*innen, prekäre Lebenslagen (Nachweis/Erklärung ausreichend)
 - Härtefall: 0,00 EUR (befreit; Beschluss Vorstand)
 - Vorstand & Ehrenmitglieder: beitragsfrei (gemäß Beschluss und Statuten)
 
@@ -52,21 +53,25 @@ Hinweis: Bei Eintritt im laufenden Jahr anteilige Berechnung ab Beitrittsmonat.
 
 ## Operativer Ablauf (standardisiert)
 
-1) Onboarding
+1. Onboarding
+
 - Kategorie erfassen (standard/ermäßigt/härtefall)
 - Zahlungsart wählen, SEPA-Dauerauftrag empfehlen (Monatszahler)
 - Willkommensmail inkl. Beitragsinfos (freundlicher Ton, österreichisches Deutsch)
 
-2) Verrechnung
+2. Verrechnung
+
 - Jahreszahler: Sammel-E-Mail im Jänner mit Zahlungsziel 31.03.
 - Monatszahler: automatisierte Erinnerung am 1. und Fälligkeit am 5. des Monats
 
-3) Mahnwesen
+3. Mahnwesen
+
 - Automatisierte Erinnerungen T+14 und T+30
 - Entscheidungsvorlage an Vorstand bei T+90
 - Streichungsbeschluss dokumentieren, Mitteilung an betroffene Person (respektvoll, inklusive Hinweis auf Wiedereintritt)
 
-4) Reporting
+4. Reporting
+
 - Monatsreport: Zahlungseingänge, offene Posten, Befreiungen (aggregiert)
 - Quartalsweise Vorstandsreport: Trends, Empfehlungen (z. B. SEPA-Quote erhöhen)
 
@@ -94,5 +99,5 @@ Hinweis: Bei Eintritt im laufenden Jahr anteilige Berechnung ab Beitrittsmonat.
 
 ---
 
-Verantwortlich: Vorstand (Kassier*in)
+Verantwortlich: Vorstand (Kassier\*in)
 Kontakt: finanzen@menschlichkeit-oesterreich.at

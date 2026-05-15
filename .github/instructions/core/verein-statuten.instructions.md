@@ -6,13 +6,15 @@ lastUpdated: 2025-10-08
 status: ACTIVE
 priority: critical
 category: core
-applyTo: **
+applyTo: 'apps/crm/**,apps/api/**,Pdf/**,docs/**'
 ---
+
 # Vereinsstatuten - Menschlichkeit Österreich
 
 ## 🏛️ Rechtliche Grundlagen
 
 ### Vereinsregisterdaten
+
 - **Name:** Menschlichkeit Österreich
 - **ZVR-Zahl:** 1182213083
 - **Sitz:** 3100 St. Pölten-Pottenbrunn
@@ -22,6 +24,7 @@ applyTo: **
 - **Zuständigkeit:** Landespolizeidirektion Niederösterreich - Referat SVA 3
 
 ### Rechtsgrundlagen
+
 - **Vereinsgesetz 2002 (VerG)** - Gesetzliche Basis
 - **Bundesabgabenordnung (BAO) §§ 34 ff** - Gemeinnützigkeit
 - **Datenschutz-Grundverordnung (DSGVO)** - Datenschutz
@@ -30,12 +33,14 @@ applyTo: **
 ## 📋 Vereinszweck & Mission
 
 ### Präambel (Kernbotschaft)
+
 ```markdown
 Menschlichkeit ist keine Option, sondern Pflicht.
 
 Wir handeln dort, wo andere wegschauen:
+
 - Bildungsarbeit
-- Soziale Projekte  
+- Soziale Projekte
 - Ökologische Initiativen
 - Demokratische Mitbestimmung
 
@@ -43,6 +48,7 @@ Vision: Ein Österreich, das niemanden zurücklässt.
 ```
 
 ### Gemeinnützige Zielsetzungen (§ 3)
+
 1. **Soziale Gerechtigkeit** - Politische Bildung, Empowerment, aktive Beteiligung
 2. **Solidarität** - Direkte Unterstützung von Menschen in Notlagen
 3. **Klimaschutz** - Zukunftsfähiger, klimabewusster Lebensstil
@@ -50,6 +56,7 @@ Vision: Ein Österreich, das niemanden zurücklässt.
 5. **Chancengleichheit** - Intergenerationelle Fairness, benachteiligte Gruppen
 
 ### Überparteilichkeit
+
 - Parteipolitisch unabhängig
 - Ausschließlich werteorientiert
 - Kooperationen mit allen solidarischen Organisationen
@@ -59,18 +66,21 @@ Vision: Ein Österreich, das niemanden zurücklässt.
 ### Mitgliedsarten (§ 5)
 
 #### Ordentliche Mitglieder
+
 - Aktive Teilnahme am Vereinsleben
 - Stimm-, Wahl- und Antragsrecht
 - Wählbar in Vereinsorgane
 - **Beitragspflicht:** Ja (siehe Beitragsordnung)
 
 #### Außerordentliche Mitglieder
+
 - Ideelle/materielle Unterstützung
 - Kein Stimmrecht
 - Gastteilnahme an Mitgliederversammlungen
 - **Beitragspflicht:** Ja (siehe Beitragsordnung)
 
 #### Ehrenmitglieder
+
 - Außergewöhnliche Verdienste um Vereinsziele
 - Ernennung durch Mitgliederversammlung (auf Vorschlag Vorstand)
 - Beratendes Stimmrecht
@@ -79,6 +89,7 @@ Vision: Ein Österreich, das niemanden zurücklässt.
 ### Aufnahme & Beendigung
 
 #### Aufnahme (§ 5 Abs. 2)
+
 ```markdown
 1. Schriftlicher/elektronischer Antrag an Vorstand
 2. Entscheidung durch Vorstand (einfache Mehrheit)
@@ -87,6 +98,7 @@ Vision: Ein Österreich, das niemanden zurücklässt.
 ```
 
 #### Beendigung (§ 7)
+
 - **Austritt:** Jederzeit schriftlich/elektronisch, wirksam mit Monatsende
 - **Streichung:** Nach 3 Monaten Beitragsrückstand + 2 Mahnungen
 - **Ausschluss:** Bei vereinsschädigendem Verhalten (Berufung an Schiedsgericht möglich)
@@ -96,15 +108,16 @@ Vision: Ein Österreich, das niemanden zurücklässt.
 
 ### Beitragshöhen (gültig ab 01.07.2025)
 
-| Kategorie | Jahresbeitrag | Monatsbeitrag |
-|-----------|---------------|---------------|
-| **Standard** | 36,00 EUR | 3,00 EUR |
-| **Ermäßigt*** | 18,00 EUR | 1,50 EUR |
-| **Härtefall** | 0,00 EUR | 0,00 EUR |
+| Kategorie      | Jahresbeitrag | Monatsbeitrag |
+| -------------- | ------------- | ------------- |
+| **Standard**   | 36,00 EUR     | 3,00 EUR      |
+| **Ermäßigt\*** | 18,00 EUR     | 1,50 EUR      |
+| **Härtefall**  | 0,00 EUR      | 0,00 EUR      |
 
 *Ermäßigung für: Studierende, Arbeitssuchende, Pensionist*innen, prekäre Lebenslagen
 
 ### Zahlungsmodalitäten
+
 - **Fälligkeit Jahresbeitrag:** Bis 31. März des Kalenderjahres
 - **Fälligkeit Monatsbeitrag:** Bis 5. des laufenden Monats
 - **Zahlungsarten:**
@@ -113,6 +126,7 @@ Vision: Ein Österreich, das niemanden zurücklässt.
   - Digitale Zahlung - PayPal (nach Absprache)
 
 ### Sonderregelungen
+
 - **Eintritt während des Jahres:** Anteilige Berechnung ab Beitrittsmonat
 - **Härtefallregelung:** Auf begründeten Antrag an Vorstand
 - **Vorstand & Ehrenmitglieder:** Beitragsfrei
@@ -122,9 +136,10 @@ Vision: Ein Österreich, das niemanden zurücklässt.
 ### 1. Mitgliederversammlung (Oberstes Organ)
 
 #### Aufgaben (§ 10)
+
 - Genehmigung Tätigkeits- & Finanzbericht
 - Entlastung des Vorstands
-- Wahl/Abberufung Vorstand & Rechnungsprüfer*innen
+- Wahl/Abberufung Vorstand & Rechnungsprüfer\*innen
 - Ernennung/Aberkennung Ehrenmitgliedschaften
 - Festlegung Mitgliedsbeiträge
 - Statutenänderungen (2/3 Mehrheit)
@@ -132,6 +147,7 @@ Vision: Ein Österreich, das niemanden zurücklässt.
 - Strategische Ausrichtung
 
 #### Durchführung
+
 - Mindestens 1x jährlich
 - Physisch, digital oder hybrid
 - Einberufung durch Vorstand
@@ -139,26 +155,31 @@ Vision: Ein Österreich, das niemanden zurücklässt.
 ### 2. Vorstand (Leitungsorgan)
 
 #### Zusammensetzung (§ 11)
+
 - **Obperson** (Vorsitz) - Peter Schuller
 - **Stellvertretende Obperson** - Michael Schuller
-- **Kassier*in** (Finanzverwaltung) - Michael Schuller
-- **Schriftführer*in** (Protokollführung) - Peter Schuller
-- Optional: Weitere Bereichskoordinator*innen
+- **Kassier\*in** (Finanzverwaltung) - Michael Schuller
+- **Schriftführer\*in** (Protokollführung) - Peter Schuller
+- Optional: Weitere Bereichskoordinator\*innen
 
 #### Amtszeit & Wahl
+
 - **Dauer:** Bis zu 5 Jahre (Wiederwahl zulässig)
 - **Wahl durch:** Mitgliederversammlung
 - **Beschlussfähigkeit:** Mind. 50% Anwesende
 - **Abstimmung:** Einfache Mehrheit (bei Gleichstand entscheidet Obperson)
 
 #### Vertretung nach außen (§ 11 Abs. 3)
+
 ```markdown
 REGELVERTRETUNG:
+
 - Obperson + 1 weiteres Vorstandsmitglied
 - Bei Verhinderung: Stellvertretung übernimmt
 
 EINZELVERTRETUNG FINANZEN (WICHTIG!):
-- Kassier*in ALLEIN vertretungsbefugt für:
+
+- Kassier\*in ALLEIN vertretungsbefugt für:
   ✓ Kontoführung
   ✓ Bankgeschäfte
   ✓ Zahlungsanweisungen
@@ -168,6 +189,7 @@ EINZELVERTRETUNG FINANZEN (WICHTIG!):
 ```
 
 #### Aufgaben (§ 12)
+
 - Laufende Geschäftsführung
 - Finanzverwaltung & Jahresabschluss
 - Mitgliederverwaltung (Aufnahme/Streichung/Ausschluss)
@@ -177,10 +199,12 @@ EINZELVERTRETUNG FINANZEN (WICHTIG!):
 - Geschäftsordnung beschließen
 
 #### Ehrenamtspauschale (§ 11 Abs. 8)
+
 ```markdown
 GRUNDSATZ: Ehrenamtlich & unentgeltlich
 
 AUSNAHME: Aufwandsentschädigung möglich für:
+
 - Nachgewiesene Auslagen
 - Tatsächlicher Aufwand
 - Ehrenamtspauschale (BAO § 34-47 konform)
@@ -192,9 +216,10 @@ VORAUSSETZUNGEN:
 ✓ Gemeinnützigkeit darf nicht gefährdet werden
 ```
 
-### 3. Rechnungsprüfer*innen (§ 13)
+### 3. Rechnungsprüfer\*innen (§ 13)
 
 #### Aufgaben
+
 - Prüfung gesamte Finanzgebarung
 - Kontrolle Jahresabschluss & Kassenführung
 - Einsichtnahme in alle Finanzunterlagen
@@ -202,25 +227,29 @@ VORAUSSETZUNGEN:
 - Empfehlung zur Vorstandsentlastung
 
 #### Anforderungen
-- **Anzahl:** 2 unabhängige Prüfer*innen
+
+- **Anzahl:** 2 unabhängige Prüfer\*innen
 - **Amtszeit:** 5 Jahre (Wiederwahl zulässig)
 - **Unabhängigkeit:** Dürfen keinem anderen Organ (außer Mitgliederversammlung) angehören
-- **Fallback:** Bei Mangel an Kandidat*innen → Mitgliederversammlung übernimmt kollektiv
+- **Fallback:** Bei Mangel an Kandidat\*innen → Mitgliederversammlung übernimmt kollektiv
 
 ### 4. Schiedsgericht (§ 14)
 
 #### Zuständigkeit
+
 - Vereinsinterne Streitigkeiten
 - Ausschlussberufungen
 - Endgültige Entscheidung (kein ordentlicher Rechtsweg)
 
 #### Zusammensetzung
+
 - 3 Personen (nicht aus anderen Organen)
 - Jede Partei benennt 1 Person
 - Diese 2 wählen Vorsitzperson
 - Fallback: Mitgliederversammlung entscheidet
 
 #### Verfahren
+
 1. Gütliche Einigung (Schlichtung)
 2. Wenn erfolglos: Mehrheitsbeschluss
 3. Schriftlich/digital/mündlich möglich
@@ -229,14 +258,16 @@ VORAUSSETZUNGEN:
 ### 5. Arbeitsgruppen & Fachbereiche (Optional)
 
 #### Merkmale
+
 - Themenbezogene Organisationsstrukturen
 - Eigenständige Arbeit
 - Rechenschaftspflichtig gegenüber Vorstand
-- Leiter*innen vom Vorstand bestellt/abberufen
+- Leiter\*innen vom Vorstand bestellt/abberufen
 
 ### 6. Geschäftsführung (Optional)
 
 #### Bestellung
+
 - Durch Vorstand (Vorstandsmitglied ODER externe Person)
 - Schriftlicher Vertrag
 - Aufgaben, Befugnisse, Vergütung geregelt
@@ -247,44 +278,52 @@ VORAUSSETZUNGEN:
 ### Landes- & Regionalgruppen
 
 #### Errichtung
+
 - Durch Vorstandsbeschluss ODER
 - Auf Antrag von min. 3 ordentlichen Mitgliedern (mit Wohnsitz in Region)
 - Genehmigung durch Hauptvorstand erforderlich
 
 #### Rechtsstatus
+
 - KEINE eigenständigen Rechtspersönlichkeiten
 - Unselbstständige Untergliederungen
 - Handeln im Namen des Hauptvereins
 - Eigenverantwortlich im regionalen Wirkungskreis
 
 #### Leitung
+
 **Regionalvorstand besteht aus:**
+
 - Obperson
 - Stellvertretende Obperson
-- Kassier*in
+- Kassier\*in
 
 Wahl durch Mitgliederversammlung der Teilorganisation  
 Rechenschaftspflicht gegenüber Hauptvorstand
 
 #### Aufgaben
+
 - Regionale Veranstaltungen/Bildungsangebote/Projekte
 - Mitgliedergewinnung & Öffentlichkeitsarbeit
 - Verwaltung regionaler Mittel
 - Regelmäßige Berichterstattung
 
 #### Auflösung
+
 - Durch Hauptvorstand (bei groben Verstößen)
 - Mitglieder bleiben ordentliche Mitglieder des Hauptvereins
 
 ## 🔒 Datenschutz (§ 16)
 
 ### Erfasste Daten
+
 - Name, Adresse, Kontaktdaten (E-Mail, Telefon)
 - Geburtsdatum
 - Mitgliedsstatus & Beitragsinformationen
 - Funktionen & Teilnahme an Gremien
 
 ### Zweck der Verarbeitung
+
 1. Mitgliederverwaltung
 2. Beitragseinhebung
 3. Information über Vereinstätigkeiten
@@ -292,17 +331,21 @@ Rechenschaftspflicht gegenüber Hauptvorstand
 5. Erfüllung gesetzlicher Meldepflichten
 
 ### Weitergabe an Dritte
+
 **NUR in folgenden Fällen:**
+
 - Gesetzliche Verpflichtung
 - Erfüllung Vereins-/gesetzlicher Aufgaben (z.B. Behördenmeldung, Banken)
 - Ausdrückliche Zustimmung der betroffenen Person
 
 ### Schutzmaßnahmen
+
 - Technische & organisatorische Schutzmaßnahmen
 - Schutz gegen unbefugten Zugriff/Verlust/Missbrauch
 - DSGVO & DSG konforme Verarbeitung
 
 ### Betroffenenrechte (DSGVO)
+
 - **Art. 15:** Auskunft über gespeicherte Daten
 - **Art. 16:** Berichtigung unrichtiger Daten
 - **Art. 17:** Löschung („Recht auf Vergessenwerden")
@@ -315,11 +358,13 @@ Rechenschaftspflicht gegenüber Hauptvorstand
 ## 🔄 Auflösung (§ 15)
 
 ### Freiwillige Auflösung
+
 - **Beschluss:** Eigens einberufene Mitgliederversammlung
 - **Mehrheit:** 2/3 der anwesenden stimmberechtigten Mitglieder
 - **Liquidation:** Durch zuletzt amtierenden Vorstand (sofern nicht anders beschlossen)
 
 ### Vermögensverwendung (WICHTIG!)
+
 ```markdown
 ZWINGEND:
 ✓ Restliches Vermögen nach Abdeckung aller Verbindlichkeiten
@@ -334,18 +379,21 @@ AUSGESCHLOSSEN:
 ```
 
 ### Anzeige & Dokumentation
+
 - Unverzügliche schriftliche/elektronische Anzeige an Vereinsbehörde
 - Information über Abwicklung & Mittelverwendung
-- Protokoll von Liquidator*innen unterzeichnet
+- Protokoll von Liquidator\*innen unterzeichnet
 - Unterlagen mind. 7 Jahre aufbewahren
 
 ## 🎯 Code Guidelines für Entwicklung
 
 ### Bei CRM-System (Drupal/CiviCRM)
+
 ```markdown
 WICHTIG: Rechtskonforme Mitgliederverwaltung
 
 PFLICHTFELDER:
+
 - Name (Vor-/Nachname)
 - Adresse (Straße, PLZ, Ort)
 - E-Mail
@@ -356,6 +404,7 @@ PFLICHTFELDER:
 - Beitrittsdatum
 
 OPTIONAL:
+
 - Telefonnummer
 - Funktionen im Verein
 - Teilnahme an Arbeitsgruppen
@@ -368,27 +417,29 @@ DATENSCHUTZ:
 ```
 
 ### Bei API-Backend (FastAPI)
+
 ```markdown
 ENDPUNKTE FÜR MITGLIEDERVERWALTUNG:
 
 /api/v1/members/
-  POST   - Neue Mitgliedschaft (Antrag)
-  GET    - Liste aller Mitglieder (Admin only)
-  
+POST - Neue Mitgliedschaft (Antrag)
+GET - Liste aller Mitglieder (Admin only)
+
 /api/v1/members/{member_id}
-  GET    - Einzelnes Mitglied (nur eigene Daten oder Admin)
-  PATCH  - Daten aktualisieren
-  DELETE - Austritt (DSGVO-konform)
+GET - Einzelnes Mitglied (nur eigene Daten oder Admin)
+PATCH - Daten aktualisieren
+DELETE - Austritt (DSGVO-konform)
 
 /api/v1/members/{member_id}/contributions
-  GET    - Beitragszahlungen
-  POST   - Neue Zahlung erfassen
+GET - Beitragszahlungen
+POST - Neue Zahlung erfassen
 
 /api/v1/members/{member_id}/gdpr
-  GET    - Datenauskunft (Art. 15 DSGVO)
-  DELETE - Löschung beantragen (Art. 17 DSGVO)
+GET - Datenauskunft (Art. 15 DSGVO)
+DELETE - Löschung beantragen (Art. 17 DSGVO)
 
 VALIDIERUNG:
+
 - Pydantic Models für alle Mitgliedsdaten
 - Enum für Mitgliedsarten/Beitragskategorien
 - Email-Format-Validierung
@@ -396,6 +447,7 @@ VALIDIERUNG:
 ```
 
 ### Bei Frontend (React)
+
 ```markdown
 FORMULARE:
 
@@ -411,6 +463,7 @@ Beitrittserklärung (components/MembershipForm.tsx):
 ✓ Statutenbestätigung (Checkbox required, Link zu PDF)
 
 DSGVO-Dashboard (components/GDPRDashboard.tsx):
+
 - Datenauskunft (Art. 15) - Button → PDF-Download
 - Datenberichtigung (Art. 16) - Formular
 - Datenlöschung (Art. 17) - Bestätigung erforderlich
@@ -418,23 +471,27 @@ DSGVO-Dashboard (components/GDPRDashboard.tsx):
 ```
 
 ### Bei Gaming Platform
+
 ```markdown
 ACHIEVEMENT SYSTEM - Vereinsengagement:
 
 Achievements:
+
 - "Neue*r Aktivist*in" (Beitritt)
 - "Treues Mitglied" (1 Jahr Mitgliedschaft)
 - "Engagement-Champion" (Teilnahme an 5 Veranstaltungen)
 - "Community Builder" (3 neue Mitglieder geworben)
-- "Demokrat*in" (Teilnahme an Mitgliederversammlung)
+- "Demokrat\*in" (Teilnahme an Mitgliederversammlung)
 
 XP-Belohnungen:
+
 - Beitritt: +100 XP
 - Monatliche Aktivität: +50 XP
 - Veranstaltungsteilnahme: +75 XP
 - Mitgliederversammlung: +200 XP
 
 INTEGRATION mit CRM:
+
 - API-Abgleich Mitgliedsstatus
 - Event-Tracking (Veranstaltungen, Zahlungen)
 - Gamification ethisch & transparent
@@ -443,26 +500,31 @@ INTEGRATION mit CRM:
 ## 📚 Wichtige Dokumente
 
 ### Statuten
+
 - **Aktuell:** Stand 21.05.2025 (Beschluss Mitgliederversammlung)
 - **Datei:** `Pdf/Statuten Verein Menschlichkeit Österreich 2025 neu.pdf`
 - **Sections:** 17 Paragraphen (§§ 1-17)
 
 ### Beitragsordnung
+
 - **Aktuell:** Gültig ab 01.07.2025
 - **Datei:** `Pdf/Beitragsordnung_2025_Neuformulierung_Menschlichkeit_Oesterreich.pdf`
 - **Beschluss:** Mitgliederversammlung gemäß § 10 Abs. 1 lit. e
 
 ### Beitrittserklärung
+
 - **Formular:** `Pdf/Mitgliederanmeldung.pdf`
 - **Digital verfügbar:** Über Website/CRM
 - **Felder:** Persönliche Daten, Mitgliedsart, Beitragskategorie, DSGVO/Statuten-Bestätigung
 
 ### Vereinsregisterauszug
+
 - **Stand:** 10.06.2025
 - **Datei:** `Pdf/Vereinsregisterauszug_d68334ce-f08a-454b-8b8f-2a3730e22fe4.pdf`
 - **ZVR-Zahl:** 1182213083
 
 ### Gründungsprotokoll
+
 - **Datum:** 21.05.2025
 - **Status:** Signiert
 - **Hinweis:** PDF mit Fehler beim Parsen - manuell referenzieren wenn benötigt
@@ -470,6 +532,7 @@ INTEGRATION mit CRM:
 ## 🚨 Compliance Checkliste
 
 ### Bei jeder Code-Änderung prüfen:
+
 - [ ] DSGVO-Konformität gewährleistet?
 - [ ] Mitgliederdaten verschlüsselt gespeichert?
 - [ ] Zugriffskontrolle implementiert?
@@ -480,6 +543,7 @@ INTEGRATION mit CRM:
 - [ ] Vertretungsregelungen in Finanzsystem korrekt?
 
 ### Bei Deployment:
+
 - [ ] Vereinsregister-Daten aktuell?
 - [ ] Impressum mit korrekter ZVR-Zahl?
 - [ ] Datenschutzerklärung aktuell?

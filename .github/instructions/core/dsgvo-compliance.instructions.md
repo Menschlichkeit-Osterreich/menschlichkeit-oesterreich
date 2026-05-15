@@ -6,8 +6,9 @@ lastUpdated: 2025-10-08
 status: ACTIVE
 priority: critical
 category: core
-applyTo: **
+applyTo: 'apps/**,automation/**,scripts/**'
 ---
+
 # DSGVO-Compliance – Datenschutz im Verein (Österreich)
 
 Diese Anweisung bündelt alle datenschutzrelevanten Vorgaben für den Verein „Menschlichkeit Österreich“ (ZVR 1182213083) und operationalisiert Statuten § 16 in Einklang mit DSGVO und DSG. Alle Beispiele sind in österreichischer Praxis verankert und berücksichtigen BAO-Aufbewahrungspflichten.
@@ -38,13 +39,13 @@ Pflichtdaten: Name, Adresse, Geburtsdatum, E-Mail; optional: Telefon. Mitgliedsc
 
 ### 2) Finanz-/Beitragsdaten – Art. 6 Abs. 1 lit. c DSGVO (rechtliche Verpflichtung)
 
-Beitragszahlungen, Spendenquittungen, Buchungsbelege. 
+Beitragszahlungen, Spendenquittungen, Buchungsbelege.
 
 - Speicherdauer: 7 Jahre gem. BAO § 132 (danach Löschung/Anonymisierung).
 
 ### 3) Kommunikation/Newsletter – Art. 6 Abs. 1 lit. a DSGVO (Einwilligung) iVm TKG § 107
 
-Einwilligungen für Newsletter/Veranstaltungsinfos; Präferenzen/Kanäle (E-Mail/SMS/Post). 
+Einwilligungen für Newsletter/Veranstaltungsinfos; Präferenzen/Kanäle (E-Mail/SMS/Post).
 
 - Speicherdauer: bis Widerruf; bei Widerruf unverzügliche Löschung/Austragung.
 
@@ -68,7 +69,7 @@ API-Beispiel (dokumentarisch):
 POST /api/v1/members/{member_id}/gdpr/export
 {
   "request_type": "data_access",
-  "format": "pdf", 
+  "format": "pdf",
   "language": "de"
 }
 ```
@@ -103,7 +104,7 @@ Gegen Verarbeitung zu Zwecken der Direktwerbung stets möglich ⇒ unmittelbare 
 
 ### Zugangskontrolle (RBAC & MFA)
 
-- Rollen: Vorstand (Vollzugriff), Kassier*in (Finanz + eigene Kontakte), Mitglied (eigene Daten). 
+- Rollen: Vorstand (Vollzugriff), Kassier\*in (Finanz + eigene Kontakte), Mitglied (eigene Daten).
 - MFA verpflichtend für Administrationskonten; starke Passwörter (≥ 12 Zeichen, Komplexität), Rotation alle 90 Tage für Admins; kein Passwort-Sharing.
 
 ### Übertragungskontrolle
@@ -112,7 +113,7 @@ Gegen Verarbeitung zu Zwecken der Direktwerbung stets möglich ⇒ unmittelbare 
 
 ### Speicherkontrolle
 
-- Verschlüsselung „at rest“: Datenbank (pgcrypto), Dateispeicher (LUKS/dm-crypt), Backups (GPG). 
+- Verschlüsselung „at rest“: Datenbank (pgcrypto), Dateispeicher (LUKS/dm-crypt), Backups (GPG).
 - Backupplan: täglich inkrementell, wöchentlich Vollbackup, monatlich Archiv; sichere Schlüsselverwaltung (siehe `secrets/`).
 
 ### Integrität & Protokollierung
@@ -216,10 +217,10 @@ Definition: Verlust/Diebstahl/Unbefugter Zugriff auf personenbezogene Daten, Feh
 
 72-Stunden-Workflow:
 
-1) Eindämmung: System isolieren, Passwörter ändern, Lücke schließen.
-2) Dokumentation: Zeitpunkt, Art/Umfang, betroffene Datentypen/Personenzahl, Risiken, Maßnahmen.
-3) Meldung an DSB binnen 72h (bei Risiko): dsb@dsb.gv.at inkl. Beschreibung, Kategorien, Anzahl, Kontakt, Folgen, Maßnahmen.
-4) Information Betroffener (bei hohem Risiko): klare Sprache, was/ welche Daten/ Maßnahmen/ Handlungsempfehlungen, Kontakt.
+1. Eindämmung: System isolieren, Passwörter ändern, Lücke schließen.
+2. Dokumentation: Zeitpunkt, Art/Umfang, betroffene Datentypen/Personenzahl, Risiken, Maßnahmen.
+3. Meldung an DSB binnen 72h (bei Risiko): dsb@dsb.gv.at inkl. Beschreibung, Kategorien, Anzahl, Kontakt, Folgen, Maßnahmen.
+4. Information Betroffener (bei hohem Risiko): klare Sprache, was/ welche Daten/ Maßnahmen/ Handlungsempfehlungen, Kontakt.
 
 ## ✅ Regelmäßige Checks & Audits
 
@@ -234,7 +235,7 @@ Jährlich:
 
 - Datenschutz-Folgenabschätzung (DSFA), falls erforderlich (umfangreiche neue Prozesse/Technologien/sensible Daten).
 - Rollen & Berechtigungen-Review (Least Privilege).
-- Schulung/Refresher für Funktionsträger*innen.
+- Schulung/Refresher für Funktionsträger\*innen.
 
 ## 🔗 Referenzen & Quellen
 

@@ -1,6 +1,6 @@
 ---
 description: GitHub Personal Access Token (PAT) – Optimale Nutzung, Sicherheit, Least-Privilege & Rotation
-applyTo: '**'
+applyTo: '.github/workflows/**,scripts/gh/**,.env*'
 ---
 
 # 🔑 GitHub PAT – Optimal genutzt, sicher betrieben
