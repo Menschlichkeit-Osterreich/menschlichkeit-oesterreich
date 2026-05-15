@@ -16,6 +16,8 @@ Dieses Verzeichnis enthält die Design Tokens (Farben, Typografie, Spacing) sowi
 
 ## Accessibility
 
+- WCAG 2.1 AA Baselines: `figma-design-system/accessibility/WCAG-AA-BASELINES.md`
+- Kontrastpaare: `figma-design-system/accessibility/CONTRAST-PAIRS.md`
 - Playwright a11y Checks: `playwright-a11y.config.ts`
 - Ziel: Lighthouse Accessibility ≥ 90
 
