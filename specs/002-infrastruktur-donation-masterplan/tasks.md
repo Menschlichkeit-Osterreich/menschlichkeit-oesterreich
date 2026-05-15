@@ -10,7 +10,7 @@
 
 ## Format: [ID] [P?] [Story] Description
 
-- [P]: parallelisierbar (andere Dateien, keine harte Vorab-Abhaengigkeit)
+- [P]: parallelisierbar 'andere Dateien, keine harte Vorab-Abhaengigkeit'
 - [Story]: Zuordnung zu einer User Story (US1..US6)
 - Jede Task-Beschreibung enthaelt einen konkreten Dateipfad
 
@@ -18,12 +18,12 @@
 
 **Purpose**: Projektweite Grundstruktur und Gate-Rahmen fuer die Umsetzung des Masterplans.
 
-- [ ] T001 Erstelle die Masterplan-Ordnerstruktur fuer Betriebsartefakte in runbooks/operations-masterplan/
-- [ ] T002 [P] Erstelle IaC-Basisordner fuer Terraform+AVM in deployment-scripts/infra/terraform/
-- [ ] T003 [P] Erstelle Monitoring-Basisordner in monitoring/masterplan/
-- [ ] T004 Erstelle zentrale Evidence-Log-Datei in reports/masterplan/evidence-log.md
-- [ ] T005 [P] Erstelle Go-No-Go-Checkliste als Vorlage in runbooks/operations-masterplan/go-no-go-checklist.md
-- [ ] T006 Aktualisiere Referenzen auf den Masterplan in README_GOVERNANCE_CONTEXT.md
+- [x] T001 Erstelle die Masterplan-Ordnerstruktur fuer Betriebsartefakte in runbooks/operations-masterplan/
+- [x] T002 [P] Erstelle IaC-Basisordner fuer Terraform+AVM in deployment-scripts/infra/terraform/
+- [x] T003 [P] Erstelle Monitoring-Basisordner in monitoring/masterplan/
+- [x] T004 Erstelle zentrale Evidence-Log-Datei in reports/masterplan/evidence-log.md
+- [x] T005 [P] Erstelle Go-No-Go-Checkliste als Vorlage in runbooks/operations-masterplan/go-no-go-checklist.md
+- [x] T006 Aktualisiere Referenzen auf den Masterplan in README_GOVERNANCE_CONTEXT.md
 
 ---
 
@@ -33,14 +33,14 @@
 
 **CRITICAL**: Keine User-Story-Umsetzung vor Abschluss dieser Phase.
 
-- [ ] T007 Definiere verbindliche Rollen und Ownership-Matrix in runbooks/operations-masterplan/role-ownership-matrix.md
-- [ ] T008 [P] Definiere zentrale Gate-Kriterien und Nachweisformate in runbooks/operations-masterplan/gate-criteria-catalog.md
-- [ ] T009 [P] Definiere SLO/RTO/Ack-SLA Policy (99.9%, <=2h, <=30min) in runbooks/operations-masterplan/slo-sla-policy.md
-- [ ] T010 Definiere verbindliche Logging- und Secret-Redaction-Regeln in runbooks/operations-masterplan/logging-and-secrets-policy.md
-- [ ] T011 [P] Definiere No-Go-Bedingungen als maschinenlesbare Rules in config-templates/masterplan-no-go-rules.json
-- [ ] T012 Erstelle Pipeline-Skelett fuer zentrale Gates in .github/workflows/masterplan-gates.yml
-- [ ] T013 [P] Erstelle Basisskript fuer Gate-Auswertung in scripts/masterplan/run-gate-checks.sh
-- [ ] T014 Erstelle Basisdokument fuer Ausnahme-/Escalation-Handling in runbooks/operations-masterplan/escalation-policy.md
+- [x] T007 Definiere verbindliche Rollen und Ownership-Matrix in runbooks/operations-masterplan/role-ownership-matrix.md
+- [x] T008 [P] Definiere zentrale Gate-Kriterien und Nachweisformate in runbooks/operations-masterplan/gate-criteria-catalog.md
+- [x] T009 [P] Definiere SLO/RTO/Ack-SLA Policy (99.9%, <=2h, <=30min) in runbooks/operations-masterplan/slo-sla-policy.md
+- [x] T010 Definiere verbindliche Logging- und Secret-Redaction-Regeln in runbooks/operations-masterplan/logging-and-secrets-policy.md
+- [x] T011 [P] Definiere No-Go-Bedingungen als maschinenlesbare Rules in config-templates/masterplan-no-go-rules.json
+- [x] T012 Erstelle Pipeline-Skelett fuer zentrale Gates in .github/workflows/masterplan-gates.yml
+- [x] T013 [P] Erstelle Basisskript fuer Gate-Auswertung in scripts/masterplan/run-gate-checks.sh
+- [x] T014 Erstelle Basisdokument fuer Ausnahme-/Escalation-Handling in runbooks/operations-masterplan/escalation-policy.md
 
 **Checkpoint**: Foundation fertig. User Stories koennen umgesetzt werden.
 
@@ -52,14 +52,14 @@
 
 **Independent Test**: Produktions-Readiness-Check ist erfolgreich, nur Proxy ist extern erreichbar, Rollbackpfad ist dokumentiert und testbar.
 
-- [ ] T015 [P] [US1] Definiere Terraform-Root-Konfiguration fuer Azure-Plattform in deployment-scripts/infra/terraform/main.tf
-- [ ] T016 [P] [US1] Definiere AVM-basierte Netzwerk- und Security-Gruppen in deployment-scripts/infra/terraform/network.tf
-- [ ] T017 [P] [US1] Definiere AVM-basierte Compute-Ressourcen (VM, Disk, IP) in deployment-scripts/infra/terraform/compute.tf
-- [ ] T018 [US1] Definiere Expositionsregeln (nur Proxy oeffentlich) in deployment-scripts/infra/terraform/security.tf
-- [ ] T019 [US1] Erstelle Infrastruktur-Variablen und Validierungen in deployment-scripts/infra/terraform/variables.tf
-- [ ] T020 [US1] Erstelle reproduzierbares Deploy-Skript fuer Infra-Rollout in deployment-scripts/deploy-infra-azure.sh
-- [ ] T021 [US1] Erstelle Readiness-Check-Skript fuer externe Erreichbarkeit und Ports in scripts/masterplan/check-platform-readiness.sh
-- [ ] T022 [US1] Dokumentiere Plattform-Rollback-Runbook in runbooks/operations-masterplan/platform-rollback-runbook.md
+- [x] T015 [P] [US1] Definiere Terraform-Root-Konfiguration fuer Azure-Plattform in deployment-scripts/infra/terraform/main.tf
+- [x] T016 [P] [US1] Definiere AVM-basierte Netzwerk- und Security-Gruppen in deployment-scripts/infra/terraform/network.tf
+- [x] T017 [P] [US1] Definiere AVM-basierte Compute-Ressourcen (VM, Disk, IP) in deployment-scripts/infra/terraform/compute.tf
+- [x] T018 [US1] Definiere Expositionsregeln (nur Proxy oeffentlich) in deployment-scripts/infra/terraform/security.tf
+- [x] T019 [US1] Erstelle Infrastruktur-Variablen und Validierungen in deployment-scripts/infra/terraform/variables.tf
+- [x] T020 [US1] Erstelle reproduzierbares Deploy-Skript fuer Infra-Rollout in deployment-scripts/deploy-infra-azure.sh
+- [x] T021 [US1] Erstelle Readiness-Check-Skript fuer externe Erreichbarkeit und Ports in scripts/masterplan/check-platform-readiness.sh
+- [x] T022 [US1] Dokumentiere Plattform-Rollback-Runbook in runbooks/operations-masterplan/platform-rollback-runbook.md
 
 **Checkpoint**: US1 eigenstaendig validierbar.
 
@@ -71,15 +71,15 @@
 
 **Independent Test**: End-to-End-Smoke liefert Exit-Code 0, Receipt-Evidenzen und archivierte Webhook-Responses.
 
-- [ ] T023 [P] [US2] Definiere Donation-Gate-Konfiguration in config-templates/donation-gate-config.json
+- [x] T023 [P] [US2] Definiere Donation-Gate-Konfiguration in config-templates/donation-gate-config.json
 - [ ] T024 [P] [US2] Erstelle Stripe-Webhook-Validierungsworkflow in .github/workflows/donation-webhook-validation.yml
-- [ ] T025 [US2] Erstelle End-to-End-Donation-Smoke-Skript in scripts/masterplan/run-donation-smoke.sh
-- [ ] T026 [US2] Erweitere API-Flow-Matrix fuer verbindlichen End-to-End-Pfad in BACKEND_FLOW_MATRIX.md
+- [x] T025 [US2] Erstelle End-to-End-Donation-Smoke-Skript in scripts/masterplan/run-donation-smoke.sh
+- [x] T026 [US2] Erweitere API-Flow-Matrix fuer verbindlichen End-to-End-Pfad in BACKEND_FLOW_MATRIX.md
 - [ ] T027 [US2] Definiere Retry- und Fehlervertragsregeln fuer Donation-Verarbeitung in runbooks/operations-masterplan/donation-retry-policy.md
-- [ ] T028 [P] [US2] Erstelle Receipt-Evidence-Sammelskript in scripts/masterplan/collect-receipt-evidence.sh
-- [ ] T029 [US2] Erstelle Webhook-Archivierungsprozess in automation/n8n/workflows/donation-webhook-archive.json
-- [ ] T030 [US2] Dokumentiere Donation-Go-Live-Runbook in runbooks/operations-masterplan/donation-go-live-runbook.md
-- [ ] T031 [US2] Erstelle CI-Job fuer Donation-Gate-Ausfuehrung in .github/workflows/donation-gate.yml
+- [x] T028 [P] [US2] Erstelle Receipt-Evidence-Sammelskript in scripts/masterplan/collect-receipt-evidence.sh
+- [x] T029 [US2] Erstelle Webhook-Archivierungsprozess in automation/n8n/workflows/donation-webhook-archive.json
+- [x] T030 [US2] Dokumentiere Donation-Go-Live-Runbook in runbooks/operations-masterplan/donation-go-live-runbook.md
+- [x] T031 [US2] Erstelle CI-Job fuer Donation-Gate-Ausfuehrung in .github/workflows/donation-gate.yml
 
 **Checkpoint**: US2 eigenstaendig validierbar.
 
@@ -91,13 +91,13 @@
 
 **Independent Test**: Rollen-, Secret- und Datenschutzkontrollen sind dokumentiert, pruefbar und als Gate umsetzbar.
 
-- [ ] T032 [P] [US3] Definiere Datenklassifizierung fuer Betriebsdaten in runbooks/operations-masterplan/data-classification-policy.md
-- [ ] T033 [US3] Definiere Right-to-Erasure-Prozess fuer Betriebskontext in runbooks/operations-masterplan/right-to-erasure-procedure.md
-- [ ] T034 [P] [US3] Definiere Secret-Ownership-Map in runbooks/operations-masterplan/secret-ownership-map.md
-- [ ] T035 [US3] Definiere DSGVO-Log-Redaction-Checkliste in runbooks/operations-masterplan/dsgvo-log-redaction-checklist.md
+- [x] T032 [P] [US3] Definiere Datenklassifizierung fuer Betriebsdaten in runbooks/operations-masterplan/data-classification-policy.md
+- [x] T033 [US3] Definiere Right-to-Erasure-Prozess fuer Betriebskontext in runbooks/operations-masterplan/right-to-erasure-procedure.md
+- [x] T034 [P] [US3] Definiere Secret-Ownership-Map in runbooks/operations-masterplan/secret-ownership-map.md
+- [x] T035 [US3] Definiere DSGVO-Log-Redaction-Checkliste in runbooks/operations-masterplan/dsgvo-log-redaction-checklist.md
 - [ ] T036 [P] [US3] Erstelle Compliance-Validierungsjob in .github/workflows/compliance-gate.yml
 - [ ] T037 [US3] Erstelle Governance-Review-Template fuer quartalsweise Reviews in templates/governance-review-template.md
-- [ ] T038 [US3] Verankere Governance-Rollen in AGENTS.md
+- [x] T038 [US3] Verankere Governance-Rollen in AGENTS.md
 - [ ] T039 [US3] Dokumentiere Freigabeprozess fuer produktive Governance-Changes in runbooks/operations-masterplan/governance-change-runbook.md
 
 **Checkpoint**: US3 eigenstaendig validierbar.
@@ -114,8 +114,8 @@
 - [ ] T041 [US4] Erstelle taegliches Backup-Ausfuehrungsskript in scripts/masterplan/run-daily-backups.sh
 - [ ] T042 [US4] Erstelle Restore-Test-Skript fuer isolierte Wiederherstellung in scripts/masterplan/run-restore-test.sh
 - [ ] T043 [P] [US4] Erstelle Restore-Test-CI-Workflow (manuell triggerbar) in .github/workflows/restore-test.yml
-- [ ] T044 [US4] Dokumentiere Restore-Runbook inkl. Abnahmekriterien in runbooks/operations-masterplan/restore-runbook.md
-- [ ] T045 [US4] Definiere Backup/Restore-Evidence-Protokoll in reports/masterplan/backup-restore-evidence.md
+- [x] T044 [US4] Dokumentiere Restore-Runbook inkl. Abnahmekriterien in runbooks/operations-masterplan/restore-runbook.md
+- [x] T045 [US4] Definiere Backup/Restore-Evidence-Protokoll in reports/masterplan/backup-restore-evidence.md
 
 **Checkpoint**: US4 eigenstaendig validierbar.
 
@@ -127,12 +127,12 @@
 
 **Independent Test**: Simulierte kritische Vorfaelle loesen Slack+E-Mail aus, Ack erfolgt <= 30 Minuten.
 
-- [ ] T046 [P] [US5] Definiere Monitoring-Signalmatrix (CPU, RAM, Disk, HTTPS, Queue, Webhooks) in monitoring/masterplan/signal-matrix.yaml
-- [ ] T047 [US5] Erstelle Alert-Routing-Konfiguration fuer Slack und E-Mail in monitoring/masterplan/alert-routing.yaml
-- [ ] T048 [US5] Erstelle Alert-Simulation-Skript fuer kritische Vorfaelle in scripts/masterplan/simulate-critical-alerts.sh
-- [ ] T049 [P] [US5] Erstelle Ack-SLA-Pruefskript (<= 30 Minuten) in scripts/masterplan/verify-alert-ack-sla.sh
-- [ ] T050 [US5] Erstelle Monitoring- und Alert-Gate-Workflow in .github/workflows/monitoring-gate.yml
-- [ ] T051 [US5] Dokumentiere Alert- und Incident-Runbook in runbooks/operations-masterplan/incident-alert-runbook.md
+- [x] T046 [P] [US5] Definiere Monitoring-Signalmatrix (CPU, RAM, Disk, HTTPS, Queue, Webhooks) in monitoring/masterplan/signal-matrix.yaml
+- [x] T047 [US5] Erstelle Alert-Routing-Konfiguration fuer Slack und E-Mail in monitoring/masterplan/alert-routing.yaml
+- [x] T048 [US5] Erstelle Alert-Simulation-Skript fuer kritische Vorfaelle in scripts/masterplan/simulate-critical-alerts.sh
+- [x] T049 [P] [US5] Erstelle Ack-SLA-Pruefskript (<= 30 Minuten) in scripts/masterplan/verify-alert-ack-sla.sh
+- [x] T050 [US5] Erstelle Monitoring- und Alert-Gate-Workflow in .github/workflows/monitoring-gate.yml
+- [x] T051 [US5] Dokumentiere Alert- und Incident-Runbook in runbooks/operations-masterplan/incident-alert-runbook.md
 
 **Checkpoint**: US5 eigenstaendig validierbar.
 
@@ -146,9 +146,9 @@
 
 - [ ] T052 [P] [US6] Erstelle Service-Map fuer alle produktiven Betriebskomponenten in runbooks/operations-masterplan/service-map.md
 - [ ] T053 [P] [US6] Erstelle Architekturdiagramm mit Betriebsgrenzen in runbooks/operations-masterplan/architecture-diagram.md
-- [ ] T054 [US6] Erstelle Uebergabe-Checkliste fuer Vertretungsbetrieb in runbooks/operations-masterplan/handover-checklist.md
-- [ ] T055 [US6] Erstelle Betriebs-Onboarding-Runbook in runbooks/operations-masterplan/operations-onboarding.md
-- [ ] T056 [US6] Dokumentiere Endabnahme und DoD-Nachweis fuer den Masterplan in reports/masterplan/final-readiness-report.md
+- [x] T054 [US6] Erstelle Uebergabe-Checkliste fuer Vertretungsbetrieb in runbooks/operations-masterplan/handover-checklist.md
+- [x] T055 [US6] Erstelle Betriebs-Onboarding-Runbook in runbooks/operations-masterplan/operations-onboarding.md
+- [x] T056 [US6] Dokumentiere Endabnahme und DoD-Nachweis fuer den Masterplan in reports/masterplan/final-readiness-report.md
 
 **Checkpoint**: US6 eigenstaendig validierbar.
 
@@ -158,10 +158,10 @@
 
 **Purpose**: Abschlussarbeiten ueber mehrere Stories hinweg.
 
-- [ ] T057 [P] Konsolidiere Querreferenzen zwischen Runbooks und Reports in runbooks/operations-masterplan/index.md
-- [ ] T058 Aktualisiere zentrale Projektdokumentation mit Masterplan-Ergebnissen in README.md
-- [ ] T059 [P] Fuehre End-to-End-Quickstart-Validierung aus und dokumentiere Ergebnis in specs/002-infrastruktur-donation-masterplan/quickstart.md
-- [ ] T060 Erstelle Abschluss-Check gegen Go-/No-Go-Regeln in reports/masterplan/go-no-go-final-check.md
+- [x] T057 [P] Konsolidiere Querreferenzen zwischen Runbooks und Reports in runbooks/operations-masterplan/index.md
+- [x] T058 Aktualisiere zentrale Projektdokumentation mit Masterplan-Ergebnissen in README.md
+- [x] T059 [P] Fuehre End-to-End-Quickstart-Validierung aus und dokumentiere Ergebnis in specs/002-infrastruktur-donation-masterplan/quickstart.md
+- [x] T060 Erstelle Abschluss-Check gegen Go-/No-Go-Regeln in reports/masterplan/go-no-go-final-check.md
 
 ---
 
