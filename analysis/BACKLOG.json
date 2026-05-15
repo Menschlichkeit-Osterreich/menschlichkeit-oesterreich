@@ -4,8 +4,10 @@
     "version": "1.0.0",
     "generated": "2025-09-25",
     "methodology": "Forensische Analyse nach akademischen Standards",
-    "total_items": 25,
+    "total_items": 20,
     "critical_items": 8,
+    "consolidated": "2025-07-17",
+    "consolidation_note": "7 Items als superseded markiert (Masterplan Scope), Pfade aktualisiert",
     "estimated_effort": "36-52 Entwicklerwochen"
   },
   "items": [
@@ -101,9 +103,11 @@
       "dor": ["Auswahl: SRI vs Self-Host"],
       "dod": ["Keine externen Fonts ohne SRI", "Layout stabil"],
       "dependencies": ["T-003"],
-      "status": "todo",
+      "status": "superseded",
+      "superseded_by": "Masterplan US3 (T032/T034 Security+DSGVO), apps/website nutzt Vite-Bundling",
       "notes": [
-        "Nächster Schritt: CDN-Ressourcen in website/index.html inventarisieren und Entscheidung SRI vs. Self-Hosting dokumentieren (2025-09-28)."
+        "Nächster Schritt: CDN-Ressourcen in website/index.html inventarisieren und Entscheidung SRI vs. Self-Hosting dokumentieren (2025-09-28).",
+        "SUPERSEDED: Vite-Bundling in apps/website/ macht SRI fuer CDN-Ressourcen obsolet (2025-07-17)."
       ]
     },
     {
@@ -112,8 +116,8 @@
       "description": "Alle Bilder in moderne Formate, responsive srcset/sizes, lazy-loading; Größenlimits einhalten.",
       "references": [
         {
-          "path": "website/index.html:120",
-          "note": "Hero/Icons exemplarisch"
+          "path": "apps/website/index.html",
+          "note": "Hero/Icons exemplarisch (Pfad aktualisiert 2025-07-17)"
         }
       ],
       "priority_moscow": "Should",
@@ -137,12 +141,12 @@
       "description": "Automatischer Build/Serve + Lighthouse mit Budgets; Fail unter Grenzwerten.",
       "references": [
         {
-          "path": "website/lighthouse.config.cjs:1",
-          "note": "Budgets"
+          "path": "lighthouse.config.cjs",
+          "note": "Budgets (Root-Level, Pfad aktualisiert 2025-07-17)"
         },
         {
-          "path": "website/scripts/run-lighthouse.mjs:1",
-          "note": "Runner"
+          "path": "apps/website/scripts/run-lighthouse.mjs",
+          "note": "Runner (Pfad aktualisiert 2025-07-17)"
         }
       ],
       "priority_moscow": "Must",
@@ -166,12 +170,12 @@
       "description": "FastAPI um /auth/register, /auth/refresh, GET /contacts/{id}, PUT /contacts/{id}, GET /memberships/contact/{id}, PUT /memberships/{id} erweitern; einheitliches ApiResponse.",
       "references": [
         {
-          "path": "api.menschlichkeit-oesterreich.at/app/main.py:110",
-          "note": "Nur /auth/login vorhanden"
+          "path": "apps/api/app/main.py",
+          "note": "Nur /auth/login vorhanden (Pfad aktualisiert 2025-07-17)"
         },
         {
-          "path": "website/assets/js/crm-api.js:154",
-          "note": "Website erwartet weitere Routen"
+          "path": "apps/website/src/",
+          "note": "crm-api.js entfernt; API-Aufrufe via React-Services (Pfad aktualisiert 2025-07-17)"
         }
       ],
       "priority_moscow": "Must",
@@ -243,12 +247,12 @@
       "description": "Doppelte/inkonsistente Requirements zwischen app/requirements.txt und root requirements.txt bereinigen.",
       "references": [
         {
-          "path": "api.menschlichkeit-oesterreich.at/app/requirements.txt:1",
-          "note": "PyJWT/httpx Versionen"
+          "path": "apps/api/requirements.txt",
+          "note": "Konsolidierte Requirements (Pfad aktualisiert 2025-07-17)"
         },
         {
-          "path": "api.menschlichkeit-oesterreich.at/requirements.txt:1",
-          "note": "abweichende Pakete"
+          "path": "pyproject.toml",
+          "note": "Root-Level pyproject.toml als moegliche Zielstruktur"
         }
       ],
       "priority_moscow": "Should",
@@ -272,8 +276,8 @@
       "description": "Core/Extensions auf sichere Versionen, Härtung, SEPA/Jobs prüfen.",
       "references": [
         {
-          "path": "crm.menschlichkeit-oesterreich.at/httpdocs/composer.json:1",
-          "note": "Abhängigkeiten"
+          "path": "apps/crm/httpdocs/composer.json",
+          "note": "Abhaengigkeiten (Pfad aktualisiert 2025-07-17)"
         },
         {
           "path": "enterprise-upgrade/03_php-drupal-hardening.md:1",
@@ -340,9 +344,11 @@
       "dor": ["Plesk Zugriff"],
       "dod": ["Header live verifiziert"],
       "dependencies": ["T-003"],
-      "status": "todo",
+      "status": "superseded",
+      "superseded_by": "Masterplan US1 (Infrastruktur) + Vite-Bundling mit Hash-Filenames",
       "notes": [
-        "Nächster Schritt: Nach CSP-Rollout Header-Template für Asset-Caching in Plesk vorbereiten (2025-09-28)."
+        "Nächster Schritt: Nach CSP-Rollout Header-Template für Asset-Caching in Plesk vorbereiten (2025-09-28).",
+        "SUPERSEDED: Vite-Build erzeugt Hash-Filenames; Caching wird durch Infrastruktur-Rollout abgedeckt (2025-07-17)."
       ]
     },
     {
@@ -351,12 +357,12 @@
       "description": "Website-Seiten Login/Member in React mit Tokens/A11y umsetzen; AuthContext nutzen.",
       "references": [
         {
-          "path": "frontend/src/pages/Login.tsx:1",
-          "note": "Vorlage vorhanden"
+          "path": "apps/website/src/pages/Login.tsx",
+          "note": "Vorlage vorhanden (Pfad aktualisiert 2025-07-17)"
         },
         {
-          "path": "frontend/src/pages/MemberArea.tsx:1",
-          "note": "Demo-Aktionen"
+          "path": "apps/website/src/pages/MemberArea.tsx",
+          "note": "Demo-Aktionen (Pfad aktualisiert 2025-07-17)"
         }
       ],
       "priority_moscow": "Should",
@@ -398,9 +404,11 @@
       "dor": ["Auth Strategie beschlossen"],
       "dod": ["Keine Tokens im LocalStorage auf Prod"],
       "dependencies": [],
-      "status": "todo",
+      "status": "superseded",
+      "superseded_by": "Masterplan US3 T034 (Secret-Ownership), T010 (Logging/Secrets Policy)",
       "notes": [
-        "Nächster Schritt: Token-Speicherstrategie reviewen (sessionStorage vs. Cookies) und Migrationsplan für website/frontend festhalten (2025-09-28)."
+        "Nächster Schritt: Token-Speicherstrategie reviewen (sessionStorage vs. Cookies) und Migrationsplan für website/frontend festhalten (2025-09-28).",
+        "SUPERSEDED: Token-/Secret-Strategie wird durch Masterplan Secret-Ownership und Logging-Policy abgedeckt (2025-07-17)."
       ]
     },
     {
@@ -423,9 +431,11 @@
       "dor": ["Toolauswahl"],
       "dod": ["CI bricht bei Leaks"],
       "dependencies": ["T-012"],
-      "status": "todo",
+      "status": "superseded",
+      "superseded_by": "Masterplan T010 (Logging/Secrets), gitleaks.toml bereits im Repo aktiv",
       "notes": [
-        "Nächster Schritt: Toolauswahl (gitleaks/trufflehog) finalisieren und CI-Integration nach T-012 planen (2025-09-28)."
+        "Nächster Schritt: Toolauswahl (gitleaks/trufflehog) finalisieren und CI-Integration nach T-012 planen (2025-09-28).",
+        "SUPERSEDED: gitleaks.toml und Secret-Scanning sind bereits konfiguriert (2025-07-17)."
       ]
     },
     {
@@ -448,9 +458,11 @@
       "dor": ["Tooling gewählt"],
       "dod": ["Alerts eingerichtet"],
       "dependencies": [],
-      "status": "todo",
+      "status": "superseded",
+      "superseded_by": "Masterplan Phase 7 US5 (T046-T051 Monitoring/Alerting)",
       "notes": [
-        "Nächster Schritt: Monitoring-Stack (Sentry/Uptime/Logging) auswählen und Ressourcenbedarf erfassen (2025-09-28)."
+        "Nächster Schritt: Monitoring-Stack (Sentry/Uptime/Logging) auswählen und Ressourcenbedarf erfassen (2025-09-28).",
+        "SUPERSEDED: Vollstaendiges Monitoring/Alerting wird durch Masterplan US5 abgedeckt (2025-07-17)."
       ]
     },
     {
@@ -502,9 +514,11 @@
       "dor": ["Policy verfügbar"],
       "dod": ["Notice-Datei vorhanden", "Lizenzen dokumentiert"],
       "dependencies": [],
-      "status": "todo",
+      "status": "superseded",
+      "superseded_by": "Masterplan US3 T032 (Datenklassifizierung), T035 (DSGVO-Redaction)",
       "notes": [
-        "Nächster Schritt: Lizenzliste aus composer.json & package.json exportieren und Kompatibilitätsprüfung starten (2025-09-28)."
+        "Nächster Schritt: Lizenzliste aus composer.json & package.json exportieren und Kompatibilitätsprüfung starten (2025-09-28).",
+        "SUPERSEDED: Lizenz-Compliance wird durch Masterplan Governance abgedeckt (2025-07-17)."
       ]
     },
     {
@@ -527,9 +541,11 @@
       "dor": ["Prozess definiert"],
       "dod": ["Datenminimierung nachgewiesen", "Consent Flow beschrieben"],
       "dependencies": [],
-      "status": "todo",
+      "status": "superseded",
+      "superseded_by": "Masterplan Phase 5 US3 (T032-T039 DSGVO/Governance)",
       "notes": [
-        "Nächster Schritt: Datenflüsse (Logs/Analytics) mappen und Consent-/Retention-Anforderungen notieren (2025-09-28)."
+        "Nächster Schritt: Datenflüsse (Logs/Analytics) mappen und Consent-/Retention-Anforderungen notieren (2025-09-28).",
+        "SUPERSEDED: DSGVO/PII-Review ist Teil von Masterplan US3 (2025-07-17)."
       ]
     }
   ]

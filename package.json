@@ -120,7 +120,8 @@
     "git:auth:github": "pwsh -File scripts/gh/login-github.ps1",
     "git:sync:status": "pwsh -File scripts/git-sync.ps1 -Action status",
     "git:commit": "pwsh -File scripts/git-sync.ps1 -Action commit",
-    "git:sync": "pwsh -File scripts/git-sync.ps1 -Action sync"
+    "git:sync": "pwsh -File scripts/git-sync.ps1 -Action sync",
+    "speckit.analyze": "node scripts/speckit-analyze.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",
