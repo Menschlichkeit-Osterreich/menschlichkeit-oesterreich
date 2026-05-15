@@ -6,7 +6,7 @@ lastUpdated: 2025-10-08
 status: ACTIVE
 priority: medium
 category: core
-applyTo: **/*
+applyTo: 'apps/**,automation/**,figma-design-system/**'
 ---
 
 # Menschlichkeit Österreich - Development Instructions

@@ -1,6 +1,6 @@
 ---
 description: Repo-weite 12h Cache-Policy für GPG-Passphrasen zur Developer Experience Optimierung
-applyTo: '**'
+applyTo: 'scripts/**,.github/workflows/**'
 ---
 
 # 🔐 GPG Passphrase Cache (12 Stunden)
@@ -13,10 +13,10 @@ Erzeuge die unten spezifizierten Dateien und halte dich strikt an die Vorgaben.
 
 ## 1. Ziel
 
-* Entwickler sollen ihre GPG-Passphrase **nur einmal pro Arbeitstag** eingeben.
-* Der **gpg-agent** merkt sie sich für **12 Stunden (43 200 Sekunden)**.
-* Keine Speicherung im Repo (`.env`, Klartext-Dateien).
-* CI/CD nutzt Secrets, niemals `.env`.
+- Entwickler sollen ihre GPG-Passphrase **nur einmal pro Arbeitstag** eingeben.
+- Der **gpg-agent** merkt sie sich für **12 Stunden (43 200 Sekunden)**.
+- Keine Speicherung im Repo (`.env`, Klartext-Dateien).
+- CI/CD nutzt Secrets, niemals `.env`.
 
 ---
 
@@ -63,6 +63,7 @@ git commit -S --allow-empty -m "chore: signed test"
 ```
 
 Das Skript:
+
 - Erstellt `~/.gnupg/gpg-agent.conf` mit 12h Cache
 - Startet gpg-agent neu
 - Testet die Konfiguration
@@ -95,11 +96,11 @@ git commit -S --allow-empty -m "chore: test GPG signing with 12h cache"
 
 ## 4. CI/CD Nutzung (GitHub Actions)
 
-* Passphrase kommt ausschließlich aus **Secrets**.
-* Typische Secrets:
-  * `GPG_PRIVATE_KEY`
-  * `GPG_KEY_ID`
-  * `GPG_PASSPHRASE`
+- Passphrase kommt ausschließlich aus **Secrets**.
+- Typische Secrets:
+  - `GPG_PRIVATE_KEY`
+  - `GPG_KEY_ID`
+  - `GPG_PASSPHRASE`
 
 ### Workflow-Snippet
 
@@ -126,25 +127,27 @@ git commit -S --allow-empty -m "chore: test GPG signing with 12h cache"
 
 ## 5. Tabelle für schnelle Umrechnung
 
-| Stunden | Sekunden | Empfehlung |
-| ------- | -------- | ---------- |
-| 1h      | 3600     | Zu kurz für Entwicklung |
-| 2h      | 7200     | Minimum für Pair-Programming |
-| 6h      | 21600    | Halber Arbeitstag |
-| **12h** | **43200** | ✅ **Empfohlen (Standard)** |
-| 24h     | 86400    | Nur für lokale Dev-Maschinen |
+| Stunden | Sekunden  | Empfehlung                   |
+| ------- | --------- | ---------------------------- |
+| 1h      | 3600      | Zu kurz für Entwicklung      |
+| 2h      | 7200      | Minimum für Pair-Programming |
+| 6h      | 21600     | Halber Arbeitstag            |
+| **12h** | **43200** | ✅ **Empfohlen (Standard)**  |
+| 24h     | 86400     | Nur für lokale Dev-Maschinen |
 
 ---
 
 ## 6. Sicherheitsrichtlinien
 
 ### ✅ DO (Erlaubt)
+
 - 12h Cache auf persönlichen Entwicklungs-Maschinen
 - Passphrase im gpg-agent zwischenspeichern
 - GitHub Secrets für CI/CD verwenden
 - Separate Keys für Development/Production
 
 ### ❌ DON'T (Verboten)
+
 - Passphrase in `.env` speichern
 - Passphrase in Klartext-Dateien committen
 - `--passphrase` Parameter in Skripten ohne Secrets
@@ -157,6 +160,7 @@ git commit -S --allow-empty -m "chore: test GPG signing with 12h cache"
 ### Problem: "gpg: signing failed: No secret key"
 
 **Lösung:**
+
 ```bash
 # Key ID prüfen
 gpg --list-secret-keys --keyid-format=long
@@ -171,6 +175,7 @@ git config --global user.signingkey 78CCAE5641193DA3
 ### Problem: Passphrase wird sofort wieder abgefragt
 
 **Lösung:**
+
 ```bash
 # 1. gpg-agent.conf prüfen
 cat ~/.gnupg/gpg-agent.conf
@@ -186,6 +191,7 @@ echo "test" | gpg --clearsign
 ### Problem: Windows – "gpgconf: command not found"
 
 **Lösung:**
+
 ```powershell
 # Git GPG verwenden
 $env:PATH += ";C:\Program Files\Git\usr\bin"
@@ -209,12 +215,14 @@ $env:PATH += ";C:\Program Files\Git\usr\bin"
 ## 9. Referenzen
 
 **Interne Dokumentation:**
+
 - `.github/instructions/dsgvo-compliance.instructions.md` (Datenschutz)
 - `.github/instructions/core/security-best-practices.instructions.md`
 - `scripts/Setup-GPGCache.ps1` (Windows Setup)
 - `SECRETS-QUICK-START.md` (GPG-Key-Erstellung)
 
 **Externe Quellen:**
+
 - [GnuPG Agent Options](https://www.gnupg.org/documentation/manuals/gnupg/Agent-Options.html)
 - [GitHub GPG Signing](https://docs.github.com/en/authentication/managing-commit-signature-verification)
 

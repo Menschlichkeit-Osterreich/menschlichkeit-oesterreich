@@ -46,9 +46,9 @@ Pruefe Aenderungen auf konkrete Sicherheits-, Datenschutz- und Governance-Risike
 Priorisiere bei Security-Analysen folgende Skills:
 
 1. `secret-scanning` fuer Leak-Detection und Push-Protection-Checks.
-1. `security-scan` fuer SAST- und Dependency-Risiken.
+1. `codacy-remediation` fuer SAST- und Dependency-Risiken.
 1. `dsgvo-audit` fuer PII-, Logging- und Datenschutzverstosse.
-1. `agent-governance` bei Agent-Tooling-, Policy- oder Trust-Fragen.
+1. `moe-compliance-governance` bei Agent-Tooling-, Policy- oder Trust-Fragen.
 
 Wenn Findings mehrere Dominen betreffen, zuerst Security-Risiko fixieren und danach geordnet an `devops-expert` oder `qa-reviewer` uebergeben.
 

@@ -1,7 +1,7 @@
 ---
 title: GitHub PAT (Personal Access Token) Management – Sichere Verwendung im Workspace
 description: Regeln für sicheren Umgang mit GitHub PATs in Entwicklung & CI/CD
-applyTo: '**'
+applyTo: '.github/workflows/**,scripts/gh/**,.env*'
 priority: critical
 category: security
 status: ACTIVE
