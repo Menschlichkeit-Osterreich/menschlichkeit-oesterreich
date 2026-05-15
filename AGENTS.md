@@ -79,7 +79,21 @@ Wenn mehrere Clients beteiligt sind, bleibt diese Kette die einzige fuehrende Wa
   - `.github/agents/speckit.tasks.agent.md`
   - `.github/agents/speckit.taskstoissues.agent.md`
 - Archivierte Copilot-Agents: `.github/archive/agents/*.agent.md`
-- Claude-Agents: `.claude/agents/*.md` und `.claude/plugins/*/agents/*.md`
+- Claude-Agents (RuFlo V3): 102 Agenten in `.claude/agents/` ueber 27 Kategorien:
+  - Core: `.claude/agents/core/` (Coder, Planner, Researcher, Reviewer, Tester)
+  - SPARC: `.claude/agents/sparc/` (Specification, Pseudocode, Architecture, Refinement)
+  - Swarm: `.claude/agents/swarm/` (Adaptive, Hierarchical, Mesh Coordinators)
+  - GitHub: `.claude/agents/github/` (PR-Manager, Issue-Tracker, Release-Manager)
+  - V3-Security: `.claude/agents/v3/` (Security-Architect, PII-Detector, ADR-Architect)
+  - Testing: `.claude/agents/testing/` (TDD-London-Swarm, Production-Validator)
+  - Optimization: `.claude/agents/optimization/` (Performance, Load-Balancer, Topology)
+  - Development: `.claude/agents/development/` (Full-Stack, Backend, Frontend, API)
+  - DevOps: `.claude/agents/devops/` (CI/CD, Docker, Kubernetes, Monitoring)
+  - Documentation: `.claude/agents/documentation/` (API-Docs, Architecture-Docs)
+  - Weitere: `analysis/`, `architecture/`, `browser/`, `consensus/`, `custom/`, `data/`, `flow-nexus/`, `goal/`, `payments/`, `sona/`, `specialized/`, `sublinear/`, `templates/`
+- Claude-Plugin-Agents: `.claude/plugins/*/agents/*.md`
+- RuFlo-Befehle: `.claude/commands/` (sparc, github, automation, monitoring, optimization)
+- RuFlo-Runtime: `.claude-flow/config.yaml`, `.mcp.json` (ruflo@3.7.0-alpha.38)
 - Aktive Chatmodes: `.github/chatmodes/**/*.chatmode.md`
 - Kanonische Skill-Schicht: `.github/skills/*/SKILL.md`
 - Ergaenzende Task-Prompts: `.github/prompts/*.prompt.md`
@@ -128,6 +142,30 @@ Primaere Quellen:
 - aktive `.github/prompts/*.prompt.md` laut `.github/ai-registry.json`
 - betroffene App unter `apps/`
 
+Service-Agent-Delegation:
+
+- `website-frontend` fuer `apps/website/`
+- `api-fastapi` fuer `apps/api/`
+- `crm-drupal-civicrm` fuer `apps/crm/`
+- `games-babylon` fuer `apps/babylon-game/`
+- `forum-phpbb` fuer `apps/forum/`
+- `automation-n8n` fuer `automation/n8n/`
+
+Speckit-Delegation bei spezifikationsgetriebener Arbeit:
+
+- `speckit-head-master` als Einstieg in den Spec-Kit-Workflow
+- `speckit.analyze`, `speckit.specify`, `speckit.plan`, `speckit.tasks`, `speckit.implement`
+- `speckit.taskstoissues` fuer GitHub-Issue-Erstellung aus Tasks
+- `speckit.git.feature`, `speckit.git.commit` fuer Branch- und Commit-Verwaltung
+
+RuFlo-Delegation in Claude-Code-Sessions:
+
+- `.claude/agents/core/coder.md` fuer parallele Implementierung
+- `.claude/agents/core/reviewer.md` fuer Code-Review
+- `.claude/agents/core/tester.md` fuer Testgenerierung
+- `.claude/agents/sparc/` fuer SPARC-Workflow-Ausfuehrung
+- `.claude/agents/github/pr-manager.md` fuer PR-Erstellung
+
 Erwarteter Output:
 
 - umgesetzte Aenderung
@@ -152,6 +190,12 @@ Primaere Quellen:
 - `.claude/plugins/moe-ops/agents/ops-engineer.md`
 - `.github/chatmodes/general/MCPDeploymentOps_DE.chatmode.md`
 
+RuFlo-Quellen in Claude-Code-Sessions:
+
+- `.claude/agents/devops/` (CI/CD, Docker, Kubernetes, Monitoring)
+- `.claude/agents/v3/v3-integration-architect.md`
+- `.claude/commands/sparc/devops.md`
+
 Erwarteter Output:
 
 - konkrete Aenderung an Workflow oder Tooling
@@ -175,6 +219,14 @@ Primaere Quellen:
 - `.github/chatmodes/general/SicherheitsAudit_DE.chatmode.md`
 - `.github/instructions/core/dsgvo-compliance.instructions.md`
 - `.claude/agents/security-reviewer.md`
+
+RuFlo-Quellen in Claude-Code-Sessions:
+
+- `.claude/agents/v3/security-architect.md`
+- `.claude/agents/v3/pii-detector.md`
+- `.claude/agents/v3/injection-analyst.md`
+- `.claude/agents/v3/aidefence-guardian.md`
+- `.claude/commands/sparc/security-review.md`
 
 Erwarteter Output:
 

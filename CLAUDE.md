@@ -90,6 +90,40 @@ Kurzregel:
 - Kanonische Skill-Schicht: `.github/skills/*/SKILL.md`
 - Ergaenzende Prompts: `.github/prompts/*.prompt.md`
 
+## RuFlo V3 (Claude Code Multi-Agent-Orchestrierung)
+
+RuFlo V3 erweitert Claude Code um Multi-Agent-Koordination, Swarm-Orchestrierung und MCP-Integration.
+
+### Konfiguration
+
+- Runtime-Config: `.claude-flow/config.yaml` (Topologie: hierarchical-mesh, max 15 Agents)
+- MCP-Server: `.mcp.json` (ruflo@3.7.0-alpha.38)
+- Hook-System: `.claude/settings.json` (7 Hook-Typen)
+- Faehigkeiten-Referenz: `.claude-flow/CAPABILITIES.md`
+
+### RuFlo-Agent-Verzeichnisse
+
+| Verzeichnis | Zweck |
+| --- | --- |
+| `.claude/agents/core/` | Coder, Planner, Researcher, Reviewer, Tester |
+| `.claude/agents/sparc/` | SPARC-Workflow: Specification, Pseudocode, Architecture, Refinement |
+| `.claude/agents/swarm/` | Adaptive, hierarchische und Mesh-Koordinatoren |
+| `.claude/agents/github/` | PR-Manager, Issue-Tracker, Release-Manager, Sync-Coordinator |
+| `.claude/agents/v3/` | Security-Architect, PII-Detector, ADR-Architect, DDD-Domain-Expert |
+| `.claude/agents/testing/` | TDD-London-Swarm, Production-Validator |
+| `.claude/agents/optimization/` | Performance-Monitor, Load-Balancer, Topology-Optimizer |
+| `.claude/agents/development/` | Full-Stack, Backend, Frontend, API |
+| `.claude/agents/devops/` | CI/CD, Docker, Kubernetes, Monitoring |
+| `.claude/agents/documentation/` | API-Docs, Architecture-Docs, User-Guides |
+
+### RuFlo-Befehle (Claude Code)
+
+- `.claude/commands/sparc/` — SPARC-Workflow-Modi (coder, researcher, reviewer, tester, etc.)
+- `.claude/commands/github/` — PR-, Issue-, Release- und Workflow-Automation
+- `.claude/commands/automation/` — Smart-Agents, Self-Healing, Session-Memory
+- `.claude/commands/monitoring/` — Agent-Metrics, Swarm-Monitor, Status
+- `.claude/commands/optimization/` — Topology, Cache, Parallel-Execution
+
 ## Branch- und Review-Modell
 
 - Main-first Workflow
@@ -132,10 +166,13 @@ Sichtbare Copilot-Repo-Agenten sind die elf kuratierten Core- und Service-Agente
 
 Archivierte oder deprecated Copilot-Agents liegen unter `.github/archive/agents/` und werden ueber `.github/ai-registry.json` einem sichtbaren Replacement zugeordnet.
 
+Claude-Code-Agents (RuFlo V3) liegen unter `.claude/agents/` (102 Agenten in 27 Kategorien) und werden in Claude-Code-Sessions fuer Multi-Agent-Orchestrierung, SPARC-Workflows, GitHub-Automation und spezialisierte Analysen genutzt. Siehe Abschnitt „RuFlo V3" oben.
+
 ## MCP
 
 - Projektweite MCP-Server liegen in `mcp.json`
 - Editor-spezifische MCP-Ergaenzungen liegen in `.vscode/mcp.json`
+- RuFlo-MCP-Server: `.mcp.json` (ruflo@3.7.0-alpha.38, fuer Claude-Code-Orchestrierung)
 - Spezialisierte MCP-Reparaturen sind Teil von `.github/agents/devops-expert.agent.md`
 - Lokale Checks: `npm run mcp:check` und `npm run mcp:health`
 

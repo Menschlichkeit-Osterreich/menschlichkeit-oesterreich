@@ -61,6 +61,16 @@ Copilot-spezifische Einstiegspunkte:
 
 Archivierte oder deprecated Copilot-Agents liegen unter `.github/archive/agents/` und sind nicht als sichtbare Einstiegspunkte zu verwenden.
 
+Claude-Code-Agents (RuFlo V3, 102 Agenten in `.claude/agents/`):
+
+- Core: `.claude/agents/core/` (Coder, Planner, Researcher, Reviewer, Tester)
+- SPARC: `.claude/agents/sparc/` (Specification, Pseudocode, Architecture, Refinement)
+- Swarm: `.claude/agents/swarm/` (Adaptive, Hierarchical, Mesh Coordinators)
+- GitHub: `.claude/agents/github/` (PR-Manager, Issue-Tracker, Release-Manager)
+- V3-Security: `.claude/agents/v3/` (Security-Architect, PII-Detector, ADR-Architect)
+- RuFlo-Runtime: `.claude-flow/config.yaml`, `.mcp.json` (ruflo@3.7.0-alpha.38)
+- RuFlo-Befehle: `.claude/commands/` (sparc, github, automation, monitoring, optimization)
+
 Kanonischer Analyse-Einstieg:
 
 - `.github/instructions/core/analysis-planning.instructions.md`
