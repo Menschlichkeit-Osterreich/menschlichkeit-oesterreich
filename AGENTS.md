@@ -118,6 +118,13 @@ Primaere Quellen:
 - `.github/chatmodes/general/Architekturplan_DE.chatmode.md`
 - relevante Core-Instructions
 
+RuFlo-Quellen in Claude-Code-Sessions:
+
+- `.claude/agents/architecture/` fuer Domain-Driven-Design und Systemgrenzen
+- `.claude/agents/sparc/` fuer SPARC-Architektur-Workflow
+- `.claude/agents/v3/v3-adr-architect.md` fuer Architecture Decision Records
+- `.claude/agents/v3/v3-ddd-domain-expert.md` fuer Bounded-Context-Analyse
+
 Erwarteter Output:
 
 - Scope
@@ -250,6 +257,13 @@ Primaere Quellen:
 - `.github/chatmodes/general/BarrierefreiheitAudit_DE.chatmode.md`
 - `.github/chatmodes/general/PerformanceOptimierung_DE.chatmode.md`
 - aktive QA-Templates unter `.github/prompts/*.prompt.md` laut `.github/ai-registry.json`
+
+RuFlo-Quellen in Claude-Code-Sessions:
+
+- `.claude/agents/core/tester.md` fuer Testgenerierung und Coverage
+- `.claude/agents/core/reviewer.md` fuer Code-Review
+- `.claude/agents/testing/` fuer TDD-London-Swarm und Production-Validator
+- `.claude/agents/optimization/` fuer Performance-Analyse
 
 Erwarteter Output:
 
