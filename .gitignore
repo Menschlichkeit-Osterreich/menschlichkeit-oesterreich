@@ -526,7 +526,11 @@ backups/
 .claude/secrets.env
 .claude/plans/
 .claude/skills/
+.claude/memory.db
 .claude_pr_body.md
+
+# RuFlo / Claude Flow - runtime state (nie committen)
+.swarm/
 
 # Babylon.js Editor
 .bjseditor/

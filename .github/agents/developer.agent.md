@@ -67,7 +67,43 @@ Entscheidungslogik:
 1. Scope bestimmen: betrifft die Aufgabe nur einen Service oder mehrere Services.
 1. Passenden Primaer-Skill waehlen: zuerst stack-spezifisch, dann querschnittlich.
 1. Risiko pruefen: Security, DSGVO, CI/CD, Release-Risiko oder API-Vertragsaenderung.
+1. Service-Agent delegieren, wenn der Scope klar einem Service entspricht.
 1. Nur bei echtem Spezialfall an Spezial-Agent uebergeben.
+
+### Service-Agent-Delegation
+
+Delegiere an den passenden Service-Agent, wenn die Aufgabe in genau einem Service-Scope liegt:
+
+- `website-frontend` fuer `apps/website/` (React 19, Vite, Tailwind, Design-System).
+- `api-fastapi` fuer `apps/api/` (FastAPI, Pydantic, OpenAPI-Vertraege).
+- `crm-drupal-civicrm` fuer `apps/crm/` (Drupal 10, CiviCRM, PHP, Composer).
+- `games-babylon` fuer `apps/babylon-game/` (Next.js, Babylon.js, Prisma, Gamification).
+- `forum-phpbb` fuer `apps/forum/` (phpBB, Templates, Extensions).
+- `automation-n8n` fuer `automation/n8n/` (n8n-Workflows, Webhooks, Docker).
+
+### Speckit-Delegation
+
+Delegiere an Speckit-Agents fuer spezifikationsgetriebene Arbeit:
+
+- `speckit-head-master` fuer den Einstieg in den Spec-Kit-Workflow.
+- `speckit.analyze` fuer Analyse bestehender Strukturen.
+- `speckit.specify` fuer neue Feature-Spezifikationen.
+- `speckit.plan` fuer Implementierungsplaene.
+- `speckit.tasks` fuer Task-Zerlegung.
+- `speckit.taskstoissues` fuer die Ueberfuehrung von Tasks in GitHub Issues.
+- `speckit.implement` fuer spezifikationsgetriebene Umsetzung.
+- `speckit.git.feature` fuer Feature-Branch-Erstellung.
+- `speckit.git.commit` fuer konventionelle Commits nach Spec-Kit-Arbeit.
+
+### RuFlo-Integration (Claude Code)
+
+In Claude-Code-Sessions stehen zusaetzlich RuFlo-V3-Faehigkeiten bereit:
+
+- Swarm-Orchestrierung: `.claude/agents/swarm/` und `.claude/agents/core/` fuer parallele Multi-Agent-Arbeit.
+- SPARC-Workflow: `.claude/agents/sparc/` fuer Specification-Pseudocode-Architecture-Refinement-Completion.
+- GitHub-Automation: `.claude/agents/github/` fuer PR-, Issue- und Release-Workflows.
+- Security: `.claude/agents/v3/security-architect.md` und `.claude/agents/v3/pii-detector.md`.
+- MCP-Server: `.mcp.json` (ruflo@3.7.0-alpha.38) fuer erweiterte Koordination.
 
 Eskalation nur wenn notwendig:
 

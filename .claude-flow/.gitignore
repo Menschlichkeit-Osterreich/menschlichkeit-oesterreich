@@ -3,5 +3,9 @@ data/
 logs/
 sessions/
 neural/
+metrics/
+swarm/
+daemon-state.json
 *.log
 *.tmp
+*.pid
