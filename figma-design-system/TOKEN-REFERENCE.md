@@ -1,154 +1,258 @@
+# Design Tokens – Referenz
 
-# 🎨 Design Token Reference
-*Auto-generated on: 2026-03-16T21:00:32.394Z*
+Quelle der Wahrheit: `figma-design-system/00_design-tokens.json` (Version `1.1.0`, `lastSync` `2026-05-15`).
 
-## Color Palette
+## Farben
 
-### Primary
-- **50**: `#fff5f5`
-- **100**: `#ffe0e0`
-- **200**: `#ffbdbd`
-- **300**: `#ff8f8f`
-- **400**: `#f85a5a`
-- **500**: `#ef2c2c`
-- **600**: `#dc2626`
-- **700**: `#c01010`
-- **800**: `#9b1313`
-- **900**: `#7f1d1d`
+### Paletten (Tailwind-kompatibel)
 
-### Secondary
-- **50**: `#f8fafc`
-- **100**: `#f1f5f9`
-- **200**: `#e2e8f0`
-- **300**: `#cbd5e1`
-- **400**: `#94a3b8`
-- **500**: `#64748b`
-- **600**: `#475569`
-- **700**: `#334155`
-- **800**: `#1e293b`
-- **900**: `#0f172a`
+#### Primary
 
-### Accent
-- **50**: `#fef7ff`
-- **100**: `#fdeef9`
-- **200**: `#fde6f4`
-- **300**: `#fcceeb`
-- **400**: `#f9a8d4`
-- **500**: `#f472b6`
-- **600**: `#ec4899`
-- **700**: `#db2777`
-- **800**: `#be185d`
-- **900**: `#9d174d`
+- `50`: `#fdf3ed`
+- `100`: `#fae2d4`
+- `200`: `#f6c5a8`
+- `300`: `#eea06f`
+- `400`: `#e27a3f`
+- `500`: `#d4611e`
+- `600`: `#b54a0f`
+- `700`: `#973b10`
+- `800`: `#7a3213`
+- `900`: `#512311`
+- `950`: `#2f1207`
 
-### Success
-- **50**: `#f0fdf4`
-- **100**: `#dcfce7`
-- **200**: `#bbf7d0`
-- **300**: `#86efac`
-- **400**: `#4ade80`
-- **500**: `#22c55e`
-- **600**: `#16a34a`
-- **700**: `#15803d`
-- **800**: `#166534`
-- **900**: `#14532d`
+#### Secondary
 
-### Warning
-- **50**: `#fffbeb`
-- **100**: `#fef3c7`
-- **200**: `#fde68a`
-- **300**: `#fcd34d`
-- **400**: `#fbbf24`
-- **500**: `#f59e0b`
-- **600**: `#d97706`
-- **700**: `#b45309`
-- **800**: `#92400e`
-- **900**: `#78350f`
+- `50`: `#faf7f5`
+- `100`: `#f0ebe6`
+- `200`: `#ddd5cc`
+- `300`: `#c8bdb2`
+- `400`: `#aa9d91`
+- `500`: `#7a6e62`
+- `600`: `#64574d`
+- `700`: `#4a4039`
+- `800`: `#382f29`
+- `900`: `#2b231d`
+- `950`: `#17120e`
 
-### Error
-- **50**: `#fef2f2`
-- **100**: `#fee2e2`
-- **200**: `#fecaca`
-- **300**: `#fca5a5`
-- **400**: `#f87171`
-- **500**: `#ef4444`
-- **600**: `#dc2626`
-- **700**: `#b91c1c`
-- **800**: `#991b1b`
-- **900**: `#7f1d1d`
+#### Accent
 
-### Semantic
-- **background**: `#ffffff`
-- **surface**: `#f8fafc`
-- **overlay**: `rgba(0, 0, 0, 0.5)`
-- **text-primary**: `#0f172a`
-- **text-secondary**: `#64748b`
-- **text-inverse**: `#ffffff`
-- **border**: `#e2e8f0`
-- **border-focus**: `#0ea5e9`
-- **disabled**: `#f1f5f9`
+- `50`: `#eef5f8`
+- `100`: `#d7e7ef`
+- `200`: `#b2d1e0`
+- `300`: `#82b4cb`
+- `400`: `#4f8bae`
+- `500`: `#1b4965`
+- `600`: `#163d55`
+- `700`: `#143245`
+- `800`: `#132a39`
+- `900`: `#101f2a`
+- `950`: `#091117`
 
+#### Success
 
-## Typography Scale  
+- `50`: `#eef7ef`
+- `100`: `#d5ead7`
+- `200`: `#add5b0`
+- `300`: `#82bc86`
+- `400`: `#5aa25f`
+- `500`: `#2e7d32`
+- `600`: `#286d2c`
+- `700`: `#215a25`
+- `800`: `#1b4a1f`
+- `900`: `#123116`
 
-- **xs**: `0.75rem`
-- **sm**: `0.875rem`
-- **base**: `1rem`
-- **lg**: `1.125rem`
-- **xl**: `1.25rem`
-- **2xl**: `1.5rem`
-- **3xl**: `1.875rem`
-- **4xl**: `2.25rem`
-- **5xl**: `3rem`
-- **6xl**: `3.75rem`
-- **7xl**: `4.5rem`
+#### Warning
 
+- `50`: `#fef2e8`
+- `100`: `#fbd7bd`
+- `200`: `#f8bb91`
+- `300`: `#f39a5f`
+- `400`: `#ed7b31`
+- `500`: `#e65100`
+- `600`: `#c64600`
+- `700`: `#a33800`
+- `800`: `#842e00`
+- `900`: `#5f2000`
 
-## Spacing System
+#### Error
 
-- **0**: `0px`
-- **1**: `0.25rem`
-- **2**: `0.5rem`
-- **3**: `0.75rem`
-- **4**: `1rem`
-- **5**: `1.25rem`
-- **6**: `1.5rem`
-- **8**: `2rem`
-- **10**: `2.5rem`
-- **12**: `3rem`
-- **16**: `4rem`
-- **20**: `5rem`
-- **24**: `6rem`
-- **32**: `8rem`
-- **40**: `10rem`
-- **48**: `12rem`
-- **56**: `14rem`
-- **64**: `16rem`
+- `50`: `#f9eaea`
+- `100`: `#efc9c9`
+- `200`: `#e5a6a6`
+- `300`: `#d97878`
+- `400`: `#cf5151`
+- `500`: `#c62828`
+- `600`: `#ab2222`
+- `700`: `#8d1c1c`
+- `800`: `#701616`
+- `900`: `#4e0f0f`
 
+### Semantische Farben
 
-## Usage Examples
+- `background`: `#ffffff`
+- `surface`: `#faf7f5`
+- `overlay`: `rgba(0, 0, 0, 0.5)`
+- `text-primary`: `#2b231d`
+- `text-secondary`: `#4a4039`
+- `text-inverse`: `#ffffff`
+- `border`: `#ddd5cc`
+- `border-focus`: `#1b4965`
+- `disabled`: `#f0ebe6`
 
-### CSS Variables
-```css
-.primary-button {
-  background-color: var(--color-primary-500);
-  color: var(--color-primary-foreground);
-  padding: var(--spacing-4) var(--spacing-6);
-  font-size: var(--font-size-base);
-}
-```
+## Typografie
 
-### Tailwind Classes
-```html
-<button class="bg-primary-500 text-white px-6 py-4 text-base">
-  Primary Button
-</button>
-```
+### Font-Families
 
-### React Components
-```tsx
-import { Button } from '@/components/ui/button';
+- `primary`: `"Nunito Sans", system-ui, sans-serif`
+- `secondary`: `"Source Sans 3", "Segoe UI", sans-serif`
+- `mono`: `"JetBrains Mono", Monaco, monospace`
 
-<Button variant="default" size="md">
-  Click me
-</Button>
-```
+### Font-Sizes
+
+- `xs`: `0.75rem`
+- `sm`: `0.875rem`
+- `base`: `1rem`
+- `lg`: `1.125rem`
+- `xl`: `1.25rem`
+- `2xl`: `1.5rem`
+- `3xl`: `1.875rem`
+- `4xl`: `2.25rem`
+- `5xl`: `3rem`
+- `6xl`: `3.75rem`
+- `7xl`: `4.5rem`
+
+### Weights
+
+- `thin`: `100`
+- `extralight`: `200`
+- `light`: `300`
+- `normal`: `400`
+- `medium`: `500`
+- `semibold`: `600`
+- `bold`: `700`
+- `extrabold`: `800`
+- `black`: `900`
+
+### Line-Height
+
+- `none`: `1`
+- `tight`: `1.25`
+- `snug`: `1.375`
+- `normal`: `1.5`
+- `relaxed`: `1.625`
+- `loose`: `2`
+
+### Letter-Spacing
+
+- `tighter`: `-0.05em`
+- `tight`: `-0.025em`
+- `normal`: `0em`
+- `wide`: `0.025em`
+- `wider`: `0.05em`
+- `widest`: `0.1em`
+
+## Spacing
+
+- `0`: `0px`
+- `1`: `0.25rem`
+- `2`: `0.5rem`
+- `3`: `0.75rem`
+- `4`: `1rem`
+- `5`: `1.25rem`
+- `6`: `1.5rem`
+- `8`: `2rem`
+- `10`: `2.5rem`
+- `12`: `3rem`
+- `16`: `4rem`
+- `20`: `5rem`
+- `24`: `6rem`
+- `32`: `8rem`
+- `40`: `10rem`
+- `48`: `12rem`
+- `56`: `14rem`
+- `64`: `16rem`
+
+## Radii
+
+- `none`: `0px`
+- `xs`: `0.125rem`
+- `sm`: `0.25rem`
+- `md`: `0.375rem`
+- `lg`: `0.5rem`
+- `xl`: `0.75rem`
+- `2xl`: `1rem`
+- `3xl`: `1.5rem`
+- `full`: `9999px`
+
+## Shadow
+
+- `none`: `none`
+- `sm`: `0 1px 2px 0 rgba(0, 0, 0, 0.05)`
+- `md`: `0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)`
+- `lg`: `0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)`
+- `xl`: `0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)`
+- `2xl`: `0 25px 50px -12px rgba(0, 0, 0, 0.25)`
+- `inner`: `inset 0 2px 4px 0 rgba(0, 0, 0, 0.06)`
+
+## Z-Index
+
+- `hide`: `-1`
+- `auto`: `auto`
+- `base`: `0`
+- `docked`: `10`
+- `dropdown`: `1000`
+- `sticky`: `1100`
+- `banner`: `1200`
+- `overlay`: `1300`
+- `modal`: `1400`
+- `popover`: `1500`
+- `skipLink`: `1600`
+- `toast`: `1700`
+- `tooltip`: `1800`
+
+## Motion (Duration & Easing)
+
+### Duration
+
+- `fast`: `150ms`
+- `normal`: `300ms`
+- `slow`: `500ms`
+
+### Easing
+
+- `linear`: `linear`
+- `ease`: `ease`
+- `ease-in`: `cubic-bezier(0.4, 0.0, 1, 1)`
+- `ease-out`: `cubic-bezier(0.0, 0.0, 0.2, 1)`
+- `ease-in-out`: `cubic-bezier(0.4, 0.0, 0.2, 1)`
+- `bounce`: `cubic-bezier(0.68, -0.55, 0.265, 1.55)`
+
+## Breakpoints & Grid
+
+### Breakpoints
+
+- `xs`: `320px`
+- `sm`: `640px`
+- `md`: `768px`
+- `lg`: `1024px`
+- `xl`: `1280px`
+- `2xl`: `1536px`
+
+### Grid
+
+- `grid.container.padding`: `2rem`
+- `grid.container.screens.2xl`: `1400px`
+- `grid.columns.default`: `12`
+
+## Tailwind Mapping
+
+Tailwind liest die Tokens direkt aus `figma-design-system/00_design-tokens.json`.
+
+- Website: `apps/website/tailwind.config.cjs`
+- Root-Config (Tools/Playground): `tailwind.config.js`
+
+Gemappt sind u.a. `colors`, `typography.*`, `spacing`, `borderRadius`, `shadows`, `breakpoints`, `zIndex`, `animation.duration`, `animation.easing` sowie `grid.container`.
+
+## Kontrastpaare
+
+Siehe: `figma-design-system/accessibility/CONTRAST-PAIRS.md`

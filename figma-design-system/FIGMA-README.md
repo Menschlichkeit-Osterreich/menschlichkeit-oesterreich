@@ -6,12 +6,13 @@ Dieses Verzeichnis enthält die Design Tokens (Farben, Typografie, Spacing) sowi
 
 - 00_design-tokens.json – Quelle der Wahrheit
 - figma-css-variables.config.json – Mapping zu CSS Custom Properties
-- scripts/generate-design-tokens.mjs – Token-Build für Frontend
+- apps/website/scripts/generate-design-tokens.mjs – Token-Build für Frontend (CSS-Variables für Website)
+- figma-design-system/styles/design-tokens.css – Referenz-CSS-Variablen (Dokumentation)
 
 ## Nutzung im Frontend
 
-- Tailwind-Setup: `frontend/tailwind.config.cjs`
-- Tokens generieren: `npm run design:tokens`
+- Tailwind-Setup: `apps/website/tailwind.config.cjs`
+- Tokens generieren (Website CSS): `npm run tokens:build --workspace=@moe/frontend`
 
 ## Accessibility
 

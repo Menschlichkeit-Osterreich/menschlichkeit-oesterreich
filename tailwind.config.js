@@ -16,10 +16,8 @@ module.exports = {
   theme: {
     container: {
       center: true,
-      padding: '2rem',
-      screens: {
-        '2xl': '1400px',
-      },
+      padding: tt.grid?.container?.padding ?? '2rem',
+      screens: tt.grid?.container?.screens ?? { '2xl': '1400px' },
     },
     extend: {
       colors: tt.colors,
@@ -36,7 +34,18 @@ module.exports = {
       spacing: tt.spacing,
       borderRadius: tt.borderRadius,
       boxShadow: tt.shadows,
+      zIndex: tt.zIndex,
       screens: tt.breakpoints,
+      transitionDuration: tt.animation?.duration,
+      transitionTimingFunction: {
+        linear: tt.animation?.easing?.linear,
+        ease: tt.animation?.easing?.ease,
+        DEFAULT: tt.animation?.easing?.['ease-in-out'],
+        in: tt.animation?.easing?.['ease-in'],
+        out: tt.animation?.easing?.['ease-out'],
+        'in-out': tt.animation?.easing?.['ease-in-out'],
+        bounce: tt.animation?.easing?.bounce,
+      },
     },
   },
   plugins: [],
