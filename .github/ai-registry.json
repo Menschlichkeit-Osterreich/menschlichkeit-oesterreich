@@ -494,7 +494,7 @@
       "path": ".github/archive/agents/drupal-expert.agent.md",
       "role": "developer",
       "sourceOfTruth": ".github/archive/agents/drupal-expert.agent.md",
-      "replacement": ".github/agents/developer.agent.md"
+      "replacement": ".github/agents/crm-drupal-civicrm.agent.md"
     },
     {
       "id": "expert-nextjs-developer.agent",
@@ -504,7 +504,7 @@
       "path": ".github/archive/agents/expert-nextjs-developer.agent.md",
       "role": "developer",
       "sourceOfTruth": ".github/archive/agents/expert-nextjs-developer.agent.md",
-      "replacement": ".github/agents/developer.agent.md"
+      "replacement": ".github/agents/games-babylon.agent.md"
     },
     {
       "id": "expert-react-frontend-engineer.agent",
@@ -514,7 +514,7 @@
       "path": ".github/archive/agents/expert-react-frontend-engineer.agent.md",
       "role": "developer",
       "sourceOfTruth": ".github/archive/agents/expert-react-frontend-engineer.agent.md",
-      "replacement": ".github/agents/developer.agent.md"
+      "replacement": ".github/agents/website-frontend.agent.md"
     },
     {
       "id": "frontend-performance-investigator.agent",

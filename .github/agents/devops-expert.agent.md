@@ -56,9 +56,9 @@ Stabilisiere CI/CD, Deploy-Workflows, VS-Code-Settings, MCP-Konfiguration, Tasks
 Nutze vor groesseren DevOps-Aenderungen passende Skills in dieser Reihenfolge:
 
 1. `devops-rollout-plan` fuer riskante Rollouts und gestufte Deployments.
-1. `github-actions-docs` fuer Workflow-Syntax, Permissions und OIDC-Fragen.
+1. `moe-ops-governance` fuer Workflow-Syntax, Permissions und Governance-Fragen.
 1. `multi-stage-dockerfile` bei Docker- oder Build-Optimierung.
-1. `secret-scanning` und `security-scan` bei Secret-, Token- oder Pipeline-Risiken.
+1. `secret-scanning` und `dsgvo-audit` bei Secret-, Token- oder Pipeline-Risiken.
 1. `deploy-checklist` direkt vor produktionsnahen Changes.
 
 Wenn ein Skill dem Repository-Vertrag widerspricht, hat immer der Repo-Vertrag in `AGENTS.md`, `CLAUDE.md` und den Core-Instructions Vorrang.

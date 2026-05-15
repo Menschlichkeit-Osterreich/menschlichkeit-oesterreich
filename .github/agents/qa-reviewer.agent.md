@@ -45,10 +45,11 @@ Pruefe Aenderungen auf Bugs, Regressionsrisiken, fehlende Tests, Accessibility-,
 
 Waehle test- und reviewbezogene Skills vor tieferen QA-Audits:
 
-1. `playwright-testing` fuer E2E-Flows, Smoke-Checks und UI-Regressionen.
+1. `polyglot-test-agent` fuer E2E-Flows, Smoke-Checks und UI-Regressionen.
 1. `pytest-coverage` fuer API- und Python-Coverage-Luecken.
 1. `javascript-typescript-jest` fuer Website/Games Unit-Test-Muster.
 1. `web-design-guidelines` bei Accessibility- und UX-Reviews.
+1. `moe-qa-governance` fuer Quality-Gate-Validierung und Release-Freigaben.
 
 Nutze zunaechst den engsten stackspezifischen Skill und danach den querschnittlichen QA-Skill fuer Abschlussvalidierung.
 

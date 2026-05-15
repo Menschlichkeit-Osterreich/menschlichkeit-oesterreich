@@ -48,13 +48,13 @@ Waehle Skills vor der Umsetzung gezielt nach Stack und Aufgabe.
 
 Priorisierte Skill-Matrix:
 
-1. Frontend `apps/website`: `react-vite-best-practices`, bei Designfragen zusaetzlich `frontend-design`.
-1. API `apps/api`: `fastapi-python`.
-1. CRM `apps/crm`: `drupal-development`.
-1. Automation `automation/n8n`: `n8n-workflow-automation`.
-1. Datenbank/PostgreSQL: `postgresql-optimization`, bei Reviewbedarf zusaetzlich `postgresql-code-review`.
-1. Testfokus: `playwright-testing`, bei Backend-Coverage `pytest-coverage`.
-1. Security-Fokus: `secret-scanning` und `security-scan`.
+1. Frontend `apps/website`: `vercel-react-best-practices`, bei Designfragen zusaetzlich `frontend-design`.
+1. API `apps/api`: `pytest-coverage` fuer Tests, `web-coder` fuer Endpunkte.
+1. CRM `apps/crm`: `moe-dev-suite` fuer Patterns, `moe-compliance-governance` fuer Constraints.
+1. Automation `automation/n8n`: `moe-ops-governance` fuer Workflow-Konformitaet.
+1. Datenbank/PostgreSQL: `postgresql-optimization`, bei SQL-Tuning zusaetzlich `sql-optimization`.
+1. Testfokus: `polyglot-test-agent`, bei Backend-Coverage `pytest-coverage`, bei Frontend `javascript-typescript-jest`.
+1. Security-Fokus: `secret-scanning` und `dsgvo-audit`.
 
 Wenn mehrere Skills passen, nutze zuerst den service-spezifischen Skill und danach den querschnittlichen Optimierungs- oder Security-Skill.
 
