@@ -28,6 +28,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r apps/api/requirements.txt
+          pip install pytest
 
       # Hinweis: BSM-Secrets werden bevorzugt. Fallback auf GitHub Secrets
       # bzw. CI-generierte Werte für Forks/PRs ohne BSM-Zugriff.
