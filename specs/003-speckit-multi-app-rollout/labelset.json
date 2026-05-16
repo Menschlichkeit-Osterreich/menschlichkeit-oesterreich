@@ -1,0 +1,35 @@
+{
+  "version": "2026-05-16",
+  "scope": "speckit-multi-app",
+  "required_labels": {
+    "spec": ["spec/speckit-multiapp"],
+    "status": ["status/planned", "status/in-progress", "status/blocked", "status/done"],
+    "service": [
+      "service/api",
+      "service/website",
+      "service/crm",
+      "service/forum",
+      "service/babylon-game",
+      "service/cross"
+    ],
+    "wave": ["wave/A-foundation", "wave/B-feature-core", "wave/C-stabilization", "wave/D-ops-hardening"],
+    "priority": ["priority/P0", "priority/P1", "priority/P2"],
+    "effort": ["effort/S", "effort/M", "effort/L"],
+    "lifecycle": ["lifecycle/duplicate", "lifecycle/deprecated", "lifecycle/superseded"]
+  },
+  "label_rules": [
+    "Every spec/speckit-multiapp issue MUST have exactly one service label.",
+    "Every spec/speckit-multiapp issue MUST have exactly one wave label.",
+    "Every spec/speckit-multiapp issue MUST have exactly one status label.",
+    "Priority and effort labels are mandatory before an issue enters status/in-progress.",
+    "Only lifecycle labels are mutually exclusive and only valid with status/done or status/blocked."
+  ],
+  "mapping": {
+    "A": "service/api",
+    "W": "service/website",
+    "C": "service/crm",
+    "F": "service/forum",
+    "G": "service/babylon-game",
+    "X": "service/cross"
+  }
+}
