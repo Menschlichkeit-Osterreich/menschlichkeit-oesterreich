@@ -92,6 +92,10 @@ Wave-A-Umsetzungsstart:
   `w003-abarbeitungsreihenfolge-wave-ac-2026-05-16.md`.
 - Wave-A-Abnahmeprotokoll dokumentiert in
   `wave-a-abnahmeprotokoll-2026-05-16.md`.
+- Board-Execution-Runbook dokumentiert in
+  `wave-a-board-execution-runbook-2026-05-16.md`.
+- Gate-Protokoll-Template fuer #380/#381/#382 dokumentiert in
+  `wave-a-gate-protokoll-template-380-382-2026-05-16.md`.
 
 Update 2026-05-16 (Ausfuehrung):
 
