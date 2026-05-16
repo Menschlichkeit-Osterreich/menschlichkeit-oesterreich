@@ -21,6 +21,7 @@ exclude_paths:
   - '_MIGRATION/**'
   - 'attached_assets/**'
   - 'analysis/archive/**'
+  - 'apps/babylon-game/**'
   - 'apps/website/**'
   - 'codacy-analysis-cli-master/**'
   - 'codacy-analysis-cli/**'
@@ -33,6 +34,7 @@ exclude_paths:
   - 'quality-reports/**'
   - 'reports/**'
   - 'secrets/**'
+  - 'services/**'
   - 'tests/fixtures/**'
 
 categories:
