@@ -96,6 +96,8 @@ Wave-A-Umsetzungsstart:
   `wave-a-board-execution-runbook-2026-05-16.md`.
 - Gate-Protokoll-Template fuer #380/#381/#382 dokumentiert in
   `wave-a-gate-protokoll-template-380-382-2026-05-16.md`.
+- Wave-A-Operations-Snapshot dokumentiert in
+  `wave-a-operations-snapshot-2026-05-16.md`.
 
 Update 2026-05-16 (Ausfuehrung):
 
