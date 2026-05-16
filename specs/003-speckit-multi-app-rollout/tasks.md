@@ -88,6 +88,10 @@ Wave-A-Umsetzungsstart:
 - W001 Cluster-Nachweis dokumentiert in `w001-website-taskcluster-2026-05-16.md`.
 - W002 Dependency-Nachweis dokumentiert in
   `w002-api-website-dependency-matrix-2026-05-16.md`.
+- W003 Reihenfolge-Nachweis dokumentiert in
+  `w003-abarbeitungsreihenfolge-wave-ac-2026-05-16.md`.
+- Wave-A-Abnahmeprotokoll dokumentiert in
+  `wave-a-abnahmeprotokoll-2026-05-16.md`.
 
 Update 2026-05-16 (Ausfuehrung):
 
