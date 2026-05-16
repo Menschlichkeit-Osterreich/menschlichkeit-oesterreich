@@ -15,18 +15,6 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # ============================================================
-  # BSM — Bitwarden Secrets Manager Injection (optional)
-  # ============================================================
-  bsm-secrets:
-    name: 'BSM: Forum Secrets laden'
-    if: ${{ secrets.BW_ACCESS_TOKEN != '' }}
-    uses: ./.github/workflows/reusable-bsm-secrets.yml
-    with:
-      profile: deploy-forum
-    secrets:
-      BW_ACCESS_TOKEN: ${{ secrets.BW_ACCESS_TOKEN }}
-
   deploy:
     name: Forum → Plesk (forum-production)
     runs-on: ubuntu-latest

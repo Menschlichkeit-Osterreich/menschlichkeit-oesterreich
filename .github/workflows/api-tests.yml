@@ -11,21 +11,9 @@ permissions:
   contents: read
 
 jobs:
-  # ── BSM Secret Injection (optional, wenn BW_ACCESS_TOKEN gesetzt) ──
-  bsm-secrets:
-    name: 'BSM: API Test Secrets laden'
-    if: ${{ secrets.BW_ACCESS_TOKEN != '' }}
-    uses: ./.github/workflows/reusable-bsm-secrets.yml
-    with:
-      profile: api-tests
-    secrets:
-      BW_ACCESS_TOKEN: ${{ secrets.BW_ACCESS_TOKEN }}
-
   tests:
     name: API Tests (pytest)
     runs-on: ubuntu-latest
-    needs: [bsm-secrets]
-    if: ${{ always() && (needs.bsm-secrets.result == 'success' || needs.bsm-secrets.result == 'skipped') }}
     timeout-minutes: 15
     steps:
       - name: Checkout
