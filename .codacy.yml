@@ -21,6 +21,7 @@ exclude_paths:
   - '_MIGRATION/**'
   - 'attached_assets/**'
   - 'analysis/archive/**'
+  - 'apps/website/**'
   - 'codacy-analysis-cli-master/**'
   - 'codacy-analysis-cli/**'
   - 'crm.menschlichkeit-oesterreich.at/web/core/tests/**'
