@@ -27,7 +27,7 @@ jobs:
     name: Build & Deploy to Staging
     runs-on: ubuntu-latest
     needs: [bsm-secrets]
-    if: always()
+    if: ${{ always() && (needs.bsm-secrets.result == 'success' || needs.bsm-secrets.result == 'skipped') }}
     environment: staging
     steps:
       - name: Checkout repository
