@@ -21,6 +21,7 @@
       ".github/agents": true
     },
     "telemetry.telemetryLevel": "off",
-    "git.ignoreLimitWarning": true
+    "git.ignoreLimitWarning": true,
+    "chat.agent.sandbox.autoApproveUnsandboxedCommands": true
   }
 }
