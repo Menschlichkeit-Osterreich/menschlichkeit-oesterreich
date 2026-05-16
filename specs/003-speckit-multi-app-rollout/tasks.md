@@ -81,6 +81,13 @@ Wave-A-Umsetzungsstart:
 - Startpaket dokumentiert in `wave-a-startpaket-2026-05-16.md`.
 - Enthaltene Arbeitspakete: A001, W001, W002 inkl. Deliverables und DoD.
 - A001 Erstnachweis dokumentiert in `a001-api-endpoint-inventar-2026-05-16.md`.
+- A002 Gate-Mapping dokumentiert in
+  `a002-api-quality-gates-mapping-2026-05-16.md`.
+- A003 Risiko-Priorisierung dokumentiert in
+  `a003-api-risk-priorisierung-wave-ab-2026-05-16.md`.
+- W001 Cluster-Nachweis dokumentiert in `w001-website-taskcluster-2026-05-16.md`.
+- W002 Dependency-Nachweis dokumentiert in
+  `w002-api-website-dependency-matrix-2026-05-16.md`.
 
 Update 2026-05-16 (Ausfuehrung):
 
