@@ -1,6 +1,14 @@
 engines:
   eslint-8:
     enabled: true
+    patterns:
+      - include:
+          - 'apps/website/**/*.{js,jsx,ts,tsx}'
+          - 'apps/api/**/*.{js,mjs}'
+          - 'apps/crm/**/*.{js,mjs}'
+          - 'scripts/**/*.{js,mjs,cjs}'
+          - '.github/**/*.{js,mjs,cjs}'
+          - '.claude/**/*.{js,mjs,cjs}'
   remark-lint:
     enabled: true
   stylelint:
