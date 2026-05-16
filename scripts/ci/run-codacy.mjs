@@ -17,7 +17,7 @@ const CODACY_JAR_URL =
   process.env.CODACY_JAR_URL ||
   'https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli-assembly.jar';
 const MIN_JAR_BYTES = 1024 * 1024;
-const DEFAULT_TOOLS = 'eslint,trivy';
+const DEFAULT_TOOLS = 'eslint';
 
 function isStrictMode() {
   const fallback = process.env.CI ? '1' : '0';

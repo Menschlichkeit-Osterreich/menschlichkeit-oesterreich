@@ -1,0 +1,48 @@
+{
+  "version": "1.0.0",
+  "scope_roots": ["automation/n8n/workflows"],
+  "exclude_paths": [
+    "_MIGRATION",
+    "api.menschlichkeit-oesterreich.at",
+    "crm.menschlichkeit-oesterreich.at",
+    "legacy",
+    "mirror"
+  ],
+  "notes": "Inventory ist die Source of Truth fuer produktionsnahe n8n-Workflow-JSON-Dateien.",
+  "required_workflows": ["automation/n8n/workflows/finance-donation-processing.json"],
+  "special_cases": {
+    "automation/n8n/workflows/finance-donation-processing.json": {
+      "status": "open-evidence",
+      "note": "Open evidence tracking remains active; gate still validates syntax and inventory presence."
+    }
+  },
+  "workflows": [
+    "automation/n8n/workflows/build-pipeline-automation.json",
+    "automation/n8n/workflows/crm-member-management.json",
+    "automation/n8n/workflows/crm-sync-members.json",
+    "automation/n8n/workflows/dashboard-etl-stripe-civicrm.json",
+    "automation/n8n/workflows/dlq-admin.json",
+    "automation/n8n/workflows/donation-webhook-archive.json",
+    "automation/n8n/workflows/events-reminder.json",
+    "automation/n8n/workflows/finance-donation-processing.json",
+    "automation/n8n/workflows/finance-dunning.json",
+    "automation/n8n/workflows/finance-erpnext-payment-entry.json",
+    "automation/n8n/workflows/finance-erpnext-reconciliation-report.json",
+    "automation/n8n/workflows/finance-erpnext-sync-processor.json",
+    "automation/n8n/workflows/finance-invoicing.json",
+    "automation/n8n/workflows/finance-membership-invoicing.json",
+    "automation/n8n/workflows/finance-payment-confirmation.json",
+    "automation/n8n/workflows/finance-sepa-export.json",
+    "automation/n8n/workflows/forum-moderation.json",
+    "automation/n8n/workflows/forum-viral.json",
+    "automation/n8n/workflows/mail-archiver-logging.json",
+    "automation/n8n/workflows/onboarding-welcome-series.json",
+    "automation/n8n/workflows/plesk-deployment-notifications.json",
+    "automation/n8n/workflows/plesk-mail-provisioning.json",
+    "automation/n8n/workflows/queue-monitor.json",
+    "automation/n8n/workflows/right-to-erasure-fixed.json",
+    "automation/n8n/workflows/social-media-crosspost.json",
+    "automation/n8n/workflows/Stripe_Webhook_to_CiviCRM_Contribution.json",
+    "automation/n8n/workflows/WebhookQueue_Processor.json"
+  ]
+}

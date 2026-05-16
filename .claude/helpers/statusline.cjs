@@ -13,7 +13,6 @@
  * - Shared settings cache across functions
  */
 
-/* eslint-disable @typescript-eslint/no-var-requires */
 // noinspection ES6UnusedImports
 const fs = require('fs');
 const path = require('path');
