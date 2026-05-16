@@ -500,11 +500,14 @@ describe('Accessibility Tests', () => {
 ```
 
 ### 5.2 Manual WCAG Testing Checklist
+- [ ] WCAG-Baselines laut `figma-design-system/accessibility/WCAG-AA-BASELINES.md` geprüft
 - [ ] Keyboard navigation (Tab, Enter, Escape)
 - [ ] Screen reader compatibility (NVDA, JAWS)
 - [ ] Color contrast ratios (WCAG AA minimum 4.5:1)
 - [ ] Form labels and error messages
 - [ ] Focus indicators visible
+- [ ] Focus indicators reach at least 3:1 non-text contrast
+- [ ] `prefers-reduced-motion: reduce` disables non-essential motion
 - [ ] Alternative text for images
 - [ ] Video captions and transcripts
 - [ ] Semantic HTML structure
