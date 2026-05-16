@@ -82,8 +82,8 @@ let _settingsCache = undefined;
 function getSettings() {
   if (_settingsCache !== undefined) return _settingsCache;
   _settingsCache = readJSON(path.join(CWD, '.claude', 'settings.json'))
-                || readJSON(path.join(CWD, '.claude', 'settings.local.json'))
-                || null;
+    || readJSON(path.join(CWD, '.claude', 'settings.local.json'))
+    || null;
   return _settingsCache;
 }
 
@@ -591,7 +591,7 @@ function getIntegrationStatus() {
 
   if (mcpServers.total === 0) {
     const mcpConfig = readJSON(path.join(CWD, '.mcp.json'))
-                   || readJSON(path.join(os.homedir(), '.claude', 'mcp.json'));
+      || readJSON(path.join(os.homedir(), '.claude', 'mcp.json'));
     if (mcpConfig && mcpConfig.mcpServers) {
       const s = Object.keys(mcpConfig.mcpServers);
       mcpServers.total = s.length;
@@ -763,7 +763,7 @@ function generateStatusline() {
   let integStr = '';
   if (integration.mcpServers.total > 0) {
     const mcpCol = integration.mcpServers.enabled === integration.mcpServers.total ? c.brightGreen :
-                   integration.mcpServers.enabled > 0 ? c.brightYellow : c.red;
+      integration.mcpServers.enabled > 0 ? c.brightYellow : c.red;
     integStr += c.cyan + 'MCP' + c.reset + ' ' + mcpCol + '\u25CF' + integration.mcpServers.enabled + '/' + integration.mcpServers.total + c.reset;
   }
   if (integration.hasDatabase) integStr += (integStr ? '  ' : '') + c.brightGreen + '\u25C6' + c.reset + 'DB';
