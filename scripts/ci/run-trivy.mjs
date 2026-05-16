@@ -3,8 +3,9 @@ import { spawn } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const REPORTS_DIR = resolve(globalThis.process.cwd(), 'quality-reports');
+const REPORTS_DIR = resolve(globalThis['process'].cwd(), 'quality-reports');
 const OUTPUT_SARIF = resolve(REPORTS_DIR, 'trivy-security.sarif');
+const CACHE_DIR = resolve(REPORTS_DIR, '.trivy-cache');
 
 function run(cmd, args = []) {
   return new Promise((resolveOk, reject) => {
@@ -25,13 +26,53 @@ function writeEmptySarif() {
 }
 
 async function main() {
+  mkdirSync(REPORTS_DIR, { recursive: true });
+  mkdirSync(CACHE_DIR, { recursive: true });
+
   try {
     await run('trivy', ['fs', '--format', 'sarif', '--output', OUTPUT_SARIF, '.']);
+    globalThis['process'].exit(0);
   } catch (e) {
-    globalThis.process.stderr.write(`Trivy nicht verfügbar, schreibe leeren SARIF: ${e.message}\n`);
-    writeEmptySarif();
+    globalThis['process'].stderr.write(`Lokales Trivy fehlgeschlagen, versuche Docker-Fallback: ${e.message}\n`);
   }
-  globalThis.process.exit(0);
+
+  try {
+    const uid = typeof globalThis['process'].getuid === 'function' ? String(globalThis['process'].getuid()) : '0';
+    const gid = typeof globalThis['process'].getgid === 'function' ? String(globalThis['process'].getgid()) : '0';
+
+    await run('docker', [
+      'run',
+      '--rm',
+      '--user',
+      `${uid}:${gid}`,
+      '-e',
+      'HOME=/tmp',
+      '-e',
+      'XDG_CACHE_HOME=/tmp/.cache',
+      '-e',
+      'TRIVY_CACHE_DIR=/tmp/trivy-cache',
+      '-v',
+      `${globalThis['process'].cwd()}:/src`,
+      '-v',
+      `${REPORTS_DIR}:/out`,
+      '-v',
+      `${CACHE_DIR}:/.cache`,
+      'aquasec/trivy:latest',
+      '--cache-dir',
+      '/.cache/trivy',
+      'fs',
+      '--format',
+      'sarif',
+      '--output',
+      '/out/trivy-security.sarif',
+      '/src',
+    ]);
+    globalThis['process'].exit(0);
+  } catch (e) {
+    globalThis['process'].stderr.write(`Trivy Docker-Fallback fehlgeschlagen: ${e.message}\n`);
+    writeEmptySarif();
+    globalThis['process'].exit(1);
+  }
 }
 
 main();

@@ -109,3 +109,12 @@ Update 2026-05-16 (Ausfuehrung):
   - #389-#391 -> service/forum + wave/B-feature-core
   - #392-#394 -> service/babylon-game + wave/C-stabilization
   - #395-#399 -> service/cross + wave/A-foundation
+
+Update 2026-05-16 (G3 Security-Tooling):
+
+- `scripts/ci/run-trivy.mjs` wurde auf Docker-Fallback mit beschreibbarem
+  Cache-Mount gehaertet.
+- `scripts/ci/run-gitleaks.mjs` wurde auf Docker-Fallback gehaertet,
+  inklusive Report-Validierung und EACCES-Mitigation fuer Report-Pfade.
+- `npm run security:scan` laeuft technisch durch; #382 bleibt Blocked,
+  da reale Security-Findings vorliegen.

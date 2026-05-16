@@ -20,18 +20,21 @@ Workflow-Status, Gate-Lage und Ampelbewertung fuer #380 bis #385.
 
 - G1: `npm run test:api` -> Exit 0
 - G2: `npm run test:api:coverage` -> Exit 0
-- G3: `npm run security:scan` -> Exit 0 im Aggregat, aber Trivy/Gitleaks
-  im Lauf nicht verfuegbar (ENOENT) -> fuer #382 als FAIL gewertet
+- G3: `npm run security:scan` -> Exit 0 im Aggregat nach Docker-Fallback,
+  Trivy/Bandit/Gitleaks laufen technisch durch; fuer #382 weiterhin FAIL
+  wegen realer Findings (Trivy-Vulnerabilities, Bandit-Issues,
+  Gitleaks-Leaks)
 - G4: `npm run governance:check` -> Exit 0
 
 ## Kommentar-Backfill (standardisiert)
 
 - #380: Nachweis-Kommentar vorhanden
 - #381: Nachweis-Kommentar vorhanden
-- #382: Nachweis-Kommentar vorhanden (inkl. G3-Fail-Begruendung)
+- #382: Nachweis-Kommentar vorhanden (inkl. aktualisierter
+  G3-Fail-Begruendung: Findings statt Tooling-Ausfall)
 
 ## Operative Prioritaet naechster Durchgang
 
-1. Tooling-Luecke fuer G3 schliessen (Trivy/Gitleaks verfuegbar machen).
-2. #382 von Blocked auf In Progress heben nach erfolgreichem G3-Nachlauf.
+1. G3 Findings fuer #382 triagieren und in umsetzbare Fix-Bloecke schneiden.
+2. Entscheidung dokumentieren, ob G3 kuenftig bei Findings hart failen soll.
 3. #385 erst starten, wenn #382 stabil auf Review/Done ist.
