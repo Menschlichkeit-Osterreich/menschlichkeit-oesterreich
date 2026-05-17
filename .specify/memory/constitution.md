@@ -1,50 +1,76 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+# Democracy Game — Bruecken bauen — Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. DSGVO-Compliance (NON-NEGOTIABLE)
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+- Telemetrie MUSS Consent-gated sein: keine Datenerfassung ohne aktive, dokumentierte Einwilligung.
+- Rohe Telemetriedaten MUESSEN nach spaetestens 90 Tagen geloescht oder irreversibel anonymisiert werden.
+- Widerruf MUSS sofort wirksam sein und nachgelagerte Verarbeitung unterbinden.
+- Jeder ausgewertete Datensatz MUSS einen gueltigen Einwilligungsstatus vorweisen.
+- Keine PII in Logs, Beispielen oder Prompts.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### II. Barrierefreiheit (NON-NEGOTIABLE)
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+- 100% der kritischen Kerninteraktionen MUESSEN per Tastatur bedienbar sein.
+- HUD und Dialog MUESSEN anpassbare Kontraste, Schriftgroessen und Untertitel unterstuetzen.
+- Barrierefreiheit ist kein nachgelagertes Feature, sondern wird ab Phase 4 (US2) als eigenstaendiger Track umgesetzt.
+- Accessibility-Audit-Log ist verbindlicher Bestandteil der Qualitaetsnachweise (FR-020).
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### III. Contract-First API
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+- Jeder API-Endpunkt MUSS vor Implementierung im Vertragsdokument (`contracts/democracy-game-api-v1.md`) spezifiziert sein.
+- Aenderungen an bestehenden Endpunkten erfordern eine neue Vertragsversion oder dokumentierten Nachtrag.
+- Fehlermodelle folgen dem standardisierten Error Object (`type`, `title`, `status`, `detail`, `instance`).
+- Non-Functional Requirements (Latenz, Rate Limits) sind Teil des API-Vertrags, nicht nur der Implementierung.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### IV. CMS-Snapshot-Integritaet
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+- Im produktiven Spielbetrieb werden ausschliesslich freigegebene, versionierte CMS-Snapshots verwendet.
+- Jeder Snapshot MUSS die Strukturvalidierung bestehen, bevor er fuer den Import freigegeben wird.
+- CMS-Snapshots MUESSEN reproduzierbar und rollback-faehig sein.
+- Unvollstaendige Lokalisierungen blockieren die Freigabe mit nachvollziehbarer Rueckmeldung.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### V. Messbare Qualitaetsziele
+
+- Performance-Ziele sind als messbare p95-Schwellenwerte definiert (PG-001 ≤ 150ms, PG-002 ≤ 300ms, PG-003 ≤ 2s).
+- Reliability-Ziele sind als prozentuale Schwellenwerte definiert (RG-001 ≥ 99%, RG-003 < 1% Fehlerquote).
+- Observability-Ziele verlangen 100% strukturierte Logs mit Korrelation-ID und Dashboard-Abdeckung.
+- Qualitaetsnachweise (Testreport, Accessibility-Audit-Log, Governance-Checkliste) sind verbindliche Lieferobjekte.
+
+### VI. Oesterreichisches Deutsch
+
+- Alle nutzersichtbaren Texte, UI-Labels, Fehlermeldungen und Dokumentation MUESSEN in oesterreichischem Deutsch verfasst sein.
+- Mehrsprachigkeit MUSS waehrend der Nutzung umschaltbar sein (FR-007).
+- i18n-Infrastruktur wird ab Phase 3 (MVP) mitgeliefert, nicht nachgelagert.
+
+### VII. Main-First, Vertical Slice
+
+- Entwicklung folgt dem Main-first-Workflow: Branches von `main`, PRs zurueck auf `main`.
+- Der initiale Scope ist ein spielbarer Vertical Slice mit einem Premium-Szenario.
+- Neue Szenarien werden ueber den CMS-Redaktionsworkflow erweitert, nicht ueber Codeaenderungen.
+- Keine neuen Parallelstrukturen; Umsetzung erfolgt in bestehenden `apps/`-Pfaden.
+
+## Security Constraints
+
+- Workshop-Gastzugaenge sind auf maximal 2 Stunden begrenzt (TTL); danach ist ein erneuter Session-Beitritt erforderlich.
+- Regulaere Spielzugriffe werden ueber Plattform-SSO abgesichert.
+- Workshop-Abstimmungen verwenden feste Fristen; nur die letzte gueltige Stimme pro Person wird gezaehlt.
+- Keine Secrets, Tokens oder PII in Code, Logs, Beispielen oder Prompts.
+
+## Development Workflow
+
+- Frontend: Vitest (Unit) + Playwright (E2E); Backend: Pytest (Unit/Integration).
+- Contract-Checks gegen spezifizierte API-Schnittstellen sind Teil der CI-Pipeline.
+- Aenderungen an Governance-Dateien (AGENTS.md, CLAUDE.md, copilot-instructions.md) muessen bei betroffenen Ablaeufen mitgezogen werden.
+- `npm run quality:gates` und `npm run governance:check` MUESSEN vor Merge gruen sein.
+- Staging-Smoke auf echtem n8n/CiviCRM ist verbindlich fuer produktionsnahe Freigaben.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+- Diese Constitution ist verbindlich fuer alle Speckit-Artefakte im Scope `specs/005-democracy-game-bruecken-bauen/`.
+- Konflikte zwischen Spec, Plan oder Tasks und dieser Constitution werden zugunsten der Constitution entschieden.
+- Aenderungen an der Constitution erfordern explizite Dokumentation, Begruendung und Versionierung.
+- Die uebergeordnete Repo-Governance (`AGENTS.md`, `CLAUDE.md`) bleibt autoritativ fuer repo-weite Belange.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-05-17 | **Last Amended**: 2026-05-17
