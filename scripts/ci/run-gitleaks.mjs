@@ -6,8 +6,10 @@ import { resolve } from 'node:path';
 const REPORTS_DIR = resolve(globalThis['process'].cwd(), 'quality-reports');
 const OUTPUT_JSON = resolve(REPORTS_DIR, 'secrets-scan.json');
 const GITLEAKS_CONFIG = resolve(globalThis['process'].cwd(), '.gitleaks.toml');
+const GITLEAKS_IGNORE = resolve(globalThis['process'].cwd(), '.gitleaksignore');
 const args = globalThis['process'].argv.slice(2);
-const historyMode = !args.includes('--mode=dir');
+const historyMode = args.includes('--mode=history');
+const DEFAULT_TIMEOUT_SECONDS = '180';
 
 function run(cmd, args = [], allowedExitCodes = [0]) {
   return new Promise((resolveOk, reject) => {
@@ -82,6 +84,11 @@ async function main() {
         'detect',
         '--config',
         GITLEAKS_CONFIG,
+        '--gitleaks-ignore-path',
+        GITLEAKS_IGNORE,
+        '--timeout',
+        DEFAULT_TIMEOUT_SECONDS,
+        '--no-banner',
         '--redact',
         '--log-opts=--all',
         '--report-path',
@@ -96,6 +103,14 @@ async function main() {
         '.',
         '--config',
         GITLEAKS_CONFIG,
+        '--gitleaks-ignore-path',
+        GITLEAKS_IGNORE,
+        '--timeout',
+        DEFAULT_TIMEOUT_SECONDS,
+        '--no-banner',
+        '--no-git',
+        '--max-target-megabytes',
+        '5',
         '--redact',
         '--report-path',
         OUTPUT_JSON,
@@ -129,6 +144,11 @@ async function main() {
         'detect',
         '--config',
         '.gitleaks.toml',
+        '--gitleaks-ignore-path',
+        '.gitleaksignore',
+        '--timeout',
+        DEFAULT_TIMEOUT_SECONDS,
+        '--no-banner',
         '--redact',
         '--log-opts=--all',
         '--report-path',
@@ -144,6 +164,14 @@ async function main() {
         '.',
         '--config',
         '.gitleaks.toml',
+        '--gitleaks-ignore-path',
+        '.gitleaksignore',
+        '--timeout',
+        DEFAULT_TIMEOUT_SECONDS,
+        '--no-banner',
+        '--no-git',
+        '--max-target-megabytes',
+        '5',
         '--redact',
         '--report-path',
         'quality-reports/secrets-scan.json',

@@ -1,0 +1,4 @@
+🔍 Führe Codacy Analyse aus...
+JAR: /home/codespace/.codacy/codacy-analysis-cli-assembly.jar
+Args: analyze --directory scripts/ci --format text --allow-network
+
