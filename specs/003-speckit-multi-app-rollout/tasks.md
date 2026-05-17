@@ -118,3 +118,14 @@ Update 2026-05-16 (G3 Security-Tooling):
   inklusive Report-Validierung und EACCES-Mitigation fuer Report-Pfade.
 - `npm run security:scan` laeuft technisch durch; #382 bleibt Blocked,
   da reale Security-Findings vorliegen.
+
+Update 2026-05-17 (A003 Findings-Triage):
+
+- Operative Triage dokumentiert in `a003-g3-findings-triage-2026-05-17.md`.
+- Priorisierte Fix-Bloecke fuer #382 festgelegt:
+  - S1 (P0): Secrets Exposure
+  - S2 (P0): SQL-Injection-Risiken
+  - S4 (P1): Hardcoded Credentials
+  - S3 (P1): Dependency CVEs
+- Entblockungskriterium #382 praezisiert: S1+S2 abgeschlossen,
+  danach Statuswechsel auf In Progress.

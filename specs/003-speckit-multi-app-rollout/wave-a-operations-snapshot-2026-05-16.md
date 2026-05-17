@@ -33,8 +33,15 @@ Workflow-Status, Gate-Lage und Ampelbewertung fuer #380 bis #385.
 - #382: Nachweis-Kommentar vorhanden (inkl. aktualisierter
   G3-Fail-Begruendung: Findings statt Tooling-Ausfall)
 
+## Triage-Artefakt
+
+- Operative Findings-Triage fuer #382 dokumentiert in
+  `a003-g3-findings-triage-2026-05-17.md`.
+- Priorisierte Reihenfolge fuer Entblockung: S1 Secrets, S2 Injection,
+  S4 Hardcoded Credentials, danach S3 Dependency-CVEs.
+
 ## Operative Prioritaet naechster Durchgang
 
 1. G3 Findings fuer #382 triagieren und in umsetzbare Fix-Bloecke schneiden.
-2. Entscheidung dokumentieren, ob G3 kuenftig bei Findings hart failen soll.
+2. S1/S2 als erste Umsetzungsbloecke starten und #382 danach neu bewerten.
 3. #385 erst starten, wenn #382 stabil auf Review/Done ist.
