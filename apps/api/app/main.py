@@ -47,6 +47,7 @@ from .routers import (
     alerts,
     game,
 )
+from .democracy.router import router as democracy_router
 from .audit import ensure_audit_table, write_audit_event
 from .routers.finance import _ensure_finance_tables
 from .routers.newsletter import ensure_newsletter_admin_tables
@@ -379,6 +380,7 @@ app.include_router(internal.router, prefix="/api", tags=["Interne Integrationen"
 app.include_router(queue.router, prefix="/api", tags=["Queue"])
 app.include_router(alerts.router, prefix="/api", tags=["Alerts"])
 app.include_router(game.router, prefix="/api", tags=["Game"])
+app.include_router(democracy_router, prefix="/api", tags=["Democracy Game"])
 app.include_router(forum.router, prefix="/api", tags=["Forum"])
 app.include_router(blog.router, prefix="/api", tags=["Blog"])
 app.include_router(events.router, prefix="/api", tags=["Veranstaltungen"])
