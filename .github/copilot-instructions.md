@@ -149,6 +149,6 @@ Wenn eine Aenderung aktive Ablaeufe, Rollen, Pfade oder Tooling betrifft, muesse
 
 <!-- SPECKIT START -->
 
-For additional context about technologies to be used, project structure, shell commands, and other important information, read [specs/002-infrastruktur-donation-masterplan/plan.md](specs/002-infrastruktur-donation-masterplan/plan.md)
+For additional context about technologies to be used, project structure, shell commands, and other important information, read [specs/005-democracy-game-bruecken-bauen/plan.md](specs/005-democracy-game-bruecken-bauen/plan.md)
 
 <!-- SPECKIT END -->
