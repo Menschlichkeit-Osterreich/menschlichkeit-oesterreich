@@ -4,15 +4,15 @@
  */
 
 export type {
-  World,
-  Scenario,
-  Scene,
-  Choice,
-  Role,
-  Character,
-  WorkshopSession,
-  WorkshopVote,
-  ConsentRecord,
-  TelemetryEvent,
-  DemocracyGameState,
+    World,
+    Scenario,
+    Scene,
+    Choice,
+    Role,
+    Character,
+    WorkshopSession,
+    WorkshopVote,
+    ConsentRecord,
+    TelemetryEvent,
+    DemocracyGameState,
 } from './types';
