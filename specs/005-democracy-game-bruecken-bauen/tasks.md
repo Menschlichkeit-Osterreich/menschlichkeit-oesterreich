@@ -454,12 +454,12 @@ Validierungspunkt.
 
 ### Incremental Delivery
 
-1. **MVP**: Setup + Foundation + US1 (25 Tasks: T001-T025)
+1. **MVP**: Setup + Foundation + US1 (28 Tasks: T001-T025, T067, T070-T071)
 2. **+Accessibility**: US2 (8 Tasks: T026-T033)
-3. **+CMS**: US3 (7 Tasks: T034-T040)
+3. **+CMS**: US3 (8 Tasks: T034-T040, T072)
 4. **+Workshop**: US4 (10 Tasks: T041-T050)
 5. **+Telemetry**: US5 (8 Tasks: T051-T058)
-6. **+Polish**: Cross-cutting (8 Tasks: T059-T066)
+6. **+Polish**: Cross-cutting (10 Tasks: T059-T069)
 
 ### Task Summary
 
@@ -477,9 +477,9 @@ Validierungspunkt.
 
 ### Suggested Execution Timeline
 
-- **Wave 1**: Phase 1 + Phase 2 (11 Tasks, Foundation)
-- **Wave 2**: Phase 3 US1 (14 Tasks, MVP Core)
-- **Wave 3**: Phase 4 US2 + Phase 5 US3 CRM-Track (parallel, 15 Tasks)
-- **Wave 4**: Phase 5 US3 API/Client + Phase 6 US4 (parallel, 13 Tasks)
+- **Wave 1**: Phase 1 + Phase 2 (12 Tasks, Foundation)
+- **Wave 2**: Phase 3 US1 (16 Tasks, MVP Core)
+- **Wave 3**: Phase 4 US2 + Phase 5 US3 CRM-Track (parallel, 12 Tasks)
+- **Wave 4**: Phase 5 US3 API/Client + Phase 6 US4 (parallel, 14 Tasks)
 - **Wave 5**: Phase 7 US5 (8 Tasks)
-- **Wave 6**: Phase 8 Polish (8 Tasks, hardening)
+- **Wave 6**: Phase 8 Polish (10 Tasks, hardening)
