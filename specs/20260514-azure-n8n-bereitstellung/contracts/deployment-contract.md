@@ -2,45 +2,69 @@
 
 ## Contract Purpose
 
-Dieser Contract beschreibt den Betriebspfad fuer die Azure-Vorbereitung von `n8n.menschlichkeit-oesterreich.at` bis einschliesslich VM-Hardening und Runtime-Basis.
+Dieser Contract beschreibt den verbindlichen Deploy-Pfad fuer `n8n.menschlichkeit-oesterreich.at` auf Azure bis zur Abnahmevorbereitung. Er ist ein Vorbereitungsgate, keine produktive Go-Freigabe.
 
 ## Scope
 
 ### In Scope
 
-- Grant- und Billing-Pruefung
-- Single-Main Betriebsmodus
-- Azure Resource Group, statische IP, VM und NSG
-- Host-Hardening der VM
-- Docker Engine und Docker Compose Basis
-- EvidenceLog und Restrisiko-Log
+- Grant-/Billing-Gate inklusive Ownership und Renewal-Verantwortung
+- Azure Resource Group, VM, statische Public IP, NSG, Disk
+- SSH-Haertung und Expositionsregeln
+- DNS-Zielzustand und Plesk-Abloesepfad als pruefbare Abnahmebedingungen
+- Blockerklassifikation und Evidenztypen je Gate
 
 ### Out of Scope
 
-- DNS-Umschaltung
-- HTTPS-Abnahme
-- Reverse Proxy
-- Produktiver n8n-Container
-- Queue-Mode
-- Backup-Ausbau ueber die Pflichtplanung hinaus
+- Produktiver Rollout ohne Primaernachweis
+- KI-/Workflow-Fachausbau in n8n
+- Queue-Mode-Ausbau ueber den Erstbetriebsvertrag hinaus
 
 ## Invariants
 
-- Keine produktive Freigabe ohne belastbaren Grant-/Billing-Nachweis.
-- Keine Inbound-Ports ausser 22, 80 und 443.
-- Kein Root- oder Passwort-Login auf der VM.
-- Kein stiller Wechsel weg von Single-Main.
-- Keine vertraulichen Secrets in Doku oder Tickets.
+- Azure ist Zielarchitektur fuer n8n, Plesk nicht.
+- Produktionsbehauptung nur mit Live-Nachweis.
+- Oeffentlich offen bleiben nur `22`, `80`, `443`.
+- `5678`, `5432`, `6379` duerfen nicht oeffentlich exponiert sein.
+- Kein Root-Login und kein SSH-Passwort-Login.
+- `N8N_ENCRYPTION_KEY`, DB-Credentials und Backup-Pfad sind vor spaeterem Go Pflicht.
+
+## Grant-/Billing Gate Checklist
+
+| Gate                | Sollzustand                     | Evidenztyp    | Blockerklasse        | Status |
+| ------------------- | ------------------------------- | ------------- | -------------------- | ------ |
+| Nonprofit/Grant     | Foerderstatus aktiv und nutzbar | Primaerquelle | Provisioning-Blocker | Open   |
+| Sponsorship Mapping | Subscription korrekt zugeordnet | Primaerquelle | Provisioning-Blocker | Open   |
+| Billing-Profil      | Abrechnung technisch nutzbar    | Primaerquelle | Provisioning-Blocker | Open   |
+| Budget Alerts       | Alerts und Schwellwerte gesetzt | Primaerquelle | Go-Live-Blocker      | Open   |
+| Renewal Ownership   | Rollen fuer Verlaengerung klar  | Primaerquelle | Go-Live-Blocker      | Open   |
 
 ## Required Evidence
 
-- Azure-Portal- oder Microsoft-Nachweis zum Grant/Billing-Status
-- Dokumentierte Zuständigkeit fuer Kosten und Ressourcenerstellung
-- Nachweis der statischen IP und der NSG-Regeln
-- Nachweis des Hardening-Status
-- Docker- und Compose-Verfuegbarkeit fuer den Deploy-User
-- Dokumentiertes Folge-Gate DNS/HTTPS-Abnahme
+- Primaernachweis fuer Grant-/Billing-Zustand
+- Nachweis von Resource Group, VM, statischer IP und NSG-Regeln
+- Nachweis SSH-Haertung (Konfiguration + erfolgreicher Zugriff im Zielmodus)
+- Dokumentierter DNS-Umschaltplan inkl. Plesk-Ablaufad
+- Verweis auf HTTPS- und Backup/Restore-Gates
+
+## Blocker Classification
+
+- **Provisioning-Blocker**: stoppt Ressourcenerstellung oder -fortschritt
+  - Beispiele: ungeklaerter Billing-Status, unklare Subscription-Zuordnung
+- **Go-Live-Blocker**: stoppt spaeteres produktives Go
+  - Beispiele: falsche Port-Exposition, fehlender Backup-/Restore-Nachweis, fehlende Renewal-Ownership
+
+## DNS Ablösepfad (Abnahmebedingung)
+
+- Ist-Zustand dokumentieren (Plesk-Ziel)
+- Soll-Zustand dokumentieren (Azure-Ziel)
+- Umschaltfenster und Rollback definieren
+- Go/No-Go-Checkliste vor Umschaltung festlegen
 
 ## Acceptance Gate
 
-Der Contract ist nur erfuellt, wenn alle Invariants eingehalten sind und der EvidenceLog das naechste Gate eindeutig als DNS/HTTPS-Abnahme benennt.
+Der Contract gilt als erfuellt, wenn:
+
+1. Grant-/Billing-Gates mit Primaernachweisen bewertet sind,
+2. Provisioning- und Go-Live-Blocker explizit klassifiziert sind,
+3. DNS-Zielzustand und Plesk-Abloesepfad als pruefbare Bedingungen dokumentiert sind.

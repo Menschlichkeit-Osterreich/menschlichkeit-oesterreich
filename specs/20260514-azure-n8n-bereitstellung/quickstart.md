@@ -1,58 +1,73 @@
-# Quickstart: n8n Workflow Validitaets-Gate
+# Quickstart: Operatives Uebergabepaket fuer Azure n8n Abnahmevorbereitung
 
 ## Zweck
 
-Dieser Quickstart zeigt, wie der P0-Validitaets-Check fuer produktionsnahe n8n-Workflows lokal und in CI ausgefuehrt wird.
+Dieses Dokument ist der ausfuehrbare Arbeitsauftrag fuer einen spaeteren Operator. Es beschreibt den Weg von der Ist-Analyse bis zur Abnahmevorbereitung fuer `n8n.menschlichkeit-oesterreich.at` auf Azure, ohne produktive Go-Behauptung.
 
-## Voraussetzungen
+## Vorbedingungen
 
-- Repository ist ausgecheckt
-- Node.js gemaess `package.json` verfuegbar
-- Scope-Dateien unter `automation/n8n/workflows` sind vorhanden
+- Zugriff auf Repository und Spezifikationsartefakte
+- Lesender Zugriff auf relevante Azure-Nachweise (Portal/CLI) oder klar markierte Blocker
+- DNS-Zustaendigkeit fuer `menschlichkeit-oesterreich.at` ist organisatorisch geklaert
+- Verantwortliche Rollen fuer Betrieb, Billing, Renewal benannt
 
-## 1) Lokale Validierung
+## Pflichtkonfiguration fuer n8n (Mindestset)
 
-```bash
-npm run n8n:validate
-```
+- `N8N_HOST`
+- `N8N_PROTOCOL`
+- `N8N_EDITOR_BASE_URL`
+- `WEBHOOK_URL`
+- `N8N_ENCRYPTION_KEY`
+- `TZ`
+- `DB_HOST`
+- `DB_PORT`
+- `DB_NAME`
+- `DB_USER`
+- `DB_PASSWORD`
+- `BACKUP_TARGET_PATH`
 
-Erwartetes Verhalten:
+Hinweis: Secrets werden nicht im Klartext in Doku, Tickets oder Commits abgelegt.
 
-- Exit-Code 0 bei gueltiger JSON in allen inventarisierten Workflows.
-- Exit-Code 1 bei fehlender oder ungueltiger inventarisierter Datei.
-- Dateipfadbezogene Fehlermeldung pro defektem Artefakt.
-- Scope-Abweichungen zwischen repositoryweitem Scan und Inventar werden als Warnung ausgegeben.
-- Sichtbare Sonderfallmeldung fuer `finance-donation-processing.json`, solange kein Import-/Dry-Run-Nachweis vorliegt.
+## Schrittfolge fuer Operatoren
 
-## 2) CI-Validierung
+1. Grant-/Billing-Gate pruefen
+2. Azure-Ressourcen-Sollbild gegen Ist-Zustand mappen
+3. Netzwerk-/SSH-Haertung gegen Vertrag pruefen
+4. Runtime- und Env-Pflichtwerte gegen Vertrag pruefen
+5. DNS-Zielbild und Plesk-Abloesepfad fuer Umschaltung vorbereiten
+6. HTTPS-Gate und URL-Konsistenz pruefbar machen
+7. Backup-/Restore-Gate inklusive Restore-Test planen
+8. Evidenzmatrix aktualisieren und Blocker klassifizieren
+9. Go/No-Go-Status als Abnahmevorbereitung dokumentieren
 
-CI-Workflow: `.github/workflows/n8n-json-gate.yml`
+## Evidenzanforderung je Schritt
 
-Der Workflow fuehrt denselben Befehl aus:
+- Schritt 1-4: Primaerquelle bevorzugt
+- Schritt 5-7: Live-Nachweis erforderlich
+- Offene Punkte: als `open checkpoint` mit Blockerklasse erfassen
 
-```bash
-npm run n8n:validate
-```
+## Go/No-Go-Logik (Abnahmevorbereitung)
 
-Erwartetes Verhalten:
+- **No-Go** bei offenen Go-Live-Blockern
+- **No-Go** bei fehlendem Grant-/Billing-Primärnachweis
+- **No-Go** bei offener Exposition von `5678`, `5432`, `6379`
+- **No-Go** bei fehlendem Backup-/Restore-Nachweis
 
-- Pull Requests auf `main` und Pushes auf `main` schlagen fehl, sobald eine inventarisierte Workflow-Datei syntaktisch ungueltig ist.
-- Scope-Abweichungen erscheinen als Warnungen, blockieren den Merge aber nicht.
-- Bei gueltigem Scope ist der Job gruen.
+## Rückfallpfad (Mindeststandard)
 
-## 3) Scope-Pflege
+Bei DNS-, HTTPS-, Secret- oder Expositionsfehlern:
 
-Bei Aenderungen an produktionsnahen Workflows:
+1. Fehlerklasse benennen
+2. zuletzt stabilen Zustand aktivieren
+3. Ursache dokumentieren
+4. Gate-Status auf `blocked` setzen
+5. erst nach neuem Evidenznachweis erneut freigeben
 
-1. Workflow-Datei unter `automation/n8n/workflows` anlegen/aendern.
-2. Inventar-Datei aktualisieren.
-3. `npm run n8n:validate` lokal ausfuehren.
-4. Erst danach Commit/PR.
+## Ergebnisformat fuer Handover
 
-## Nicht-Ziele in diesem Block
+Der Operator liefert:
 
-- Kein n8n-Produktivdeployment
-- Kein Azure-Provisioning
-- Kein DNS/HTTPS/Reverse-Proxy
-- Kein Queue-Mode
-- Keine fachliche Verlagerung aus `apps/api`
+- Aktualisierte Gate-Matrix mit Status je Abnahmeobjekt
+- Liste aller Blocker inkl. Wirkungsebene (`provisioning` oder `go-live`)
+- Offene Pruefpunkte mit naechster konkreter Aktion
+- Klaren Abschlussstatus: `Abnahmevorbereitung erreicht` oder `BLOCKED`

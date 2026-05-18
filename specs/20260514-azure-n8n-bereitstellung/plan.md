@@ -1,81 +1,80 @@
-# Implementation Plan: n8n Workflow Validitaets-Gate
+# Implementation Plan: Azure-n8n-Produktionspfad Phase 1-2-3 bis Abnahmevorbereitung
 
-**Branch**: `20260516-spec-request-hook` | **Date**: 2026-05-14 | **Spec**: [spec.md](./spec.md)
+**Branch**: `20260518-azure-n8n-produktionspfad-phase-1-2-3` | **Date**: 2026-05-18 | **Spec**: [spec.md](./spec.md)
 
 **Input**: Feature specification from `/specs/20260514-azure-n8n-bereitstellung/spec.md`
 
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/plan-template.md` for the execution workflow.
-
 ## Summary
 
-Dieser Block etabliert ein belastbares Validitaets-Gate fuer produktionsnahe n8n-Workflows mit repositoryweitem Scope (inklusive expliziter Legacy-/Mirror-Excludes), strikter JSON-Syntaxpruefung fuer inventarisierte Dateien und expliziter Sonderfall-Sichtbarkeit fuer `finance-donation-processing.json`. Scope-Abweichungen werden sichtbar als Warnung reportet, ohne Merge-Blockade; Syntaxfehler und fehlende inventarisierte Dateien bleiben harte Fail-Kriterien.
+Dieses Vorhaben ersetzt unscharfe Infrastrukturannahmen durch einen expliziten, abnahmefaehigen Azure-n8n-Bereitstellungspfad. Fokus ist die Vorbereitungsstrecke bis zur Abnahme: Grant/Billing-Klaerung, Ressourcen-Sollbild, Netzwerkhaertung, DNS-/HTTPS-Zielbild, Backup-/Restore-Pflicht und evidenzbasierte Go/No-Go-Logik. Produktiver Rollout ist explizit ausserhalb dieses Blocks.
 
 ## Technical Context
 
-**Language/Version**: JavaScript (Node.js >=22.19.0), YAML (GitHub Actions)
+**Domain**: Azure Infrastrukturdesign und Betriebsvertrag fuer `n8n.menschlichkeit-oesterreich.at`
 
-**Primary Dependencies**: Node.js Built-ins (`fs/promises`, `path`), npm Script-Runner, GitHub Actions (`actions/checkout`, `actions/setup-node`)
+**Primary Dependencies**: Azure Subscription/Billing, DNS-Verwaltung fuer `menschlichkeit-oesterreich.at`, n8n Runtime via Docker Compose
 
-**Storage**: Repository-Dateien (Inventar, Workflow-JSON, Validator-Reportausgabe), keine Datenbank
+**Storage**: Spezifikationsartefakte im Repository (`spec.md`, `plan.md`, `data-model.md`, `quickstart.md`, `contracts/*`)
 
-**Testing**: Lokaler Check via `npm run n8n:validate`, identischer CI-Check in `.github/workflows/n8n-json-gate.yml`
+**Testing/Validation**: Evidenzmatrix je Gate-Punkt (Primaerquelle, Live-Nachweis, offener Pruefpunkt) statt lokaler Simulationsbelege
 
-**Target Platform**: Linux-Entwicklungsumgebung und GitHub Actions (`ubuntu-latest`)
+**Target Platform**: Azure VM-basierter Erstbetrieb (Single-Main zulaessig bei expliziter Dokumentation)
 
-**Project Type**: Monorepo-Automation (Script + CI-Gate + Doku)
+**Constraints**:
 
-**Performance Goals**: Vollstaendige Scope-Auswertung mit deterministischer Ausgabe in wenigen Sekunden fuer den aktuellen Workflow-Bestand
-
-**Constraints**: Harte Fehler nur fuer ungeltige/missing inventarisierte Workflows; Scope-Abweichungen als Warnung; keine Ausweitung auf Deployment/Infra-Themen
-
-**Scale/Scope**: Repositoryweiter Workflow-Scope mit expliziter Ausschlussliste fuer Legacy-/Mirror-Pfade; initiale produktionsnahe Inventarliste bleibt die normative Pruefmenge
+- Kein produktiver Claim ohne Primaernachweis
+- Azure ist Zielarchitektur, Plesk ist Altzustand
+- Oeffentlich nur `22`, `80`, `443`; keine Oeffnung von `5678`, `5432`, `6379`
+- Pflicht-Secrets und Backup-Pfad vor spaeterem Go
 
 ## Constitution Check
 
-_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
+- Governance-Konsistenz: PASS (in Einklang mit `AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md`)
+- Scope-Grenzen: PASS (kein KI-Ausbau, kein n8n-Workflow-Fachausbau, kein produktiver Rollout)
+- Freeze-Konformitaet Donation-Pilot: PASS (kein neuer Workflow-Refactor in Donation APIv4/n8n-Pilot)
 
-- Verfassungsstatus: `.specify/memory/constitution.md` ist ein Platzhalter ohne ratifizierte Prinzipien.
-- Gate C1 (Governance-Konsistenz): PASS mit Hinweis - repo-weite Regeln aus `AGENTS.md`, `CLAUDE.md` und `.github/copilot-instructions.md` gelten als operative Leitplanken.
-- Gate C2 (Scope-Grenzen): PASS - Nicht-Ziele bleiben unveraendert (kein Azure-Provisioning, kein DNS/HTTPS, kein Queue-Mode, keine API-Logikmigration).
-- Gate C3 (Qualitaets-Gate): PASS - einheitlicher lokaler/CI-Pruefpfad mit reproduzierbarer Ergebnislogik.
+## Phase Plan
 
-**Post-Design Re-Check**: PASS. Phase-1-Artefakte bilden den geklaerten Warnmodus fuer Scope-Abweichungen konsistent ab, ohne den harten JSON-Gate-Kern zu verwässern.
+### Phase 1 - Wahrheitssystem und Gate-Definition
+
+- Zustandsklaerung fuer Grant/Billing inklusive Ownership und Renewal-Verantwortung
+- Definition von Evidenztypen und Blockerklassen
+- Klare Trennung von Sollzustand und unbestaetigtem Live-Zustand
+
+### Phase 2 - Zielarchitektur und Haertungsvertrag
+
+- Sollbild fuer Resource Group, VM, Public IP, NSG, Disk, Monitoring
+- Netzwerk-/SSH-Haertungsvertrag inkl. Expositionsgrenzen
+- Runtime-Vertrag fuer n8n, PostgreSQL, Reverse Proxy, Volumes und Pflicht-Env
+
+### Phase 3 - Abnahmevorbereitung
+
+- DNS-Zielbild und Plesk-Abloesepfad mit Go/No-Go-Regeln
+- HTTPS-Abnahmebedingungen inkl. URL-Konsistenz und Rueckfallpfad
+- Backup-/Restore-Gate als verpflichtendes Kriterium
 
 ## Project Structure
 
-### Documentation (this feature)
-
 ```text
 specs/20260514-azure-n8n-bereitstellung/
+├── spec.md
 ├── plan.md
-├── research.md
 ├── data-model.md
 ├── quickstart.md
-├── contracts/
-│   ├── workflow-validation-contract.md
-│   └── deployment-contract.md
-└── tasks.md
+├── tasks.md
+└── contracts/
+    ├── deployment-contract.md
+    ├── runtime-contract.md
+    └── workflow-validation-contract.md
 ```
 
-### Source Code (repository root)
+## Deliverables
 
-```text
-automation/
-└── n8n/
-    ├── workflows/
-    ├── README.md
-    └── workflow-inventory.production.json
-
-scripts/
-└── validate-n8n-workflows.mjs
-
-.github/
-└── workflows/
-    └── n8n-json-gate.yml
-```
-
-**Structure Decision**: Dieser Block ist ein Validator-/CI-/Dokumentationsvorhaben im bestehenden Monorepo. Die Implementierung bleibt auf `automation/n8n`, `scripts` und `.github/workflows` begrenzt; kein App-Service-Code wird erweitert.
+- Konsistenter Sollzustand fuer Azure-n8n-Kernbetrieb
+- Gate-/Evidenzmodell pro Abnahmeobjekt
+- Operatives Uebergabepaket fuer spaetere Ausfuehrung ohne Architektur-Raten
+- Explizite Blockerlisten fuer fehlende Primaernachweise
 
 ## Complexity Tracking
 
-Keine Verfassungsverletzungen identifiziert; kein zusaetzliches Tracking erforderlich.
+Keine Architekturverzweigung vorgesehen. Das Vorhaben bleibt bei genau einem Zielbild fuer den n8n-Erstbetrieb auf Azure.

@@ -1,239 +1,99 @@
-# Tasks: n8n Workflow Validitaets-Gate
+# Tasks: Azure-n8n-Produktionspfad bis Abnahmevorbereitung
 
-**Input**: Design documents from `/specs/20260514-azure-n8n-bereitstellung/`
+## ⚠️ WICHTIG: Struktur-Umstellung auf EPIC-basiert
 
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+Mit der Erstellung von [IMPLEMENTATION_MASTER_SPEC.md](./IMPLEMENTATION_MASTER_SPEC.md) wurde die Task-Struktur umgestellt auf eine **EPIC-basierte atomare Struktur** mit 25 ausführbaren Tasks.
 
-**Tests**: Keine separaten Test-Tasks angefordert; Validierung erfolgt ueber den lokalen/CI-Gate-Check `npm run n8n:validate`.
+**Neue Struktur**:
 
-**Organization**: Tasks sind nach User Story gruppiert, damit jede Story unabhaengig umsetzbar und pruefbar bleibt.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Parallelisierbar (andere Dateien, keine offenen Abhaengigkeiten)
-- **[Story]**: Zuordnung zur User Story (`US1`, `US2`, `US3`, `US4`, `US5`)
-- Jede Task enthaelt einen konkreten Dateipfad
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Bestehenden n8n-Gate-Baustein fuer den P0-Block vorbereiten.
-
-- [ ] T001 Validiere den repositoryweiten Ausgangsscope inklusive Legacy-/Mirror-Exclude-Ansatz in `specs/20260514-azure-n8n-bereitstellung/spec.md`.
-- [ ] T002 Lege eine explizite Inventar-Datei an in `automation/n8n/workflow-inventory.production.json`.
-- [ ] T003 [P] Ergaenze die Scope- und Gate-Absicht in `automation/n8n/README.md` als kurze Einleitung fuer den neuen Inventar-basierten Check.
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Gemeinsame Gate-Mechanik herstellen, die alle Stories blockierungsfrei aufsetzen koennen.
-
-**⚠️ CRITICAL**: Keine Story-Implementierung startet vor Abschluss dieser Phase.
-
-- [ ] T004 Refaktoriere den Validator-Grundpfad in `scripts/validate-n8n-workflows.mjs`, damit der Check das Inventar als Source of Truth einliest.
-- [ ] T005 [P] Stelle in `scripts/validate-n8n-workflows.mjs` einen harten Fail sicher, wenn inventarisierte Dateien fehlen oder JSON-ungueltig sind.
-- [ ] T006 [P] Halte den einheitlichen Ausfuehrungspfad in `package.json` ueber `n8n:validate` stabil und inventar-basiert.
-- [ ] T007 Schalte den CI-Job in `.github/workflows/n8n-json-gate.yml` auf den finalen inventar-basierten Check (gleicher Befehl wie lokal).
-
-**Checkpoint**: Einheitliches Gate laeuft lokal und in CI auf derselben Logik.
-
----
-
-## Phase 3: User Story 1 - Relevante Workflows nachvollziehbar inventarisieren (Priority: P1) 🎯 MVP
-
-**Goal**: Der produktionsnahe Workflow-Scope ist explizit, nachvollziehbar und auditierbar.
-
-**Independent Test**: Die Inventar-Datei benennt alle relevanten Workflow-Dateien, und Scope-Abweichungen werden als Warnung sichtbar.
-
-### Implementation for User Story 1
-
-- [ ] T008 [US1] Trage alle produktionsnahen Workflows explizit in `automation/n8n/workflow-inventory.production.json` ein.
-- [ ] T009 [P] [US1] Ergaenze Inventar-Metadaten (`version`, `scope_roots`, `exclude_paths`, `notes`) in `automation/n8n/workflow-inventory.production.json`.
-- [ ] T010 [US1] Implementiere in `scripts/validate-n8n-workflows.mjs` den repositoryweiten Scope-Abgleich gegen `scope_roots` und `exclude_paths`.
-- [ ] T011 [US1] Dokumentiere den expliziten Scope und die Inventarpflege in `automation/n8n/README.md`.
-
-**Checkpoint**: Scope ist explizit und ohne implizite Dateisuche nachvollziehbar.
-
----
-
-## Phase 4: User Story 2 - Strikte JSON-Validierung lokal reproduzierbar ausfuehren (Priority: P1)
-
-**Goal**: Lokaler Check ist reproduzierbar und liefert klare, dateibezogene Fehler.
-
-**Independent Test**: `npm run n8n:validate` liefert bei identischem Stand reproduzierbar denselben Status.
-
-### Implementation for User Story 2
-
-- [ ] T012 [US2] Ergaenze in `scripts/validate-n8n-workflows.mjs` eine deterministische Validierungsreihenfolge fuer inventarisierte Dateien.
-- [ ] T013 [P] [US2] Ergaenze in `scripts/validate-n8n-workflows.mjs` eindeutige Fehlermeldungen je Datei (inklusive Parse-Kontext).
-- [ ] T014 [US2] Aktualisiere den lokalen Pruefablauf in `automation/n8n/README.md` mit erwarteten Erfolgs-/Fehlermustern fuer harte Fehler bei Inventarverletzungen.
-
-**Checkpoint**: Lokaler Gate-Check ist stabil, strikt und nachvollziehbar.
-
----
-
-## Phase 5: User Story 3 - CI blockiert ungueltige produktionsnahe Workflows (Priority: P1)
-
-**Goal**: PRs/Pushes auf `main` scheitern bei ungueltigen inventarisierten Workflows.
-
-**Independent Test**: Ein absichtlich defekter Workflow in einem PR setzt den Job `n8n JSON Gate` auf rot.
-
-### Implementation for User Story 3
-
-- [ ] T015 [US3] Schaerfe Job- und Step-Benennung in `.github/workflows/n8n-json-gate.yml` auf den inventar-basierten Validitaets-Gate.
-- [ ] T016 [P] [US3] Halte Trigger und Laufbedingungen fuer den Merge-Blocker bei Syntax-/Inventarfehlern in `.github/workflows/n8n-json-gate.yml` konsistent.
-- [ ] T017 [US3] Dokumentiere CI-Verhalten und Fail-Bedingungen fuer Syntax-/Inventarfehler in `automation/n8n/README.md`.
-
-**Checkpoint**: CI-Gate blockiert ungültige inventarisierte Workflow-JSON reproduzierbar.
-
----
-
-## Phase 6: User Story 4 - Donation-Sonderfall explizit sichtbar halten (Priority: P2)
-
-**Goal**: `finance-donation-processing.json` bleibt als Known-Risk sichtbar, bis Nachweis vorliegt.
-
-**Independent Test**: Jeder Lauf gibt den Sonderfallstatus explizit aus; Doku und Inventar spiegeln den offenen Nachweisstatus.
-
-### Implementation for User Story 4
-
-- [ ] T018 [US4] Hinterlege den Sonderfallstatus fuer `finance-donation-processing.json` in `automation/n8n/workflow-inventory.production.json`.
-- [ ] T019 [US4] Implementiere in `scripts/validate-n8n-workflows.mjs` die explizite Sonderfallausgabe ohne stilles Greenwashing.
-- [ ] T020 [US4] Dokumentiere den offenen Nachweisstatus und die Nicht-Ziele in `automation/n8n/README.md`.
-
-**Checkpoint**: Donation-Sonderfall ist technisch und dokumentarisch explizit sichtbar.
-
----
-
-## Phase 7: User Story 5 - Scope-Abweichungen sichtbar als Warnung reporten (Priority: P1)
-
-**Goal**: Scope-Abweichungen sind transparent sichtbar, ohne den Merge zu blockieren.
-
-**Independent Test**: Ein PR mit unerwarteter, parsebarer Workflow-Datei erzeugt Warnausgabe, aber keinen Fail-Status.
-
-### Implementation for User Story 5
-
-- [ ] T021 [US5] Implementiere in `scripts/validate-n8n-workflows.mjs` Warnstatus-Reporting fuer Scope-Abweichungen ohne Exit-Code-Fehler.
-- [ ] T022 [P] [US5] Erweitere die Ausgabe in `scripts/validate-n8n-workflows.mjs` um eindeutige Warnzeilen je `ScopeDeviation`.
-- [ ] T023 [US5] Dokumentiere Warnmodus und Nicht-Blockade in `automation/n8n/README.md`.
-
----
-
-## Phase 8: Polish & Cross-Cutting Concerns
-
-**Purpose**: Finaler Qualitaetsabgleich ueber alle geaenderten Artefakte.
-
-- [ ] T024 [P] Fuehre End-to-End-Validierung lokal aus via `package.json` (`npm run n8n:validate`) und pruefe konsistente Ausgabe.
-- [ ] T025 [P] Stelle sicher, dass keine Legacy-/Mirror-Pfade im Scope landen in `scripts/validate-n8n-workflows.mjs` und `automation/n8n/workflow-inventory.production.json`.
-- [ ] T026 Pruefe Konsistenz zwischen `automation/n8n/README.md`, `.github/workflows/n8n-json-gate.yml` und `scripts/validate-n8n-workflows.mjs`.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: Keine Abhaengigkeiten.
-- **Foundational (Phase 2)**: Haengt von Setup ab und blockiert alle User Stories.
-- **User Stories (Phase 3-7)**: Haengen von Phase 2 ab; danach koennen sie parallel oder nach Prioritaet umgesetzt werden.
-- **Polish (Phase 8)**: Nach allen gewuenschten User Stories.
-
-### User Story Dependencies
-
-- **US1 (P1)**: Startet nach Phase 2; liefert den verbindlichen Scope.
-- **US2 (P1)**: Startet nach Phase 2; nutzt den Scope aus US1, bleibt aber separat testbar.
-- **US3 (P1)**: Startet nach Phase 2; kann parallel zu US1/US2 umgesetzt werden.
-- **US4 (P2)**: Startet nach Phase 2; baut auf dem bestehenden Gate auf und erweitert um Sichtbarkeit.
-- **US5 (P1)**: Startet nach Phase 2; setzt die Warnlogik fuer Scope-Abweichungen ohne Merge-Blockade um.
-
-### Within Each User Story
-
-- Zuerst Scope/Vertrag der Story, dann Validator-Implementierung, dann Dokuabgleich.
-- Story gilt als fertig, wenn ihr Independent Test ohne andere Story-Aenderungen durchfuehrbar ist.
-
-### Parallel Opportunities
-
-- T003 parallel zu T002
-- T005 und T006 parallel zu T004
-- US1: T009 parallel zu T010
-- US2: T013 parallel zu T012
-- US3: T016 parallel zu T015
-- US5: T022 parallel zu T021
-- Polish: T024 und T025 parallel
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Parallelisierbare US1-Arbeiten:
-Task: "T009 [P] [US1] Ergaenze Inventar-Metadaten in automation/n8n/workflow-inventory.production.json"
-Task: "T010 [US1] Implementiere Scope-Abweichungspruefung in scripts/validate-n8n-workflows.mjs"
+```
+EPIC 1 — Azure Foundation (T1.1 bis T1.6)
+EPIC 2 — VM Runtime (T2.1 bis T2.5)
+EPIC 3 — n8n Runtime (T3.1 bis T3.6)
+EPIC 4 — Persistence & Recovery (T4.1 bis T4.4)
+EPIC 5 — Acceptance (T5.1 bis T5.6)
 ```
 
-## Parallel Example: User Story 2
+**⭐ Quelle der Wahrheit ist jetzt**: [IMPLEMENTATION_MASTER_SPEC.md](./IMPLEMENTATION_MASTER_SPEC.md) — Ebene C (Execution)
 
-```bash
-# Parallelisierbare US2-Arbeiten:
-Task: "T012 [US2] Deterministische Validierungsreihenfolge in scripts/validate-n8n-workflows.mjs"
-Task: "T013 [P] [US2] Dateibezogene Fehlermeldungen in scripts/validate-n8n-workflows.mjs"
-```
+**⭐ Operatives Nachweislogbuch**: [ACCEPTANCE_GATE_MATRIX.md](./ACCEPTANCE_GATE_MATRIX.md)
 
-## Parallel Example: User Story 3
+## Diese Datei wird nicht mehr aktiv gepflegt. Siehe Master-Spec für aktuelle Task-Details, Definition of Done und Blockerregeln.
 
-```bash
-# Parallelisierbare US3-Arbeiten:
-Task: "T015 [US3] Job-/Step-Benennung in .github/workflows/n8n-json-gate.yml"
-Task: "T016 [P] [US3] Trigger/Laufbedingungen in .github/workflows/n8n-json-gate.yml"
-```
+## EBENE A — Governance Spec Dokumentation ✅
 
-## Parallel Example: User Story 4
+- [x] T001-T003 — Grant/Billing/Evidenztypen definiert
+- [x] T004-T007 — Azure-Sollbild + Haertungsvertrag
+- [x] T008-T014 — DNS/HTTPS/Backup + Abnahme-Gate
 
-```bash
-# Parallelisierbare US4-Arbeiten:
-Task: "T018 [US4] Sonderfallstatus in automation/n8n/workflow-inventory.production.json"
-Task: "T020 [US4] Known-Risk-Doku in automation/n8n/README.md"
-```
-
-## Parallel Example: User Story 5
-
-```bash
-# Parallelisierbare US5-Arbeiten:
-Task: "T021 [US5] Warnstatus-Reporting in scripts/validate-n8n-workflows.mjs"
-Task: "T022 [P] [US5] ScopeDeviation-Warnzeilen in scripts/validate-n8n-workflows.mjs"
-```
+**Status**: Complete → Siehe [spec.md](./spec.md), [plan.md](./plan.md), [contracts/](./contracts/)
 
 ---
 
-## Implementation Strategy
+## EBENE B & C — Implementation Readiness ✅
 
-### MVP First (User Story 1)
+- [x] IMPLEMENTATION_MASTER_SPEC.md — Kanonische technische Spezifikation (5 EPICs, 25 atomare Tasks)
+- [x] ACCEPTANCE_GATE_MATRIX.md — Operatives Nachweislogbuch + Go/No-Go-Template
 
-1. Phase 1 und Phase 2 abschliessen.
-2. Nur US1 (Phase 3) umsetzen.
-3. Scope und Inventar unabhaengig verifizieren.
-
-### Incremental Delivery
-
-1. US1: Explizites Inventar
-2. US2: Reproduzierbarer lokaler Strict-Check
-3. US3: Blockierendes CI-Gate
-4. US5: Warnmodus fuer Scope-Abweichungen
-5. US4: Sonderfall-Sichtbarkeit
-
-### Parallel Team Strategy
-
-1. Team schliesst Phase 1-2 gemeinsam ab.
-2. Danach parallele Story-Arbeit:
-   - Dev A: US1
-   - Dev B: US2
-   - Dev C: US3
-   - Dev D: US5
-   - Dev E: US4
+**Status**: Complete → Siehe [IMPLEMENTATION_MASTER_SPEC.md](./IMPLEMENTATION_MASTER_SPEC.md)
 
 ---
 
-## Notes
+## EPIC-Struktur (Nachschlagwerk aus IMPLEMENTATION_MASTER_SPEC.md)
 
-- Alle Tasks folgen dem Pflichtformat `- [ ] T### [P] [US#] Beschreibung mit Dateipfad`.
-- Keine unbeteiligten Legacy-/Mirror-Pfade.
-- Nicht-Ziele (Azure, Deployment, Queue-Mode, DNS/HTTPS, Reverse Proxy, `apps/api`-Verlagerung) bleiben ausgeschlossen.
+### EPIC 1 — Azure Foundation
+
+- T1.1 Subscription verifizieren
+- T1.2 Billing aktivieren
+- T1.3 Resource Group anlegen
+- T1.4 Statische Public IP reservieren
+- T1.5 NSG erstellen
+- T1.6 SSH-Keypair erzeugen
+
+### EPIC 2 — VM Runtime
+
+- T2.1 Ubuntu LTS VM deployen
+- T2.2 Docker installieren
+- T2.3 Docker Compose installieren
+- T2.4 UFW konfigurieren
+- T2.5 SSH härten
+
+### EPIC 3 — n8n Runtime
+
+- T3.1 Verzeichnisstruktur erzeugen
+- T3.2 .env erstellen
+- T3.3 PostgreSQL konfigurieren
+- T3.4 n8n konfigurieren
+- T3.5 Reverse Proxy konfigurieren
+- T3.6 HTTPS aktivieren
+
+### EPIC 4 — Persistence & Recovery
+
+- T4.1 Backup-Script schreiben
+- T4.2 DB-Dumps testen
+- T4.3 Restore-Test durchführen
+- T4.4 Snapshot-Strategie dokumentieren
+
+### EPIC 5 — Acceptance
+
+- T5.1 Port-Exposure prüfen
+- T5.2 Webhook-Test
+- T5.3 Persistence-Test
+- T5.4 Restart-Test
+- T5.5 TLS-Test
+- T5.6 Finale Abnahme-Checklist
+
+---
+
+## Nächste Schritte (außerhalb dieser Datei)
+
+1. **Rollen bestimmen**: Grant-/Billing-, Azure-Infra-, Netzwerk-Owner
+2. **EPIC 1 Kickoff**: Foundation-Tasks starten
+3. **Gate-Status pflegen**: [ACCEPTANCE_GATE_MATRIX.md](./ACCEPTANCE_GATE_MATRIX.md) täglich füllen
+4. **Go/No-Go Decision**: Nach EPIC 5 Completion
+
+---
+
+**Legacy-Dokument-Version**: 1.0
+**Archiviert**: 2026-05-18
+**Quelle der Wahrheit ist jetzt**: IMPLEMENTATION_MASTER_SPEC.md + ACCEPTANCE_GATE_MATRIX.md

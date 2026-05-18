@@ -1,59 +1,68 @@
-# Research: n8n Workflow Validitaets-Gate
+# Research: Azure n8n Produktionspfad Phase 1-2-3
 
-## Entscheidung 1: Repositoryweiter Scope plus explizites Inventar
+## Entscheidung 1: Azure als einziges Zielbild fuer n8n
 
-- **Decision**: Der produktionsnahe Scope wird repositoryweit betrachtet, aber ueber explizite Legacy-/Mirror-Excludes eingegrenzt; die eigentliche harte JSON-Pruefmenge bleibt inventarbasiert.
-- **Rationale**: Damit werden neue relevante Dateien sichtbar (Scope-Transparenz), ohne die reproduzierbare Gate-Logik fuer inventarisierte Dateien zu verlieren.
+- **Decision**: Der Abnahmepfad wird ausschliesslich gegen Azure als Zielarchitektur definiert; Plesk ist nur Altzustand fuer den Umschaltkontext.
+- **Rationale**: Vermeidet Parallelarchitektur und widerspruechliche Betriebsannahmen.
 - **Alternatives considered**:
-  - Nur rekursiver `*.json`-Scan unter `automation/n8n/workflows`.
-  - Nur statische Inventarliste ohne repositoryweiten Vergleich.
-  - Beide Alternativen wurden verworfen, weil entweder Scope-Drift oder blinde Flecken wahrscheinlicher sind.
+  - Hybrider Dauerbetrieb Azure + Plesk.
+  - Plesk als Fallback-Zielarchitektur.
+  - Beide verworfen, weil sie Verantwortung und Nachweise verwischen.
 
-## Entscheidung 2: Strikte JSON-Validierung bleibt der harte Gate-Kern
+## Entscheidung 2: Evidenzgetriebener Pfad statt Implementierungsbehauptung
 
-- **Decision**: Der Validator prueft jede inventarisierte Datei mit strikt parsebasiertem JSON-Check und liefert Exit-Code 1 bei Fehlern.
-- **Rationale**: Der P0-Auftrag fordert syntaktische Belastbarkeit vor allen weiteren n8n-Schritten.
+- **Decision**: Jeder Gate-Punkt bekommt einen Evidenztyp (`primary_source`, `live_proof`, `open_checkpoint`) plus Blockerklasse.
+- **Rationale**: Spaeteres Go darf nicht auf Dokumentannahmen beruhen.
 - **Alternatives considered**:
-  - Tolerante Parser oder automatische Reparatur.
-  - Semantische n8n-Importpruefung im selben Block.
-  - Beides verworfen, da dieser Block nur auf harte Syntaxvaliditaet zielt.
+  - Reine Checklisten ohne Evidenztyp.
+  - Vollautomatische Freigabe nur auf CI-Status.
+  - Verworfen wegen fehlender Auditierbarkeit.
 
-## Entscheidung 3: Scope-Abweichungen als Warnung, nicht als Merge-Blocker
+## Entscheidung 3: Blocker zweistufig klassifizieren
 
-- **Decision**: Unerwartete oder fehlende produktionsnahe Dateien aus dem repositoryweiten Vergleich werden als Warnstatus reportet und blockieren den Merge nicht.
-- **Rationale**: Das entspricht der expliziten Klarstellungsentscheidung und trennt Scope-Governance von der harten Syntax-Gate-Funktion.
+- **Decision**: Es wird zwischen `provisioning_blocker` und `go_live_blocker` unterschieden.
+- **Rationale**: Nicht jeder offene Punkt stoppt dieselbe Ebene; Governance wird dadurch klarer.
 - **Alternatives considered**:
-  - Fail-Closed bei jeder Scope-Abweichung.
-  - Teilblockade nur fuer priorisierte Workflows.
-  - Verworfen, da nicht deckungsgleich mit der gewaehlten Klarstellung.
+  - Ein globaler Blockerstatus fuer alles.
+  - Keine formale Blockerklassifikation.
+  - Verworfen wegen unklarer Eskalationswirkung.
 
-## Entscheidung 4: Sonderfall `finance-donation-processing.json` als sichtbarer Risikostatus
+## Entscheidung 4: Expositionsvertrag strikt festziehen
 
-- **Decision**: Der Sonderfall wird explizit markiert und in der Ausgabe sichtbar gehalten, solange kein Import-/Dry-Run-Nachweis vorliegt.
-- **Rationale**: Das verhindert stilles "gruen" bei einem bekannten Risikoobjekt.
+- **Decision**: Oeffentlich bleiben nur `22`, `80`, `443`; `5678`, `5432`, `6379` sind nicht oeffentlich exponierbar.
+- **Rationale**: Minimalprinzip fuer Angriffsflaeche und klare Abnahmepruefung.
 - **Alternatives considered**:
-  - Datei wie jeden anderen Workflow ohne Sonderhinweis behandeln.
-  - Datei aus dem Gate-Scope entfernen.
-  - Beide verworfen, da der Auftrag explizite Sichtbarkeit fordert.
+  - Temporaere Oeffnung von Serviceports fuer Betrieb.
+  - Reverse-Proxy-Bypass fuer Troubleshooting.
+  - Verworfen als Sicherheits- und Drift-Risiko.
 
-## Entscheidung 5: Ein Check, zwei Ausfuehrungsorte (lokal + CI)
+## Entscheidung 5: Erstbetrieb als Single-Main ist zulaessig, aber explizit
 
-- **Decision**: Lokal und CI verwenden denselben Befehl (`npm run n8n:validate`).
-- **Rationale**: Ein einziger Ausfuehrungspfad reduziert Abweichungen und erleichtert Reproduktion von Fehlern.
+- **Decision**: Single-Main wird als zulaessiger Erstbetriebsvertrag dokumentiert; Queue nur per Zusatzvertrag.
+- **Rationale**: Schnellere, kontrollierte Inbetriebnahme ohne stillen Skalierungsanspruch.
 - **Alternatives considered**:
-  - Eigenes CI-Skript separat vom lokalen Skript.
-  - Direkte JSON-Pruef-Commands nur in GitHub Actions.
-  - Verworfen wegen doppelter Wartung und Inkonsistenzrisiko.
+  - Queue sofort in Phase 1 erzwingen.
+  - Betriebsmodus offen lassen.
+  - Verworfen wegen Scope-Aufblaehung bzw. Ambiguitaet.
 
-## Entscheidung 6: Scope bleibt strikt auf n8n-Artefakte und CI-Gate begrenzt
+## Entscheidung 6: Backup/Restore als verpflichtendes Go-Gate
 
-- **Decision**: Aenderungen beschraenken sich auf `automation/n8n`, `scripts` und `.github/workflows` plus minimal notwendige Doku.
-- **Rationale**: Der Auftrag schliesst Azure-Provisioning, Deployment, Queue-Mode und API-Fachlogik explizit aus.
+- **Decision**: Snapshot, DB-Dump, Secret/Env-Sicherung, Volume-Backup und Restore-Test sind Pflicht vor spaeterem Go.
+- **Rationale**: Betriebsfaehigkeit ohne Wiederherstellungsnachweis ist nicht abnahmefaehig.
 - **Alternatives considered**:
-  - Gleichzeitige technische Reparatur von Donation-Logik.
-  - Vorbereitung weiterer Betriebsfeatures (Queue, Reverse Proxy, DNS/HTTPS).
-  - Verworfen als Nicht-Ziel.
+  - Backup nur als Best-Effort dokumentieren.
+  - Restore-Test auf spaeter verschieben.
+  - Verworfen wegen hohem Betriebsrisiko.
 
-## Ergebnis fuer Phase 1
+## Entscheidung 7: Donation-Pilot-Freeze bleibt unveraendert
 
-Alle zuvor relevanten technischen Unklarheiten sind fuer diesen Block aufgeloest: repositoryweiter Scope mit Excludes, Warnmodus fuer Scope-Abweichungen, harte JSON-Validierung, Sonderfall-Sichtbarkeit und CI-Kopplung sind eindeutig festgelegt.
+- **Decision**: Keine Erweiterung von Donation APIv4/n8n-Pilot-Workflow-Scope im Rahmen dieses Vorhabens.
+- **Rationale**: Verbindliche Rahmenbedingung: erst autoritative Staging-Validierung, dann weitere Refactors.
+- **Alternatives considered**:
+  - Nebenbei Workflow-Refactors aufnehmen.
+  - KI-Quick-Wins als Parallelstream.
+  - Verworfen als explizite Nicht-Ziele.
+
+## Ergebnis
+
+Der Forschungsteil legt ein einziges, evidenzbasiertes Zielbild fuer den Azure-n8n-Kernbetrieb fest. Offene Live-Nachweise bleiben sichtbar und blockieren spaeteres Go entsprechend ihrer Blockerklasse.
