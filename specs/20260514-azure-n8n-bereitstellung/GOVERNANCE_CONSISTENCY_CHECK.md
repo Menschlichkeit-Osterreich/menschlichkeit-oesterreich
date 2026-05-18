@@ -1,7 +1,7 @@
 # Governance Consistency Check — Validierung der Spezifikation
 
-**Zweck**: Überprüfe, dass alle Specification-Layer konsistent zueinander sind  
-**Frequenz**: Nach jeder Major-Update  
+**Zweck**: Überprüfe, dass alle Specification-Layer konsistent zueinander sind
+**Frequenz**: Nach jeder Major-Update
 **Gültig ab**: 2026-05-18
 
 ---
@@ -384,8 +384,8 @@ Gates that MUST pass before production release:
 
 ## 📝 Consistency Report Template
 
-**Report Date**: [YYYY-MM-DD]  
-**Reviewed By**: [Name]  
+**Report Date**: [YYYY-MM-DD]
+**Reviewed By**: [Name]
 **Report Version**: 1.0
 
 ### Summary
@@ -419,12 +419,12 @@ Gates that MUST pass before production release:
 
 **Consistency Check Status**: [ ] APPROVED / [ ] APPROVED WITH CONDITIONS / [ ] REJECTED
 
-**Reviewer Signature**: ****\*\*****\_****\*\***** Date: [______]
+**Reviewer Signature**: \***\*\*\*\*\***\_\***\*\*\*\*\*** Date: [______]
 
 **Next Review Date**: [YYYY-MM-DD] (after EPIC 1 / EPIC 3 / Production)
 
 ---
 
-**Document Version**: 1.0  
-**Last Consistency Check**: [YYYY-MM-DD]  
+**Document Version**: 1.0
+**Last Consistency Check**: [YYYY-MM-DD]
 **Next Scheduled Check**: [YYYY-MM-DD]

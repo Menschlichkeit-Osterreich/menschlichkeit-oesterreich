@@ -1,7 +1,7 @@
 # Go/No-Go Decision Signoff Template
 
-**Dokument-Typ**: Offizielle Go/No-Go Entscheidung  
-**Gültig**: Nach EPIC 5 Completion  
+**Dokument-Typ**: Offizielle Go/No-Go Entscheidung
+**Gültig**: Nach EPIC 5 Completion
 **Autorität**: Executive Sponsor + Operations Lead + Security Lead
 
 ---
@@ -117,12 +117,12 @@ Vor dieser Unterschrift MUSS überprüft werden:
 
 ### Final Decision
 
-**Date**: [YYYY-MM-DD]  
-**Time**: [HH:MM UTC]  
+**Date**: [YYYY-MM-DD]
+**Time**: [HH:MM UTC]
 **Decision**:
 
-⬜ **GO** — Proceed to production deployment  
-⬜ **NO-GO** — Hold, do not proceed to production  
+⬜ **GO** — Proceed to production deployment
+⬜ **NO-GO** — Hold, do not proceed to production
 ⬜ **GO WITH CONDITIONS** — Proceed with conditions (list below)
 
 ---
@@ -272,8 +272,8 @@ Signature: _____________________ Date: [______]
 
 ---
 
-**Document Effective Date**: [YYYY-MM-DD]  
-**Valid Until**: [YYYY-MM-DD] (or until superseded)  
+**Document Effective Date**: [YYYY-MM-DD]
+**Valid Until**: [YYYY-MM-DD] (or until superseded)
 **Next Review**: [YYYY-MM-DD] (1 month after production start)
 
 ---

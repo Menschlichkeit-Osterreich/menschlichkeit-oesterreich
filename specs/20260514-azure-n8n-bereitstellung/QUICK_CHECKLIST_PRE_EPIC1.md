@@ -1,8 +1,8 @@
 # Pre-EPIC-1 Checklist — Was ist zu tun, bevor wir starten?
 
-**Gültig ab**: 2026-05-18  
-**Phase**: 0 (Pre-Kickoff)  
-**Dauer**: ~1 Woche  
+**Gültig ab**: 2026-05-18
+**Phase**: 0 (Pre-Kickoff)
+**Dauer**: ~1 Woche
 **Ziel**: EPIC 1 ist ready-to-go
 
 ---
@@ -331,6 +331,6 @@ Signature: _____________________
 
 ---
 
-**Checklisten-Version**: 1.0  
-**Gültig ab**: 2026-05-18  
+**Checklisten-Version**: 1.0
+**Gültig ab**: 2026-05-18
 **Nächste Review**: Nach EPIC 1 Kickoff
