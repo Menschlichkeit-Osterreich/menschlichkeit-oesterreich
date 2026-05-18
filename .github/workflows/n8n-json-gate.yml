@@ -1,18 +1,28 @@
-name: n8n JSON Gate
+name: gate-1-n8n-json-validity
 
 'on':
   workflow_dispatch:
   push:
     branches: [main]
+    paths:
+      - 'automation/n8n/workflows/**/*.json'
+      - 'automation/n8n/workflow-inventory.production.json'
+      - 'scripts/validate-n8n-workflows.mjs'
+      - '.github/workflows/n8n-json-gate.yml'
   pull_request:
     branches: [main]
+    paths:
+      - 'automation/n8n/workflows/**/*.json'
+      - 'automation/n8n/workflow-inventory.production.json'
+      - 'scripts/validate-n8n-workflows.mjs'
+      - '.github/workflows/n8n-json-gate.yml'
 
 permissions:
   contents: read
 
 jobs:
   validate-n8n-json:
-    name: Validate n8n Workflow Inventory Gate
+    name: Gate 1 - Validate active n8n workflow JSON
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

@@ -245,6 +245,29 @@ environment:
 
 ## 🧪 Testing
 
+### Gate 1 — n8n Workflow JSON Validity
+
+Aktiver, produktionsnaher Prüfpfad:
+
+- `automation/n8n/workflows/**/*.json`
+- Source of Truth: `automation/n8n/workflow-inventory.production.json`
+
+Explizit nicht aktiver Scope (wird ausgeschlossen): `legacy`, `demo`, `mirror`, `audit`.
+
+Lokaler Check:
+
+```bash
+npm run n8n:validate
+```
+
+CI-Check (GitHub Actions):
+
+- Workflow: `.github/workflows/n8n-json-gate.yml`
+- Job: `Gate 1 - Validate active n8n workflow JSON`
+
+Der Check liefert Dateipfade pro geprüftem JSON und markiert den Sonderfall
+`automation/n8n/workflows/finance-donation-processing.json` explizit im Ergebnis.
+
 ### Workflow Testing
 
 ```bash
@@ -277,11 +300,11 @@ docker-compose up -d
 ```yaml
 # docker-compose.yml
 logging:
-  driver: "json-file"
+  driver: 'json-file'
   options:
-    max-size: "10m"
-    max-file: "3"
-    labels: "service=n8n"
+    max-size: '10m'
+    max-file: '3'
+    labels: 'service=n8n'
 ```
 
 ---
@@ -349,7 +372,7 @@ headers: {
 
 ```sql
 -- PostgreSQL: Executions älter als 30 Tage löschen
-DELETE FROM execution_entity 
+DELETE FROM execution_entity
 WHERE "stoppedAt" < NOW() - INTERVAL '30 days';
 ```
 

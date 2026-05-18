@@ -55,6 +55,13 @@ function hasExcludedPrefix(relativePath, excludes) {
   });
 }
 
+function hasInactivePathMarker(relativePath, inactivePathMarkers) {
+  const normalized = normalizeRepoRelativePath(relativePath);
+  const parts = normalized.split('/').filter(Boolean);
+  const markerSet = new Set(inactivePathMarkers.map(marker => String(marker).toLowerCase()));
+  return parts.some(part => markerSet.has(part.toLowerCase()));
+}
+
 async function loadInventory(repositoryRoot) {
   const inventoryAbsolutePath = path.join(repositoryRoot, INVENTORY_PATH);
   const inventoryRelativePath = toPosixPath(path.relative(repositoryRoot, inventoryAbsolutePath));
@@ -97,12 +104,22 @@ async function loadInventory(repositoryRoot) {
     ? sortPaths(inventory.required_workflows.map(entry => normalizeRepoRelativePath(String(entry))))
     : [];
 
+  const inactivePathMarkers = Array.isArray(inventory.inactive_path_markers)
+    ? inventory.inactive_path_markers.map(marker => String(marker))
+    : ['legacy', 'demo', 'mirror', 'audit'];
+
+  const specialCases = inventory.special_cases && typeof inventory.special_cases === 'object'
+    ? inventory.special_cases
+    : {};
+
   return {
     inventoryRelativePath,
     scopeRoots,
     excludePaths,
+    inactivePathMarkers,
     workflows,
-    requiredWorkflows
+    requiredWorkflows,
+    specialCases
   };
 }
 
@@ -124,6 +141,7 @@ async function main() {
 
   const errors = [];
   const warnings = [];
+  const skippedInactive = [];
 
   const inventorySet = new Set(inventory.workflows);
   const requiredSet = new Set(inventory.requiredWorkflows);
@@ -144,6 +162,10 @@ async function main() {
       if (hasExcludedPrefix(relativePath, inventory.excludePaths)) {
         continue;
       }
+      if (hasInactivePathMarker(relativePath, inventory.inactivePathMarkers)) {
+        skippedInactive.push(relativePath);
+        continue;
+      }
       discoveredInScope.add(relativePath);
     }
   }
@@ -159,6 +181,12 @@ async function main() {
     warnings.push(`⚠️ ScopeDeviation: ${filePath} is in scope but missing from inventory.`);
   }
 
+  for (const filePath of skippedInactive) {
+    warnings.push(
+      `⚠️ InactivePathSkipped: ${filePath} matches inactive path marker (${inventory.inactivePathMarkers.join(', ')}).`
+    );
+  }
+
   const missingRequiredWorkflows = inventory.requiredWorkflows.filter(
     filePath => !inventorySet.has(filePath)
   );
@@ -170,9 +198,27 @@ async function main() {
     const absolutePath = path.join(repositoryRoot, relativePath);
     try {
       await validateJsonFile(absolutePath);
+      runtimeConsole.log(`✅ JSON OK: ${relativePath}`);
     } catch (error) {
       errors.push(`❌ ${relativePath}: ${error.message}${extractErrorPosition(error.message)}`);
     }
+  }
+
+  const specialCasePath = 'automation/n8n/workflows/finance-donation-processing.json';
+  const hasDonationCaseInScope = scopeFiles.includes(specialCasePath);
+  const donationCaseMeta = inventory.specialCases[specialCasePath];
+  if (hasDonationCaseInScope) {
+    if (donationCaseMeta && typeof donationCaseMeta === 'object') {
+      const status = donationCaseMeta.status ? `status=${donationCaseMeta.status}` : 'status=unspecified';
+      const note = donationCaseMeta.note ? ` | note=${donationCaseMeta.note}` : '';
+      runtimeConsole.log(`ℹ️ SpecialCase finance-donation-processing.json: in active scope (${status}${note})`);
+    } else {
+      runtimeConsole.log(
+        'ℹ️ SpecialCase finance-donation-processing.json: in active scope (no special_cases metadata present).'
+      );
+    }
+  } else {
+    runtimeConsole.log('ℹ️ SpecialCase finance-donation-processing.json: not present in active scope.');
   }
 
   if (errors.length > 0) {

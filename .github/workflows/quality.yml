@@ -50,6 +50,9 @@ jobs:
       - name: Docs Governance
         run: npm run docs:governance
 
+      - name: Gate 1 - Validate active n8n workflow JSON
+        run: npm run n8n:validate
+
       - name: ESLint SARIF
         run: |
           npx eslint . --format @microsoft/eslint-formatter-sarif --output-file eslint.sarif || true

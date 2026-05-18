@@ -6,8 +6,11 @@
     "api.menschlichkeit-oesterreich.at",
     "crm.menschlichkeit-oesterreich.at",
     "legacy",
-    "mirror"
+    "mirror",
+    "demo",
+    "audit"
   ],
+  "inactive_path_markers": ["legacy", "demo", "mirror", "audit"],
   "notes": "Inventory ist die Source of Truth fuer produktionsnahe n8n-Workflow-JSON-Dateien.",
   "required_workflows": ["automation/n8n/workflows/finance-donation-processing.json"],
   "special_cases": {
