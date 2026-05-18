@@ -1,8 +1,10 @@
 # INDEX — Alle Dokumente im Überblick
 
-**Aktualisiert**: 2026-05-18  
-**Gesamt-Dokumente**: 14  
+**Aktualisiert**: 2026-05-18
+**Gesamt-Dokumente**: 19  
 **Gesamt-Umfang**: ~10.000 Zeilen
+
+**Zentraler Statushinweis**: Maßgeblich ist die Statusaussage in [README.md](./README.md). Dieses Verzeichnis ist Spec-/Handoff-Dokumentation und kein Live-Betriebsnachweis.
 
 ---
 
@@ -259,6 +261,6 @@ Navigation:
 
 ---
 
-**Index-Version**: 1.0  
-**Erstellt**: 2026-05-18  
+**Index-Version**: 1.0
+**Erstellt**: 2026-05-18
 **Nächste Aktualisierung**: Nach EPIC 1 Abschluss

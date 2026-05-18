@@ -1,8 +1,10 @@
 # Azure n8n Abnahmevorbereitung — Spec & Implementation Guide
 
-**Status**: Specification Complete ✅ | Implementation Ready ✅
+**Status**: Specification Complete ✅ | Implementation Pending ⏳  
 **Gültig ab**: 2026-05-18
 **Zielplattform**: Azure VM (Ubuntu 22.04 LTS) + Docker Compose + n8n + PostgreSQL
+
+**Autoritativer Statushinweis**: Dieses Verzeichnis dokumentiert Spec- und Handoff-Reife. Es ist kein Nachweis für produktiven Betrieb, DNS-Umschaltung, HTTPS-Abnahme oder Backup-Restore im Live-System.
 
 ---
 
