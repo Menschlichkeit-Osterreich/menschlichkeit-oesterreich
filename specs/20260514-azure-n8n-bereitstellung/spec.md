@@ -12,6 +12,13 @@
 
 Ein belastbarer, dokumentierter und abnahmefaehiger Bereitstellungspfad fuer `n8n.menschlichkeit-oesterreich.at` auf Azure, der Grant/Billing, VM-Basis, Netzwerkhaertung, DNS-Zielroute, HTTPS-Betrieb und Nachweislogik so vorbereitet, dass ein spaeteres produktives Go nicht auf Annahmen basiert.
 
+## Ziele
+
+- Reproduzierbare Dokumentations- und Abnahmevorbereitung fuer den Azure-n8n-Kernpfad.
+- Klare Trennung zwischen Spezifikationsstand und spaeterem Live-Nachweis.
+- Einheitliche Blocker- und Evidenzlogik fuer alle Gate-Punkte.
+- Operative Uebergabefaehigkeit ohne Architektur-Raten.
+
 ## Scope
 
 - Klaerung und Dokumentation von Nonprofit-Grant- und Billing-Status.

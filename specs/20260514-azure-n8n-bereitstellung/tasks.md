@@ -20,6 +20,21 @@ EPIC 5 — Acceptance (T5.1 bis T5.6)
 
 ## Diese Datei wird nicht mehr aktiv gepflegt. Siehe Master-Spec für aktuelle Task-Details, Definition of Done und Blockerregeln.
 
+## Plan-Abschnittsreferenzen (Speckit-Mapping)
+
+Diese Referenz mappt die Abschnitte aus `plan.md` explizit auf die Ausfuehrungsartefakte.
+
+- **Summary** -> [IMPLEMENTATION_MASTER_SPEC.md](./IMPLEMENTATION_MASTER_SPEC.md)
+- **Technical Context** -> [IMPLEMENTATION_MASTER_SPEC.md](./IMPLEMENTATION_MASTER_SPEC.md)
+- **Constitution Check** -> [spec.md](./spec.md), [plan.md](./plan.md)
+- **Phase Plan** -> [IMPLEMENTATION_MASTER_SPEC.md](./IMPLEMENTATION_MASTER_SPEC.md)
+- **Phase 1 - Wahrheitssystem und Gate-Definition** -> [ACCEPTANCE_GATE_MATRIX.md](./ACCEPTANCE_GATE_MATRIX.md)
+- **Phase 2 - Zielarchitektur und Haertungsvertrag** -> [contracts/](./contracts/), [IMPLEMENTATION_MASTER_SPEC.md](./IMPLEMENTATION_MASTER_SPEC.md)
+- **Phase 3 - Abnahmevorbereitung** -> [quickstart.md](./quickstart.md), [ACCEPTANCE_GATE_MATRIX.md](./ACCEPTANCE_GATE_MATRIX.md)
+- **Project Structure** -> [INDEX.md](./INDEX.md), [README.md](./README.md)
+- **Deliverables** -> [DELIVERY_READINESS.md](./DELIVERY_READINESS.md)
+- **Complexity Tracking** -> [GOVERNANCE_CONSISTENCY_CHECK.md](./GOVERNANCE_CONSISTENCY_CHECK.md)
+
 ## EBENE A — Governance Spec Dokumentation ✅
 
 - [x] T001-T003 — Grant/Billing/Evidenztypen definiert
