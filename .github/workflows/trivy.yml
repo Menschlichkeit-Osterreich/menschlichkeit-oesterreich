@@ -57,7 +57,7 @@ jobs:
 
       - name: Upload FS results as artifact
         if: always() && hashFiles('trivy-fs-results.sarif') != ''
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: trivy-fs-results
           path: trivy-fs-results.sarif
@@ -105,7 +105,7 @@ jobs:
 
       - name: Upload Config results as artifact
         if: always() && hashFiles('trivy-config-results.sarif') != ''
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: trivy-config-results
           path: trivy-config-results.sarif
@@ -175,7 +175,7 @@ jobs:
 
       - name: Upload container results as artifact
         if: always() && hashFiles('trivy-container-results.sarif') != ''
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: trivy-container-results
           path: trivy-container-results.sarif

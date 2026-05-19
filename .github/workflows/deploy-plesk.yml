@@ -154,7 +154,7 @@ jobs:
         run: du -sh dist/ && find dist/ -name "*.js" | head -5
 
       - name: Build-Artefakt speichern
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: frontend-dist-${{ github.sha }}
           path: apps/website/dist/
@@ -190,7 +190,7 @@ jobs:
         run: npm run build
 
       - name: Games-Artefakt speichern
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: games-dist-${{ github.sha }}
           path: |
@@ -1381,7 +1381,7 @@ jobs:
             env.TARGET_SERVICE == 'all' ||
             env.TARGET_SERVICE == 'api'
           )
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: api-production-evidence-${{ github.sha }}
           path: |
