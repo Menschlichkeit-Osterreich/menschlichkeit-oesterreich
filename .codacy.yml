@@ -3,7 +3,7 @@ engines:
     enabled: true
     patterns:
       - include:
-          - 'apps/website/**/*.{js,jsx,ts,tsx}'
+          - 'apps/website/**/*.{js,jsx,mjs,cjs}'
           - 'apps/api/**/*.{js,mjs}'
           - 'apps/crm/**/*.{js,mjs}'
           - 'scripts/**/*.{js,mjs,cjs}'
@@ -15,6 +15,25 @@ engines:
     enabled: false
   trivy:
     enabled: true
+    patterns:
+      - include:
+          - 'package*.json'
+          - '**/package-lock.json'
+          - '**/requirements*.txt'
+          - '**/poetry.lock'
+          - '**/Pipfile.lock'
+          - '**/pyproject.toml'
+          - '**/go.mod'
+          - '**/go.sum'
+          - '**/Cargo.toml'
+          - '**/Cargo.lock'
+          - '**/composer.json'
+          - '**/composer.lock'
+          - '**/pom.xml'
+          - '**/build.gradle'
+          - '**/build.gradle.kts'
+          - '**/Gemfile'
+          - '**/Gemfile.lock'
   pmd:
     enabled: false
 

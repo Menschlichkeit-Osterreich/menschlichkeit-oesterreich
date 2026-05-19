@@ -3,38 +3,44 @@
   "configurations": [
     {
       "name": "frontend-vite",
-      "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "cd /d \"${workspaceFolder}\" && npm run dev:frontend"],
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:frontend"],
+      "cwd": "${workspaceFolder}",
       "port": 5173
     },
     {
       "name": "api-fastapi",
-      "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "cd /d \"${workspaceFolder}\" && npm run dev:api"],
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:api"],
+      "cwd": "${workspaceFolder}",
       "port": 8001
     },
     {
       "name": "crm-drupal",
-      "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "cd /d \"${workspaceFolder}\" && npm run dev:crm"],
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:crm"],
+      "cwd": "${workspaceFolder}",
       "port": 8000
     },
     {
       "name": "games-nextjs",
-      "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "cd /d \"${workspaceFolder}\" && npm run dev:games"],
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:games"],
+      "cwd": "${workspaceFolder}",
       "port": 3001
     },
     {
       "name": "forum-phpbb",
-      "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "cd /d \"${workspaceFolder}\" && npm run dev:forum"],
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:forum"],
+      "cwd": "${workspaceFolder}",
       "port": 8002
     },
     {
       "name": "prisma-studio",
-      "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "cd /d \"${workspaceFolder}\" && npm run db:studio"],
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "db:studio"],
+      "cwd": "${workspaceFolder}",
       "port": 5555
     }
   ]

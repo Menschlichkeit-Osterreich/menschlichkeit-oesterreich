@@ -1,0 +1,132 @@
+
+> menschlichkeit-oesterreich-workspace@1.0.0 quality:codacy
+> node scripts/ci/run-codacy.mjs
+
+[codacy] Running codacy-analysis-cli analyze --format sarif --output /workspaces/menschlichkeit-oesterreich/quality-reports/codacy-analysis.sarif --directory . --skip-uncommitted-files-check true --tool eslint --allow-network with timeout 300s
+[codacy] Native Codacy CLI unavailable or failed: spawn codacy-analysis-cli ENOENT
+[codacy] Retrying with local Codacy CLI JAR fallback
+[codacy] Running java -jar /workspaces/menschlichkeit-oesterreich/.cache/codacy/codacy-analysis-cli-assembly.jar analyze --format sarif --output /workspaces/menschlichkeit-oesterreich/quality-reports/codacy-analysis.sarif --directory . --skip-uncommitted-files-check true --tool eslint --allow-network with timeout 300s
+05/19 19:25:01 [1;31mERROR[0;39m [36mc.c.a.core.files.FileCollector:102[0;39m - Could not read file /workspaces/menschlichkeit-oesterreich/apps/website/package-lock.json, make sure it is readable by everybody. 
+05/19 19:25:14 [1;31mERROR[0;39m [36mc.c.a.c.a.CodacyPluginsAnalyser:31[0;39m - Failed analysis for eslint 
+java.lang.Throwable: 
+Docker exited with code 1
+stdout: 
+stderr: ConfigurationNotFoundError: No ESLint configuration found in /src/tests.
+    at CascadingConfigArrayFactory._finalizeConfigArray (/node_modules/@eslint/eslintrc/lib/cascading-config-array-factory.js:508:19)
+    at CascadingConfigArrayFactory.getConfigArrayForFile (/node_modules/@eslint/eslintrc/lib/cascading-config-array-factory.js:299:21)
+    at FileEnumerator._iterateFilesWithFile (/node_modules/eslint/lib/cli-engine/file-enumerator.js:365:43)
+    at FileEnumerator._iterateFiles (/node_modules/eslint/lib/cli-engine/file-enumerator.js:346:25)
+    at FileEnumerator.iterateFiles (/node_modules/eslint/lib/cli-engine/file-enumerator.js:296:59)
+    at iterateFiles.next (<anonymous>)
+    at CLIEngine.executeOnFiles (/node_modules/eslint/lib/cli-engine/cli-engine.js:771:48)
+    at /dist/src/engineImpl.js:33:38
+    at Generator.next (<anonymous>)
+    at fulfilled (/dist/src/engineImpl.js:5:58) {
+  messageTemplate: 'no-config-found',
+  messageData: { directoryPath: '/src/tests' }
+}
+           
+	at com.codacy.plugins.runners.BinaryDockerRunner.$anonfun$run$4(BinaryDockerRunner.scala:84)
+	at scala.util.Success.flatMap(Try.scala:251)
+	at com.codacy.plugins.runners.BinaryDockerRunner.run(BinaryDockerRunner.scala:69)
+	at com.codacy.plugins.results.traits.ToolRunner.$anonfun$apply$2(ToolRunner.scala:76)
+	at com.codacy.plugins.results.traits.CodacyDocker$.$anonfun$usingDockerConfig$2(CodacyDocker.scala:45)
+	at com.codacy.plugins.utils.FileHelper$.$anonfun$usingNewFile$2(FileHelper.scala:51)
+	at scala.util.Try$.apply(Try.scala:213)
+	at com.codacy.plugins.utils.FileHelper$.usingNewFile(FileHelper.scala:45)
+	at com.codacy.plugins.results.traits.CodacyDocker$.usingConfigPath(CodacyDocker.scala:57)
+	at com.codacy.plugins.results.traits.CodacyDocker$.$anonfun$usingDockerConfig$1(CodacyDocker.scala:39)
+	at scala.Option.map(Option.scala:230)
+	at com.codacy.plugins.results.traits.CodacyDocker$.usingDockerConfig(CodacyDocker.scala:38)
+	at com.codacy.plugins.results.traits.ToolRunner.$anonfun$apply$1(ToolRunner.scala:75)
+	at scala.util.Try$.apply(Try.scala:213)
+	at com.codacy.plugins.results.traits.ToolRunner.apply(ToolRunner.scala:60)
+	at com.codacy.plugins.results.traits.ToolRunner.run(ToolRunner.scala:48)
+	at com.codacy.analysis.core.tools.Tool.run(Tool.scala:95)
+	at com.codacy.analysis.core.analysis.CodacyPluginsAnalyser.analyse(CodacyPluginsAnalyser.scala:25)
+	at com.codacy.analysis.cli.analysis.AnalyseExecutor.$anonfun$issues$1(AnalyseExecutor.scala:159)
+	at scala.util.Success.flatMap(Try.scala:251)
+	at com.codacy.analysis.cli.analysis.AnalyseExecutor.issues(AnalyseExecutor.scala:151)
+	at com.codacy.analysis.cli.analysis.AnalyseExecutor.$anonfun$run$5(AnalyseExecutor.scala:70)
+	at scala.collection.parallel.AugmentedIterableIterator.map2combiner(RemainsIterator.scala:116)
+	at scala.collection.parallel.AugmentedIterableIterator.map2combiner$(RemainsIterator.scala:113)
+	at scala.collection.parallel.immutable.ParHashSet$ParHashSetIterator.map2combiner(ParHashSet.scala:81)
+	at scala.collection.parallel.ParIterableLike$Map.leaf(ParIterableLike.scala:1064)
+	at scala.collection.parallel.Task.$anonfun$tryLeaf$1(Tasks.scala:53)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at scala.util.control.Breaks$$anon$1.catchBreak(Breaks.scala:67)
+	at scala.collection.parallel.Task.tryLeaf(Tasks.scala:56)
+	at scala.collection.parallel.Task.tryLeaf$(Tasks.scala:50)
+	at scala.collection.parallel.ParIterableLike$Map.tryLeaf(ParIterableLike.scala:1061)
+	at scala.collection.parallel.AdaptiveWorkStealingTasks$WrappedTask.internal(Tasks.scala:160)
+	at scala.collection.parallel.AdaptiveWorkStealingTasks$WrappedTask.internal$(Tasks.scala:157)
+	at scala.collection.parallel.AdaptiveWorkStealingForkJoinTasks$WrappedTask.internal(Tasks.scala:440)
+	at scala.collection.parallel.AdaptiveWorkStealingTasks$WrappedTask.compute(Tasks.scala:150)
+	at scala.collection.parallel.AdaptiveWorkStealingTasks$WrappedTask.compute$(Tasks.scala:149)
+	at scala.collection.parallel.AdaptiveWorkStealingForkJoinTasks$WrappedTask.compute(Tasks.scala:440)
+	at java.base/java.util.concurrent.RecursiveAction.exec(RecursiveAction.java:194)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:387)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1312)
+	at java.base/java.util.concurrent.ForkJoinPool.scan(ForkJoinPool.java:1843)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1808)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:188)
+05/19 19:25:14 [1;31mERROR[0;39m [36mc.c.a.c.a.CodacyPluginsAnalyser:31[0;39m - Failed analysis for eslint 
+java.lang.Throwable: 
+Docker exited with code 1
+stdout: 
+stderr: ConfigurationNotFoundError: No ESLint configuration found in /src.
+    at CascadingConfigArrayFactory._finalizeConfigArray (/node_modules/@eslint/eslintrc/lib/cascading-config-array-factory.js:508:19)
+    at CascadingConfigArrayFactory.getConfigArrayForFile (/node_modules/@eslint/eslintrc/lib/cascading-config-array-factory.js:299:21)
+    at FileEnumerator._iterateFilesWithFile (/node_modules/eslint/lib/cli-engine/file-enumerator.js:365:43)
+    at FileEnumerator._iterateFiles (/node_modules/eslint/lib/cli-engine/file-enumerator.js:346:25)
+    at FileEnumerator.iterateFiles (/node_modules/eslint/lib/cli-engine/file-enumerator.js:296:59)
+    at iterateFiles.next (<anonymous>)
+    at CLIEngine.executeOnFiles (/node_modules/eslint/lib/cli-engine/cli-engine.js:771:48)
+    at /dist/src/engineImpl.js:33:38
+    at Generator.next (<anonymous>)
+    at fulfilled (/dist/src/engineImpl.js:5:58) {
+  messageTemplate: 'no-config-found',
+  messageData: { directoryPath: '/src' }
+}
+           
+	at com.codacy.plugins.runners.BinaryDockerRunner.$anonfun$run$4(BinaryDockerRunner.scala:84)
+	at scala.util.Success.flatMap(Try.scala:251)
+	at com.codacy.plugins.runners.BinaryDockerRunner.run(BinaryDockerRunner.scala:69)
+	at com.codacy.plugins.results.traits.ToolRunner.$anonfun$apply$2(ToolRunner.scala:76)
+	at com.codacy.plugins.results.traits.CodacyDocker$.$anonfun$usingDockerConfig$2(CodacyDocker.scala:45)
+	at com.codacy.plugins.utils.FileHelper$.$anonfun$usingNewFile$2(FileHelper.scala:51)
+	at scala.util.Try$.apply(Try.scala:213)
+	at com.codacy.plugins.utils.FileHelper$.usingNewFile(FileHelper.scala:45)
+	at com.codacy.plugins.results.traits.CodacyDocker$.usingConfigPath(CodacyDocker.scala:57)
+	at com.codacy.plugins.results.traits.CodacyDocker$.$anonfun$usingDockerConfig$1(CodacyDocker.scala:39)
+	at scala.Option.map(Option.scala:230)
+	at com.codacy.plugins.results.traits.CodacyDocker$.usingDockerConfig(CodacyDocker.scala:38)
+	at com.codacy.plugins.results.traits.ToolRunner.$anonfun$apply$1(ToolRunner.scala:75)
+	at scala.util.Try$.apply(Try.scala:213)
+	at com.codacy.plugins.results.traits.ToolRunner.apply(ToolRunner.scala:60)
+	at com.codacy.plugins.results.traits.ToolRunner.run(ToolRunner.scala:48)
+	at com.codacy.analysis.core.tools.Tool.run(Tool.scala:95)
+	at com.codacy.analysis.core.analysis.CodacyPluginsAnalyser.analyse(CodacyPluginsAnalyser.scala:25)
+	at com.codacy.analysis.cli.analysis.AnalyseExecutor.$anonfun$issues$1(AnalyseExecutor.scala:159)
+	at scala.util.Success.flatMap(Try.scala:251)
+	at com.codacy.analysis.cli.analysis.AnalyseExecutor.issues(AnalyseExecutor.scala:151)
+	at com.codacy.analysis.cli.analysis.AnalyseExecutor.$anonfun$run$5(AnalyseExecutor.scala:70)
+	at scala.collection.parallel.AugmentedIterableIterator.map2combiner(RemainsIterator.scala:116)
+	at scala.collection.parallel.AugmentedIterableIterator.map2combiner$(RemainsIterator.scala:113)
+	at scala.collection.parallel.immutable.ParHashSet$ParHashSetIterator.map2combiner(ParHashSet.scala:81)
+	at scala.collection.parallel.ParIterableLike$Map.leaf(ParIterableLike.scala:1064)
+	at scala.collection.parallel.Task.$anonfun$tryLeaf$1(Tasks.scala:53)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at scala.util.control.Breaks$$anon$1.catchBreak(Breaks.scala:67)
+	at scala.collection.parallel.Task.tryLeaf(Tasks.scala:56)
+	at scala.collection.parallel.Task.tryLeaf$(Tasks.scala:50)
+	at scala.collection.parallel.ParIterableLike$Map.tryLeaf(ParIterableLike.scala:1061)
+	at scala.collection.parallel.AdaptiveWorkStealingTasks$WrappedTask.compute(Tasks.scala:153)
+	at scala.collection.parallel.AdaptiveWorkStealingTasks$WrappedTask.compute$(Tasks.scala:149)
+	at scala.collection.parallel.AdaptiveWorkStealingForkJoinTasks$WrappedTask.compute(Tasks.scala:440)
+	at java.base/java.util.concurrent.RecursiveAction.exec(RecursiveAction.java:194)
+	at java.base/java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:387)
+	at java.base/java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(ForkJoinPool.java:1312)
+	at java.base/java.util.concurrent.ForkJoinPool.scan(ForkJoinPool.java:1843)
+	at java.base/java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1808)
+	at java.base/java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:188)

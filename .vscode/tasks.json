@@ -130,8 +130,8 @@
     {
       "label": "Test: API",
       "type": "shell",
-      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
-      "args": ["-m", "pytest", "tests", "-q"],
+      "command": "node",
+      "args": ["scripts/run-python.mjs", "-m", "pytest", "tests", "-q"],
       "options": {
         "cwd": "${workspaceFolder}/apps/api"
       },
@@ -359,16 +359,17 @@
     {
       "label": "Bitwarden: Python SDK Check",
       "type": "shell",
-      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
-      "args": ["-c", "import bitwarden_sdk; print('OK', bitwarden_sdk.__file__)"],
+      "command": "node",
+      "args": ["scripts/run-python.mjs", "-c", "import bitwarden_sdk; print('OK', bitwarden_sdk.__file__)"],
       "isBackground": false,
       "group": "none"
     },
     {
       "label": "Pytest: Payment Regression",
       "type": "shell",
-      "command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+      "command": "node",
       "args": [
+        "scripts/run-python.mjs",
         "-m",
         "pytest",
         "apps/api/tests/test_donation_service.py",
@@ -419,10 +420,7 @@
       "label": "Verify: N8N Staging Routing",
       "type": "shell",
       "command": "node",
-      "args": [
-        "scripts/run-python.mjs",
-        "automation/n8n/check-staging-routing.py"
-      ],
+      "args": ["scripts/run-python.mjs", "automation/n8n/check-staging-routing.py"],
       "isBackground": false,
       "problemMatcher": [],
       "group": "test"
