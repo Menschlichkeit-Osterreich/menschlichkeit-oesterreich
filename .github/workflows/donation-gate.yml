@@ -14,7 +14,7 @@ jobs:
   donation-gate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Run Donation Smoke
         run: bash scripts/masterplan/run-donation-smoke.sh
       - name: Collect Receipt Evidence
