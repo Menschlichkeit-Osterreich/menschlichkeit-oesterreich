@@ -6,6 +6,6 @@
   "description": "Plesk Obsidian XML API Client — Mail Provisioning",
   "main": "pleskClient.mjs",
   "dependencies": {
-    "fast-xml-parser": "^5.0.0"
+    "fast-xml-parser": "^5.7.0"
   }
 }
