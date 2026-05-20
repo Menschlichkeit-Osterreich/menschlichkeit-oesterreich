@@ -34,6 +34,22 @@ done
 
 # ── Voraussetzungen ─────────────────────────────────────────
 
+# Bevorzugte lokale Quelle: gitignored .local-secrets/bitwarden.env
+# (enthaelt BSM_ACCESS_TOKEN=... oder BWS_ACCESS_TOKEN=...).
+# Vor den Fallback-Env-Vars geladen, damit der lokale Wert greift,
+# wenn Shell-Profile leer sind. CI nutzt weiterhin BSM_ACCESS_TOKEN
+# als Env-Var aus GitHub Actions Secrets.
+if [[ -z "${BSM_ACCESS_TOKEN:-}" && -z "${BWS_ACCESS_TOKEN:-}" && -z "${BW_ACCESS_TOKEN:-}" ]]; then
+    REPO_ROOT_GUESS="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+    BWS_ENV_FILE="${BW_TOKEN_FILE:-${BWS_TOKEN_FILE:-${BSM_TOKEN_FILE:-$REPO_ROOT_GUESS/.local-secrets/bitwarden.env}}}"
+    if [[ -f "$BWS_ENV_FILE" ]]; then
+        # shellcheck disable=SC1090
+        set -a
+        source "$BWS_ENV_FILE"
+        set +a
+    fi
+fi
+
 if [[ -z "${BSM_ACCESS_TOKEN:-}" ]]; then
     if [[ -n "${BWS_ACCESS_TOKEN:-}" ]]; then
         export BSM_ACCESS_TOKEN="$BWS_ACCESS_TOKEN"
