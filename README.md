@@ -2,6 +2,10 @@
 
 Monorepo fuer Website, FastAPI-Backend, Drupal/CiviCRM, Babylon-Game, Automatisierung und MCP-Server.
 
+## Masterplan 2.0
+
+Die strategische Phasenroadmap, Integrationsmatrix, Risikoeinordnung und Spec-Schnitte (006-009) sind im externen Strategie-Dokument [docs/masterplan-2.0.md](docs/masterplan-2.0.md) konsolidiert. Es **ergaenzt** die kanonische Governance ([AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md), [.github/copilot-instructions.md](.github/copilot-instructions.md)) und **ersetzt sie nicht**.
+
 ## Betriebsmodell
 
 - `main` ist der einzige Integrations- und Release-Branch.

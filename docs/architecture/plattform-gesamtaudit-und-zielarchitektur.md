@@ -1,20 +1,22 @@
 # Plattform-Gesamtaudit und Zielarchitektur – Menschlichkeit Österreich
 
+> **Querverweis:** Die strategische Phasenroadmap (Phase 0–9), Integrationsmatrix und Spec-Schnitte (006-009) sind im externen Strategie-Dokument [docs/masterplan-2.0.md](../masterplan-2.0.md) konsolidiert. Dieses Architekturdokument bleibt die **technische** Quelle der Wahrheit; Masterplan 2.0 ist ein **strategischer Ergaenzungsbaustein**.
+
 ## 1. Executive Summary
 
-**VERIFIZIERT**
+**Status:** verifiziert
 
 - Plattform wird als Multi-Service-Monorepo mit Website, API, Drupal/CiviCRM, Webgame und n8n betrieben; lokale Entwicklungsports 5173, 8001, 8000, 3000, 5678 sind dokumentiert.
 - Hosting-Kontext ist Single-Server auf Plesk mit bekannter Panel-Erreichbarkeit über `https://5.183.217.146:8443`.
 - Repository enthält eine hohe Anzahl CI/CD- und Security-Workflows (u. a. CodeQL, Gitleaks, Trivy, SBOM), was ein starkes Automationsfundament zeigt.
 
-**WAHRSCHEINLICH**
+**Status:** wahrscheinlich
 
 - Betriebsrisiko ist derzeit stark durch Single-Server-Konzentration geprägt (Panel, Mail, Apps, Datenbanken, Storage auf einem Failure-Domain).
 - Governance- und Ownership-Dokumentation ist partiell vorhanden, aber nicht konsistent pro Service und Runbook-Tiefe.
 - Secrets- und Deployment-Komplexität ist aufgrund Monorepo- und Multi-Service-Umfang erhöht.
 
-**EMPFOHLEN**
+**Status:** empfohlen
 
 - P0: Sicherheits- und Betriebsbasis härten (Panel-Zugang, Mail-Authentizität, Backup/Restore-Testbarkeit, RBAC, Audit-Logs).
 - P1: Service-separierte Subdomain-, Datenbank- und Monitoring-Architektur verbindlich umsetzen.
@@ -27,21 +29,21 @@
 
 ### 2.1 Prüfmethodik
 
-**VERIFIZIERT**
+**Status:** verifiziert
 
 - Dokumenten- und Repository-basierte Analyse (Architektur-, Security-, Workflow- und Strukturprüfung ohne intrusive Maßnahmen).
 - Keine destruktiven, ausnutzenden oder produktionsverändernden Aktionen ausgeführt.
 
 ### 2.2 Annahmen (explizit)
 
-**WAHRSCHEINLICH**
+**Status:** wahrscheinlich
 
 - Direkter Live-Zugriff auf Plesk-Konfiguration, DNS-Zone, Mail-Logs, DB-Instanzen und produktive Monitoring-Dashboards liegt in dieser Analyse nicht vor.
 - Einige Services sind historisch gewachsen und teilweise heterogen (WordPress/HTML, React/Vite, FastAPI, Drupal/CiviCRM, Game-Stack).
 
 ### 2.3 Offene Prüffragen
 
-**EMPFOHLEN**
+**Status:** empfohlen
 
 - Welche Plesk-Erweiterungen sind aktuell exakt installiert und aktiviert?
 - Ist panel-Zugriff per VPN/IP-Allowlist abgesichert oder öffentlich erreichbar?
@@ -66,15 +68,15 @@
 
 ### 3.2 Governance und Ownership
 
-**VERIFIZIERT**
+**Status:** verifiziert
 
 - Umfangreiche Dokumentationslandschaft vorhanden.
 
-**WAHRSCHEINLICH**
+**Status:** wahrscheinlich
 
 - Ownership pro Service/Runbook/Alert nicht überall eindeutig als accountable Rolle fixiert.
 
-**EMPFOHLEN**
+**Status:** empfohlen
 
 - Verbindliche Service-Owner-Matrix mit Stellvertretung und Eskalationskontakt je Service.
 
@@ -145,7 +147,7 @@
 
 | Subdomain                             | Zweck               | Sicherheitsbedarf | Routing/Proxy                      | TLS                                     | Auth                  | Monitoring             | Single-Server-Risiko                 |
 | ------------------------------------- | ------------------- | ----------------- | ---------------------------------- | --------------------------------------- | --------------------- | ---------------------- | ------------------------------------ |
-| www.menschlichkeit-oesterreich.at     | Öffentliche Website | hoch              | Reverse Proxy auf Web-Frontend/CMS | Pflicht + HSTS                          | optional User-Login   | HTTP, UX, Cert         | Ausfall = komplette Außenwirkung weg |
+| `www.menschlichkeit-oesterreich.at`   | Öffentliche Website | hoch              | Reverse Proxy auf Web-Frontend/CMS | Pflicht + HSTS                          | optional User-Login   | HTTP, UX, Cert         | Ausfall = komplette Außenwirkung weg |
 | api.menschlichkeit-oesterreich.at     | API                 | kritisch          | Reverse Proxy auf FastAPI          | mTLS intern optional, extern TLS strikt | JWT/OAuth2, RBAC      | Latency, 5xx, RPS      | Kernfunktionen fallen aus            |
 | cloud.menschlichkeit-oesterreich.at   | Nextcloud           | kritisch          | dedizierter Upstream               | TLS strikt, große Uploads               | SSO/2FA empfohlen     | WebDAV, Storage, Queue | Datenzugriff blockiert               |
 | forum.menschlichkeit-oesterreich.at   | Communityforum      | hoch              | dediziertes App-Routing            | TLS Pflicht                             | lokale Accounts/SSO   | Uptime, Spamrate       | Communitystillstand                  |
@@ -155,7 +157,7 @@
 | webmail.menschlichkeit-oesterreich.at | Benutzer-Webmail    | hoch              | webmail app                        | TLS Pflicht                             | 2FA empfohlen         | Uptime, Login-Events   | Kommunikationsausfall                |
 | panel.menschlichkeit-oesterreich.at   | Plesk Panel         | kritisch          | direkter Panelzugang               | TLS Pflicht                             | MFA + Netzrestriktion | Auth-Failures          | Kontrollverlust Infrastruktur        |
 
-**EMPFOHLEN**
+**Status:** empfohlen
 
 - Einheitlicher Reverse-Proxy-Layer mit Security-Headers, Rate-Limits und zentralem TLS-Management.
 - Strikte Trennung öffentlicher und interner Adminpfade.
@@ -174,7 +176,7 @@
 | TLS-Hardening     | WAHRSCHEINLICH                                              | HSTS, sichere Ciphers, Header-Hardening                                 |
 | Backup/Restore    | WAHRSCHEINLICH                                              | App-/DB-/File-konsistente Sicherung + dokumentierter Restore-Test       |
 
-**Admin-Policies (EMPFOHLEN)**
+**Admin-Policies** (empfohlen)
 
 - Default: Externe Linkfreigaben aus, projektweise aktivieren.
 - Pflicht: 2FA für Admins, Geo/IP-Auffälligkeiten alarmieren.
@@ -205,12 +207,12 @@
 
 ### 9.3 Migrationsstrategie (ohne Zeitachse)
 
-**EMPFOHLEN**
+**Status:** empfohlen
 
 1. Bestehende Schemas inventarisieren und Tabellen Services zuordnen.
-2. Service-User erstellen, Rechte auf Schemaebene minimieren.
-3. Daten schrittweise in Ziel-DBs verschieben und Integrationspunkte anpassen.
-4. Read/Write-Pfade mittels Smoke-Tests und Restore-Test protokollieren.
+1. Service-User erstellen, Rechte auf Schemaebene minimieren.
+1. Daten schrittweise in Ziel-DBs verschieben und Integrationspunkte anpassen.
+1. Read/Write-Pfade mittels Smoke-Tests und Restore-Test protokollieren.
 
 ---
 
@@ -230,7 +232,7 @@
 
 ### 10.2 Architektur
 
-**EMPFOHLEN**
+**Status:** empfohlen
 
 - Intern: Plesk Monitoring + Grafana + Service Watchdogs (Prozess/Healthcheck).
 - Extern: Uptime Kuma für HTTP/TLS/API-Endpunkte + öffentliche Statusseite.
@@ -258,11 +260,11 @@
 
 ### 12.1 Ist und Risiken
 
-**VERIFIZIERT**
+**Status:** verifiziert
 
 - Monorepo und sehr umfangreiche Workflow-Landschaft vorhanden.
 
-**WAHRSCHEINLICH**
+**Status:** wahrscheinlich
 
 - Überschneidungen und Inkonsistenzen zwischen Workflows/Quality Gates möglich.
 
@@ -284,11 +286,11 @@
 
 ### 13.1 Designsystem-Basis (Logo-zentriert)
 
-**VERIFIZIERT**
+**Status:** verifiziert
 
 - `logo.JPG` ist Primärquelle und muss plattformweit konsistent genutzt werden.
 
-**EMPFOHLEN**
+**Status:** empfohlen
 
 - Abgeleitete Brand-Artefakte: `logo.svg`, `favicon.ico`, `logo-symbol.svg`, `logo-dark.svg`.
 - Token-System: Farben, Typografie, Spacing, Radius, Shadow, Focus-Ring, Statusfarben.
@@ -339,7 +341,7 @@
 
 ### 15.2 Default-Rechte
 
-**EMPFOHLEN**
+**Status:** empfohlen
 
 - Default minimal: Gast/Mitglied nur notwendige Rechte.
 - Fachliche und technische Adminrechte strikt trennen.
@@ -459,17 +461,17 @@ docs/
 ## 21. Konkrete umzusetzende Artefakte
 
 1. `docs/architecture/target-architecture.md` – verbindliche Zielsystembeschreibung.
-2. `docs/architecture/subdomain-architecture.md` – Subdomain- und Proxy-Sicherheitsregeln.
-3. `docs/architecture/rbac-model.md` – Rollenmodell inkl. Entscheidungsregeln.
-4. `docs/operations/runbook-plesk-hardening.md` – Panel/TLS/WAF/Fail2ban Checklisten.
-5. `docs/operations/runbook-mail-operations.md` – SPF/DKIM/DMARC/Bounce/Quotas.
-6. `docs/operations/runbook-backup-restore.md` – DB/Files Restore-Testprotokolle.
-7. `docs/security/secrets-management.md` – Secret-Lifecycle, Rotation, Zugriffsmatrix.
-8. `docs/security/audit-logging-policy.md` – Audit-Trail Pflichtfelder und Aufbewahrung.
-9. `docs/security/hardening-baseline.md` – Security Header, Rate Limits, CSRF/CSP Baseline.
-10. `docs/compliance/gdpr-data-flow-register.md` – Verarbeitungsverzeichnis mit Systembezug.
-11. `docs/compliance/retention-and-deletion-policy.md` – Löschfristen und Verantwortungen.
-12. `docs/media/screenshots-guidelines.md` – Nachweisführung, Redaction, Dateinamensschema.
-13. `docs/operations/runbook-monitoring-alerting.md` – Metriken, Schwellenwerte, Eskalation.
-14. `docs/architecture/data-architecture.md` – MariaDB-Servicegrenzen und Service-Accounts.
-15. `docs/operations/service-ownership-matrix.md` – technische/fachliche Ownership je Dienst.
+1. `docs/architecture/subdomain-architecture.md` – Subdomain- und Proxy-Sicherheitsregeln.
+1. `docs/architecture/rbac-model.md` – Rollenmodell inkl. Entscheidungsregeln.
+1. `docs/operations/runbook-plesk-hardening.md` – Panel/TLS/WAF/Fail2ban Checklisten.
+1. `docs/operations/runbook-mail-operations.md` – SPF/DKIM/DMARC/Bounce/Quotas.
+1. `docs/operations/runbook-backup-restore.md` – DB/Files Restore-Testprotokolle.
+1. `docs/security/secrets-management.md` – Secret-Lifecycle, Rotation, Zugriffsmatrix.
+1. `docs/security/audit-logging-policy.md` – Audit-Trail Pflichtfelder und Aufbewahrung.
+1. `docs/security/hardening-baseline.md` – Security Header, Rate Limits, CSRF/CSP Baseline.
+1. `docs/compliance/gdpr-data-flow-register.md` – Verarbeitungsverzeichnis mit Systembezug.
+1. `docs/compliance/retention-and-deletion-policy.md` – Löschfristen und Verantwortungen.
+1. `docs/media/screenshots-guidelines.md` – Nachweisführung, Redaction, Dateinamensschema.
+1. `docs/operations/runbook-monitoring-alerting.md` – Metriken, Schwellenwerte, Eskalation.
+1. `docs/architecture/data-architecture.md` – MariaDB-Servicegrenzen und Service-Accounts.
+1. `docs/operations/service-ownership-matrix.md` – technische/fachliche Ownership je Dienst.
