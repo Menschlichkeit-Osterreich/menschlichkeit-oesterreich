@@ -279,6 +279,7 @@ Diese Rollen bauen auf den Core-Rollen auf und erweitern sie nur fuer klar abgeg
 - `github-audit` ueber `.claude/agents/github-auditor.md`
 - `civicrm` ueber `apps/crm/` und CRM-spezifische Betriebsdoku
 - `mcp-operations` als DevOps-Faehigkeit im sichtbaren Copilot-Agent `.github/agents/devops-expert.agent.md`
+- `entra-operator` ueber [runbooks/copilot-microsoft-operator.md](runbooks/copilot-microsoft-operator.md) (Microsoft / Entra / Azure / Graph Stufenmodell, Bootstrap und Secret-Ablage)
 
 Spezialrollen duerfen keine parallele Repo-Governance einfuehren.
 
@@ -304,6 +305,8 @@ Spezialrollen duerfen keine parallele Repo-Governance einfuehren.
 - Bei allen Aenderungen oder Audits rund um `.github/bsm-secret-ids.json` muss zuerst ein read-only BSM-Metadatencheck gegen die betroffenen UUIDs erfolgen.
 - Erlaubte Ausgabe im Audit-Kontext: nur `id`, `key`, `projectId`, `revisionDate`.
 - Bei Widerspruch zwischen Mapping-UUID und BSM-Objekt gilt die technische Mapping-Datei als operative Quelle fuer Workflow-Injektion und muss als Drift-Risiko markiert werden.
+- `.local-secrets/` ist gitignored und enthaelt Bootstrap-/Import-Artefakte fuer BWS (`bitwarden_import_*.json`, `bitwarden_export_*.json`, `bitwarden.env`, Vendor-spezifische `*.env`). Werte nie ausgeben, Dateien nie committen.
+- Nach jedem BWS-Import muessen neue Server-UUIDs in `.github/bsm-secret-ids.json` nachgezogen werden, bevor Workflows greifen.
 
 ## Configuration Reliability
 

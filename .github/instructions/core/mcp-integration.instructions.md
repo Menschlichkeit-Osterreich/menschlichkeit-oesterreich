@@ -27,6 +27,7 @@ applyTo: 'mcp.json,.vscode/mcp.json,mcp-servers/**'
 - **Playwright MCP** - Browser- und E2E-nahe Laufzeittests
 - **Codacy MCP** - Qualitaetsanalyse, sofern Token und Extension verfuegbar sind
 - **GitHub MCP** - Editor-spezifisches Overlay in `.vscode/mcp.json` fuer Issues, PRs und Repo-Metadaten
+- **Azure MCP** (`@azure/mcp@2.0.2`) - Azure RG, App Service, Key Vault, RBAC. Stufenmodell und Bootstrap siehe [runbooks/copilot-microsoft-operator.md](../../../runbooks/copilot-microsoft-operator.md)
 
 ### ⚠️ Figma MCP
 
@@ -37,7 +38,6 @@ applyTo: 'mcp.json,.vscode/mcp.json,mcp-servers/**'
 
 **Hinweis:** Diese Server benötigen zusätzliche Konfiguration und können instabil sein:
 
-- **PostgreSQL MCP** - Direkte DB-Queries (benötigt `POSTGRES_CONNECTION_STRING`)
 - **Brave Search MCP** - Web-Recherche (benötigt `BRAVE_API_KEY`)
 - **Codacy MCP** - Code Quality Analysis (benötigt `CODACY_ACCOUNT_TOKEN`)
 - **Notion MCP** - Dokumentation Management (benötigt `NOTION_API_KEY`)
@@ -49,6 +49,7 @@ applyTo: 'mcp.json,.vscode/mcp.json,mcp-servers/**'
 - ~~`oraios/serena`~~ - Server nicht funktionsfähig
 - ~~`microsoft/markitdown`~~ - Argument-Parsing-Fehler, ffmpeg-Abhängigkeiten
 - ~~`markitdown-mcp`~~ - Python-Abhängigkeiten und Argument-Konflikte
+- ~~`postgres` (Wrapper)~~ - Entfernt im Rahmen MCP-Cleanup; direkte DB-Operationen laufen ueber `apps/api` oder dedizierte Skripte, nicht ueber MCP
 
 ## 🎯 Intelligente Tool-Auswahl & Erweiterte Workflows
 

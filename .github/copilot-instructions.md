@@ -104,6 +104,8 @@ Nicht aktiv:
 - Keine Secrets oder PII in Code, Logs, Beispielen oder Prompts.
 - Brand-Arbeit folgt den Token- und Plugin-Quellen im Repo.
 - Bei Arbeiten an `.github/bsm-secret-ids.json` zuerst read-only BSM-Metadatencheck fahren und im Bericht nur `id`, `key`, `projectId`, `revisionDate` verwenden.
+- `.local-secrets/` ist gitignored und beherbergt BWS-Bootstrap- und Import-Artefakte; Werte nie ausgeben, Dateien nie committen.
+- Fuer Microsoft / Entra / Azure / Graph gilt das Stufenmodell aus `runbooks/copilot-microsoft-operator.md`; schreibende Aktionen erst ab dokumentierter Freigabestufe.
 
 ## Configuration Reliability Rule
 

@@ -103,18 +103,18 @@ RuFlo V3 erweitert Claude Code um Multi-Agent-Koordination, Swarm-Orchestrierung
 
 ### RuFlo-Agent-Verzeichnisse
 
-| Verzeichnis | Zweck |
-| --- | --- |
-| `.claude/agents/core/` | Coder, Planner, Researcher, Reviewer, Tester |
-| `.claude/agents/sparc/` | SPARC-Workflow: Specification, Pseudocode, Architecture, Refinement |
-| `.claude/agents/swarm/` | Adaptive, hierarchische und Mesh-Koordinatoren |
-| `.claude/agents/github/` | PR-Manager, Issue-Tracker, Release-Manager, Sync-Coordinator |
-| `.claude/agents/v3/` | Security-Architect, PII-Detector, ADR-Architect, DDD-Domain-Expert |
-| `.claude/agents/testing/` | TDD-London-Swarm, Production-Validator |
-| `.claude/agents/optimization/` | Performance-Monitor, Load-Balancer, Topology-Optimizer |
-| `.claude/agents/development/` | Full-Stack, Backend, Frontend, API |
-| `.claude/agents/devops/` | CI/CD, Docker, Kubernetes, Monitoring |
-| `.claude/agents/documentation/` | API-Docs, Architecture-Docs, User-Guides |
+| Verzeichnis                     | Zweck                                                               |
+| ------------------------------- | ------------------------------------------------------------------- |
+| `.claude/agents/core/`          | Coder, Planner, Researcher, Reviewer, Tester                        |
+| `.claude/agents/sparc/`         | SPARC-Workflow: Specification, Pseudocode, Architecture, Refinement |
+| `.claude/agents/swarm/`         | Adaptive, hierarchische und Mesh-Koordinatoren                      |
+| `.claude/agents/github/`        | PR-Manager, Issue-Tracker, Release-Manager, Sync-Coordinator        |
+| `.claude/agents/v3/`            | Security-Architect, PII-Detector, ADR-Architect, DDD-Domain-Expert  |
+| `.claude/agents/testing/`       | TDD-London-Swarm, Production-Validator                              |
+| `.claude/agents/optimization/`  | Performance-Monitor, Load-Balancer, Topology-Optimizer              |
+| `.claude/agents/development/`   | Full-Stack, Backend, Frontend, API                                  |
+| `.claude/agents/devops/`        | CI/CD, Docker, Kubernetes, Monitoring                               |
+| `.claude/agents/documentation/` | API-Docs, Architecture-Docs, User-Guides                            |
 
 ### RuFlo-Befehle (Claude Code)
 
@@ -173,8 +173,18 @@ Claude-Code-Agents (RuFlo V3) liegen unter `.claude/agents/` (102 Agenten in 27 
 - Projektweite MCP-Server liegen in `mcp.json`
 - Editor-spezifische MCP-Ergaenzungen liegen in `.vscode/mcp.json`
 - RuFlo-MCP-Server: `.mcp.json` (ruflo@3.7.0-alpha.38, fuer Claude-Code-Orchestrierung)
+- Azure MCP (`@azure/mcp@2.0.2`) ist aktiv; Stufenmodell und Bootstrap siehe `runbooks/copilot-microsoft-operator.md`
+- Der frühere `postgres`-Wrapper wurde im MCP-Cleanup entfernt; DB-Operationen laufen ueber `apps/api` oder Skripte, nicht ueber MCP
 - Spezialisierte MCP-Reparaturen sind Teil von `.github/agents/devops-expert.agent.md`
 - Lokale Checks: `npm run mcp:check` und `npm run mcp:health`
+
+## Bitwarden Secrets Manager (BWS)
+
+- Produktive Secret-Quelle ist BWS; UUID-Mapping liegt in `.github/bsm-secret-ids.json`
+- Lokales Bootstrap ueber `.local-secrets/` (gitignored): `bitwarden_import_*.json`, `bitwarden_export_*.json`, `bitwarden.env`, vendor-spezifische `*.env`
+- Runtime-Injektion fuer lokale Laeufe: `scripts/bsm-fetch-env.sh` liest aus `.local-secrets/bitwarden.env`
+- Microsoft / Entra / Azure / Graph Operator-Bootstrap: `runbooks/copilot-microsoft-operator.md`
+- Audit-Regeln und `.local-secrets/`-Workflow: `.github/instructions/secret-mapping-verification.instructions.md`
 
 ## Brand-Kurzvertrag
 
