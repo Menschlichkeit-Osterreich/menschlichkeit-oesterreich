@@ -1,6 +1,6 @@
 # MCP Servers Übersicht
 
-Stand: 2026-03-31
+Stand: 2026-05-19
 
 Diese Datei dokumentiert den aktiven Inhalt aus `mcp.json`. Sie ist keine Wunschliste und keine historische Sammlung alter Wrapper mehr.
 
@@ -13,8 +13,8 @@ Diese Datei dokumentiert den aktiven Inhalt aus `mcp.json`. Sie ist keine Wunsch
 | `build-pipeline`      | `node mcp-servers/build-pipeline/index.js`                                                    | lokal | Build- und Pipeline-Kontext                       |
 | `n8n-webhook`         | `node mcp-servers/n8n-webhook/index.js`                                                       | lokal | n8n-Webhook-Integration                           |
 | `bitwarden-cli`       | `node mcp-servers/bitwarden-cli/index.js`                                                     | lokal | Secrets- und Vault-Workflows                      |
-| `postgres`            | `node scripts/mcp/wrapper-postgres.mjs`                                                       | lokal | PostgreSQL-Kontext fuer Datenbankoperationen      |
 | `sequential-thinking` | `node scripts/mcp/uvx-stdio.mjs @modelcontextprotocol/server-sequential-thinking==2025.12.18` | lokal | Sequenzielle Analyse, Zerlegung und Priorisierung |
+| `azure`               | `npx -y @azure/mcp@2.0.2 server start`                                                        | lokal | Azure RG/Key Vault/RBAC, Plan/Read first          |
 
 ## Overlay aus `.vscode/mcp.json`
 

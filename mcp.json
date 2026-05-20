@@ -40,16 +40,13 @@
         "BW_PASSWORD": "${BW_PASSWORD}"
       }
     },
-    "postgres": {
-      "command": "node",
-      "args": ["scripts/mcp/wrapper-postgres.mjs"],
-      "env": {
-        "DATABASE_URL": "${DATABASE_URL}"
-      }
-    },
     "sequential-thinking": {
       "command": "node",
       "args": ["scripts/mcp/uvx-stdio.mjs", "@modelcontextprotocol/server-sequential-thinking==2025.12.18"]
+    },
+    "azure": {
+      "command": "npx",
+      "args": ["-y", "@azure/mcp@2.0.2", "server", "start"]
     }
   }
 }
