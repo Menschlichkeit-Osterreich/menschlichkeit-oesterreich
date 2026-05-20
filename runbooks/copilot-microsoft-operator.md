@@ -51,23 +51,23 @@ Bewegung in eine hoehere Stufe ist nur per PR, mit Eintrag in dieses Runbook und
 ## Einmaliger Bootstrap (manuell, ausserhalb Repo)
 
 1. **Entra App Registration** anlegen, z. B. `moe-copilot-operator`.
-2. **Redirect URIs** nur fuer Auth-Flows setzen, die wirklich genutzt werden.
-3. **API-Berechtigungen vergeben**, Minimalsatz, Admin Consent:
+1. **Redirect URIs** nur fuer Auth-Flows setzen, die wirklich genutzt werden.
+1. **API-Berechtigungen vergeben**, Minimalsatz, Admin Consent:
    - Stufe 3: `User.Read.All`, `Group.Read.All`, `Directory.Read.All`.
    - Stufe 4 nur wenn aktiviert: `Mail.Send` (mit Sender-Restriction), `Sites.Selected`, `TeamMember.ReadWrite.All` o.ae.
-4. **Authentifizierung**:
+1. **Authentifizierung**:
    - bevorzugt Federated Credential / OIDC fuer GitHub Actions,
    - zweite Wahl Zertifikats-Login,
    - Client Secret nur fuer lokale Entwicklung und nur in Bitwarden.
-5. **Azure RBAC**:
+1. **Azure RBAC**:
    - Stufe 1: `Reader` auf Subscription oder Resource Group.
    - Stufe 2: `Contributor` ausschliesslich auf Sandbox-RG `moe-sandbox`.
    - Stufe 5: `Owner` nur auf produktive RG nach Vier-Augen-Prinzip.
-6. **Secret-Ablage**:
+1. **Secret-Ablage**:
    - lokal: Bitwarden-Eintrag `moe/microsoft/entra-operator` (`MICROSOFT_TENANT_ID`, `MICROSOFT_CLIENT_ID`, `MICROSOFT_CLIENT_SECRET`).
    - CI: GitHub Environment Secrets je Environment (z. B. `staging`, `production`), gemappt ueber `.github/bsm-secret-ids.json`.
    - Azure Key Vault fuer produktive Workloads.
-7. **Tenant / Subscription Mapping** in `.github/bsm-secret-ids.json` ergaenzen, ohne Klartext-Werte.
+1. **Tenant / Subscription Mapping** in `.github/bsm-secret-ids.json` ergaenzen, ohne Klartext-Werte.
 
 ## Repo-Hooks fuer Copilot-Steuerung
 
