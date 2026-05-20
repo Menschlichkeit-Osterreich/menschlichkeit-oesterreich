@@ -24,7 +24,7 @@ Das native CRM basiert auf **Drupal 10** + **CiviCRM** und verwaltet:
 - 📧 **Newsletter** (Email-Kampagnen mit Consent Management)
 - 📊 **Reports** (Mitgliederstatistiken, Finanzberichte)
 
-**Tech Stack**: Drupal 10.3+ | CiviCRM 5.75+ | MariaDB | PHP 8.2
+**Tech Stack**: Drupal 10.3+ | CiviCRM 6.12+ | MariaDB | PHP 8.2
 
 ---
 
@@ -105,7 +105,7 @@ crm.menschlichkeit-oesterreich.at/
 
 | Modul                | Version | Zweck              |
 | -------------------- | ------- | ------------------ |
-| **CiviCRM**          | 5.75+   | CRM-Funktionalität |
+| **CiviCRM**          | 6.12+   | CRM-Funktionalität |
 | **Token**            | 1.13+   | Token Replacement  |
 | **Backup & Migrate** | 5.0+    | Database Backups   |
 | **Admin Toolbar**    | 3.4+    | Improved Admin UX  |
