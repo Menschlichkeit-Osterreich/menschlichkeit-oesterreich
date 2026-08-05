@@ -1,5 +1,5 @@
 fastapi==0.136.1
-uvicorn[standard]==0.47.0
+uvicorn[standard]==0.52.1
 asyncpg==0.31.0
 python-dotenv==1.2.2
 pydantic[email]==2.13.4
