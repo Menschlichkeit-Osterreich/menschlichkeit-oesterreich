@@ -102,7 +102,6 @@ jobs:
         shell: bash
         run: |
           cat >> "$GITHUB_ENV" <<'EOF'
-          AGENT_INSTALL_CRM_DEPS=0
           AGENT_INSTALL_PLAYWRIGHT=1
           DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/menschlichkeit_test
           REDIS_URL=redis://127.0.0.1:6379/0
@@ -122,6 +121,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             shellcheck openssh-client jq curl unzip zip \
+            postgresql-client redis-tools mariadb-client \
             php-cli php-bcmath php-curl php-gd php-intl php-mbstring \
             php-mysql php-pgsql php-soap php-xml php-zip
           sudo rm -rf /var/lib/apt/lists/*
@@ -147,6 +147,13 @@ jobs:
       - name: Validate agent sandbox
         shell: bash
         run: bash .devcontainer/test-setup.sh
+
+      - name: Validate local data services
+        shell: bash
+        run: |
+          PGPASSWORD=postgres psql -h 127.0.0.1 -U postgres -d menschlichkeit_test -c 'SELECT 1;'
+          redis-cli -h 127.0.0.1 ping | grep -qx PONG
+          mariadb -h 127.0.0.1 -u civicrm_user -pcivicrm_dev_pass menschlichkeit_crm -e 'SELECT 1;'
 
       - name: Validate container definitions
         shell: bash
