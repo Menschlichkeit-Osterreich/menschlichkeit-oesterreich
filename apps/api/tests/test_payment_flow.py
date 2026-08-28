@@ -82,6 +82,48 @@ class TestStripeIntentCreation:
 
 
 class TestStripeWebhook:
+    """Route-Tests gegen den Inbox-Flow (P1-001).
+
+    Tiefen-Tests der Inbox-Primitive und der Transaktionslogik liegen in
+    tests/test_stripe_webhook_inbox.py; hier wird das Verhalten der Route
+    (Mails, Alerts, Statuscodes) über die Service-Seams geprüft.
+    """
+
+    @staticmethod
+    def _sig_ok():
+        return patch(
+            "app.services.payment_service.payment_service.verify_stripe_signature",
+            new=AsyncMock(),
+        )
+
+    @staticmethod
+    def _inbox(status="received", created=True, claimed=True):
+        return (
+            patch(
+                f"{_MOCK_BASE}.stripe_webhook_inbox.ingest",
+                new=AsyncMock(
+                    return_value={"id": "uuid-t", "status": status, "created": created}
+                ),
+            ),
+            patch(
+                f"{_MOCK_BASE}.stripe_webhook_inbox.claim",
+                new=AsyncMock(return_value=claimed),
+            ),
+            patch(
+                f"{_MOCK_BASE}.stripe_webhook_inbox.mark_processed", new=AsyncMock()
+            ),
+        )
+
+    def _post(self, client, payload):
+        return client.post(
+            "/api/webhooks/stripe",
+            content=json.dumps(payload).encode(),
+            headers={
+                "stripe-signature": "t=1,v1=mocksig",
+                "Content-Type": "application/json",
+            },
+        )
+
     def test_webhook_missing_signature_rejected(self, client):
         resp = client.post(
             "/api/webhooks/stripe",
@@ -90,7 +132,7 @@ class TestStripeWebhook:
         )
         assert resp.status_code == 400
 
-    def test_webhook_payment_succeeded_records_donation(self, client):
+    def test_webhook_payment_succeeded_sends_thank_you_mail_after_commit(self, client):
         payload = _stripe_event(
             "payment_intent.succeeded",
             {
@@ -100,37 +142,46 @@ class TestStripeWebhook:
                 "metadata": {"email": "spender@example.at", "purpose": "Spende"},
             },
         )
+        ingest_p, claim_p, mark_p = self._inbox()
         with (
-            patch(f"{_MOCK_BASE}.db_fetchrow", new=AsyncMock(return_value=None)),
+            self._sig_ok(),
+            ingest_p,
+            claim_p,
+            mark_p as mock_mark,
             patch(
-                "app.services.payment_service.payment_service.verify_stripe_signature",
-                new=AsyncMock(),
-            ),
+                f"{_MOCK_BASE}.process_stripe_event",
+                new=AsyncMock(
+                    return_value={
+                        "event_type": "payment_intent.succeeded",
+                        "donation_created": True,
+                        "donation_id": 7,
+                        "amount": 50.0,
+                        "currency": "EUR",
+                        "donor_email": "spender@example.at",
+                        "donor_name": "Maria Muster",
+                        "purpose": "Spende",
+                        "donation_date": "2026-08-28",
+                    }
+                ),
+            ) as mock_process,
             patch(
-                "app.services.payment_service.payment_service.record_webhook_event",
+                f"{_MOCK_BASE}.mail_service.send_template",
                 new=AsyncMock(return_value=True),
-            ),
-            patch(
-                "app.services.payment_service.payment_service.record_successful_donation",
-                new=AsyncMock(return_value={"id": 1}),
-            ) as mock_record,
+            ) as mock_mail,
         ):
-            resp = client.post(
-                "/api/webhooks/stripe",
-                content=json.dumps(payload).encode(),
-                headers={
-                    "stripe-signature": "t=1,v1=mocksig",
-                    "Content-Type": "application/json",
-                },
-            )
-            assert resp.status_code == 200
-            assert resp.json()["success"] is True
-            mock_record.assert_called_once()
-            call_kwargs = mock_record.call_args.kwargs
-            assert call_kwargs["amount"] == 50.0
-            assert call_kwargs["donor_email"] == "spender@example.at"
+            resp = self._post(client, payload)
+        assert resp.status_code == 200
+        assert resp.json()["success"] is True
+        mock_process.assert_called_once()
+        assert mock_process.call_args.kwargs["obj"]["id"] == "pi_test123"
+        mock_mark.assert_called_once()
+        mock_mail.assert_called_once()
+        kwargs = mock_mail.call_args.kwargs
+        assert kwargs["template_id"] == "donation_success"
+        assert kwargs["recipient_email"] == "spender@example.at"
+        assert kwargs["context"]["donation"]["amount"] == "50.00"
 
-    def test_webhook_payment_failed_updates_status_and_sends_mail(self, client):
+    def test_webhook_payment_failed_sends_admin_and_donor_mail(self, client):
         payload = _stripe_event(
             "payment_intent.payment_failed",
             {
@@ -141,30 +192,37 @@ class TestStripeWebhook:
                 "last_payment_error": {"message": "Karte abgelehnt"},
             },
         )
-        # Mock for Slack webhook dispatch (dual-channel alert pattern)
         mock_slack_client = AsyncMock()
         mock_slack_client.__aenter__ = AsyncMock(return_value=mock_slack_client)
         mock_slack_client.__aexit__ = AsyncMock(return_value=None)
         mock_slack_client.post = AsyncMock(return_value=None)
 
+        ingest_p, claim_p, mark_p = self._inbox()
         with (
-            patch(f"{_MOCK_BASE}.db_fetchrow", new=AsyncMock(return_value=None)),
+            self._sig_ok(),
+            ingest_p,
+            claim_p,
+            mark_p,
             patch(
-                "app.services.payment_service.payment_service.verify_stripe_signature",
-                new=AsyncMock(),
+                f"{_MOCK_BASE}.process_stripe_event",
+                new=AsyncMock(
+                    return_value={
+                        "event_type": "payment_intent.payment_failed",
+                        "payment_failed": True,
+                        "amount": 50.0,
+                        "currency": "EUR",
+                        "donor_email": "spender@example.at",
+                        "failure_reason": "Karte abgelehnt",
+                    }
+                ),
             ),
-            patch(
-                "app.services.payment_service.payment_service.record_webhook_event",
-                new=AsyncMock(return_value=True),
-            ),
-            patch(f"{_MOCK_BASE}.execute", new=AsyncMock()) as mock_exec,
             patch(f"{_MOCK_BASE}.ADMIN_EMAILS", ["ops@example.at"]),
             patch(
                 f"{_MOCK_BASE}.mail_service.send_template",
                 new=AsyncMock(return_value=True),
             ) as mock_mail,
             patch(
-                f"{_MOCK_BASE}.os.environ.get",
+                f"{_MOCK_BASE}.get_secret",
                 return_value="https://hooks.slack.com/services/mock/webhook",
             ),
             patch(
@@ -172,109 +230,75 @@ class TestStripeWebhook:
                 return_value=mock_slack_client,
             ) as mock_httpx,
         ):
-            resp = client.post(
-                "/api/webhooks/stripe",
-                content=json.dumps(payload).encode(),
-                headers={
-                    "stripe-signature": "t=1,v1=mocksig",
-                    "Content-Type": "application/json",
-                },
-            )
-            assert resp.status_code == 200
-            # DB-Status muss auf 'failed' gesetzt werden
-            mock_exec.assert_called_once()
-            assert "failed" in mock_exec.call_args[0]
-            # Fehler-Mail und Ops-Alert muessen gesendet werden (email dispatch)
-            assert mock_mail.call_count == 2
-            call_kwargs = [call.kwargs for call in mock_mail.call_args_list]
-            assert call_kwargs[0]["template_id"] == "admin_alert"
-            assert call_kwargs[0]["recipient_email"] == "ops@example.at"
-            assert (
-                "payment_intent.payment_failed"
-                in call_kwargs[0]["context"]["body_html"]
-            )
-            assert "pi_failed123" in call_kwargs[0]["context"]["body_html"]
-            assert call_kwargs[1]["template_id"] == "donation_failed"
+            resp = self._post(client, payload)
+        assert resp.status_code == 200
+        # Interner Admin-Kanal behält Details (E-Mail an ADMIN_EMAILS)
+        assert mock_mail.call_count == 2
+        call_kwargs = [call.kwargs for call in mock_mail.call_args_list]
+        assert call_kwargs[0]["template_id"] == "admin_alert"
+        assert call_kwargs[0]["recipient_email"] == "ops@example.at"
+        assert (
+            "payment_intent.payment_failed" in call_kwargs[0]["context"]["body_html"]
+        )
+        assert call_kwargs[1]["template_id"] == "donation_failed"
+        # Slack: datensparsam — Correlation-ID statt Spender/Stripe-ID (P1-002)
+        mock_httpx.assert_called_once_with(timeout=10)
+        mock_slack_client.post.assert_called_once()
+        slack_text = mock_slack_client.post.call_args.kwargs["json"]["text"]
+        assert "Payment Failure Alert" in slack_text
+        assert "50.00 EUR" in slack_text
+        assert "uuid-t" in slack_text
+        assert "spender@example.at" not in slack_text
+        assert "pi_failed123" not in slack_text
 
-            # Slack dual-channel dispatch validation
-            mock_httpx.assert_called_once_with(timeout=10)
-            mock_slack_client.post.assert_called_once()
-            # URL is positional arg, kwargs contain json/headers
-            assert (
-                mock_slack_client.post.call_args[0][0]
-                == "https://hooks.slack.com/services/mock/webhook"
-            )
-            slack_call_kwargs = mock_slack_client.post.call_args.kwargs
-            assert "text" in slack_call_kwargs["json"]
-            assert "Payment Failure Alert" in slack_call_kwargs["json"]["text"]
-            assert "pi_failed123" in slack_call_kwargs["json"]["text"]
-            assert (
-                "5000.00" in slack_call_kwargs["json"]["text"]
-                or "50.00" in slack_call_kwargs["json"]["text"]
-            )
-
-    def test_webhook_payment_canceled_updates_status_no_mail(self, client):
+    def test_webhook_payment_canceled_no_mail(self, client):
         payload = _stripe_event(
             "payment_intent.canceled", {"id": "pi_canceled123", "amount": 2000}
         )
+        ingest_p, claim_p, mark_p = self._inbox()
         with (
-            patch(f"{_MOCK_BASE}.db_fetchrow", new=AsyncMock(return_value=None)),
+            self._sig_ok(),
+            ingest_p,
+            claim_p,
+            mark_p,
             patch(
-                "app.services.payment_service.payment_service.verify_stripe_signature",
-                new=AsyncMock(),
+                f"{_MOCK_BASE}.process_stripe_event",
+                new=AsyncMock(
+                    return_value={
+                        "event_type": "payment_intent.canceled",
+                        "payment_failed": False,
+                        "amount": 20.0,
+                        "currency": "EUR",
+                        "donor_email": "",
+                    }
+                ),
             ),
-            patch(
-                "app.services.payment_service.payment_service.record_webhook_event",
-                new=AsyncMock(return_value=True),
-            ),
-            patch(f"{_MOCK_BASE}.execute", new=AsyncMock()) as mock_exec,
             patch(
                 f"{_MOCK_BASE}.mail_service.send_template", new=AsyncMock()
             ) as mock_mail,
         ):
-            resp = client.post(
-                "/api/webhooks/stripe",
-                content=json.dumps(payload).encode(),
-                headers={
-                    "stripe-signature": "t=1,v1=mocksig",
-                    "Content-Type": "application/json",
-                },
-            )
-            assert resp.status_code == 200
-            mock_exec.assert_called_once()
-            assert "canceled" in mock_exec.call_args[0]
-            mock_mail.assert_not_called()  # Keine Mail bei canceled
+            resp = self._post(client, payload)
+        assert resp.status_code == 200
+        mock_mail.assert_not_called()
 
     def test_webhook_duplicate_event_ignored(self, client):
         payload = _stripe_event(
             "payment_intent.succeeded", {"id": "pi_dup", "amount_received": 1000}
         )
+        ingest_p, claim_p, _ = self._inbox(status="processed", created=False)
         with (
-            patch(f"{_MOCK_BASE}.db_fetchrow", new=AsyncMock(return_value={"id": 1})),
-            patch(
-                "app.services.payment_service.payment_service.verify_stripe_signature",
-                new=AsyncMock(),
-            ),
-            patch(
-                "app.services.payment_service.payment_service.record_successful_donation",
-                new=AsyncMock(),
-            ) as mock_record,
+            self._sig_ok(),
+            ingest_p,
+            claim_p as mock_claim,
+            patch(f"{_MOCK_BASE}.process_stripe_event", new=AsyncMock()) as mock_process,
         ):
-            resp = client.post(
-                "/api/webhooks/stripe",
-                content=json.dumps(payload).encode(),
-                headers={
-                    "stripe-signature": "t=1,v1=mocksig",
-                    "Content-Type": "application/json",
-                },
-            )
-            assert resp.status_code == 200
-            assert "bereits" in resp.json()["message"]
-            mock_record.assert_not_called()  # Kein doppeltes Recording
+            resp = self._post(client, payload)
+        assert resp.status_code == 200
+        assert "bereits" in resp.json()["message"]
+        mock_claim.assert_not_called()
+        mock_process.assert_not_called()
 
-    def test_webhook_duplicate_failed_event_ignored_without_mail_or_status_update(
-        self, client
-    ):
+    def test_webhook_duplicate_failed_event_lost_claim_no_side_effects(self, client):
         payload = _stripe_event(
             "payment_intent.payment_failed",
             {
@@ -284,67 +308,55 @@ class TestStripeWebhook:
                 "metadata": {"email": "spender@example.at"},
             },
         )
+        ingest_p, claim_p, _ = self._inbox(status="processing", created=False, claimed=False)
         with (
-            patch(f"{_MOCK_BASE}.db_fetchrow", new=AsyncMock(return_value={"id": 1})),
-            patch(
-                "app.services.payment_service.payment_service.verify_stripe_signature",
-                new=AsyncMock(),
-            ),
-            patch(f"{_MOCK_BASE}.ADMIN_EMAILS", ["ops@example.at"]),
-            patch(f"{_MOCK_BASE}.execute", new=AsyncMock()) as mock_exec,
+            self._sig_ok(),
+            ingest_p,
+            claim_p,
+            patch(f"{_MOCK_BASE}.process_stripe_event", new=AsyncMock()) as mock_process,
             patch(
                 f"{_MOCK_BASE}.mail_service.send_template", new=AsyncMock()
             ) as mock_mail,
         ):
-            resp = client.post(
-                "/api/webhooks/stripe",
-                content=json.dumps(payload).encode(),
-                headers={
-                    "stripe-signature": "t=1,v1=mocksig",
-                    "Content-Type": "application/json",
-                },
-            )
-            assert resp.status_code == 200
-            assert "bereits" in resp.json()["message"]
-            mock_exec.assert_not_called()
-            mock_mail.assert_not_called()
+            resp = self._post(client, payload)
+        assert resp.status_code == 200
+        assert "bereits" in resp.json()["message"]
+        mock_process.assert_not_called()
+        mock_mail.assert_not_called()
 
-    def test_webhook_failed_no_email_no_mail_sent(self, client):
-        """Fehlgeschlagene Zahlung ohne E-Mail in Metadata → keine Benachrichtigungs-Mail."""
+    def test_webhook_failed_no_email_no_donor_mail_sent(self, client):
         payload = _stripe_event(
             "payment_intent.payment_failed",
-            {
-                "id": "pi_nomail",
-                "amount": 1000,
-                "metadata": {},
-            },
+            {"id": "pi_nomail", "amount": 1000, "metadata": {}},
         )
+        ingest_p, claim_p, mark_p = self._inbox()
         with (
-            patch(f"{_MOCK_BASE}.db_fetchrow", new=AsyncMock(return_value=None)),
+            self._sig_ok(),
+            ingest_p,
+            claim_p,
+            mark_p,
             patch(
-                "app.services.payment_service.payment_service.verify_stripe_signature",
-                new=AsyncMock(),
-            ),
-            patch(
-                "app.services.payment_service.payment_service.record_webhook_event",
-                new=AsyncMock(return_value=True),
+                f"{_MOCK_BASE}.process_stripe_event",
+                new=AsyncMock(
+                    return_value={
+                        "event_type": "payment_intent.payment_failed",
+                        "payment_failed": True,
+                        "amount": 10.0,
+                        "currency": "EUR",
+                        "donor_email": "",
+                        "failure_reason": None,
+                    }
+                ),
             ),
             patch(f"{_MOCK_BASE}.ADMIN_EMAILS", []),
-            patch(f"{_MOCK_BASE}.execute", new=AsyncMock()),
+            patch(f"{_MOCK_BASE}.get_secret", return_value=""),
             patch(
                 f"{_MOCK_BASE}.mail_service.send_template", new=AsyncMock()
             ) as mock_mail,
         ):
-            resp = client.post(
-                "/api/webhooks/stripe",
-                content=json.dumps(payload).encode(),
-                headers={
-                    "stripe-signature": "t=1,v1=mocksig",
-                    "Content-Type": "application/json",
-                },
-            )
-            assert resp.status_code == 200
-            mock_mail.assert_not_called()
+            resp = self._post(client, payload)
+        assert resp.status_code == 200
+        mock_mail.assert_not_called()
 
     def test_webhook_payment_failed_without_public_app_url_uses_safe_fallback(
         self, client, monkeypatch
@@ -359,32 +371,33 @@ class TestStripeWebhook:
             },
         )
         monkeypatch.delenv("PUBLIC_APP_URL", raising=False)
-
+        ingest_p, claim_p, mark_p = self._inbox()
         with (
-            patch(f"{_MOCK_BASE}.db_fetchrow", new=AsyncMock(return_value=None)),
+            self._sig_ok(),
+            ingest_p,
+            claim_p,
+            mark_p,
             patch(
-                "app.services.payment_service.payment_service.verify_stripe_signature",
-                new=AsyncMock(),
+                f"{_MOCK_BASE}.process_stripe_event",
+                new=AsyncMock(
+                    return_value={
+                        "event_type": "payment_intent.payment_failed",
+                        "payment_failed": True,
+                        "amount": 50.0,
+                        "currency": "EUR",
+                        "donor_email": "spender@example.at",
+                        "failure_reason": None,
+                    }
+                ),
             ),
-            patch(
-                "app.services.payment_service.payment_service.record_webhook_event",
-                new=AsyncMock(return_value=True),
-            ),
-            patch(f"{_MOCK_BASE}.execute", new=AsyncMock()),
+            patch(f"{_MOCK_BASE}.ADMIN_EMAILS", []),
+            patch(f"{_MOCK_BASE}.get_secret", return_value=""),
             patch(
                 f"{_MOCK_BASE}.mail_service.send_template",
                 new=AsyncMock(return_value=True),
             ) as mock_mail,
         ):
-            resp = client.post(
-                "/api/webhooks/stripe",
-                content=json.dumps(payload).encode(),
-                headers={
-                    "stripe-signature": "t=1,v1=mocksig",
-                    "Content-Type": "application/json",
-                },
-            )
-
+            resp = self._post(client, payload)
         assert resp.status_code == 200
         assert mock_mail.call_args.kwargs["context"]["retry_url"].endswith("/spenden")
 

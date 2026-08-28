@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 from html import escape
 from datetime import date
@@ -9,13 +10,19 @@ from json import JSONDecodeError
 import httpx
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
-from ..db import execute, fetchrow as db_fetchrow
 from ..secrets_provider import get_secret
 from ..schemas.payments import StripeIntentRequest
 from ..services.mail_service import mail_service
 from ..services.member_service import member_service
 from ..services.payment_service import payment_service
+from ..services.stripe_webhook_service import (
+    build_ops_alert_text,
+    process_stripe_event,
+    stripe_webhook_inbox,
+)
 from ..rbac import ADMIN_EMAILS, get_current_user
+
+logger = logging.getLogger("menschlichkeit.payments.router")
 
 router = APIRouter()
 
@@ -27,18 +34,27 @@ async def _send_payment_failed_ops_alert(
     currency: str,
     donor_email: str | None,
     gateway_intent_id: str,
+    correlation_id: str,
 ) -> None:
-    """Sends dual-channel payment failure alert: Email (ADMIN_EMAILS) + Slack (#06-crm-spenden)."""
+    """Dual-Channel-Alert: E-Mail (ADMIN_EMAILS, intern) + Slack (datensparsam).
+
+    DSGVO (Audit-Finding P1-002): Slack ist ein externer Dienst — dorthin
+    gehen KEINE personenbezogenen Daten und keine Stripe-IDs, nur Betrag,
+    Event-Typ und die interne Correlation-ID (webhook_events.id). Die
+    Detailzuordnung (Spender, Intent) bleibt im internen E-Mail-Kanal an
+    die Administration.
+    """
     subject = "Stripe-Zahlung fehlgeschlagen"
     body_lines = [
         f"Event: {escape(event_type)}",
         f"Betrag: {amount:.2f} {escape(currency)}",
         f"Spender-E-Mail: {escape(donor_email or '-')}",
         f"Gateway-Intent: {escape(gateway_intent_id or '-')}",
+        f"Correlation-ID: {escape(correlation_id)}",
     ]
     body_html = "<br/>".join(body_lines)
 
-    # Channel 1: Email alert (via existing admin_alert template)
+    # Kanal 1: interne E-Mail an die Administration (admin_alert Template)
     if ADMIN_EMAILS:
         for recipient in ADMIN_EMAILS:
             await mail_service.send_template(
@@ -53,17 +69,16 @@ async def _send_payment_failed_ops_alert(
                 entity_type="alert",
             )
 
-    # Channel 2: Slack alert (via #06-crm-spenden webhook, reuses queue-monitor.json pattern)
+    # Kanal 2: Slack — ausschließlich datensparsame Betriebsinformation
     slack_webhook = get_secret(
         "ALERTS_SLACK_WEBHOOK", bsm_key="api/ALERTS_SLACK_WEBHOOK"
     ).strip()
     if slack_webhook:
-        slack_text = (
-            f"🚨 *Payment Failure Alert*\n"
-            f"• Event: `{event_type}`\n"
-            f"• Amount: `{amount:.2f} {currency}`\n"
-            f"• Donor: `{donor_email or '-'}`\n"
-            f"• Intent: `{gateway_intent_id or '-'}`"
+        slack_text = build_ops_alert_text(
+            event_type=event_type,
+            amount=amount,
+            currency=currency,
+            correlation_id=correlation_id,
         )
         try:
             async with httpx.AsyncClient(timeout=10) as client:
@@ -103,6 +118,23 @@ async def create_stripe_intent(
 
 @router.post("/webhooks/stripe")
 async def stripe_webhook(request: Request):
+    """Stripe-Webhook mit durable Inbox (Audit-Finding P1-001).
+
+    Ablauf:
+      1. Signatur prüfen (400 bei Fehler — Stripe wiederholt nicht sinnlos).
+      2. Event ATOMAR in webhook_events speichern (status=received), BEVOR
+         irgendeine Geschäftslogik läuft. Deduplizierung über die
+         Unique-Constraint (provider, provider_event_id), nicht über eine
+         racebehaftete SELECT-Vorprüfung.
+      3. Event claimen (status=processing) — von parallelen Zustellungen
+         gewinnt genau eine.
+      4. Geschäftsverarbeitung in EINER lokalen DB-Transaktion
+         (Donation, payment_intents, Outbox). Keine externen Aufrufe darin.
+      5. status=processed. Bei Fehler: status=failed + last_error — das
+         Event bleibt gespeichert und retryfähig; die Antwort ist 500,
+         damit Stripe erneut zustellt.
+      6. Folgeeffekte (Mails, Ops-Alert) NACH dem Commit, best effort.
+    """
     raw_body = await request.body()
     signature = request.headers.get("stripe-signature", "")
     if not signature:
@@ -123,57 +155,100 @@ async def stripe_webhook(request: Request):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Stripe-Event-ID fehlt"
         )
-    # Idempotenz-Vorprüfung: bereits verarbeitet?
-    already = await db_fetchrow(
-        "SELECT id FROM webhook_events WHERE provider = $1 AND provider_event_id = $2",
-        "stripe",
-        event_id,
-    )
-    if already:
-        return {"success": True, "message": "Webhook bereits verarbeitet."}
-
-    event_type = payload.get("type")
+    event_type = payload.get("type") or ""
     obj = payload.get("data", {}).get("object", {})
 
-    # Schritt 1: Geschäftslogik ausführen (idempotent via gateway_charge_id)
-    if event_type == "payment_intent.succeeded":
-        amount = float(obj.get("amount_received", obj.get("amount", 0))) / 100
-        _meta = obj.get("metadata", {})
-        await payment_service.record_successful_donation(
-            donor_email=_meta.get("email", ""),
-            donor_name=_meta.get("name") or _meta.get("donor_name") or "Spender/in",
-            amount=amount,
-            currency=obj.get("currency", "eur").upper(),
-            donation_type="one_time",
-            source=obj.get("metadata", {}).get("purpose") or "Stripe",
-            gateway_charge_id=obj.get("id"),
+    # Schritt 1: durable Inbox — Event zuerst dauerhaft speichern.
+    inbox = await stripe_webhook_inbox.ingest(
+        provider="stripe",
+        provider_event_id=event_id,
+        event_type=event_type,
+        payload=payload,
+        signature_valid=True,
+    )
+    if not inbox["created"] and inbox["status"] == "processed":
+        return {"success": True, "message": "Webhook bereits verarbeitet."}
+
+    # Schritt 2: exklusiv claimen. Verliert dieser Request das Rennen
+    # (paralleles Duplikat oder laufende Verarbeitung), ist 200 korrekt —
+    # das Event ist gespeichert und wird vom Gewinner verarbeitet.
+    claimed = await stripe_webhook_inbox.claim(inbox["id"])
+    if not claimed:
+        return {"success": True, "message": "Webhook bereits verarbeitet."}
+
+    # Schritt 3: lokale Geschäftsverarbeitung in einer Transaktion.
+    try:
+        side_effects = await process_stripe_event(
+            event_pk=inbox["id"], event_type=event_type, obj=obj
         )
-    elif event_type in ("payment_intent.payment_failed", "payment_intent.canceled"):
-        gateway_intent_id = obj.get("id", "")
-        new_status = (
-            "failed" if event_type == "payment_intent.payment_failed" else "canceled"
+        await stripe_webhook_inbox.mark_processed(inbox["id"])
+    except HTTPException:
+        raise
+    except Exception as exc:
+        # Kein PII/Secret im gespeicherten Fehlertext.
+        await stripe_webhook_inbox.mark_failed(
+            inbox["id"], error=f"{type(exc).__name__}: {exc}"
         )
-        if gateway_intent_id:
-            await execute(
-                "UPDATE payment_intents SET status = $1, updated_at = NOW() WHERE gateway_intent_id = $2",
-                new_status,
-                gateway_intent_id,
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Webhook-Verarbeitung fehlgeschlagen; Event gespeichert.",
+        ) from exc
+
+    # Schritt 4: Folgeeffekte NACH dem Commit — best effort, kein Rollback
+    # der bereits committeten Geschäftsdaten bei Mail-/Alert-Fehlern.
+    await _dispatch_post_commit_effects(
+        correlation_id=inbox["id"], obj=obj, side_effects=side_effects
+    )
+    return {"success": True}
+
+
+async def _dispatch_post_commit_effects(
+    *, correlation_id: str, obj: dict, side_effects: dict
+) -> None:
+    """Mails und Alerts nach erfolgreichem Commit. Fehler nur loggen.
+
+    Übergangsweise versendet FastAPI die Mails selbst; laut Zielarchitektur
+    übernimmt Make diese Folgeprozesse aus der Outbox. Das Outbox-Payload
+    trägt dafür bereits `receipt_email_sent_by_api`.
+    """
+    try:
+        if side_effects.get("donation_created") and side_effects.get("donor_email"):
+            donor_name = side_effects.get("donor_name") or ""
+            first_name, _, last_name = donor_name.partition(" ")
+            await mail_service.send_template(
+                template_id="donation_success",
+                recipient_email=side_effects["donor_email"],
+                context={
+                    "contact": {
+                        "first_name": first_name,
+                        "last_name": last_name,
+                        "email": side_effects["donor_email"],
+                    },
+                    "donation": {
+                        "amount": f"{side_effects['amount']:.2f}",
+                        "currency": side_effects["currency"],
+                        "purpose": side_effects.get("purpose") or "",
+                        "date": side_effects.get("donation_date") or "",
+                        "receipt_eligible": True,
+                    },
+                },
+                entity_type="donation",
+                entity_id=side_effects.get("donation_id"),
             )
-        if event_type == "payment_intent.payment_failed":
-            amount = float(obj.get("amount", 0)) / 100
-            currency = obj.get("currency", "eur").upper()
-            email = (
-                obj.get("metadata", {}).get("email") or obj.get("receipt_email") or ""
-            )
+
+        if side_effects.get("payment_failed"):
+            amount = side_effects.get("amount", 0.0)
+            currency = side_effects.get("currency", "EUR")
+            email = side_effects.get("donor_email") or ""
             await _send_payment_failed_ops_alert(
-                event_type=event_type,
+                event_type=side_effects.get("event_type", ""),
                 amount=amount,
                 currency=currency,
                 donor_email=email or None,
-                gateway_intent_id=gateway_intent_id,
+                gateway_intent_id=obj.get("id", ""),
+                correlation_id=correlation_id,
             )
             if email:
-                failure_reason = (obj.get("last_payment_error") or {}).get("message")
                 public_app_url = os.environ.get(
                     "PUBLIC_APP_URL", "https://menschlichkeit-oesterreich.at"
                 ).rstrip("/")
@@ -185,17 +260,15 @@ async def stripe_webhook(request: Request):
                         "donation": {
                             "amount": f"{amount:.2f}",
                             "date": str(date.today()),
-                            "failure_reason": failure_reason,
+                            "failure_reason": side_effects.get("failure_reason"),
                         },
                         "retry_url": f"{public_app_url}/spenden",
                     },
                     entity_type="payment_intent",
                 )
-    # Schritt 2: Webhook als verarbeitet markieren (erst nach erfolgreicher Geschäftslogik)
-    await payment_service.record_webhook_event(
-        provider="stripe",
-        event_id=event_id,
-        payload=payload,
-        signature_valid=True,
-    )
-    return {"success": True}
+    except Exception as exc:
+        logger.warning(
+            "post_commit_effect_failed | correlation_id=%s | error=%s",
+            correlation_id,
+            type(exc).__name__,
+        )
