@@ -8,8 +8,9 @@ exec > >(tee -a "$LOG_FILE") 2>&1
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-AGENT_INSTALL_CRM_DEPS="${AGENT_INSTALL_CRM_DEPS:-1}"
+AGENT_INSTALL_CRM_DEPS="${AGENT_INSTALL_CRM_DEPS:-0}"
 AGENT_INSTALL_PLAYWRIGHT="${AGENT_INSTALL_PLAYWRIGHT:-1}"
+export COMPOSER_MEMORY_LIMIT=-1
 
 echo "=== Devcontainer onCreate (idempotent) ==="
 echo "Started: $(date '+%Y-%m-%d %H:%M:%S')"
@@ -70,7 +71,7 @@ run_with_timeout 300 .venv/bin/python -m pip install --upgrade pip setuptools wh
 run_with_timeout 900 .venv/bin/python -m pip install -r .devcontainer/python-tooling.txt
 
 echo "Installing root Composer development dependencies..."
-COMPOSER_MEMORY_LIMIT=-1 run_with_timeout 900 composer install \
+run_with_timeout 900 composer install \
     --no-interaction \
     --prefer-dist \
     --no-progress \
@@ -78,7 +79,7 @@ COMPOSER_MEMORY_LIMIT=-1 run_with_timeout 900 composer install \
 
 if [[ "$AGENT_INSTALL_CRM_DEPS" == "1" && -f "apps/crm/composer.json" ]]; then
     echo "Installing Drupal/CiviCRM Composer dependencies..."
-    COMPOSER_MEMORY_LIMIT=-1 run_with_timeout 1200 composer install \
+    run_with_timeout 1200 composer install \
         --working-dir=apps/crm \
         --no-interaction \
         --prefer-dist \
