@@ -1,0 +1,52 @@
+name: Plesk read-only audit pre-validation
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'config/plesk/expected-state.json'
+      - 'scripts/ops/plesk-readonly-audit.sh'
+      - 'scripts/ops/compare-plesk-state.py'
+      - '.github/workflows/plesk-readonly-audit.yml'
+      - 'docs/operations/PLESK-RUNTIME-CONTRACT.md'
+      - 'docs/operations/DOMAIN-SUBDOMAIN-REGISTER.md'
+      - 'docs/operations/DATABASE-REGISTER.md'
+      - 'docs/operations/RUNTIME-SERVICE-REGISTER.md'
+      - 'docs/operations/BACKUP-RESTORE-REGISTER.md'
+      - 'tests/ops/test_plesk_readonly_audit.py'
+      - 'tests/ops/test_plesk_vhost_detection.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: plesk-audit-prevalidation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate collector without live access
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Validate read-only implementation
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n scripts/ops/plesk-readonly-audit.sh
+          python3 -m py_compile scripts/ops/compare-plesk-state.py tests/ops/test_plesk_readonly_audit.py tests/ops/test_plesk_vhost_detection.py
+          jq -e '.schema_version == 2 and .execution.read_only == true and .data_policy.public_log_mode == "status-only"' config/plesk/expected-state.json >/dev/null
+          python3 -m unittest tests.ops.test_plesk_readonly_audit tests.ops.test_plesk_vhost_detection -v
+
+      - name: Confirm live-access boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          printf 'Live connection: BLOCKED\n'
+          printf 'Live audit requires an approved read-only execution path.\n'

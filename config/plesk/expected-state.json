@@ -1,0 +1,63 @@
+{
+  "schema_version": 2,
+  "evidence_class": "TARGET",
+  "scope": "Menschlichkeit Oesterreich production Plesk read-only audit",
+  "execution": {
+    "remote_working_directory": "ssh-home",
+    "service_paths_source": "runtime-configuration",
+    "read_only": true,
+    "live_values_ephemeral": true,
+    "publish_detailed_inventory": false
+  },
+  "public_hosts": [
+    {"host": "menschlichkeit-oesterreich.at", "health_path": "/", "required": true},
+    {"host": "www.menschlichkeit-oesterreich.at", "health_path": "/", "required": true},
+    {"host": "api.menschlichkeit-oesterreich.at", "health_path": "/api/version", "required": true},
+    {"host": "crm.menschlichkeit-oesterreich.at", "health_path": "/", "required": true},
+    {"host": "games.menschlichkeit-oesterreich.at", "health_path": "/", "required": true},
+    {"host": "forum.menschlichkeit-oesterreich.at", "health_path": "/", "required": true},
+    {"host": "n8n.menschlichkeit-oesterreich.at", "health_path": "/healthz", "required": false},
+    {"host": "erp.menschlichkeit-oesterreich.at", "health_path": "/", "required": false}
+  ],
+  "service_paths": [
+    {"key": "frontend", "path_env": "MOE_AUDIT_FRONTEND_PATH", "required": true},
+    {"key": "api", "path_env": "MOE_AUDIT_API_PATH", "required": true},
+    {"key": "crm", "path_env": "MOE_AUDIT_CRM_PATH", "required": true},
+    {"key": "crm_native", "path_env": "MOE_AUDIT_CRM_NATIVE_PATH", "required": true},
+    {"key": "games", "path_env": "MOE_AUDIT_GAMES_PATH", "required": true},
+    {"key": "forum", "path_env": "MOE_AUDIT_FORUM_PATH", "required": true}
+  ],
+  "required_system_checks": [
+    "plesk",
+    "os",
+    "kernel",
+    "hostname",
+    "cpu",
+    "memory",
+    "filesystem",
+    "inodes"
+  ],
+  "required_runtimes": ["python3", "php"],
+  "optional_runtimes": ["node", "npm", "composer", "docker", "podman"],
+  "required_services": ["nginx", "php_fpm", "cron"],
+  "optional_services": ["apache", "mysql", "postgresql", "redis", "docker", "podman"],
+  "thresholds": {
+    "memory_available_min_pct": 15,
+    "disk_free_min_pct": 15,
+    "inode_free_min_pct": 15,
+    "backup_max_age_hours": 48,
+    "tls_min_remaining_days": 7
+  },
+  "backup_restore": {
+    "backup_evidence_required": true,
+    "isolated_restore_evidence_required": true
+  },
+  "data_policy": {
+    "forbid_environment_dump": true,
+    "forbid_process_command_lines": true,
+    "forbid_file_content_except_release_marker": true,
+    "forbid_secret_values": true,
+    "forbid_pii": true,
+    "public_log_mode": "status-only"
+  }
+}
