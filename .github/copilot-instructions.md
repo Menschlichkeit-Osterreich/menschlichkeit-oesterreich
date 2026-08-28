@@ -48,8 +48,38 @@ Nutze das Rollenmodell aus `AGENTS.md`:
 - `security` fuer DSGVO, Secrets und Haertung
 - `qa` fuer Reviews und Quality-Gates
 
-Copilot-spezifische Einstiegspunkte bleiben die aktiven `.github/agents/*.agent.md` laut `.github/ai-registry.json`.
+Copilot-spezifische Einstiegspunkte bleiben die aktiven `.github/agents/*.agent.md` laut `.github/ai-registry.json`. Die folgende explizite Inventarliste ist Teil des Governance-Vertrags und muss mit dem Registry-Validator synchron bleiben:
+
+- `.github/agents/task-planner.agent.md`
+- `.github/agents/developer.agent.md`
+- `.github/agents/devops-expert.agent.md`
+- `.github/agents/security-reviewer.agent.md`
+- `.github/agents/qa-reviewer.agent.md`
+- `.github/agents/website-frontend.agent.md`
+- `.github/agents/api-fastapi.agent.md`
+- `.github/agents/crm-drupal-civicrm.agent.md`
+- `.github/agents/automation-n8n.agent.md`
+- `.github/agents/games-babylon.agent.md`
+- `.github/agents/forum-phpbb.agent.md`
+- `.github/agents/speckit-head-master.agent.md`
+- `.github/agents/speckit.analyze.agent.md`
+- `.github/agents/speckit.checklist.agent.md`
+- `.github/agents/speckit.clarify.agent.md`
+- `.github/agents/speckit.constitution.agent.md`
+- `.github/agents/speckit.git.commit.agent.md`
+- `.github/agents/speckit.git.feature.agent.md`
+- `.github/agents/speckit.git.initialize.agent.md`
+- `.github/agents/speckit.git.remote.agent.md`
+- `.github/agents/speckit.git.validate.agent.md`
+- `.github/agents/speckit.implement.agent.md`
+- `.github/agents/speckit.plan.agent.md`
+- `.github/agents/speckit.specify.agent.md`
+- `.github/agents/speckit.tasks.agent.md`
+- `.github/agents/speckit.taskstoissues.agent.md`
+
 Der bisherige `automation-n8n.agent.md` darf nur noch Inventarisierung, Migration, Cutover, Reconciliation und Retirement bestehender n8n-Artefakte bearbeiten. Zielimplementierungen gehoeren nach Make oder, bei transaktionskritischer Logik, nach FastAPI.
+
+Der importierte Skill `.github/skills/senior-fullstack/SKILL.md` ist ausschliesslich ergaenzende Vendor-Guidance. Repository-Governance, Issue #539 und die kanonischen Agentenprofile haben Vorrang. Seine mitgelieferten Python-Skripte sind keine ausreichende Qualitaets- oder Verifikationsinstanz und duerfen nicht als Testnachweis verwendet werden.
 
 ## Arbeitsregeln
 
