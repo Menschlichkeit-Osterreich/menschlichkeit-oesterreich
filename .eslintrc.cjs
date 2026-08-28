@@ -1,12 +1,14 @@
 module.exports = {
   root: true,
   env: {
-    es2022: true,
+    // es2022 is not recognized by older ESLint analyzers (e.g. Codacy).
+    // Use es6 + ecmaVersion in parserOptions instead.
+    es6: true,
     node: true,
     browser: true,
   },
   parserOptions: {
-    ecmaVersion: 'latest',
+    ecmaVersion: 2022,
     sourceType: 'module',
   },
   ignorePatterns: [

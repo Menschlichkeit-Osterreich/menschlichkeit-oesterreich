@@ -29,7 +29,7 @@ Alle UI-Texte bleiben in oesterreichischem Deutsch.
 | CRM     | `apps/crm/`          | 8000 | Drupal 10 + CiviCRM     |
 | Games   | `apps/babylon-game/` | 3001 | Next.js + Babylon.js    |
 | Forum   | `apps/forum/`        | 8002 | phpBB                   |
-| n8n     | `automation/n8n/`    | 5678 | Automatisierung         |
+| n8n     | `automation/n8n/`    | 5678 | LEGACY — nur Migration zu Make |
 
 ## Standardbefehle
 

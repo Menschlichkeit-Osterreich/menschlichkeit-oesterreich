@@ -56,8 +56,9 @@ const servicePorts = [5173, 8000, 8001, 3001, 8002];
 
 const canonicalExtensionReplacements = new Map([
   ['github.copilot', 'github.copilot-chat'],
-  ['ms-vscode.azure-account', 'ms-azuretools.vscode-azureresourcegroups'],
-  ['ms-azuretools.vscode-docker', 'ms-azuretools.vscode-containers'],
+  // Azure extensions are LEGACY_CANDIDATE — no replacement required.
+  // ms-vscode.azure-account and ms-azuretools.* are intentionally not mapped.
+  ['ms-azuretools.vscode-docker', null],
   ['ms-vscode.vscode-jupyter', 'ms-toolsai.jupyter'],
   ['ms-eslint.vscode-eslint', 'dbaeumer.vscode-eslint'],
 ]);
@@ -66,6 +67,8 @@ const blockedActiveExtensionIds = new Set([
   'github.copilot',
   'ms-vscode.azure-account',
   'ms-azuretools.vscode-docker',
+  'ms-azuretools.vscode-azureresourcegroups',
+  'ms-azuretools.vscode-containers',
   'ms-vscode.vscode-jupyter',
   'ms-vscode.vscode-typescript-next',
   'ms-eslint.vscode-eslint',
@@ -73,8 +76,6 @@ const blockedActiveExtensionIds = new Set([
 
 const requiredWorkspaceExtensionIds = new Set([
   'github.copilot-chat',
-  'ms-azuretools.vscode-azureresourcegroups',
-  'ms-azuretools.vscode-containers',
   'dbaeumer.vscode-eslint',
 ]);
 
@@ -84,8 +85,6 @@ const coreDevcontainerExtensionIds = new Set([
   'esbenp.prettier-vscode',
   'ms-python.python',
   'ms-python.vscode-pylance',
-  'ms-azuretools.vscode-containers',
-  'ms-azuretools.vscode-azureresourcegroups',
 ]);
 
 const warnings = [];

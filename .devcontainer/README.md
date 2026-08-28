@@ -6,7 +6,7 @@ Diese Devcontainer-Umgebung ist strikt auf die aktive Repo-Struktur ausgerichtet
 - apps/website
 - apps/crm
 - apps/babylon-game
-- automation/n8n
+- automation/n8n *(Legacy – nur Migration/Inventarisierung; nicht aktiver Service)*
 
 ## Start
 
@@ -44,7 +44,6 @@ Vorwärtsweiterleitungen im Devcontainer:
 - 3000 (Games Local)
 - 3001 (Games Server)
 - 5173 (Frontend)
-- 5678 (n8n)
 - 8000 (CRM)
 - 8001 (API)
 - 8002 (Forum)

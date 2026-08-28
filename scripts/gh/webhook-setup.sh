@@ -1,11 +1,22 @@
 #!/bin/bash
 # Webhook für Deployment-Benachrichtigungen einrichten
 # Usage: ./webhook-setup.sh [owner/repo] [webhook-url]
+#
+# ARCHITEKTUR-HINWEIS: Zielplattform für Webhook-Empfang ist Make (make.com).
+# n8n ist LEGACY_CANDIDATE – keine neuen Webhooks auf n8n einrichten.
+# Webhook-URL als Argument übergeben (kein Default mehr auf Legacy-n8n-Endpunkt).
 
 set -euo pipefail
 
 REPO="${1:-Menschlichkeit-Osterreich/menschlichkeit-oesterreich}"
-WEBHOOK_URL="${2:-https://n8n.menschlichkeit-oesterreich.at/webhook/github-events}"
+
+if [ -z "${2:-}" ]; then
+    echo "❌ Fehler: Webhook-URL ist ein Pflichtargument." >&2
+    echo "   Usage: ./webhook-setup.sh [owner/repo] <webhook-url>" >&2
+    echo "   Zielplattform: Make (make.com) – kein Legacy-n8n-Endpunkt verwenden." >&2
+    exit 1
+fi
+WEBHOOK_URL="$2"
 
 # Webhook-Secret generieren (falls nicht gesetzt)
 if [ -z "${WEBHOOK_SECRET:-}" ]; then
@@ -42,7 +53,4 @@ echo "URL:            $WEBHOOK_URL"
 echo "Events:         push, pull_request, workflow_run, release, deployment"
 echo "Secret:         $WEBHOOK_SECRET"
 echo ""
-echo "⚠️  Webhook-Secret in n8n Credentials speichern!"
-echo "   Settings → Credentials → HTTP Header Auth"
-echo "   Header: X-Hub-Signature-256"
-echo "   Value:  sha256=$WEBHOOK_SECRET"
+echo "⚠️  Webhook-Secret in Make (make.com) Credentials speichern."

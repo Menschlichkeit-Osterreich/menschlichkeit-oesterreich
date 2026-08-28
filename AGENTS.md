@@ -156,7 +156,7 @@ Service-Agent-Delegation:
 - `crm-drupal-civicrm` fuer `apps/crm/`
 - `games-babylon` fuer `apps/babylon-game/`
 - `forum-phpbb` fuer `apps/forum/`
-- `automation-n8n` fuer `automation/n8n/`
+- `automation-n8n` fuer `automation/n8n/` (nur Inventarisierung, Migration, Cutover — kein aktiver Entwicklungspfad)
 
 Speckit-Delegation bei spezifikationsgetriebener Arbeit:
 
