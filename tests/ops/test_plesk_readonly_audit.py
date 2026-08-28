@@ -76,6 +76,29 @@ class PleskReadonlyAuditTests(unittest.TestCase):
         self.assertNotIn("bsm-env-inject", source)
         self.assertNotRegex(source, r"\bssh\b")
 
+    def test_collector_rejects_host_outside_moe_domain(self) -> None:
+        unexpected = json.loads(json.dumps(self.expected))
+        unexpected["public_hosts"] = [
+            {"host": "127.0.0.1", "health_path": "/", "required": True}
+        ]
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            unexpected_path = Path(temporary_directory) / "unexpected.json"
+            unexpected_path.write_text(json.dumps(unexpected), encoding="utf-8")
+            result = subprocess.run(  # nosec B603 - fixed repo script and absolute executable
+                [
+                    BASH,
+                    str(COLLECTOR),
+                    "--expected",
+                    str(unexpected_path),
+                    "--no-network",
+                ],
+                check=False,
+                capture_output=True,
+                text=True,
+            )
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("outside allowed audit domain", result.stderr)
+
     def test_collector_emits_valid_bounded_json_without_network(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
             vhost_root = Path(temporary_directory)
