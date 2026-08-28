@@ -4,6 +4,7 @@
 set -euo pipefail
 
 readonly SCRIPT_NAME="$(basename "$0")"
+readonly AUDIT_DOMAIN_SUFFIX="menschlichkeit-oesterreich.at"
 EXPECTED_FILE=""
 EVIDENCE_CLASS="VERIFIED_TEST"
 VHOST_ROOT="${PLESK_VHOST_ROOT:-.}"
@@ -154,9 +155,13 @@ if [[ -n "$HOSTS_B64" ]]; then
   while IFS=$'\t' read -r host health_path required; do
     [[ -n "$host" ]] || continue
     [[ "$host" =~ ^[A-Za-z0-9.-]+$ ]] || fail "invalid host in expected state"
+    host_lower="${host,,}"
+    if [[ "$host_lower" != "$AUDIT_DOMAIN_SUFFIX" && "$host_lower" != *."$AUDIT_DOMAIN_SUFFIX" ]]; then
+      fail "host outside allowed audit domain"
+    fi
     [[ "$health_path" =~ ^/[A-Za-z0-9._~/%+-]*$ ]] || fail "invalid public health path"
     [[ "$required" == "true" || "$required" == "false" ]] || fail "invalid host required flag"
-    HOST_NAMES+=("$host")
+    HOST_NAMES+=("$host_lower")
     HOST_HEALTH_PATHS+=("$health_path")
     HOST_REQUIRED+=("$required")
   done < <(printf '%s' "$HOSTS_B64" | base64 --decode)
