@@ -18,6 +18,11 @@ const CODACY_JAR_URL =
   'https://github.com/codacy/codacy-analysis-cli/releases/latest/download/codacy-analysis-cli-assembly.jar';
 const MIN_JAR_BYTES = 1024 * 1024;
 const DEFAULT_TOOLS = 'eslint';
+// Codacy CLI exit 102 = maxAllowedIssuesExceeded (Default --max-allowed-issues 0).
+// Die Analyse ist dann vollstaendig gelaufen und das SARIF enthaelt echte Findings;
+// die Durchsetzung des Limits uebernimmt der SARIF-Threshold-Gate im Workflow.
+const MAX_ISSUES_EXCEEDED_EXIT_CODE = 102;
+const ANALYSIS_OK_EXIT_CODES = [0, MAX_ISSUES_EXCEEDED_EXIT_CODE];
 
 function isStrictMode() {
   const fallback = process.env.CI ? '1' : '0';
@@ -113,7 +118,7 @@ async function ensureValidLocalJar() {
   }
 }
 
-function run(cmd, args = [], timeoutMs = getTimeoutMs()) {
+function run(cmd, args = [], timeoutMs = getTimeoutMs(), acceptExitCodes = [0]) {
   return new Promise((resolveOk, reject) => {
     logStep(`Running ${cmd} ${args.join(' ')} with timeout ${Math.round(timeoutMs / 1000)}s`);
     const p = spawn(cmd, args, { stdio: 'inherit', shell: false });
@@ -135,9 +140,30 @@ function run(cmd, args = [], timeoutMs = getTimeoutMs()) {
     p.on('error', reject);
     p.on('exit', code => {
       clearTimeout(timeout);
-      code === 0 ? resolveOk(0) : reject(new Error(`${cmd} exited ${code}`));
+      acceptExitCodes.includes(code) ? resolveOk(code) : reject(new Error(`${cmd} exited ${code}`));
     });
   });
+}
+
+function assertSarifWritten() {
+  if (!existsSync(OUTPUT_SARIF)) {
+    throw new Error(`Codacy-Analyse ohne SARIF-Ausgabe (${OUTPUT_SARIF} fehlt)`);
+  }
+  try {
+    JSON.parse(readFileSync(OUTPUT_SARIF, 'utf8'));
+  } catch {
+    throw new Error(`Codacy-SARIF ist kein gueltiges JSON: ${OUTPUT_SARIF}`);
+  }
+}
+
+function finishAnalysis(exitCode) {
+  if (exitCode === MAX_ISSUES_EXCEEDED_EXIT_CODE) {
+    logStep(
+      'Codacy meldet Findings ueber dem CLI-Default (exit 102); SARIF wurde geschrieben, Threshold-Gate entscheidet.'
+    );
+  }
+  assertSarifWritten();
+  process.exit(0);
 }
 
 function writeEmptySarif() {
@@ -166,6 +192,7 @@ async function runViaWslOnWindows(analyzeArgs) {
 
   // On Windows-mounted paths (/mnt/*), Codacy tools can fail with read-access errors.
   // Run analysis inside a native WSL temp workspace and copy only the SARIF output back.
+  // Exit 102 (maxAllowedIssuesExceeded) zaehlt als abgeschlossene Analyse mit Findings.
   const command = [
     'set -euo pipefail',
     'tmp_dir="$(mktemp -d /tmp/codacy-run-XXXXXX)"',
@@ -173,7 +200,9 @@ async function runViaWslOnWindows(analyzeArgs) {
     'trap cleanup EXIT',
     `rsync -a --delete --exclude '.git/' --exclude 'node_modules/' --exclude 'quality-reports/' --exclude '.pytest_cache/' --exclude '.venv/' --exclude 'apps/**/.next/' --exclude '**/__pycache__/' '${cwdWsl}/' "$tmp_dir/"`,
     'cd "$tmp_dir"',
-    `DOCKER_HOST='' ./codacy-analysis-cli ${stagedArgs}`,
+    'cli_exit=0',
+    `DOCKER_HOST='' ./codacy-analysis-cli ${stagedArgs} || cli_exit=$?`,
+    `if [ "$cli_exit" -ne 0 ] && [ "$cli_exit" -ne ${MAX_ISSUES_EXCEEDED_EXIT_CODE} ]; then exit "$cli_exit"; fi`,
     `mkdir -p '${toWslPath(REPORTS_DIR)}'`,
     `cp '${stagedOutput}' '${outputWsl}'`,
   ].join(' && ');
@@ -202,8 +231,8 @@ async function main() {
     ];
 
     try {
-      await run('codacy-analysis-cli', analyzeArgs);
-      process.exit(0);
+      const exitCode = await run('codacy-analysis-cli', analyzeArgs, getTimeoutMs(), ANALYSIS_OK_EXIT_CODES);
+      finishAnalysis(exitCode);
       return;
     } catch (pathError) {
       logStep(`Native Codacy CLI unavailable or failed: ${pathError.message}`);
@@ -213,8 +242,13 @@ async function main() {
 
       await ensureValidLocalJar();
       logStep('Retrying with local Codacy CLI JAR fallback');
-      await run('java', ['-jar', LOCAL_CODACY_JAR, ...analyzeArgs]);
-      process.exit(0);
+      const exitCode = await run(
+        'java',
+        ['-jar', LOCAL_CODACY_JAR, ...analyzeArgs],
+        getTimeoutMs(),
+        ANALYSIS_OK_EXIT_CODES
+      );
+      finishAnalysis(exitCode);
       return;
     }
   } catch (localError) {
@@ -234,6 +268,7 @@ async function main() {
           ...(shouldAllowNetwork() ? ['--allow-network'] : []),
         ];
         await runViaWslOnWindows(analyzeArgs);
+        assertSarifWritten();
         process.exit(0);
         return;
       } catch (wslError) {
