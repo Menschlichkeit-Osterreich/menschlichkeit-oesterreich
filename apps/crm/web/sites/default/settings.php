@@ -17,51 +17,38 @@
 $moe_app_env = getenv('APP_ENV') ?: 'development';
 $moe_is_production = ($moe_app_env === 'production');
 
-// Drupal kann settings.php mehrfach einbinden; ohne diese Schutzabfrage waere
-// eine erneute Deklaration ein Fatal Error.
-if (!function_exists('moe_required_setting')) {
+// ── Pflicht-Secrets ──────────────────────────────────────────────────────────
+// Schluessel => nur ausserhalb der Produktion verwendeter Entwicklungswert.
+// Die Aufloesung erfolgt bewusst inline statt ueber eine Hilfsfunktion:
+// settings.php wird von Drupal mehrfach eingebunden, eine global deklarierte
+// Funktion waere beim zweiten Einbinden ein Fatal Error.
+$moe_required_settings = [
+  'DRUPAL_HASH_SALT' => 'dev-only-insecure-hash-salt-do-not-use-in-production',
+  'DRUPAL_DB_NAME'   => 'moe_crm',
+  'DRUPAL_DB_USER'   => 'moe_crm_user',
+  // Leeres Passwort ist nur lokal zulaessig; in Produktion fail-closed.
+  'DRUPAL_DB_PASS'   => '',
+];
 
-  /**
-   * Liest eine Pflicht-Umgebungsvariable.
-   *
-   * In Produktion wird ein fehlender oder leerer Wert zum harten Abbruch.
-   * Ausserhalb der Produktion wird der markierte Entwicklungs-Fallback genutzt.
-   *
-   * Die Umgebung wird bewusst direkt aus getenv() gelesen statt aus einer
-   * globalen Variablen: die Funktion bleibt damit unabhaengig von der
-   * Auswertungsreihenfolge in dieser Datei.
-   *
-   * @param string $name
-   *   Name der Umgebungsvariable.
-   * @param string $dev_fallback
-   *   Nur ausserhalb der Produktion verwendeter Entwicklungswert.
-   *
-   * @return string
-   *   Der aufgeloeste Wert.
-   *
-   * @throws \RuntimeException
-   *   Wenn in Produktion ein Pflichtwert fehlt oder leer ist.
-   */
-  function moe_required_setting(string $name, string $dev_fallback): string {
-    $value = getenv($name);
-    if ($value !== FALSE && $value !== '') {
-      return $value;
-    }
+$moe_settings = [];
+foreach ($moe_required_settings as $moe_key => $moe_dev_value) {
+  $moe_value = getenv($moe_key);
 
-    if ((getenv('APP_ENV') ?: 'development') === 'production') {
+  if ($moe_value === FALSE || $moe_value === '') {
+    if ($moe_is_production) {
       // Kein Secret-Wert im Fehlertext (DSGVO / Secret-Hygiene).
-      throw new \RuntimeException(
+      throw new RuntimeException(
         sprintf(
           'Produktionsstart abgebrochen: Pflicht-Umgebungsvariable %s ist nicht gesetzt. '
           . 'Produktionswerte kommen ausschliesslich aus dem Secrets-Provider.',
-          $name
+          $moe_key
         )
       );
     }
-
-    return $dev_fallback;
+    $moe_value = $moe_dev_value;
   }
 
+  $moe_settings[$moe_key] = $moe_value;
 }
 
 // ── Datenbank ────────────────────────────────────────────────────────────────
@@ -69,10 +56,9 @@ if (!function_exists('moe_required_setting')) {
 // Lokal: .env.local überschreibt diese Werte.
 $databases['default']['default'] = [
   'driver'    => 'mysql',
-  'database'  => moe_required_setting('DRUPAL_DB_NAME', 'moe_crm'),
-  'username'  => moe_required_setting('DRUPAL_DB_USER', 'moe_crm_user'),
-  // Leeres Passwort ist nur lokal zulaessig; in Produktion fail-closed.
-  'password'  => moe_required_setting('DRUPAL_DB_PASS', ''),
+  'database'  => $moe_settings['DRUPAL_DB_NAME'],
+  'username'  => $moe_settings['DRUPAL_DB_USER'],
+  'password'  => $moe_settings['DRUPAL_DB_PASS'],
   'host'      => getenv('DRUPAL_DB_HOST')   ?: 'localhost',
   'port'      => getenv('DRUPAL_DB_PORT')   ?: '3306',
   'prefix'    => '',
@@ -86,10 +72,7 @@ $databases['default']['default'] = [
 // Repository sichtbarer Standardwert waere in Produktion oeffentlich bekannt
 // und damit wertlos. Deshalb: fail-closed, kein produktionsfaehiger Default.
 // Der Entwicklungswert ist bewusst als NICHT produktionstauglich markiert.
-$settings['hash_salt'] = moe_required_setting(
-  'DRUPAL_HASH_SALT',
-  'dev-only-insecure-hash-salt-do-not-use-in-production'
-);
+$settings['hash_salt'] = $moe_settings['DRUPAL_HASH_SALT'];
 
 // ── Trusted-Host-Patterns ────────────────────────────────────────────────────
 // WICHTIG: Ohne diese Einstellung gibt Drupal HTTP 403 auf allen Requests zurück.

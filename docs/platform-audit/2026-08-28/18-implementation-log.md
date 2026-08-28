@@ -83,7 +83,8 @@ $settings['hash_salt'] = getenv('DRUPAL_HASH_SALT') ?: 'MenschlichkeitOesterreic
 greifen. Ein Start ohne korrektes Secret muss fehlschlagen. Entwicklung und
 Test dürfen weiterhin markierte lokale Werte verwenden.
 
-**Umsetzung.** Helferfunktion `moe_required_setting($name, $dev_fallback)`:
+**Umsetzung.** Eine Map `$moe_required_settings` listet die Pflichtschlüssel mit
+ihrem jeweiligen Entwicklungswert. Eine Schleife löst sie auf:
 
 - Wert aus der Umgebung vorhanden und nicht leer → wird verwendet.
 - Sonst in `APP_ENV=production` → `RuntimeException`, Start bricht ab.
@@ -92,34 +93,42 @@ Test dürfen weiterhin markierte lokale Werte verwenden.
 - Sonst → ausdrücklich als unsicher markierter Entwicklungswert.
 
 Abgesichert sind `DRUPAL_HASH_SALT`, `DRUPAL_DB_NAME`, `DRUPAL_DB_USER` und
-`DRUPAL_DB_PASS`. Der Entwicklungswert für den Salt heißt jetzt
+`DRUPAL_DB_PASS`. Der Entwicklungswert für den Salt heißt
 `dev-only-insecure-hash-salt-do-not-use-in-production` — als Produktionswert
 selbsterklärend untauglich.
 
-Zwei Härtungen an der Helferfunktion selbst:
-
-- Sie liest `APP_ENV` direkt über `getenv()` statt aus einer globalen
-  Variablen. Damit ist sie unabhängig von der Auswertungsreihenfolge in der
-  Datei; ein `$GLOBALS`-Zugriff im Funktionsrumpf entfällt.
-- Sie steht in einem `function_exists()`-Guard. Drupal kann `settings.php`
-  mehrfach einbinden; ohne den Guard wäre die erneute Deklaration ein Fatal
-  Error.
+**Warum inline statt Helferfunktion.** Ein erster Entwurf nutzte eine global
+deklarierte Funktion `moe_required_setting()`. Das war aus zwei Gründen die
+schlechtere Lösung: Drupal bindet `settings.php` mehrfach ein, wodurch die
+erneute Deklaration ein Fatal Error gewesen wäre, und eine Funktion im
+globalen Namensraum einer Konfigurationsdatei ist in Drupal ohnehin
+unerwünscht. Die deklarative Map löst beides ohne Schutzabfrage und hat
+zusätzlich drei PHPMD-Befunde beseitigt (siehe unten).
 
 **Tests.** Harness lädt `settings.php` in simulierter Umgebung:
 
 | # | Umgebung | Erwartung | Ergebnis |
 | - | -------- | --------- | -------- |
-| 1 | `production`, kein Secret | Abbruch | ✅ `FAILED_CLOSED` (`DRUPAL_DB_NAME`) |
+| 1 | `production`, kein Secret | Abbruch | ✅ `FAILED_CLOSED` (`DRUPAL_HASH_SALT`) |
 | 2 | `development`, kein Secret | lädt mit Dev-Wert | ✅ `hash_salt=dev-only-insecure-…` |
 | 3 | `production`, alle Secrets gesetzt | lädt normal | ✅ `hash_salt=real-salt-from-vault` |
-| 4 | `production`, DB-Pass fehlt | Abbruch | ✅ `FAILED_CLOSED` |
-| 5 | `production`, nur `DRUPAL_HASH_SALT` fehlt | Abbruch | ✅ `FAILED_CLOSED: … DRUPAL_HASH_SALT ist nicht gesetzt` |
+| 4 | `production`, nur DB-Pass fehlt | Abbruch | ✅ `FAILED_CLOSED` (`DRUPAL_DB_PASS`) |
+| 5 | `production`, nur `DRUPAL_HASH_SALT` fehlt | Abbruch | ✅ `FAILED_CLOSED` (`DRUPAL_HASH_SALT`) |
 | 6 | `production`, `DRUPAL_HASH_SALT=''` | Abbruch | ✅ `FAILED_CLOSED` (leer zählt als fehlend) |
+| 7 | zweifaches `require` derselben Datei | lädt fehlerfrei | ✅ kein Fatal Error |
 
-Zusätzlich verifiziert: zweifaches `require` derselben Datei lädt fehlerfrei
-(Redeklarationsschutz greift), `php -l` fehlerfrei. Der alte Festwert ist
-repository-weit nicht mehr auffindbar (`grep` über alle Dateien, außer dieser
-Auditdokumentation).
+Die Fehlermeldung nennt jeweils genau die fehlende Variable.
+
+**Statische Analyse.** PHPMD (Rulesets `cleancode,codesize,controversial,design,naming,unusedcode`)
+meldet auf der finalen Fassung **0 Befunde**. Zum Vergleich auf dem
+Funktions-Entwurf: 3 Befunde (`CamelCaseParameterName`, `CamelCaseVariableName`,
+`MissingImport`). Die camelCase-Regeln von PHPMD kollidieren mit der
+snake_case-Konvention, die Drupal und der Rest dieser Datei verwenden — die
+Auflösung war deshalb nicht, Variablen umzubenennen, sondern die Funktion
+ganz zu entfernen.
+
+Zusätzlich: `php -l` fehlerfrei. Der alte Festwert ist repository-weit nicht
+mehr auffindbar (`grep` über alle Dateien, außer dieser Auditdokumentation).
 
 **Rollback.** Revert der Datei.
 
