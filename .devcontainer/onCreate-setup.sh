@@ -8,7 +8,6 @@ exec > >(tee -a "$LOG_FILE") 2>&1
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-AGENT_INSTALL_CRM_DEPS="${AGENT_INSTALL_CRM_DEPS:-0}"
 AGENT_INSTALL_PLAYWRIGHT="${AGENT_INSTALL_PLAYWRIGHT:-1}"
 export COMPOSER_MEMORY_LIMIT=-1
 
@@ -76,18 +75,6 @@ run_with_timeout 900 composer install \
     --prefer-dist \
     --no-progress \
     --optimize-autoloader
-
-if [[ "$AGENT_INSTALL_CRM_DEPS" == "1" && -f "apps/crm/composer.json" ]]; then
-    echo "Installing Drupal/CiviCRM Composer dependencies..."
-    run_with_timeout 1200 composer install \
-        --working-dir=apps/crm \
-        --no-interaction \
-        --prefer-dist \
-        --no-progress \
-        --optimize-autoloader
-else
-    echo "Skipping Drupal/CiviCRM dependency installation."
-fi
 
 echo "Generating Prisma client..."
 run_with_timeout 180 npx --no-install prisma generate
