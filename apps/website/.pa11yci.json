@@ -7,7 +7,7 @@
     "chromeLaunchConfig": {
       "args": ["--no-sandbox", "--disable-dev-shm-usage"]
     },
-    "hideElements": "[data-testid='cookie-consent-banner'], [data-pa11y-article='why']"
+    "levelCapWhenNeedsReview": "warning"
   },
   "urls": [
     {

@@ -54,7 +54,7 @@ jobs:
           mkdir -p quality-reports
           echo '{"$schema":"https://schemastore.azurewebsites.net/schemas/json/sarif-2.1.0-rtm.5.json","version":"2.1.0","runs":[{"tool":{"driver":{"name":"codacy-analysis-cli","version":"unavailable"}},"results":[]}]}' \
             > quality-reports/codacy-analysis.sarif
-          echo "::warning::Codacy CLI analysis failed (exit non-zero). Empty SARIF written. Threshold gate still runs."
+          echo "::warning::Codacy CLI analysis failed (exit non-zero). Empty diagnostic SARIF written for upload; job will fail after upload."
 
       - name: Normalize SARIF payload
         run: node ./scripts/ci/normalize-sarif.mjs
@@ -64,6 +64,12 @@ jobs:
         with:
           sarif_file: ${{ env.CODACY_SARIF_PATH }}
           category: codacy
+
+      - name: Fail job when Codacy analysis did not run
+        if: steps.codacy_analyze.outcome == 'failure'
+        run: |
+          echo "::error::Codacy CLI analysis failed, so no real findings exist. The empty SARIF above is diagnostic only — failing the job to avoid a false-green gate."
+          exit 1
 
       - name: Fail if findings exceed threshold
         id: gate
