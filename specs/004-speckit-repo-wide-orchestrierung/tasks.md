@@ -54,39 +54,39 @@
 ## Phase 8: Secret Governance (BWS + GitHub)
 
 - [ ] S401 [P] [cross] Workflow-Secret-Referenzen gegen secrets.manifest.json und BWS-Keys vollstaendig abgleichen.
-- [ ] S402 [cross] Kritische fehlende Secrets (DB/JWT/PLESK/SSH/Stripe) in BWS je Umgebung verifizieren oder anlegen.
+- [ ] S402 [cross] Kritische fehlende Secrets (DB/JWT/PLESK/SSH/Stripe) in BWS je Umgebung verifizieren oder nur bei bestaetigtem Bedarf anlegen.
 - [ ] S403 [cross] Repo/Env-Secrets aus BWS fuer alle in Workflows referenzierten Secrets synchronisieren.
 - [ ] S404 [cross] Deprecated Secret-Aliase konsolidieren (GH_ADMIN_TOKEN/REPO_ADMIN_TOKEN/ADMIN_PAT).
 - [ ] S405 [cross] Secret-Validierungspipeline an Manifest-Schema anpassen und als Gate verankern.
 - [ ] S406 [cross] Security-Alert-Backlog (Code/Secret/Dependabot) in Secret-Risiken und Remediation-Issues ueberfuehren.
 
-## Phase 9: Plesk-Infra-Track (Host: 5.183.217.146 / User: peter_schuller)
+## Phase 9: Plesk-Infra-Track
 
-> Plesk-Host ist die produktive Basis fuer CRM, Website und Forum. SSH-Zugang via ForwardAgent.
+> Plesk ist die produktive Laufzeit fuer CRM, Website und Forum. Connectivity-Werte stammen aus dem bestehenden BSM-Mapping. Strict Host Key Checking ist verpflichtend. `ForwardAgent` ist keine Default-Anforderung. Live-Verifikation startet read-only und nur nach expliziter Autorisierung.
 
-- [ ] I901 [P] [infra] SSH-Connectivity-Check zu `5.183.217.146` (User: `peter_schuller`, ForwardAgent: yes) verifizieren.
-- [ ] I902 [infra] Aktiven Deployment-Zustand pruefen: Welche Apps (CRM, Website, Forum) laufen auf Plesk?
-- [ ] I903 [infra] Plesk-Vhost-Konfiguration fuer Website (React/Vite-Build) dokumentieren und als Speckit-Artefakt festhalten.
-- [ ] I904 [infra] Plesk-Vhost-Konfiguration fuer CRM (Drupal 10 + CiviCRM) dokumentieren: PHP-Version, Apache-Modul, DB-Verbindung.
-- [ ] I905 [infra] Plesk-Vhost-Konfiguration fuer Forum (phpBB) dokumentieren: PHP-Version, DB-Zugang.
-- [ ] I906 [infra] Deployment-Skripte fuer Plesk (Website-Build-Push, CRM-Update, Forum-Update) in `scripts/deploy/` anlegen.
-- [ ] I907 [infra] SSH-Key und Zugangsdaten fuer `peter_schuller@5.183.217.146` in BWS/Secrets.manifest registrieren.
-- [ ] I908 [infra] Plesk-Health-Check-Endpoint definieren und in Monitoring-Runbook aufnehmen.
-- [ ] I909 [infra] Rollback-Verfahren fuer Plesk-Deploys (CRM/Website/Forum) dokumentieren.
+- [ ] I901 [P] [infra] Read-only Plesk Connectivity und Host-Trust gegen den bestehenden BSM-Vertrag verifizieren; keine Host/User/Key-Werte im Public Repo hardcoden.
+- [ ] I902 [infra] Aktiven Deployment-Zustand von CRM, Website und Forum gegen den kanonischen Read-only Audit Contract aus PR #533 erfassen.
+- [ ] I903 [infra] Plesk-Vhost-Vertrag fuer Website als TARGET/VERIFIED_REPO dokumentieren und Live-Drift nur read-only verifizieren.
+- [ ] I904 [infra] Plesk-Vhost-Vertrag fuer Drupal/CiviCRM dokumentieren; CiviCRM bleibt auf Plesk, keine CRM->Azure Migration ableiten.
+- [ ] I905 [infra] Plesk-Vhost-Vertrag fuer Forum dokumentieren und gegen den aktuellen Repo-/Deploymentpfad abgleichen.
+- [ ] I906 [infra] Bestehende Plesk Deploy-Workflows und Scripts inventarisieren und pro Service einen System-of-Record festlegen; nur echte Luecken ergaenzen, keine Duplikatskripte.
+- [ ] I907 [infra] Bestehende Plesk BSM-Referenzen fuer Host, User, Port, Private Key und Known Hosts verifizieren; kein neues Secret-Silo ohne nachgewiesenen Bedarf.
+- [ ] I908 [infra] Health-/TLS-/VHost-Checks fuer erwartete MOE Hosts mit Status-only Logging und minimalem Alerting konsolidieren.
+- [ ] I909 [infra] Rollback- und Recovery-Vertrag fuer CRM, Website und Forum dokumentieren; Backup erst nach isoliertem Restore-Test als verifiziert behandeln.
 
-## Phase 10: Azure-Infra-Track (devmoe: 20.91.246.245 / User: azureuser / Key: devmoelaptop.pem)
+## Phase 10: Azure-Infra-Track
 
-> Azure devmoe ist die Container-Plattform fuer API, Games und n8n.
+> Azure devmoe ist die Container-Plattform fuer API, Games und n8n בלבד. Azure ist kein Ziel fuer Drupal/CiviCRM. Connectivity-Werte und Keys werden ueber den bestehenden Secret-Management-Vertrag aufgeloest und nicht als kanonische Klartextwerte in Tasks festgeschrieben.
 
-- [ ] A901 [P] [infra] SSH-Connectivity-Check zu `devmoe` (20.91.246.245, azureuser, devmoelaptop.pem) verifizieren.
-- [ ] A902 [infra] App-Verteilung auf Azure festlegen: API (FastAPI), Games (Next.js/Babylon.js), n8n (Automatisierung).
-- [ ] A903 [infra] Docker-Compose-Datei fuer Azure-Produktion in `docker-compose.prod.yml` verifizieren und anpassen.
-- [ ] A904 [P] [infra] Container-Images fuer API und Games in Registry (GHCR oder ACR) publizieren.
-- [ ] A905 [infra] n8n-Konfiguration auf Azure: Volumes, Umgebungsvariablen, Webhook-URL verifizieren.
-- [ ] A906 [infra] Reverse-Proxy (Traefik/Nginx) fuer Azure-Container konfigurieren: Routen api._ / game._ / n8n.\*.
-- [ ] A907 [infra] SSH-Key `devmoelaptop.pem` in BWS registrieren und Deploy-Skript `scripts/deploy/azure-devmoe.sh` anlegen.
-- [ ] A908 [infra] Azure-Health-Monitoring einrichten: HTTP-Checks fuer alle Container-Services.
-- [ ] A909 [infra] Rollback-Verfahren fuer Azure-Container-Deploys dokumentieren.
+- [ ] A901 [P] [infra] Azure Connectivity und Host-Trust fuer den Container-Track verifizieren; keine IP/User/PEM-Datei als kanonische Task-Konfiguration hardcoden.
+- [ ] A902 [infra] App-Verteilung auf Azure explizit auf API (FastAPI), Games (Next.js/Babylon.js) und n8n begrenzen.
+- [ ] A903 [infra] Docker-Compose-Datei fuer Azure-Produktion in `docker-compose.prod.yml` verifizieren und anpassen, ohne CRM/CiviCRM aufzunehmen.
+- [ ] A904 [P] [infra] Container-Images fuer API und Games in der bestaetigten Registry publizieren.
+- [ ] A905 [infra] n8n-Konfiguration auf Azure: Volumes, Umgebungsvariablen und Webhook-URL verifizieren; Payment-/Donation-Gates separat respektieren.
+- [ ] A906 [infra] Reverse-Proxy fuer Azure-Container konfigurieren und nur API/Games/n8n Routen verantworten.
+- [ ] A907 [infra] Azure SSH-/Deploy-Credentials ueber bestehende Secret-Management-Referenzen aufloesen und den Deploy-Pfad dokumentieren; keine PEM-Datei als Repository-Vertrag verwenden.
+- [ ] A908 [infra] Azure Health-Monitoring fuer API, Games und n8n mit minimalen, PII-freien Statusdaten einrichten.
+- [ ] A909 [infra] Rollback-Verfahren fuer Azure-Container-Deploys dokumentieren; keine Plesk-CRM-Aktion in diesen Track aufnehmen.
 
 ## Phase 11: Abschlussanalyse
 
