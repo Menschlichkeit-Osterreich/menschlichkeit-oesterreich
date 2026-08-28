@@ -4,7 +4,8 @@ import importlib.util
 import json
 import os
 import re
-import subprocess
+import shutil
+import subprocess  # nosec B404 - tests intentionally execute repository scripts
 import sys
 import tempfile
 import unittest
@@ -18,6 +19,8 @@ COLLECTOR = ROOT / "scripts/ops/plesk-readonly-audit.sh"
 COMPARATOR = ROOT / "scripts/ops/compare-plesk-state.py"
 EXPECTED = ROOT / "config/plesk/expected-state.json"
 AUDIT_WORKFLOW = ROOT / ".github/workflows/plesk-readonly-audit.yml"
+BASH = shutil.which("bash")
+PYTHON = str(Path(sys.executable).resolve())
 
 
 def load_comparator() -> ModuleType:
@@ -33,6 +36,8 @@ def load_comparator() -> ModuleType:
 class PleskReadonlyAuditTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
+        if BASH is None:
+            raise unittest.SkipTest("bash executable not available")
         cls.expected = json.loads(EXPECTED.read_text(encoding="utf-8"))
         cls.comparator = load_comparator()
 
@@ -84,9 +89,9 @@ class PleskReadonlyAuditTests(unittest.TestCase):
                     "test-release\n", encoding="utf-8"
                 )
 
-            result = subprocess.run(
+            result = subprocess.run(  # nosec B603 - fixed repo scripts and absolute executable
                 [
-                    "bash",
+                    BASH,
                     str(COLLECTOR),
                     "--expected",
                     str(EXPECTED),
@@ -168,9 +173,9 @@ class PleskReadonlyAuditTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary_directory:
             actual_path = Path(temporary_directory) / "actual.json"
             actual_path.write_text(json.dumps(actual), encoding="utf-8")
-            result = subprocess.run(
+            result = subprocess.run(  # nosec B603 - fixed repo script and Python executable
                 [
-                    "python3",
+                    PYTHON,
                     str(COMPARATOR),
                     "--expected",
                     str(EXPECTED),
@@ -228,19 +233,24 @@ class PleskReadonlyAuditTests(unittest.TestCase):
             }
             for target in self.expected["service_paths"]
         ]
+        collector = {
+            "read_only": True,
+            "file_content_scope": "release-marker-hash-only",
+        }
+        disabled_collection_fields = (
+            "environment_dumped",
+            "process_command_lines_collected",
+            "secret_values_collected",
+            "pii_collected",
+        )
+        for field in disabled_collection_fields:
+            collector[field] = False
         return {
             "schema_version": 1,
             "generated_at": "2026-08-28T00:00:00Z",
             "evidence_class": "VERIFIED_TEST",
             "source": "scripts/ops/plesk-readonly-audit.sh",
-            "collector": {
-                "read_only": True,
-                "environment_dumped": False,
-                "process_command_lines_collected": False,
-                "secret_values_collected": False,
-                "pii_collected": False,
-                "file_content_scope": "release-marker-hash-only",
-            },
+            "collector": collector,
             "system": system,
             "runtimes": runtimes,
             "services": services,
