@@ -46,18 +46,60 @@ if (!Array.isArray(sarif.runs)) sarif.runs = [];
  * GitHub Code Scanning rejects uploads containing multiple SARIF runs with the
  * same tool driver name under one category. Codacy CLI emits one run per tool
  * invocation, so merge runs sharing a driver name into a single run and remap
- * rule index references onto the merged, deduplicated rules array.
+ * rule index references onto the merged, deduplicated rules array. Each run
+ * also carries its own artifacts array with run-local indexes, so artifacts
+ * are merged/deduplicated too and every artifactLocation.index is remapped.
  */
+function artifactKey(artifact) {
+  const uri = artifact?.location?.uri;
+  if (typeof uri !== 'string') return null;
+  const uriBaseId = artifact?.location?.uriBaseId ?? '';
+  return `${uriBaseId}\u0000${uri}`;
+}
+
+function remapArtifactIndexes(node, indexMap) {
+  if (Array.isArray(node)) {
+    return node.map((item) => remapArtifactIndexes(item, indexMap));
+  }
+  if (node === null || typeof node !== 'object') return node;
+  const out = {};
+  for (const [key, value] of Object.entries(node)) {
+    if (key === 'artifactLocation' && value && typeof value === 'object' && !Array.isArray(value)) {
+      const loc = { ...value };
+      if (typeof loc.index === 'number') {
+        const mapped = indexMap.get(loc.index);
+        if (mapped !== undefined) {
+          loc.index = mapped;
+        } else {
+          delete loc.index;
+        }
+      }
+      out[key] = loc;
+    } else {
+      out[key] = remapArtifactIndexes(value, indexMap);
+    }
+  }
+  return out;
+}
+
 function mergeRunsByDriverName(runs) {
   const merged = new Map();
 
   for (const run of runs) {
     const driverName = run?.tool?.driver?.name || 'unknown';
     const incomingRules = Array.isArray(run?.tool?.driver?.rules) ? run.tool.driver.rules : [];
+    const incomingArtifacts = Array.isArray(run?.artifacts) ? run.artifacts : [];
     const incomingResults = Array.isArray(run?.results) ? run.results : [];
 
     if (!merged.has(driverName)) {
-      merged.set(driverName, { base: run, rules: [], ruleIndexById: new Map(), results: [] });
+      merged.set(driverName, {
+        base: run,
+        rules: [],
+        ruleIndexById: new Map(),
+        artifacts: [],
+        artifactIndexByKey: new Map(),
+        results: [],
+      });
     }
     const target = merged.get(driverName);
 
@@ -68,10 +110,24 @@ function mergeRunsByDriverName(runs) {
       }
     }
 
+    // Map this run's local artifact indexes onto the merged artifacts array.
+    const artifactIndexMap = new Map();
+    incomingArtifacts.forEach((artifact, localIndex) => {
+      const key = artifactKey(artifact);
+      if (key !== null && target.artifactIndexByKey.has(key)) {
+        artifactIndexMap.set(localIndex, target.artifactIndexByKey.get(key));
+        return;
+      }
+      const mergedIndex = target.artifacts.length;
+      target.artifacts.push(artifact);
+      if (key !== null) target.artifactIndexByKey.set(key, mergedIndex);
+      artifactIndexMap.set(localIndex, mergedIndex);
+    });
+
     for (const result of incomingResults) {
       const ruleId = result?.ruleId ?? result?.rule?.id;
       const mergedIndex = ruleId !== undefined ? target.ruleIndexById.get(ruleId) : undefined;
-      const normalized = { ...result };
+      const normalized = remapArtifactIndexes({ ...result }, artifactIndexMap);
       if (mergedIndex !== undefined) {
         if ('ruleIndex' in normalized) normalized.ruleIndex = mergedIndex;
         if (normalized.rule && typeof normalized.rule === 'object' && 'index' in normalized.rule) {
@@ -88,7 +144,7 @@ function mergeRunsByDriverName(runs) {
     }
   }
 
-  return [...merged.values()].map(({ base, rules, results }) => {
+  return [...merged.values()].map(({ base, rules, artifacts, results }) => {
     const run = { ...base, results };
     if (run.tool?.driver) {
       run.tool = { ...run.tool, driver: { ...run.tool.driver } };
@@ -97,6 +153,11 @@ function mergeRunsByDriverName(runs) {
       } else {
         delete run.tool.driver.rules;
       }
+    }
+    if (artifacts.length > 0) {
+      run.artifacts = artifacts;
+    } else {
+      delete run.artifacts;
     }
     return run;
   });
