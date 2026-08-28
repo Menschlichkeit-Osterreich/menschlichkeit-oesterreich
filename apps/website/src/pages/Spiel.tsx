@@ -51,7 +51,7 @@ export default function SpielPage() {
   return (
     <div data-component="Spiel">
       <SeoHead
-        title="Brücken Bauen in 3D – Demokratiespiel"
+        title="Brücken Bauen in 3D – Babylon.js-Demokratiespiel"
         description="Brücken Bauen in 3D ist das Babylon.js-Demokratiespiel von Menschlichkeit Österreich. Die Landingpage erklärt Spielidee, Themenwelten und den Einstieg auf games.menschlichkeit-oesterreich.at."
       />
 
@@ -70,10 +70,10 @@ export default function SpielPage() {
                 Babylon.js 3D-Spiel
               </span>
               <h1 className="mt-5 text-4xl font-black leading-tight text-white md:text-6xl">
-                Demokratie spielbar machen, statt sie nur zu erklären.
+                Demokratie spielbar machen mit Babylon.js.
               </h1>
               <p className="mt-5 max-w-2xl text-lg leading-8 text-white md:text-xl">
-                <strong>Brücken Bauen in 3D</strong> läuft als eigenständiges Spiel auf{' '}
+                <strong>Brücken Bauen in 3D</strong> läuft als eigenständiges Babylon.js-Spiel auf{' '}
                 <span className="font-semibold">games.menschlichkeit-oesterreich.at</span>. Aktuell
                 ist ein fokussierter 3D-Kern live. Parallel bauen wir den langfristigen
                 100-Level-Pfad aus und verknüpfen ihn mit Bildung, Mitmachen und
@@ -232,8 +232,9 @@ export default function SpielPage() {
           >
             <h2 className="text-3xl font-black">Bereit für das Babylon-Spiel?</h2>
             <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-white">
-              Starte jetzt die Live-Version auf der Games-Subdomain. Der Ausbau auf 100 Levels läuft
-              in klaren Etappen, eng verknüpft mit unseren Bildungs- und Mitmachangeboten.
+              Starte jetzt die Babylon.js-Live-Version auf der Games-Subdomain. Der Ausbau auf 100
+              Levels läuft in klaren Etappen, eng verknüpft mit unseren Bildungs- und
+              Mitmachangeboten.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
               <a
