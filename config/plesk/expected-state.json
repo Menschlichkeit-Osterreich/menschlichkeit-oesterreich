@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "scope": "Menschlichkeit Oesterreich production Plesk read-only audit",
+  "public_hosts": [
+    {"host": "menschlichkeit-oesterreich.at", "required": true},
+    {"host": "www.menschlichkeit-oesterreich.at", "required": true},
+    {"host": "api.menschlichkeit-oesterreich.at", "required": true},
+    {"host": "crm.menschlichkeit-oesterreich.at", "required": true},
+    {"host": "games.menschlichkeit-oesterreich.at", "required": true},
+    {"host": "forum.menschlichkeit-oesterreich.at", "required": true},
+    {"host": "n8n.menschlichkeit-oesterreich.at", "required": false},
+    {"host": "erp.menschlichkeit-oesterreich.at", "required": false}
+  ],
+  "service_paths": [
+    {"key": "frontend", "path": "httpdocs", "required": true},
+    {"key": "api", "path": "subdomains/api/httpdocs", "required": true},
+    {"key": "crm", "path": "subdomains/crm/httpdocs", "required": true},
+    {"key": "crm_native", "path": "subdomains/crm/httpdocs/native", "required": true},
+    {"key": "games", "path": "subdomains/games/httpdocs", "required": true},
+    {"key": "forum", "path": "subdomains/forum/httpdocs", "required": true}
+  ],
+  "required_runtimes": ["python3", "php"],
+  "optional_runtimes": ["node", "npm", "composer", "docker", "podman"],
+  "thresholds": {
+    "memory_available_min_pct": 15,
+    "disk_free_min_pct": 15,
+    "inode_free_min_pct": 15,
+    "backup_max_age_hours": 48,
+    "tls_min_remaining_days": 7
+  },
+  "data_policy": {
+    "forbid_environment_dump": true,
+    "forbid_process_command_lines": true,
+    "forbid_file_content_except_release_marker": true,
+    "forbid_secret_values": true,
+    "forbid_pii": true,
+    "public_log_mode": "status-only"
+  }
+}
