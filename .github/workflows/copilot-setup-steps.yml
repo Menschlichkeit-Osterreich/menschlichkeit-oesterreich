@@ -11,7 +11,8 @@ on:
       - composer.json
       - composer.lock
       - apps/api/requirements*.txt
-      - apps/crm/composer.json
+      - apps/crm/docker/**
+      - apps/crm/docker-compose.yml
   pull_request:
     paths:
       - .github/workflows/copilot-setup-steps.yml
@@ -21,7 +22,8 @@ on:
       - composer.json
       - composer.lock
       - apps/api/requirements*.txt
-      - apps/crm/composer.json
+      - apps/crm/docker/**
+      - apps/crm/docker-compose.yml
 
 jobs:
   copilot-setup-steps:
@@ -100,7 +102,7 @@ jobs:
         shell: bash
         run: |
           cat >> "$GITHUB_ENV" <<'EOF'
-          AGENT_INSTALL_CRM_DEPS=1
+          AGENT_INSTALL_CRM_DEPS=0
           AGENT_INSTALL_PLAYWRIGHT=1
           DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/menschlichkeit_test
           REDIS_URL=redis://127.0.0.1:6379/0
@@ -146,11 +148,15 @@ jobs:
         shell: bash
         run: bash .devcontainer/test-setup.sh
 
-      - name: Validate CRM dependency tree
+      - name: Validate container definitions
         shell: bash
         run: |
-          test -f apps/crm/vendor/autoload.php
-          composer --working-dir=apps/crm validate --no-check-lock
+          docker compose config --quiet
+          docker compose -f apps/crm/docker-compose.yml config --quiet
+
+      - name: Build canonical CRM container
+        shell: bash
+        run: docker build --tag moe-crm-sandbox:ci apps/crm/docker/drupal
 
       - name: Validate repository configuration
         shell: bash
