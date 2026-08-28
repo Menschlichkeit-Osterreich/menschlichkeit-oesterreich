@@ -78,7 +78,7 @@ jobs:
         run: npm run test:api:coverage
 
       - name: Upload coverage artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-reports
           if-no-files-found: error
@@ -196,7 +196,7 @@ jobs:
 
       - name: Upload Playwright artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-phase1-results
           if-no-files-found: warn
