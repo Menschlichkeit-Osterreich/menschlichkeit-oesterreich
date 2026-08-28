@@ -32,7 +32,7 @@
     "civicrm/uk.co.vedaconsulting.mosaico": "^2.0",
     "civicrm/civi.banking": "^0.9",
     "civicrm/civirules": "^3.12",
-    "civicrm/nz.co.fuzion.civicrm-mailchimp": "^6.0",
+    "nz.co.fuzion.civicrm-mailchimp": "^6.0",
     "civicrm/civisepa": "^1.8"
   },
   "require-dev": {
