@@ -14,6 +14,7 @@ on:
       - 'docs/operations/RUNTIME-SERVICE-REGISTER.md'
       - 'docs/operations/BACKUP-RESTORE-REGISTER.md'
       - 'tests/ops/test_plesk_readonly_audit.py'
+      - 'tests/ops/test_plesk_vhost_detection.py'
 
 permissions:
   contents: read
@@ -39,9 +40,9 @@ jobs:
         run: |
           set -euo pipefail
           bash -n scripts/ops/plesk-readonly-audit.sh
-          python3 -m py_compile scripts/ops/compare-plesk-state.py tests/ops/test_plesk_readonly_audit.py
+          python3 -m py_compile scripts/ops/compare-plesk-state.py tests/ops/test_plesk_readonly_audit.py tests/ops/test_plesk_vhost_detection.py
           jq -e '.schema_version == 2 and .execution.read_only == true and .data_policy.public_log_mode == "status-only"' config/plesk/expected-state.json >/dev/null
-          python3 -m unittest tests.ops.test_plesk_readonly_audit -v
+          python3 -m unittest tests.ops.test_plesk_readonly_audit tests.ops.test_plesk_vhost_detection -v
 
       - name: Confirm live-access boundary
         shell: bash
