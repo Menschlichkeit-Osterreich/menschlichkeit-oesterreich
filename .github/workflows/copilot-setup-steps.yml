@@ -133,7 +133,7 @@ jobs:
             aarch64|arm64) yq_arch="arm64" ;;
             *) echo "Unsupported architecture for yq: $arch" >&2; exit 1 ;;
           esac
-          sudo curl -fsSL "https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_${yq_arch}" -o /usr/local/bin/yq
+          sudo curl -fsSL --retry 3 --retry-delay 5 "https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_${yq_arch}" -o /usr/local/bin/yq
           sudo chmod 0755 /usr/local/bin/yq
 
       - name: Bootstrap complete repository toolchain
