@@ -62,24 +62,13 @@ jobs:
           printf 'PREVALIDATION: BW_ACCESS_TOKEN vorhanden – alle weiteren Secrets werden aus BSM geladen.\n'
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # Phase 1: BSM – alle SSH/Infra-Secrets just-in-time aus Bitwarden laden
-  # Profil "plesk-live-audit" liefert: SSH Key, Known Hosts, Host, Remote User
-  # ─────────────────────────────────────────────────────────────────────────────
-  load-secrets:
-    name: 'Phase 1: BSM – alle Audit-Secrets laden'
-    needs: prevalidation
-    uses: ./.github/workflows/reusable-bsm-secrets.yml
-    with:
-      profile: plesk-live-audit
-    secrets:
-      BW_ACCESS_TOKEN: ${{ secrets.BW_ACCESS_TOKEN }}
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # Phase 2–6: SSH Connectivity → Live Collect → Sanitize → Compare → Summary
+  # Phase 1–6: BSM Inject → SSH Connectivity → Live Collect → Sanitize → Compare → Summary
+  # Secrets werden innerhalb dieses Jobs via bsm-env-inject in GITHUB_ENV geladen.
+  # Kein Secret-Transport über jobs.outputs / workflow_call.outputs.
   # ─────────────────────────────────────────────────────────────────────────────
   live-audit:
-    name: 'Phase 2-6: SSH → Collect → Sanitize → Compare → Summary'
-    needs: [prevalidation, load-secrets]
+    name: 'Phase 1-6: BSM → SSH → Collect → Sanitize → Compare → Summary'
+    needs: prevalidation
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -88,14 +77,18 @@ jobs:
         with:
           persist-credentials: false
 
+      # ── Phase 1: BSM – Audit-Secrets in die aktuelle Job-Umgebung laden ───
+      - name: 'Phase 1: BSM Audit-Secrets laden'
+        uses: ./.github/actions/bsm-env-inject
+        with:
+          profile: plesk-live-audit
+          access_token: ${{ secrets.BW_ACCESS_TOKEN }}
+
       # ── Phase 2: SSH CONNECTIVITY ─────────────────────────────────────────
       - name: 'Phase 2: SSH Connectivity Preflight'
         shell: bash
-        env:
-          PLESK_SSH_PRIVATE_KEY: ${{ needs.load-secrets.outputs.PLESK_SSH_PRIVATE_KEY }}
-          PLESK_KNOWN_HOSTS: ${{ needs.load-secrets.outputs.PLESK_KNOWN_HOSTS }}
-          PLESK_HOST: ${{ needs.load-secrets.outputs.PLESK_HOST }}
-          REMOTE_USER: ${{ needs.load-secrets.outputs.REMOTE_USER }}
+        # PLESK_SSH_PRIVATE_KEY, PLESK_KNOWN_HOSTS, PLESK_HOST, REMOTE_USER
+        # werden von bsm-env-inject über GITHUB_ENV in diese Job-Umgebung gesetzt.
         run: |
           set -euo pipefail
           # Kein set -x – verhindert Secret-Leak in Logs
@@ -146,11 +139,8 @@ jobs:
       # ── Phase 3: READ-ONLY LIVE COLLECT ──────────────────────────────────
       - name: 'Phase 3: Read-Only Live Collect'
         shell: bash
-        env:
-          PLESK_SSH_PRIVATE_KEY: ${{ needs.load-secrets.outputs.PLESK_SSH_PRIVATE_KEY }}
-          PLESK_KNOWN_HOSTS: ${{ needs.load-secrets.outputs.PLESK_KNOWN_HOSTS }}
-          PLESK_HOST: ${{ needs.load-secrets.outputs.PLESK_HOST }}
-          REMOTE_USER: ${{ needs.load-secrets.outputs.REMOTE_USER }}
+        # PLESK_SSH_PRIVATE_KEY, PLESK_KNOWN_HOSTS, PLESK_HOST, REMOTE_USER
+        # sind bereits über bsm-env-inject in der Job-Umgebung verfügbar.
         run: |
           set -euo pipefail
 
