@@ -14,8 +14,11 @@ RUN apt-get update \
     iproute2 \
     jq \
     make \
+    mariadb-client \
     netcat-openbsd \
     openssh-client \
+    postgresql-client \
+    redis-tools \
     shellcheck \
     unzip \
     zip \

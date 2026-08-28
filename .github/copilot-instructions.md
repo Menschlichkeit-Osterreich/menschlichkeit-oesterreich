@@ -1,36 +1,54 @@
 # Menschlichkeit Oesterreich - Copilot Leitfaden
 
-GitHub Copilot arbeitet in diesem Repository nicht frei schwebend, sondern entlang desselben Repo-Vertrags wie Codex und Claude Code.
+GitHub Copilot arbeitet in diesem Repository entlang desselben Repo-Vertrags wie Codex und Claude Code.
 
 ## Zuerst lesen
 
-1. `AGENTS.md` fuer Rollen, Routing und aktive Artefakte
-2. `CLAUDE.md` fuer Repo-Betrieb, Services und Guardrails
-3. `.github/instructions/core/analysis-planning.instructions.md` fuer Analyse und Planung
-4. `.github/ai-registry.json` fuer die Artefakt-Klassifikation
-5. `.github/instructions/core/*.instructions.md` fuer gemeinsame Policies
+1. `AGENTS.md`
+2. `CLAUDE.md`
+3. `.github/instructions/core/analysis-planning.instructions.md`
+4. `.github/ai-registry.json`
+5. `.github/instructions/core/*.instructions.md`
+6. GitHub Issue #539 als kanonische Plattformentscheidung
 
 ## Repo-Identitaet
 
 - Repository: `Menschlichkeit-Osterreich/menschlichkeit-oesterreich`
-- Workspace-Root: Repository-Checkout von `Menschlichkeit-Osterreich/menschlichkeit-oesterreich`
-- Beispiel Windows-Checkout: `E:\Dev\menschlichkeit-oesterreich\menschlichkeit-oesterreich`
 - Main-first Workflow
-- Aktive Services unter `apps/website`, `apps/api`, `apps/crm`, `apps/babylon-game`, `apps/forum`
+- Aktive Produktpfade unter `apps/`
+- Historische Root-Pfade und alte Einzelordner sind keine aktiven Entwicklungsziele.
 
-Historische Root-Pfade und alte Einzelordner sind keine aktiven Entwicklungsziele.
+## Kanonische Plattformarchitektur
+
+Issue #539 hat Vorrang vor aelteren widerspruechlichen Azure- oder n8n-Zielentscheidungen.
+
+- GitHub = Source, PRs, Issues, CI/CD
+- GitHub Actions = kontrollierter Audit- und Deployment-Kanal
+- Bitwarden Secrets Manager = kanonische Secret Source
+- Plesk = Runtime Target, soweit live verifiziert
+- FastAPI + PostgreSQL = transaktionskritischer Backend- und Payment-Kern
+- CiviCRM = CRM, Kontakte, Mitgliedschaften und Contributions
+- ERPNext = Accounting System of Record
+- Make = zentrale Automations- und Integrationsplattform
+- SharePoint = Governance-Dokumente
+- ClickUp = operative Vereinsaufgaben und Projektsteuerung
+- Slack = datensparsame Ops-Kommunikation
+- n8n = Migrationsquelle, danach RETIRED
+- Azure = nicht Teil der Zielarchitektur; vorhandene Artefakte als `LEGACY_CANDIDATE` behandeln und nur nach Abhaengigkeitspruefung entfernen
+
+Keine neue Azure-Infrastruktur und keine neuen strategischen n8n-Workflows einfuehren.
 
 ## Agentenauswahl
 
 Nutze das Rollenmodell aus `AGENTS.md`:
 
-- `architect` fuer Architektur, Service-Schnittstellen, ADR-nahe Arbeit
+- `architect` fuer Architektur und Systemgrenzen
 - `developer` fuer Features, Bugs, Refactorings und Tests
-- `devops` fuer Workflows, Deployments, MCP, VS Code und Betriebsfragen
-- `security` fuer DSGVO, Secrets, GitHub-Sicherheit und Haertung
-- `qa` fuer Reviews, Accessibility, Performance und Quality-Gates
+- `devops` fuer Workflows, Deployments, MCP und Betrieb
+- `security` fuer DSGVO, Secrets und Haertung
+- `qa` fuer Reviews und Quality-Gates
 
-Copilot-spezifische Einstiegspunkte:
+Copilot-spezifische Einstiegspunkte bleiben die aktiven `.github/agents/*.agent.md` laut `.github/ai-registry.json`. Die folgende explizite Inventarliste ist Teil des Governance-Vertrags und muss mit dem Registry-Validator synchron bleiben:
 
 - `.github/agents/task-planner.agent.md`
 - `.github/agents/developer.agent.md`
@@ -59,64 +77,107 @@ Copilot-spezifische Einstiegspunkte:
 - `.github/agents/speckit.tasks.agent.md`
 - `.github/agents/speckit.taskstoissues.agent.md`
 
-Archivierte oder deprecated Copilot-Agents liegen unter `.github/archive/agents/` und sind nicht als sichtbare Einstiegspunkte zu verwenden.
+Der bisherige `automation-n8n.agent.md` darf nur noch Inventarisierung, Migration, Cutover, Reconciliation und Retirement bestehender n8n-Artefakte bearbeiten. Zielimplementierungen gehoeren nach Make oder, bei transaktionskritischer Logik, nach FastAPI.
 
-Claude-Code-Agents (RuFlo V3, 102 Agenten in `.claude/agents/`):
-
-- Core: `.claude/agents/core/` (Coder, Planner, Researcher, Reviewer, Tester)
-- SPARC: `.claude/agents/sparc/` (Specification, Pseudocode, Architecture, Refinement)
-- Swarm: `.claude/agents/swarm/` (Adaptive, Hierarchical, Mesh Coordinators)
-- GitHub: `.claude/agents/github/` (PR-Manager, Issue-Tracker, Release-Manager)
-- V3-Security: `.claude/agents/v3/` (Security-Architect, PII-Detector, ADR-Architect)
-- RuFlo-Runtime: `.claude-flow/config.yaml`, `.mcp.json` (ruflo@3.7.0-alpha.38)
-- RuFlo-Befehle: `.claude/commands/` (sparc, github, automation, monitoring, optimization)
-
-Kanonischer Analyse-Einstieg:
-
-- `.github/instructions/core/analysis-planning.instructions.md`
-- `.github/chatmodes/general/AnalysePlanung_DE.chatmode.md`
-- `.github/ai-registry.json`
-- GitHub-Backlog-Abfrage: `state:open repo:${owner}/${repository} sort:updated-desc`
-
-Aktive Chatmodes:
-
-- `.github/chatmodes/**/*.chatmode.md`
-
-Ergaenzende Prompt-Artefakte:
-
-- `.github/prompts/*.prompt.md`
-
-Kanonische Skill-Schicht:
-
-- `.github/skills/*/SKILL.md`
-
-Nicht aktiv:
-
-- Legacy-Chatmode-YAMLs unter `.github/prompts/chatmodes/` sind entfernt; aktiv sind nur `.github/chatmodes/**/*.chatmode.md`.
+Der importierte Skill `.github/skills/senior-fullstack/SKILL.md` ist ausschliesslich ergaenzende Vendor-Guidance. Repository-Governance, Issue #539 und die kanonischen Agentenprofile haben Vorrang. Seine mitgelieferten Python-Skripte sind keine ausreichende Qualitaets- oder Verifikationsinstanz und duerfen nicht als Testnachweis verwendet werden.
 
 ## Arbeitsregeln
 
-- Repository first: vor Vorschlaegen immer den realen Repo-Stand lesen.
-- Keine neuen Parallelstrukturen erfinden, wenn `AGENTS.md`, `CLAUDE.md` oder Core-Instructions schon den Vertrag definieren.
-- Bei Tool-Aufrufen mit Dateipfaden absolute Workspace-Pfade verwenden, sobald das Tool keine relativen Pfade akzeptiert.
-- Geteilte Konfigurationen muessen portabel bleiben und `${workspaceFolder}`, repo-relative Pfade oder npm Scripts verwenden.
-- Nutzertexte bleiben in oesterreichischem Deutsch.
-- Keine Secrets oder PII in Code, Logs, Beispielen oder Prompts.
-- Brand-Arbeit folgt den Token- und Plugin-Quellen im Repo.
-- Bei Arbeiten an `.github/bsm-secret-ids.json` zuerst read-only BSM-Metadatencheck fahren und im Bericht nur `id`, `key`, `projectId`, `revisionDate` verwenden.
+- Repository first: vor Aenderungen realen Repo-, PR- und Issue-Stand lesen.
+- Keine Parallelstrukturen erfinden, wenn bestehende Workflows, Skripte oder Policies den Vertrag schon definieren.
+- Repository-Wahrheit und Live-Wahrheit strikt trennen: `VERIFIED_REPO != VERIFIED_LIVE`.
+- Keine Secrets oder PII in Code, Logs, Markdown, Issues, PR-Kommentaren oder Artefakten.
+- Keine Secretwerte ausgeben, auch nicht base64-kodiert oder als Debug-Ausgabe.
+- Kein `set -x` in Secret- oder Live-Audit-Pfaden.
+- Bei `.github/bsm-secret-ids.json` nur Mapping-Metadaten und Secret-IDs committen, niemals Secretwerte.
+- Wenn ein Zugriff fehlt, zuerst Agents Variables, Agents Secrets, BSM, GitHub Actions und vorhandene Repo-Skripte pruefen. Erst danach `BLOCKED` dokumentieren.
+- Nie im Chat nach Passwort, SSH-Key, DB-URL, Stripe-Key oder anderen produktiven Secrets fragen.
+
+## Copilot Agents Secrets und Variables
+
+Verfuegbare Bootstrap-Secrets koennen sein:
+
+- `BW_ACCESS_TOKEN`
+- `PLESK_KNOWN_HOSTS`
+- `PLESK_SSH_PRIVATE_KEY`
+
+Verfuegbare Agents Variables:
+
+- `PLESK_HOST`
+- `PLESK_DEPLOY_PATH`
+
+`PLESK_HOST` nicht unnoetig im Code duplizieren.
+`PLESK_DEPLOY_PATH` nie ungeprueft als Audit-Servicepfad verwenden. Der Plesk-Collector erwartet fuer Service-Pfade relative Pfade ohne fuehrenden Slash.
+Der Remote User wird aus Bitwarden `staging/REMOTE_USER` bezogen. Keine zusaetzliche `PLESK_USER`-Variable verlangen, wenn dieses Mapping funktioniert.
+
+## Live-Plesk-Audit
+
+Die Basis aus PR #533 ist bereits gemergt. Der manuelle Live-Audit-Pfad aus PR #544 ist vorhanden. PR #546 dokumentiert, dass `VERIFIED_LIVE` bisher noch nicht vergeben wurde.
+
+Bestehende Dateien wiederverwenden:
+
+- `.github/workflows/plesk-readonly-audit.yml`
+- `.github/workflows/plesk-live-audit.yml`
+- `scripts/ops/plesk-readonly-audit.sh`
+- `scripts/ops/compare-plesk-state.py`
+- `config/plesk/expected-state.json`
+- `tests/ops/test_plesk_readonly_audit.py`
+- `tests/ops/test_plesk_vhost_detection.py`
+- `tests/ops/test_plesk_live_audit_workflow.py`
+
+Live-Audit erste Phase ausschliesslich read-only:
+
+PREVALIDATION -> SSH CONNECTIVITY -> READ-ONLY LIVE COLLECT -> SANITIZE -> COMPARE -> STATUS SUMMARY
+
+Verbindliche SSH-Regeln:
+
+- `StrictHostKeyChecking=yes`
+- explizites `UserKnownHostsFile`
+- kein `StrictHostKeyChecking=no`
+- kein automatisches `ssh-keyscan` als Vertrauensersatz
+- Private Key nur temporaer, Modus 0600, Cleanup/Trap
+- keine Privilege Escalation
+- keine beliebigen Remote-Command-Inputs
+
+Ohne separaten expliziten Schreibauftrag keine Deployments, Restarts, DB Writes, Migrationen, DNS-/TLS-/Cron-/User-Aenderungen, Package Upgrades, Restores oder Secret Rotations ausfuehren.
+
+## Payment-Hardening
+
+PR #538 ist bereits gemergt. Offene Punkte sind daher Release-/Deployment-Gates, nicht mehr Merge-Gates:
+
+- Issue #541: Alembic DAG auf genau einen kanonischen Head bringen, historische Migrationen nicht umschreiben
+- Recurring nur bei echter Stripe Subscription aktivieren, `setup_future_usage` ist keine Subscription
+- `receipt_eligible` nicht pauschal TRUE ohne fachlich belegte Regel
+- Outbox-Idempotency DB-seitig erzwingen
+- `payment.failed` und Retries ohne Alert-/Mail-/Outbox-Duplikate
+- FastAPI -> Make Consumer Contract an echte Make-Konsumentenseite anpassen
+- OpenAPI-CI als separaten CI-Fix behandeln
+- Security Findings analysieren, Scanner-Gates nicht abschwaechen
+
+Kritische Payment-Integritaet bleibt in FastAPI/PostgreSQL. Make erhaelt keinen freien Schreibzugriff auf PostgreSQL-Kerntabellen.
+
+## Make-first und n8n Retirement
+
+Make ist die Zielplattform fuer CRM Sync, Accounting Sync, Follow-ups, Dankesmail, Error Handling, Reconciliation, Reporting, SharePoint, Slack und administrative Automationen.
+
+Bestehende n8n-Workflows klassifizieren als:
+
+- `MIGRATE_TO_MAKE`
+- `MOVE_TO_FASTAPI`
+- `RETIRE`
+- `TEMPORARY_KEEP`
+- `UNKNOWN`
+
+n8n niemals blind abschalten. Vor Cutover mindestens Trigger, Input, Output, Credentials, Webhooks, DB, Redis, Proxy, DNS, Backup, Replacement, Tests, Reconciliation und Rollback pruefen.
+
+## Slack Privacy
+
+Keine Spender-E-Mail, Namen, Adressen, Stripe PaymentIntent IDs, vollstaendigen Stripe Payloads oder Secretwerte in Slack Alerts.
+Erlaubt sind Eventtyp, Betrag, technischer Status und interne Correlation ID.
 
 ## Configuration Reliability Rule
 
-Alle Aenderungen an `.vscode/**`, `.devcontainer/**`, `.claude/**`, `mcp.json`, `.github/workflows/**` sowie Agent- und Copilot-Governance-Dateien muessen `npm run workspace:config:check` bestehen.
-Lokale absolute Pfade sind in geteilten Konfigurationen nicht erlaubt.
-
-## Implementierungsstandards
-
-- Frontend: React 19 + TypeScript + Vite
-- API: FastAPI + Python 3.12+
-- CRM: Drupal 10 + CiviCRM
-- Games: Next.js 16 + Babylon.js 8 auf Port 3001
-- Forum: phpBB auf Port 8002
+Aenderungen an `.vscode/**`, `.devcontainer/**`, `.claude/**`, `mcp.json`, `.github/workflows/**` sowie Agent- und Copilot-Governance-Dateien muessen `npm run workspace:config:check` bestehen.
 
 ## Build und Validierung
 
@@ -128,24 +189,32 @@ Lokale absolute Pfade sind in geteilten Konfigurationen nicht erlaubt.
 - `npm run governance:check`
 - `npm run workspace:config:check`
 
-## Staging Smoke Gate (Donation Pilot)
+Ein lokaler oder Staging-n8n-Smoke ist kein dauerhafter Zukunftsvertrag mehr. n8n-Smokes duerfen nur als Migrations-/Bestandsnachweis verwendet werden, bis der jeweilige Prozess nach Make/FastAPI migriert ist.
 
-- Autoritative Quelle fuer Donation-Smoke ist nur Staging n8n/CiviCRM.
-- Kein lokaler n8n-Container gilt als Erfolgsnachweis.
-- N8N_BASE_URL fuer Staging: `https://n8n.menschlichkeit-oesterreich.at`
-- Donation APIv4 Refactor bleibt eingefroren, bis der Staging-Smoke explizit gruen ist.
+## Mobile Status
+
+Fuer laengere Agentenarbeit kompakt dokumentieren:
+
+- CURRENT HEAD
+- CURRENT PR
+- DONE
+- IN PROGRESS
+- BLOCKED
+- REQUIRES OWNER ACTION
+- LIVE VERIFIED
+- NEXT ACTION
+
+Keine langen Terminal-Dumps in Statusartefakten.
 
 ## Dokumentationsregel
 
-Wenn eine Aenderung aktive Ablaeufe, Rollen, Pfade oder Tooling betrifft, muessen mindestens die betroffenen Governance-Dateien mitgezogen werden:
+Wenn aktive Ablaeufe, Rollen, Pfade oder Tooling geaendert werden, mindestens die betroffenen Governance-Dateien synchronisieren:
 
 - `AGENTS.md`
 - `CLAUDE.md`
 - `.github/copilot-instructions.md`
 - `.github/ai-registry.json`
 - `.github/instructions/copilot-workflow.md`
-- `.github/chatmodes/README.md`
-- `.github/prompts/README.md`
 
 <!-- SPECKIT START -->
 
