@@ -1,0 +1,375 @@
+name: Plesk live read-only audit
+
+# WARNUNG: Dieser Workflow stellt eine SSH-Verbindung zum Produktionssystem her.
+# Nur manuell ausführen. Kein automatischer Trigger bei Push oder PR.
+# Ausschließlich lesend – keine Deployments, keine Schreiboperationen.
+
+on:
+  workflow_dispatch:
+    inputs:
+      vhost_root:
+        description: >
+          Plesk vhost root auf dem Remote-Server.
+          Standardwert entspricht dem kanonischen Plesk-Pfad.
+        required: false
+        default: '/var/www/vhosts/menschlichkeit-oesterreich.at'
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: plesk-live-audit
+  cancel-in-progress: false
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Phase 0: PREVALIDATION – Inputs und Pflicht-Secrets prüfen ohne SSH
+  # ─────────────────────────────────────────────────────────────────────────────
+  prevalidation:
+    name: 'Phase 0: Prevalidation'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Validate collector and expected-state
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n scripts/ops/plesk-readonly-audit.sh
+          python3 -m py_compile scripts/ops/compare-plesk-state.py
+          jq -e '
+            .schema_version == 2 and
+            .execution.read_only == true and
+            .data_policy.public_log_mode == "status-only"
+          ' config/plesk/expected-state.json >/dev/null
+          printf 'PREVALIDATION: collector and expected-state OK\n'
+
+      - name: Validate required GitHub Agents Secrets are present
+        shell: bash
+        env:
+          PLESK_HOST: ${{ vars.PLESK_HOST }}
+          HAS_SSH_KEY: ${{ secrets.PLESK_SSH_PRIVATE_KEY != '' }}
+          HAS_KNOWN_HOSTS: ${{ secrets.PLESK_KNOWN_HOSTS != '' }}
+          HAS_BWS_TOKEN: ${{ secrets.BW_ACCESS_TOKEN != '' }}
+        run: |
+          set -euo pipefail
+          fail=0
+          if [[ -z "${PLESK_HOST:-}" ]]; then
+            printf 'PREVALIDATION FAIL: PLESK_HOST (Agents Variable) ist nicht gesetzt\n' >&2
+            fail=1
+          fi
+          if [[ "${HAS_SSH_KEY}" != "true" ]]; then
+            printf 'PREVALIDATION FAIL: PLESK_SSH_PRIVATE_KEY (Agents Secret) fehlt\n' >&2
+            fail=1
+          fi
+          if [[ "${HAS_KNOWN_HOSTS}" != "true" ]]; then
+            printf 'PREVALIDATION FAIL: PLESK_KNOWN_HOSTS (Agents Secret) fehlt\n' >&2
+            fail=1
+          fi
+          if [[ "${HAS_BWS_TOKEN}" != "true" ]]; then
+            printf 'PREVALIDATION FAIL: BW_ACCESS_TOKEN (Agents Secret) fehlt\n' >&2
+            fail=1
+          fi
+          [[ "$fail" -eq 0 ]] || exit 1
+          printf 'PREVALIDATION: Alle erforderlichen Secrets vorhanden\n'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Phase 1: BSM Secret laden – Remote User aus Bitwarden Secrets Manager
+  # ─────────────────────────────────────────────────────────────────────────────
+  load-remote-user:
+    name: 'Phase 1: BSM – REMOTE_USER laden'
+    needs: prevalidation
+    uses: ./.github/workflows/reusable-bsm-secrets.yml
+    with:
+      profile: plesk-live-audit
+    secrets:
+      BW_ACCESS_TOKEN: ${{ secrets.BW_ACCESS_TOKEN }}
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Phase 2–6: SSH Connectivity → Live Collect → Sanitize → Compare → Summary
+  # ─────────────────────────────────────────────────────────────────────────────
+  live-audit:
+    name: 'Phase 2-6: SSH → Collect → Sanitize → Compare → Summary'
+    needs: [prevalidation, load-remote-user]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PLESK_HOST: ${{ vars.PLESK_HOST }}
+      VHOST_ROOT: ${{ inputs.vhost_root }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      # ── Phase 2: SSH CONNECTIVITY ─────────────────────────────────────────
+      - name: 'Phase 2: SSH Connectivity Preflight'
+        shell: bash
+        env:
+          PLESK_SSH_PRIVATE_KEY: ${{ secrets.PLESK_SSH_PRIVATE_KEY }}
+          PLESK_KNOWN_HOSTS: ${{ secrets.PLESK_KNOWN_HOSTS }}
+          REMOTE_USER: ${{ needs.load-remote-user.outputs.REMOTE_USER }}
+        run: |
+          set -euo pipefail
+          # Kein set -x – verhindert Secret-Leak in Logs
+
+          SSH_KEY_FILE="$(mktemp)"
+          KNOWN_HOSTS_FILE="$(mktemp)"
+
+          cleanup() {
+            rm -f "$SSH_KEY_FILE" "$KNOWN_HOSTS_FILE"
+          }
+          trap cleanup EXIT
+
+          # SSH Key mit korrekten Berechtigungen schreiben
+          printf '%s\n' "$PLESK_SSH_PRIVATE_KEY" > "$SSH_KEY_FILE"
+          chmod 600 "$SSH_KEY_FILE"
+
+          # Known Hosts schreiben
+          printf '%s\n' "$PLESK_KNOWN_HOSTS" > "$KNOWN_HOSTS_FILE"
+          chmod 600 "$KNOWN_HOSTS_FILE"
+
+          # Prüfe Remote User ist gesetzt (Wert nicht ausgeben)
+          if [[ -z "${REMOTE_USER:-}" ]]; then
+            printf 'SSH PREFLIGHT FAIL: REMOTE_USER konnte nicht aus BSM geladen werden\n' >&2
+            exit 1
+          fi
+
+          # SSH-Basis-Optionen (kein StrictHostKeyChecking=no, kein ssh-keyscan)
+          SSH_OPTS=(
+            -i "$SSH_KEY_FILE"
+            -o StrictHostKeyChecking=yes
+            -o UserKnownHostsFile="$KNOWN_HOSTS_FILE"
+            -o BatchMode=yes
+            -o ConnectTimeout=15
+            -o ServerAliveInterval=10
+            -o ServerAliveCountMax=3
+          )
+
+          # Preflight: harmlose Befehle – kein Privilege Escalation
+          printf 'SSH PREFLIGHT: Teste Verbindung zu %s\n' "$PLESK_HOST"
+          if ! ssh "${SSH_OPTS[@]}" "${REMOTE_USER}@${PLESK_HOST}" \
+               'id && hostname' 2>&1 | grep -v 'Warning:'; then
+            printf 'SSH PREFLIGHT FAIL: Verbindung fehlgeschlagen\n' >&2
+            printf 'Prüfe DNS, TCP, Auth, Host-Key, Benutzer und Shell\n' >&2
+            exit 1
+          fi
+          printf 'SSH PREFLIGHT: Verbindung erfolgreich\n'
+
+          # Pfade in GITHUB_ENV für nachfolgende Steps speichern
+          # Secretwerte NICHT in GITHUB_ENV schreiben
+          printf 'SSH_KEY_FILE=%s\n' "$SSH_KEY_FILE" >> "$GITHUB_ENV"
+          printf 'KNOWN_HOSTS_FILE=%s\n' "$KNOWN_HOSTS_FILE" >> "$GITHUB_ENV"
+
+          # Trap deaktivieren, da die Dateien in nachfolgenden Steps benötigt werden
+          trap - EXIT
+
+      # ── Phase 3: READ-ONLY LIVE COLLECT ──────────────────────────────────
+      - name: 'Phase 3: Read-Only Live Collect'
+        shell: bash
+        env:
+          PLESK_SSH_PRIVATE_KEY: ${{ secrets.PLESK_SSH_PRIVATE_KEY }}
+          PLESK_KNOWN_HOSTS: ${{ secrets.PLESK_KNOWN_HOSTS }}
+          REMOTE_USER: ${{ needs.load-remote-user.outputs.REMOTE_USER }}
+        run: |
+          set -euo pipefail
+
+          cleanup() {
+            rm -f "${SSH_KEY_FILE:-}" "${KNOWN_HOSTS_FILE:-}"
+          }
+          trap cleanup EXIT
+
+          SSH_OPTS=(
+            -i "$SSH_KEY_FILE"
+            -o StrictHostKeyChecking=yes
+            -o UserKnownHostsFile="$KNOWN_HOSTS_FILE"
+            -o BatchMode=yes
+            -o ConnectTimeout=15
+            -o ServerAliveInterval=10
+            -o ServerAliveCountMax=3
+          )
+
+          # Public hosts aus expected-state.json für den Remote-Collector kodieren
+          # (kein File-Transfer auf den Remote-Server notwendig)
+          HOSTS_B64="$(jq -r '
+            .public_hosts[] |
+            [.host, .health_path, (.required | tostring)] |
+            @tsv
+          ' config/plesk/expected-state.json | base64 | tr -d '\n')"
+
+          # Service-Pfade aus dem bekannten Repo-Vertrag (Section 15)
+          # Relative Pfade, kein führender "/"
+          SERVICE_PATHS_RAW="$(printf '%s\t%s\t%s\n' \
+            'frontend'   'httpdocs'                        'true'  \
+            'api'        'subdomains/api/httpdocs'          'true'  \
+            'crm'        'subdomains/crm/httpdocs'          'true'  \
+            'crm_native' 'subdomains/crm/httpdocs/native'   'true'  \
+            'games'      'subdomains/games/httpdocs'        'true'  \
+            'forum'      'subdomains/forum/httpdocs'        'true'  \
+          )"
+          PATHS_B64="$(printf '%s' "$SERVICE_PATHS_RAW" | base64 | tr -d '\n')"
+
+          printf 'LIVE COLLECT: Führe read-only Collector auf Remote-Host aus\n'
+
+          # Collector via SSH stdin – keine Dateien auf Remote-Server schreiben
+          # --no-network: Netzwerk-Checks laufen lokal (github runner kann public hosts erreichen)
+          LIVE_OUTPUT="$(ssh "${SSH_OPTS[@]}" "${REMOTE_USER}@${PLESK_HOST}" \
+            "MOE_AUDIT_PUBLIC_HOSTS_B64=$(printf '%q' "$HOSTS_B64") \
+             MOE_AUDIT_SERVICE_PATHS_B64=$(printf '%q' "$PATHS_B64") \
+             PLESK_VHOST_ROOT=$(printf '%q' "$VHOST_ROOT") \
+             bash -s -- --evidence-class VERIFIED_LIVE --no-network" \
+            < scripts/ops/plesk-readonly-audit.sh)"
+
+          # Validiere JSON-Ausgabe
+          if ! printf '%s' "$LIVE_OUTPUT" | jq -e '.schema_version == 1' >/dev/null 2>&1; then
+            printf 'LIVE COLLECT FAIL: Collector-Output ist kein valides JSON oder falsche schema_version\n' >&2
+            exit 1
+          fi
+
+          # Ausgabe sicher speichern (kein Secret, kein PII – nur Status/Metadaten)
+          printf '%s\n' "$LIVE_OUTPUT" > /tmp/live-audit-raw.json
+          printf 'LIVE COLLECT: Collector erfolgreich abgeschlossen\n'
+
+      # ── Phase 4: SANITIZE ─────────────────────────────────────────────────
+      - name: 'Phase 4: Sanitize'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Sicherstellen, dass weder Secrets noch PII im Output sind
+          # collector.secret_values_collected muss false sein
+          # collector.pii_collected muss false sein
+          if ! jq -e '
+            .collector.secret_values_collected == false and
+            .collector.pii_collected == false and
+            .collector.environment_dumped == false and
+            .collector.process_command_lines_collected == false
+          ' /tmp/live-audit-raw.json >/dev/null 2>&1; then
+            printf 'SANITIZE FAIL: Collector-Richtlinie verletzt – Output enthält möglicherweise Secrets oder PII\n' >&2
+            exit 1
+          fi
+
+          printf 'SANITIZE: Collector-Policy-Checks bestanden\n'
+
+          # Status-only public artifact vorbereiten (keine Rohinventare)
+          jq '{
+            schema_version: .schema_version,
+            generated_at: .generated_at,
+            evidence_class: .evidence_class,
+            scope: .scope,
+            collector_policy: {
+              read_only: .collector.read_only,
+              secret_values_collected: .collector.secret_values_collected,
+              pii_collected: .collector.pii_collected
+            },
+            system_status: (.system | with_entries(.value = .value.status)),
+            services_status: (.services | with_entries(.value = .value.status)),
+            public_hosts: [.public_hosts[] | {
+              host: .host,
+              dns_status: .dns_status,
+              tls_status: .tls_status,
+              tls_days_remaining: .tls_days_remaining,
+              http_status: .http_status,
+              plesk_vhost_status: .plesk_vhost_status
+            }],
+            service_paths: [.service_paths[] | {
+              key: .key,
+              status: .status,
+              release_marker_status: .release_marker_status
+            }],
+            backup_status: .backup.status,
+            restore_status: .restore.status
+          }' /tmp/live-audit-raw.json > /tmp/live-audit-sanitized.json
+
+          printf 'SANITIZE: Bereinigtes Status-Artefakt erstellt\n'
+
+      # ── Phase 5: COMPARE ─────────────────────────────────────────────────
+      - name: 'Phase 5: Compare against expected state'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/ops/compare-plesk-state.py \
+            --expected config/plesk/expected-state.json \
+            --actual /tmp/live-audit-raw.json \
+            --format json \
+            --output /tmp/live-audit-comparison.json
+
+          python3 scripts/ops/compare-plesk-state.py \
+            --expected config/plesk/expected-state.json \
+            --actual /tmp/live-audit-raw.json \
+            --format markdown \
+            --output /tmp/live-audit-report.md
+
+          printf 'COMPARE: Vergleich abgeschlossen\n'
+          OVERALL="$(jq -r '.overall_status' /tmp/live-audit-comparison.json)"
+          printf 'COMPARE: Gesamtstatus = %s\n' "$OVERALL"
+
+      # ── Phase 6: STATUS SUMMARY ──────────────────────────────────────────
+      - name: 'Phase 6: Status Summary'
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ -f /tmp/live-audit-comparison.json ]]; then
+            OVERALL="$(jq -r '.overall_status // "UNKNOWN"' /tmp/live-audit-comparison.json)"
+            FAIL_COUNT="$(jq '[.checks[] | select(.status == "FAIL")] | length' /tmp/live-audit-comparison.json)"
+            WARN_COUNT="$(jq '[.checks[] | select(.status == "WARN")] | length' /tmp/live-audit-comparison.json)"
+            UNKNOWN_COUNT="$(jq '[.checks[] | select(.status == "UNKNOWN")] | length' /tmp/live-audit-comparison.json)"
+            PASS_COUNT="$(jq '[.checks[] | select(.status == "PASS")] | length' /tmp/live-audit-comparison.json)"
+          else
+            OVERALL="UNKNOWN"
+            FAIL_COUNT=0; WARN_COUNT=0; UNKNOWN_COUNT=0; PASS_COUNT=0
+          fi
+
+          {
+            printf '## Plesk Live Audit – Status Summary\n\n'
+            printf '| | |\n|---|---|\n'
+            printf '| Gesamtstatus | **%s** |\n' "$OVERALL"
+            printf '| PASS | %s |\n' "$PASS_COUNT"
+            printf '| WARN | %s |\n' "$WARN_COUNT"
+            printf '| UNKNOWN | %s |\n' "$UNKNOWN_COUNT"
+            printf '| FAIL | %s |\n' "$FAIL_COUNT"
+            printf '\n'
+            printf '_Nur öffentliche Objektkennungen und Statuswerte – kein Rohinventar, keine Secrets, keine PII._\n\n'
+            if [[ -f /tmp/live-audit-report.md ]]; then
+              cat /tmp/live-audit-report.md
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          printf 'STATUS SUMMARY: Gesamtstatus = %s (PASS=%s WARN=%s UNKNOWN=%s FAIL=%s)\n' \
+            "$OVERALL" "$PASS_COUNT" "$WARN_COUNT" "$UNKNOWN_COUNT" "$FAIL_COUNT"
+
+      - name: Upload sanitized audit artifact
+        if: always()
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: plesk-live-audit-status
+          path: |
+            /tmp/live-audit-sanitized.json
+            /tmp/live-audit-report.md
+            /tmp/live-audit-comparison.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Cleanup SSH credentials
+        if: always()
+        shell: bash
+        run: |
+          rm -f "${SSH_KEY_FILE:-}" "${KNOWN_HOSTS_FILE:-}"
+          printf 'CLEANUP: SSH-Credentials entfernt\n'
+
+      - name: Fail job on audit FAIL
+        shell: bash
+        run: |
+          set -euo pipefail
+          OVERALL="$(jq -r '.overall_status // "UNKNOWN"' /tmp/live-audit-comparison.json 2>/dev/null || printf 'UNKNOWN')"
+          if [[ "$OVERALL" == "FAIL" ]]; then
+            printf 'Audit-Gesamtstatus ist FAIL – Job schlägt fehl\n' >&2
+            exit 1
+          fi
