@@ -14,20 +14,9 @@ env:
   STAGING_FRONTEND_REMOTE_PATH: ${{ vars.STAGING_FRONTEND_PATH || 'httpdocs' }}
 
 jobs:
-  # ── BSM Secret Injection (optional, wenn BW_ACCESS_TOKEN gesetzt) ──
-  bsm-secrets:
-    name: 'BSM: Staging Secrets laden'
-    uses: ./.github/workflows/reusable-bsm-secrets.yml
-    with:
-      profile: deploy-staging
-    secrets:
-      BW_ACCESS_TOKEN: ${{ secrets.BW_ACCESS_TOKEN }}
-
   build-and-deploy:
     name: Build & Deploy to Staging
     runs-on: ubuntu-latest
-    needs: [bsm-secrets]
-    if: ${{ always() && (needs.bsm-secrets.result == 'success' || needs.bsm-secrets.result == 'skipped') }}
     environment: staging
     steps:
       - name: Checkout repository
@@ -44,43 +33,38 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: BSM-Secrets in Job-Umgebung laden
+        uses: ./.github/actions/bsm-env-inject
+        with:
+          profile: deploy-staging
+          access_token: ${{ secrets.BW_ACCESS_TOKEN }}
+
+      - name: Add host to known_hosts
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          # STAGING_KNOWN_HOSTS muss im GitHub-Environment 'staging' abgelegt sein.
+          # Erzeugen via: ssh-keyscan -p <port> <host> auf einem vertrauenswürdigen System,
+          # dann als Secret STAGING_KNOWN_HOSTS speichern. Nie ssh-keyscan live im CI nutzen
+          # (MITM-Angriff möglich während des TOFU-Vorgangs).
+          if [ -z "${STAGING_KNOWN_HOSTS:-}" ]; then
+            echo "::error::Secret STAGING_KNOWN_HOSTS ist nicht gesetzt. Bitte im GitHub-Environment 'staging' hinterlegen."
+            exit 1
+          fi
+          printf '%s\n' "${STAGING_KNOWN_HOSTS}" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
       - name: Run quality gates
         run: npm run quality:gates
 
       - name: Build workspace
         run: npm run build:all
 
-      - name: Archive staging frontend build
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
-        with:
-          name: staging-frontend-dist-${{ github.sha }}
-          path: apps/website/dist/
-          retention-days: 3
-
-      - name: Verify staging secrets
-        env:
-          STAGING_REMOTE_HOST: ${{ secrets.STAGING_REMOTE_HOST }}
-          STAGING_REMOTE_USER: ${{ secrets.STAGING_REMOTE_USER }}
-          STAGING_DEPLOY_KEY: ${{ secrets.STAGING_DEPLOY_KEY }}
-        run: |
-          set -euo pipefail
-          missing=0
-          for var in STAGING_REMOTE_HOST STAGING_REMOTE_USER STAGING_DEPLOY_KEY; do
-            value="${!var:-}"
-            if [ -z "$value" ]; then
-              echo "::error::Missing required secret: $var"
-              missing=1
-            fi
-          done
-          if [ "$missing" -eq 1 ]; then
-            exit 1
-          fi
-
       - name: Prepare SSH key (native, policy-konform)
         run: |
           set -euo pipefail
           mkdir -p ~/.ssh
-          printf '%s\n' "${{ secrets.STAGING_DEPLOY_KEY }}" > ~/.ssh/staging_deploy_key
+          printf '%s\n' "${STAGING_DEPLOY_KEY}" > ~/.ssh/staging_deploy_key
           chmod 600 ~/.ssh/staging_deploy_key
 
       - name: Add host to known_hosts
@@ -91,24 +75,22 @@ jobs:
           # Erzeugen via: ssh-keyscan -p <port> <host> auf einem vertrauenswürdigen System,
           # dann als Secret STAGING_KNOWN_HOSTS speichern. Nie ssh-keyscan live im CI nutzen
           # (MITM-Angriff möglich während des TOFU-Vorgangs).
-          if [ -z "${{ secrets.STAGING_KNOWN_HOSTS }}" ]; then
+          if [ -z "${STAGING_KNOWN_HOSTS:-}" ]; then
             echo "::error::Secret STAGING_KNOWN_HOSTS ist nicht gesetzt. Bitte im GitHub-Environment 'staging' hinterlegen."
             exit 1
           fi
-          printf '%s\n' "${{ secrets.STAGING_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          printf '%s\n' "${STAGING_KNOWN_HOSTS}" >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
       - name: Configure SSH host alias
         env:
-          STAGING_REMOTE_HOST: ${{ secrets.STAGING_REMOTE_HOST }}
-          STAGING_REMOTE_USER: ${{ secrets.STAGING_REMOTE_USER }}
-          STAGING_REMOTE_PORT: ${{ secrets.STAGING_REMOTE_PORT || '22' }}
+          STAGING_REMOTE_PORT: ${{ env.STAGING_REMOTE_PORT || '22' }}
         run: |
           set -euo pipefail
           cat > ~/.ssh/config <<EOF
           Host plesk-staging
-            HostName ${STAGING_REMOTE_HOST}
-            User ${STAGING_REMOTE_USER}
+            HostName ${PLESK_HOST}
+            User ${REMOTE_USER}
             Port ${STAGING_REMOTE_PORT}
             IdentityFile ~/.ssh/staging_deploy_key
             IdentitiesOnly yes
@@ -116,26 +98,16 @@ jobs:
           EOF
           chmod 600 ~/.ssh/config
 
-      - name: Download staging frontend artifact
-        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
-        with:
-          name: staging-frontend-dist-${{ github.sha }}
-          path: _dist_staging_frontend/
-
       - name: Deploy frontend to staging (deterministisch, non-interaktiv)
-        env:
-          STAGING_REMOTE_HOST: ${{ secrets.STAGING_REMOTE_HOST }}
-          STAGING_REMOTE_USER: ${{ secrets.STAGING_REMOTE_USER }}
-          STAGING_REMOTE_PORT: ${{ secrets.STAGING_REMOTE_PORT || '22' }}
         run: |
           set -euo pipefail
 
-          test -d _dist_staging_frontend || { echo "::error::Frontend-Artefakt fehlt"; exit 1; }
+          test -d apps/website/dist || { echo "::error::Frontend-Artefakt fehlt"; exit 1; }
           ssh -F ~/.ssh/config plesk-staging "mkdir -p '${STAGING_FRONTEND_REMOTE_PATH}'"
-          find _dist_staging_frontend -name "*.map" -delete
+          find apps/website/dist -name "*.map" -delete
 
           scp -r -F ~/.ssh/config \
-            _dist_staging_frontend/. \
+            apps/website/dist/. \
             "plesk-staging:${STAGING_FRONTEND_REMOTE_PATH}/"
 
           TS=$(date -u '+%Y-%m-%dT%H:%M:%SZ')

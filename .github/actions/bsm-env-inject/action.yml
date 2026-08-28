@@ -146,7 +146,6 @@ runs:
             STRIPE_SECRET_KEY
             STRIPE_WEBHOOK_SECRET
             MOE_API_TOKEN
-            N8N_WEBHOOK_SECRET
             CIVICRM_SITE_KEY
             CIVICRM_API_KEY
             ALERTS_SLACK_WEBHOOK
