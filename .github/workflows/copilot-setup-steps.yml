@@ -1,0 +1,181 @@
+name: Copilot Setup Steps
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+      - .devcontainer/**
+      - package.json
+      - package-lock.json
+      - composer.json
+      - composer.lock
+      - apps/api/requirements*.txt
+      - apps/crm/composer.json
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+      - .devcontainer/**
+      - package.json
+      - package-lock.json
+      - composer.json
+      - composer.lock
+      - apps/api/requirements*.txt
+      - apps/crm/composer.json
+
+jobs:
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+    timeout-minutes: 59
+    permissions:
+      contents: read
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: menschlichkeit_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d menschlichkeit_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: root_password_dev
+          MARIADB_DATABASE: menschlichkeit_crm
+          MARIADB_USER: civicrm_user
+          MARIADB_PASSWORD: civicrm_dev_pass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      NODE_VERSION: '22.19.0'
+      NPM_VERSION: '11.4.2'
+      PYTHON_VERSION: '3.12'
+      PHP_VERSION: '8.2'
+      AGENT_INSTALL_CRM_DEPS: '1'
+      AGENT_INSTALL_PLAYWRIGHT: '1'
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/menschlichkeit_test
+      REDIS_URL: redis://127.0.0.1:6379/0
+      CRM_DB_HOST: 127.0.0.1
+      CRM_DB_PORT: '3306'
+      CRM_DB_NAME: menschlichkeit_crm
+      CRM_DB_USER: civicrm_user
+      CRM_DB_PASSWORD: civicrm_dev_pass
+      PIP_DISABLE_PIP_VERSION_CHECK: '1'
+      COMPOSER_PROCESS_TIMEOUT: '1200'
+
+    steps:
+      - name: Checkout repository with LFS
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          lfs: true
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@39370e394c6d4f53545b731a109dc9d3d67c4564
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Pin npm
+        run: npm install --global "npm@${NPM_VERSION}"
+
+      - name: Setup Python
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: |
+            apps/api/requirements.txt
+            apps/api/requirements-dev.txt
+            .devcontainer/python-tooling.txt
+
+      - name: Setup PHP and Composer
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          tools: composer:v2
+          extensions: bcmath, curl, dom, gd, intl, mbstring, mysqli, pcntl, pdo_mysql, pdo_pgsql, simplexml, soap, xml, xmlreader, xmlwriter, zip
+          coverage: none
+
+      - name: Install system tooling
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends shellcheck openssh-client jq curl unzip zip
+          sudo rm -rf /var/lib/apt/lists/*
+
+          arch="$(uname -m)"
+          case "$arch" in
+            x86_64|amd64) yq_arch="amd64" ;;
+            aarch64|arm64) yq_arch="arm64" ;;
+            *) echo "Unsupported architecture for yq: $arch" >&2; exit 1 ;;
+          esac
+          sudo curl -fsSL "https://github.com/mikefarah/yq/releases/download/v4.44.3/yq_linux_${yq_arch}" -o /usr/local/bin/yq
+          sudo chmod 0755 /usr/local/bin/yq
+
+      - name: Bootstrap complete repository toolchain
+        shell: bash
+        run: bash .devcontainer/onCreate-setup.sh
+
+      - name: Validate agent sandbox
+        shell: bash
+        run: bash .devcontainer/test-setup.sh
+
+      - name: Validate CRM dependency tree
+        shell: bash
+        run: |
+          test -f apps/crm/vendor/autoload.php
+          composer --working-dir=apps/crm validate --no-check-lock
+
+      - name: Validate repository configuration
+        shell: bash
+        run: |
+          npm run workspace:config:check
+          npx --no-install prisma validate
+          npm run n8n:validate
+          composer validate --strict
+
+      - name: Collect Python tests without executing external integrations
+        shell: bash
+        run: .venv/bin/python -m pytest apps/api/tests --collect-only -q
+
+      - name: Toolchain summary
+        if: always()
+        shell: bash
+        run: |
+          echo "### Agent sandbox toolchain" >> "$GITHUB_STEP_SUMMARY"
+          echo '```text' >> "$GITHUB_STEP_SUMMARY"
+          node --version >> "$GITHUB_STEP_SUMMARY" 2>&1 || true
+          npm --version >> "$GITHUB_STEP_SUMMARY" 2>&1 || true
+          .venv/bin/python --version >> "$GITHUB_STEP_SUMMARY" 2>&1 || true
+          php --version | head -n 1 >> "$GITHUB_STEP_SUMMARY" 2>&1 || true
+          composer --version >> "$GITHUB_STEP_SUMMARY" 2>&1 || true
+          docker --version >> "$GITHUB_STEP_SUMMARY" 2>&1 || true
+          docker compose version >> "$GITHUB_STEP_SUMMARY" 2>&1 || true
+          npx --no-install playwright --version >> "$GITHUB_STEP_SUMMARY" 2>&1 || true
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
