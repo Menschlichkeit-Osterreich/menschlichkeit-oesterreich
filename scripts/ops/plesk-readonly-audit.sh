@@ -324,8 +324,14 @@ for index in "${!HOST_NAMES[@]}"; do
   http_status="UNKNOWN"
   http_code=""
   vhost_status="UNKNOWN"
-  if [[ "$plesk_status" == "PASS" ]] && plesk bin domain --info "$host" >/dev/null 2>&1; then
-    vhost_status="PASS"
+  if [[ "$plesk_status" == "PASS" ]]; then
+    if [[ "$host" == "$AUDIT_DOMAIN_SUFFIX" ]]; then
+      if plesk bin domain --info "$host" >/dev/null 2>&1; then
+        vhost_status="PASS"
+      fi
+    elif plesk bin subdomain --info "$host" >/dev/null 2>&1; then
+      vhost_status="PASS"
+    fi
   fi
   if [[ "$NETWORK_CHECKS" == true ]]; then
     if command -v getent >/dev/null 2>&1 && getent ahosts "$host" >/dev/null 2>&1; then
