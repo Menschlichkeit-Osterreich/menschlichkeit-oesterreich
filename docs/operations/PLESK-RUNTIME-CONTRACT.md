@@ -27,9 +27,13 @@ Nicht erhoben oder veroeffentlicht werden:
 
 Detailwerte existieren nur kurzlebig im Runner. GitHub-Logs und Step Summary erhalten ausschliesslich `PASS`, `WARN`, `FAIL` oder `UNKNOWN` je oeffentlich benanntem Pruefobjekt. Interne Pfadwerte stammen aus GitHub-Variablen, stehen nicht im oeffentlichen Sollvertrag und werden nicht in die Statusausgabe uebernommen.
 
+Netzwerkpruefungen sind hart auf `menschlichkeit-oesterreich.at` und deren Subdomains begrenzt. IP-Adressen, fremde Domains und andere Ziele werden bereits bei der Eingabevalidierung verworfen, bevor DNS-, TLS- oder HTTP-Pruefungen moeglich sind.
+
+Plesk-VHost-Pruefungen verwenden fuer die Root Domain die lesende Domain-Abfrage und fuer Subdomains die von Plesk vorgesehene lesende Subdomain-Abfrage. Dadurch bleibt die Erkennung fachlich korrekt, ohne Konfiguration zu veraendern.
+
 ## Implementierter Prevalidation-Pfad
 
-Der GitHub-Workflow laeuft bei relevanten Pull Requests oder manuell. Er besitzt nur `contents: read`, persistiert keine Checkout-Credentials und verwendet weder Vault-Secrets noch eine Live-Verbindung. Er prueft Shell-Syntax, Python-Kompilierung, Sollvertrag und die reproduzierbaren Read-only- und Redaktions-Tests.
+Der GitHub-Workflow laeuft bei relevanten Pull Requests oder manuell. Er besitzt nur `contents: read`, persistiert keine Checkout-Credentials und verwendet weder Vault-Secrets noch eine Live-Verbindung. Er prueft Shell-Syntax, Python-Kompilierung, Sollvertrag und die reproduzierbaren Read-only-, Zielbegrenzungs-, VHost- und Redaktions-Tests.
 
 ## Zielpfad nach Human-Approval
 
@@ -52,8 +56,8 @@ Status: `AUTHORIZATION_REQUIRED`. Erforderlich ist die explizite Freigabe eines 
 | Plesk, OS, Kernel, Host, CPU, RAM, Dateisystem, Inodes | sichtbar | `UNKNOWN` oder `FAIL` |
 | Freier RAM, Speicher und Inodes | jeweils mindestens 15 Prozent | `FAIL` unter Schwellwert |
 | Python, PHP, Nginx, PHP-FPM und Cron | erforderliche Runtime beziehungsweise aktiver Service | `UNKNOWN` oder `FAIL` |
-| DNS, TLS und HTTP | fuer erforderliche Hosts erfolgreich | `FAIL` |
-| Plesk-VHost | erwarteter MOE-Host per lesender Plesk-Abfrage vorhanden | `UNKNOWN` oder `FAIL` |
+| DNS, TLS und HTTP | nur fuer `menschlichkeit-oesterreich.at` und Subdomains; erforderliche Hosts erfolgreich | `FAIL` |
+| Plesk-VHost | Root Domain ueber Domain-Info, Subdomains ueber Subdomain-Info vorhanden | `UNKNOWN` oder `FAIL` |
 | Zertifikatsrestlaufzeit | mindestens 7 Tage | `FAIL` |
 | Deploymentpfade und Release-Marker | fuer erforderliche Services vorhanden | `FAIL` |
 | Letztes Backup | hoechstens 48 Stunden alt | `UNKNOWN` bis kanonische Evidenz lesbar ist |
