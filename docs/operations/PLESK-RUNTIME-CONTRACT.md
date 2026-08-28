@@ -34,11 +34,11 @@ Der GitHub-Workflow laeuft bei relevanten Pull Requests oder manuell. Er besitzt
 ## Zielpfad nach Human-Approval
 
 1. Ein freigegebener Runner laedt den bestehenden kanonischen Verbindungsvertrag aus dem vorhandenen Vault.
-2. Verbindungswerte werden nur auf Vorhandensein und Format geprueft, maskiert und nicht protokolliert.
-3. Der Runner erstellt Key und Known-Hosts-Datei mit restriktiver Umask in einem kurzlebigen Verzeichnis.
-4. Der Collector wird ueber Standard Input an eine strikt host-key-gepruefte SSH-Sitzung uebergeben. Auf dem Ziel wird kein Audit-Skript gespeichert.
-5. Die Live-Ausgabe wird lokal als kurzlebiges JSON validiert und gegen `config/plesk/expected-state.json` verglichen.
-6. Nur die redigierte Statusmatrix wird protokolliert. Es gibt kein Audit-Artefakt und keinen Upload der Rohdaten.
+1. Verbindungswerte werden nur auf Vorhandensein und Format geprueft, maskiert und nicht protokolliert.
+1. Der Runner erstellt Key und Known-Hosts-Datei mit restriktiver Umask in einem kurzlebigen Verzeichnis.
+1. Der Collector wird ueber Standard Input an eine strikt host-key-gepruefte SSH-Sitzung uebergeben. Auf dem Ziel wird kein Audit-Skript gespeichert.
+1. Die Live-Ausgabe wird lokal als kurzlebiges JSON validiert und gegen `config/plesk/expected-state.json` verglichen.
+1. Nur die redigierte Statusmatrix wird protokolliert. Es gibt kein Audit-Artefakt und keinen Upload der Rohdaten.
 
 Bei Timeout oder unbekanntem SSH-Status erfolgt kein automatischer Write und kein Deployment. Der Zustand ist `UNKNOWN`; ein erneuter Lauf beginnt wieder mit einer lesenden Verbindung.
 
