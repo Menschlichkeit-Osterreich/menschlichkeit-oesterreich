@@ -20,8 +20,6 @@
     "ms-vscode-remote.remote-ssh",
     "ms-vscode.remote-explorer",
     "ms-vscode-remote.remote-containers",
-    "ms-azuretools.vscode-azureresourcegroups",
-    "ms-azuretools.vscode-containers",
     "github.vscode-pull-request-github",
     "github.vscode-github-actions",
     "codacy-app.codacy",

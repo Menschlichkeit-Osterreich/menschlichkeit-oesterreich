@@ -52,7 +52,6 @@
         "ms-vscode.powershell",
         "prisma.prisma",
         "redhat.vscode-yaml",
-        "ms-azuretools.vscode-containers",
         "codacy-app.codacy"
       ],
       "settings": {
