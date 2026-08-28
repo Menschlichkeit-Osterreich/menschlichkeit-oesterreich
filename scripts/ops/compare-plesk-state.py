@@ -78,13 +78,15 @@ def evaluate(
 
     checks: list[Check] = []
     collector = actual.get("collector") or {}
-    policy_expectations = {
-        "read_only": True,
-        "environment_dumped": False,
-        "process_command_lines_collected": False,
-        "secret_values_collected": False,
-        "pii_collected": False,
-    }
+    policy_expectations = {"read_only": True}
+    disabled_collection_fields = (
+        "environment_dumped",
+        "process_command_lines_collected",
+        "secret_values_collected",
+        "pii_collected",
+    )
+    for field in disabled_collection_fields:
+        policy_expectations[field] = False
     for key, required_value in policy_expectations.items():
         checks.append(
             Check(
