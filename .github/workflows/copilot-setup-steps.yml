@@ -46,7 +46,6 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
-
       redis:
         image: redis:7-alpine
         ports:
@@ -56,7 +55,6 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
-
       mariadb:
         image: mariadb:10.11
         env:
@@ -125,12 +123,10 @@ jobs:
             php-cli php-bcmath php-curl php-gd php-intl php-mbstring \
             php-mysql php-pgsql php-soap php-xml php-zip
           sudo rm -rf /var/lib/apt/lists/*
-
           command -v php
           php --version
           command -v composer
           composer --version
-
           arch="$(uname -m)"
           case "$arch" in
             x86_64|amd64) yq_arch="amd64" ;;
@@ -170,8 +166,14 @@ jobs:
         run: |
           npm run workspace:config:check
           npx --no-install prisma validate
-          npm run n8n:validate
           composer validate --strict
+
+      - name: Validate n8n legacy migration artifacts
+        shell: bash
+        run: |
+          if [ -d automation/n8n ]; then
+            npm run n8n:validate
+          fi
 
       - name: Collect Python tests without executing external integrations
         shell: bash
