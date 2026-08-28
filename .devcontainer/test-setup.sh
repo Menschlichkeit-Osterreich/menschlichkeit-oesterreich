@@ -74,6 +74,9 @@ check_required "tool yq" "command -v yq"
 check_required "tool curl" "command -v curl"
 check_required "tool shellcheck" "command -v shellcheck"
 check_required "tool openssh-client" "command -v ssh"
+check_required "tool PostgreSQL client" "command -v psql"
+check_required "tool Redis client" "command -v redis-cli"
+check_required "tool MariaDB client" "command -v mariadb || command -v mysql"
 
 if command -v node >/dev/null 2>&1; then
     node_version="$(node --version | sed 's/^v//')"
