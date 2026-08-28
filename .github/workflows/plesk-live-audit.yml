@@ -111,18 +111,16 @@ jobs:
             exit 1
           fi
 
-          SSH_OPTS=(
-            -i "$SSH_KEY_FILE"
-            -o StrictHostKeyChecking=yes
-            -o UserKnownHostsFile="$KNOWN_HOSTS_FILE"
-            -o BatchMode=yes
-            -o ConnectTimeout=15
-            -o ServerAliveInterval=10
-            -o ServerAliveCountMax=3
-          )
-
           printf 'SSH PREFLIGHT: Teste Verbindung...\n'
-          if ! ssh "${SSH_OPTS[@]}" "${REMOTE_USER}@${PLESK_HOST}" \
+          if ! ssh \
+               -i "$SSH_KEY_FILE" \
+               -o StrictHostKeyChecking=yes \
+               -o UserKnownHostsFile="$KNOWN_HOSTS_FILE" \
+               -o BatchMode=yes \
+               -o ConnectTimeout=15 \
+               -o ServerAliveInterval=10 \
+               -o ServerAliveCountMax=3 \
+               "${REMOTE_USER}@${PLESK_HOST}" \
                'id && hostname' 2>&1 | grep -v 'Warning:'; then
             printf 'SSH PREFLIGHT FAIL: Verbindung fehlgeschlagen\n' >&2
             printf 'Prüfe DNS, TCP, Auth, Host-Key, Benutzer und Shell\n' >&2
@@ -152,16 +150,6 @@ jobs:
           }
           trap cleanup EXIT
 
-          SSH_OPTS=(
-            -i "$SSH_KEY_FILE"
-            -o StrictHostKeyChecking=yes
-            -o UserKnownHostsFile="$KNOWN_HOSTS_FILE"
-            -o BatchMode=yes
-            -o ConnectTimeout=15
-            -o ServerAliveInterval=10
-            -o ServerAliveCountMax=3
-          )
-
           HOSTS_B64="$(jq -r '
             .public_hosts[] |
             [.host, .health_path, (.required | tostring)] |
@@ -181,7 +169,15 @@ jobs:
 
           printf 'LIVE COLLECT: Führe read-only Collector auf Remote-Host aus\n'
 
-          LIVE_OUTPUT="$(ssh "${SSH_OPTS[@]}" "${REMOTE_USER}@${PLESK_HOST}" \
+          LIVE_OUTPUT="$(ssh \
+            -i "$SSH_KEY_FILE" \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$KNOWN_HOSTS_FILE" \
+            -o BatchMode=yes \
+            -o ConnectTimeout=15 \
+            -o ServerAliveInterval=10 \
+            -o ServerAliveCountMax=3 \
+            "${REMOTE_USER}@${PLESK_HOST}" \
             "MOE_AUDIT_PUBLIC_HOSTS_B64=$(printf '%q' "$HOSTS_B64") \
              MOE_AUDIT_SERVICE_PATHS_B64=$(printf '%q' "$PATHS_B64") \
              PLESK_VHOST_ROOT=$(printf '%q' "$VHOST_ROOT") \

@@ -57,18 +57,6 @@ env:
 
 jobs:
   # ============================================================
-  # BSM — Bitwarden Secrets Manager Injection (optional)
-  # ============================================================
-  bsm-secrets:
-    name: 'BSM: Production Secrets laden'
-    if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.normalize_test_case == 'none' }}
-    uses: ./.github/workflows/reusable-bsm-secrets.yml
-    with:
-      profile: deploy-production
-    secrets:
-      BW_ACCESS_TOKEN: ${{ secrets.BW_ACCESS_TOKEN }}
-
-  # ============================================================
   # VALIDATE — Env-Vars, Branch-Schutz, Dry-Run-Banner
   # ============================================================
   validate:
@@ -237,9 +225,8 @@ jobs:
   preflight:
     name: Preflight (BSM Handoff)
     runs-on: ubuntu-latest
-    needs: [bsm-secrets, validate]
-    if:
-      ${{ always() && (needs.bsm-secrets.result == 'success' || needs.bsm-secrets.result == 'skipped') && (
+    needs: [validate]
+    if: ${{ always() && (
       (github.event_name != 'workflow_dispatch' || github.event.inputs.normalize_test_case == 'none') &&
       (github.event_name == 'push' ||
       (github.event_name == 'workflow_dispatch' &&
@@ -254,6 +241,54 @@ jobs:
           profile: deploy-production
           access_token: ${{ secrets.BW_ACCESS_TOKEN }}
 
+      - name: Plesk-Infra-Kontext aus BSM aufloesen (fail-fast)
+        run: |
+          set -euo pipefail
+          placeholder_re='^(CHANGE_ME|PLACEHOLDER|UPDATE_VALUE_IN_VAULT|YOUR_|REPLACE_|TODO)'
+
+          fail() {
+            echo "✗ $1"
+            exit 1
+          }
+
+          has_placeholder_prefix() {
+            local value=$1
+            [[ "$value" =~ $placeholder_re ]]
+          }
+
+          [ -n "${PLESK_HOST:-}" ] || fail "PLESK_HOST fehlt in BSM-Injection"
+          ! has_placeholder_prefix "${PLESK_HOST}" || fail "PLESK_HOST enthaelt einen Platzhalterwert"
+          echo "✓ PLESK_HOST"
+
+          [ -n "${REMOTE_USER:-}" ] || fail "REMOTE_USER fehlt in BSM-Injection"
+          ! has_placeholder_prefix "${REMOTE_USER}" || fail "REMOTE_USER enthaelt einen Platzhalterwert"
+          [[ "${REMOTE_USER}" =~ ^[A-Za-z0-9_][A-Za-z0-9._-]{0,63}$ ]] || fail "REMOTE_USER hat ein ungueltiges Format"
+          echo "✓ REMOTE_USER"
+
+          [ -n "${PLESK_PORT:-}" ] || fail "PLESK_PORT fehlt in BSM-Injection"
+          ! has_placeholder_prefix "${PLESK_PORT}" || fail "PLESK_PORT enthaelt einen Platzhalterwert"
+          [[ "${PLESK_PORT}" =~ ^[0-9]+$ ]] || fail "PLESK_PORT ist nicht numerisch"
+          if (( 10#${PLESK_PORT} < 1 || 10#${PLESK_PORT} > 65535 )); then
+            fail "PLESK_PORT liegt ausserhalb des erlaubten Bereichs 1..65535"
+          fi
+          echo "✓ PLESK_PORT"
+
+          [ -n "${PLESK_SSH_PRIVATE_KEY:-}" ] || fail "PLESK_SSH_PRIVATE_KEY fehlt in BSM-Injection"
+          if grep -Eq '(CHANGE_ME|PLACEHOLDER|UPDATE_VALUE_IN_VAULT|YOUR_|REPLACE_|TODO)' <<< "${PLESK_SSH_PRIVATE_KEY}"; then
+            fail "PLESK_SSH_PRIVATE_KEY enthaelt einen Platzhalterwert"
+          fi
+          echo "✓ PLESK_SSH_PRIVATE_KEY"
+
+          [ -n "${PLESK_KNOWN_HOSTS:-}" ] || fail "PLESK_KNOWN_HOSTS fehlt in BSM-Injection"
+          ! has_placeholder_prefix "${PLESK_KNOWN_HOSTS}" || fail "PLESK_KNOWN_HOSTS enthaelt einen Platzhalterwert"
+          if [[ "${PLESK_KNOWN_HOSTS}" == *$'\n'* || "${PLESK_KNOWN_HOSTS}" == *$'\r'* ]]; then
+            fail "PLESK_KNOWN_HOSTS muss genau eine OpenSSH-known_hosts-Zeile enthalten"
+          fi
+          if ! [[ "${PLESK_KNOWN_HOSTS}" =~ ^[^[:space:]]+[[:space:]]+(ssh-ed25519|ecdsa-sha2-nistp256)[[:space:]]+[A-Za-z0-9+/=]+$ ]]; then
+            fail "PLESK_KNOWN_HOSTS hat kein vollstaendiges OpenSSH-known_hosts-Format"
+          fi
+          echo "✓ PLESK_KNOWN_HOSTS"
+
       - name: Preflight → BSM Secret Validation
         run: |
           set -euo pipefail
@@ -262,7 +297,7 @@ jobs:
 
           required_keys=(
             PLESK_HOST
-            PLESK_USER
+            REMOTE_USER
             PLESK_PORT
             PLESK_SSH_PRIVATE_KEY
             PLESK_KNOWN_HOSTS
@@ -271,7 +306,6 @@ jobs:
             STRIPE_SECRET_KEY
             STRIPE_WEBHOOK_SECRET
             MOE_API_TOKEN
-            N8N_WEBHOOK_SECRET
             CIVICRM_SITE_KEY
             CIVICRM_API_KEY
             ALERTS_SLACK_WEBHOOK
@@ -376,7 +410,7 @@ jobs:
   deploy:
     name: Deploy → Plesk
     runs-on: ubuntu-latest
-    needs: [bsm-secrets, preflight, build-frontend, build-games, test]
+    needs: [preflight, build-frontend, build-games, test]
     environment: production
     if: >-
       always() &&
@@ -384,7 +418,6 @@ jobs:
       (github.event_name == 'push' ||
         (github.event_name == 'workflow_dispatch' &&
           github.event.inputs.dry_run != 'true')) &&
-      (needs.bsm-secrets.result == 'success' || needs.bsm-secrets.result == 'skipped') &&
       needs.build-frontend.result == 'success' &&
       (needs.build-games.result == 'success' || needs.build-games.result == 'skipped') &&
       needs.test.result == 'success' &&
@@ -393,12 +426,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: BSM-Secrets in Job-Umgebung laden
-        uses: ./.github/actions/bsm-env-inject
-        with:
-          profile: deploy-production
-          access_token: ${{ secrets.BW_ACCESS_TOKEN }}
 
       - name: API Evidence Status initialisieren (redigiert)
         if: >
@@ -418,53 +445,11 @@ jobs:
             echo "API_OPEN_EVIDENCE_GAP=none"
           } >> "$GITHUB_ENV"
 
-      - name: Plesk-Infra-Kontext aus BSM aufloesen (fail-fast)
-        run: |
-          set -euo pipefail
-          placeholder_re='^(CHANGE_ME|PLACEHOLDER|UPDATE_VALUE_IN_VAULT|YOUR_|REPLACE_|TODO)'
-
-          fail() {
-            echo "✗ $1"
-            exit 1
-          }
-
-          has_placeholder_prefix() {
-            local value=$1
-            [[ "$value" =~ $placeholder_re ]]
-          }
-
-          [ -n "${PLESK_HOST:-}" ] || fail "PLESK_HOST fehlt in BSM-Injection"
-          ! has_placeholder_prefix "${PLESK_HOST}" || fail "PLESK_HOST enthaelt einen Platzhalterwert"
-          echo "✓ PLESK_HOST"
-
-          [ -n "${PLESK_USER:-}" ] || fail "PLESK_USER fehlt in BSM-Injection"
-          ! has_placeholder_prefix "${PLESK_USER}" || fail "PLESK_USER enthaelt einen Platzhalterwert"
-          [[ "${PLESK_USER}" =~ ^[A-Za-z0-9_][A-Za-z0-9._-]{0,63}$ ]] || fail "PLESK_USER hat ein ungueltiges Format"
-          echo "✓ PLESK_USER"
-
-          [ -n "${PLESK_PORT:-}" ] || fail "PLESK_PORT fehlt in BSM-Injection"
-          ! has_placeholder_prefix "${PLESK_PORT}" || fail "PLESK_PORT enthaelt einen Platzhalterwert"
-          [[ "${PLESK_PORT}" =~ ^[0-9]+$ ]] || fail "PLESK_PORT ist nicht numerisch"
-          if (( 10#${PLESK_PORT} < 1 || 10#${PLESK_PORT} > 65535 )); then
-            fail "PLESK_PORT liegt ausserhalb des erlaubten Bereichs 1..65535"
-          fi
-          echo "✓ PLESK_PORT"
-
-          [ -n "${PLESK_SSH_PRIVATE_KEY:-}" ] || fail "PLESK_SSH_PRIVATE_KEY fehlt in BSM-Injection"
-          if grep -Eq '(CHANGE_ME|PLACEHOLDER|UPDATE_VALUE_IN_VAULT|YOUR_|REPLACE_|TODO)' <<< "${PLESK_SSH_PRIVATE_KEY}"; then
-            fail "PLESK_SSH_PRIVATE_KEY enthaelt einen Platzhalterwert"
-          fi
-          echo "✓ PLESK_SSH_PRIVATE_KEY"
-
-          [ -n "${PLESK_KNOWN_HOSTS:-}" ] || fail "PLESK_KNOWN_HOSTS fehlt in BSM-Injection"
-          ! has_placeholder_prefix "${PLESK_KNOWN_HOSTS}" || fail "PLESK_KNOWN_HOSTS enthaelt einen Platzhalterwert"
-          if [[ "${PLESK_KNOWN_HOSTS}" == *$'\n'* || "${PLESK_KNOWN_HOSTS}" == *$'\r'* ]]; then
-            fail "PLESK_KNOWN_HOSTS muss genau eine OpenSSH-known_hosts-Zeile enthalten"
-          fi
-          if ! [[ "${PLESK_KNOWN_HOSTS}" =~ ^[^[:space:]]+[[:space:]]+(ssh-ed25519|ecdsa-sha2-nistp256)[[:space:]]+[A-Za-z0-9+/=]+$ ]]; then
-            fail "PLESK_KNOWN_HOSTS hat kein vollstaendiges OpenSSH-known_hosts-Format"
-          fi
-          echo "✓ PLESK_KNOWN_HOSTS"
+      - name: BSM-Secrets in Job-Umgebung laden
+        uses: ./.github/actions/bsm-env-inject
+        with:
+          profile: deploy-production
+          access_token: ${{ secrets.BW_ACCESS_TOKEN }}
 
       - name: Node.js ${{ env.NODE_VERSION }} einrichten
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.2.0
@@ -497,7 +482,7 @@ jobs:
           set -euo pipefail
           RESOLVED_PLESK_HOST="${PLESK_HOST}"
           RESOLVED_PLESK_PORT="${PLESK_PORT}"
-          RESOLVED_PLESK_USER="${PLESK_USER}"
+          RESOLVED_PLESK_USER="${REMOTE_USER}"
           cat >> ~/.ssh/config <<EOF
           Host plesk-prod
             HostName ${RESOLVED_PLESK_HOST}
@@ -628,6 +613,12 @@ jobs:
 
       # ── API deployen ────────────────────────────────────────
       # ── Preflight: Microsoft Graph + Slack Secrets validieren ────────────
+      - name: BSM-Secrets in Job-Umgebung laden
+        uses: ./.github/actions/bsm-env-inject
+        with:
+          profile: deploy-production
+          access_token: ${{ secrets.BW_ACCESS_TOKEN }}
+
       - name: Preflight → BSM Secret Validation
         if: >
           env.TARGET_SERVICE == 'all' ||
@@ -644,7 +635,6 @@ jobs:
             STRIPE_SECRET_KEY
             STRIPE_WEBHOOK_SECRET
             MOE_API_TOKEN
-            N8N_WEBHOOK_SECRET
             CIVICRM_SITE_KEY
             CIVICRM_API_KEY
             ALERTS_SLACK_WEBHOOK
@@ -690,7 +680,6 @@ jobs:
             printf 'STRIPE_SECRET_KEY=%s\n' "${STRIPE_SECRET_KEY}"
             printf 'STRIPE_WEBHOOK_SECRET=%s\n' "${STRIPE_WEBHOOK_SECRET}"
             printf 'MOE_API_TOKEN=%s\n' "${MOE_API_TOKEN}"
-            printf 'N8N_WEBHOOK_SECRET=%s\n' "${N8N_WEBHOOK_SECRET}"
             printf 'CIVICRM_SITE_KEY=%s\n' "${CIVICRM_SITE_KEY}"
             printf 'CIVICRM_API_KEY=%s\n' "${CIVICRM_API_KEY}"
             printf 'MICROSOFT_TENANT_ID=%s\n' "${MICROSOFT_TENANT_ID}"
@@ -708,7 +697,6 @@ jobs:
             STRIPE_SECRET_KEY
             STRIPE_WEBHOOK_SECRET
             MOE_API_TOKEN
-            N8N_WEBHOOK_SECRET
             CIVICRM_SITE_KEY
             CIVICRM_API_KEY
             MICROSOFT_TENANT_ID
@@ -768,7 +756,7 @@ jobs:
             OVERLAY_FILE='${{ env.API_REMOTE_PATH }}/.env.deploy'
             TMP_FILE='${{ env.API_REMOTE_PATH }}/.env.merged'
             if [ -f \"\$ENV_FILE\" ]; then
-              grep -vE '^(MAIL_TRANSPORT|DATABASE_URL|JWT_SECRET_KEY|STRIPE_SECRET_KEY|STRIPE_WEBHOOK_SECRET|MOE_API_TOKEN|N8N_WEBHOOK_SECRET|CIVICRM_SITE_KEY|CIVICRM_API_KEY|MICROSOFT_TENANT_ID|MICROSOFT_CLIENT_ID|MICROSOFT_CLIENT_SECRET|MICROSOFT_GRAPH_SENDER|ALERTS_SLACK_WEBHOOK)=' "\$ENV_FILE" > "\$TMP_FILE" || true
+              grep -vE '^(MAIL_TRANSPORT|DATABASE_URL|JWT_SECRET_KEY|STRIPE_SECRET_KEY|STRIPE_WEBHOOK_SECRET|MOE_API_TOKEN|CIVICRM_SITE_KEY|CIVICRM_API_KEY|MICROSOFT_TENANT_ID|MICROSOFT_CLIENT_ID|MICROSOFT_CLIENT_SECRET|MICROSOFT_GRAPH_SENDER|ALERTS_SLACK_WEBHOOK)=' "\$ENV_FILE" > "\$TMP_FILE" || true
               cat \"\$OVERLAY_FILE\" >> \"\$TMP_FILE\"
               mv \"\$TMP_FILE\" \"\$ENV_FILE\"
               rm -f \"\$OVERLAY_FILE\"
@@ -780,7 +768,7 @@ jobs:
           if ! ssh plesk-prod "
             set -e
             ENV_FILE='${{ env.API_REMOTE_PATH }}/.env'
-            required_keys='MAIL_TRANSPORT DATABASE_URL JWT_SECRET_KEY STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET MOE_API_TOKEN N8N_WEBHOOK_SECRET CIVICRM_SITE_KEY CIVICRM_API_KEY MICROSOFT_TENANT_ID MICROSOFT_CLIENT_ID MICROSOFT_CLIENT_SECRET MICROSOFT_GRAPH_SENDER ALERTS_SLACK_WEBHOOK'
+            required_keys='MAIL_TRANSPORT DATABASE_URL JWT_SECRET_KEY STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET MOE_API_TOKEN CIVICRM_SITE_KEY CIVICRM_API_KEY MICROSOFT_TENANT_ID MICROSOFT_CLIENT_ID MICROSOFT_CLIENT_SECRET MICROSOFT_GRAPH_SENDER ALERTS_SLACK_WEBHOOK'
             for key in \$required_keys; do
               grep -q \"^\${key}=\" \"\$ENV_FILE\" || { echo \"missing_key:\${key}\"; exit 19; }
             done
@@ -1496,7 +1484,7 @@ jobs:
           echo "| Ziel-Service | ${{ env.TARGET_SERVICE }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| API_REMOTE_PATH | \`${{ env.API_REMOTE_PATH }}\` |" >> "$GITHUB_STEP_SUMMARY"
           echo "| PLESK_HOST | ${PLESK_HOST:-nicht gesetzt} |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| PLESK_USER | ${PLESK_USER:-nicht gesetzt} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| REMOTE_USER | ${REMOTE_USER:-nicht gesetzt} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Secret-Handoff (.env.deploy) | ${API_HANDOFF_CONTRACT_STATUS:-nicht geprueft} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Runtime-Secret-Contract | ${API_SECRET_RUNTIME_STATUS:-nicht geprueft} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Notification-Probe | ${API_NOTIFICATION_PROBE_STATUS:-nicht ausgefuehrt} |" >> "$GITHUB_STEP_SUMMARY"
