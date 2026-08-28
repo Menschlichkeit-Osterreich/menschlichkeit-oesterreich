@@ -76,7 +76,7 @@
 
 ## Phase 10: Azure-Infra-Track
 
-> Azure devmoe ist die Container-Plattform fuer API, Games und n8n בלבד. Azure ist kein Ziel fuer Drupal/CiviCRM. Connectivity-Werte und Keys werden ueber den bestehenden Secret-Management-Vertrag aufgeloest und nicht als kanonische Klartextwerte in Tasks festgeschrieben.
+> Azure devmoe ist die Container-Plattform ausschliesslich fuer API, Games und n8n. Azure ist kein Ziel fuer Drupal/CiviCRM. Connectivity-Werte und Keys werden ueber den bestehenden Secret-Management-Vertrag aufgeloest und nicht als kanonische Klartextwerte in Tasks festgeschrieben.
 
 - [ ] A901 [P] [infra] Azure Connectivity und Host-Trust fuer den Container-Track verifizieren; keine IP/User/PEM-Datei als kanonische Task-Konfiguration hardcoden.
 - [ ] A902 [infra] App-Verteilung auf Azure explizit auf API (FastAPI), Games (Next.js/Babylon.js) und n8n begrenzen.
