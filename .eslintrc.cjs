@@ -1,7 +1,9 @@
 module.exports = {
   root: true,
   env: {
-    es2022: true,
+    // Legacy Codacy Analysis CLI compatibility. The authoritative ESLint 9
+    // configuration is eslint.config.js and keeps ecmaVersion at "latest".
+    es2021: true,
     node: true,
     browser: true,
   },
