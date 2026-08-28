@@ -201,8 +201,20 @@ Die folgenden Agenten bleiben aktiv unter `.github/agents/` laut `.github/ai-reg
 - `.github/agents/speckit-head-master.agent.md`
 
 **SpecKit-Workflow-Agenten** (fuer Spec-Kit-getriebene Entwicklung):
-- `.github/agents/speckit.{analyze,specify,plan,tasks,implement,taskstoissues}.agent.md`
-- `.github/agents/speckit.git.{feature,commit,validate,initialize}.agent.md`
+- `.github/agents/speckit.analyze.agent.md`
+- `.github/agents/speckit.checklist.agent.md`
+- `.github/agents/speckit.clarify.agent.md`
+- `.github/agents/speckit.constitution.agent.md`
+- `.github/agents/speckit.specify.agent.md`
+- `.github/agents/speckit.plan.agent.md`
+- `.github/agents/speckit.tasks.agent.md`
+- `.github/agents/speckit.implement.agent.md`
+- `.github/agents/speckit.taskstoissues.agent.md`
+- `.github/agents/speckit.git.feature.agent.md`
+- `.github/agents/speckit.git.commit.agent.md`
+- `.github/agents/speckit.git.validate.agent.md`
+- `.github/agents/speckit.git.initialize.agent.md`
+- `.github/agents/speckit.git.remote.agent.md`
 
 Der importierte Skill `.github/skills/senior-fullstack/SKILL.md` ist nur ergaenzende Vendor-Guidance. Repository-Governance, Issue #539 und kanonische Agentenprofile haben Vorrang.
 
