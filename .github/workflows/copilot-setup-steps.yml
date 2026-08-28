@@ -70,22 +70,6 @@ jobs:
           --health-timeout=5s
           --health-retries=10
 
-    env:
-      NODE_VERSION: '22.19.0'
-      NPM_VERSION: '11.4.2'
-      PYTHON_VERSION: '3.12'
-      AGENT_INSTALL_CRM_DEPS: '1'
-      AGENT_INSTALL_PLAYWRIGHT: '1'
-      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/menschlichkeit_test
-      REDIS_URL: redis://127.0.0.1:6379/0
-      CRM_DB_HOST: 127.0.0.1
-      CRM_DB_PORT: '3306'
-      CRM_DB_NAME: menschlichkeit_crm
-      CRM_DB_USER: civicrm_user
-      CRM_DB_PASSWORD: civicrm_dev_pass
-      PIP_DISABLE_PIP_VERSION_CHECK: '1'
-      COMPOSER_PROCESS_TIMEOUT: '1200'
-
     steps:
       - name: Checkout repository with LFS
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
@@ -96,21 +80,38 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af
         with:
-          node-version: ${{ env.NODE_VERSION }}
+          node-version: '22.19.0'
           cache: npm
 
       - name: Pin npm
-        run: npm install --global "npm@${NPM_VERSION}"
+        run: npm install --global npm@11.4.2
 
       - name: Setup Python
         uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: '3.12'
           cache: pip
           cache-dependency-path: |
             apps/api/requirements.txt
             apps/api/requirements-dev.txt
             .devcontainer/python-tooling.txt
+
+      - name: Configure sandbox environment
+        shell: bash
+        run: |
+          cat >> "$GITHUB_ENV" <<'EOF'
+          AGENT_INSTALL_CRM_DEPS=1
+          AGENT_INSTALL_PLAYWRIGHT=1
+          DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/menschlichkeit_test
+          REDIS_URL=redis://127.0.0.1:6379/0
+          CRM_DB_HOST=127.0.0.1
+          CRM_DB_PORT=3306
+          CRM_DB_NAME=menschlichkeit_crm
+          CRM_DB_USER=civicrm_user
+          CRM_DB_PASSWORD=civicrm_dev_pass
+          PIP_DISABLE_PIP_VERSION_CHECK=1
+          COMPOSER_PROCESS_TIMEOUT=1200
+          EOF
 
       - name: Install system and PHP tooling
         shell: bash
