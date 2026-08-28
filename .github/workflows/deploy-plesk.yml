@@ -121,7 +121,10 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: apps/website/package-lock.json
+          # apps/website ist ein npm-Workspace der Root-package.json.
+          # Der einzige Lockfile liegt im Repo-Root; ein Pfad auf
+          # apps/website/package-lock.json laesst setup-node fehlschlagen.
+          cache-dependency-path: package-lock.json
 
       - name: Dependencies installieren
         working-directory: apps/website
@@ -217,7 +220,8 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: apps/website/package-lock.json
+          # Siehe build-frontend: einziger Lockfile liegt im Repo-Root.
+          cache-dependency-path: package-lock.json
 
       - name: Dependencies installieren
         working-directory: apps/website
