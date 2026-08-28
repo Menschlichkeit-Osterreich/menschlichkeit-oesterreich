@@ -40,6 +40,7 @@ def _candidates(raw: str) -> list[str]:
 
 
 def main() -> int:
+    """Prueft alle Workflows und meldet nicht aufloesbare Cache-Pfade."""
     failures: list[str] = []
     checked = 0
 

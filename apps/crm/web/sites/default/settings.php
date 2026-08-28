@@ -17,38 +17,51 @@
 $moe_app_env = getenv('APP_ENV') ?: 'development';
 $moe_is_production = ($moe_app_env === 'production');
 
-/**
- * Liest eine Pflicht-Umgebungsvariable.
- *
- * In Produktion wird ein fehlender oder leerer Wert zum harten Abbruch.
- * Ausserhalb der Produktion wird der markierte Entwicklungs-Fallback genutzt.
- *
- * @param string $name
- *   Name der Umgebungsvariable.
- * @param string $dev_fallback
- *   Nur ausserhalb der Produktion verwendeter Entwicklungswert.
- *
- * @return string
- *   Der aufgeloeste Wert.
- */
-function moe_required_setting(string $name, string $dev_fallback): string {
-  $value = getenv($name);
-  if ($value !== FALSE && $value !== '') {
-    return $value;
+// Drupal kann settings.php mehrfach einbinden; ohne diese Schutzabfrage waere
+// eine erneute Deklaration ein Fatal Error.
+if (!function_exists('moe_required_setting')) {
+
+  /**
+   * Liest eine Pflicht-Umgebungsvariable.
+   *
+   * In Produktion wird ein fehlender oder leerer Wert zum harten Abbruch.
+   * Ausserhalb der Produktion wird der markierte Entwicklungs-Fallback genutzt.
+   *
+   * Die Umgebung wird bewusst direkt aus getenv() gelesen statt aus einer
+   * globalen Variablen: die Funktion bleibt damit unabhaengig von der
+   * Auswertungsreihenfolge in dieser Datei.
+   *
+   * @param string $name
+   *   Name der Umgebungsvariable.
+   * @param string $dev_fallback
+   *   Nur ausserhalb der Produktion verwendeter Entwicklungswert.
+   *
+   * @return string
+   *   Der aufgeloeste Wert.
+   *
+   * @throws \RuntimeException
+   *   Wenn in Produktion ein Pflichtwert fehlt oder leer ist.
+   */
+  function moe_required_setting(string $name, string $dev_fallback): string {
+    $value = getenv($name);
+    if ($value !== FALSE && $value !== '') {
+      return $value;
+    }
+
+    if ((getenv('APP_ENV') ?: 'development') === 'production') {
+      // Kein Secret-Wert im Fehlertext (DSGVO / Secret-Hygiene).
+      throw new \RuntimeException(
+        sprintf(
+          'Produktionsstart abgebrochen: Pflicht-Umgebungsvariable %s ist nicht gesetzt. '
+          . 'Produktionswerte kommen ausschliesslich aus dem Secrets-Provider.',
+          $name
+        )
+      );
+    }
+
+    return $dev_fallback;
   }
 
-  if (($GLOBALS['moe_is_production'] ?? FALSE) === TRUE) {
-    // Kein Secret-Wert im Fehlertext (DSGVO / Secret-Hygiene).
-    throw new \RuntimeException(
-      sprintf(
-        'Produktionsstart abgebrochen: Pflicht-Umgebungsvariable %s ist nicht gesetzt. '
-        . 'Produktionswerte kommen ausschliesslich aus dem Secrets-Provider.',
-        $name
-      )
-    );
-  }
-
-  return $dev_fallback;
 }
 
 // ── Datenbank ────────────────────────────────────────────────────────────────

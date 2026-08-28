@@ -96,6 +96,15 @@ Abgesichert sind `DRUPAL_HASH_SALT`, `DRUPAL_DB_NAME`, `DRUPAL_DB_USER` und
 `dev-only-insecure-hash-salt-do-not-use-in-production` — als Produktionswert
 selbsterklärend untauglich.
 
+Zwei Härtungen an der Helferfunktion selbst:
+
+- Sie liest `APP_ENV` direkt über `getenv()` statt aus einer globalen
+  Variablen. Damit ist sie unabhängig von der Auswertungsreihenfolge in der
+  Datei; ein `$GLOBALS`-Zugriff im Funktionsrumpf entfällt.
+- Sie steht in einem `function_exists()`-Guard. Drupal kann `settings.php`
+  mehrfach einbinden; ohne den Guard wäre die erneute Deklaration ein Fatal
+  Error.
+
 **Tests.** Harness lädt `settings.php` in simulierter Umgebung:
 
 | # | Umgebung | Erwartung | Ergebnis |
@@ -107,8 +116,10 @@ selbsterklärend untauglich.
 | 5 | `production`, nur `DRUPAL_HASH_SALT` fehlt | Abbruch | ✅ `FAILED_CLOSED: … DRUPAL_HASH_SALT ist nicht gesetzt` |
 | 6 | `production`, `DRUPAL_HASH_SALT=''` | Abbruch | ✅ `FAILED_CLOSED` (leer zählt als fehlend) |
 
-Zusätzlich: `php -l` fehlerfrei. Der alte Festwert ist repository-weit nicht
-mehr auffindbar (`grep` über alle Dateien, außer dieser Auditdokumentation).
+Zusätzlich verifiziert: zweifaches `require` derselben Datei lädt fehlerfrei
+(Redeklarationsschutz greift), `php -l` fehlerfrei. Der alte Festwert ist
+repository-weit nicht mehr auffindbar (`grep` über alle Dateien, außer dieser
+Auditdokumentation).
 
 **Rollback.** Revert der Datei.
 
