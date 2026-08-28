@@ -1,0 +1,28 @@
+name: Temporary Codacy annotation debug
+
+on:
+  push:
+    branches:
+      - chore/crm-plesk-architecture-drift
+
+permissions:
+  contents: read
+  checks: read
+
+jobs:
+  annotations:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Read Codacy annotations from previous PR head
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CHECK_RUN_ID: '98792863963'
+        run: |
+          set -euo pipefail
+          curl -fsSL \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2026-03-10" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/check-runs/${CHECK_RUN_ID}/annotations?per_page=100" \
+            | jq -r '.[] | [.path, .start_line, (.title // ""), .message] | @tsv'
