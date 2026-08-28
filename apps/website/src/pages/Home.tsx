@@ -71,18 +71,19 @@ export default function HomePage() {
       {/* Hero Section */}
       <section
         className="relative overflow-hidden bg-accent-900"
+        style={{ backgroundColor: '#101f2a' }}
         aria-label="Einstieg"
         data-component="Hero"
       >
-        <div className="absolute inset-0 opacity-5" aria-hidden="true">
-          <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-white blur-3xl -translate-y-1/2 translate-x-1/4" />
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+          <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-white/5 blur-3xl -translate-y-1/2 translate-x-1/4" />
         </div>
 
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-20 md:py-28">
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-20 md:py-28" style={{ backgroundColor: 'transparent' }}>
           <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
             {/* Text */}
-            <div className="flex-1 text-center md:text-left">
-              <span className="inline-block rounded-full border border-white/20 bg-white/12 px-3 py-1 text-xs font-semibold tracking-widest text-white uppercase mb-6 backdrop-blur-sm">
+            <div className="flex-1 text-center md:text-left" style={{ color: '#ffffff' }}>
+              <span className="inline-block rounded-full border border-white/30 bg-accent-700 px-3 py-1 text-xs font-semibold tracking-widest text-white uppercase mb-6">
                 Verein Menschlichkeit Österreich
               </span>
               <h1
@@ -116,7 +117,7 @@ export default function HomePage() {
                 </Link>
                 <Link
                   to="/spenden"
-                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl border-2 border-white/70 text-white font-bold text-sm hover:bg-white/15 transition-all"
+                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl border-2 border-white text-white font-bold text-sm hover:bg-accent-800 transition-all"
                   data-testid="cta.donate"
                 >
                   <span aria-hidden="true">❤️</span>

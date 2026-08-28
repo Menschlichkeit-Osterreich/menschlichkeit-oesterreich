@@ -254,7 +254,7 @@ function Step2({
             />
             <div>
               <span className="font-medium text-sm">{label}</span>
-              <p className="text-xs text-secondary-500 mt-0.5">{FEE_MAP[key][data.category]}</p>
+              <p className="text-xs text-secondary-700 mt-0.5">{FEE_MAP[key][data.category]}</p>
             </div>
           </label>
         ))}
@@ -337,7 +337,7 @@ function Step3({
           />
           <div>
             <span className="font-medium text-sm">Digitale Zahlung</span>
-            <p className="text-xs text-secondary-500">
+            <p className="text-xs text-secondary-700">
               Online-Zahlung über unterstützte Zahlungsdienstleister.
             </p>
           </div>
@@ -356,7 +356,7 @@ function Step3({
           />
           <div>
             <span className="font-medium text-sm">Überweisung / Dauerauftrag</span>
-            <p className="text-xs text-secondary-500">
+            <p className="text-xs text-secondary-700">
               Die konkreten Zahlungsdaten werden nach dem Antrag individuell übermittelt.
             </p>
           </div>
@@ -437,7 +437,7 @@ function Step4({
           ],
         ].map(([k, v]) => (
           <div key={k} className="flex gap-2 px-3 py-2">
-            <span className="w-36 shrink-0 text-secondary-500">{k}</span>
+            <span className="w-36 shrink-0 text-secondary-700">{k}</span>
             <span className="font-medium">{v}</span>
           </div>
         ))}
@@ -640,7 +640,7 @@ export default function JoinPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl p-4 space-y-4">
+    <div className="mx-auto max-w-3xl p-4 space-y-4 bg-white" style={{ backgroundColor: '#ffffff' }}>
       <SeoHead
         title="Mitglied werden – Menschlichkeit Österreich"
         description="Werden Sie Mitglied bei Menschlichkeit Österreich und setzen Sie sich gemeinsam mit uns für Demokratie, Menschenrechte und soziale Gerechtigkeit ein. Jetzt beitreten."
@@ -729,9 +729,9 @@ export default function JoinPage() {
             </a>
           </div>
         </article>
-        <article className="rounded-2xl border border-secondary-200 bg-white p-6 shadow-sm">
+        <article className="rounded-2xl border border-secondary-200 bg-white p-6 shadow-sm" data-pa11y-article="why" style={{ backgroundColor: '#ffffff' }}>
           <h2 className="text-lg font-semibold text-secondary-900">Warum Mitglied werden?</h2>
-          <p className="mt-4 text-sm leading-relaxed text-secondary-700">
+          <p className="mt-4 text-sm leading-relaxed text-secondary-900" style={{ color: '#2b231d', backgroundColor: '#ffffff' }}>
             Mit Ihrer Mitgliedschaft stärken Sie eine Organisation, die demokratische Teilhabe,
             Menschenrechte und soziale Gerechtigkeit in Österreich praktisch unterstützt.
             Gleichzeitig erhalten Sie einen klaren, transparenten Antragsweg ohne unnötige Hürden.

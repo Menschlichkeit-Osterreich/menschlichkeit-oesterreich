@@ -464,7 +464,7 @@ export default function Kontakt() {
                       />
                       <span>
                         Ich habe die{' '}
-                        <a href="/datenschutz" className="text-primary-600 hover:underline">
+                        <a href="/datenschutz" className="text-primary-700 underline hover:no-underline">
                           Datenschutzerklärung
                         </a>{' '}
                         gelesen und stimme der Verarbeitung meiner Anfrage zu. *
@@ -489,9 +489,9 @@ export default function Kontakt() {
                         Ich möchte zusätzlich per E-Mail über Vereinsaktivitäten informiert werden
                         (Newsletter, optional). Die Anmeldung erfolgt per Double-Opt-In, und der
                         Widerruf ist jederzeit möglich. Details in der{' '}
-                        <a href="/datenschutz" className="text-primary-600 hover:underline">
-                          Datenschutzerklärung
-                        </a>
+                        <a href="/datenschutz" className="text-primary-700 underline hover:no-underline">
+                            Datenschutzerklärung
+                          </a>
                         .
                       </span>
                     </label>
@@ -508,7 +508,7 @@ export default function Kontakt() {
                   <p className="text-xs text-secondary-600">
                     * Pflichtfelder. Ihre Nachricht wird direkt an unser System übermittelt. Ihre
                     Daten werden gemäß unserer{' '}
-                    <a href="/datenschutz" className="text-primary-600 hover:underline">
+                    <a href="/datenschutz" className="text-primary-700 underline hover:no-underline">
                       Datenschutzerklärung
                     </a>{' '}
                     verarbeitet, und Sie erhalten eine Bestätigung per E-Mail.

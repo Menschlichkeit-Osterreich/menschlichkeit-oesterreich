@@ -57,15 +57,16 @@ export default function SpielPage() {
 
       <section
         className="relative overflow-hidden bg-accent-900"
+        style={{ backgroundColor: '#101f2a' }}
       >
-        <div className="absolute inset-0 opacity-5" aria-hidden="true">
-          <div className="absolute right-0 top-0 h-96 w-96 translate-x-1/3 -translate-y-1/3 rounded-full bg-white blur-3xl" />
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+          <div className="absolute right-0 top-0 h-96 w-96 translate-x-1/3 -translate-y-1/3 rounded-full bg-white/5 blur-3xl" />
         </div>
 
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 md:py-24">
           <div className="grid items-center gap-10 md:grid-cols-[1.15fr_0.95fr] md:gap-16">
             <div className="text-center md:text-left">
-              <span className="inline-flex rounded-full border border-white/20 bg-white/12 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-sm">
+              <span className="inline-flex rounded-full border border-white/30 bg-accent-700 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white">
                 Babylon.js 3D-Spiel
               </span>
               <h1 className="mt-5 text-4xl font-black leading-tight text-white md:text-6xl">

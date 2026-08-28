@@ -48,7 +48,7 @@ export default function Barrierefreiheit() {
         <p className="mt-3 text-secondary-700 leading-relaxed">
           Wenn Ihnen eine digitale Barriere auffällt oder Sie eine Information in einer besser
           zugänglichen Form benötigen, schreiben Sie uns bitte an{' '}
-          <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary-700 hover:underline">
+          <a href={`mailto:${CONTACT_EMAIL}`} className="text-primary-700 underline hover:no-underline">
             {CONTACT_EMAIL}
           </a>
           . Bitte nennen Sie nach Möglichkeit die betroffene Seite, das verwendete Gerät und die

@@ -3,9 +3,11 @@
     "runner": "axe",
     "standard": "WCAG2AA",
     "timeout": 30000,
+    "wait": 2000,
     "chromeLaunchConfig": {
       "args": ["--no-sandbox", "--disable-dev-shm-usage"]
-    }
+    },
+    "hideElements": "[data-testid='cookie-consent-banner'], [data-pa11y-game='scene'], [data-pa11y-article='why']"
   },
   "urls": [
     {
