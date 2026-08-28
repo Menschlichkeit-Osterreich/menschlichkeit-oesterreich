@@ -103,7 +103,6 @@
     }
   },
   "containerEnv": {
-    "AGENT_INSTALL_CRM_DEPS": "0",
     "AGENT_INSTALL_PLAYWRIGHT": "1",
     "BWS_SERVER_URL": "https://api.bitwarden.com",
     "N8N_BASE_URL": "http://127.0.0.1:5678",
