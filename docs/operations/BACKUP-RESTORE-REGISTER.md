@@ -26,12 +26,12 @@ GitHub enthaelt nur den pruefbaren Gate-Vertrag. Das detaillierte Register und R
 Ein Asset darf erst als `PASS` gelten, wenn eine nicht produktive, isolierte Pruefung mindestens Folgendes belegt:
 
 1. Sicherung lesbar und erforderlichenfalls entschluesselbar
-2. Daten und Dateien erfolgreich wiederhergestellt
-3. Schema konsistent und Anwendung startbar
-4. kritische Testdatensaetze vorhanden, ohne Produktionsdaten zu publizieren
-5. Versionen kompatibel
-6. Dauer, RPO und RTO gemessen und eingeschraenkt dokumentiert
-7. temporaere Testumgebung kontrolliert bereinigt
+1. Daten und Dateien erfolgreich wiederhergestellt
+1. Schema konsistent und Anwendung startbar
+1. kritische Testdatensaetze vorhanden, ohne Produktionsdaten zu publizieren
+1. Versionen kompatibel
+1. Dauer, RPO und RTO gemessen und eingeschraenkt dokumentiert
+1. temporaere Testumgebung kontrolliert bereinigt
 
 Ein Backup ohne aktuellen Restore-Nachweis bleibt `UNVERIFIED_BACKUP`. Ein Skript ohne freigegebene reale Backupquelle bleibt `PRE_VALIDATION`. Restore-Tests gegen Produktion sind verboten.
 
