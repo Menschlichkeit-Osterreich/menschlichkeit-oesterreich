@@ -14,7 +14,6 @@
       "version": "8.2"
     },
     "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/azure-cli:1": {},
     "ghcr.io/devcontainers/features/powershell:1": {
       "version": "latest"
     },
@@ -26,7 +25,6 @@
     "ghcr.io/devcontainers/features/python:1",
     "ghcr.io/devcontainers/features/php:1",
     "ghcr.io/devcontainers/features/github-cli:1",
-    "ghcr.io/devcontainers/features/azure-cli:1",
     "ghcr.io/devcontainers/features/powershell:1",
     "ghcr.io/devcontainers/features/git:1",
     "ghcr.io/devcontainers/features/docker-in-docker:2"
@@ -52,7 +50,6 @@
         "github.copilot-chat",
         "github.vscode-pull-request-github",
         "ms-vscode.powershell",
-        "ms-azuretools.vscode-azureresourcegroups",
         "prisma.prisma",
         "redhat.vscode-yaml",
         "ms-azuretools.vscode-containers",
@@ -104,12 +101,11 @@
   },
   "containerEnv": {
     "AGENT_INSTALL_PLAYWRIGHT": "1",
-    "BWS_SERVER_URL": "https://api.bitwarden.com",
-    "N8N_BASE_URL": "http://127.0.0.1:5678",
+    "BWS_SERVER_URL": "https://vault.bitwarden.eu",
     "PIP_DISABLE_PIP_VERSION_CHECK": "1",
     "COMPOSER_PROCESS_TIMEOUT": "1200"
   },
-  "forwardPorts": [3001, 5173, 5678, 8000, 8001, 8002],
+  "forwardPorts": [3001, 5173, 8000, 8001, 8002],
   "portsAttributes": {
     "3001": {
       "label": "Games Server",
@@ -118,10 +114,6 @@
     "5173": {
       "label": "Frontend (Vite)",
       "onAutoForward": "openBrowser"
-    },
-    "5678": {
-      "label": "n8n",
-      "onAutoForward": "notify"
     },
     "8000": {
       "label": "CRM Server",
