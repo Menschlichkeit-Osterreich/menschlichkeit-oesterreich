@@ -50,7 +50,7 @@ npm run dev:all             # Alle Services parallel (concurrently)
 
 ### Testen
 ```bash
-npm run test:unit -- --run  # Vitest (Website + Games); Einzeldatei: vitest src/File.test.ts --run
+npm run test:unit -- --run  # Vitest (root unit + Games); Website-Tests: npm run test:website
 npm run test:api            # pytest; Einzeltest: cd apps/api && python -m pytest tests/test_payments.py::test_create_payment -q
 npm run test:website        # Frontend-Tests nur
 npm run test:games          # Games-Tests nur
@@ -90,8 +90,9 @@ npm run build:all          # Alle drei
 
 1. **Imports und Aliase**: Nutze definierte Path-Aliase aus `vitest.config.js`:
    - `@/` — Repository-Root
-   - `@web` — Alte Legacy-Pfade (nicht für neue Features)
-   - `@games` — Babylon Game Utilities
+   - `@/game` — Babylon Game Source (`apps/babylon-game/src/game`)
+   - `@web` — Legacy-Pfade (nicht für neue Features)
+   - `@games` — Legacy-Alias (`./web/games` existiert nicht mehr; für Babylon.js `@/game` verwenden)
 
 2. **Frontend (React 19 + Vite)**:
    - Komponenten in `src/components/` organisiert
