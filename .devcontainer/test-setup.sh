@@ -104,10 +104,10 @@ fi
 
 if command -v php >/dev/null 2>&1; then
     php_version="$(php -r 'echo PHP_VERSION;')"
-    if version_ge "$php_version" "8.3.0"; then
-        pass "php >= 8.3 ($php_version)"
+    if version_ge "$php_version" "8.2.0"; then
+        pass "php >= 8.2 ($php_version)"
     else
-        fail "php >= 8.3 (current $php_version)"
+        fail "php >= 8.2 (current $php_version)"
     fi
 fi
 
