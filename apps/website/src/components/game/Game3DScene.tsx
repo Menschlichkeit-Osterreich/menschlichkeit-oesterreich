@@ -21,6 +21,7 @@ export default function Game3DScene({ progress = 0, onInteract }: Game3DScenePro
       style={{ aspectRatio: '16 / 10' }}
       data-pa11y-game="scene"
       aria-label="Babylon.js-Spiel auf games.menschlichkeit-oesterreich.at öffnen"
+      aria-describedby="game-scene-description"
     >
       <div aria-hidden="true" className="absolute inset-0 pointer-events-none">
         <div className="absolute left-[12%] right-[12%] top-[38%] h-3 rounded-full bg-gradient-to-r from-rose-500 via-orange-400 to-sky-400 shadow-[0_0_48px_rgba(56,189,248,0.35)]" />
@@ -74,6 +75,9 @@ export default function Game3DScene({ progress = 0, onInteract }: Game3DScenePro
             <span className="font-medium">Startet auf games.menschlichkeit-oesterreich.at</span>
             <span className="font-semibold text-white transition-transform group-hover:translate-x-1">Spiel öffnen →</span>
           </div>
+          <p id="game-scene-description" className="sr-only">
+            Öffnet das Babylon.js-Spiel in einem neuen Tab auf der Games-Subdomain.
+          </p>
         </div>
       </div>
     </button>
