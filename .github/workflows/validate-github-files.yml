@@ -6,11 +6,13 @@ on:
       - '.github/**'
       - 'scripts/validate-github-files.py'
       - 'scripts/normalize-frontmatter.py'
+      - 'scripts/ci/validate-workflow-cache-paths.py'
   pull_request:
     paths:
       - '.github/**'
       - 'scripts/validate-github-files.py'
       - 'scripts/normalize-frontmatter.py'
+      - 'scripts/ci/validate-workflow-cache-paths.py'
 
 permissions:
   contents: read # Required for GITHUB_TOKEN to access /repos API endpoint
@@ -34,6 +36,13 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/validate-github-files.py | tee validation.log
+
+      # Verhindert die Wiederkehr von Finding P0-002: ein nicht aufloesbarer
+      # cache-dependency-path laesst setup-node fehlschlagen und ueberspringt
+      # dadurch stillschweigend den Produktions-Deploy-Job.
+      - name: Validate workflow cache-dependency-path targets
+        shell: bash
+        run: python3 scripts/ci/validate-workflow-cache-paths.py
 
       - name: Upload validation log
         if: always()

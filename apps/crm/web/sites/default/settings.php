@@ -10,14 +10,56 @@
  * DSGVO: Kein PII in Logs.
  */
 
+// ── Umgebung ─────────────────────────────────────────────────────────────────
+// APP_ENV steuert, ob unsichere lokale Fallback-Werte erlaubt sind.
+// In 'production' gilt fail-closed: fehlende Secrets brechen den Start ab,
+// statt auf einen im Repository sichtbaren Standardwert zurueckzufallen.
+$moe_app_env = getenv('APP_ENV') ?: 'development';
+$moe_is_production = ($moe_app_env === 'production');
+
+/**
+ * Liest eine Pflicht-Umgebungsvariable.
+ *
+ * In Produktion wird ein fehlender oder leerer Wert zum harten Abbruch.
+ * Ausserhalb der Produktion wird der markierte Entwicklungs-Fallback genutzt.
+ *
+ * @param string $name
+ *   Name der Umgebungsvariable.
+ * @param string $dev_fallback
+ *   Nur ausserhalb der Produktion verwendeter Entwicklungswert.
+ *
+ * @return string
+ *   Der aufgeloeste Wert.
+ */
+function moe_required_setting(string $name, string $dev_fallback): string {
+  $value = getenv($name);
+  if ($value !== FALSE && $value !== '') {
+    return $value;
+  }
+
+  if (($GLOBALS['moe_is_production'] ?? FALSE) === TRUE) {
+    // Kein Secret-Wert im Fehlertext (DSGVO / Secret-Hygiene).
+    throw new \RuntimeException(
+      sprintf(
+        'Produktionsstart abgebrochen: Pflicht-Umgebungsvariable %s ist nicht gesetzt. '
+        . 'Produktionswerte kommen ausschliesslich aus dem Secrets-Provider.',
+        $name
+      )
+    );
+  }
+
+  return $dev_fallback;
+}
+
 // ── Datenbank ────────────────────────────────────────────────────────────────
 // Wird via Plesk-Umgebungsvariable DATABASE_URL oder explizit gesetzt.
 // Lokal: .env.local überschreibt diese Werte.
 $databases['default']['default'] = [
   'driver'    => 'mysql',
-  'database'  => getenv('DRUPAL_DB_NAME')   ?: 'moe_crm',
-  'username'  => getenv('DRUPAL_DB_USER')   ?: 'moe_crm_user',
-  'password'  => getenv('DRUPAL_DB_PASS')   ?: '',
+  'database'  => moe_required_setting('DRUPAL_DB_NAME', 'moe_crm'),
+  'username'  => moe_required_setting('DRUPAL_DB_USER', 'moe_crm_user'),
+  // Leeres Passwort ist nur lokal zulaessig; in Produktion fail-closed.
+  'password'  => moe_required_setting('DRUPAL_DB_PASS', ''),
   'host'      => getenv('DRUPAL_DB_HOST')   ?: 'localhost',
   'port'      => getenv('DRUPAL_DB_PORT')   ?: '3306',
   'prefix'    => '',
@@ -27,7 +69,14 @@ $databases['default']['default'] = [
 ];
 
 // ── Hash-Salt ────────────────────────────────────────────────────────────────
-$settings['hash_salt'] = getenv('DRUPAL_HASH_SALT') ?: 'MenschlichkeitOesterreich2024PleaseChangeInProd';
+// Der Hash-Salt schuetzt Session-, CSRF- und One-Time-Login-Token. Ein im
+// Repository sichtbarer Standardwert waere in Produktion oeffentlich bekannt
+// und damit wertlos. Deshalb: fail-closed, kein produktionsfaehiger Default.
+// Der Entwicklungswert ist bewusst als NICHT produktionstauglich markiert.
+$settings['hash_salt'] = moe_required_setting(
+  'DRUPAL_HASH_SALT',
+  'dev-only-insecure-hash-salt-do-not-use-in-production'
+);
 
 // ── Trusted-Host-Patterns ────────────────────────────────────────────────────
 // WICHTIG: Ohne diese Einstellung gibt Drupal HTTP 403 auf allen Requests zurück.
