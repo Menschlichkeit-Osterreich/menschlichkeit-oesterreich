@@ -37,7 +37,7 @@
     "storage": "64gb"
   },
   "onCreateCommand": "bash .devcontainer/onCreate-setup.sh",
-  "postCreateCommand": "bash .devcontainer/setup.sh && if [ -f scripts/dev/codespace-ssh-setup.sh ]; then bash scripts/dev/codespace-ssh-setup.sh; fi && if ! command -v uv >/dev/null 2>&1; then curl -LsSf https://astral.sh/uv/install.sh | sh; fi && bash .devcontainer/test-setup.sh",
+  "postCreateCommand": "bash .devcontainer/setup.sh && if [ -f scripts/dev/codespace-ssh-setup.sh ]; then bash scripts/dev/codespace-ssh-setup.sh; fi && if ! command -v uv >/dev/null 2>&1; then curl -LsSf https://astral.sh/uv/install.sh | sh; fi",
   "postStartCommand": "pwsh .devcontainer/setup-powershell.ps1 || true",
   "customizations": {
     "vscode": {
@@ -106,35 +106,23 @@
     "AGENT_INSTALL_CRM_DEPS": "0",
     "AGENT_INSTALL_PLAYWRIGHT": "1",
     "BWS_SERVER_URL": "https://api.bitwarden.com",
-    "N8N_BASE_URL": "https://n8n.menschlichkeit-oesterreich.at",
+    "N8N_BASE_URL": "http://127.0.0.1:5678",
     "PIP_DISABLE_PIP_VERSION_CHECK": "1",
     "COMPOSER_PROCESS_TIMEOUT": "1200"
   },
-  "forwardPorts": [3001, 3306, 5173, 5432, 5678, 6379, 8000, 8001, 8002],
+  "forwardPorts": [3001, 5173, 5678, 8000, 8001, 8002],
   "portsAttributes": {
     "3001": {
       "label": "Games Server",
       "onAutoForward": "notify"
     },
-    "3306": {
-      "label": "MariaDB CRM",
-      "onAutoForward": "silent"
-    },
     "5173": {
       "label": "Frontend (Vite)",
       "onAutoForward": "openBrowser"
     },
-    "5432": {
-      "label": "PostgreSQL",
-      "onAutoForward": "silent"
-    },
     "5678": {
       "label": "n8n",
       "onAutoForward": "notify"
-    },
-    "6379": {
-      "label": "Redis",
-      "onAutoForward": "silent"
     },
     "8000": {
       "label": "CRM Server",
