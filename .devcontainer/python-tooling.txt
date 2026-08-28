@@ -1,0 +1,7 @@
+-r ../apps/api/requirements-dev.txt
+black>=25.1,<27
+isort>=6.0,<7
+mypy>=1.15,<2
+flake8>=7.1,<8
+build>=1.2,<2
+pre-commit>=4,<5
