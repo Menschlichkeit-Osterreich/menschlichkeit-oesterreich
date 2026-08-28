@@ -74,7 +74,6 @@ jobs:
       NODE_VERSION: '22.19.0'
       NPM_VERSION: '11.4.2'
       PYTHON_VERSION: '3.12'
-      PHP_VERSION: '8.2'
       AGENT_INSTALL_CRM_DEPS: '1'
       AGENT_INSTALL_PLAYWRIGHT: '1'
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/menschlichkeit_test
@@ -113,21 +112,21 @@ jobs:
             apps/api/requirements-dev.txt
             .devcontainer/python-tooling.txt
 
-      - name: Setup PHP and Composer
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
-        with:
-          php-version: ${{ env.PHP_VERSION }}
-          tools: composer:v2
-          extensions: bcmath, curl, dom, gd, intl, mbstring, mysqli, pcntl, pdo_mysql, pdo_pgsql, simplexml, soap, xml, xmlreader, xmlwriter, zip
-          coverage: none
-
-      - name: Install system tooling
+      - name: Install system and PHP tooling
         shell: bash
         run: |
           set -euo pipefail
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends shellcheck openssh-client jq curl unzip zip
+          sudo apt-get install -y --no-install-recommends \
+            shellcheck openssh-client jq curl unzip zip \
+            php-cli php-bcmath php-curl php-gd php-intl php-mbstring \
+            php-mysql php-pgsql php-soap php-xml php-zip
           sudo rm -rf /var/lib/apt/lists/*
+
+          command -v php
+          php --version
+          command -v composer
+          composer --version
 
           arch="$(uname -m)"
           case "$arch" in
