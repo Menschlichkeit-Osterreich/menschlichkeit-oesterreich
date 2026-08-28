@@ -4,7 +4,12 @@
     "updated": "2026-05-14",
     "repository": "Menschlichkeit-Osterreich/menschlichkeit-oesterreich",
     "pathZones": {
-      "active": ["apps/", "automation/", "mcp-servers/", "figma-design-system/"],
+      "active": [
+        "apps/",
+        "automation/",
+        "mcp-servers/",
+        "figma-design-system/"
+      ],
       "legacy_read_only": [
         "api.menschlichkeit-oesterreich.at/",
         "crm.menschlichkeit-oesterreich.at/",
@@ -22,7 +27,9 @@
         "tests/",
         "docs/"
       ],
-      "special_experimental": ["codacy-analysis-cli-master/"]
+      "special_experimental": [
+        "codacy-analysis-cli-master/"
+      ]
     }
   },
   "analysisEntry": {
@@ -1850,6 +1857,16 @@
       "path": ".agents/skills/xlsx/SKILL.md",
       "role": "developer",
       "sourceOfTruth": "skills-lock.json",
+      "replacement": null
+    },
+    {
+      "id": "senior-fullstack",
+      "kind": "skill",
+      "status": "vendor",
+      "owner": "vendor",
+      "path": ".github/skills/senior-fullstack/SKILL.md",
+      "role": "developer",
+      "sourceOfTruth": ".github/skills/senior-fullstack/SKILL.md",
       "replacement": null
     }
   ],
