@@ -67,7 +67,7 @@ export default function SpielPage() {
           <div className="grid items-center gap-10 md:grid-cols-[1.15fr_0.95fr] md:gap-16">
             <div className="text-center md:text-left">
               <span className="inline-flex rounded-full border border-white/30 bg-accent-700 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white">
-                Babylon.js-Spiel
+                Babylon.js 3D-Spiel
               </span>
               <h1 className="mt-5 text-4xl font-black leading-tight text-white md:text-6xl">
                 Demokratie spielbar machen mit Babylon.js.
