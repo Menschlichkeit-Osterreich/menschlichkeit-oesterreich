@@ -16,10 +16,13 @@ from ..services.mail_service import mail_service
 from ..services.member_service import member_service
 from ..services.payment_service import payment_service
 from ..services.stripe_webhook_service import (
+    SUPPORTED_PAYMENT_INTENT_EVENT_TYPES,
     build_ops_alert_text,
+    normalize_stripe_event_for_inbox,
     process_stripe_event,
     stripe_webhook_inbox,
 )
+from ..services.stripe_service import InvalidStripeSignature
 from ..rbac import ADMIN_EMAILS, get_current_user
 
 logger = logging.getLogger("menschlichkeit.payments.router")
@@ -121,7 +124,7 @@ async def stripe_webhook(request: Request):
     """Stripe-Webhook mit durable Inbox (Audit-Finding P1-001).
 
     Ablauf:
-      1. Signatur prüfen (400 bei Fehler — Stripe wiederholt nicht sinnlos).
+      1. Signatur prüfen (datensparsamer 400 bei Fehler).
       2. Event ATOMAR in webhook_events speichern (status=received), BEVOR
          irgendeine Geschäftslogik läuft. Deduplizierung über die
          Unique-Constraint (provider, provider_event_id), nicht über eine
@@ -130,8 +133,9 @@ async def stripe_webhook(request: Request):
          gewinnt genau eine.
       4. Geschäftsverarbeitung in EINER lokalen DB-Transaktion
          (Donation, payment_intents, Outbox). Keine externen Aufrufe darin.
-      5. status=processed. Bei Fehler: status=failed + last_error — das
-         Event bleibt gespeichert und retryfähig; die Antwort ist 500,
+      5. Donation, Outbox und der finale Inbox-Status werden gemeinsam
+         committet. Bei Fehler: status=failed + Fehlerklasse — das Event bleibt
+         gespeichert und retryfähig; die Antwort ist 500,
          damit Stripe erneut zustellt.
       6. Folgeeffekte (Mails, Ops-Alert) NACH dem Commit, best effort.
     """
@@ -139,11 +143,20 @@ async def stripe_webhook(request: Request):
     signature = request.headers.get("stripe-signature", "")
     if not signature:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Stripe-Signatur fehlt"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ungültiger Stripe-Webhook",
         )
-    await payment_service.verify_stripe_signature(
-        raw_body=raw_body, signature_header=signature
-    )
+    try:
+        await payment_service.verify_stripe_signature(
+            raw_body=raw_body, signature_header=signature
+        )
+    except (InvalidStripeSignature, ValueError):
+        # Never echo signature failure reasons, timestamps, bodies or secrets.
+        logger.warning("stripe_webhook_signature_rejected")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ungültiger Stripe-Webhook",
+        ) from None
     try:
         payload = json.loads(raw_body.decode("utf-8"))
     except (UnicodeDecodeError, JSONDecodeError) as exc:
@@ -157,13 +170,21 @@ async def stripe_webhook(request: Request):
         )
     event_type = payload.get("type") or ""
     obj = payload.get("data", {}).get("object", {})
+    if event_type not in SUPPORTED_PAYMENT_INTENT_EVENT_TYPES:
+        logger.info("stripe_webhook_event_ignored | event_type=%s", event_type)
+        return {"success": True, "message": "Stripe-Event nicht unterstützt."}
+    if not isinstance(obj, dict):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ungültiger Stripe-Webhook",
+        )
 
     # Schritt 1: durable Inbox — Event zuerst dauerhaft speichern.
     inbox = await stripe_webhook_inbox.ingest(
         provider="stripe",
         provider_event_id=event_id,
         event_type=event_type,
-        payload=payload,
+        payload=normalize_stripe_event_for_inbox(event_type=event_type, obj=obj),
         signature_valid=True,
     )
     if not inbox["created"] and inbox["status"] == "processed":
@@ -172,22 +193,24 @@ async def stripe_webhook(request: Request):
     # Schritt 2: exklusiv claimen. Verliert dieser Request das Rennen
     # (paralleles Duplikat oder laufende Verarbeitung), ist 200 korrekt —
     # das Event ist gespeichert und wird vom Gewinner verarbeitet.
-    claimed = await stripe_webhook_inbox.claim(inbox["id"])
-    if not claimed:
+    claim_token = await stripe_webhook_inbox.claim(inbox["id"])
+    if not claim_token:
         return {"success": True, "message": "Webhook bereits verarbeitet."}
 
     # Schritt 3: lokale Geschäftsverarbeitung in einer Transaktion.
     try:
         side_effects = await process_stripe_event(
-            event_pk=inbox["id"], event_type=event_type, obj=obj
+            event_pk=inbox["id"],
+            claim_token=claim_token,
+            event_type=event_type,
+            obj=obj,
         )
-        await stripe_webhook_inbox.mark_processed(inbox["id"])
     except HTTPException:
         raise
     except Exception as exc:
-        # Kein PII/Secret im gespeicherten Fehlertext.
+        # Kein PII/Secret oder Providerfehlertext im gespeicherten Fehlertext.
         await stripe_webhook_inbox.mark_failed(
-            inbox["id"], error=f"{type(exc).__name__}: {exc}"
+            inbox["id"], claim_token=claim_token, error=type(exc).__name__
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

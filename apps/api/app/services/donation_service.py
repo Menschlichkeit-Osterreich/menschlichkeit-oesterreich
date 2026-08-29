@@ -30,6 +30,10 @@ class DonationService:
         civicrm_contribution_id: int | None = None,
         send_receipt_email: bool = True,
     ) -> dict[str, Any]:
+        if donation_type != "one_time":
+            raise ValueError(
+                "Wiederkehrende Zahlungen erfordern einen separaten Subscription-Vertrag"
+            )
         if civicrm_contribution_id:
             existing = await fetchrow(
                 """
@@ -67,7 +71,7 @@ class DonationService:
                 civicrm_contact_id, civicrm_contribution_id, donor_name, donor_email, amount, currency,
                 donation_type, is_recurring, status, donation_date, receipt_eligible, source, notes
             )
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'paid', CURRENT_DATE, TRUE, $9, $10)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, FALSE, 'paid', CURRENT_DATE, FALSE, $8, $9)
             RETURNING id, donor_name, donor_email, amount, currency, donation_type, status, donation_date, civicrm_contribution_id
             """,
             resolved_contact_id,
@@ -77,7 +81,6 @@ class DonationService:
             amount,
             currency.upper(),
             donation_type,
-            donation_type != "one_time",
             source,
             gateway_charge_id,
         )
@@ -113,7 +116,7 @@ class DonationService:
                         "currency": currency.upper(),
                         "purpose": source,
                         "date": str(donation.get("donation_date") or ""),
-                        "receipt_eligible": True,
+                        "receipt_eligible": False,
                     },
                 },
                 entity_type="donation",

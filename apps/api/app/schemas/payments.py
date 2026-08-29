@@ -4,7 +4,10 @@ from typing import Literal
 
 from pydantic import BaseModel, EmailStr, Field
 
-PaymentInterval = Literal["once", "monthly", "quarterly", "yearly"]
+# A Stripe PaymentIntent is a one-time payment.  Recurring support requires a
+# separate Stripe Subscription lifecycle and is intentionally not accepted by
+# this recovery contract.
+PaymentInterval = Literal["once"]
 
 
 class StripeIntentRequest(BaseModel):

@@ -18,6 +18,10 @@ from ._payment_helpers import _resolve_contact_id, _to_cents
 logger = logging.getLogger("menschlichkeit.payments.stripe")
 
 
+class InvalidStripeSignature(ValueError):
+    """A public webhook-signature failure without provider details."""
+
+
 class StripeService:
     def __init__(self) -> None:
         self.stripe_secret = get_secret(
@@ -39,6 +43,10 @@ class StripeService:
         interval: str = "once",
         civicrm_contact_id: int | None = None,
     ) -> dict[str, Any]:
+        if interval != "once":
+            raise ValueError(
+                "Wiederkehrende Zahlungen erfordern einen separaten Subscription-Vertrag"
+            )
         amount_cents = _to_cents(amount)
         provider_method = method or "card"
         resolved_contact_id = await _resolve_contact_id(
@@ -55,8 +63,7 @@ class StripeService:
             "metadata[financial_type]": financial_type,
             "metadata[email]": email or "",
             "metadata[interval]": interval,
-            "description": (purpose or "Unterstützung Menschlichkeit Österreich")
-            + (f" ({interval})" if interval != "once" else ""),
+            "description": purpose or "Unterstützung Menschlichkeit Österreich",
         }
         if provider_method == "sepa":
             payload["payment_method_types[]"] = "sepa_debit"
@@ -65,14 +72,11 @@ class StripeService:
         else:
             payload["automatic_payment_methods[enabled]"] = "true"
 
-        if interval != "once" and provider_method not in {"eps", "sofort"}:
-            payload["setup_future_usage"] = "off_session"
-
         intent_id = f"pi_mock_{secrets.token_hex(8)}"
         client_secret = f"{intent_id}_secret_{secrets.token_hex(16)}"
         gateway_response: dict[str, Any] = {
-            "mock": True,
-            "client_secret": client_secret,
+            "provider": "stripe",
+            "mode": "mock",
         }
 
         if self.stripe_secret:
@@ -83,9 +87,17 @@ class StripeService:
                     headers={"Authorization": f"Bearer {self.stripe_secret}"},
                 )
                 response.raise_for_status()
-                gateway_response = response.json()
-                intent_id = gateway_response["id"]
-                client_secret = gateway_response["client_secret"]
+                stripe_response = response.json()
+                intent_id = stripe_response["id"]
+                client_secret = stripe_response["client_secret"]
+                # Do not persist the complete provider response.  The
+                # database only needs a normalized transport marker; the
+                # client secret remains in the immediate API response.
+                gateway_response = {
+                    "provider": "stripe",
+                    "mode": "live",
+                    "status": str(stripe_response.get("status") or "pending"),
+                }
 
         row = await fetchrow(
             """
@@ -114,33 +126,39 @@ class StripeService:
         self, *, raw_body: bytes, signature_header: str
     ) -> None:
         if not self.stripe_webhook_secret:
-            raise ValueError("STRIPE_WEBHOOK_SECRET nicht konfiguriert")
+            raise InvalidStripeSignature()
         parts = dict(
             part.split("=", 1) for part in signature_header.split(",") if "=" in part
         )
         timestamp = parts.get("t")
         signature = parts.get("v1")
         if not timestamp or not signature:
-            raise ValueError("Ungültiger Stripe-Signatur-Header")
+            raise InvalidStripeSignature()
         try:
             timestamp_int = int(timestamp)
         except ValueError as exc:
-            raise ValueError("Ungültiger Stripe-Timestamp") from exc
+            raise InvalidStripeSignature() from exc
 
-        tolerance_seconds = int(
-            os.environ.get("STRIPE_WEBHOOK_TOLERANCE_SECONDS", "300")
-        )
+        try:
+            tolerance_seconds = int(
+                os.environ.get("STRIPE_WEBHOOK_TOLERANCE_SECONDS", "300")
+            )
+        except ValueError as exc:
+            raise RuntimeError("Ungültige Stripe-Webhooks-Toleranzkonfiguration") from exc
         if abs(int(time.time()) - timestamp_int) > tolerance_seconds:
-            raise ValueError("Stripe-Signatur-Timestamp zu alt oder ungültig")
+            raise InvalidStripeSignature()
 
-        signed_payload = f"{timestamp}.{raw_body.decode('utf-8')}"
+        try:
+            signed_payload = f"{timestamp}.{raw_body.decode('utf-8')}"
+        except UnicodeDecodeError as exc:
+            raise InvalidStripeSignature() from exc
         expected = hmac.new(
             self.stripe_webhook_secret.encode("utf-8"),
             signed_payload.encode("utf-8"),
             hashlib.sha256,
         ).hexdigest()
         if not hmac.compare_digest(expected, signature):
-            raise ValueError("Stripe-Signatur ungültig")
+            raise InvalidStripeSignature()
 
 
 stripe_service = StripeService()

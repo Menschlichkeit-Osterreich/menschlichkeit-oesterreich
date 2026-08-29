@@ -63,4 +63,4 @@ def test_record_successful_donation_uses_nested_template_context():
     assert context["contact"]["first_name"] == "Erika"
     assert context["contact"]["last_name"] == "Musterfrau"
     assert context["donation"]["amount"] == "50.00"
-    assert context["donation"]["receipt_eligible"] is True
+    assert context["donation"]["receipt_eligible"] is False

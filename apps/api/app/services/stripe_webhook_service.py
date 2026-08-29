@@ -36,6 +36,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+import secrets
 from typing import Any
 
 from ..db import fetchrow, transaction
@@ -49,10 +50,21 @@ STATUS_PROCESSED = "processed"
 STATUS_FAILED = "failed"
 
 # Ein 'processing'-Claim, der älter ist, gilt als verwaist (Prozessabsturz)
-# und darf erneut geclaimt werden.
+# und darf erneut geclaimt werden.  Der Lease-Token verhindert, dass ein
+# verspäteter Worker danach den Zustand eines neueren Workers überschreibt.
 STALE_CLAIM_MINUTES = 10
 
-_RECURRING_INTERVALS = {"monthly", "quarterly", "yearly"}
+SUPPORTED_PAYMENT_INTENT_EVENT_TYPES = frozenset(
+    {
+        "payment_intent.succeeded",
+        "payment_intent.payment_failed",
+        "payment_intent.canceled",
+    }
+)
+
+
+class WebhookClaimLost(RuntimeError):
+    """A worker lost its lease; its local transaction must roll back."""
 
 
 def build_ops_alert_text(
@@ -134,47 +146,65 @@ class StripeWebhookInbox:
             "created": False,
         }
 
-    async def claim(self, event_pk: str) -> bool:
+    async def claim(self, event_pk: str) -> str | None:
         """Versucht, das Event exklusiv zur Verarbeitung zu übernehmen.
 
         Erfolgreich nur für status received/failed — oder für einen verwaisten
         processing-Claim (Prozessabsturz vor mark_processed/mark_failed).
-        Atomar: von parallelen Requests gewinnt genau einer.
+        Atomar: von parallelen Requests gewinnt genau einer.  Der Rückgabewert
+        ist ein Lease-Token und muss beim finalen Statuswechsel vorliegen.
         """
+        claim_token = secrets.token_urlsafe(24)
         row = await fetchrow(
             f"""
             UPDATE webhook_events
             SET processing_status = 'processing',
                 processing_started_at = NOW(),
+                claim_token = $2,
+                claim_expires_at = NOW() + INTERVAL '{STALE_CLAIM_MINUTES} minutes',
                 attempts = attempts + 1
             WHERE id = $1
               AND (
                     processing_status IN ('received', 'failed')
                     OR (processing_status = 'processing'
-                        AND processing_started_at
-                            < NOW() - INTERVAL '{STALE_CLAIM_MINUTES} minutes')
+                        AND (
+                            claim_expires_at < NOW()
+                            OR (
+                                claim_expires_at IS NULL
+                                AND processing_started_at
+                                    < NOW() - INTERVAL '{STALE_CLAIM_MINUTES} minutes'
+                            )
+                        ))
                   )
-            RETURNING id
+            RETURNING claim_token
             """,
             event_pk,
+            claim_token,
         )
-        return row is not None
+        return str(row["claim_token"]) if row else None
 
-    async def mark_processed(self, event_pk: str) -> None:
-        await fetchrow(
+    async def mark_processed(self, event_pk: str, *, claim_token: str) -> bool:
+        row = await fetchrow(
             """
             UPDATE webhook_events
             SET processing_status = 'processed',
                 processed_at = NOW(),
                 last_error = NULL,
-                next_retry_at = NULL
+                next_retry_at = NULL,
+                claim_expires_at = NULL
             WHERE id = $1
+              AND processing_status = 'processing'
+              AND claim_token = $2
             RETURNING id
             """,
             event_pk,
+            claim_token,
         )
+        return row is not None
 
-    async def mark_failed(self, event_pk: str, *, error: str) -> None:
+    async def mark_failed(
+        self, event_pk: str, *, claim_token: str, error: str
+    ) -> None:
         """Setzt failed + Fehlertext. Kein Secret/PII im Fehlertext ablegen."""
         await fetchrow(
             """
@@ -182,12 +212,16 @@ class StripeWebhookInbox:
             SET processing_status = 'failed',
                 last_error = $2,
                 next_retry_at = NOW()
-                    + (LEAST(attempts, 6) * INTERVAL '10 minutes')
+                    + (LEAST(attempts, 6) * INTERVAL '10 minutes'),
+                claim_expires_at = NULL
             WHERE id = $1
+              AND processing_status = 'processing'
+              AND claim_token = $3
             RETURNING id
             """,
             event_pk,
             error[:500],
+            claim_token,
         )
 
 
@@ -198,14 +232,34 @@ def _extract_metadata(obj: dict[str, Any]) -> dict[str, str]:
         "name": (meta.get("name") or meta.get("donor_name") or "").strip(),
         "purpose": (meta.get("purpose") or "").strip(),
         "source": (meta.get("source") or "").strip(),
-        "interval": (meta.get("interval") or "once").strip(),
         "financial_type": (meta.get("financial_type") or "").strip(),
+    }
+
+
+def normalize_stripe_event_for_inbox(
+    *, event_type: str, obj: dict[str, Any]
+) -> dict[str, Any]:
+    """Return the only provider-derived data retained by new inbox rows.
+
+    ``webhook_events.payload`` is a historic column.  Existing payloads remain
+    untouched, but new writes store a small, normalized envelope rather than a
+    full Stripe object.  PII, provider metadata and error text stay out of the
+    inbox; the signed request is processed in memory only.
+    """
+    amount_cents = obj.get("amount_received", obj.get("amount"))
+    return {
+        "schema_version": 2,
+        "event_type": event_type,
+        "payment_intent_id": str(obj.get("id") or "") or None,
+        "amount_cents": int(amount_cents) if isinstance(amount_cents, int) else None,
+        "currency": str(obj.get("currency") or "").upper() or None,
     }
 
 
 async def process_stripe_event(
     *,
     event_pk: str,
+    claim_token: str,
     event_type: str,
     obj: dict[str, Any],
 ) -> dict[str, Any]:
@@ -232,8 +286,26 @@ async def process_stripe_event(
                     conn, event_pk=event_pk, event_type=event_type, obj=obj
                 )
             )
-        # Unbekannte Event-Typen: bewusst kein Fehler — Event wird als
-        # processed markiert (Inbox vollständig), Verarbeitung ist ein No-Op.
+        # Der finale Inbox-Status gehört zur selben lokalen Transaktion wie
+        # Donation und Outbox.  Verliert ein Worker den Lease, löst die
+        # Ausnahme ein Rollback aller seiner lokalen Änderungen aus.
+        result = await conn.execute(
+            """
+            UPDATE webhook_events
+            SET processing_status = 'processed',
+                processed_at = NOW(),
+                last_error = NULL,
+                next_retry_at = NULL,
+                claim_expires_at = NULL
+            WHERE id = $1
+              AND processing_status = 'processing'
+              AND claim_token = $2
+            """,
+            event_pk,
+            claim_token,
+        )
+        if result.endswith("0"):
+            raise WebhookClaimLost("Stripe webhook lease is no longer current")
 
     return side_effects
 
@@ -245,9 +317,9 @@ async def _process_payment_succeeded(
     gateway_payment_id = obj.get("id") or ""
     amount = float(obj.get("amount_received", obj.get("amount", 0))) / 100
     currency = (obj.get("currency") or "eur").upper()
-    interval = meta["interval"]
-    is_recurring = interval in _RECURRING_INTERVALS
-    donation_type = "recurring" if is_recurring else "one_time"
+    # A PaymentIntent is one charge.  Historical metadata such as
+    # ``interval=monthly`` must not turn it into an undocumented Subscription.
+    donation_type = "one_time"
 
     # Idempotenz auf DB-Ebene: Der partielle Unique-Index
     # ux_donations_gateway_payment macht die zweite Buchung unmöglich —
@@ -261,7 +333,7 @@ async def _process_payment_succeeded(
             gateway_provider, gateway_payment_id, notes
         )
         VALUES ($1, $2, $3, $4, $5, $6, $7, 'paid', CURRENT_DATE,
-                TRUE, $8, $9, 'stripe', $10, $10)
+                FALSE, $8, $9, 'stripe', $10, $10)
         ON CONFLICT (gateway_provider, gateway_payment_id)
             WHERE gateway_payment_id IS NOT NULL
         DO NOTHING
@@ -273,7 +345,7 @@ async def _process_payment_succeeded(
         amount,
         currency,
         donation_type,
-        is_recurring,
+        False,
         meta["source"] or "stripe",
         meta["purpose"] or None,
         gateway_payment_id,
@@ -301,32 +373,34 @@ async def _process_payment_succeeded(
 
     await conn.execute(
         """
-        INSERT INTO outbox_events (event_type, aggregate_type, aggregate_id, payload)
-        VALUES ('donation.recorded', 'donation', $1, $2::jsonb)
+        INSERT INTO outbox_events (
+            event_type, aggregate_type, aggregate_id, payload, idempotency_key
+        )
+        VALUES ('donation.recorded', 'donation', $1, $2::jsonb, $3)
+        ON CONFLICT (idempotency_key) WHERE idempotency_key IS NOT NULL DO NOTHING
         """,
         str(donation_id),
         json.dumps(
             {
-                "schema_version": 1,
+                "schema_version": 2,
                 "correlation_id": event_pk,
                 "idempotency_key": f"donation.recorded:{donation_id}",
                 "donation_id": donation_id,
                 "amount": f"{amount:.2f}",
                 "currency": currency,
-                "donation_type": donation_type,
-                "interval": interval,
+                "donation_type": "one_time",
                 "purpose": meta["purpose"] or None,
                 "source": meta["source"] or "stripe",
-                "financial_type": meta["financial_type"] or None,
-                "donor_email": meta["email"] or None,
-                "donor_name": meta["name"] or None,
+                "donor": {
+                    "email": meta["email"] or None,
+                    "name": meta["name"] or None,
+                },
                 "gateway_provider": "stripe",
                 "gateway_payment_id": gateway_payment_id,
-                # FastAPI versendet die Dankesmail übergangsweise selbst
-                # (nach Commit); Make darf sie nicht erneut senden.
-                "receipt_email_sent_by_api": bool(meta["email"]),
+                "receipt_eligibility": "undecided",
             }
         ),
+        f"donation.recorded:{donation_id}",
     )
 
     return {
@@ -361,26 +435,36 @@ async def _process_payment_failed(
             gateway_intent_id,
         )
 
+    outbox_event_type = (
+        "payment.failed"
+        if event_type == "payment_intent.payment_failed"
+        else "payment.canceled"
+    )
+    idempotency_key = f"{outbox_event_type}:{event_pk}"
     await conn.execute(
         """
-        INSERT INTO outbox_events (event_type, aggregate_type, aggregate_id, payload)
-        VALUES ('payment.failed', 'payment_intent', $1, $2::jsonb)
+        INSERT INTO outbox_events (
+            event_type, aggregate_type, aggregate_id, payload, idempotency_key
+        )
+        VALUES ($1, 'payment_intent', $2, $3::jsonb, $4)
+        ON CONFLICT (idempotency_key) WHERE idempotency_key IS NOT NULL DO NOTHING
         """,
+        outbox_event_type,
         gateway_intent_id or event_pk,
         json.dumps(
             {
-                "schema_version": 1,
+                "schema_version": 2,
                 "correlation_id": event_pk,
-                "idempotency_key": f"payment.failed:{event_pk}",
+                "idempotency_key": idempotency_key,
                 "status": new_status,
                 "amount": f"{amount:.2f}",
                 "currency": currency,
                 "donor_email": meta["email"] or obj.get("receipt_email") or None,
-                "failure_reason": (obj.get("last_payment_error") or {}).get("message"),
                 "gateway_provider": "stripe",
                 "gateway_intent_id": gateway_intent_id or None,
             }
         ),
+        idempotency_key,
     )
 
     return {

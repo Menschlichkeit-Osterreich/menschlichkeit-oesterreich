@@ -45,10 +45,14 @@ class PaymentService:
     # ── Donations ─────────────────────────────────────────────────────────────
 
     async def record_successful_donation(self, **kwargs: Any) -> dict[str, Any]:
-        return await donation_service.record_successful_donation(**kwargs)
+        raise RuntimeError(
+            "Direkte Zahlungsverbuchung ist außer Betrieb; Stripe-Webhooks verwenden."
+        )
 
     async def log_external_payment(self, **kwargs: Any) -> dict[str, Any]:
-        return await donation_service.log_external_payment(**kwargs)
+        raise RuntimeError(
+            "Direkte externe Zahlungsprotokollierung ist außer Betrieb; Stripe-Webhooks verwenden."
+        )
 
     # ── Invoices ──────────────────────────────────────────────────────────────
 
