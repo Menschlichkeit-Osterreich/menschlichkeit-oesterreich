@@ -21,7 +21,6 @@ Fuehre einen konservativen read-only Audit fuer BSM-UUID-Mappings aus.
 
 1. Lies zuerst den technischen Injektionspfad im Repo:
    - `.github/bsm-secret-ids.json`
-   - `.github/workflows/reusable-bsm-secrets.yml`
    - `.github/actions/bsm-env-inject/action.yml`
 2. Fuehre fuer jede Ziel-UUID read-only Abruf aus.
 3. Gib nur folgende Felder aus:

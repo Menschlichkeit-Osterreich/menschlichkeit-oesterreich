@@ -8,6 +8,11 @@ on:
       - 'scripts/ops/plesk-readonly-audit.sh'
       - 'scripts/ops/compare-plesk-state.py'
       - '.github/workflows/plesk-readonly-audit.yml'
+      - '.github/workflows/plesk-live-audit.yml'
+      - '.github/workflows/deploy-plesk.yml'
+      - '.github/actions/bsm-env-inject/action.yml'
+      - '.github/bsm-secret-ids.json'
+      - 'apps/api/requirements-dev.txt'
       - 'docs/operations/PLESK-RUNTIME-CONTRACT.md'
       - 'docs/operations/DOMAIN-SUBDOMAIN-REGISTER.md'
       - 'docs/operations/DATABASE-REGISTER.md'
@@ -15,6 +20,8 @@ on:
       - 'docs/operations/BACKUP-RESTORE-REGISTER.md'
       - 'tests/ops/test_plesk_readonly_audit.py'
       - 'tests/ops/test_plesk_vhost_detection.py'
+      - 'tests/ops/test_plesk_live_audit_workflow.py'
+      - 'tests/ops/test_bsm_plesk_contract.py'
 
 permissions:
   contents: read
@@ -39,10 +46,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          python3 -m pip install --disable-pip-version-check -r apps/api/requirements-dev.txt
           bash -n scripts/ops/plesk-readonly-audit.sh
-          python3 -m py_compile scripts/ops/compare-plesk-state.py tests/ops/test_plesk_readonly_audit.py tests/ops/test_plesk_vhost_detection.py
+          python3 -m py_compile scripts/ops/compare-plesk-state.py tests/ops/test_plesk_readonly_audit.py tests/ops/test_plesk_vhost_detection.py tests/ops/test_plesk_live_audit_workflow.py tests/ops/test_bsm_plesk_contract.py
           jq -e '.schema_version == 2 and .execution.read_only == true and .data_policy.public_log_mode == "status-only"' config/plesk/expected-state.json >/dev/null
-          python3 -m unittest tests.ops.test_plesk_readonly_audit tests.ops.test_plesk_vhost_detection -v
+          python3 -m unittest tests.ops.test_plesk_readonly_audit tests.ops.test_plesk_vhost_detection tests.ops.test_plesk_live_audit_workflow tests.ops.test_bsm_plesk_contract -v
 
       - name: Confirm live-access boundary
         shell: bash

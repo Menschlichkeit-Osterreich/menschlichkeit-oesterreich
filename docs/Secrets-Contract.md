@@ -42,5 +42,5 @@ Scope: Produktionskritische Betriebsvertraege fuer Secret-Handling (ohne Werte, 
 
 - `docs/operations/deployment.md`
 - `docs/security/secrets-catalog.md`
-- `.github/workflows/reusable-bsm-secrets.yml`
+- `.github/actions/bsm-env-inject/action.yml`
 - `.github/bsm-secret-ids.json`

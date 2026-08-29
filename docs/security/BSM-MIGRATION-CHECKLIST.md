@@ -12,7 +12,7 @@
 - [ ] Service Account `sa-cicd` mit Zugriff auf alle drei Projekte
 - [ ] Access Token für `sa-cicd` generiert
 - [ ] `BW_ACCESS_TOKEN` als GitHub Repository Secret gespeichert
-- [ ] Reusable Workflow `.github/workflows/reusable-bsm-secrets.yml` committed
+- [ ] Composite Action `.github/actions/bsm-env-inject/action.yml` reviewed; keine Secret-Outputs zwischen Jobs
 
 ---
 

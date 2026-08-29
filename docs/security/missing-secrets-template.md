@@ -35,9 +35,9 @@ Es dokumentiert keine Secret-Werte, sondern nur:
 - Environment:
 - Betroffener Workflow oder Service:
 
-| Secret         | Klasse    | Service | Environment | Primaerablage             | Injektionspfad           | Status | Owner  | Naechste Massnahme                |
-| -------------- | --------- | ------- | ----------- | ------------------------- | ------------------------ | ------ | ------ | --------------------------------- |
-| EXAMPLE_SECRET | produktiv | api     | production  | Bitwarden Secrets Manager | reusable-bsm-secrets.yml | fehlt  | DevOps | in BSM anlegen und Handoff testen |
+| Secret         | Klasse    | Service | Environment | Primaerablage             | Injektionspfad                 | Status | Owner  | Naechste Massnahme                |
+| -------------- | --------- | ------- | ----------- | ------------------------- | ------------------------------ | ------ | ------ | --------------------------------- |
+| EXAMPLE_SECRET | produktiv | api     | production  | Bitwarden Secrets Manager | bsm-env-inject (im selben Job) | fehlt  | DevOps | in BSM anlegen und Handoff testen |
 ```
 
 ## Basis-Set aus dem aktuellen Manifest
@@ -94,7 +94,7 @@ Es dokumentiert keine Secret-Werte, sondern nur:
 
 | Secret             | Klasse                             | Service | Environments                     | Primaerablage                                         | Injektionspfad                                       | Status | Owner                      | Naechste Massnahme                             |
 | ------------------ | ---------------------------------- | ------- | -------------------------------- | ----------------------------------------------------- | ---------------------------------------------------- | ------ | -------------------------- | ---------------------------------------------- |
-| BW_ACCESS_TOKEN    | workflow                           | cicd    | staging, production              | dokumentierte GitHub-Secret-Ausnahme fuer BSM-Zugriff | reusable-bsm-secrets.yml                             |        | DevOps                     |                                                |
+| BW_ACCESS_TOKEN    | workflow                           | cicd    | staging, production              | dokumentierte GitHub-Secret-Ausnahme fuer BSM-Zugriff | bsm-env-inject (im selben Job)                       |        | DevOps                     |                                                |
 | GH_TOKEN           | persoenlich oder workflow-ausnahme | cicd    | development, staging, production | lokaler Credential Store oder dokumentierte Ausnahme  | manuelle Admin-Aufgaben oder eng begrenzte Workflows |        | benannte Person + Security | pruefen, ob noch als Repo/Env-Secret benoetigt |
 | GH_ADMIN_TOKEN     | workflow-ausnahme                  | cicd    | staging, production              | Bitwarden Secrets Manager                             | branch-protection/secrets-validation                 |        | DevOps + Security          | kanonischen Namen durchsetzen                  |
 | ADMIN_GITHUB_TOKEN | deprecated                         | cicd    | staging, production              | Bitwarden Secrets Manager                             | Legacy-Alias                                         |        | DevOps                     | auf GH_ADMIN_TOKEN konsolidieren               |

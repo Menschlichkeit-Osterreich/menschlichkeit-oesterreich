@@ -139,30 +139,47 @@ runs:
         done
 
         secrets_json=$(jq -sc 'add // {}' "$secret_objects_file")
-        if [ "$BSM_PROFILE" = "deploy-production" ]; then
-          required_keys=(
-            DATABASE_URL
-            JWT_SECRET_KEY
-            STRIPE_SECRET_KEY
-            STRIPE_WEBHOOK_SECRET
-            MOE_API_TOKEN
-            CIVICRM_SITE_KEY
-            CIVICRM_API_KEY
-            ALERTS_SLACK_WEBHOOK
-            MICROSOFT_TENANT_ID
-            MICROSOFT_CLIENT_ID
-            MICROSOFT_CLIENT_SECRET
-            MICROSOFT_GRAPH_SENDER
-          )
+        required_keys=()
+        case "$BSM_PROFILE" in
+          deploy-production)
+            required_keys=(
+              PLESK_HOST
+              PLESK_PORT
+              REMOTE_USER
+              PLESK_SSH_PRIVATE_KEY
+              PLESK_KNOWN_HOSTS
+              DATABASE_URL
+              JWT_SECRET_KEY
+              STRIPE_SECRET_KEY
+              STRIPE_WEBHOOK_SECRET
+              MOE_API_TOKEN
+              CIVICRM_SITE_KEY
+              CIVICRM_API_KEY
+              ALERTS_SLACK_WEBHOOK
+              MICROSOFT_TENANT_ID
+              MICROSOFT_CLIENT_ID
+              MICROSOFT_CLIENT_SECRET
+              MICROSOFT_GRAPH_SENDER
+            )
+            ;;
+          plesk-live-audit)
+            required_keys=(
+              PLESK_HOST
+              PLESK_PORT
+              REMOTE_USER
+              PLESK_SSH_PRIVATE_KEY
+              PLESK_KNOWN_HOSTS
+            )
+            ;;
+        esac
 
-          for required_key in "${required_keys[@]}"; do
-            required_value=$(printf '%s' "$secrets_json" | jq -r --arg key "$required_key" '.[$key] // empty')
-            if [ -z "$required_value" ]; then
-              echo "✗ Pflicht-Secret '$required_key' fehlt im Profil '$BSM_PROFILE'"
-              exit 1
-            fi
-          done
-        fi
+        for required_key in "${required_keys[@]}"; do
+          required_value=$(printf '%s' "$secrets_json" | jq -r --arg key "$required_key" '.[$key] // empty')
+          if [ -z "$required_value" ]; then
+            echo "✗ Pflicht-Secret '$required_key' fehlt im Profil '$BSM_PROFILE'"
+            exit 1
+          fi
+        done
 
         injected_csv=""
         for name in "${injected_names[@]}"; do

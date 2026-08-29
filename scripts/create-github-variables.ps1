@@ -3,7 +3,8 @@
 .SYNOPSIS
   Creates 5 BSM GitHub Variables for deployment automation via GitHub REST API
 .DESCRIPTION
-  Sets up GitHub Repository Variables required by .github/workflows/reusable-bsm-secrets.yml
+  Historical helper for GitHub Variables. Active BSM injection uses the in-job
+  .github/actions/bsm-env-inject/action.yml path instead of a reusable workflow.
   for loading Bitwarden Secrets Manager credentials during deployment.
 #>
 

@@ -1,6 +1,6 @@
 ---
 description: 'Read-only Verifikation von BSM-UUID-Mappings fuer produktive Secret-Injektion und Drift-Nachweise'
-applyTo: '.github/bsm-secret-ids.json, .github/workflows/reusable-bsm-secrets.yml, .github/actions/bsm-env-inject/action.yml, reports/**/SECRETS*.md, security/**/SECRET*.md, runbooks/**/BSM*.md'
+applyTo: '.github/bsm-secret-ids.json, .github/actions/bsm-env-inject/action.yml, .github/workflows/deploy-*.yml, reports/**/SECRETS*.md, security/**/SECRET*.md, runbooks/**/BSM*.md'
 ---
 
 # Secret Mapping Verification
@@ -11,7 +11,6 @@ Diese Instruction erzwingt konservativen, technischen Nachweis fuer BSM-UUID-Map
 
 - Vor jeder Aussage zu UUID-Konsistenz zuerst Mapping-Pfad lesen:
   - `.github/bsm-secret-ids.json`
-  - `.github/workflows/reusable-bsm-secrets.yml`
   - `.github/actions/bsm-env-inject/action.yml`
 - Danach read-only BSM-Metadatenabgleich je betroffener UUID durchfuehren.
 - Erlaubte Ausgabefelder sind ausschliesslich:
