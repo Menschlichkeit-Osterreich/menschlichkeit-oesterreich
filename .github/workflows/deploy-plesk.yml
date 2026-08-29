@@ -451,6 +451,13 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       # ── SSH einrichten ──────────────────────────────────────
+      # Secrets werden erst unmittelbar vor dem ersten SSH-Konsum injiziert.
+      - name: BSM-Secrets in Job-Umgebung laden
+        uses: ./.github/actions/bsm-env-inject
+        with:
+          profile: deploy-production
+          access_token: ${{ secrets.BW_ACCESS_TOKEN }}
+
       - name: SSH-Agent starten
         run: |
           set -euo pipefail
@@ -1477,8 +1484,7 @@ jobs:
           echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
           echo "| Ziel-Service | ${{ env.TARGET_SERVICE }} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| API_REMOTE_PATH | \`${{ env.API_REMOTE_PATH }}\` |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| PLESK_HOST | ${PLESK_HOST:-nicht gesetzt} |" >> "$GITHUB_STEP_SUMMARY"
-          echo "| REMOTE_USER | ${REMOTE_USER:-nicht gesetzt} |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Plesk-Verbindung | redigiert; innerhalb des Deploy-Jobs validiert |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Secret-Handoff (.env.deploy) | ${API_HANDOFF_CONTRACT_STATUS:-nicht geprueft} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Runtime-Secret-Contract | ${API_SECRET_RUNTIME_STATUS:-nicht geprueft} |" >> "$GITHUB_STEP_SUMMARY"
           echo "| Notification-Probe | ${API_NOTIFICATION_PROBE_STATUS:-nicht ausgefuehrt} |" >> "$GITHUB_STEP_SUMMARY"

@@ -14,7 +14,7 @@
 ### Verbindliche Betriebswahrheit
 
 - `.github/workflows/deploy-plesk.yml` steuert den produktiven API-Deploy und den Handoff in die Runtime.
-- `.github/workflows/reusable-bsm-secrets.yml` ist der kanonische Loader fuer BSM-Secrets pro Profil.
+- `.github/actions/bsm-env-inject/action.yml` ist der kanonische In-Job-Loader fuer BSM-Secrets pro Profil; Cross-Job-Outputs sind nicht erlaubt.
 - `.github/bsm-secret-ids.json` ist das UUID-Mapping (BSM-Key -> Runtime-Env-Var) fuer die aktiven Deploy-Profile.
 
 Diese drei Dateien bilden zusammen den aktiven Deploy-/Secret-Vertrag. Keine zweite Wahrheit in Legacy- oder Archivpfaden pflegen.

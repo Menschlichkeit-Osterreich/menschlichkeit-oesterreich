@@ -913,4 +913,4 @@ echo "NEW_TOKEN" | gh secret set GH_TOKEN --repo Menschlichkeit-Osterreich/mensc
 **Nächste Review:** 2027-02-26 (1 Monat vor Ablauf)
 **Owner:** Security Analyst + DevOps Engineer
 **Status:** ACTIVE
-**BSM-Integration:** ✅ Reusable Workflow `.github/workflows/reusable-bsm-secrets.yml`
+**BSM-Integration:** ✅ in-job Composite Action `.github/actions/bsm-env-inject/action.yml`; Cross-Job-Secret-Outputs sind stillgelegt.

@@ -23,6 +23,18 @@ BASH = shutil.which("bash")
 PYTHON = str(Path(sys.executable).resolve())
 
 
+def bash_has_command(command: str) -> bool:
+    if BASH is None:
+        return False
+    result = subprocess.run(  # nosec B603 - fixed command name and discovered bash path
+        [BASH, "-lc", f"command -v {command} >/dev/null 2>&1"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    return result.returncode == 0
+
+
 def load_comparator() -> ModuleType:
     spec = importlib.util.spec_from_file_location("compare_plesk_state", COMPARATOR)
     if spec is None or spec.loader is None:
@@ -40,6 +52,11 @@ class PleskReadonlyAuditTests(unittest.TestCase):
             raise unittest.SkipTest("bash executable not available")
         cls.expected = json.loads(EXPECTED.read_text(encoding="utf-8"))
         cls.comparator = load_comparator()
+        cls.bash_has_jq = bash_has_command("jq")
+
+    def require_bash_jq(self) -> None:
+        if not self.bash_has_jq:
+            self.skipTest("bash execution environment lacks jq; Ubuntu CI provides it")
 
     def test_remote_collector_contains_no_mutating_command(self) -> None:
         source = COLLECTOR.read_text(encoding="utf-8")
@@ -73,10 +90,11 @@ class PleskReadonlyAuditTests(unittest.TestCase):
         self.assertIn("contents: read", source)
         self.assertNotIn("contents: write", source)
         self.assertNotIn("secrets.", source)
-        self.assertNotIn("bsm-env-inject", source)
+        self.assertNotIn("uses: ./.github/actions/bsm-env-inject", source)
         self.assertNotRegex(source, r"\bssh\b")
 
     def test_collector_rejects_host_outside_moe_domain(self) -> None:
+        self.require_bash_jq()
         unexpected = json.loads(json.dumps(self.expected))
         unexpected["public_hosts"] = [
             {"host": "127.0.0.1", "health_path": "/", "required": True}
@@ -105,6 +123,7 @@ class PleskReadonlyAuditTests(unittest.TestCase):
         self.assertIn("outside allowed audit domain", result.stderr)
 
     def test_collector_emits_valid_bounded_json_without_network(self) -> None:
+        self.require_bash_jq()
         with tempfile.TemporaryDirectory() as temporary_directory:
             vhost_root = Path(temporary_directory)
             test_environment = os.environ.copy()

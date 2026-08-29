@@ -15,6 +15,18 @@ COLLECTOR = ROOT / "scripts/ops/plesk-readonly-audit.sh"
 BASH = shutil.which("bash")
 
 
+def bash_has_jq() -> bool:
+    if BASH is None:
+        return False
+    result = subprocess.run(  # nosec B603 - fixed command name and discovered bash path
+        [BASH, "-lc", "command -v jq >/dev/null 2>&1"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    return result.returncode == 0
+
+
 class PleskVhostDetectionTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -22,6 +34,8 @@ class PleskVhostDetectionTests(unittest.TestCase):
             raise unittest.SkipTest("bash executable not available")
 
     def test_domain_and_subdomain_use_correct_plesk_info_utilities(self) -> None:
+        if not bash_has_jq():
+            self.skipTest("bash execution environment lacks jq; Ubuntu CI provides it")
         expected = {
             "public_hosts": [
                 {

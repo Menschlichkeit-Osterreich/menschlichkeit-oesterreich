@@ -71,6 +71,16 @@ jobs:
     needs: prevalidation
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    # Die Environment-Grenze ist ein Owner-Gate: die relativen Runtime-Pfade
+    # werden ausschliesslich dort gepflegt und nie in Logs oder Git versioniert.
+    environment: plesk-readonly-audit
+    env:
+      MOE_AUDIT_FRONTEND_PATH: ${{ vars.PLESK_FRONTEND_PATH }}
+      MOE_AUDIT_API_PATH: ${{ vars.PLESK_API_PATH }}
+      MOE_AUDIT_CRM_PATH: ${{ vars.PLESK_CRM_PATH }}
+      MOE_AUDIT_CRM_NATIVE_PATH: ${{ vars.PLESK_CRM_NATIVE_PATH }}
+      MOE_AUDIT_GAMES_PATH: ${{ vars.PLESK_GAMES_PATH }}
+      MOE_AUDIT_FORUM_PATH: ${{ vars.PLESK_FORUM_PATH }}
     steps:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -87,7 +97,8 @@ jobs:
       # ── Phase 2: SSH CONNECTIVITY ─────────────────────────────────────────
       - name: 'Phase 2: SSH Connectivity Preflight'
         shell: bash
-        # PLESK_SSH_PRIVATE_KEY, PLESK_KNOWN_HOSTS, PLESK_HOST, REMOTE_USER
+        # PLESK_SSH_PRIVATE_KEY, PLESK_KNOWN_HOSTS, PLESK_HOST, PLESK_PORT,
+        # REMOTE_USER
         # werden von bsm-env-inject über GITHUB_ENV in diese Job-Umgebung gesetzt.
         run: |
           set -euo pipefail
@@ -106,14 +117,19 @@ jobs:
           printf '%s\n' "$PLESK_KNOWN_HOSTS" > "$KNOWN_HOSTS_FILE"
           chmod 600 "$KNOWN_HOSTS_FILE"
 
-          if [[ -z "${REMOTE_USER:-}" || -z "${PLESK_HOST:-}" ]]; then
-            printf 'SSH PREFLIGHT FAIL: REMOTE_USER oder PLESK_HOST aus BSM leer\n' >&2
+          if [[ -z "${REMOTE_USER:-}" || -z "${PLESK_HOST:-}" || -z "${PLESK_PORT:-}" ]]; then
+            printf 'SSH PREFLIGHT FAIL: REMOTE_USER, PLESK_HOST oder PLESK_PORT aus BSM leer\n' >&2
+            exit 1
+          fi
+          if [[ ! "${PLESK_PORT}" =~ ^[0-9]+$ ]] || (( 10#${PLESK_PORT} < 1 || 10#${PLESK_PORT} > 65535 )); then
+            printf 'SSH PREFLIGHT FAIL: PLESK_PORT ist ungueltig\n' >&2
             exit 1
           fi
 
           printf 'SSH PREFLIGHT: Teste Verbindung...\n'
           if ! ssh \
-               -i "$SSH_KEY_FILE" \
+            -i "$SSH_KEY_FILE" \
+               -p "$PLESK_PORT" \
                -o StrictHostKeyChecking=yes \
                -o UserKnownHostsFile="$KNOWN_HOSTS_FILE" \
                -o BatchMode=yes \
@@ -137,7 +153,8 @@ jobs:
       # ── Phase 3: READ-ONLY LIVE COLLECT ──────────────────────────────────
       - name: 'Phase 3: Read-Only Live Collect'
         shell: bash
-        # PLESK_SSH_PRIVATE_KEY, PLESK_KNOWN_HOSTS, PLESK_HOST, REMOTE_USER
+        # PLESK_SSH_PRIVATE_KEY, PLESK_KNOWN_HOSTS, PLESK_HOST, PLESK_PORT,
+        # REMOTE_USER
         # sind bereits über bsm-env-inject in der Job-Umgebung verfügbar.
         run: |
           set -euo pipefail
@@ -156,14 +173,24 @@ jobs:
             @tsv
           ' config/plesk/expected-state.json | base64 | tr -d '\n')"
 
-          # Service-Pfade aus dem Repo-Vertrag (Section 15) – relative Pfade
-          SERVICE_PATHS_RAW="$(printf '%s\t%s\t%s\n' \
-            'frontend'   'httpdocs'                        'true'  \
-            'api'        'subdomains/api/httpdocs'          'true'  \
-            'crm'        'subdomains/crm/httpdocs'          'true'  \
-            'crm_native' 'subdomains/crm/httpdocs/native'   'true'  \
-            'games'      'subdomains/games/httpdocs'        'true'  \
-            'forum'      'subdomains/forum/httpdocs'        'true'  \
+          # expected-state liefert nur Schlüssel und erlaubte Env-Namen. Die
+          # relativen Runtime-Pfade bleiben geschützte Environment-Konfiguration.
+          SERVICE_PATHS_RAW="$(
+            jq -r '.service_paths[] | [.key, .path_env, (.required | tostring)] | @tsv' \
+              config/plesk/expected-state.json |
+              while IFS=$'\t' read -r service_key path_env required; do
+                case "$path_env" in
+                  MOE_AUDIT_FRONTEND_PATH|MOE_AUDIT_API_PATH|MOE_AUDIT_CRM_PATH|MOE_AUDIT_CRM_NATIVE_PATH|MOE_AUDIT_GAMES_PATH|MOE_AUDIT_FORUM_PATH) ;;
+                  *) printf 'LIVE COLLECT FAIL: nicht erlaubte Runtime-Pfadvariable\n' >&2; exit 1 ;;
+                esac
+
+                relative_path="${!path_env:-}"
+                if [[ -z "$relative_path" || "$relative_path" == /* || "$relative_path" == *".."* || "$relative_path" == *$'\n'* ]]; then
+                  printf 'LIVE COLLECT FAIL: ungueltige oder fehlende Runtime-Pfadkonfiguration fuer %s\n' "$service_key" >&2
+                  exit 1
+                fi
+                printf '%s\t%s\t%s\n' "$service_key" "$relative_path" "$required"
+              done
           )"
           PATHS_B64="$(printf '%s' "$SERVICE_PATHS_RAW" | base64 | tr -d '\n')"
 
@@ -171,6 +198,7 @@ jobs:
 
           LIVE_OUTPUT="$(ssh \
             -i "$SSH_KEY_FILE" \
+            -p "$PLESK_PORT" \
             -o StrictHostKeyChecking=yes \
             -o UserKnownHostsFile="$KNOWN_HOSTS_FILE" \
             -o BatchMode=yes \

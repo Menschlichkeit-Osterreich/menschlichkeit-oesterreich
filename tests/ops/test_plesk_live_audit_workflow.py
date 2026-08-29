@@ -14,8 +14,14 @@ import yaml
 ROOT = Path(__file__).resolve().parents[2]
 WORKFLOW = ROOT / ".github/workflows/plesk-live-audit.yml"
 
-# The four BSM keys that must NOT cross job boundaries.
-FORBIDDEN_OUTPUT_KEYS = ["PLESK_SSH_PRIVATE_KEY", "PLESK_KNOWN_HOSTS", "PLESK_HOST", "REMOTE_USER"]
+# BSM connection keys must NOT cross job boundaries.
+FORBIDDEN_OUTPUT_KEYS = [
+    "PLESK_SSH_PRIVATE_KEY",
+    "PLESK_KNOWN_HOSTS",
+    "PLESK_HOST",
+    "PLESK_PORT",
+    "REMOTE_USER",
+]
 
 
 class PleskLiveAuditWorkflowTests(unittest.TestCase):
