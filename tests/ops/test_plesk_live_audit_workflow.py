@@ -98,10 +98,8 @@ class PleskLiveAuditWorkflowTests(unittest.TestCase):
         uses_values = [
             step.get("uses", "") for step in live_audit_steps if isinstance(step, dict)
         ]
-        self.assertTrue(
-            any(".github/actions/bsm-env-inject" in u for u in uses_values),
-            "bsm-env-inject action must be used inside the live-audit job steps"
-        )
+        self.assertTrue(any(".github/actions/bsm-env-inject" in u for u in uses_values),
+                        "bsm-env-inject action must be used inside the live-audit job steps")
 
     def test_bsm_env_inject_uses_plesk_live_audit_profile(self) -> None:
         """bsm-env-inject must be called with profile=plesk-live-audit."""
@@ -122,11 +120,8 @@ class PleskLiveAuditWorkflowTests(unittest.TestCase):
         """BW_ACCESS_TOKEN must be the only secrets.* reference in the workflow."""
         # All ${{ secrets.X }} expressions
         secret_refs = set(re.findall(r"\$\{\{[^}]*secrets\.([A-Z0-9_]+)[^}]*\}\}", self.raw))
-        self.assertEqual(
-            secret_refs, {"BW_ACCESS_TOKEN"},
-            f"Only BW_ACCESS_TOKEN may be referenced as a GitHub Actions secret; "
-            f"found: {secret_refs}"
-        )
+        self.assertEqual(secret_refs, {"BW_ACCESS_TOKEN"},
+                         f"Only BW_ACCESS_TOKEN may be referenced as a GitHub Actions secret; found: {secret_refs}")
 
     def test_no_secrets_in_workflow_call_outputs(self) -> None:
         """Workflow-level outputs must not expose any of the four BSM secret keys."""
@@ -170,6 +165,11 @@ class PleskLiveAuditWorkflowTests(unittest.TestCase):
                 match,
                 f"Mutating command pattern '{pattern}' must not appear in live-audit workflow"
             )
+
+    def test_canonical_plesk_secret_names_present(self) -> None:
+        """Live audit should use the canonical Plesk secret names."""
+        for key in ("PLESK_HOST", "PLESK_KNOWN_HOSTS", "PLESK_SSH_PRIVATE_KEY", "REMOTE_USER"):
+            self.assertIn(key, self.raw, f"Expected canonical secret name {key} in live-audit workflow")
 
     def test_no_secret_values_in_step_summary(self) -> None:
         """Forbidden keys must not be echoed into GITHUB_STEP_SUMMARY."""

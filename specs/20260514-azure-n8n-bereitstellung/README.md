@@ -1,8 +1,12 @@
-# Azure n8n Abnahmevorbereitung — Spec & Implementation Guide
+# Azure n8n Abnahmevorbereitung — historische Spec
 
-**Status**: Specification Complete ✅ | Implementation Pending ⏳  
-**Gültig ab**: 2026-05-18
-**Zielplattform**: Azure VM (Ubuntu 22.04 LTS) + Docker Compose + n8n + PostgreSQL
+> **SUPERSEDED am 29.08.2026:** GitHub Issue #539 und der
+> [Make-first-Plattformvertrag](../../docs/architecture/make-first-platform-contract.md)
+> sind verbindlich. Dieses Verzeichnis ist ausschließlich historische
+> Evidenz; es darf keine Azure- oder n8n-Produktimplementierung auslösen.
+
+**Historischer Status**: Specification Complete ✅ | Implementation Pending ⏳
+**Historische Zielplattform**: Azure VM (Ubuntu 22.04 LTS) + Docker Compose + n8n + PostgreSQL
 
 **Autoritativer Statushinweis**: Dieses Verzeichnis dokumentiert Spec- und Handoff-Reife. Es ist kein Nachweis für produktiven Betrieb, DNS-Umschaltung, HTTPS-Abnahme oder Backup-Restore im Live-System.
 

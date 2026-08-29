@@ -4,12 +4,7 @@
     "updated": "2026-05-14",
     "repository": "Menschlichkeit-Osterreich/menschlichkeit-oesterreich",
     "pathZones": {
-      "active": [
-        "apps/",
-        "automation/",
-        "mcp-servers/",
-        "figma-design-system/"
-      ],
+      "active": ["apps/", "automation/", "mcp-servers/", "figma-design-system/"],
       "legacy_read_only": [
         "api.menschlichkeit-oesterreich.at/",
         "crm.menschlichkeit-oesterreich.at/",
@@ -27,9 +22,7 @@
         "tests/",
         "docs/"
       ],
-      "special_experimental": [
-        "codacy-analysis-cli-master/"
-      ]
+      "special_experimental": ["codacy-analysis-cli-master/"]
     }
   },
   "analysisEntry": {
@@ -1055,6 +1048,16 @@
       "path": ".github/instructions/core/n8n-automation.instructions.md",
       "role": "devops",
       "sourceOfTruth": ".github/instructions/core/n8n-automation.instructions.md",
+      "replacement": null
+    },
+    {
+      "id": "make-automation.instructions",
+      "kind": "instruction",
+      "status": "active",
+      "owner": "shared",
+      "path": ".github/instructions/core/make-automation.instructions.md",
+      "role": "devops",
+      "sourceOfTruth": ".github/instructions/core/make-automation.instructions.md",
       "replacement": null
     },
     {

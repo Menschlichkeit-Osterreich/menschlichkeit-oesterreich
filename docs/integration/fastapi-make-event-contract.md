@@ -1,7 +1,7 @@
 # FastAPI → Make Event-Vertrag (v1)
 
-Stand: 2026-08-28 · Status: `VERIFIED_REPO` (Produzentenseite implementiert),
-Make-Konsument: noch nicht gebaut.
+Stand: 2026-08-29 · Status: `VERIFIED_REPO` (Produzentenseite separat zu
+validieren), Make-Konsument: noch nicht gebaut und nicht aktiviert.
 
 ## Grundsatz
 
@@ -23,20 +23,32 @@ Stripe ──▶ FastAPI ──▶ PostgreSQL-Transaktion ──▶ COMMIT
 
 ## Transportgrenze
 
-Make konsumiert `outbox_events` über eine noch zu definierende, authentifizierte
-API-Route (Pull mit Ack) oder einen signierten Webhook-Push. **Nicht** über
-eine direkte Datenbankverbindung. Bis der Konsument existiert, sammeln sich
-Events mit `status='pending'` an — das ist beabsichtigt und verlustfrei.
+Make konsumiert `outbox_events` ausschließlich über den signierten
+Pull-/Lease-/Ack-Vertrag. Ein Webhook-Push und eine direkte
+Datenbankverbindung sind nicht Teil von v1. Bis der Konsument existiert,
+sammeln sich Events mit `status='pending'` an — das ist beabsichtigt und
+verlustfrei.
+
+| Route                                  | Wirkung                                                                     | Erforderliche Antwort                                              |
+| -------------------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `POST /internal/outbox/claim`          | Liefert eine begrenzte Menge fälliger Events und setzt je Event eine Lease. | Event-ID, Lease-ID, Lease-Ablauf, Typ, Payload und Idempotency-Key |
+| `POST /internal/outbox/{event_id}/ack` | Bestätigt für dieselbe Lease Erfolg oder einen klassifizierten Fehler.      | `processed`, wieder fällig oder `failed`                           |
+
+Beide Routen verlangen eine BSM-provisionierte Maschinenauthentisierung. Die
+Signatur umfasst Methode, Pfad, Zeitstempel und Body. Eine abgelaufene oder
+falsche Lease verändert keinen Event-Zustand. Wiederholte Zustellung ist
+erwartet; der Empfänger muss den `idempotency_key` vor jedem externen Write
+verwenden.
 
 ## Envelope (alle Events)
 
 Jedes Outbox-Event trägt im `payload` mindestens:
 
-| Feld | Typ | Bedeutung |
-| ---- | --- | --------- |
-| `schema_version` | int | Version dieses Vertrags (aktuell `1`) |
-| `correlation_id` | uuid | `webhook_events.id` des auslösenden Stripe-Events — durchgängige Nachverfolgbarkeit Stripe → Inbox → Business → Make |
-| `idempotency_key` | string | Eindeutig je Geschäftsvorfall; Make MUSS darauf deduplizieren |
+| Feld              | Typ    | Bedeutung                                                                                                            |
+| ----------------- | ------ | -------------------------------------------------------------------------------------------------------------------- |
+| `schema_version`  | int    | Version dieses Vertrags (aktuell `1`)                                                                                |
+| `correlation_id`  | uuid   | `webhook_events.id` des auslösenden Stripe-Events — durchgängige Nachverfolgbarkeit Stripe → Inbox → Business → Make |
+| `idempotency_key` | string | Eindeutig je Geschäftsvorfall; Make MUSS darauf deduplizieren                                                        |
 
 Tabellenseitig (Spalten von `outbox_events`): `id` (uuid, zugleich
 Event-Identität), `event_type`, `aggregate_type`, `aggregate_id`, `status`
@@ -48,18 +60,18 @@ Event-Identität), `event_type`, `aggregate_type`, `aggregate_id`, `status`
 Erzeugt genau einmal pro verbuchter Spende (DB-garantiert über den partiellen
 Unique-Index `ux_donations_gateway_payment`).
 
-| Payload-Feld | Inhalt |
-| ------------ | ------ |
-| `donation_id` | lokale Donation-ID (aggregate_id) |
-| `amount`, `currency` | Betrag als String `"50.00"`, ISO-Währung |
-| `donation_type` | `one_time` \| `recurring` |
-| `interval` | `once` \| `monthly` \| `quarterly` \| `yearly` (Spenderwahl) |
-| `purpose` | Spendenzweck (fachlich) — getrennt von `source` |
-| `source` | technischer Ursprung (z. B. `website`) |
-| `financial_type` | Finanzkategorie aus Stripe-Metadata, ggf. `null` |
-| `donor_email`, `donor_name` | für CRM-Zuordnung und Folgekommunikation |
-| `gateway_provider`, `gateway_payment_id` | Stripe-Referenz für Reconciliation |
-| `receipt_email_sent_by_api` | `true` = FastAPI hat die Dankesmail bereits versendet (Übergangsphase) — Make darf **keine** zweite senden |
+| Payload-Feld                             | Inhalt                                                                                                     |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `donation_id`                            | lokale Donation-ID (aggregate_id)                                                                          |
+| `amount`, `currency`                     | Betrag als String `"50.00"`, ISO-Währung                                                                   |
+| `donation_type`                          | immer `one_time` in v1                                                                                     |
+| `interval`                               | immer `once` in v1                                                                                         |
+| `purpose`                                | Spendenzweck (fachlich) — getrennt von `source`                                                            |
+| `source`                                 | technischer Ursprung (z. B. `website`)                                                                     |
+| `financial_type`                         | Finanzkategorie aus Stripe-Metadata, ggf. `null`                                                           |
+| `donor_email`, `donor_name`              | für CRM-Zuordnung und Folgekommunikation                                                                   |
+| `gateway_provider`, `gateway_payment_id` | Stripe-Referenz für Reconciliation                                                                         |
+| `receipt_email_sent_by_api`              | `true` = FastAPI hat die Dankesmail bereits versendet (Übergangsphase) — Make darf **keine** zweite senden |
 
 **Make-Pflichten:**
 
@@ -78,13 +90,13 @@ Unique-Index `ux_donations_gateway_payment`).
 
 Erzeugt je fehlgeschlagenem/abgebrochenem Payment-Intent-Event.
 
-| Payload-Feld | Inhalt |
-| ------------ | ------ |
-| `status` | `failed` \| `canceled` |
-| `amount`, `currency` | wie oben |
-| `donor_email` | für Follow-up-Kommunikation (nur interne Systeme/Mail an Betroffene) |
-| `failure_reason` | Stripe-Fehlermeldung, ggf. `null` |
-| `gateway_intent_id` | Stripe-Referenz |
+| Payload-Feld         | Inhalt                                                               |
+| -------------------- | -------------------------------------------------------------------- |
+| `status`             | `failed` \| `canceled`                                               |
+| `amount`, `currency` | wie oben                                                             |
+| `donor_email`        | für Follow-up-Kommunikation (nur interne Systeme/Mail an Betroffene) |
+| `failure_reason`     | Stripe-Fehlermeldung, ggf. `null`                                    |
+| `gateway_intent_id`  | Stripe-Referenz                                                      |
 
 **Make-Pflichten:** Slack-Alerts aus diesem Event MÜSSEN datensparsam sein —
 keine `donor_email`, keine Stripe-IDs; nur Betrag, Status, `correlation_id`
@@ -107,12 +119,15 @@ Slack-Alerts, Logs oder Monitoring-Artefakte.
   Make-Übernahme unangetastet; der Webhook-Pfad befüllt sie nicht mehr
   (Entkopplung gemäß Zielarchitektur). Übernahmeplan: siehe
   n8n→Make-Migrationsmatrix.
+- Subscription- und Belegfunktion sind ausdrücklich nicht Bestandteil von
+  v1. UI, API und Dokumentation dürfen sie nicht als verfügbare Funktion
+  darstellen, bis ihr vollständiger fachlicher und technischer Lifecycle
+  freigegeben ist.
 
 ## Operations-Budget (Make)
 
 Erwartung Spendenvolumen: niedrig zweistellig/Monat → `donation.recorded` +
 `payment.failed` zusammen deutlich < 100 Events/Monat; selbst mit ~10
 Modulen/Szenariolauf « 1 % des Budgets von ~40.000 Operations/Monat.
-Kein Polling: Zustellung event-basiert (Push) oder Pull im 15-Minuten-Takt
-(~2.900 Operations/Monat Obergrenze für den Poller allein — akzeptabel,
-Push bevorzugt).
+Der Claim-Lauf darf höchstens im 15-Minuten-Raster pollen und nur fällige
+Events anfordern. Dauerpolling oder zweite Zustellpfade sind verboten.

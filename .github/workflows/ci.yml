@@ -17,8 +17,6 @@ on:
 
 permissions:
   contents: read
-  security-events: write
-  actions: read
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -78,7 +76,7 @@ jobs:
         run: npm run test:api:coverage
 
       - name: Upload coverage artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: coverage-reports
           if-no-files-found: error
@@ -91,7 +89,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: env.CODECOV_TOKEN != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
-        uses: codecov/codecov-action@v6
+        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v6.0.2
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
@@ -122,14 +120,24 @@ jobs:
       - name: Detect API container changes
         id: api_changes
         shell: bash
+        env:
+          CI_EVENT_NAME: ${{ github.event_name }}
+          CI_BASE_REF: ${{ github.base_ref }}
+          CI_BEFORE_SHA: ${{ github.event.before }}
+          CI_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
 
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            git fetch --no-tags --prune --depth=1 origin "${{ github.base_ref }}"
-            CHANGED_FILES="$(git diff --name-only "origin/${{ github.base_ref }}...HEAD")"
-          elif [[ -n "${{ github.event.before }}" && "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]]; then
-            CHANGED_FILES="$(git diff --name-only "${{ github.event.before }}...${{ github.sha }}")"
+          if [[ "$CI_EVENT_NAME" == "pull_request" ]]; then
+            if ! git check-ref-format --branch "$CI_BASE_REF" >/dev/null 2>&1; then
+              echo "::error::Ungültiger Basis-Ref für den Container-Diff."
+              exit 1
+            fi
+            git fetch --no-tags --prune origin \
+              "+refs/heads/${CI_BASE_REF}:refs/remotes/origin/${CI_BASE_REF}"
+            CHANGED_FILES="$(git diff --name-only "origin/${CI_BASE_REF}...HEAD")"
+          elif [[ "$CI_BEFORE_SHA" =~ ^[0-9a-f]{40}$ && "$CI_SHA" =~ ^[0-9a-f]{40}$ && "$CI_BEFORE_SHA" != "0000000000000000000000000000000000000000" ]]; then
+            CHANGED_FILES="$(git diff --name-only "${CI_BEFORE_SHA}...${CI_SHA}")"
           else
             echo "relevant=true" >> "$GITHUB_OUTPUT"
             echo "Kein Vergleichs-SHA vorhanden. API-Container wird vorsorglich gebaut." >> "$GITHUB_STEP_SUMMARY"
@@ -149,7 +157,7 @@ jobs:
 
       - name: Set up Docker Buildx
         if: steps.api_changes.outputs.relevant == 'true'
-        uses: docker/setup-buildx-action@v4
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4
 
       - name: Build container image
         if: steps.api_changes.outputs.relevant == 'true'
@@ -196,7 +204,7 @@ jobs:
 
       - name: Upload Playwright artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: playwright-phase1-results
           if-no-files-found: warn
@@ -217,12 +225,20 @@ jobs:
       - name: Deploy to staging via webhook
         env:
           STAGING_DEPLOY_WEBHOOK: ${{ secrets.STAGING_DEPLOY_WEBHOOK }}
+          DEPLOY_REPOSITORY: ${{ github.repository }}
+          DEPLOY_SHA: ${{ github.sha }}
+          DEPLOY_REF: ${{ github.ref_name }}
         run: |
           if [ -z "$STAGING_DEPLOY_WEBHOOK" ]; then
             echo "STAGING_DEPLOY_WEBHOOK ist nicht konfiguriert." >&2
             exit 1
           fi
+          payload="$(jq -cn \
+            --arg repository "$DEPLOY_REPOSITORY" \
+            --arg sha "$DEPLOY_SHA" \
+            --arg ref "$DEPLOY_REF" \
+            '{repository: $repository, sha: $sha, ref: $ref}')"
           curl --fail --show-error --silent \
             -X POST "$STAGING_DEPLOY_WEBHOOK" \
             -H 'Content-Type: application/json' \
-            -d '{"repository":"${{ github.repository }}","sha":"${{ github.sha }}","ref":"${{ github.ref_name }}"}'
+            --data "$payload"

@@ -1,4 +1,8 @@
-# INDEX — Alle Dokumente im Überblick
+# INDEX — Historische Azure/n8n-Dokumente
+
+> **SUPERSEDED:** Dieser Index führt historische Evidenz. Für neue Arbeit gilt
+> GitHub Issue #539 und der
+> [Make-first-Plattformvertrag](../../docs/architecture/make-first-platform-contract.md).
 
 **Aktualisiert**: 2026-05-18
 **Gesamt-Dokumente**: 19  

@@ -24,8 +24,8 @@ jobs:
     environment: ${{ inputs.environment }}
     env:
       SSH_HOST: ${{ secrets.PLESK_HOST }}
-      SSH_PORT: ${{ secrets.PLESK_SSH_PORT || '22' }}
-      SSH_USER: ${{ secrets.PLESK_USER }}
+      SSH_PORT: ${{ secrets.PLESK_PORT || '22' }}
+      SSH_USER: ${{ secrets.REMOTE_USER }}
       DB_HOST: ${{ secrets.DB_HOST }}
       DB_NAME: ${{ secrets.DB_NAME }}
       DB_USER: ${{ secrets.DB_USER }}
@@ -46,7 +46,7 @@ jobs:
       - name: Start ssh-agent
         uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd # v0.9.1
         with:
-          ssh-private-key: ${{ secrets.PLESK_SSH_PRIVATE_KEY != '' && secrets.PLESK_SSH_PRIVATE_KEY || secrets.PLESK_SSH_KEY }}
+          ssh-private-key: ${{ secrets.PLESK_SSH_PRIVATE_KEY }}
 
       - name: Trust host key (aus Secret – kein live ssh-keyscan)
         run: |

@@ -43,6 +43,7 @@ from .routers import (
     privacy,
     payments,
     internal,
+    make_outbox,
     queue,
     alerts,
     game,
@@ -152,6 +153,8 @@ app.add_middleware(
         "Content-Type",
         "X-Request-ID",
         "X-CSRF-Token",
+        "X-MOE-Outbox-Signature",
+        "X-MOE-Timestamp",
         "Accept",
         "Accept-Language",
     ],
@@ -377,6 +380,7 @@ app.include_router(newsletter.router, prefix="/api", tags=["Newsletter"])
 app.include_router(privacy.router, prefix="/api", tags=["DSGVO"])
 app.include_router(payments.router, prefix="/api", tags=["Payments"])
 app.include_router(internal.router, prefix="/api", tags=["Interne Integrationen"])
+app.include_router(make_outbox.router, prefix="/api", tags=["Make Outbox"])
 app.include_router(queue.router, prefix="/api", tags=["Queue"])
 app.include_router(alerts.router, prefix="/api", tags=["Alerts"])
 app.include_router(game.router, prefix="/api", tags=["Game"])

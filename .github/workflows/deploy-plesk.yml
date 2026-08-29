@@ -500,6 +500,12 @@ jobs:
           chmod 600 ~/.ssh/config
           echo "✓ SSH-Config gesetzt."
 
+      - name: BSM-Secrets in Job-Umgebung laden
+        uses: ./.github/actions/bsm-env-inject
+        with:
+          profile: deploy-production
+          access_token: ${{ secrets.BW_ACCESS_TOKEN }}
+
       - name: Normalize Remote Paths für Plesk Chroot
         run: |
           echo "🔍 Validiere und normalisiere Remote-Pfade für Plesk Chroot..."
@@ -614,12 +620,6 @@ jobs:
 
       # ── API deployen ────────────────────────────────────────
       # ── Preflight: Microsoft Graph + Slack Secrets validieren ────────────
-      - name: BSM-Secrets in Job-Umgebung laden
-        uses: ./.github/actions/bsm-env-inject
-        with:
-          profile: deploy-production
-          access_token: ${{ secrets.BW_ACCESS_TOKEN }}
-
       - name: Preflight → BSM Secret Validation
         if: >
           env.TARGET_SERVICE == 'all' ||

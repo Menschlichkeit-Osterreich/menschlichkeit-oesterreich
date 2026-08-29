@@ -11,6 +11,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 
 from app.services.stripe_service import stripe_service
+from app.services.stripe_service import InvalidStripeSignature
 
 
 _MOCK_BASE = "app.routers.payments"
@@ -55,7 +56,7 @@ class TestStripeIntentCreation:
         resp = client.post("/api/payments/stripe/intent", json={"currency": "EUR"})
         assert resp.status_code == 422
 
-    def test_create_intent_forwards_interval_to_service(self, client):
+    def test_create_intent_rejects_recurring_interval(self, client):
         with patch(
             "app.services.payment_service.payment_service.create_stripe_intent",
             new=AsyncMock(
@@ -77,8 +78,8 @@ class TestStripeIntentCreation:
                     "interval": "monthly",
                 },
             )
-            assert resp.status_code == 200
-            assert mock_create.call_args.kwargs["interval"] == "monthly"
+            assert resp.status_code == 422
+            mock_create.assert_not_called()
 
 
 class TestStripeWebhook:
@@ -107,10 +108,7 @@ class TestStripeWebhook:
             ),
             patch(
                 f"{_MOCK_BASE}.stripe_webhook_inbox.claim",
-                new=AsyncMock(return_value=claimed),
-            ),
-            patch(
-                f"{_MOCK_BASE}.stripe_webhook_inbox.mark_processed", new=AsyncMock()
+                new=AsyncMock(return_value="lease-test" if claimed else None),
             ),
         )
 
@@ -142,12 +140,11 @@ class TestStripeWebhook:
                 "metadata": {"email": "spender@example.at", "purpose": "Spende"},
             },
         )
-        ingest_p, claim_p, mark_p = self._inbox()
+        ingest_p, claim_p = self._inbox()
         with (
             self._sig_ok(),
             ingest_p,
             claim_p,
-            mark_p as mock_mark,
             patch(
                 f"{_MOCK_BASE}.process_stripe_event",
                 new=AsyncMock(
@@ -174,7 +171,6 @@ class TestStripeWebhook:
         assert resp.json()["success"] is True
         mock_process.assert_called_once()
         assert mock_process.call_args.kwargs["obj"]["id"] == "pi_test123"
-        mock_mark.assert_called_once()
         mock_mail.assert_called_once()
         kwargs = mock_mail.call_args.kwargs
         assert kwargs["template_id"] == "donation_success"
@@ -197,12 +193,11 @@ class TestStripeWebhook:
         mock_slack_client.__aexit__ = AsyncMock(return_value=None)
         mock_slack_client.post = AsyncMock(return_value=None)
 
-        ingest_p, claim_p, mark_p = self._inbox()
+        ingest_p, claim_p = self._inbox()
         with (
             self._sig_ok(),
             ingest_p,
             claim_p,
-            mark_p,
             patch(
                 f"{_MOCK_BASE}.process_stripe_event",
                 new=AsyncMock(
@@ -255,12 +250,11 @@ class TestStripeWebhook:
         payload = _stripe_event(
             "payment_intent.canceled", {"id": "pi_canceled123", "amount": 2000}
         )
-        ingest_p, claim_p, mark_p = self._inbox()
+        ingest_p, claim_p = self._inbox()
         with (
             self._sig_ok(),
             ingest_p,
             claim_p,
-            mark_p,
             patch(
                 f"{_MOCK_BASE}.process_stripe_event",
                 new=AsyncMock(
@@ -285,7 +279,7 @@ class TestStripeWebhook:
         payload = _stripe_event(
             "payment_intent.succeeded", {"id": "pi_dup", "amount_received": 1000}
         )
-        ingest_p, claim_p, _ = self._inbox(status="processed", created=False)
+        ingest_p, claim_p = self._inbox(status="processed", created=False)
         with (
             self._sig_ok(),
             ingest_p,
@@ -308,7 +302,9 @@ class TestStripeWebhook:
                 "metadata": {"email": "spender@example.at"},
             },
         )
-        ingest_p, claim_p, _ = self._inbox(status="processing", created=False, claimed=False)
+        ingest_p, claim_p = self._inbox(
+            status="processing", created=False, claimed=False
+        )
         with (
             self._sig_ok(),
             ingest_p,
@@ -329,12 +325,11 @@ class TestStripeWebhook:
             "payment_intent.payment_failed",
             {"id": "pi_nomail", "amount": 1000, "metadata": {}},
         )
-        ingest_p, claim_p, mark_p = self._inbox()
+        ingest_p, claim_p = self._inbox()
         with (
             self._sig_ok(),
             ingest_p,
             claim_p,
-            mark_p,
             patch(
                 f"{_MOCK_BASE}.process_stripe_event",
                 new=AsyncMock(
@@ -371,12 +366,11 @@ class TestStripeWebhook:
             },
         )
         monkeypatch.delenv("PUBLIC_APP_URL", raising=False)
-        ingest_p, claim_p, mark_p = self._inbox()
+        ingest_p, claim_p = self._inbox()
         with (
             self._sig_ok(),
             ingest_p,
             claim_p,
-            mark_p,
             patch(
                 f"{_MOCK_BASE}.process_stripe_event",
                 new=AsyncMock(
@@ -400,6 +394,21 @@ class TestStripeWebhook:
             resp = self._post(client, payload)
         assert resp.status_code == 200
         assert mock_mail.call_args.kwargs["context"]["retry_url"].endswith("/spenden")
+
+    def test_invalid_signature_returns_generic_400_without_inbox_write(self, client):
+        payload = _stripe_event("payment_intent.succeeded", {"id": "pi_invalid"})
+        with (
+            patch(
+                "app.services.payment_service.payment_service.verify_stripe_signature",
+                new=AsyncMock(side_effect=InvalidStripeSignature("internal reason")),
+            ),
+            patch(f"{_MOCK_BASE}.stripe_webhook_inbox.ingest", new=AsyncMock()) as ingest,
+        ):
+            resp = self._post(client, payload)
+        assert resp.status_code == 400
+        assert resp.json()["error"]["message"] == "Ungültiger Stripe-Webhook"
+        assert "internal reason" not in resp.text
+        ingest.assert_not_called()
 
 
 class TestStripeSignatureValidation:

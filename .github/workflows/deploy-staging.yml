@@ -43,15 +43,15 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p ~/.ssh
-          # STAGING_KNOWN_HOSTS muss im GitHub-Environment 'staging' abgelegt sein.
+          # PLESK_KNOWN_HOSTS muss im GitHub-Environment 'staging' abgelegt sein.
           # Erzeugen via: ssh-keyscan -p <port> <host> auf einem vertrauenswürdigen System,
-          # dann als Secret STAGING_KNOWN_HOSTS speichern. Nie ssh-keyscan live im CI nutzen
+          # dann als Secret PLESK_KNOWN_HOSTS speichern. Nie ssh-keyscan live im CI nutzen
           # (MITM-Angriff möglich während des TOFU-Vorgangs).
-          if [ -z "${STAGING_KNOWN_HOSTS:-}" ]; then
-            echo "::error::Secret STAGING_KNOWN_HOSTS ist nicht gesetzt. Bitte im GitHub-Environment 'staging' hinterlegen."
+          if [ -z "${PLESK_KNOWN_HOSTS:-}" ]; then
+            echo "::error::Secret PLESK_KNOWN_HOSTS ist nicht gesetzt. Bitte im GitHub-Environment 'staging' hinterlegen."
             exit 1
           fi
-          printf '%s\n' "${STAGING_KNOWN_HOSTS}" >> ~/.ssh/known_hosts
+          printf '%s\n' "${PLESK_KNOWN_HOSTS}" >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
       - name: Run quality gates
@@ -64,34 +64,34 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p ~/.ssh
-          printf '%s\n' "${STAGING_DEPLOY_KEY}" > ~/.ssh/staging_deploy_key
+          printf '%s\n' "${PLESK_SSH_PRIVATE_KEY}" > ~/.ssh/staging_deploy_key
           chmod 600 ~/.ssh/staging_deploy_key
 
       - name: Add host to known_hosts
         run: |
           set -euo pipefail
           mkdir -p ~/.ssh
-          # STAGING_KNOWN_HOSTS muss im GitHub-Environment 'staging' abgelegt sein.
+          # PLESK_KNOWN_HOSTS muss im GitHub-Environment 'staging' abgelegt sein.
           # Erzeugen via: ssh-keyscan -p <port> <host> auf einem vertrauenswürdigen System,
-          # dann als Secret STAGING_KNOWN_HOSTS speichern. Nie ssh-keyscan live im CI nutzen
+          # dann als Secret PLESK_KNOWN_HOSTS speichern. Nie ssh-keyscan live im CI nutzen
           # (MITM-Angriff möglich während des TOFU-Vorgangs).
-          if [ -z "${STAGING_KNOWN_HOSTS:-}" ]; then
-            echo "::error::Secret STAGING_KNOWN_HOSTS ist nicht gesetzt. Bitte im GitHub-Environment 'staging' hinterlegen."
+          if [ -z "${PLESK_KNOWN_HOSTS:-}" ]; then
+            echo "::error::Secret PLESK_KNOWN_HOSTS ist nicht gesetzt. Bitte im GitHub-Environment 'staging' hinterlegen."
             exit 1
           fi
-          printf '%s\n' "${STAGING_KNOWN_HOSTS}" >> ~/.ssh/known_hosts
+          printf '%s\n' "${PLESK_KNOWN_HOSTS}" >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
       - name: Configure SSH host alias
         env:
-          STAGING_REMOTE_PORT: ${{ env.STAGING_REMOTE_PORT || '22' }}
+          PLESK_PORT: ${{ env.PLESK_PORT || '22' }}
         run: |
           set -euo pipefail
           cat > ~/.ssh/config <<EOF
           Host plesk-staging
             HostName ${PLESK_HOST}
             User ${REMOTE_USER}
-            Port ${STAGING_REMOTE_PORT}
+            Port ${PLESK_PORT}
             IdentityFile ~/.ssh/staging_deploy_key
             IdentitiesOnly yes
             StrictHostKeyChecking yes

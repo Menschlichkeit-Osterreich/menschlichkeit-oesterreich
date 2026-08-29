@@ -162,6 +162,14 @@ runs:
               MICROSOFT_GRAPH_SENDER
             )
             ;;
+          deploy-staging|deploy-forum)
+            required_keys=(
+              PLESK_HOST
+              PLESK_PORT
+              PLESK_SSH_PRIVATE_KEY
+              PLESK_KNOWN_HOSTS
+            )
+            ;;
           plesk-live-audit)
             required_keys=(
               PLESK_HOST
