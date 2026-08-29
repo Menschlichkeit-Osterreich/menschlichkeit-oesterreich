@@ -5,8 +5,8 @@ FastAPI + PostgreSQL als Owner kritischer Transaktionslogik, **Make** als
 zentrale Automationsplattform, **n8n = Migrationsquelle → RETIRED**.
 
 **Live-Evidenz (EV-0007):** Unter `n8n.menschlichkeit-oesterreich.at` läuft
-**keine** n8n-Instanz (Plesk-Standardseite seit 2025-10-05). *Production
-Evidence ist damit für alle 27 Workflows: keine.* Die Matrix migriert also
+**keine** n8n-Instanz (Plesk-Standardseite seit 2025-10-05). _Production
+Evidence ist damit für alle 27 Workflows: keine._ Die Matrix migriert also
 Repository-Verträge, keinen laufenden Betrieb — das senkt das Cutover-Risiko
 auf nahe null, verlangt aber, dass vor Aktivierung eines Make-Szenarios die
 fachliche Funktion erstmalig verifiziert wird.
@@ -21,45 +21,45 @@ Entscheidungswerte: `MIGRATE_TO_MAKE` · `MOVE_TO_FASTAPI` · `RETIRE` ·
 
 ## Matrix
 
-| # | Workflow | Business Function | Trigger | Systeme | Crit. | FastAPI-Overlap | Decision | Begründung |
-| - | -------- | ----------------- | ------- | ------- | ----- | --------------- | -------- | ---------- |
-| 1 | `Stripe_Webhook_to_CiviCRM_Contribution` | Stripe-Zahlung → CiviCRM-Contribution | webhook | Stripe, CiviCRM, FastAPI, Mail | P0 | **total** (PR #538) | **RETIRE** | Kernpfad gehört FastAPI (Inbox/Outbox); CiviCRM-Sync wird Make-Konsument von `donation.recorded`. Zwei parallele Webhook-Empfänger für Zahlungen sind genau die Doppel-Owner-Situation, die der Auftrag verbietet. |
-| 2 | `WebhookQueue_Processor` | Nachverarbeitung gequeueter Webhooks | webhook+cron | FastAPI, CiviCRM | P1 | total | **RETIRE** | Funktion ist im Inbox-Statusmodell (received/failed/retry) aufgegangen; Retry macht Stripe + Claim-Logik. |
-| 3 | `build-pipeline-automation` | CI-Ereignisse → Slack | webhook | Slack | P3 | — | **RETIRE** | GitHub Actions kann Slack-Benachrichtigung nativ; kein Orchestrator nötig. |
-| 4 | `crm-member-management` | Mitglieder-Lifecycle (Anlage, SEPA, Mail) | webhook | FastAPI, Mail, SEPA, Slack | P1 | teilweise (member_service) | **MIGRATE_TO_MAKE** | Folgeprozesse nach Mitglieder-Events; Stammdaten-Writes bleiben FastAPI/CiviCRM, Make orchestriert Mail/Slack/Folgen. |
-| 5 | `crm-sync-members` | Mitglieder-Sync Richtung CiviCRM | webhook | CiviCRM, Mail, Slack | P1 | teilweise | **MIGRATE_TO_MAKE** | Klassischer Sync-Fall der Zielarchitektur (Outbox → Make → CiviCRM). |
-| 6 | `dashboard-etl-stripe-civicrm` | Reporting-ETL Stripe/CiviCRM | schedule | Stripe, CiviCRM, Postgres, Slack | P2 | — | **MIGRATE_TO_MAKE** | Batch/Reporting = Make-Domäne. Achtung Operations-Budget: gebündelte Läufe (1×/Tag), keine Einzelsatz-Reads. |
-| 7 | `dlq-admin` | manuelle DLQ-Eingriffe | manuell | FastAPI | P1 | total | **MOVE_TO_FASTAPI** | DLQ ist jetzt `webhook_events.status='failed'` + `outbox_events.status='failed'`; Admin-Route mit RBAC/Audit gehört in die API, nicht in ein Automationstool. |
-| 8 | `donation-webhook-archive` | — (Datei enthält **0 Nodes**) | — | — | — | — | **RETIRE** | Leeres Artefakt, `DEPRECATED_CONFIRMED`. |
-| 9 | `events-reminder` | Veranstaltungs-Erinnerungen | schedule | FastAPI, Mail | P2 | — | **MIGRATE_TO_MAKE** | Scheduler + Mail-Folgeprozess, unkritisch. |
-| 10 | `finance-donation-processing` | Spendenverbuchung + Dankesmail | webhook | CiviCRM, Mail | P0 | **total** (PR #538) | **RETIRE** | Verbuchung = FastAPI (transaktional); Dankesmail übergangsweise FastAPI, danach Make via `donation.recorded` (`receipt_email_sent_by_api`-Flag beachten). |
-| 11 | `finance-dunning` | Mahnwesen | schedule | Mail | P1 | — | **MIGRATE_TO_MAKE** | Vor Aktivierung fachliche Mahnregeln bestätigen; Rechnungsstatus bleibt System of Record (ERPNext/FastAPI), Make orchestriert nur. |
-| 12 | `finance-erpnext-payment-entry` | Payment Entry in ERPNext anlegen | webhook | ERPNext | P1 | teilweise (`finance_external_sync`) | **MIGRATE_TO_MAKE** | Wird Make-Konsument von `donation.recorded`; Duplikatsperre über `custom_external_reference`. Vorbedingung: ERPNext existiert live (derzeit NXDOMAIN, EV-0004). |
-| 13 | `finance-erpnext-reconciliation-report` | Abstimmbericht | cron | ERPNext, Mail | P2 | — | **MIGRATE_TO_MAKE** | Reporting/Reconciliation = Make-Domäne. |
-| 14 | `finance-erpnext-sync-processor` | Abarbeitung ERPNext-Sync-Queue | cron | ERPNext | P1 | total (`finance_external_sync`) | **MIGRATE_TO_MAKE** | Zielbild: Make konsumiert Outbox direkt; die lokale Queue `finance_external_sync` wird dabei abgelöst (Übergangsregel im Event-Vertrag). |
-| 15 | `finance-invoicing` | Rechnungserstellung | schedule | CiviCRM, Mail | P1 | teilweise (invoice_service) | **MIGRATE_TO_MAKE** | Erstellung fachlich in ERPNext/CiviCRM; Make orchestriert Anstoß + Versand. Fachliche Regeln vor Aktivierung bestätigen. |
-| 16 | `finance-membership-invoicing` | Mitgliedsbeitrags-Rechnungen | schedule | CiviCRM, Mail | P1 | teilweise | **MIGRATE_TO_MAKE** | Wie #15; Beitragsordnung als fachliche Quelle. |
-| 17 | `finance-payment-confirmation` | Zahlungsbestätigung an Spender | webhook | CiviCRM, Mail | P1 | total | **RETIRE** | Bestätigungsmail sendet FastAPI post-commit (Übergang), danach Make via Outbox — dieser Workflow wäre ein zweiter Sender (Doppelmail-Risiko). |
-| 18 | `finance-sepa-export` | SEPA-Batch-Export | schedule | SEPA, Mail | P0 | **total** (`sepa_service.export_sepa_batch`) | **MOVE_TO_FASTAPI** | Zahlungsdatei-Erzeugung ist Finanzkernlogik mit Audit-Pflicht; existiert bereits als FastAPI-Service. Make übernimmt nur Verteilung/Erinnerung. |
-| 19 | `forum-moderation` | Forum-Moderationsalerts | webhook | Forum, Slack | P3 | — | **UNKNOWN** | Forum läuft nicht (EV-0006) und seine Zukunft ist eine offene Zielbild-Entscheidung. Keine Migration vor dieser Entscheidung. |
-| 20 | `forum-viral` | Forum-Content-Auswertung | cron | Forum | P3 | — | **UNKNOWN** | Wie #19. |
-| 21 | `mail-archiver-logging` | Mailversand-Archivierung | schedule | Mail | P3 | teilweise (`mail_service` loggt) | **MIGRATE_TO_MAKE** | Unkritisch; prüfen, ob FastAPI-Maillog bereits genügt (dann RETIRE). |
-| 22 | `onboarding-welcome-series` | Willkommensstrecke neue Mitglieder | webhook | Mail | P2 | — | **MIGRATE_TO_MAKE** | Klassische Make-Follow-up-Strecke. |
-| 23 | `plesk-deployment-notifications` | Deploy-Ereignisse → Slack | webhook | Plesk, Slack | P3 | — | **RETIRE** | GitHub Actions ist Deployment-Owner und kann Slack direkt benachrichtigen. |
-| 24 | `plesk-mail-provisioning` | Mailbox-Anlage über Plesk-API | webhook | Plesk, Mail | P2 | teilweise (`services/plesk-mail-api`) | **MIGRATE_TO_MAKE** | REST-basierte, fest definierte Admin-Aktion (kein freies SSH, §38-konform). Overlap mit `services/plesk-mail-api` vor Umsetzung auflösen — nur EIN Owner. |
-| 25 | `queue-monitor` | Queue-/Fehler-Monitoring → Slack | cron | FastAPI, Mail, Slack | P2 | teilweise | **MIGRATE_TO_MAKE** | Monitoring der Inbox/Outbox-Status per API-Read; Slack-Alerts datensparsam (P1-002-Regel gilt auch für Make). |
-| 26 | `right-to-erasure-fixed` | DSGVO-Löschbegehren | webhook | GDPR, Mail | P0 | **total** (privacy routes, `data_deletion_requests`) | **MOVE_TO_FASTAPI** | Löschungen brauchen Autorisierung, Audit-Trail und Transaktionssicherheit — existiert bereits in der API. Ein Automationstool darf hier nie zweiter Ausführungsweg sein. |
-| 27 | `social-media-crosspost` | Social-Media-Verteilung | webhook | Social | P3 | — | **MIGRATE_TO_MAKE** | Nicht kritische Orchestrierung, typischer Make-Fall. |
+| #   | Workflow                                 | Business Function                         | Trigger      | Systeme                          | Crit. | FastAPI-Overlap                                      | Decision            | Begründung                                                                                                                                                                                                         |
+| --- | ---------------------------------------- | ----------------------------------------- | ------------ | -------------------------------- | ----- | ---------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | `Stripe_Webhook_to_CiviCRM_Contribution` | Stripe-Zahlung → CiviCRM-Contribution     | webhook      | Stripe, CiviCRM, FastAPI, Mail   | P0    | **total** (PR #538)                                  | **RETIRE**          | Kernpfad gehört FastAPI (Inbox/Outbox); CiviCRM-Sync wird Make-Konsument von `donation.recorded`. Zwei parallele Webhook-Empfänger für Zahlungen sind genau die Doppel-Owner-Situation, die der Auftrag verbietet. |
+| 2   | `WebhookQueue_Processor`                 | Nachverarbeitung gequeueter Webhooks      | webhook+cron | FastAPI, CiviCRM                 | P1    | total                                                | **RETIRE**          | Funktion ist im Inbox-Statusmodell (received/failed/retry) aufgegangen; Retry macht Stripe + Claim-Logik.                                                                                                          |
+| 3   | `build-pipeline-automation`              | CI-Ereignisse → Slack                     | webhook      | Slack                            | P3    | —                                                    | **RETIRE**          | GitHub Actions kann Slack-Benachrichtigung nativ; kein Orchestrator nötig.                                                                                                                                         |
+| 4   | `crm-member-management`                  | Mitglieder-Lifecycle (Anlage, SEPA, Mail) | webhook      | FastAPI, Mail, SEPA, Slack       | P1    | teilweise (member_service)                           | **MIGRATE_TO_MAKE** | Folgeprozesse nach Mitglieder-Events; Stammdaten-Writes bleiben FastAPI/CiviCRM, Make orchestriert Mail/Slack/Folgen.                                                                                              |
+| 5   | `crm-sync-members`                       | Mitglieder-Sync Richtung CiviCRM          | webhook      | CiviCRM, Mail, Slack             | P1    | teilweise                                            | **MIGRATE_TO_MAKE** | Klassischer Sync-Fall der Zielarchitektur (Outbox → Make → CiviCRM).                                                                                                                                               |
+| 6   | `dashboard-etl-stripe-civicrm`           | Reporting-ETL Stripe/CiviCRM              | schedule     | Stripe, CiviCRM, Postgres, Slack | P2    | —                                                    | **MIGRATE_TO_MAKE** | Batch/Reporting = Make-Domäne. Achtung Operations-Budget: gebündelte Läufe (1×/Tag), keine Einzelsatz-Reads.                                                                                                       |
+| 7   | `dlq-admin`                              | manuelle DLQ-Eingriffe                    | manuell      | FastAPI                          | P1    | total                                                | **MOVE_TO_FASTAPI** | DLQ ist jetzt `webhook_events.status='failed'` + `outbox_events.status='failed'`; Admin-Route mit RBAC/Audit gehört in die API, nicht in ein Automationstool.                                                      |
+| 8   | `donation-webhook-archive`               | — (Datei enthält **0 Nodes**)             | —            | —                                | —     | —                                                    | **RETIRE**          | Leeres Artefakt, `DEPRECATED_CONFIRMED`.                                                                                                                                                                           |
+| 9   | `events-reminder`                        | Veranstaltungs-Erinnerungen               | schedule     | FastAPI, Mail                    | P2    | —                                                    | **MIGRATE_TO_MAKE** | Scheduler + Mail-Folgeprozess, unkritisch.                                                                                                                                                                         |
+| 10  | `finance-donation-processing`            | Spendenverbuchung + Dankesmail            | webhook      | CiviCRM, Mail                    | P0    | **total** (PR #538)                                  | **RETIRE**          | Verbuchung = FastAPI (transaktional); Dankesmail übergangsweise FastAPI, danach Make via `donation.recorded` (`receipt_email_sent_by_api`-Flag beachten).                                                          |
+| 11  | `finance-dunning`                        | Mahnwesen                                 | schedule     | Mail                             | P1    | —                                                    | **MIGRATE_TO_MAKE** | Vor Aktivierung fachliche Mahnregeln bestätigen; Rechnungsstatus bleibt System of Record (ERPNext/FastAPI), Make orchestriert nur.                                                                                 |
+| 12  | `finance-erpnext-payment-entry`          | Payment Entry in ERPNext anlegen          | webhook      | ERPNext                          | P1    | teilweise (`finance_external_sync`)                  | **MIGRATE_TO_MAKE** | Wird Make-Konsument von `donation.recorded`; Duplikatsperre über `custom_external_reference`. Vorbedingung: ERPNext existiert live (derzeit NXDOMAIN, EV-0004).                                                    |
+| 13  | `finance-erpnext-reconciliation-report`  | Abstimmbericht                            | cron         | ERPNext, Mail                    | P2    | —                                                    | **MIGRATE_TO_MAKE** | Reporting/Reconciliation = Make-Domäne.                                                                                                                                                                            |
+| 14  | `finance-erpnext-sync-processor`         | Abarbeitung ERPNext-Sync-Queue            | cron         | ERPNext                          | P1    | total (`finance_external_sync`)                      | **MIGRATE_TO_MAKE** | Zielbild: Make konsumiert Outbox direkt; die lokale Queue `finance_external_sync` wird dabei abgelöst (Übergangsregel im Event-Vertrag).                                                                           |
+| 15  | `finance-invoicing`                      | Rechnungserstellung                       | schedule     | CiviCRM, Mail                    | P1    | teilweise (invoice_service)                          | **MIGRATE_TO_MAKE** | Erstellung fachlich in ERPNext/CiviCRM; Make orchestriert Anstoß + Versand. Fachliche Regeln vor Aktivierung bestätigen.                                                                                           |
+| 16  | `finance-membership-invoicing`           | Mitgliedsbeitrags-Rechnungen              | schedule     | CiviCRM, Mail                    | P1    | teilweise                                            | **MIGRATE_TO_MAKE** | Wie #15; Beitragsordnung als fachliche Quelle.                                                                                                                                                                     |
+| 17  | `finance-payment-confirmation`           | Zahlungsbestätigung an Spender            | webhook      | CiviCRM, Mail                    | P1    | total                                                | **RETIRE**          | Bestätigungsmail sendet FastAPI post-commit (Übergang), danach Make via Outbox — dieser Workflow wäre ein zweiter Sender (Doppelmail-Risiko).                                                                      |
+| 18  | `finance-sepa-export`                    | SEPA-Batch-Export                         | schedule     | SEPA, Mail                       | P0    | **total** (`sepa_service.export_sepa_batch`)         | **MOVE_TO_FASTAPI** | Zahlungsdatei-Erzeugung ist Finanzkernlogik mit Audit-Pflicht; existiert bereits als FastAPI-Service. Make übernimmt nur Verteilung/Erinnerung.                                                                    |
+| 19  | `forum-moderation`                       | Forum-Moderationsalerts                   | webhook      | Forum, Slack                     | P3    | —                                                    | **UNKNOWN**         | Forum läuft nicht (EV-0006) und seine Zukunft ist eine offene Zielbild-Entscheidung. Keine Migration vor dieser Entscheidung.                                                                                      |
+| 20  | `forum-viral`                            | Forum-Content-Auswertung                  | cron         | Forum                            | P3    | —                                                    | **UNKNOWN**         | Wie #19.                                                                                                                                                                                                           |
+| 21  | `mail-archiver-logging`                  | Mailversand-Archivierung                  | schedule     | Mail                             | P3    | teilweise (`mail_service` loggt)                     | **MIGRATE_TO_MAKE** | Unkritisch; prüfen, ob FastAPI-Maillog bereits genügt (dann RETIRE).                                                                                                                                               |
+| 22  | `onboarding-welcome-series`              | Willkommensstrecke neue Mitglieder        | webhook      | Mail                             | P2    | —                                                    | **MIGRATE_TO_MAKE** | Klassische Make-Follow-up-Strecke.                                                                                                                                                                                 |
+| 23  | `plesk-deployment-notifications`         | Deploy-Ereignisse → Slack                 | webhook      | Plesk, Slack                     | P3    | —                                                    | **RETIRE**          | GitHub Actions ist Deployment-Owner und kann Slack direkt benachrichtigen.                                                                                                                                         |
+| 24  | `plesk-mail-provisioning`                | Mailbox-Anlage über Plesk-API             | webhook      | Plesk, Mail                      | P2    | teilweise (`services/plesk-mail-api`)                | **MIGRATE_TO_MAKE** | REST-basierte, fest definierte Admin-Aktion (kein freies SSH, §38-konform). Overlap mit `services/plesk-mail-api` vor Umsetzung auflösen — nur EIN Owner.                                                          |
+| 25  | `queue-monitor`                          | Queue-/Fehler-Monitoring → Slack          | cron         | FastAPI, Mail, Slack             | P2    | teilweise                                            | **MIGRATE_TO_MAKE** | Monitoring der Inbox/Outbox-Status per API-Read; Slack-Alerts datensparsam (P1-002-Regel gilt auch für Make).                                                                                                      |
+| 26  | `right-to-erasure-fixed`                 | DSGVO-Löschbegehren                       | webhook      | GDPR, Mail                       | P0    | **total** (privacy routes, `data_deletion_requests`) | **MOVE_TO_FASTAPI** | Löschungen brauchen Autorisierung, Audit-Trail und Transaktionssicherheit — existiert bereits in der API. Ein Automationstool darf hier nie zweiter Ausführungsweg sein.                                           |
+| 27  | `social-media-crosspost`                 | Social-Media-Verteilung                   | webhook      | Social                           | P3    | —                                                    | **MIGRATE_TO_MAKE** | Nicht kritische Orchestrierung, typischer Make-Fall.                                                                                                                                                               |
 
 ## Zusammenfassung
 
-| Decision | Anzahl | Workflows |
-| -------- | ------ | --------- |
-| MIGRATE_TO_MAKE | 15 | #4, #5, #6, #9, #11, #12, #13, #14, #15, #16, #21, #22, #24, #25, #27 |
-| RETIRE | 7 | #1, #2, #3, #8, #10, #17, #23 |
-| MOVE_TO_FASTAPI | 3 | #7, #18, #26 |
-| UNKNOWN (blockiert durch Forum-Entscheidung) | 2 | #19, #20 |
-| TEMPORARY_KEEP | 0 | — (nichts läuft; es gibt keinen Betrieb, der Übergangsschonung bräuchte) |
+| Decision                                     | Anzahl | Workflows                                                                |
+| -------------------------------------------- | ------ | ------------------------------------------------------------------------ |
+| MIGRATE_TO_MAKE                              | 15     | #4, #5, #6, #9, #11, #12, #13, #14, #15, #16, #21, #22, #24, #25, #27    |
+| RETIRE                                       | 7      | #1, #2, #3, #8, #10, #17, #23                                            |
+| MOVE_TO_FASTAPI                              | 3      | #7, #18, #26                                                             |
+| UNKNOWN (blockiert durch Forum-Entscheidung) | 2      | #19, #20                                                                 |
+| TEMPORARY_KEEP                               | 0      | — (nichts läuft; es gibt keinen Betrieb, der Übergangsschonung bräuchte) |
 
 ## Migrationsreihenfolge (kein Big Bang)
 
@@ -78,6 +78,47 @@ Entscheidungswerte: `MIGRATE_TO_MAKE` · `MOVE_TO_FASTAPI` · `RETIRE` ·
 1. **Abschluss:** n8n-Stilllegung gemäß Masterprompt §63 — erst wenn alle
    Entscheidungen umgesetzt bzw. dokumentiert sind; Subdomain `n8n.` ist
    bereits heute nur eine Plesk-Standardseite.
+
+## Ausführungsledger
+
+Die folgende Ergänzung ist der verbindliche Mindestnachweis pro Artefakt.
+`PENDING` bedeutet nicht aktivieren oder löschen. Alle Tests sind vor einer
+externen Änderung gegen einen inaktiven Konsumenten oder eine isolierte
+Staging-Grenze auszuführen.
+
+| #   | Business Owner | Datenklasse    | Ersatz            | Test und Reconciliation                | Cutover / Rollback                                      | Retirement             |
+| --- | -------------- | -------------- | ----------------- | -------------------------------------- | ------------------------------------------------------- | ---------------------- |
+| 1   | Finance        | FINANCIAL, PII | FastAPI + Make    | Event-Replay, CiviCRM-Referenz         | Make inaktiv → ein Event; Rückfall nur in FastAPI-Inbox | `PENDING`              |
+| 2   | API Operations | FINANCIAL      | FastAPI Inbox     | Retry-/Stale-Claim-Test                | kein Dual-Run; Inbox ist Rückfall                       | `PENDING`              |
+| 3   | Engineering    | OPERATIONAL    | GitHub Actions    | Workflow-Alarmtest                     | GitHub-Workflow aktiv; n8n bleibt Referenz              | `PENDING`              |
+| 4   | CRM            | PII            | Make              | Idempotenter CRM-Test                  | inaktives Szenario; Event-Outbox pausierbar             | `PENDING`              |
+| 5   | CRM            | PII            | Make              | Contact-/Contribution-Duplikatscheck   | inaktives Szenario; keine DB-Writes                     | `PENDING`              |
+| 6   | Operations     | PII, FINANCIAL | Make              | täglicher Batch und Abweichungsreport  | begrenzter Lauf; Report manuell prüfbar                 | `PENDING`              |
+| 7   | API Operations | OPERATIONAL    | FastAPI           | RBAC-/Audit-Test                       | API-Route vor Abschaltung des Artefakts                 | `PENDING`              |
+| 8   | Engineering    | NONE           | kein Ersatz       | JSON-Inventar bestätigt leer           | kein Cutover erforderlich                               | `PENDING_EXPORT_CHECK` |
+| 9   | Membership     | PII            | Make              | Zeitplan-/Opt-out-Test                 | inaktiver Zeitplan; manueller Rückfall                  | `PENDING`              |
+| 10  | Finance        | FINANCIAL, PII | FastAPI + Make    | Inbox-/Outbox- und Mail-Duplikat-Test  | FastAPI bleibt Kern; Make nur nach Commit               | `PENDING`              |
+| 11  | Finance        | FINANCIAL, PII | Make              | fachlich freigegebener Mahn-Test       | nur nach Regel-Freigabe; Rückfall manuell               | `BLOCKED_POLICY`       |
+| 12  | Finance        | FINANCIAL      | Make              | ERPNext-Referenz und Duplikatscheck    | erst bei bestätigtem ERPNext                            | `BLOCKED_EXTERNAL`     |
+| 13  | Finance        | FINANCIAL      | Make              | Abstimmreport gegen Quellsysteme       | erst bei bestätigtem ERPNext                            | `BLOCKED_EXTERNAL`     |
+| 14  | Finance        | FINANCIAL      | Make              | Outbox-/ERPNext-Reconciliation         | erst bei bestätigtem ERPNext                            | `BLOCKED_EXTERNAL`     |
+| 15  | Finance        | FINANCIAL, PII | Make              | fachliche Rechnungsregel und Belegtest | erst bei Regel-Freigabe                                 | `BLOCKED_POLICY`       |
+| 16  | Membership     | FINANCIAL, PII | Make              | Beitragsregel-/Duplikat-Test           | erst bei Regel-Freigabe                                 | `BLOCKED_POLICY`       |
+| 17  | Finance        | PII            | FastAPI + Make    | genau-eine Bestätigungsmail            | Flag-/Outbox-Übergang dokumentieren                     | `PENDING`              |
+| 18  | Finance        | FINANCIAL      | FastAPI           | Audit-/SEPA-Exporttest                 | API ist alleiniger Owner                                | `PENDING`              |
+| 19  | Forum          | PII            | offen             | Zielbild- und Runtime-Entscheidung     | kein Cutover                                            | `BLOCKED_FORUM`        |
+| 20  | Forum          | PII            | offen             | Zielbild- und Runtime-Entscheidung     | kein Cutover                                            | `BLOCKED_FORUM`        |
+| 21  | Operations     | PII            | Make oder RETIRE  | Mail-Log-Vollständigkeit prüfen        | nur ein Archivpfad                                      | `PENDING`              |
+| 22  | Membership     | PII            | Make              | Einwilligungs-/Abmelde-Test            | inaktiver Testlauf; manueller Rückfall                  | `PENDING`              |
+| 23  | Engineering    | OPERATIONAL    | GitHub Actions    | Deployment-Alarmtest                   | GitHub als einziger Owner                               | `PENDING`              |
+| 24  | Operations     | PII            | Make oder FastAPI | Owner-/API-/Autorisierungstest         | kein SSH-Fallback in Make                               | `PENDING`              |
+| 25  | API Operations | OPERATIONAL    | Make              | Backlog-/Alarm-/Idempotenztest         | inaktives Szenario; API bleibt Quelle                   | `PENDING`              |
+| 26  | Datenschutz    | PII, SENSITIVE | FastAPI           | Autorisierungs-/Audit-/Löschtest       | API alleiniger Pfad                                     | `PENDING`              |
+| 27  | Kommunikation  | PII            | Make              | Freigabe-/Duplikats-/Opt-out-Test      | inaktiver Testmodus; keine Massenaktion                 | `PENDING`              |
+
+Für jede Zeile wird vor dem Status `RETIRABLE` zusätzlich ein Export oder
+Backup des Artefakts, ein positiver Ersatztest, ein Abgleich der Ergebnisse
+und ein datiertes Rollback-Fenster im Statusledger verlinkt.
 
 ## Operations-Budget-Schätzung (Make, ~40.000 Ops/Monat)
 
