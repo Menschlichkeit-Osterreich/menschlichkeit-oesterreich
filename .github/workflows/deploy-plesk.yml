@@ -445,12 +445,6 @@ jobs:
             echo "API_OPEN_EVIDENCE_GAP=none"
           } >> "$GITHUB_ENV"
 
-      - name: BSM-Secrets in Job-Umgebung laden
-        uses: ./.github/actions/bsm-env-inject
-        with:
-          profile: deploy-production
-          access_token: ${{ secrets.BW_ACCESS_TOKEN }}
-
       - name: Node.js ${{ env.NODE_VERSION }} einrichten
         uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.2.0
         with:
@@ -498,6 +492,12 @@ jobs:
           EOF
           chmod 600 ~/.ssh/config
           echo "✓ SSH-Config gesetzt."
+
+      - name: BSM-Secrets in Job-Umgebung laden
+        uses: ./.github/actions/bsm-env-inject
+        with:
+          profile: deploy-production
+          access_token: ${{ secrets.BW_ACCESS_TOKEN }}
 
       - name: Normalize Remote Paths für Plesk Chroot
         run: |
@@ -613,12 +613,6 @@ jobs:
 
       # ── API deployen ────────────────────────────────────────
       # ── Preflight: Microsoft Graph + Slack Secrets validieren ────────────
-      - name: BSM-Secrets in Job-Umgebung laden
-        uses: ./.github/actions/bsm-env-inject
-        with:
-          profile: deploy-production
-          access_token: ${{ secrets.BW_ACCESS_TOKEN }}
-
       - name: Preflight → BSM Secret Validation
         if: >
           env.TARGET_SERVICE == 'all' ||

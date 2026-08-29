@@ -56,16 +56,22 @@ done
 
 if [[ -n "$EXPECTED_FILE" ]]; then
   [[ -r "$EXPECTED_FILE" ]] || fail "expected state is not readable"
-  command -v jq >/dev/null 2>&1 || fail "jq is required with --expected"
-  HOSTS_B64="$(jq -r '.public_hosts[] | [.host, .health_path, (.required | tostring)] | @tsv' "$EXPECTED_FILE" | base64 | tr -d '\n')"
-  path_contract=""
-  while IFS=$'\t' read -r key path_env required; do
-    [[ "$path_env" =~ ^[A-Z][A-Z0-9_]*$ ]] || fail "invalid service path environment reference"
-    relative_path="${!path_env:-__UNKNOWN__}"
-    printf -v path_contract_line '%s\t%s\t%s\n' "$key" "$relative_path" "$required"
-    path_contract+="$path_contract_line"
-  done < <(jq -r '.service_paths[] | [.key, .path_env, (.required | tostring)] | @tsv' "$EXPECTED_FILE")
-  PATHS_B64="$(printf '%s' "$path_contract" | base64 | tr -d '\n')"
+  HOSTS_B64="$(python3 - "$EXPECTED_FILE" <<'PY' | base64 | tr -d '\n'
+import json, sys
+from pathlib import Path
+data = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+for row in data.get("public_hosts", []):
+    print("\t".join([row["host"], row["health_path"], str(row["required"]).lower()]))
+PY
+)"
+  PATHS_B64="$(python3 - "$EXPECTED_FILE" <<'PY' | base64 | tr -d '\n'
+import json, sys
+from pathlib import Path
+data = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+for row in data.get("service_paths", []):
+    print("\t".join([row["key"], row["path_env"], str(row["required"]).lower()]))
+PY
+)"
 fi
 
 json_escape() {
@@ -160,6 +166,7 @@ if [[ -n "$HOSTS_B64" ]]; then
       fail "host outside allowed audit domain"
     fi
     [[ "$health_path" =~ ^/[A-Za-z0-9._~/%+-]*$ ]] || fail "invalid public health path"
+    required="$(printf '%s' "$required" | tr '[:upper:]' '[:lower:]')"
     [[ "$required" == "true" || "$required" == "false" ]] || fail "invalid host required flag"
     HOST_NAMES+=("$host_lower")
     HOST_HEALTH_PATHS+=("$health_path")
@@ -174,6 +181,7 @@ if [[ -n "$PATHS_B64" ]]; then
     if [[ "$relative_path" != "__UNKNOWN__" ]]; then
       [[ "$relative_path" =~ ^[A-Za-z0-9._/-]+$ && "$relative_path" != /* && "$relative_path" != *".."* ]] || fail "service path must be relative and bounded"
     fi
+    required="$(printf '%s' "$required" | tr '[:upper:]' '[:lower:]')"
     [[ "$required" == "true" || "$required" == "false" ]] || fail "invalid service required flag"
     SERVICE_KEYS+=("$key")
     SERVICE_PATHS+=("$relative_path")

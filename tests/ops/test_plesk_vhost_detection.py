@@ -6,6 +6,7 @@ import shutil
 import subprocess  # nosec B404 - test intentionally executes the repository collector
 import tempfile
 import unittest
+import sys
 from pathlib import Path
 
 
@@ -39,6 +40,10 @@ class PleskVhostDetectionTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary_directory:
             temp = Path(temporary_directory)
             expected_path = temp / "expected.json"
+            expected["public_hosts"] = [
+                {**item, "required": str(item["required"]).lower()}
+                for item in expected["public_hosts"]
+            ]
             expected_path.write_text(json.dumps(expected), encoding="utf-8")
             invocation_log = temp / "plesk-invocations.log"
             fake_plesk = temp / "plesk"
@@ -57,6 +62,9 @@ class PleskVhostDetectionTests(unittest.TestCase):
             environment = os.environ.copy()
             environment["PATH"] = f"{temp}{os.pathsep}{environment['PATH']}"
             environment["PLESK_TEST_LOG"] = str(invocation_log)
+            environment["MOE_AUDIT_PUBLIC_HOSTS_B64"] = ""
+            environment["MOE_AUDIT_SERVICE_PATHS_B64"] = ""
+            environment["PATH"] = f"{Path(sys.executable).parent}{os.pathsep}{environment['PATH']}"
 
             result = subprocess.run(  # nosec B603 - fixed collector and absolute bash executable
                 [

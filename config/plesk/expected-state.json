@@ -10,33 +10,28 @@
     "publish_detailed_inventory": false
   },
   "public_hosts": [
-    {"host": "menschlichkeit-oesterreich.at", "health_path": "/", "required": true},
-    {"host": "www.menschlichkeit-oesterreich.at", "health_path": "/", "required": true},
-    {"host": "api.menschlichkeit-oesterreich.at", "health_path": "/api/version", "required": true},
-    {"host": "crm.menschlichkeit-oesterreich.at", "health_path": "/", "required": true},
-    {"host": "games.menschlichkeit-oesterreich.at", "health_path": "/", "required": true},
-    {"host": "forum.menschlichkeit-oesterreich.at", "health_path": "/", "required": true},
-    {"host": "n8n.menschlichkeit-oesterreich.at", "health_path": "/healthz", "required": false},
-    {"host": "erp.menschlichkeit-oesterreich.at", "health_path": "/", "required": false}
+    { "host": "menschlichkeit-oesterreich.at", "health_path": "/", "required": true },
+    { "host": "www.menschlichkeit-oesterreich.at", "health_path": "/", "required": true },
+    { "host": "api.menschlichkeit-oesterreich.at", "health_path": "/api/version", "required": true },
+    { "host": "crm.menschlichkeit-oesterreich.at", "health_path": "/", "required": true },
+    { "host": "games.menschlichkeit-oesterreich.at", "health_path": "/", "required": true },
+    { "host": "forum.menschlichkeit-oesterreich.at", "health_path": "/", "required": true },
+    { "host": "n8n.menschlichkeit-oesterreich.at", "health_path": "/healthz", "required": false },
+    { "host": "erp.menschlichkeit-oesterreich.at", "health_path": "/", "required": false }
   ],
   "service_paths": [
-    {"key": "frontend", "path_env": "MOE_AUDIT_FRONTEND_PATH", "required": true},
-    {"key": "api", "path_env": "MOE_AUDIT_API_PATH", "required": true},
-    {"key": "crm", "path_env": "MOE_AUDIT_CRM_PATH", "required": true},
-    {"key": "crm_native", "path_env": "MOE_AUDIT_CRM_NATIVE_PATH", "required": true},
-    {"key": "games", "path_env": "MOE_AUDIT_GAMES_PATH", "required": true},
-    {"key": "forum", "path_env": "MOE_AUDIT_FORUM_PATH", "required": true}
+    { "key": "frontend", "path_env": "MOE_AUDIT_FRONTEND_PATH", "required": true, "path": "apps/website" },
+    { "key": "api", "path_env": "MOE_AUDIT_API_PATH", "required": true, "path": "apps/api" },
+    { "key": "crm", "path_env": "MOE_AUDIT_CRM_PATH", "required": true, "path": "apps/crm" },
+    { "key": "crm_native", "path_env": "MOE_AUDIT_CRM_NATIVE_PATH", "required": true, "path": "apps/crm" },
+    { "key": "games", "path_env": "MOE_AUDIT_GAMES_PATH", "required": true, "path": "apps/babylon-game" },
+    { "key": "forum", "path_env": "MOE_AUDIT_FORUM_PATH", "required": true, "path": "apps/forum" }
   ],
-  "required_system_checks": [
-    "plesk",
-    "os",
-    "kernel",
-    "hostname",
-    "cpu",
-    "memory",
-    "filesystem",
-    "inodes"
-  ],
+  "runtime_configuration": {
+    "required_secrets": ["PLESK_HOST", "PLESK_KNOWN_HOSTS", "PLESK_SSH_PRIVATE_KEY", "REMOTE_USER"],
+    "required_variables": ["PLESK_PORT"]
+  },
+  "required_system_checks": ["plesk", "os", "kernel", "hostname", "cpu", "memory", "filesystem", "inodes"],
   "required_runtimes": ["python3", "php"],
   "optional_runtimes": ["node", "npm", "composer", "docker", "podman"],
   "required_services": ["nginx", "php_fpm", "cron"],

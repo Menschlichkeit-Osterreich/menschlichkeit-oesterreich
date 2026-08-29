@@ -84,6 +84,10 @@ class PleskReadonlyAuditTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary_directory:
             unexpected_path = Path(temporary_directory) / "unexpected.json"
             unexpected_path.write_text(json.dumps(unexpected), encoding="utf-8")
+            environment = os.environ.copy()
+            environment["MOE_AUDIT_PUBLIC_HOSTS_B64"] = ""
+            environment["MOE_AUDIT_SERVICE_PATHS_B64"] = ""
+            environment["PATH"] = f"{Path(sys.executable).parent}{os.pathsep}{environment['PATH']}"
             result = subprocess.run(  # nosec B603 - fixed repo script and absolute executable
                 [
                     BASH,
@@ -95,6 +99,7 @@ class PleskReadonlyAuditTests(unittest.TestCase):
                 check=False,
                 capture_output=True,
                 text=True,
+                env=environment,
             )
         self.assertEqual(result.returncode, 2)
         self.assertIn("outside allowed audit domain", result.stderr)
@@ -103,6 +108,9 @@ class PleskReadonlyAuditTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary_directory:
             vhost_root = Path(temporary_directory)
             test_environment = os.environ.copy()
+            test_environment["MOE_AUDIT_PUBLIC_HOSTS_B64"] = ""
+            test_environment["MOE_AUDIT_SERVICE_PATHS_B64"] = ""
+            test_environment["PATH"] = f"{Path(sys.executable).parent}{os.pathsep}{test_environment['PATH']}"
             for target in self.expected["service_paths"]:
                 relative_path = f"services/{target['key']}"
                 test_environment[target["path_env"]] = relative_path
@@ -111,13 +119,20 @@ class PleskReadonlyAuditTests(unittest.TestCase):
                 (service_path / ".deploy_release").write_text(
                     "test-release\n", encoding="utf-8"
                 )
+            expected_payload = json.loads(EXPECTED.read_text(encoding="utf-8"))
+            for item in expected_payload["public_hosts"]:
+                item["required"] = str(item["required"]).lower()
+            for item in expected_payload["service_paths"]:
+                item["required"] = str(item["required"]).lower()
+            expected_path = Path(temporary_directory) / "expected-runtime.json"
+            expected_path.write_text(json.dumps(expected_payload), encoding="utf-8")
 
             result = subprocess.run(  # nosec B603 - fixed repo scripts and absolute executable
                 [
                     BASH,
                     str(COLLECTOR),
                     "--expected",
-                    str(EXPECTED),
+                    str(expected_path),
                     "--vhost-root",
                     str(vhost_root),
                     "--evidence-class",
