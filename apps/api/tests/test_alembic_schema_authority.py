@@ -74,7 +74,7 @@ def _parse_revisions() -> list[tuple[str, object]]:
                     revision = ast.literal_eval(node.value)
                 elif target.id == "down_revision":
                     down = ast.literal_eval(node.value)
-        assert isinstance(revision, str), f"{path.name}: missing/invalid `revision`"
+        _require(isinstance(revision, str), f"{path.name}: missing/invalid `revision`")
         pairs.append((revision, down))
     return pairs
 
@@ -98,13 +98,23 @@ def _detect_runtime_ddl() -> set[str]:
     return found
 
 
+def _require(condition: object, message: str) -> None:
+    """Raise ``AssertionError`` when *condition* is falsy.
+
+    Used instead of a bare ``assert`` so the guards remain active under
+    ``python -O`` (which strips ``assert``) and to avoid Bandit B101.
+    """
+    if not condition:
+        raise AssertionError(message)
+
+
 def test_alembic_single_head() -> None:
     pairs = _parse_revisions()
-    assert pairs, f"no Alembic revisions found under {VERSIONS_DIR}"
+    _require(bool(pairs), f"no Alembic revisions found under {VERSIONS_DIR}")
 
     revisions = [rev for rev, _ in pairs]
     duplicates = {r for r in revisions if revisions.count(r) > 1}
-    assert not duplicates, f"duplicate Alembic revision ids: {sorted(duplicates)}"
+    _require(not duplicates, f"duplicate Alembic revision ids: {sorted(duplicates)}")
 
     revision_set = set(revisions)
     referenced_down: set[str] = set()
@@ -114,28 +124,31 @@ def test_alembic_single_head() -> None:
         if not flat:
             bases.append(rev)
         for ref in flat:
-            assert ref in revision_set, (
-                f"revision {rev!r} has down_revision {ref!r} which does not exist"
+            _require(
+                ref in revision_set,
+                f"revision {rev!r} has down_revision {ref!r} which does not exist",
             )
             referenced_down.add(ref)
 
-    assert len(bases) == 1, f"expected exactly one base migration, found: {sorted(bases)}"
+    _require(len(bases) == 1, f"expected exactly one base migration, found: {sorted(bases)}")
 
     heads = revision_set - referenced_down
-    assert len(heads) == 1, (
+    _require(
+        len(heads) == 1,
         f"Alembic must have exactly ONE head (Issue #541). Found {len(heads)}: "
-        f"{sorted(heads)}. Add a merge migration to reunify the DAG."
+        f"{sorted(heads)}. Add a merge migration to reunify the DAG.",
     )
 
 
 def test_no_new_runtime_ddl() -> None:
     found = _detect_runtime_ddl()
     new_offenders = found - RUNTIME_DDL_BASELINE
-    assert not new_offenders, (
+    _require(
+        not new_offenders,
         "New runtime DDL detected outside the documented baseline: "
         f"{sorted(new_offenders)}. Schema changes must live in alembic/versions/, "
         "not in application runtime code (Masterprompt §13). If this is "
-        "intentional and unavoidable, update RUNTIME_DDL_BASELINE with justification."
+        "intentional and unavoidable, update RUNTIME_DDL_BASELINE with justification.",
     )
 
 
