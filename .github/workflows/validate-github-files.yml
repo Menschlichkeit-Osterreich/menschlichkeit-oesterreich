@@ -7,12 +7,14 @@ on:
       - 'scripts/validate-github-files.py'
       - 'scripts/normalize-frontmatter.py'
       - 'scripts/ci/validate-workflow-cache-paths.py'
+      - 'tests/ops/test_ci_security_workflows.py'
   pull_request:
     paths:
       - '.github/**'
       - 'scripts/validate-github-files.py'
       - 'scripts/normalize-frontmatter.py'
       - 'scripts/ci/validate-workflow-cache-paths.py'
+      - 'tests/ops/test_ci_security_workflows.py'
 
 permissions:
   contents: read # Required for GITHUB_TOKEN to access /repos API endpoint
@@ -43,6 +45,10 @@ jobs:
       - name: Validate workflow cache-dependency-path targets
         shell: bash
         run: python3 scripts/ci/validate-workflow-cache-paths.py
+
+      - name: Validate CI security workflow contracts
+        shell: bash
+        run: python3 -m unittest tests.ops.test_ci_security_workflows -v
 
       - name: Upload validation log
         if: always()

@@ -13,7 +13,6 @@ on:
 permissions:
   contents: read
   security-events: write
-  actions: read
 
 concurrency:
   group: trivy-${{ github.workflow }}-${{ github.ref }}
@@ -26,38 +25,39 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Run Trivy vulnerability scanner (Filesystem)
         id: trivy_fs
         shell: bash
+        continue-on-error: true
         run: |
           set +e
           docker run --rm \
             -v "$PWD:/repo" \
-            aquasec/trivy:latest \
+            aquasec/trivy:0.74.0 \
             fs \
             --scanners vuln,secret,config \
-            --severity CRITICAL,HIGH,MEDIUM \
+            --severity CRITICAL,HIGH \
             --ignore-unfixed \
             --format sarif \
             --output /repo/trivy-fs-results.sarif \
-            --exit-code 0 \
+            --exit-code 1 \
             /repo
           status=$?
           echo "exit_code=${status}" >> "$GITHUB_OUTPUT"
-          exit 0
+          exit "$status"
 
       - name: Upload Trivy FS results to GitHub Security tab
         if: always() && hashFiles('trivy-fs-results.sarif') != ''
-        uses: github/codeql-action/upload-sarif@68bde559dea0fdcac2102bfdf6230c5f70eb485e  # v3.28.1
+        uses: github/codeql-action/upload-sarif@68bde559dea0fdcac2102bfdf6230c5f70eb485e # v3.28.1
         with:
           sarif_file: trivy-fs-results.sarif
           category: trivy-filesystem
 
       - name: Upload FS results as artifact
         if: always() && hashFiles('trivy-fs-results.sarif') != ''
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: trivy-fs-results
           path: trivy-fs-results.sarif
@@ -70,42 +70,49 @@ jobs:
           echo "- Exit-Code: ${{ steps.trivy_fs.outputs.exit_code || '0' }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- SARIF: ${{ hashFiles('trivy-fs-results.sarif') != '' && 'vorhanden' || 'nicht erzeugt' }}" >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Fail on high or critical findings
+        if: always() && steps.trivy_fs.outcome == 'failure'
+        run: |
+          echo "Trivy Filesystem scan failed or found high/critical findings."
+          exit 1
+
   trivy-config:
     name: Trivy Config (IaC/Misconfig)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Run Trivy misconfiguration scanner
         id: trivy_config
         shell: bash
+        continue-on-error: true
         run: |
           set +e
           docker run --rm \
             -v "$PWD:/repo" \
-            aquasec/trivy:latest \
+            aquasec/trivy:0.74.0 \
             config \
-            --severity CRITICAL,HIGH,MEDIUM \
+            --severity CRITICAL,HIGH \
             --format sarif \
             --output /repo/trivy-config-results.sarif \
-            --exit-code 0 \
+            --exit-code 1 \
             /repo
           status=$?
           echo "exit_code=${status}" >> "$GITHUB_OUTPUT"
-          exit 0
+          exit "$status"
 
       - name: Upload Trivy Config results to GitHub Security tab
         if: always() && hashFiles('trivy-config-results.sarif') != ''
-        uses: github/codeql-action/upload-sarif@68bde559dea0fdcac2102bfdf6230c5f70eb485e  # v3.28.1
+        uses: github/codeql-action/upload-sarif@68bde559dea0fdcac2102bfdf6230c5f70eb485e # v3.28.1
         with:
           sarif_file: trivy-config-results.sarif
           category: trivy-config
 
       - name: Upload Config results as artifact
         if: always() && hashFiles('trivy-config-results.sarif') != ''
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: trivy-config-results
           path: trivy-config-results.sarif
@@ -118,13 +125,19 @@ jobs:
           echo "- Exit-Code: ${{ steps.trivy_config.outputs.exit_code || '0' }}" >> "$GITHUB_STEP_SUMMARY"
           echo "- SARIF: ${{ hashFiles('trivy-config-results.sarif') != '' && 'vorhanden' || 'nicht erzeugt' }}" >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Fail on high or critical findings
+        if: always() && steps.trivy_config.outcome == 'failure'
+        run: |
+          echo "Trivy config scan failed or found high/critical findings."
+          exit 1
+
   trivy-container:
     name: Trivy Container Scan (API)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
       - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Build API container image for scanning
         id: build_api
@@ -132,28 +145,28 @@ jobs:
           docker build -t menschlichkeit-api:scan ./apps/api/ \
             --file ./apps/api/Dockerfile \
             --no-cache
-        continue-on-error: true
 
       - name: Run Trivy container vulnerability scanner
         if: steps.build_api.outcome == 'success'
         id: trivy_container
         shell: bash
+        continue-on-error: true
         run: |
           set +e
           docker run --rm \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -v "$PWD:/repo" \
-            aquasec/trivy:latest \
+            aquasec/trivy:0.74.0 \
             image \
             --severity CRITICAL,HIGH \
             --ignore-unfixed \
             --format sarif \
             --output /repo/trivy-container-results.sarif \
-            --exit-code 0 \
+            --exit-code 1 \
             menschlichkeit-api:scan
           status=$?
           echo "exit_code=${status}" >> "$GITHUB_OUTPUT"
-          exit 0
+          exit "$status"
 
       - name: Container build summary
         if: always()
@@ -168,15 +181,21 @@ jobs:
 
       - name: Upload Trivy container results to GitHub Security tab
         if: always() && hashFiles('trivy-container-results.sarif') != ''
-        uses: github/codeql-action/upload-sarif@68bde559dea0fdcac2102bfdf6230c5f70eb485e  # v3.28.1
+        uses: github/codeql-action/upload-sarif@68bde559dea0fdcac2102bfdf6230c5f70eb485e # v3.28.1
         with:
           sarif_file: trivy-container-results.sarif
           category: trivy-container
 
       - name: Upload container results as artifact
         if: always() && hashFiles('trivy-container-results.sarif') != ''
-        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b  # v4.5.0
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
         with:
           name: trivy-container-results
           path: trivy-container-results.sarif
           retention-days: 30
+
+      - name: Fail on high or critical findings
+        if: always() && steps.trivy_container.outcome == 'failure'
+        run: |
+          echo "Trivy container scan failed or found high/critical findings."
+          exit 1

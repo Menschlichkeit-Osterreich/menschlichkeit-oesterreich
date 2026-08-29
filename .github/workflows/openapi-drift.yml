@@ -31,26 +31,14 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'pip'
-          cache-dependency-path: apps/api/requirements.txt
+          cache-dependency-path: |
+            apps/api/requirements.txt
+            apps/api/requirements-dev.txt
 
       - name: Abhängigkeiten installieren
         run: |
-          pip install --upgrade pip
-          pip install \
-            fastapi==0.115.4 \
-            uvicorn \
-            pydantic \
-            email-validator \
-            python-dotenv \
-            PyJWT \
-            passlib[bcrypt] \
-            python-multipart \
-            asyncpg \
-            httpx \
-            prometheus-fastapi-instrumentator==7.0.0 \
-            prometheus-client==0.21.0 \
-            pyyaml \
-            deepdiff
+          python -m pip install --upgrade pip
+          python -m pip install -r apps/api/requirements-dev.txt
 
       - name: OpenAPI-Spec aus laufender API generieren
         working-directory: apps/api
@@ -59,6 +47,7 @@ jobs:
           ENVIRONMENT: 'test'
           DATABASE_URL: 'postgresql://test:test@localhost/test'
           JWT_SECRET_KEY: 'test-secret-for-ci-only-32-chars'
+          PUBLIC_APP_URL: 'https://app.test.invalid'
         run: |
           python - <<'EOF'
           import sys, json
@@ -71,12 +60,7 @@ jobs:
           async def fake_connect(*a, **kw): return mock.AsyncMock()
           with mock.patch("asyncpg.connect", fake_connect), \
                mock.patch("asyncpg.create_pool", mock.AsyncMock(return_value=mock.AsyncMock())):
-              try:
-                  from app.main import app
-              except Exception as e:
-                  # Wenn DB-Init fehlschlägt, trotzdem Schema exportieren
-                  print(f"Warning during import: {e}", file=sys.stderr)
-                  from app.main import app
+              from app.main import app
 
           schema = app.openapi()
           with open("/tmp/openapi.generated.json", "w") as f:
@@ -88,7 +72,6 @@ jobs:
         run: |
           python - <<'EOF'
           import json, yaml, sys
-          from deepdiff import DeepDiff
 
           YAML_PATH = "apps/api/openapi.yaml"
           GEN_PATH  = "/tmp/openapi.generated.json"

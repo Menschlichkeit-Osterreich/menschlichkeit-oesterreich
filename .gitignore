@@ -542,3 +542,5 @@ apps/babylon-game/.next/
 !apps/babylon-game/assets/**/*.env
 
 sync_config.jsonc
+
+.tmp-ci-py312/
