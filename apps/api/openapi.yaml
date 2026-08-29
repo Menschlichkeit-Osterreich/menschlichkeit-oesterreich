@@ -316,7 +316,124 @@ components:
             progress:
               $ref: '#/components/schemas/GameProgress'
 
+    StripeIntentRequest:
+      type: object
+      required: [amount]
+      properties:
+        amount:
+          type: number
+          minimum: 0.01
+        currency:
+          type: string
+          minLength: 3
+          maxLength: 3
+          default: EUR
+        email:
+          type: string
+          format: email
+          nullable: true
+        purpose:
+          type: string
+          maxLength: 200
+          nullable: true
+        method:
+          type: string
+          default: card
+        financial_type:
+          type: string
+          default: donation
+        interval:
+          type: string
+          enum: [once]
+          default: once
+          description: Only one-time PaymentIntent payments are supported.
+
+    StripeIntentResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success: { type: boolean }
+        data:
+          type: object
+          required: [payment_intent_id, gateway_intent_id, client_secret, status]
+          properties:
+            payment_intent_id: { type: integer }
+            gateway_intent_id: { type: string }
+            client_secret: { type: string }
+            status: { type: string, enum: [pending] }
+
+    StripeWebhookResponse:
+      type: object
+      required: [success]
+      properties:
+        success: { type: boolean }
+        message: { type: string }
+
 paths:
+  /api/payments/stripe/intent:
+    post:
+      tags: [Payments]
+      summary: Create a one-time Stripe PaymentIntent
+      description: |
+        This recovery contract supports only one-time PaymentIntent payments.
+        Subscription and recurring-payment lifecycles are not implemented.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StripeIntentRequest'
+      responses:
+        '200':
+          description: PaymentIntent created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StripeIntentResponse'
+        '422':
+          description: Invalid one-time payment request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /api/webhooks/stripe:
+    post:
+      tags: [Payments]
+      summary: Receive a signed Stripe PaymentIntent webhook
+      description: |
+        Accepted event types: payment_intent.succeeded,
+        payment_intent.payment_failed and payment_intent.canceled. New inbox
+        rows retain only a normalized processing envelope, not the full
+        provider payload.
+      security: []
+      parameters:
+        - name: stripe-signature
+          in: header
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '200':
+          description: Webhook accepted or already processed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StripeWebhookResponse' }
+        '400':
+          description: Invalid signed Stripe webhook
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '500':
+          description: Processing failed after durable inbox storage; Stripe may retry
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
   /api/game/bootstrap:
     get:
       tags: [Game]

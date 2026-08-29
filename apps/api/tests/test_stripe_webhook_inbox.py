@@ -28,6 +28,7 @@ from app.services import stripe_webhook_service as sws
 from app.services.stripe_webhook_service import (
     StripeWebhookInbox,
     build_ops_alert_text,
+    normalize_stripe_event_for_inbox,
     process_stripe_event,
 )
 
@@ -133,27 +134,34 @@ class TestInboxPrimitives:
         assert result == {"id": "uuid-2", "status": "processed", "created": False}
 
     def test_claim_only_wins_for_received_failed_or_stale(self):
-        mock = AsyncMock(return_value={"id": "uuid-3"})
+        mock = AsyncMock(return_value={"claim_token": "lease-3"})
         with patch.object(sws, "fetchrow", mock):
-            assert _run(StripeWebhookInbox().claim("uuid-3")) is True
+            assert _run(StripeWebhookInbox().claim("uuid-3")) == "lease-3"
         sql = mock.call_args.args[0]
         assert "processing_status IN ('received', 'failed')" in sql
         assert "attempts = attempts + 1" in sql
+        assert "claim_token" in sql
+        assert "claim_expires_at" in sql
         # Verwaiste Claims (Prozessabsturz) werden nach Frist übernehmbar
         assert "10 minutes" in sql
 
     def test_claim_lost_race_returns_false(self):
         with patch.object(sws, "fetchrow", AsyncMock(return_value=None)):
-            assert _run(StripeWebhookInbox().claim("uuid-4")) is False
+            assert _run(StripeWebhookInbox().claim("uuid-4")) is None
 
     def test_mark_failed_stores_error_and_retry_hint(self):
         mock = AsyncMock(return_value={"id": "x"})
         with patch.object(sws, "fetchrow", mock):
-            _run(StripeWebhookInbox().mark_failed("uuid-5", error="E" * 900))
+            _run(
+                StripeWebhookInbox().mark_failed(
+                    "uuid-5", claim_token="lease-5", error="E" * 900
+                )
+            )
         sql, args = mock.call_args.args[0], mock.call_args.args[1:]
         assert "'failed'" in sql
         assert "next_retry_at" in sql
         assert len(args[1]) == 500  # Fehlertext begrenzt
+        assert args[2] == "lease-5"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -182,6 +190,7 @@ class TestProcessSucceeded:
             result = _run(
                 process_stripe_event(
                     event_pk="corr-1",
+                    claim_token="lease-1",
                     event_type="payment_intent.succeeded",
                     obj=self.OBJ,
                 )
@@ -196,9 +205,11 @@ class TestProcessSucceeded:
         assert args[7] == "website"      # source
         assert args[8] == "projekt_x"    # purpose
         assert args[9] == "pi_abc123"    # gateway_payment_id
-        # Interval → donation_type (kein hartes one_time mehr)
-        assert args[5] == "recurring"
-        assert args[6] is True           # is_recurring
+        # A PaymentIntent always remains a one-time payment, even if a legacy
+        # metadata field claims a recurring interval.
+        assert args[5] == "one_time"
+        assert args[6] is False
+        assert "FALSE" in sql
         # Kein CRM-HTTP-Aufruf in der Transaktion: contact_id bleibt None
         assert args[0] is None
 
@@ -208,6 +219,7 @@ class TestProcessSucceeded:
             _run(
                 process_stripe_event(
                     event_pk="corr-2",
+                    claim_token="lease-2",
                     event_type="payment_intent.succeeded",
                     obj=self.OBJ,
                 )
@@ -215,12 +227,18 @@ class TestProcessSucceeded:
         outbox = conn.sqls("INSERT INTO outbox_events")
         assert len(outbox) == 1
         payload = json.loads(outbox[0][2][1])
-        assert payload["schema_version"] == 1
+        assert payload["schema_version"] == 2
         assert payload["correlation_id"] == "corr-2"
         assert payload["idempotency_key"].startswith("donation.recorded:")
         assert payload["gateway_payment_id"] == "pi_abc123"
-        assert payload["interval"] == "monthly"
-        assert payload["receipt_email_sent_by_api"] is True
+        assert payload["donation_type"] == "one_time"
+        assert payload["receipt_eligibility"] == "undecided"
+        assert payload["donor"]["email"] == "spender@example.at"
+        assert "interval" not in payload
+        assert "receipt_email_sent_by_api" not in payload
+        assert outbox[0][2][2] == payload["idempotency_key"]
+        # The final inbox status update shares this transaction with outbox.
+        assert conn.sqls("UPDATE webhook_events")
 
     def test_duplicate_donation_conflict_emits_no_outbox_and_no_mail_data(self):
         """Greift der Unique-Index (paralleles Duplikat), darf es weder ein
@@ -230,6 +248,7 @@ class TestProcessSucceeded:
             result = _run(
                 process_stripe_event(
                     event_pk="corr-3",
+                    claim_token="lease-3",
                     event_type="payment_intent.succeeded",
                     obj=self.OBJ,
                 )
@@ -239,13 +258,16 @@ class TestProcessSucceeded:
         assert conn.sqls("UPDATE payment_intents") == []
         assert "donor_email" not in result
 
-    def test_once_interval_maps_to_one_time(self):
+    def test_legacy_recurring_metadata_still_maps_to_one_time(self):
         conn = FakeConn()
-        obj = dict(self.OBJ, metadata={**self.OBJ["metadata"], "interval": "once"})
+        obj = dict(self.OBJ, metadata={**self.OBJ["metadata"], "interval": "monthly"})
         with _patch_transaction(conn):
             _run(
                 process_stripe_event(
-                    event_pk="corr-4", event_type="payment_intent.succeeded", obj=obj
+                    event_pk="corr-4",
+                    claim_token="lease-4",
+                    event_type="payment_intent.succeeded",
+                    obj=obj,
                 )
             )
         args = conn.sqls("INSERT INTO donations")[0][2]
@@ -262,6 +284,7 @@ class TestProcessSucceeded:
             _run(
                 process_stripe_event(
                     event_pk="corr-5",
+                    claim_token="lease-5",
                     event_type="payment_intent.succeeded",
                     obj=self.OBJ,
                 )
@@ -284,6 +307,7 @@ class TestProcessFailed:
             result = _run(
                 process_stripe_event(
                     event_pk="corr-6",
+                    claim_token="lease-6",
                     event_type="payment_intent.payment_failed",
                     obj=self.OBJ,
                 )
@@ -292,9 +316,10 @@ class TestProcessFailed:
         assert update[2][0] == "failed"
         outbox = conn.sqls("INSERT INTO outbox_events")
         assert len(outbox) == 1
-        payload = json.loads(outbox[0][2][1])
+        payload = json.loads(outbox[0][2][2])
         assert payload["correlation_id"] == "corr-6"
         assert payload["status"] == "failed"
+        assert payload["idempotency_key"] == "payment.failed:corr-6"
         assert result["payment_failed"] is True
         assert result["failure_reason"] == "Karte abgelehnt"
 
@@ -304,12 +329,32 @@ class TestProcessFailed:
             result = _run(
                 process_stripe_event(
                     event_pk="corr-7",
+                    claim_token="lease-7",
                     event_type="payment_intent.canceled",
                     obj={"id": "pi_c", "amount": 1000},
                 )
             )
         assert conn.sqls("UPDATE payment_intents")[0][2][0] == "canceled"
         assert result["payment_failed"] is False
+
+    def test_new_inbox_envelope_excludes_provider_metadata_and_error_text(self):
+        envelope = normalize_stripe_event_for_inbox(
+            event_type="payment_intent.payment_failed",
+            obj={
+                "id": "pi_private",
+                "amount": 2500,
+                "currency": "eur",
+                "metadata": {"email": "spender@example.at", "name": "Maria Muster"},
+                "last_payment_error": {"message": "Karte abgelehnt"},
+            },
+        )
+        assert envelope == {
+            "schema_version": 2,
+            "event_type": "payment_intent.payment_failed",
+            "payment_intent_id": "pi_private",
+            "amount_cents": 2500,
+            "currency": "EUR",
+        }
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -376,14 +421,11 @@ class TestWebhookRoute:
 
         async def fake_claim(pk):
             order.append("claim")
-            return True
+            return "lease-x"
 
         async def fake_process(**kwargs):
             order.append("process")
             return {"event_type": kwargs["event_type"]}
-
-        async def fake_mark(pk):
-            order.append("processed")
 
         payload = _stripe_event("payment_intent.succeeded", {"id": "pi_1"})
         with (
@@ -391,14 +433,10 @@ class TestWebhookRoute:
             patch(f"{_ROUTER}.stripe_webhook_inbox.ingest", side_effect=fake_ingest),
             patch(f"{_ROUTER}.stripe_webhook_inbox.claim", side_effect=fake_claim),
             patch(f"{_ROUTER}.process_stripe_event", side_effect=fake_process),
-            patch(
-                f"{_ROUTER}.stripe_webhook_inbox.mark_processed",
-                side_effect=fake_mark,
-            ),
         ):
             resp = _post_webhook(client, payload)
         assert resp.status_code == 200
-        assert order == ["ingest", "claim", "process", "processed"]
+        assert order == ["ingest", "claim", "process"]
 
     def test_already_processed_event_short_circuits(self, client):
         payload = _stripe_event("payment_intent.succeeded", {"id": "pi_dup"})
@@ -456,20 +494,16 @@ class TestWebhookRoute:
             ),
             patch(
                 f"{_ROUTER}.stripe_webhook_inbox.claim",
-                new=AsyncMock(return_value=True),
+                new=AsyncMock(return_value="lease-f"),
             ),
             patch(
                 f"{_ROUTER}.process_stripe_event",
                 new=AsyncMock(return_value={"event_type": "payment_intent.succeeded"}),
             ) as process,
-            patch(
-                f"{_ROUTER}.stripe_webhook_inbox.mark_processed", new=AsyncMock()
-            ) as mark,
         ):
             resp = _post_webhook(client, payload)
         assert resp.status_code == 200
         process.assert_called_once()
-        mark.assert_called_once()
 
     def test_processing_crash_marks_failed_and_returns_500(self, client):
         """Crash During Processing: Event bleibt gespeichert (mark_failed),
@@ -485,7 +519,7 @@ class TestWebhookRoute:
             ),
             patch(
                 f"{_ROUTER}.stripe_webhook_inbox.claim",
-                new=AsyncMock(return_value=True),
+                new=AsyncMock(return_value="lease-c"),
             ),
             patch(
                 f"{_ROUTER}.process_stripe_event",
@@ -499,7 +533,8 @@ class TestWebhookRoute:
             resp = _post_webhook(client, payload)
         assert resp.status_code == 500
         mark_failed.assert_called_once()
-        assert "db down" in mark_failed.call_args.kwargs["error"]
+        assert mark_failed.call_args.kwargs["error"] == "RuntimeError"
+        assert mark_failed.call_args.kwargs["claim_token"] == "lease-c"
         mail.assert_not_called()  # keine Folgeeffekte ohne Commit
 
     def test_slack_dispatch_receives_sanitized_text_only(self, client):
@@ -530,7 +565,7 @@ class TestWebhookRoute:
             ),
             patch(
                 f"{_ROUTER}.stripe_webhook_inbox.claim",
-                new=AsyncMock(return_value=True),
+                new=AsyncMock(return_value="lease-s"),
             ),
             patch(
                 f"{_ROUTER}.process_stripe_event",
@@ -544,9 +579,6 @@ class TestWebhookRoute:
                         "failure_reason": "Karte abgelehnt",
                     }
                 ),
-            ),
-            patch(
-                f"{_ROUTER}.stripe_webhook_inbox.mark_processed", new=AsyncMock()
             ),
             patch(f"{_ROUTER}.ADMIN_EMAILS", []),
             patch(f"{_ROUTER}.mail_service.send_template", new=AsyncMock()),

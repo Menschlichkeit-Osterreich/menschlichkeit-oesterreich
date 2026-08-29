@@ -24,6 +24,27 @@ from ..services.payment_service import payment_service
 router = APIRouter()
 
 
+def _retire_legacy_payment_ingress() -> None:
+    """Fail closed for the former n8n/direct-payment write paths.
+
+    Financial state is now created only by the signed Stripe webhook inbox.
+    Retiring these endpoints is safer than accepting a second write protocol
+    without the same transaction and database-idempotency guarantees.
+    """
+    raise HTTPException(
+        status_code=status.HTTP_410_GONE,
+        detail="Dieser Legacy-Zahlungspfad ist außer Betrieb.",
+    )
+
+
+def _retire_receipt_generation() -> None:
+    """Disable non-authoritative receipt generation until a legal track exists."""
+    raise HTTPException(
+        status_code=status.HTTP_410_GONE,
+        detail="Beleggenerierung ist bis zur fachlichen Freigabe deaktiviert.",
+    )
+
+
 async def _require_internal_signature(request: Request) -> None:
     raw_body = await request.body()
     bearer_token = (
@@ -95,18 +116,7 @@ async def sync_member(body: InternalSyncMemberRequest, request: Request):
 async def internal_payment_confirmed(
     body: InternalPaymentConfirmedRequest, request: Request
 ):
-    await _require_internal_signature(request)
-    donation = await payment_service.record_successful_donation(
-        donor_email=str(body.donor_email),
-        donor_name=body.donor_name,
-        amount=body.amount,
-        currency=body.currency,
-        donation_type=body.donation_type,
-        source=body.source,
-        gateway_charge_id=body.gateway_charge_id,
-        civicrm_contact_id=body.civicrm_contact_id,
-    )
-    return {"success": True, "data": donation}
+    _retire_legacy_payment_ingress()
 
 
 @router.post("/internal/finance/donation-received")
@@ -212,62 +222,12 @@ async def compat_create_membership(payload: dict):
 
 @router.post("/contributions/create")
 async def compat_create_contribution(payload: dict):
-    status_value = (
-        "pending"
-        if payload.get("payment_instrument") in {"bank_transfer", "cash", "pos", "sepa"}
-        else "paid"
-    )
-    row = await fetchrow(
-        """
-        INSERT INTO donations (
-            civicrm_contact_id, donor_name, donor_email, amount, currency,
-            donation_type, is_recurring, status, donation_date, receipt_eligible, source, notes
-        )
-        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,CURRENT_DATE,TRUE,$9,$10)
-        RETURNING id, donor_name, donor_email, amount, currency, donation_type, status, donation_date
-        """,
-        payload.get("contact_id"),
-        payload.get("donor_name") or payload.get("email") or "Unterstützer/in",
-        payload.get("email"),
-        payload.get("amount"),
-        (payload.get("currency") or "EUR").upper(),
-        (
-            "recurring"
-            if payload.get("financial_type") == "membership_fee"
-            else "one_time"
-        ),
-        False,
-        status_value,
-        payload.get("purpose") or "Website",
-        json.dumps(payload),
-    )
-    donation = dict(row)
-    donation["receipt_eligible"] = True
-    return donation
+    _retire_legacy_payment_ingress()
 
 
 @router.post("/contributions/recur")
 async def compat_create_recurring_contribution(payload: dict):
-    row = await fetchrow(
-        """
-        INSERT INTO donations (
-            civicrm_contact_id, donor_name, donor_email, amount, currency,
-            donation_type, is_recurring, status, donation_date, receipt_eligible, source, notes
-        )
-        VALUES ($1,$2,$3,$4,$5,'recurring',TRUE,'pending',CURRENT_DATE,TRUE,$6,$7)
-        RETURNING id, donor_name, donor_email, amount, currency, donation_type, status, donation_date
-        """,
-        payload.get("contact_id"),
-        payload.get("donor_name") or payload.get("email") or "Unterstützer/in",
-        payload.get("email"),
-        payload.get("amount"),
-        (payload.get("currency") or "EUR").upper(),
-        payload.get("purpose") or "Wiederkehrende Unterstützung",
-        json.dumps(payload),
-    )
-    donation = dict(row)
-    donation["receipt_eligible"] = True
-    return donation
+    _retire_legacy_payment_ingress()
 
 
 @router.post("/payments/process-sepa")
@@ -299,64 +259,12 @@ async def compat_process_sepa(payload: dict, request: Request):
 
 @router.post("/payments/log")
 async def compat_log_payment(payload: dict, request: Request):
-    await _require_internal_signature(request)
-    provider_event_id = (
-        payload.get("stripe_event_id")
-        or payload.get("provider_event_id")
-        or payload.get("event_id")
-        or payload.get("gateway_charge_id")
-    )
-    amount = payload.get("amount")
-    if not provider_event_id or amount in {None, ""}:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="stripe_event_id/provider_event_id und amount sind erforderlich",
-        )
-    normalized_amount = float(str(amount))
-    logged = await payment_service.log_external_payment(
-        provider_event_id=str(provider_event_id),
-        donor_email=payload.get("payer_email")
-        or payload.get("donor_email")
-        or payload.get("email"),
-        donor_name=payload.get("payer_name")
-        or payload.get("donor_name")
-        or payload.get("name"),
-        amount=normalized_amount,
-        currency=(payload.get("currency") or "EUR").upper(),
-        status=str(payload.get("status") or "completed"),
-        civicrm_contribution_id=payload.get("civicrm_contribution_id"),
-    )
-    return logged
+    _retire_legacy_payment_ingress()
 
 
 @router.post("/finance/donations")
 async def compat_finance_donations(payload: dict, request: Request):
-    await _require_internal_signature(request)
-    donor = payload.get("donor") or {}
-    donation = await payment_service.record_successful_donation(
-        donor_email=payload.get("donor_email")
-        or donor.get("email")
-        or payload.get("email")
-        or "",
-        donor_name=payload.get("donor_name")
-        or donor.get("name")
-        or donor.get("display_name")
-        or payload.get("name")
-        or "Unterstützer/in",
-        amount=float(payload.get("amount") or 0),
-        currency=(payload.get("currency") or "EUR").upper(),
-        donation_type=payload.get("donation_type") or "one_time",
-        source=payload.get("source") or "n8n",
-        gateway_charge_id=payload.get("gateway_charge_id")
-        or payload.get("civicrm_contribution_id"),
-        civicrm_contact_id=payload.get("civicrm_contact_id") or donor.get("civicrm_id"),
-    )
-    donation["receipt_eligible"] = payload.get("receipt_eligible", True)
-    donation["donor"] = donor or {
-        "email": payload.get("donor_email") or payload.get("email"),
-        "display_name": payload.get("donor_name") or payload.get("name"),
-    }
-    return donation
+    _retire_legacy_payment_ingress()
 
 
 @router.post("/finance/invoices")
@@ -412,16 +320,7 @@ async def compat_export_sepa_batch(payload: dict, request: Request):
 
 @router.post("/finance/receipts/generate-pdf")
 async def compat_generate_receipt(payload: dict, request: Request):
-    await _require_internal_signature(request)
-    receipt_number = (
-        payload.get("receipt_number") or f"SPQ-{payload.get('id', 'pending')}"
-    )
-    return {
-        "pdf_path": f"/generated/receipts/{receipt_number}.pdf",
-        "receipt_number": receipt_number,
-        "status": "queued",
-        **payload,
-    }
+    _retire_receipt_generation()
 
 
 @router.post("/finance/invoices/{invoice_id}/payment")
@@ -510,11 +409,7 @@ async def compat_dunning_pdf(payload: dict, request: Request):
 
 @router.post("/receipt/trigger")
 async def compat_receipt_trigger(payload: dict, request: Request):
-    await _require_internal_signature(request)
-    receipt_number = (
-        payload.get("receipt_number") or f"SPQ-{payload.get('id', 'pending')}"
-    )
-    return {"pdf_path": f"/generated/receipts/{receipt_number}.pdf", **payload}
+    _retire_receipt_generation()
 
 
 @router.post("/contacts/sync-from-crm")
