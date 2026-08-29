@@ -13,6 +13,6 @@ jobs:
   backup-restore-gate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Run Backup/Restore Check
         run: bash scripts/masterplan/run-backup-restore.sh
