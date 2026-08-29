@@ -10,9 +10,16 @@ on:
   schedule:
     - cron: '17 3 * * *' # täglich 03:17 UTC
 
+# Der eingebaute GITHUB_TOKEN wird nur zum Lesen der Branch-Liste verwendet.
+# Schreibzugriff auf Branch Protection erfolgt ausschließlich über den bewusst
+# bereitgestellten Admin-Token im nachfolgenden Schritt.
+permissions:
+  contents: read
+
 jobs:
   protect:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Compute owner/repo and branches
         id: vars
@@ -25,40 +32,34 @@ jobs:
           set -euo pipefail
           OWNER_REPO="${GITHUB_REPOSITORY}"
           OWNER="${OWNER_REPO%/*}"; REPO="${OWNER_REPO#*/}"
-          # Standard: main + alle release/* Branches automatisch
-          # entdecken (für schedule)
           BRANCHES=""
-          if [ "$EVENT_NAME" = "workflow_dispatch" ] && \
-             [ -n "${INPUT_BRANCHES}" ]; then
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ -n "${INPUT_BRANCHES}" ]; then
             BRANCHES="$INPUT_BRANCHES"
           else
             echo "Ermittle release/* Branches..."
-            # Stelle sicher, dass jq vorhanden ist
             if ! command -v jq >/dev/null 2>&1; then
               sudo apt-get update -y && sudo apt-get install -y jq >/dev/null
             fi
-            RELEASES=$(curl -sS \
+            RELEASES=$(curl --fail --show-error --silent \
               -H "Authorization: Bearer ${GH_TOKEN}" \
               -H "Accept: application/vnd.github+json" \
               "${GITHUB_API}/repos/${OWNER}/${REPO}/branches?per_page=100" \
               | jq -r '.[].name' | awk '/^release\// {print}')
             BRANCHES="main"
             if [ -n "$RELEASES" ]; then
-              BRANCHES+="$(printf ',%s' ${RELEASES})"
+              while IFS= read -r release_branch; do
+                [ -n "$release_branch" ] && BRANCHES+="${BRANCHES:+,}${release_branch}"
+              done <<< "$RELEASES"
             fi
           fi
-          echo "owner_repo=${OWNER_REPO}" >> $GITHUB_OUTPUT
-          echo "branches=${BRANCHES}" >> $GITHUB_OUTPUT
+          echo "owner_repo=${OWNER_REPO}" >> "$GITHUB_OUTPUT"
+          echo "branches=${BRANCHES}" >> "$GITHUB_OUTPUT"
 
       - name: Configure required checks via REST API
         env:
           OWNER_REPO: ${{ steps.vars.outputs.owner_repo }}
           BRANCHES: ${{ steps.vars.outputs.branches }}
           EVENT_NAME: ${{ github.event_name }}
-          # Kanonischer Admin-Token: GH_ADMIN_TOKEN (repo + admin:org Scope).
-          # TOKEN_2 (ADMIN_GITHUB_TOKEN) und TOKEN_3 (REPO_ADMIN_TOKEN) sind
-          # veraltete Aliase und koennen nach vollstaendiger Konsolidierung aus
-          # den GitHub-Secrets geloescht werden. Nur GH_ADMIN_TOKEN neu befuellen.
           TOKEN_1: ${{ secrets.GH_ADMIN_TOKEN }}
           TOKEN_2: ${{ secrets.ADMIN_GITHUB_TOKEN }}
           TOKEN_3: ${{ secrets.REPO_ADMIN_TOKEN }}
@@ -69,16 +70,16 @@ jobs:
           if [ -z "$TOKEN" ]; then
             if [ "$EVENT_NAME" = "schedule" ]; then
               echo "### Branch Protection" >> "$GITHUB_STEP_SUMMARY"
-              echo "- ℹ️ Kein Admin-Token konfiguriert." >> "$GITHUB_STEP_SUMMARY"
-              echo "- ✅ Scheduled Run wurde bewusst ohne Änderung beendet." >> "$GITHUB_STEP_SUMMARY"
+              echo "Kein Admin-Token konfiguriert. Scheduled Run beendet sich ohne Änderung." >> "$GITHUB_STEP_SUMMARY"
               exit 0
             fi
-            echo "::error::Kein Admin-Token in Secrets gefunden"
-            echo "(GH_ADMIN_TOKEN/ADMIN_GITHUB_TOKEN/REPO_ADMIN_TOKEN)"
+            echo "::error::Kein Admin-Token in Secrets gefunden (GH_ADMIN_TOKEN/ADMIN_GITHUB_TOKEN/REPO_ADMIN_TOKEN)"
             exit 1
           fi
-          OWNER="${OWNER_REPO%/*}"; REPO="${OWNER_REPO#*/}";
+
+          OWNER="${OWNER_REPO%/*}"; REPO="${OWNER_REPO#*/}"
           IFS=',' read -ra BR_LIST <<< "$BRANCHES"
+
           read -r -d '' BODY <<'JSON' || true
           {
             "required_status_checks": {
@@ -100,13 +101,30 @@ jobs:
             "restrictions": null
           }
           JSON
+
           for BR in "${BR_LIST[@]}"; do
             BR_TRIM=$(echo "$BR" | xargs)
-            echo "Konfiguriere Required Checks für"
-            echo "$OWNER/$REPO@$BR_TRIM..."
-            curl -sS -X PUT \
+            [ -n "$BR_TRIM" ] || continue
+            echo "Konfiguriere Required Checks für $OWNER/$REPO@$BR_TRIM..."
+
+            RESPONSE_FILE=$(mktemp)
+            HTTP_CODE=$(curl --show-error --silent \
+              --output "$RESPONSE_FILE" \
+              --write-out '%{http_code}' \
+              -X PUT \
               -H "Authorization: Bearer ${TOKEN}" \
               -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
               "${GITHUB_API}/repos/${OWNER}/${REPO}/branches/${BR_TRIM}/protection" \
-              -d "$BODY" | { jq '.message? // "ok"' 2>/dev/null || cat; }
+              -d "$BODY")
+
+            if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+              MESSAGE=$(jq -r '.message // "GitHub API Fehler"' "$RESPONSE_FILE" 2>/dev/null || echo "GitHub API Fehler")
+              rm -f "$RESPONSE_FILE"
+              echo "::error::Branch Protection für ${BR_TRIM} fehlgeschlagen: HTTP ${HTTP_CODE}: ${MESSAGE}"
+              exit 1
+            fi
+
+            rm -f "$RESPONSE_FILE"
+            echo "Branch Protection für ${BR_TRIM} erfolgreich aktualisiert."
           done
