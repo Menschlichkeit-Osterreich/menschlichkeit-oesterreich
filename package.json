@@ -154,7 +154,7 @@
     "pa11y-ci": "^4.1.0",
     "prettier": "^3.4.2",
     "prisma": "^5.22.0",
-    "sharp": "^0.35.0",
+    "sharp": "^0.34.5",
     "ts-jest": "^29.4.5",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4",
@@ -190,9 +190,7 @@
     "lodash": ">=4.18.0",
     "ip-address": ">=10.3.1",
     "fast-xml-parser": ">=5.7.0",
-    "fast-uri": ">=3.1.5",
-    "nanoid": ">=3.3.18",
-    "postcss": ">=8.5.18"
+    "fast-uri": ">=3.1.5"
   },
   "packageManager": "npm@11.4.2"
 }
