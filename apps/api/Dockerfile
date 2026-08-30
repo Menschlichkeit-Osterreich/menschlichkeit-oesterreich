@@ -16,6 +16,14 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PATH="/opt/venv/bin:$PATH"
 WORKDIR /app
 
+# Targeted OS security upgrade: pull the newest openssl/libssl3 security fixes
+# (e.g. CVE-2026-14456) from the Debian archive that are not yet baked into the
+# pinned base layer. Scoped to the affected packages (no blanket dist upgrade),
+# no recommends, apt cache removed.
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends --only-upgrade openssl libssl3 && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY --from=builder /opt/venv /opt/venv
 COPY . /app
 

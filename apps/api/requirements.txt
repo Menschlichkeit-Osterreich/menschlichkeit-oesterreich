@@ -15,3 +15,6 @@ bitwarden-sdk>=2.0.0
 # CVE-2025-43859: h11 < 0.16.0 is vulnerable to HTTP request smuggling.
 # Pin explicitly to override the transitive version pulled in by uvicorn/httpx.
 h11>=0.16.0
+# GHSA-6v7p-g79w-8964: msgpack < 1.2.1 (transitive via bitwarden-sdk). Pin the
+# fixed version explicitly; 1.2.1 is a compatible minor release.
+msgpack>=1.2.1
