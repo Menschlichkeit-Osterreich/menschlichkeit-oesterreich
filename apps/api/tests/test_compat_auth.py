@@ -19,7 +19,6 @@ import pytest
 from unittest.mock import AsyncMock, patch
 
 _INTERNAL = "app.routers.internal"
-_PAYMENTS = "app.routers.payments"
 
 
 def _fake_secret(mapping: dict[str, str]):
