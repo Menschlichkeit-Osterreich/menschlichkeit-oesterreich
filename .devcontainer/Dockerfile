@@ -94,3 +94,8 @@ RUN set -eu; \
     fi; \
     fi; \
     fi
+
+# Trivy DS-0002: run the dev container as the non-root vscode user provided by
+# the devcontainers/universal base image. Build steps above run as root; the
+# final image user is vscode.
+USER vscode
