@@ -14,9 +14,13 @@ RUN npm ci
 COPY . ./
 RUN npm run build
 
-FROM nginx:alpine@sha256:7e89aa6cabfc80f566b1b77b981f4bb98413bd2d513ca9a30f63fe58b4af6903 AS runner
+# Runtime: nginx-unprivileged runs as non-root (UID 101) and listens on 8080 by
+# default, matching EXPOSE 8080. This resolves Trivy DS-0002 ("Image user should
+# not be 'root'") without a fragile root-nginx reconfiguration.
+FROM nginxinc/nginx-unprivileged:alpine@sha256:901e944d1f4fc2bd077e8f5568b98c1f6f8cdacf6b97a87747c43134a339b9a7 AS runner
+USER root
 COPY --from=build /app/dist /usr/share/nginx/html
+USER 101
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1
 CMD ["nginx", "-g", "daemon off;"]
-
