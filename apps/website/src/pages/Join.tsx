@@ -9,7 +9,6 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { Input } from '../components/ui/Input';
 import { CONTACT_EMAIL, LEGAL_DOCS } from '../config/siteConfig';
-import { api, CreateMembershipRequest } from '../services/api';
 import { http } from '../services/http';
 
 // ── Typen ──────────────────────────────────────────────────────────────────
@@ -575,37 +574,29 @@ export default function JoinPage() {
     setSubmitting(true);
     setError(null);
     try {
-      const contactResult = await http.post<{
-        success: boolean;
-        data?: { contact?: { id?: number } };
-      }>('/api/contacts/create', {
-        email: data.email,
+      // Fail-closed (Track A / #564): Öffentliche Beitrittsanträge laufen NICHT
+      // mehr über die anonymen Maschinen-Kompatibilitätsrouten
+      // (/api/contacts/create, /api/memberships/create) — diese sind nun
+      // maschinen-authentifiziert. Der öffentliche Beitrittswunsch wird über die
+      // abgesicherte, einwilligungspflichtige Kontakt-Intake (/api/contact/submit)
+      // erfasst; die eigentliche CRM-Mitgliedschaft legt danach das Back-Office
+      // bzw. Make über die authentifizierten Routen an.
+      const membershipLabel = MEMBERSHIP_LABELS[data.type];
+      await http.post<{ success: boolean }>('/api/contact/submit', {
         first_name: data.firstName,
         last_name: data.lastName,
+        email: data.email,
         phone: data.phone || undefined,
-        company: data.company || undefined,
+        subject: `Beitrittsantrag – ${membershipLabel}`,
+        message:
+          'Beitrittswunsch über das Online-Formular.\n' +
+          `Mitgliedsart: ${membershipLabel}\n` +
+          `Kategorie: ${data.category}\n` +
+          `Zahlungsweg: ${data.paymentMethod}`,
+        source: 'membership_join',
+        consent_privacy: data.agreeDSGVO,
+        newsletter_opt_in: data.newsletterOptIn,
       });
-      const contactId = contactResult.data?.contact?.id;
-
-      if (contactId) {
-        const membershipTypeId =
-          data.type === 'ordentlich' ? 1 : data.type === 'ausserordentlich' ? 2 : 3;
-        const payload: CreateMembershipRequest = {
-          contact_id: contactId,
-          membership_type_id: membershipTypeId,
-        };
-        await api.memberships.create(payload);
-      }
-
-      if (data.newsletterOptIn) {
-        await api.newsletter.subscribe({
-          email: data.email,
-          first_name: data.firstName,
-          last_name: data.lastName,
-          consent: true,
-          company: data.company || undefined,
-        });
-      }
 
       const successParams = new URLSearchParams({
         type: data.type,
@@ -619,7 +610,6 @@ export default function JoinPage() {
         if (membershipFee !== null) {
           const paymentParams = new URLSearchParams({
             amount: String(membershipFee),
-            interval: 'yearly',
             purpose: `Mitgliedsbeitrag – ${MEMBERSHIP_LABELS[data.type]}`,
             context: 'membership',
           });

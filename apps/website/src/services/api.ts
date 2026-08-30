@@ -81,10 +81,6 @@ export const apiPaths = {
   auth: {
     register: '/api/auth/register',
   },
-  contributions: {
-    create: '/api/contributions/create',
-    recur: '/api/contributions/recur',
-  },
   queue: {
     stats: '/api/queue/stats',
     dlqList: '/api/queue/dlq/list',
@@ -111,48 +107,6 @@ export const api = {
   memberships: {
     create: (payload: CreateMembershipRequest, token?: string) =>
       http.post<ApiResponse>(apiPaths.memberships.create, payload, token ? { token } : {}),
-  },
-  contributions: {
-    create: (
-      payload: {
-        email?: string;
-        contact_id?: number;
-        amount: number;
-        currency?: string;
-        financial_type?: 'donation' | 'membership_fee';
-        purpose?: string | null;
-        anonymous?: boolean;
-        tribute_name?: string | null;
-        payment_instrument:
-          | 'bank_transfer'
-          | 'sepa'
-          | 'visa'
-          | 'mastercard'
-          | 'amex'
-          | 'apple_pay'
-          | 'google_pay'
-          | 'eps'
-          | 'sofort'
-          | 'revolut'
-          | 'wise'
-          | 'pos'
-          | 'cash';
-      },
-      token?: string
-    ) => http.post<ApiResponse>(apiPaths.contributions.create, payload, token ? { token } : {}),
-    recur: (
-      payload: {
-        email?: string;
-        contact_id?: number;
-        amount: number;
-        currency?: string;
-        interval: 'monthly' | 'quarterly' | 'yearly';
-        financial_type?: 'donation' | 'membership_fee';
-        purpose?: string | null;
-        payment_instrument: 'bank_transfer' | 'sepa' | 'visa' | 'mastercard' | 'amex';
-      },
-      token?: string
-    ) => http.post<ApiResponse>(apiPaths.contributions.recur, payload, token ? { token } : {}),
   },
   queue: {
     stats: (token: string) => http.get<ApiResponse>(apiPaths.queue.stats, { token }),

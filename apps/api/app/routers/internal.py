@@ -171,7 +171,8 @@ async def internal_mail_send(body: InternalMailSendRequest, request: Request):
 
 
 @router.post("/contacts/create")
-async def compat_create_contact(payload: dict):
+async def compat_create_contact(payload: dict, request: Request):
+    await _require_internal_signature(request)
     if (payload.get("company") or payload.get("website") or "").strip():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Ungültige Anfrage"
@@ -198,13 +199,15 @@ async def compat_create_contact(payload: dict):
 
 
 @router.get("/contacts/search")
-async def compat_search_contact(email: str):
+async def compat_search_contact(email: str, request: Request):
+    await _require_internal_signature(request)
     contact = await crm_service.find_contact_by_email(email)
     return {"success": True, "data": {"contact": contact}}
 
 
 @router.post("/memberships/create")
-async def compat_create_membership(payload: dict):
+async def compat_create_membership(payload: dict, request: Request):
+    await _require_internal_signature(request)
     contact_id = payload.get("contact_id")
     if not contact_id:
         raise HTTPException(
