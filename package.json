@@ -154,7 +154,7 @@
     "pa11y-ci": "^4.1.0",
     "prettier": "^3.4.2",
     "prisma": "^5.22.0",
-    "sharp": "^0.34.5",
+    "sharp": "^0.35.0",
     "ts-jest": "^29.4.5",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4",
@@ -177,19 +177,22 @@
   "license": "MIT",
   "dependencies": {
     "@prisma/client": "^5.22.0",
-    "vite": "^7.3.1"
+    "vite": "^7.3.5"
   },
   "overrides": {
     "form-data": ">=4.0.4",
     "semver": ">=7.5.2",
     "tmp": ">=0.2.4",
     "flatted": ">=3.4.0",
-    "hono": ">=4.12.18",
+    "hono": ">=4.12.25",
     "undici": ">=6.21.2",
     "yauzl": ">=3.2.1",
     "lodash": ">=4.18.0",
-    "ip-address": ">=10.1.1",
-    "fast-xml-parser": ">=5.7.0"
+    "ip-address": ">=10.3.1",
+    "fast-xml-parser": ">=5.7.0",
+    "fast-uri": ">=3.1.5",
+    "nanoid": ">=3.3.18",
+    "postcss": ">=8.5.18"
   },
   "packageManager": "npm@11.4.2"
 }
