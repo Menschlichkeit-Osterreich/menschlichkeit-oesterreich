@@ -8,7 +8,11 @@ name: TEMP Node lockfile regeneration (PR 568 only)
 # secrets/BSM, and is removed before the PR is declared ready.
 
 on:
-  workflow_dispatch: {}
+  push:
+    branches:
+      - copilot/fix-trivy-high-critical-findings
+    paths:
+      - .github/workflows/temp-node-lockfile-regen.yml
 
 permissions:
   contents: read
