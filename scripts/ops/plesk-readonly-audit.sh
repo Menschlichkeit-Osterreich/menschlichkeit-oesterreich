@@ -65,11 +65,17 @@ for row in data.get("public_hosts", []):
 PY
 )"
   PATHS_B64="$(python3 - "$EXPECTED_FILE" <<'PY' | base64 | tr -d '\n'
-import json, sys
+import json, os, sys
 from pathlib import Path
 data = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
 for row in data.get("service_paths", []):
-    print("\t".join([row["key"], row["path_env"], str(row["required"]).lower()]))
+    # expected-state speichert nur den Env-Var-NAMEN (path_env). Den tatsächlichen
+    # laufzeit-relativen Pfad hier auflösen — analog zur ${!path_env}-Indirektion
+    # im Live-Workflow (plesk-live-audit.yml). Nicht gesetzt -> __UNKNOWN__,
+    # sodass der Status korrekt UNKNOWN bleibt statt den Env-Namen als Pfad zu
+    # missbrauchen.
+    resolved = os.environ.get(row["path_env"], "").strip() or "__UNKNOWN__"
+    print("\t".join([row["key"], resolved, str(row["required"]).lower()]))
 PY
 )"
 fi
