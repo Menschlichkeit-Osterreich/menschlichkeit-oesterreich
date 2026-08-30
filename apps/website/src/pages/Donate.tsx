@@ -7,12 +7,10 @@ import { Alert } from '../components/ui/Alert';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
-import { api } from '../services/api';
 import { createStripeIntent, getStripe } from '../services/payments';
 // Lazy Stripe checkout module – wird nur bei Karten/Wallets geladen
 const StripeCheckout = React.lazy(() => import('./donate/StripeCheckout'));
 
-type Interval = 'once' | 'monthly' | 'quarterly' | 'yearly';
 type Instrument =
   | 'bank_transfer'
   | 'sepa'
@@ -39,7 +37,7 @@ const FAQ_ITEMS = [
   {
     question: 'Kann ich regelmäßig spenden?',
     answer:
-      'Ja. Sie können zwischen einmaliger, monatlicher, vierteljährlicher und jährlicher Unterstützung wählen.',
+      'Aktuell wickeln wir Online-Spenden als Einmalspende ab. Für eine regelmäßige Unterstützung können Sie bei Ihrer Bank einen Dauerauftrag einrichten.',
   },
   {
     question: 'Wo finde ich mehr Informationen zur Mittelverwendung?',
@@ -55,7 +53,6 @@ export default function DonatePage() {
   const [lastName, setLastName] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [amount, setAmount] = React.useState<number>(50);
-  const [interval, setInterval] = React.useState<Interval>('once');
   const [purpose, setPurpose] = React.useState('Allgemein');
   const [anonymous, setAnonymous] = React.useState(false);
   const [tribute, setTribute] = React.useState('');
@@ -77,16 +74,6 @@ export default function DonatePage() {
     const amountParam = Number(searchParams.get('amount') || '');
     if (Number.isFinite(amountParam) && amountParam > 0) {
       setAmount(amountParam);
-    }
-
-    const intervalParam = searchParams.get('interval');
-    if (
-      intervalParam === 'once' ||
-      intervalParam === 'monthly' ||
-      intervalParam === 'quarterly' ||
-      intervalParam === 'yearly'
-    ) {
-      setInterval(intervalParam);
     }
 
     const purposeParam = searchParams.get('purpose');
@@ -131,17 +118,10 @@ export default function DonatePage() {
     });
   }
   const buildSuccessPath = React.useCallback(
-    (method: string) => {
-      const params = new URLSearchParams({
-        amount: String(amount),
-        currency: 'EUR',
-        purpose,
-        method,
-        interval,
-      });
-      return `/erfolg?${params.toString()}`;
-    },
-    [amount, interval, purpose]
+    // Bewusst ohne Zahlungsdetails: Query-Parameter sind kein Zahlungsnachweis
+    // und werden von der Erfolgsseite nicht mehr als bestätigte Zahlung gewertet.
+    (_method: string) => '/erfolg',
+    []
   );
   const buildSuccessUrl = React.useCallback(
     (method: string) => `${window.location.origin}${buildSuccessPath(method)}`,
@@ -157,7 +137,7 @@ export default function DonatePage() {
       return;
     }
     if (!/.+@.+\..+/.test(email) || amount <= 0) return;
-    const key = `${instrument}|${email}|${amount}|${purpose}|${interval}`;
+    const key = `${instrument}|${email}|${amount}|${purpose}`;
     if (piCacheRef.current.key === key && piCacheRef.current.cs) {
       setClientSecret(piCacheRef.current.cs);
       return;
@@ -171,7 +151,6 @@ export default function DonatePage() {
           email,
           purpose,
           financial_type: financialType,
-          interval,
         });
         const cs = (res.data as any)?.client_secret || null;
         if (!cancelled) {
@@ -186,7 +165,7 @@ export default function DonatePage() {
       cancelled = true;
       clearTimeout(t);
     };
-  }, [instrument, amount, email, purpose, financialType, interval]);
+  }, [instrument, amount, email, purpose, financialType]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -209,7 +188,6 @@ export default function DonatePage() {
           purpose,
           method: instrument as any,
           financial_type: financialType,
-          interval,
         });
         const clientSecret = (init.data as any)?.client_secret;
         if (!clientSecret) throw new Error('Payment Intent fehlgeschlagen');
@@ -233,7 +211,6 @@ export default function DonatePage() {
           purpose,
           method: 'sepa',
           financial_type: financialType,
-          interval,
         });
         const clientSecret = (init.data as any)?.client_secret;
         const result = await stripe.confirmSepaDebitPayment(clientSecret, {
@@ -248,40 +225,21 @@ export default function DonatePage() {
         return;
       }
 
-      // Fallback (Banküberweisung, POS, Cash): Unterstützung oder Dauerspende registrieren
-      if (
-        interval !== 'once' &&
-        ['bank_transfer', 'sepa', 'visa', 'mastercard', 'amex'].includes(instrument)
-      ) {
-        await api.contributions.recur({
-          email,
-          amount,
-          currency: 'EUR',
-          interval,
-          financial_type: financialType,
-          purpose,
-          payment_instrument: instrument as
-            | 'bank_transfer'
-            | 'sepa'
-            | 'visa'
-            | 'mastercard'
-            | 'amex',
-        });
-      } else {
-        await api.contributions.create({
-          email,
-          amount,
-          currency: 'EUR',
-          financial_type: financialType,
-          purpose,
-          anonymous,
-          tribute_name: tribute || undefined,
-          payment_instrument: instrument,
-        });
+      // Karten/Wallets werden über das eingebettete Stripe-Zahlungsmodul
+      // (StripeCheckout) abgeschlossen — nicht über diesen Submit.
+      if (['visa', 'mastercard', 'amex', 'apple_pay', 'google_pay'].includes(instrument)) {
+        setMessage('Bitte schließen Sie die Zahlung im eingeblendeten Kartenmodul ab.');
+        return;
       }
 
-      setMessage('Vielen Dank für Ihre Unterstützung! Bestätigung erfolgt per E‑Mail.');
-      navigate(buildSuccessPath(instrument));
+      // Offline-Wege (Banküberweisung, Kartenterminal, Bar): Der frühere
+      // Contribution-Ingress (/api/contributions/*) ist stillgelegt (410). Es
+      // wird bewusst KEINE Online-Zahlung ausgelöst und keine Buchung erzeugt;
+      // wir weisen neutral auf den weiteren Weg hin (kein Legacy-Write).
+      setMessage(
+        'Für Banküberweisung, Kartenterminal oder Barspende wurde keine Online-Zahlung ausgelöst. ' +
+          'Bitte verwenden Sie dafür die Vereinsbankdaten bzw. wenden Sie sich an unser Team.'
+      );
     } catch (err: any) {
       console.error(
         'Spendenvorgang fehlgeschlagen:',
@@ -311,7 +269,7 @@ export default function DonatePage() {
       <p className="text-secondary-700">
         {membershipContext
           ? 'Sie befinden sich im sicheren Zahlungsabschnitt für Ihren Mitgliedsbeitrag.'
-          : 'Einmalig oder regelmäßig – sicher und DSGVO‑konform.'}
+          : 'Sicher und DSGVO‑konform spenden.'}
       </p>
 
       {message && (
@@ -402,22 +360,6 @@ export default function DonatePage() {
                 )}
               </div>
             </div>
-
-            <label className="block" htmlFor="donation-interval">
-              <span className="block text-sm font-medium">Rhythmus *</span>
-              <select
-                id="donation-interval"
-                name="interval"
-                className={fieldClass}
-                value={interval}
-                onChange={e => setInterval(e.target.value as Interval)}
-              >
-                <option value="once">Einmalig</option>
-                <option value="monthly">Monatlich</option>
-                <option value="quarterly">Vierteljährlich</option>
-                <option value="yearly">Jährlich</option>
-              </select>
-            </label>
 
             <div className="grid md:grid-cols-2 gap-3">
               <label className="block" htmlFor="donation-first-name">

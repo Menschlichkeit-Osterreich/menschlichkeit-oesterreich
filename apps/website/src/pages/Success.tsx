@@ -1,75 +1,38 @@
-import React from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { Card } from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
 import { Breadcrumb } from '../components/ui/Breadcrumb';
 import SeoHead from '../components/seo/SeoHead';
 import { Alert } from '../components/ui/Alert';
-import { triggerReceipt, downloadReceipt } from '../services/receipts';
-import { useAuth } from '../auth/AuthContext';
 
+// Fail-closed (Track A / #564):
+//   * Ein Browser-Return-URL ist KEIN Zahlungsnachweis. Query-Parameter wie
+//     amount/purpose/method dürfen nicht als bestätigte Zahlung dargestellt
+//     werden. Wir zeigen einen neutralen "Status wird geprüft"-Zustand; die
+//     verbindliche Bestätigung erfolgt serverseitig (Stripe-Webhook) per E-Mail.
+//   * Beleg-/PDF-Aktionen sind entfernt, solange die Belegfreigabe fachlich
+//     nicht entschieden ist und kein autoritativer Beleg-Contract existiert.
 export default function SuccessPage() {
-  const [params] = useSearchParams();
-  const { token } = useAuth();
-  const [message, setMessage] = React.useState<string | null>(null);
-  const [error, setError] = React.useState<string | null>(null);
-
-  const amount = Number(params.get('amount') || '0');
-  const currency = params.get('currency') || 'EUR';
-  const purpose = params.get('purpose') || 'Spende';
-  const method = params.get('method') || 'unbekannt';
-
-  async function onReceipt() {
-    setMessage(null); setError(null);
-    try {
-      await triggerReceipt({ amount, currency, purpose, provider: method }, token || undefined);
-      setMessage('PDF-Beleg wird erstellt/zugestellt.');
-    } catch (e: any) {
-      setError(e?.message || 'Beleg-Erstellung fehlgeschlagen');
-    }
-  }
-
-  async function onDownload() {
-    setMessage(null); setError(null);
-    try {
-      const blob = await downloadReceipt({ amount, currency, purpose, provider: method }, token || undefined);
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `beleg_${Date.now()}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    } catch (e: any) {
-      setError(e?.message || 'PDF-Download fehlgeschlagen');
-    }
-  }
-
   return (
     <div className="mx-auto max-w-3xl p-4 space-y-3">
       <SeoHead
         title="Vielen Dank – Menschlichkeit Österreich"
-        description="Ihre Aktion war erfolgreich. Vielen Dank für Ihre Unterstützung von Menschlichkeit Österreich."
+        description="Vielen Dank für Ihre Unterstützung von Menschlichkeit Österreich. Der Zahlungsstatus wird geprüft."
         noIndex={true}
       />
       <Breadcrumb items={[{ label: 'Erfolg' }]} />
       <h1 className="text-2xl font-semibold">Vielen Dank!</h1>
-      {message && <Alert variant="success">{message}</Alert>}
-      {error && <Alert variant="error">{error}</Alert>}
       <Card className="p-4 space-y-2">
-        <p className="text-secondary-800">Ihre Zahlung wurde entgegengenommen.</p>
-        <ul className="text-secondary-700">
-          <li>Betrag: <strong>{amount.toFixed(2)} {currency}</strong></li>
-          <li>Zweck: <strong>{purpose}</strong></li>
-          <li>Art: <strong>{method}</strong></li>
-        </ul>
-        <div className="pt-2">
-          <div className="flex gap-2">
-            <Button onClick={onReceipt}>PDF‑Beleg zusenden</Button>
-            <Button variant="secondary" onClick={onDownload}>PDF herunterladen</Button>
-          </div>
-        </div>
+        <Alert variant="info" role="status">
+          Zahlungsstatus wird geprüft.
+        </Alert>
+        <p className="text-secondary-800">
+          Ihre Angaben wurden übermittelt. Sobald Ihre Zahlung bestätigt ist,
+          erhalten Sie eine Bestätigung per E‑Mail. Bitte prüfen Sie ggf. auch
+          Ihren Spam-Ordner.
+        </p>
+        <p className="text-secondary-700">
+          Falls Sie eine Zahlung über Ihr Zahlungsfenster begonnen, aber noch
+          nicht abgeschlossen haben, schließen Sie diese bitte dort ab.
+        </p>
       </Card>
     </div>
   );
