@@ -1,0 +1,83 @@
+name: TEMP Node lockfile regeneration (PR 568 only)
+
+# TEMPORARY helper (Track C / #568). Purpose ONLY: regenerate package-lock.json on
+# Linux with pinned Node/npm so the @img/sharp optional-dependency subtree is not
+# rewritten the way Windows npm does (which tripped Dependency Review's license
+# gate). It applies the justified manifest edits, runs a clean install, and
+# uploads the four resulting files as an artifact. It performs NO deploy, uses NO
+# secrets/BSM, and is removed before the PR is declared ready.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  regen:
+    name: Regenerate lockfile on Linux
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout PR 568 branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: copilot/fix-trivy-high-critical-findings
+
+      - name: Setup Node 22
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.2.0
+        with:
+          node-version: '22'
+
+      - name: Apply justified manifest edits
+        run: |
+          node <<'JS'
+          const fs = require('fs');
+          const edit = (p, fn) => {
+            const j = JSON.parse(fs.readFileSync(p, 'utf8'));
+            fn(j);
+            fs.writeFileSync(p, JSON.stringify(j, null, 2) + '\n');
+          };
+          // Root: security overrides + root vite patch (root vite, not website vite 8).
+          edit('package.json', j => {
+            j.dependencies.vite = '^7.3.5';
+            j.overrides = j.overrides || {};
+            j.overrides.hono = '>=4.12.25';
+            j.overrides['ip-address'] = '>=10.3.1';
+            j.overrides['fast-uri'] = '>=3.1.5';
+            j.overrides.nanoid = '>=3.3.18';
+            j.overrides.postcss = '>=8.5.18';
+          });
+          // Website: react-router-dom within major 7. Keep vite ^8.0.13.
+          edit('apps/website/package.json', j => {
+            j.dependencies['react-router-dom'] = '^7.18.2';
+          });
+          // Babylon game: next + eslint-config-next kept aligned.
+          edit('apps/babylon-game/package.json', j => {
+            if (j.dependencies && j.dependencies.next) j.dependencies.next = '16.2.11';
+            if (j.devDependencies && j.devDependencies.next) j.devDependencies.next = '16.2.11';
+            if (j.dependencies && j.dependencies['eslint-config-next']) j.dependencies['eslint-config-next'] = '16.2.11';
+            if (j.devDependencies && j.devDependencies['eslint-config-next']) j.devDependencies['eslint-config-next'] = '16.2.11';
+          });
+          console.log('manifest edits applied');
+          JS
+
+      - name: Clean install (regenerate lockfile)
+        env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
+        run: npm install --ignore-scripts
+
+      - name: Show sharp/vite/next resolution + libvips parity
+        run: |
+          node -e "const l=require('./package-lock.json'); for(const p of ['next','react-router','vite','sharp','hono','ip-address','fast-uri','postcss','nanoid']){const hits=Object.entries(l.packages||{}).filter(([k,v])=>k.endsWith('/'+p)&&v.version); if(hits.length){console.log('== '+p);for(const[k,v]of hits)console.log('  '+v.version+'  '+k);}}"
+
+      - name: Upload regenerated files
+        uses: actions/upload-artifact@6f51ac03b9356f520e9adb1b1b7802705f340c2b # v4.5.0
+        with:
+          name: node-lockfile-linux
+          path: |
+            package.json
+            package-lock.json
+            apps/website/package.json
+            apps/babylon-game/package.json
+          retention-days: 3
