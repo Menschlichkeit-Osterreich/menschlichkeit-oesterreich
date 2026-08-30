@@ -36,10 +36,14 @@ on:
 permissions:
   contents: read
 
-# Temporär: run_id hinzugefügt, um GitHub Actions Concurrency-Deadlock zu umgehen
-# Dieser Block wird nach erfolgreichem Deployment wiederhergestellt
+# Stabiler Concurrency-Key: Produktionsdeployments werden serialisiert, damit
+# nicht zwei Deploys gleichzeitig auf denselben Zielzustand schreiben.
+# github.run_id darf hier NICHT verwendet werden — er ist pro Lauf eindeutig und
+# würde die Concurrency-Kontrolle aushebeln (jeder Lauf bekäme eine eigene
+# Gruppe). cancel-in-progress bleibt false, damit ein laufender Deploy nicht
+# mitten im Schreiben abgebrochen wird.
 concurrency:
-  group: deploy-production-${{ github.ref }}-${{ github.run_id }}
+  group: deploy-production
   cancel-in-progress: false
 
 env:
@@ -412,12 +416,15 @@ jobs:
     runs-on: ubuntu-latest
     needs: [preflight, build-frontend, build-games, test]
     environment: production
+    # 5.1: Produktion darf NICHT allein durch einen Push auf main live schreiben.
+    # Der Deploy-Job läuft ausschließlich bei manueller Auslösung
+    # (workflow_dispatch, kein Dry-Run). Ein Push auf main durchläuft weiterhin
+    # Preflight/Build/Test, führt aber kein Live-Deployment aus.
     if: >-
       always() &&
-      (github.event_name != 'workflow_dispatch' || github.event.inputs.normalize_test_case == 'none') &&
-      (github.event_name == 'push' ||
-        (github.event_name == 'workflow_dispatch' &&
-          github.event.inputs.dry_run != 'true')) &&
+      github.event_name == 'workflow_dispatch' &&
+      github.event.inputs.normalize_test_case == 'none' &&
+      github.event.inputs.dry_run != 'true' &&
       needs.build-frontend.result == 'success' &&
       (needs.build-games.result == 'success' || needs.build-games.result == 'skipped') &&
       needs.test.result == 'success' &&
