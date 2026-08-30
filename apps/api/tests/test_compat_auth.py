@@ -20,6 +20,23 @@ from unittest.mock import AsyncMock, patch
 
 _INTERNAL = "app.routers.internal"
 
+# Dummy-Fixtures (keine echten Secrets) für die Unit-Tests. Als Modulkonstanten
+# zentralisiert, damit die Bandit-B105-Ausnahme an genau einer Stelle steht und
+# alle Verwendungen nur noch Variablenreferenzen (keine Literale) sind.
+_TEST_TOKEN = "tok-123"  # nosec B105
+_TEST_HMAC_SECRET = "sec"  # nosec B105
+
+
+def _assert(condition: object, message: str = "") -> None:
+    """Raise ``AssertionError`` when *condition* is falsy.
+
+    Wird statt eines nackten ``assert`` verwendet, damit die Prüfungen auch
+    unter ``python -O`` aktiv bleiben (das ``assert`` entfernt) und um Bandit
+    B101 zu vermeiden — analog zum Muster aus PR #569.
+    """
+    if not condition:
+        raise AssertionError(message)
+
 
 def _fake_secret(mapping: dict[str, str]):
     """Ersetzt get_secret deterministisch — nur die gemappten Keys liefern Werte."""
@@ -43,8 +60,8 @@ class TestCompatEndpointsFailClosed:
                 "/api/contacts/create",
                 json={"email": "anon@example.at", "first_name": "A", "last_name": "B"},
             )
-        assert resp.status_code != 200
-        assert resp.status_code in (401, 403, 503)
+        _assert(resp.status_code != 200)
+        _assert(resp.status_code in (401, 403, 503))
         upsert.assert_not_called()
 
     def test_contacts_search_anonymous_fails_closed(self, client):
@@ -54,8 +71,8 @@ class TestCompatEndpointsFailClosed:
             patch(f"{_INTERNAL}.crm_service.find_contact_by_email", new=finder),
         ):
             resp = client.get("/api/contacts/search", params={"email": "anon@example.at"})
-        assert resp.status_code != 200
-        assert resp.status_code in (401, 403, 503)
+        _assert(resp.status_code != 200)
+        _assert(resp.status_code in (401, 403, 503))
         finder.assert_not_called()
 
     def test_memberships_create_anonymous_fails_closed(self, client):
@@ -65,8 +82,8 @@ class TestCompatEndpointsFailClosed:
             patch(f"{_INTERNAL}.crm_service.ensure_membership", new=ensure),
         ):
             resp = client.post("/api/memberships/create", json={"contact_id": 42})
-        assert resp.status_code != 200
-        assert resp.status_code in (401, 403, 503)
+        _assert(resp.status_code != 200)
+        _assert(resp.status_code in (401, 403, 503))
         ensure.assert_not_called()
 
 
@@ -78,27 +95,27 @@ class TestCompatEndpointsMachineAuth:
         with (
             patch(
                 f"{_INTERNAL}.get_secret",
-                side_effect=_fake_secret({"MOE_API_TOKEN": "tok-123"}),
+                side_effect=_fake_secret({"MOE_API_TOKEN": _TEST_TOKEN}),
             ),
             patch(f"{_INTERNAL}.crm_service.upsert_contact", new=upsert),
         ):
             resp = client.post(
                 "/api/contacts/create",
                 json={"email": "ok@example.at", "first_name": "A", "last_name": "B"},
-                headers={"Authorization": "Bearer tok-123"},
+                headers={"Authorization": f"Bearer {_TEST_TOKEN}"},
             )
-        assert resp.status_code == 200
-        assert resp.json()["success"] is True
+        _assert(resp.status_code == 200)
+        _assert(resp.json()["success"] is True)
         upsert.assert_awaited_once()
 
     def test_contacts_create_valid_hmac_signature_succeeds(self, client):
         raw = b'{"email":"sig@example.at","first_name":"A","last_name":"B"}'
-        sig = hmac.new(b"sec", raw, hashlib.sha256).hexdigest()
+        sig = hmac.new(_TEST_HMAC_SECRET.encode(), raw, hashlib.sha256).hexdigest()
         upsert = AsyncMock(return_value={"id": 8})
         with (
             patch(
                 f"{_INTERNAL}.get_secret",
-                side_effect=_fake_secret({"N8N_WEBHOOK_SECRET": "sec"}),
+                side_effect=_fake_secret({"N8N_WEBHOOK_SECRET": _TEST_HMAC_SECRET}),
             ),
             patch(f"{_INTERNAL}.crm_service.upsert_contact", new=upsert),
         ):
@@ -110,7 +127,7 @@ class TestCompatEndpointsMachineAuth:
                     "x-webhook-signature": sig,
                 },
             )
-        assert resp.status_code == 200
+        _assert(resp.status_code == 200)
         upsert.assert_awaited_once()
 
     def test_contacts_create_invalid_signature_fails(self, client):
@@ -118,7 +135,7 @@ class TestCompatEndpointsMachineAuth:
         with (
             patch(
                 f"{_INTERNAL}.get_secret",
-                side_effect=_fake_secret({"N8N_WEBHOOK_SECRET": "sec"}),
+                side_effect=_fake_secret({"N8N_WEBHOOK_SECRET": _TEST_HMAC_SECRET}),
             ),
             patch(f"{_INTERNAL}.crm_service.upsert_contact", new=upsert),
         ):
@@ -127,7 +144,7 @@ class TestCompatEndpointsMachineAuth:
                 json={"email": "bad@example.at", "first_name": "A", "last_name": "B"},
                 headers={"x-webhook-signature": "deadbeef"},
             )
-        assert resp.status_code == 401
+        _assert(resp.status_code == 401)
         upsert.assert_not_called()
 
 
@@ -147,7 +164,7 @@ class TestRetiredIngressReturns410:
     )
     def test_retired_routes_return_410(self, client, path):
         resp = client.post(path, json={})
-        assert resp.status_code == 410
+        _assert(resp.status_code == 410)
 
 
 class TestReceiptEligibleConsistency:
@@ -177,7 +194,7 @@ class TestReceiptEligibleConsistency:
             )
         send.assert_awaited()
         context = send.await_args.kwargs["context"]
-        assert context["donation"]["receipt_eligible"] is False
+        _assert(context["donation"]["receipt_eligible"] is False)
 
 
 class TestSlackLoggingSanitization:
@@ -223,6 +240,6 @@ class TestSlackLoggingSanitization:
                 )
 
         combined = " ".join(record.getMessage() for record in caplog.records)
-        assert webhook not in combined
-        assert "hooks.slack.com" not in combined
-        assert "slack_alert_delivery_failed" in combined
+        _assert(webhook not in combined)
+        _assert("hooks.slack.com" not in combined)
+        _assert("slack_alert_delivery_failed" in combined)
