@@ -18,6 +18,17 @@ WORKDIR /app
 COPY --from=builder /opt/venv /opt/venv
 COPY . /app
 
+# Sicherheitsupdates der Distribution einspielen. Das Basis-Image wird von
+# upstream nicht bei jedem Debian-Security-Release neu gebaut und hinkt daher
+# punktuell hinterher (z. B. openssl/libssl3t64 3.5.6 statt 3.5.7).
+# Zusaetzlich das setuptools der SYSTEM-Python-Installation aktualisieren
+# (CVE-2025-47273): die Anwendung laeuft zwar aus /opt/venv, das Image enthaelt
+# unter /usr/local aber eine zweite, vom Basis-Image mitgelieferte Kopie.
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    rm -rf /var/lib/apt/lists/* && \
+    /usr/local/bin/python -m pip install --no-cache-dir --upgrade "setuptools>=78.1.1"
+
 RUN adduser --disabled-password --gecos "" --uid 1001 appuser && \
     chown -R appuser:appuser /app
 USER appuser

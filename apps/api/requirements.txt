@@ -22,3 +22,7 @@ h11>=0.16.0
 # Version 8.1.0 verlangt dieses Paket starlette >=1.0.0,<2.0.0.
 # Deshalb wird die gefixte Version hier explizit und deterministisch gepinnt.
 starlette>=1.3.1
+# GHSA-6v7p-g79w-8964: msgpack < 1.2.1 ist verwundbar. msgpack wird nur auf
+# Linux transitiv mitinstalliert und taucht deshalb ausschliesslich im
+# Container-Scan auf. Explizit gepinnt, damit der Fix deterministisch greift.
+msgpack>=1.2.1
