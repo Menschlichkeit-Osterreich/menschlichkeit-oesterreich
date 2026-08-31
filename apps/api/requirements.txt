@@ -3,15 +3,22 @@ uvicorn[standard]==0.47.0
 asyncpg==0.31.0
 python-dotenv==1.2.2
 pydantic[email]==2.13.4
-python-multipart==0.0.29
+python-multipart==0.0.30
 alembic==1.18.4
 sqlalchemy==2.0.49
 httpx==0.28.1
 jinja2==3.1.6
 structlog==25.5.0
-prometheus-fastapi-instrumentator==7.1.0
+prometheus-fastapi-instrumentator==8.1.0
 redis>=7.4.0
 bitwarden-sdk>=2.0.0
 # CVE-2025-43859: h11 < 0.16.0 is vulnerable to HTTP request smuggling.
 # Pin explicitly to override the transitive version pulled in by uvicorn/httpx.
 h11>=0.16.0
+# Trivy (Container-Scan): starlette < 1.1.0 bzw. < 1.3.1 ist verwundbar.
+# starlette wird transitiv von fastapi gezogen (fastapi 0.136.1 erlaubt >=0.46.0
+# ohne Obergrenze). Die frueher blockierende Obergrenze kam von
+# prometheus-fastapi-instrumentator 7.1.0 (starlette >=0.30.0,<1.0.0); seit
+# Version 8.1.0 verlangt dieses Paket starlette >=1.0.0,<2.0.0.
+# Deshalb wird die gefixte Version hier explizit und deterministisch gepinnt.
+starlette>=1.3.1

@@ -1,0 +1,38 @@
+# Trivy Ignore-Regeln
+#
+# GRUNDREGEL: Hier stehen ausschliesslich Befunde, die fuer dieses Repository
+# nachweislich NICHT anwendbar sind. Scanner-Schwellen (CRITICAL,HIGH),
+# `--exit-code 1` und die "Fail on high or critical findings"-Steps in
+# `.github/workflows/trivy.yml` bleiben unveraendert. Jeder Eintrag ist
+# pfadgenau und begruendet. Pauschale Wildcards sind nicht zulaessig.
+#
+# Diese Datei wird in `.github/workflows/trivy.yml` explizit ueber
+# `--ignorefile /repo/.trivyignore.yaml` an die Jobs `trivy-fs` und
+# `trivy-config` uebergeben. Trivy sucht Ignore-Dateien im Arbeitsverzeichnis
+# des Prozesses, nicht im Scan-Ziel; im Container ist das cwd nicht `/repo`,
+# deshalb ist die explizite Uebergabe notwendig.
+
+misconfigurations:
+  # DS-0002 ("Image user should not be 'root'")
+  #
+  # `codacy-analysis-cli-master/` ist der entpackte Quellcode des FREMDEN
+  # Codacy-CLI-Tools (141 eingecheckte Dateien) und kein Artefakt von
+  # Menschlichkeit Oesterreich. Das Dockerfile stammt unveraendert von upstream,
+  # wird von uns weder gebaut noch deployed und laeuft in keinem unserer
+  # Runtime-Targets.
+  #
+  # Das Verzeichnis kann nicht geloescht werden: `scripts/validate-ai-governance.mjs`
+  # (requiredPathZones.special_experimental) und `.github/ai-registry.json`
+  # (meta.pathZones.special_experimental) verlangen seine Existenz, ausserdem
+  # referenzieren es `.codacy.yml`, `eslint.config.js` und `.eslintrc.cjs`.
+  # Ein Entfernen wuerde `npm run governance:check` brechen.
+  #
+  # Unsere eigenen Dockerfiles (`apps/api`, `apps/website`, `.devcontainer`)
+  # sind stattdessen echt auf non-root umgestellt worden.
+  - id: DS-0002
+    paths:
+      - 'codacy-analysis-cli-master/Dockerfile'
+    statement: >-
+      Fremder Vendor-Quellcode (Codacy CLI), wird von diesem Repository nicht
+      gebaut und nicht deployed. Verzeichnis ist per Governance-Check als
+      special_experimental-Zone verpflichtend vorhanden.
