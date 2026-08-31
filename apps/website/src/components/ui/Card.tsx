@@ -12,7 +12,8 @@ export function Card({
   return (
     <div
       className={[
-        'rounded-lg border border-semantic-border bg-white shadow-sm',
+        'border border-paper-rule bg-white transition-colors duration-150',
+        onClick ? 'cursor-pointer hover:border-primary-600' : '',
         className,
       ].join(' ')}
       onClick={onClick}

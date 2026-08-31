@@ -105,7 +105,7 @@ const FREIWILLIGEN_BEREICHE: FreiwilligenBereich[] = [
 
 function ProjektCard({ projekt }: { projekt: Projekt }) {
   return (
-    <div className="bg-white rounded-2xl border border-secondary-200 p-6 hover:shadow-lg transition-all duration-300">
+    <div className="bg-white rounded-2xl border border-secondary-200 p-6 transition-all duration-300">
       <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary-50 text-primary-700 mb-4">
         {projekt.icon}
       </div>
@@ -127,7 +127,7 @@ function ProjektCard({ projekt }: { projekt: Projekt }) {
 
 function FreiwilligenCard({ bereich }: { bereich: FreiwilligenBereich }) {
   return (
-    <div className="bg-white rounded-2xl border border-secondary-200 p-6 hover:shadow-lg transition-all duration-300">
+    <div className="bg-white rounded-2xl border border-secondary-200 p-6 transition-all duration-300">
       <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-blue-50 text-blue-700 mb-4">
         {bereich.icon}
       </div>
@@ -233,7 +233,7 @@ export default function Mitmachen() {
           <div className="mt-5 grid grid-cols-1 gap-3 md:grid-cols-3">
             <Link
               to="/mitglied-werden"
-              className="rounded-xl border border-primary-300 bg-white p-4 hover:shadow-sm transition-all"
+              className="rounded-xl border border-primary-300 bg-white p-4 transition-all"
             >
               <div className="font-semibold text-secondary-900">Mitglied werden</div>
               <p className="mt-1 text-sm text-secondary-600">
@@ -242,7 +242,7 @@ export default function Mitmachen() {
             </Link>
             <Link
               to="/spenden"
-              className="rounded-xl border border-primary-300 bg-white p-4 hover:shadow-sm transition-all"
+              className="rounded-xl border border-primary-300 bg-white p-4 transition-all"
             >
               <div className="font-semibold text-secondary-900">Jetzt spenden</div>
               <p className="mt-1 text-sm text-secondary-600">
@@ -251,7 +251,7 @@ export default function Mitmachen() {
             </Link>
             <Link
               to="/veranstaltungen"
-              className="rounded-xl border border-primary-300 bg-white p-4 hover:shadow-sm transition-all"
+              className="rounded-xl border border-primary-300 bg-white p-4 transition-all"
             >
               <div className="font-semibold text-secondary-900">Veranstaltung besuchen</div>
               <p className="mt-1 text-sm text-secondary-600">
@@ -352,7 +352,7 @@ export default function Mitmachen() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Link
               to="/mitglied-werden"
-              className="flex items-center gap-3 bg-white rounded-xl border border-primary-200 p-4 hover:shadow-md transition-all group"
+              className="flex items-center gap-3 bg-white rounded-xl border border-primary-200 p-4 transition-all group"
             >
               <Users className="w-8 h-8 text-primary-600 flex-shrink-0" />
               <div>
@@ -364,7 +364,7 @@ export default function Mitmachen() {
             </Link>
             <Link
               to="/spenden"
-              className="flex items-center gap-3 bg-white rounded-xl border border-primary-200 p-4 hover:shadow-md transition-all group"
+              className="flex items-center gap-3 bg-white rounded-xl border border-primary-200 p-4 transition-all group"
             >
               <Heart className="w-8 h-8 text-primary-600 flex-shrink-0" />
               <div>
@@ -376,7 +376,7 @@ export default function Mitmachen() {
             </Link>
             <Link
               to="/veranstaltungen"
-              className="flex items-center gap-3 bg-white rounded-xl border border-primary-200 p-4 hover:shadow-md transition-all group"
+              className="flex items-center gap-3 bg-white rounded-xl border border-primary-200 p-4 transition-all group"
             >
               <BookOpen className="w-8 h-8 text-primary-600 flex-shrink-0" />
               <div>

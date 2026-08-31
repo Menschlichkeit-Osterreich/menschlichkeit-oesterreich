@@ -4,7 +4,7 @@ import CookieConsent from './components/CookieConsent';
 import ErrorBoundary from './components/ErrorBoundary';
 import SkipLink from './components/SkipLink';
 import { PrivacyCenter } from './components/privacy/PrivacyCenter';
-import { migrateOldConsent } from './utils/consentStorage';
+import { migrateOldConsent, OPEN_PRIVACY_CENTER_EVENT } from './utils/consentStorage';
 
 type PrivacyCenterTab = 'overview' | 'cookies' | 'requests' | 'settings';
 
@@ -22,6 +22,12 @@ export default function App() {
     setPrivacyCenterTab(tab);
     setIsPrivacyCenterOpen(true);
   };
+
+  useEffect(() => {
+    const handleOpenRequest = () => openPrivacyCenter('cookies');
+    window.addEventListener(OPEN_PRIVACY_CENTER_EVENT, handleOpenRequest);
+    return () => window.removeEventListener(OPEN_PRIVACY_CENTER_EVENT, handleOpenRequest);
+  }, []);
 
   return (
     <ErrorBoundary>

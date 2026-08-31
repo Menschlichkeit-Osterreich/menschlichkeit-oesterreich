@@ -1,3 +1,4 @@
+import { getScenarioLevelLabel } from '@/game/scenarios/scenario-model';
 import type { GameHudState } from '@/game/state/game-types';
 
 const MISSION_STATUS_LABELS: Record<GameHudState['mission']['status'], string> = {
@@ -7,26 +8,37 @@ const MISSION_STATUS_LABELS: Record<GameHudState['mission']['status'], string> =
   failed: 'Fehlgeschlagen',
 };
 
-function getMissionStages(hud: GameHudState) {
+export interface MissionStage {
+  index: number;
+  label: string;
+  detail: string;
+  done: boolean;
+  active: boolean;
+}
+
+export function getMissionStages(hud: GameHudState): MissionStage[] {
   const collectedDone = hud.totalCollectibles > 0 && hud.collected >= hud.totalCollectibles;
   const coreDone = hud.goalUnlocked || hud.phase === 'success';
   const beaconDone = hud.phase === 'success';
 
   return [
     {
-      label: '1. Zuhören',
+      index: 1,
+      label: 'Zuhören',
       detail: `Impulse sichern (${hud.collected}/${hud.totalCollectibles})`,
       done: collectedDone,
       active: !collectedDone,
     },
     {
-      label: '2. Verbinden',
+      index: 2,
+      label: 'Verbinden',
       detail: 'Gemeinschaftskern zum Treffpunkt bringen',
       done: coreDone,
       active: collectedDone && !coreDone,
     },
     {
-      label: '3. Handeln',
+      index: 3,
+      label: 'Handeln',
       detail: 'Treffpunkt öffnen und Runde abschließen',
       done: beaconDone,
       active: coreDone && !beaconDone,
@@ -34,79 +46,170 @@ function getMissionStages(hud: GameHudState) {
   ];
 }
 
-export function MissionHud({ hud }: { hud: GameHudState }) {
+/**
+ * Zone oben links — Auftrag.
+ * Level, laufende Aufgabe und drei Segmente à 34 × 6 px mit Zählstand.
+ */
+export function MissionBriefing({ hud }: { hud: GameHudState }) {
+  const stages = getMissionStages(hud);
+  const currentStage = stages.find(stage => stage.active) ?? stages[stages.length - 1];
+  const doneCount = stages.filter(stage => stage.done).length;
+  const currentIndex = currentStage?.index ?? stages.length;
+
   return (
-    <>
-      <div className="absolute left-4 top-4 flex max-w-xl flex-wrap gap-3">
-        <div
-          className="rounded-2xl border border-orange-400/20 bg-slate-950/82 px-4 py-3 shadow-2xl backdrop-blur"
-          role="status"
-          aria-live="polite"
+    <section
+      className="w-[320px] border border-moe-hud-rule bg-moe-hud px-4 py-3.5"
+      role="status"
+      aria-live="polite"
+      aria-label="Auftrag"
+    >
+      <p className="font-mono text-[12px] font-medium uppercase leading-none tracking-[0.16em] text-moe-signal-hell">
+        Level {getScenarioLevelLabel(hud.activeScenario.id)}
+      </p>
+      <p className="mt-2 font-heading text-[19px] font-semibold leading-snug text-moe-paper">
+        {currentStage ? `${currentStage.index}. ${currentStage.label}` : hud.activeScenario.title}
+      </p>
+      <p className="mt-1 font-body text-[14px] leading-snug text-moe-ink-on-dark">
+        {currentStage?.detail ?? hud.hint}
+      </p>
+
+      <div className="mt-3.5 flex items-center gap-2.5">
+        <ol className="flex gap-1.5" aria-hidden="true">
+          {stages.map(stage => (
+            <li
+              key={stage.index}
+              className={`h-1.5 w-[34px] ${
+                stage.done
+                  ? 'bg-moe-signal-hell'
+                  : stage.active
+                    ? 'bg-moe-signal'
+                    : 'bg-moe-hud-rule-strong'
+              }`}
+            />
+          ))}
+        </ol>
+        <span className="font-mono text-[13px] tabular-nums text-moe-ink-on-dark-muted">
+          {currentIndex} / {stages.length}
+        </span>
+      </div>
+
+      <p className="mt-2.5 font-mono text-[12px] uppercase tracking-[0.14em] text-moe-ink-on-dark-muted">
+        {doneCount} von {stages.length} erledigt · {MISSION_STATUS_LABELS[hud.mission.status]}
+      </p>
+    </section>
+  );
+}
+
+/**
+ * Zone oben rechts — Restzeit.
+ * Zahl in IBM Plex Mono 34 px neben einem 56-px-Ring aus conic-gradient.
+ */
+export function TimeRemaining({ hud }: { hud: GameHudState }) {
+  const limit = hud.timeLimitSeconds > 0 ? hud.timeLimitSeconds : 1;
+  const fraction = Math.min(Math.max(hud.remainingSeconds / limit, 0), 1);
+  const degrees = Math.round(fraction * 360);
+  const isCritical = hud.remainingSeconds <= 10;
+  const ringColor = isCritical ? '#C62828' : '#EEA06F';
+
+  return (
+    <section
+      className="flex items-center gap-3.5 border border-moe-hud-rule bg-moe-hud px-4 py-3.5"
+      aria-label="Restzeit"
+    >
+      <div className="text-right">
+        <p className="font-mono text-[12px] uppercase leading-none tracking-[0.16em] text-moe-ink-on-dark-muted">
+          Restzeit
+        </p>
+        <p
+          className={`mt-1.5 font-mono text-[34px] font-medium leading-none tabular-nums ${
+            isCritical ? 'text-moe-error' : 'text-moe-paper'
+          }`}
+          role="timer"
+          aria-live="off"
         >
-          <p className="text-[11px] uppercase tracking-[0.2em] text-amber-300">Brücken bauen</p>
-          <p className="mt-1 text-base font-semibold text-amber-50">{hud.activeScenario.title}</p>
-          <p className="text-sm text-slate-300">{hud.status}</p>
-          <p className="mt-2 text-xs text-slate-400">
-            {hud.activeRole.title} · {hud.activeScenario.difficultyLabel}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2 rounded-2xl border border-white/10 bg-slate-950/82 p-3 text-sm shadow-2xl backdrop-blur sm:grid-cols-4">
-          <div className="rounded-lg bg-slate-900/80 px-3 py-2">
-            <div className="text-slate-400">Impulse</div>
-            <div className="font-medium">
-              {hud.collected}/{hud.totalCollectibles}
-            </div>
-          </div>
-          <div className="rounded-lg bg-slate-900/80 px-3 py-2">
-            <div className="text-slate-400">Restzeit</div>
-            <div className="font-medium">{hud.remainingSeconds.toFixed(1)}s</div>
-          </div>
-          <div className="rounded-lg bg-slate-900/80 px-3 py-2">
-            <div className="text-slate-400">Treffpunkt</div>
-            <div className="font-medium">{hud.goalUnlocked ? 'bereit' : 'noch geschlossen'}</div>
-          </div>
-          <div className="rounded-lg bg-slate-900/80 px-3 py-2">
-            <div className="text-slate-400">Ort</div>
-            <div className="font-medium">
-              {hud.environment === 'scene-loader' ? 'Freie Szene' : 'Lernplatz'}
-            </div>
-          </div>
-        </div>
+          {Math.max(0, Math.ceil(hud.remainingSeconds))}
+          <span className="ml-0.5 text-[16px] text-moe-ink-on-dark-muted">s</span>
+        </p>
       </div>
 
-      <div className="absolute bottom-4 left-4 max-w-md space-y-3">
-        <div className="rounded-2xl border border-white/10 bg-slate-950/75 p-4 shadow-2xl backdrop-blur">
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Mission</p>
-          <p className="mt-2 text-sm text-slate-200">{hud.hint}</p>
-          <p className="mt-2 text-xs text-amber-100">
-            Zielstatus · {MISSION_STATUS_LABELS[hud.mission.status]}
-          </p>
-          <div className="mt-3 space-y-2">
-            {getMissionStages(hud).map(stage => (
-              <div
-                key={stage.label}
-                className={`rounded-lg px-3 py-2 text-xs ${
-                  stage.done
-                    ? 'bg-emerald-500/15 text-emerald-100'
-                    : stage.active
-                      ? 'bg-orange-500/15 text-amber-100'
-                      : 'bg-slate-900/80 text-slate-300'
-                }`}
-              >
-                <p className="font-semibold">{stage.label}</p>
-                <p>{stage.detail}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-        {hud.interactionPrompt ? (
-          <div className="rounded-2xl border border-orange-400/40 bg-orange-500/10 p-4 shadow-2xl backdrop-blur">
-            <p className="text-xs uppercase tracking-[0.2em] text-amber-200">Interaktion</p>
-            <p className="mt-2 text-sm font-medium text-amber-50">{hud.interactionPrompt}</p>
-          </div>
-        ) : null}
+      <div
+        className="relative h-14 w-14 shrink-0 rounded-full"
+        style={{
+          background: `conic-gradient(${ringColor} ${degrees}deg, rgba(247, 244, 241, 0.16) ${degrees}deg)`,
+        }}
+        aria-hidden="true"
+      >
+        <div className="absolute inset-[7px] rounded-full bg-moe-ink-tief" />
       </div>
-    </>
+
+      <span className="sr-only">
+        Noch {Math.max(0, Math.ceil(hud.remainingSeconds))} von {hud.timeLimitSeconds} Sekunden.
+      </span>
+    </section>
+  );
+}
+
+/**
+ * Zone unten Mitte — Phasenleiste über 720 px mit drei gleich breiten Zellen.
+ */
+export function PhaseBar({ hud }: { hud: GameHudState }) {
+  const stages = getMissionStages(hud);
+
+  return (
+    <nav
+      className="grid w-[720px] max-w-[calc(100vw-3rem)] grid-cols-3 border border-moe-hud-rule bg-moe-hud-soft"
+      aria-label="Missionsphasen"
+    >
+      {stages.map((stage, position) => (
+        <div
+          key={stage.index}
+          aria-current={stage.active ? 'step' : undefined}
+          className={`border-b-[3px] px-4 py-3 ${
+            position > 0 ? 'border-l border-l-moe-hud-rule' : ''
+          } ${
+            stage.active
+              ? 'border-b-moe-signal-hell'
+              : stage.done
+                ? 'border-b-moe-success'
+                : 'border-b-transparent'
+          }`}
+        >
+          <p className="font-mono text-[12px] uppercase leading-none tracking-[0.16em] text-moe-ink-on-dark-muted">
+            Schritt {stage.index}
+            {stage.done ? ' · erledigt' : ''}
+          </p>
+          <p
+            className={`mt-1.5 font-heading text-[16px] font-semibold leading-none ${
+              stage.active || stage.done ? 'text-moe-paper' : 'text-moe-ink-on-dark-muted'
+            }`}
+          >
+            {stage.label}
+          </p>
+        </div>
+      ))}
+    </nav>
+  );
+}
+
+/**
+ * Zone unten rechts — Interaktionshinweis mit gerahmter Taste.
+ */
+export function InteractionCue({ hud }: { hud: GameHudState }) {
+  if (!hud.interactionPrompt) {
+    return null;
+  }
+
+  return (
+    <section
+      className="flex max-w-[320px] items-center gap-3 border border-moe-hud-rule bg-moe-hud px-4 py-3"
+      role="status"
+      aria-live="polite"
+      aria-label="Interaktion"
+    >
+      <kbd className="grid h-9 w-9 shrink-0 place-items-center rounded-sm bg-moe-signal-hell font-mono text-[16px] font-medium text-moe-ink-tief">
+        E
+      </kbd>
+      <p className="font-body text-[14px] leading-snug text-moe-paper">{hud.interactionPrompt}</p>
+    </section>
   );
 }

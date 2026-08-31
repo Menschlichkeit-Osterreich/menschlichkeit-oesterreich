@@ -96,7 +96,7 @@ function ModuleCard({ module }: { module: Module }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="bg-white rounded-2xl border border-secondary-200 overflow-hidden hover:shadow-lg transition-all duration-300">
+    <div className="bg-white rounded-2xl border border-secondary-200 overflow-hidden transition-all duration-300">
       <div className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="text-4xl">{module.emoji}</div>

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
 @import './styles/tokens.css';
 
 @tailwind base;
@@ -11,13 +11,14 @@
     /* Menschlichkeit Österreich Brand Colors */
     --brand-austria-red: #d4611e;
     --brand-austria-white: #ffffff;
-    --brand-gradient: linear-gradient(135deg, #1b4965 0%, #d4611e 100%);
-    --brand-gradient-contrast: linear-gradient(135deg, #143245 0%, #7a3213 100%);
+    /* Absenderflächen ersetzen die früheren Verläufe (keine Verlaufsflächen im Entwurf) */
+    --brand-surface: var(--ds-colors-ink-surface);
+    --brand-surface-deep: var(--ds-colors-ink-deep);
   }
   [data-theme='dark'] {
     color-scheme: dark;
-    --semantic-background: var(--ds-colors-secondary-900);
-    --semantic-text-primary: var(--ds-colors-semantic-text-inverse);
+    --semantic-background: var(--ds-colors-ink-surface);
+    --semantic-text-primary: var(--ds-colors-ink-on-dark);
   }
   html,
   body,
@@ -39,6 +40,22 @@
   h5,
   h6 {
     font-family: var(--ds-typography-font-family-primary);
+    color: var(--ds-colors-ink-deep);
+  }
+
+  /* Ein Fokusbild für das ganze Haus: dunkler Rahmen innen, heller Hof aussen. */
+  :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 3px solid var(--ds-colors-accent-200);
+    outline-offset: 1px;
+    box-shadow: inset 0 0 0 2px var(--ds-colors-accent-500);
+  }
+
+  /* Auf farbigen Flächen und auf dunklem Grund bleibt der Hof sichtbar. */
+  :where(.on-brand, .on-dark)
+    :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 3px solid var(--ds-colors-primary-300);
+    outline-offset: 2px;
+    box-shadow: none;
   }
 
   select:not([multiple]):not([size]) {
@@ -46,35 +63,32 @@
     background-image: none;
     padding-right: 0.75rem;
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 }
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-all;
-    @apply focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600;
+    @apply inline-flex items-center justify-center gap-2 rounded-sm px-4 py-2 text-sm font-semibold transition-colors;
     @apply disabled:opacity-50 disabled:cursor-not-allowed;
-    transition-duration: var(--ds-animation-duration-normal);
+    transition-duration: var(--ds-animation-duration-fast);
     transition-timing-function: var(--ds-animation-easing-ease-out);
   }
 
   .btn-primary {
     @apply bg-primary-600 text-white hover:bg-primary-700 active:bg-primary-800;
-    box-shadow: var(--ds-shadows-sm);
-  }
-
-  .btn-primary:hover {
-    box-shadow: var(--ds-shadows-md);
-    transform: translateY(-1px);
   }
 
   .btn-secondary {
-    @apply bg-secondary-600 text-white hover:bg-secondary-700 active:bg-secondary-800;
-    box-shadow: var(--ds-shadows-sm);
-  }
-
-  .btn-secondary:hover {
-    box-shadow: var(--ds-shadows-md);
-    transform: translateY(-1px);
+    @apply border border-semantic-border bg-white text-ink-body hover:bg-semantic-surface;
   }
 
   .btn-ghost {
@@ -82,21 +96,49 @@
   }
 
   .card-modern {
-    @apply bg-semantic-background rounded-lg border border-semantic-border;
-    box-shadow: var(--ds-shadows-sm);
-    transition: all var(--ds-animation-duration-normal) var(--ds-animation-easing-ease-out);
+    @apply bg-semantic-background rounded-sm border border-semantic-border;
+    transition: border-color var(--ds-animation-duration-fast) var(--ds-animation-easing-ease-out);
   }
 
   .card-modern:hover {
-    box-shadow: var(--ds-shadows-md);
-    transform: translateY(-2px);
+    border-color: var(--ds-colors-primary-600);
+  }
+
+  /* Kartenraster ohne Doppelrahmen: eine Haarlinie liegt unter dem Gitter. */
+  .hairline-grid {
+    display: grid;
+    gap: 1px;
+    background: var(--ds-colors-paper-rule);
+    border: 1px solid var(--ds-colors-paper-rule);
+  }
+
+  .hairline-grid > * {
+    background: var(--ds-colors-semantic-background);
+  }
+
+  .content-shell {
+    width: 100%;
+    max-width: 1280px;
+    margin-inline: auto;
+    padding-inline: 40px;
+  }
+
+  .form-shell {
+    width: 100%;
+    max-width: 1080px;
+    margin-inline: auto;
+    padding-inline: 40px;
+  }
+
+  @media (max-width: 640px) {
+    .content-shell,
+    .form-shell {
+      padding-inline: 20px;
+    }
   }
 
   .text-gradient {
-    background: var(--brand-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--ds-colors-primary-600);
   }
 
   .austria-border {
@@ -113,19 +155,19 @@
 
   /* AI Integration Status Styles */
   .ai-status-active {
-    @apply text-success-700 bg-success-50 border border-success-200 rounded-full px-2 py-1 text-xs font-medium;
+    @apply text-success-700 bg-success-50 border border-success-200 rounded-sm px-2 py-1 text-xs font-medium;
   }
 
   .ai-status-inactive {
-    @apply text-secondary-600 bg-secondary-50 border border-secondary-200 rounded-full px-2 py-1 text-xs font-medium;
+    @apply text-secondary-600 bg-secondary-50 border border-secondary-200 rounded-sm px-2 py-1 text-xs font-medium;
   }
 
   .ai-status-loading {
-    @apply text-accent-700 bg-accent-50 border border-accent-200 rounded-full px-2 py-1 text-xs font-medium;
+    @apply text-accent-700 bg-accent-50 border border-accent-200 rounded-sm px-2 py-1 text-xs font-medium;
   }
 
   .ai-code-block {
-    @apply bg-secondary-900 text-success-400 rounded-lg p-4 overflow-x-auto;
+    @apply bg-ink-deep text-ink-on-dark rounded-sm p-4 overflow-x-auto;
     font-family: var(--ds-typography-font-family-mono);
     font-size: var(--ds-typography-font-size-sm);
     line-height: var(--ds-line-height-relaxed);
@@ -139,12 +181,13 @@
 
 @layer utilities {
   .interactive-hover {
-    transition: all var(--ds-animation-duration-normal) var(--ds-animation-easing-ease-out);
+    transition:
+      border-color var(--ds-animation-duration-fast) var(--ds-animation-easing-ease-out),
+      background-color var(--ds-animation-duration-fast) var(--ds-animation-easing-ease-out);
   }
 
   .interactive-hover:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--ds-shadows-md);
+    border-color: var(--ds-colors-primary-600);
   }
 
   .section-padding {
@@ -164,21 +207,12 @@
     content-visibility: auto;
     contain-intrinsic-size: 800px 600px; /* prevents layout shift when revealed */
   }
-}
 
-/* Austrian Wave Animation */
-@keyframes austria-wave {
-  0%,
-  100% {
-    transform: translateY(0);
+  .tabular-id {
+    font-family: var(--ds-typography-font-family-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
   }
-  50% {
-    transform: translateY(-4px);
-  }
-}
-
-.animate-austria-wave {
-  animation: austria-wave 2s var(--ds-animation-easing-ease-in-out) infinite;
 }
 
 /* AI Pulse Animation */

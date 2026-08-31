@@ -4,7 +4,7 @@
 
 /* ============================================================
    Menschlichkeit Österreich — Brand CSS Custom Properties
-   Quelle: Brand Guidelines v1.0 (Compass Artifact)
+   Quelle: Brand Guidelines v1.0 + Design-Handoff „Brücken Bauen"
    VERBOTEN: #D84A1B, #CB4D1A, #BF4000 (fehlerhafte Alt-Werte)
    ============================================================ */
 
@@ -14,8 +14,14 @@
   --moe-text-orange: #b54a0f;
   --moe-demokratie-blau: #1b4965;
 
+  /* Signalstufen — ausschliesslich fuer Interagierbares */
+  --moe-signal: #d4611e;
+  --moe-signal-hell: #eea06f;
+  --moe-signal-tief: #b54a0f;
+
   /* Sekundärfarben */
-  --moe-petrol: #00695c;
+  --moe-petrol: #1b4965;
+  --moe-petrol-hell: #eef5f8;
   --moe-warmton: #8b6f4e;
 
   /* Neutrale Farben (Warmgrau — KEIN kaltes Grau) */
@@ -27,6 +33,40 @@
   --moe-n700: #4a4039;
   --moe-n900: #2b231d;
 
+  /* Papier und Haarlinien */
+  --moe-paper: #f7f4f1;
+  --moe-rule: #dcd4cd;
+  --moe-rule-soft: #ece7e2;
+
+  /* Tinte — dunkle Flaechen von HUD, Kopfzeilen und Szene */
+  --moe-ink: #0d2b3a;
+  --moe-ink-tief: #12212b;
+  --moe-ink-body: #3c4a52;
+  --moe-ink-muted: #5d6b73;
+  --moe-ink-on-dark: #c3d3db;
+  --moe-ink-on-dark-muted: #8fb3c4;
+
+  /* HUD-Grundflaeche — kein backdrop-filter, der kostet Bilder pro Sekunde */
+  --moe-hud-surface: rgba(7, 26, 36, 0.86);
+  --moe-hud-surface-soft: rgba(7, 26, 36, 0.82);
+  --moe-hud-rule: rgba(247, 244, 241, 0.2);
+
+  /* Szenen-Palette Welt 1 */
+  --welt1-grund: #143b4d;
+  --welt1-platz: #1c4a5e;
+  --welt1-pflaster-1: #6f6259;
+  --welt1-pflaster-2: #7d7167;
+  --welt1-pflaster-3: #5d5148;
+  --welt1-pflaster-4: #8a7d70;
+  --welt1-stein-hell: #c9bfb4;
+  --welt1-holz: #8a6f52;
+  --welt1-gusseisen: #2f3338;
+  --welt1-messing: #9a7b45;
+  --welt1-kupferpatina: #5e8b7e;
+  --welt1-dachziegel: #a9532c;
+  --welt1-schiefer: #4b5057;
+  --welt1-laub: #55663f;
+
   /* Funktionsfarben */
   --moe-success: #2e7d32;
   --moe-warning: #e65100;
@@ -35,10 +75,10 @@
 
   /* Typografie */
   --moe-font-heading:
-    var(--font-nunito-sans), 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    var(--font-familjen-grotesk), 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --moe-font-body:
-    var(--font-source-sans-3), 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --moe-font-quote: 'Merriweather', Georgia, 'Times New Roman', serif;
+    var(--font-ibm-plex-sans), 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --moe-font-mono: var(--font-ibm-plex-mono), ui-monospace, SFMono-Regular, monospace;
 
   /* Abstände (8px Grid) */
   --moe-space-xs: 8px;
@@ -47,15 +87,10 @@
   --moe-space-lg: 48px;
   --moe-space-xl: 64px;
 
-  /* Radien */
-  --moe-radius-sm: 8px;
-  --moe-radius-md: 12px;
-  --moe-radius-lg: 16px;
-
-  /* Schatten */
-  --moe-shadow-sm: 0 2px 8px rgba(43, 35, 29, 0.06);
-  --moe-shadow-md: 0 4px 16px rgba(43, 35, 29, 0.1);
-  --moe-shadow-lg: 0 8px 32px rgba(43, 35, 29, 0.14);
+  /* Radien — 4 px fuer Bedienelemente, sonst 0 */
+  --moe-radius-sm: 4px;
+  --moe-radius-md: 4px;
+  --moe-radius-lg: 4px;
 
   /* Layout */
   --moe-max-width: 1200px;
@@ -65,29 +100,30 @@
 /* Base-Typografie */
 body {
   font-family: var(--moe-font-body);
-  color: var(--moe-n700);
-  background-color: #ffffff;
+  color: var(--moe-ink-body);
+  background-color: var(--moe-paper);
   line-height: 1.6;
   text-align: left;
 }
 
 h1,
 h2,
-h3 {
+h3,
+h4 {
   font-family: var(--moe-font-heading);
-  color: var(--moe-n900);
+  color: var(--moe-ink-tief);
 }
 
-h4,
 h5,
 h6 {
   font-family: var(--moe-font-body);
-  color: var(--moe-n900);
+  color: var(--moe-ink-tief);
 }
 
 a {
   color: var(--moe-text-orange);
   text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 a:hover {
@@ -95,9 +131,53 @@ a:hover {
 }
 
 blockquote {
-  font-family: var(--moe-font-quote);
-  font-style: italic;
-  color: var(--moe-warmton);
-  border-left: 4px solid var(--moe-n200);
+  font-family: var(--moe-font-body);
+  color: var(--moe-ink-body);
+  border-left: 3px solid var(--moe-petrol);
   padding-left: var(--moe-space-sm);
+}
+
+/* Ein Fokusbild fuer die ganze App. Kein Layout-Sprung, weil der Rahmen
+   als box-shadow nach innen liegt. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid #b2d1e0;
+  outline-offset: 1px;
+  box-shadow: inset 0 0 0 2px var(--moe-petrol);
+}
+
+/* Auf dunklem Grund traegt der Fokus die helle Signalfarbe. */
+.on-dark:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible,
+.on-dark :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline-color: var(--moe-signal-hell);
+  box-shadow: inset 0 0 0 2px var(--moe-signal-hell);
+}
+
+/* Haarlinien-Gitter: Zellen werden durch die Grundfarbe getrennt,
+   nicht durch Rahmen. Nur mit display:grid, nicht mit flex-wrap. */
+.hairline-grid {
+  display: grid;
+  gap: 1px;
+  background-color: var(--moe-rule);
+}
+
+.hairline-grid-dark {
+  display: grid;
+  gap: 1px;
+  background-color: var(--moe-hud-rule);
+}
+
+.tabular-mono {
+  font-family: var(--moe-font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

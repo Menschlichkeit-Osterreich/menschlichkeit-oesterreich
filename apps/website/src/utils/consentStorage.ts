@@ -1,6 +1,13 @@
 export const COOKIE_PREFERENCES_KEY = 'cookie-preferences';
 export const LEGACY_COOKIE_CONSENT_KEY = 'moe_cookie_consent';
 export const COOKIE_PREFERENCES_UPDATED_EVENT = 'moe:cookie-preferences-updated';
+export const OPEN_PRIVACY_CENTER_EVENT = 'moe:open-privacy-center';
+
+/** Öffnet das Datenschutz-Zentrum von überall aus (z. B. „Cookie-Einstellungen" im Footer). */
+export function requestPrivacyCenter(): void {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent(OPEN_PRIVACY_CENTER_EVENT));
+}
 
 export interface CookiePreferences {
   essential: boolean;

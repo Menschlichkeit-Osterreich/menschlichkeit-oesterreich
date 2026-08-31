@@ -36,6 +36,7 @@ export default function Home() {
     })
   );
   const [hud, setHud] = useState<GameHudState>(DEFAULT_HUD_STATE);
+  const [textModeOpen, setTextModeOpen] = useState(false);
   const [accessibleMission, setAccessibleMission] = useState<AccessibleMissionState>({
     enabled: false,
     stage: 'idle',
@@ -89,16 +90,21 @@ export default function Home() {
     };
   }, []);
 
-  useEffect(() => {
+  // Rollen- oder Levelwechsel setzt den Textmodus zurueck. Der Abgleich laeuft
+  // waehrend des Renderns statt in einem Effekt — sonst rendert React zweimal.
+  const missionKey = `${hud.activeRole.id}::${hud.activeScenario.id}`;
+  const [lastMissionKey, setLastMissionKey] = useState(missionKey);
+  if (missionKey !== lastMissionKey) {
+    setLastMissionKey(missionKey);
     setAccessibleMission({
       enabled: false,
       stage: 'idle',
       collected: 0,
       startedAt: null,
       outcome: null,
-      message: 'Rolle oder Szenario wurden geändert. Der lineare Textmodus ist wieder bereit.',
+      message: 'Rolle oder Level wurden geändert. Der Textmodus ist wieder bereit.',
     });
-  }, [hud.activeRole.id, hud.activeScenario.id]);
+  }
 
   const handlePrimaryAction = () => {
     if (!runtimeRef.current) {
@@ -121,6 +127,10 @@ export default function Home() {
 
   const handleScenarioSelect = (scenarioId: string) => {
     runtimeRef.current?.setActiveScenario(scenarioId);
+  };
+
+  const handleOpenTextMode = () => {
+    setTextModeOpen(true);
   };
 
   const accessibleCollectibleCount = Math.max(
@@ -265,15 +275,11 @@ export default function Home() {
   };
 
   return (
-    <main className="relative h-screen w-screen overflow-hidden bg-slate-950">
+    <main className="relative h-screen w-screen overflow-hidden bg-moe-ink-tief">
       <h1 className="sr-only">Brücken bauen – Demokratiespiel von Menschlichkeit Österreich</h1>
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(203,77,26,0.22),_transparent_0,_transparent_46%),linear-gradient(180deg,_#0b1f2f_0%,_#10293d_48%,_#190d07_100%)]"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-orange-500/10 via-sky-500/5 to-transparent"
+        className="absolute inset-0 bg-[linear-gradient(180deg,_#0D2B3A_0%,_#143B4D_58%,_#1C4A5E_100%)]"
       />
       <div id="game-canvas" className="absolute inset-0">
         <canvas
@@ -282,31 +288,38 @@ export default function Home() {
           aria-hidden="true"
         />
       </div>
-      <TouchControls visible={hud.phase === 'playing'} />
-      {hud.phase === 'loading' ? (
-        <div
-          className="pointer-events-none absolute inset-x-0 top-5 z-20 flex justify-center"
-          role="status"
-          aria-live="polite"
-        >
-          <div className="flex items-center gap-3 rounded-2xl border border-orange-400/25 bg-slate-950/80 px-4 py-2 text-sm text-amber-100 shadow-xl backdrop-blur">
-            <span
-              className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-amber-200/30 border-t-amber-300"
-              aria-hidden="true"
-            />
-            <span className="animate-pulse">Spielwelt wird geladen …</span>
+      <div aria-hidden={textModeOpen}>
+        <TouchControls visible={hud.phase === 'playing'} />
+        {hud.phase === 'loading' ? (
+          <div
+            className="pointer-events-none absolute inset-x-0 top-6 z-20 flex justify-center"
+            role="status"
+            aria-live="polite"
+          >
+            <div className="flex items-center gap-3 border border-moe-hud-rule bg-moe-hud px-4 py-2.5 font-mono text-[13px] uppercase tracking-[0.14em] text-moe-ink-on-dark">
+              <span
+                className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-moe-hud-rule-strong border-t-moe-signal-hell"
+                aria-hidden="true"
+              />
+              <span>Spielwelt wird geladen …</span>
+            </div>
           </div>
-        </div>
-      ) : null}
-      {hud.phase !== 'playing' ? (
-        <div className="pointer-events-none absolute bottom-4 right-4 max-w-xs rounded-2xl border border-orange-400/20 bg-slate-950/70 px-4 py-3 text-xs text-amber-50 shadow-xl backdrop-blur">
-          Kurzlogik: <span className="font-semibold">zuhören → verbinden → Treffpunkt öffnen</span>
-        </div>
-      ) : null}
+        ) : null}
+        <GameOverlay
+          hud={hud}
+          onPrimaryAction={handlePrimaryAction}
+          onRoleSelect={handleRoleSelect}
+          onScenarioSelect={handleScenarioSelect}
+          onToggleAudio={() => runtimeRef.current?.setAudioMuted(!hud.audioMuted)}
+          onTextMode={handleOpenTextMode}
+        />
+      </div>
       <AccessiblePanel
+        open={textModeOpen}
         hud={hud}
         accessibleMission={accessibleMission}
         accessibleCollectibleCount={accessibleCollectibleCount}
+        onExit={() => setTextModeOpen(false)}
         onRoleSelect={handleRoleSelect}
         onScenarioSelect={handleScenarioSelect}
         onAccessibleStart={handleAccessibleStart}
@@ -319,13 +332,6 @@ export default function Home() {
           }))
         }
         onBeaconOpen={() => void completeAccessibleMission('completed')}
-      />
-      <GameOverlay
-        hud={hud}
-        onPrimaryAction={handlePrimaryAction}
-        onRoleSelect={handleRoleSelect}
-        onScenarioSelect={handleScenarioSelect}
-        onToggleAudio={() => runtimeRef.current?.setAudioMuted(!hud.audioMuted)}
       />
     </main>
   );

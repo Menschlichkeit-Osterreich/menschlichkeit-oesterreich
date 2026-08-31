@@ -134,9 +134,9 @@ test.describe('Cookie Consent - Acceptance Tests', () => {
     await page.goto(BASE_URL);
     await page.waitForLoadState('networkidle');
 
-    // Click "Anpassen" / "Customize" button
+    // Click "Einstellungen" / "Anpassen" / "Customize" button
     const customizeButton = page.locator(
-      'button:has-text("Anpassen"), button:has-text("Customize")'
+      'button:has-text("Einstellungen"), button:has-text("Anpassen"), button:has-text("Customize")'
     );
     await customizeButton.click();
 

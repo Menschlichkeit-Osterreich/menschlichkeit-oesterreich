@@ -41,63 +41,20 @@ const DEFAULT_POSITIONS: ReadonlyArray<readonly [number, number, number]> = [
 	[-4, 1.1, -1],
 	[2, 1.1, -4],
 ];
-const DEFAULT_LABEL_PREFIX = "Energiering";
-const DEFAULT_PALETTE: CollectiblePalette = "gold";
+const DEFAULT_LABEL_PREFIX = "Impulsring";
+const DEFAULT_PALETTE: CollectiblePalette = "signal";
 
+// Welt 1: Orange ist ausschliesslich der Signalton fuer Interagierbares.
+// #D4611E ruhend, #EEA06F im Fokus.
 const PALETTE_PRESETS: Record<CollectiblePalette, {
 	diffuse: Color3;
 	defaultEmissive: Color3;
 	highlightEmissive: Color3;
 }> = {
-	gold: {
-		diffuse: new Color3(1, 0.72, 0.18),
-		defaultEmissive: new Color3(0.35, 0.16, 0.02),
-		highlightEmissive: new Color3(0.08, 0.8, 1),
-	},
-	violet: {
-		diffuse: new Color3(0.78, 0.54, 1),
-		defaultEmissive: new Color3(0.22, 0.08, 0.38),
-		highlightEmissive: new Color3(0.4, 1, 0.92),
-	},
-	teal: {
-		diffuse: new Color3(0.05, 0.58, 0.53),
-		defaultEmissive: new Color3(0.02, 0.17, 0.16),
-		highlightEmissive: new Color3(0.4, 0.91, 0.98),
-	},
-	amber: {
-		diffuse: new Color3(0.85, 0.47, 0.02),
-		defaultEmissive: new Color3(0.25, 0.13, 0.02),
-		highlightEmissive: new Color3(0.99, 0.9, 0.54),
-	},
-	rose: {
-		diffuse: new Color3(0.88, 0.11, 0.28),
-		defaultEmissive: new Color3(0.26, 0.03, 0.08),
-		highlightEmissive: new Color3(0.99, 0.64, 0.69),
-	},
-	emerald: {
-		diffuse: new Color3(0.06, 0.63, 0.36),
-		defaultEmissive: new Color3(0.02, 0.19, 0.11),
-		highlightEmissive: new Color3(0.43, 0.96, 0.68),
-	},
-	indigo: {
-		diffuse: new Color3(0.31, 0.27, 0.9),
-		defaultEmissive: new Color3(0.08, 0.07, 0.28),
-		highlightEmissive: new Color3(0.65, 0.72, 0.99),
-	},
-	fuchsia: {
-		diffuse: new Color3(0.85, 0.15, 0.55),
-		defaultEmissive: new Color3(0.25, 0.04, 0.15),
-		highlightEmissive: new Color3(0.97, 0.52, 0.82),
-	},
-	lime: {
-		diffuse: new Color3(0.4, 0.75, 0.12),
-		defaultEmissive: new Color3(0.12, 0.23, 0.03),
-		highlightEmissive: new Color3(0.75, 0.95, 0.36),
-	},
-	sky: {
-		diffuse: new Color3(0.03, 0.65, 0.91),
-		defaultEmissive: new Color3(0.02, 0.18, 0.27),
-		highlightEmissive: new Color3(0.49, 0.83, 1),
+	signal: {
+		diffuse: new Color3(0.831, 0.380, 0.118),
+		defaultEmissive: new Color3(0.216, 0.087, 0.024),
+		highlightEmissive: new Color3(0.933, 0.627, 0.435),
 	},
 };
 const INTERACTION_RADIUS = 1.6;

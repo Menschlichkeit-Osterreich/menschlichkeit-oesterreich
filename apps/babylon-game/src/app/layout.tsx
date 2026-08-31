@@ -1,18 +1,25 @@
 import type { Metadata } from 'next';
-import { Nunito_Sans, Source_Sans_3 } from 'next/font/google';
+import { Familjen_Grotesk, IBM_Plex_Mono, IBM_Plex_Sans } from 'next/font/google';
 import './globals.css';
 
-const nunitoSans = Nunito_Sans({
+const familjenGrotesk = Familjen_Grotesk({
   subsets: ['latin', 'latin-ext'],
-  weight: ['400', '600', '700', '800'],
-  variable: '--font-nunito-sans',
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-familjen-grotesk',
   display: 'swap',
 });
 
-const sourceSans3 = Source_Sans_3({
+const ibmPlexSans = IBM_Plex_Sans({
   subsets: ['latin', 'latin-ext'],
-  weight: ['400', '600', '700'],
-  variable: '--font-source-sans-3',
+  weight: ['400', '500', '600'],
+  variable: '--font-ibm-plex-sans',
+  display: 'swap',
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ['latin', 'latin-ext'],
+  weight: ['400', '500'],
+  variable: '--font-ibm-plex-mono',
   display: 'swap',
 });
 
@@ -32,11 +39,14 @@ export const viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="de-AT" className={`${nunitoSans.variable} ${sourceSans3.variable}`}>
+    <html
+      lang="de-AT"
+      className={`${familjenGrotesk.variable} ${ibmPlexSans.variable} ${ibmPlexMono.variable}`}
+    >
       <body>
         <a
           href="#game-canvas"
-          className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded-lg focus:bg-orange-500 focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-slate-950"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-3 focus:top-3 focus:z-50 focus:rounded-sm focus:bg-moe-ink-tief focus:px-4 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-moe-paper"
         >
           Zum Spiel springen
         </a>

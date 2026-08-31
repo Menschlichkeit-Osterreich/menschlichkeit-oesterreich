@@ -17,7 +17,7 @@ export default function Game3DScene({ progress = 0, onInteract }: Game3DScenePro
     <button
       type="button"
       onClick={onInteract}
-      className="group relative w-full overflow-hidden rounded-[28px] border border-white/15 bg-accent-950 text-left shadow-2xl transition-transform hover:-translate-y-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+      className="group relative w-full overflow-hidden rounded-[28px] border border-white/15 bg-accent-950 text-left shadow-2xl transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
       style={{ aspectRatio: '16 / 10' }}
       data-pa11y-game="scene"
       aria-label="Babylon.js-Spiel auf games.menschlichkeit-oesterreich.at öffnen"

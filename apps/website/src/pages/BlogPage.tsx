@@ -47,7 +47,7 @@ function ArticleCard({ article, featured = false }: { article: BlogArticle; feat
   return (
     <Link
       className={[
-        'group overflow-hidden rounded-[1.75rem] border border-secondary-200 bg-white shadow-sm transition-all hover:-translate-y-1 hover:border-primary-300 hover:shadow-xl',
+        'group overflow-hidden rounded-[1.75rem] border border-secondary-200 bg-white shadow-sm transition-all hover:border-primary-300 ',
         featured ? 'grid gap-0 lg:grid-cols-[1.15fr_0.85fr]' : 'flex h-full flex-col',
       ].join(' ')}
       to={`/blog/${article.id}`}

@@ -55,7 +55,7 @@ export default function ThemenIndex() {
               <Link
                 key={thema.slug}
                 to={thema.slug}
-                className={`block rounded-xl border p-6 hover:shadow-md transition-shadow ${thema.color}`}
+                className={`block rounded-xl border p-6 transition-shadow ${thema.color}`}
               >
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-4 ${thema.iconBg}`}>
                   <span className="text-2xl">{thema.icon}</span>

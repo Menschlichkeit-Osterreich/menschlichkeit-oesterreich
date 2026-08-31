@@ -16,15 +16,15 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const showRequiredIndicator = Boolean(label && props.required);
 
     const ringByState: Record<State, string> = {
-      default: 'focus:border-primary-500 focus:ring-primary-500 border-secondary-300',
-      success: 'focus:border-success-500 focus:ring-success-500 border-success-300',
-      warning: 'focus:border-warning-500 focus:ring-warning-500 border-warning-300',
-      error: 'focus:border-error-500 focus:ring-error-500 border-error-300',
+      default: 'border-paper-rule hover:border-ink-subtle',
+      success: 'border-2 border-success-600',
+      warning: 'border-2 border-warning-500',
+      error: 'border-2 border-error-600',
     };
     return (
       <div className="w-full">
         {label && (
-          <label htmlFor={inputId} className="mb-1 block text-sm font-medium text-secondary-700">
+          <label htmlFor={inputId} className="mb-1.5 block text-sm font-semibold text-ink-body">
             <span>{label}</span>
             {showRequiredIndicator && (
               <>
@@ -43,20 +43,20 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           aria-required={props.required || undefined}
           aria-describedby={describedBy}
           className={[
-            'block w-full rounded-md bg-white px-3 py-2 text-sm text-secondary-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-0',
+            'block w-full min-h-[52px] rounded-sm border bg-white px-4 py-3 text-base text-ink-deep transition-colors duration-150',
             ringByState[state],
-            'disabled:bg-secondary-50 disabled:text-secondary-500',
+            'disabled:bg-paper-rule-faint disabled:text-ink-subtle',
             className,
           ].join(' ')}
           {...props}
         />
         {(state === 'error' && (error || helperText)) && (
-          <p id={describedBy} className="mt-1 text-sm text-error-600">
+          <p id={describedBy} className="mt-1.5 text-sm text-error-700">
             {error || helperText}
           </p>
         )}
         {state !== 'error' && helperText && (
-          <p id={describedBy} className="mt-1 text-sm text-secondary-600">
+          <p id={describedBy} className="mt-1.5 text-sm text-ink-muted">
             {helperText}
           </p>
         )}

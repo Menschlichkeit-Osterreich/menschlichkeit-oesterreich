@@ -79,7 +79,7 @@ function EventCard({ event, onRsvp }: { event: Event; onRsvp: (id: number) => vo
   const fillPercent = Math.round((event.currentParticipants / event.maxParticipants) * 100);
 
   return (
-    <Card className={`p-6 flex flex-col gap-4 hover:shadow-lg transition-shadow ${event.isFeatured ? 'ring-2 ring-primary-500' : ''}`}>
+    <Card className={`p-6 flex flex-col gap-4 transition-shadow ${event.isFeatured ? 'ring-2 ring-primary-500' : ''}`}>
       {event.isFeatured && (
         <span className="text-xs font-semibold text-primary-700 bg-primary-50 px-2 py-1 rounded-full w-fit">
           Empfohlen

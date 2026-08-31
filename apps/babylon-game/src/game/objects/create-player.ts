@@ -34,8 +34,9 @@ export function createPlayer(scene: Scene): PlayerActor {
 	mesh.ellipsoidOffset = new Vector3(0, 0.8, 0);
 
 	const material = new StandardMaterial("player-material", scene);
-	material.diffuseColor = new Color3(0.09, 0.55, 0.96);
-	material.emissiveColor = new Color3(0.02, 0.08, 0.14);
+	// Jackenpetrol #1B4965 — die Figur traegt kein Orange, das bleibt Interagierbarem vorbehalten.
+	material.diffuseColor = new Color3(0.106, 0.286, 0.396);
+	material.emissiveColor = new Color3(0.02, 0.05, 0.07);
 	mesh.material = material;
 
 	const spawnPoint = mesh.position.clone();
