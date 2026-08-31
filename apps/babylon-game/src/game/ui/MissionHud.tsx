@@ -58,7 +58,7 @@ export function MissionBriefing({ hud }: { hud: GameHudState }) {
 
   return (
     <section
-      className="w-[320px] border border-moe-hud-rule bg-moe-hud px-4 py-3.5"
+      className="w-full border border-moe-hud-rule bg-moe-hud px-4 py-3.5 sm:w-[320px]"
       role="status"
       aria-live="polite"
       aria-label="Auftrag"

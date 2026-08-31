@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { getScenarioLevelNumber, ROADMAP_LIVE_LEVELS } from '@/game/scenarios/scenario-model';
 import type { GameHudState } from '@/game/state/game-types';
@@ -76,6 +76,8 @@ export function AccessiblePanel({
   onCoreShift: () => void;
   onBeaconOpen: () => void;
 }) {
+  const panelRef = useRef<HTMLDivElement>(null);
+
   const completedLiveLevels = hud.completedScenarioIds.reduce((count, scenarioId) => {
     const mappedLevel = getScenarioLevelNumber(scenarioId);
     return typeof mappedLevel === 'number' ? count + 1 : count;
@@ -90,7 +92,7 @@ export function AccessiblePanel({
       index: 1,
       stage: 'idle',
       title: 'Runde eröffnen',
-      detail: `${hud.activeScenario.title} im Textmodus starten. Es läuft keine Zeit mit.`,
+      detail: `${hud.activeScenario.title} im Textmodus starten. Es läuft keine Zeit gegen dich.`,
       actionLabel: 'Runde eröffnen',
       onAction: onAccessibleStart,
     },
@@ -150,17 +152,28 @@ export function AccessiblePanel({
     return () => window.removeEventListener('keydown', handleKeyDown);
   });
 
+  // Beim Wechsel in den Textmodus wandert der Fokus in das Panel. Ohne das
+  // bliebe er auf dem Schalter der 3D-Ansicht, die gerade inert geschaltet wird.
+  useEffect(() => {
+    if (open) {
+      panelRef.current?.focus();
+    }
+  }, [open]);
+
   if (!open) {
     return null;
   }
-
   const collectPercent =
     accessibleCollectibleCount > 0
       ? Math.round((accessibleMission.collected / accessibleCollectibleCount) * 100)
       : 0;
 
   return (
-    <div className="fixed inset-0 z-40 overflow-y-auto bg-moe-paper">
+    <div
+      ref={panelRef}
+      tabIndex={-1}
+      className="fixed inset-0 z-40 overflow-y-auto bg-moe-paper focus:outline-none"
+    >
       <header className="flex h-[76px] items-center justify-between gap-4 bg-moe-ink px-6">
         <div>
           <p className="font-mono text-[12px] uppercase tracking-[0.16em] text-moe-signal-hell">

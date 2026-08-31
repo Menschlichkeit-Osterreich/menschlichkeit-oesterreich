@@ -23,6 +23,7 @@ interface AccessibleMissionState {
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const runtimeRef = useRef<GameRuntime | null>(null);
+  const textModeTriggerRef = useRef<HTMLElement | null>(null);
   const dataAdapterRef = useRef(
     createGameDataAdapter({
       source:
@@ -130,7 +131,15 @@ export default function Home() {
   };
 
   const handleOpenTextMode = () => {
+    textModeTriggerRef.current = document.activeElement as HTMLElement | null;
     setTextModeOpen(true);
+  };
+
+  const handleCloseTextMode = () => {
+    setTextModeOpen(false);
+    // Erst nach dem Commit ist die 3D-Ansicht wieder bedienbar. Dann darf der
+    // Fokus zurueck auf den Schalter, der den Textmodus geoeffnet hat.
+    requestAnimationFrame(() => textModeTriggerRef.current?.focus());
   };
 
   const accessibleCollectibleCount = Math.max(
@@ -179,13 +188,15 @@ export default function Home() {
 
   const completeAccessibleMission = async (outcome: 'completed' | 'failed') => {
     const startedAt = accessibleMission.startedAt ?? Date.now();
-    const elapsedSeconds = Math.min(
-      Math.round((Date.now() - startedAt) / 1000),
-      hud.activeScenario.timeLimitSeconds
-    );
+    // Der Textmodus laeuft bewusst ohne Zeitdruck. Die tatsaechliche Dauer wird
+    // ungekappt festgehalten, damit sie ehrlich bleibt.
+    const elapsedSeconds = Math.max(0, Math.round((Date.now() - startedAt) / 1000));
     const collected =
       outcome === 'completed' ? accessibleCollectibleCount : accessibleMission.collected;
-    const remainingSeconds = Math.max(hud.activeScenario.timeLimitSeconds - elapsedSeconds, 0);
+    // Im Textmodus wird kein Zeitbudget verbraucht. Wuerde hier die verstrichene
+    // Zeit abgezogen, saehe jede laengere — auch erfolgreiche — Runde wie ein
+    // Timeout mit null Restsekunden aus.
+    const remainingSeconds = hud.activeScenario.timeLimitSeconds;
     const result = {
       missionId: hud.mission.id,
       missionTitle: hud.mission.title,
@@ -288,7 +299,7 @@ export default function Home() {
           aria-hidden="true"
         />
       </div>
-      <div aria-hidden={textModeOpen}>
+      <div inert={textModeOpen}>
         <TouchControls visible={hud.phase === 'playing'} />
         {hud.phase === 'loading' ? (
           <div
@@ -319,7 +330,7 @@ export default function Home() {
         hud={hud}
         accessibleMission={accessibleMission}
         accessibleCollectibleCount={accessibleCollectibleCount}
-        onExit={() => setTextModeOpen(false)}
+        onExit={handleCloseTextMode}
         onRoleSelect={handleRoleSelect}
         onScenarioSelect={handleScenarioSelect}
         onAccessibleStart={handleAccessibleStart}

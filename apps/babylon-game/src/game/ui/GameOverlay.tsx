@@ -33,28 +33,29 @@ export function GameOverlay({
 
   return (
     <div className="pointer-events-none absolute inset-0">
-      {/* Zone oben links */}
-      <div className="absolute left-6 top-6 z-10">
-        {showInGameHud ? (
-          <MissionBriefing hud={hud} />
-        ) : (
-          <p className="border border-moe-hud-rule bg-moe-hud px-4 py-2.5 font-mono text-[12px] uppercase tracking-[0.16em] text-moe-ink-on-dark">
-            Menschlichkeit Österreich · {hud.activeScenario.title}
-          </p>
-        )}
-      </div>
+      {/* Oberes Band: auf Telefonen gestapelt, ab sm in den beiden Ecken */}
+      <div className="absolute inset-x-4 top-4 z-10 flex flex-col gap-2.5 sm:inset-x-6 sm:top-6 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+        <div className="min-w-0">
+          {showInGameHud ? (
+            <MissionBriefing hud={hud} />
+          ) : (
+            <p className="border border-moe-hud-rule bg-moe-hud px-4 py-2.5 font-mono text-[12px] uppercase tracking-[0.16em] text-moe-ink-on-dark">
+              Menschlichkeit Österreich · {hud.activeScenario.title}
+            </p>
+          )}
+        </div>
 
-      {/* Zone oben rechts */}
-      <div className="absolute right-6 top-6 z-10 flex flex-col items-end gap-2.5">
-        {showInGameHud ? <TimeRemaining hud={hud} /> : null}
-        <button
-          type="button"
-          onClick={onToggleAudio}
-          aria-pressed={hud.audioMuted}
-          className="pointer-events-auto border border-moe-hud-rule bg-moe-hud px-3.5 py-2 font-mono text-[12px] uppercase tracking-[0.16em] text-moe-ink-on-dark transition-colors duration-moe ease-moe hover:text-moe-paper"
-        >
-          {hud.audioMuted ? 'Ton aus' : 'Ton an'}
-        </button>
+        <div className="flex shrink-0 items-center justify-end gap-2.5 sm:flex-col sm:items-end">
+          {showInGameHud ? <TimeRemaining hud={hud} /> : null}
+          <button
+            type="button"
+            onClick={onToggleAudio}
+            aria-pressed={hud.audioMuted}
+            className="pointer-events-auto border border-moe-hud-rule bg-moe-hud px-3.5 py-2 font-mono text-[12px] uppercase tracking-[0.16em] text-moe-ink-on-dark transition-colors duration-moe ease-moe hover:text-moe-paper"
+          >
+            {hud.audioMuted ? 'Ton aus' : 'Ton an'}
+          </button>
+        </div>
       </div>
 
       {/* Zone unten links */}

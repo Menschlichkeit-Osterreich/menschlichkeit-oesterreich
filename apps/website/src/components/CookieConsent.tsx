@@ -82,7 +82,7 @@ export default function CookieConsent({ onCustomize }: CookieConsentProps) {
   return (
     <section
       data-testid="cookie-consent-banner"
-      className="fixed bottom-0 inset-x-0 z-50 border-t-[3px] border-ink-surface bg-white"
+      className="fixed bottom-0 inset-x-0 z-50 max-h-[85dvh] overflow-y-auto overscroll-contain border-t-[3px] border-ink-surface bg-white"
       role="region"
       aria-labelledby="cookie-consent-title"
       aria-describedby="cookie-consent-description"
