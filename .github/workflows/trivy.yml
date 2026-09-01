@@ -162,6 +162,7 @@ jobs:
             image \
             --severity CRITICAL,HIGH \
             --ignore-unfixed \
+            --sbom-sources "" \
             --format sarif \
             --output /repo/trivy-container-results.sarif \
             --exit-code 1 \
