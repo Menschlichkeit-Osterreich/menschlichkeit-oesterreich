@@ -40,6 +40,7 @@ jobs:
             --scanners vuln,secret,config \
             --severity CRITICAL,HIGH \
             --ignore-unfixed \
+            --ignorefile /repo/.trivyignore.yaml \
             --format sarif \
             --output /repo/trivy-fs-results.sarif \
             --exit-code 1 \
@@ -95,6 +96,7 @@ jobs:
             aquasec/trivy:0.74.0 \
             config \
             --severity CRITICAL,HIGH \
+            --ignorefile /repo/.trivyignore.yaml \
             --format sarif \
             --output /repo/trivy-config-results.sarif \
             --exit-code 1 \

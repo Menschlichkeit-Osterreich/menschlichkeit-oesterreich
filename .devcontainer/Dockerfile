@@ -94,3 +94,10 @@ RUN set -eu; \
     fi; \
     fi; \
     fi
+
+# Non-root default user (CIS Docker Benchmark 4.1 / Trivy DS-0002).
+# "codespace" wird vom Basis-Image mcr.microsoft.com/devcontainers/universal:2
+# bereitgestellt und ist bereits der remoteUser in devcontainer.json.
+# Dev Container Features werden vom Builder weiterhin als root installiert und
+# stellen diesen USER danach wieder her.
+USER codespace
