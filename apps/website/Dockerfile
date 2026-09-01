@@ -14,8 +14,14 @@ RUN npm ci
 COPY . ./
 RUN npm run build
 
-FROM nginx:alpine@sha256:7e89aa6cabfc80f566b1b77b981f4bb98413bd2d513ca9a30f63fe58b4af6903 AS runner
-COPY --from=build /app/dist /usr/share/nginx/html
+FROM nginxinc/nginx-unprivileged:alpine@sha256:d9083fe47768377ef55dedafd67d4da7c2f2bc2bece7554954f29359deb0dce9 AS runner
+# nginx-unprivileged laeuft per Default als non-root User "nginx" (UID 101) und
+# lauscht auf 8080 statt 80 (CIS Docker Benchmark 4.1 / Trivy DS-0002).
+# Damit passen EXPOSE und HEALTHCHECK erstmals zum tatsaechlichen Listen-Port.
+COPY --from=build --chown=101:101 /app/dist /usr/share/nginx/html
+# Expliziter non-root USER: DS-0002 wertet die Dockerfile-Instruktionen statisch
+# aus und kennt den Default-User des Basis-Image nicht. UID 101 = "nginx".
+USER 101
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1
 CMD ["nginx", "-g", "daemon off;"]
