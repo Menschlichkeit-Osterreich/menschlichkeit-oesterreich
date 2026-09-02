@@ -73,7 +73,7 @@ export function EventsList({ limit = 6, className = '' }: EventsListProps) {
   return (
     <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 ${className}`}>
       {events.map((event) => (
-        <Card key={event.id} className="p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
+        <Card key={event.id} className="p-5 flex flex-col gap-3 transition-shadow">
           <div>
             <span className="text-xs font-medium text-primary-600 uppercase tracking-wide">
               {formatDate(event.start_date ?? event.start_datum ?? '')}

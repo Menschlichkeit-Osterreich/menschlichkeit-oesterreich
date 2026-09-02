@@ -41,6 +41,8 @@ function applyMaterialColor(
 }
 
 export function applyScenarioEnvironmentTheme(scene: Scene, scenario: GameScenario) {
+  // Welt 1 — Gemeindeplatz. Eine Arena, eine Palette.
+  // Grund #143B4D, Platzpflaster #1C4A5E, Häuserzeile #6F6259.
   const themeMap: Record<
     GameScenario['visualTheme'],
     {
@@ -53,54 +55,18 @@ export function applyScenarioEnvironmentTheme(scene: Scene, scenario: GameScenar
       wallEmissive: Color3;
     }
   > = {
-    training: {
-      clear: new Color4(0.05, 0.1, 0.14, 1),
+    'welt1-gemeindeplatz': {
+      clear: new Color4(0.051, 0.169, 0.227, 1),
       fogDensity: 0.004,
-      fogColor: new Color3(0.08, 0.14, 0.18),
-      groundDiffuse: new Color3(0.13, 0.22, 0.24),
-      groundEmissive: new Color3(0.02, 0.08, 0.09),
-      wallDiffuse: new Color3(0.24, 0.19, 0.26),
-      wallEmissive: new Color3(0.03, 0.03, 0.06),
-    },
-    resonance: {
-      clear: new Color4(0.07, 0.05, 0.12, 1),
-      fogDensity: 0.008,
-      fogColor: new Color3(0.16, 0.08, 0.22),
-      groundDiffuse: new Color3(0.18, 0.12, 0.24),
-      groundEmissive: new Color3(0.06, 0.02, 0.12),
-      wallDiffuse: new Color3(0.3, 0.16, 0.38),
-      wallEmissive: new Color3(0.08, 0.02, 0.12),
-    },
-    gehoor: {
-      clear: new Color4(0.03, 0.12, 0.14, 1),
-      fogDensity: 0.005,
-      fogColor: new Color3(0.05, 0.2, 0.22),
-      groundDiffuse: new Color3(0.08, 0.26, 0.24),
-      groundEmissive: new Color3(0.02, 0.1, 0.1),
-      wallDiffuse: new Color3(0.12, 0.36, 0.36),
-      wallEmissive: new Color3(0.03, 0.12, 0.12),
-    },
-    kompromiss: {
-      clear: new Color4(0.12, 0.09, 0.05, 1),
-      fogDensity: 0.0055,
-      fogColor: new Color3(0.24, 0.17, 0.09),
-      groundDiffuse: new Color3(0.29, 0.2, 0.11),
-      groundEmissive: new Color3(0.1, 0.06, 0.02),
-      wallDiffuse: new Color3(0.42, 0.28, 0.14),
-      wallEmissive: new Color3(0.13, 0.07, 0.03),
-    },
-    beschluss: {
-      clear: new Color4(0.12, 0.04, 0.08, 1),
-      fogDensity: 0.006,
-      fogColor: new Color3(0.24, 0.08, 0.14),
-      groundDiffuse: new Color3(0.28, 0.08, 0.16),
-      groundEmissive: new Color3(0.1, 0.03, 0.06),
-      wallDiffuse: new Color3(0.43, 0.12, 0.22),
-      wallEmissive: new Color3(0.14, 0.04, 0.08),
+      fogColor: new Color3(0.078, 0.231, 0.302),
+      groundDiffuse: new Color3(0.11, 0.29, 0.369),
+      groundEmissive: new Color3(0.012, 0.035, 0.047),
+      wallDiffuse: new Color3(0.435, 0.384, 0.349),
+      wallEmissive: new Color3(0.024, 0.02, 0.016),
     },
   };
 
-  const theme = themeMap[scenario.visualTheme] ?? themeMap.training;
+  const theme = themeMap[scenario.visualTheme] ?? themeMap['welt1-gemeindeplatz'];
   scene.clearColor = theme.clear;
   scene.fogMode = Scene.FOGMODE_EXP2;
   scene.fogDensity = theme.fogDensity;

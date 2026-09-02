@@ -290,7 +290,7 @@ export default function MemberManagementPage() {
                   onClick={() => setSelectedContactId(contact.contactId)}
                   className={[
                     'p-4 transition-all',
-                    selected ? 'border-primary-300 bg-primary-50 shadow-md' : 'hover:border-secondary-300 hover:shadow-md',
+                    selected ? 'border-primary-300 bg-primary-50 shadow-md' : 'hover:border-secondary-300 ',
                   ].join(' ')}
                 >
                   <div className="flex items-start justify-between gap-3">

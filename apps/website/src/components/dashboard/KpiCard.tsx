@@ -43,7 +43,7 @@ export const KpiCard: React.FC<KpiCardProps> = ({
   }
 
   return (
-    <div className={`rounded-lg border p-6 ${variantClasses[variant]} transition-all hover:shadow-md`}>
+    <div className={`rounded-lg border p-6 ${variantClasses[variant]} transition-all `}>
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <p className="text-sm font-medium text-gray-600 mb-1">{title}</p>

@@ -86,7 +86,7 @@ export default function SpielPage() {
                     <Link
                       key={link.label}
                       to={link.href}
-                      className="rounded-2xl bg-white px-6 py-3 text-center text-base font-bold text-primary-700 shadow-lg transition-all hover:-translate-y-0.5 hover:bg-primary-50"
+                      className="rounded-2xl bg-white px-6 py-3 text-center text-base font-bold text-primary-700 shadow-lg transition-all hover:bg-primary-50"
                     >
                       {link.label}
                     </Link>
@@ -96,7 +96,7 @@ export default function SpielPage() {
                       href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="rounded-2xl bg-white px-6 py-3 text-center text-base font-bold text-primary-700 shadow-lg transition-all hover:-translate-y-0.5 hover:bg-primary-50"
+                      className="rounded-2xl bg-white px-6 py-3 text-center text-base font-bold text-primary-700 shadow-lg transition-all hover:bg-primary-50"
                     >
                       {link.label}
                     </a>
@@ -181,7 +181,7 @@ export default function SpielPage() {
               {THEMENWELTEN.map(welt => (
                 <article
                   key={welt}
-                  className="rounded-3xl border border-secondary-200 bg-secondary-50 p-5 shadow-sm transition-transform hover:-translate-y-0.5"
+                  className="rounded-3xl border border-secondary-200 bg-secondary-50 p-5 shadow-sm transition-transform "
                 >
                   <h3 className="text-base font-bold text-secondary-900">{welt}</h3>
                   <p className="mt-2 text-sm leading-7 text-secondary-600">
@@ -241,13 +241,13 @@ export default function SpielPage() {
                 href={GAMES_SITE_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-2xl bg-white px-8 py-3 text-base font-bold text-primary-700 shadow-lg transition-all hover:-translate-y-0.5 hover:bg-primary-50"
+                className="rounded-2xl bg-white px-8 py-3 text-base font-bold text-primary-700 shadow-lg transition-all hover:bg-primary-50"
               >
                 Spiel starten
               </a>
               <Link
                 to="/bildung"
-                className="rounded-2xl border border-white/30 bg-white/10 px-8 py-3 text-base font-semibold text-white backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-white/15"
+                className="rounded-2xl border border-white/30 bg-white/10 px-8 py-3 text-base font-semibold text-white backdrop-blur-sm transition-all hover:bg-white/15"
               >
                 Bildungsarbeit ansehen
               </Link>

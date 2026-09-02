@@ -1,9 +1,46 @@
-import React from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import NavBar from '../components/NavBar';
 import JsonLdOrganization from '../components/seo/JsonLdOrganization';
 import JsonLdWebsite from '../components/seo/JsonLdWebsite';
-import { CONTACT_EMAIL, LEGAL_DOCS, LEGAL_FACTS, WHATSAPP_URL } from '../config/siteConfig';
+import {
+  CONTACT_EMAIL,
+  LEGAL_DOCS,
+  LEGAL_FACTS,
+  POSTAL_ADDRESS,
+  WHATSAPP_URL,
+} from '../config/siteConfig';
+import { requestPrivacyCenter } from '../utils/consentStorage';
+
+const footerLinkClass =
+  'w-fit text-[15px] text-ink-on-dark transition-colors hover:text-white hover:underline hover:underline-offset-4';
+
+const columnHeadingClass =
+  'mb-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-on-dark-muted';
+
+const NAVIGATION_LINKS = [
+  { to: '/mitglied-werden', label: 'Mitglied werden' },
+  { to: '/spenden', label: 'Spenden' },
+  { to: '/themen', label: 'Themen' },
+  { to: '/veranstaltungen', label: 'Veranstaltungen' },
+  { to: '/bildung', label: 'Bildung' },
+  { to: '/blog', label: 'Neuigkeiten' },
+  { to: '/forum', label: 'Forum' },
+];
+
+const ORGANISATION_LINKS = [
+  { to: '/ueber-uns', label: 'Über uns' },
+  { to: '/team', label: 'Team' },
+  { to: '/transparenz', label: 'Transparenz' },
+  { to: '/presse', label: 'Presse' },
+  { to: '/kontakt', label: 'Kontakt' },
+];
+
+const LEGAL_LINKS = [
+  { to: '/datenschutz', label: 'Datenschutz' },
+  { to: '/impressum', label: 'Impressum' },
+  { to: '/statuten', label: 'Statuten' },
+  { to: '/beitragsordnung', label: 'Beitragsordnung' },
+];
 
 export default function PublicLayout() {
   const year = new Date().getFullYear();
@@ -15,13 +52,16 @@ export default function PublicLayout() {
       <main className="flex-1" id="main">
         <Outlet />
       </main>
-      <footer className="mt-auto bg-secondary-900 text-secondary-200" role="contentinfo" aria-label="Seitenfooter">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
-
-            {/* Brand column */}
+      <footer
+        className="mt-auto bg-ink-surface text-ink-on-dark"
+        role="contentinfo"
+        aria-label="Seitenfooter"
+      >
+        <div className="mx-auto max-w-[1280px] px-5 py-14 sm:px-10">
+          <div className="mb-12 grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_1fr]">
+            {/* Verein */}
             <div>
-              <Link to="/" className="flex items-center gap-3 mb-4 group w-fit">
+              <Link to="/" className="mb-5 flex w-fit items-center gap-3">
                 <img
                   src="/logo.jpg"
                   alt="Menschlichkeit Österreich Logo"
@@ -29,104 +69,112 @@ export default function PublicLayout() {
                   height={960}
                   loading="lazy"
                   decoding="async"
-                  className="h-12 w-12 rounded-full object-cover ring-2 ring-secondary-700 group-hover:ring-primary-500 transition-all"
+                  className="h-10 w-10 object-cover"
                 />
-                <div>
-                  <span className="block text-xs uppercase tracking-wider text-secondary-300">Verein</span>
-                  <span className="block font-bold text-white group-hover:text-primary-400 transition-colors">
+                <span>
+                  <span className="block text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-on-dark-muted">
+                    Verein
+                  </span>
+                  <span className="block font-heading text-[17px] font-semibold text-white">
                     Menschlichkeit Österreich
                   </span>
-                </div>
+                </span>
               </Link>
-              <p className="mb-3 text-sm leading-relaxed text-secondary-200">
-                Initiative für soziale Gerechtigkeit, demokratische Teilhabe und ökologische Verantwortung in Österreich.
+              <p className="mb-4 max-w-[38ch] text-[15px] leading-relaxed text-ink-on-dark">
+                Initiative für soziale Gerechtigkeit, demokratische Teilhabe und ökologische
+                Verantwortung in Österreich.
               </p>
-              <p className="text-xs text-secondary-300">
-                <Link to="/transparenz" className="transition-colors hover:text-white">ZVR: {LEGAL_FACTS.zvr}</Link> · Gegründet: {LEGAL_FACTS.foundingDateLabel}
-              </p>
+              <address className="not-italic text-[15px] leading-relaxed text-ink-on-dark-muted">
+                {POSTAL_ADDRESS.streetAddress}
+                <br />
+                {POSTAL_ADDRESS.postalCode} {POSTAL_ADDRESS.addressLocality}
+              </address>
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                className="mt-3 inline-block break-all text-[15px] font-semibold text-primary-300 transition-colors hover:text-white"
+              >
+                {CONTACT_EMAIL}
+              </a>
             </div>
 
-            {/* Navigation column */}
+            {/* Navigation */}
             <div>
-              <h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-secondary-200">Navigation</h3>
+              <h3 className={columnHeadingClass}>Navigation</h3>
               <nav className="flex flex-col gap-2.5" aria-label="Footer-Navigation">
-                {[
-                  { to: '/mitglied-werden', label: 'Mitglied werden' },
-                  { to: '/spenden', label: 'Spenden' },
-                  { to: '/themen', label: 'Themen' },
-                  { to: '/veranstaltungen', label: 'Veranstaltungen' },
-                  { to: '/bildung', label: 'Bildung' },
-                  { to: '/blog', label: 'Neuigkeiten' },
-                  { to: '/forum', label: 'Forum' },
-                  { to: '/ueber-uns', label: 'Über uns' },
-                  { to: '/team', label: 'Team' },
-                  { to: '/transparenz', label: 'Transparenz' },
-                  { to: '/presse', label: 'Presse' },
-                ].map((l) => (
-                  <Link
-                    key={l.to}
-                    to={l.to}
-                    className="w-fit text-sm text-secondary-200 transition-colors hover:text-white"
-                  >
+                {NAVIGATION_LINKS.map((l) => (
+                  <Link key={l.to} to={l.to} className={footerLinkClass}>
                     {l.label}
                   </Link>
                 ))}
               </nav>
             </div>
 
-            {/* Legal & Contact column */}
+            {/* Verein & Transparenz */}
             <div>
-              <h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-secondary-200">Rechtliches &amp; Kontakt</h3>
-              <nav className="flex flex-col gap-2.5 mb-5" aria-label="Rechtliche Links">
-                {[
-                  { to: '/datenschutz', label: 'Datenschutz' },
-                  { to: '/impressum', label: 'Impressum' },
-                  { to: '/kontakt', label: 'Kontakt' },
-                  { to: '/statuten', label: 'Statuten' },
-                  { to: '/beitragsordnung', label: 'Beitragsordnung' },
-                ].map((l) => (
-                  <Link
-                    key={l.to}
-                    to={l.to}
-                    className="w-fit text-sm text-secondary-200 transition-colors hover:text-white"
-                  >
+              <h3 className={columnHeadingClass}>Verein</h3>
+              <nav className="flex flex-col gap-2.5" aria-label="Vereinsinformationen">
+                {ORGANISATION_LINKS.map((l) => (
+                  <Link key={l.to} to={l.to} className={footerLinkClass}>
                     {l.label}
                   </Link>
                 ))}
-              </nav>
-              <div>
-                <p className="mb-0.5 text-xs text-secondary-300">Pottenbrunner Hauptstraße 108/Top 1</p>
-                <p className="mb-3 text-xs text-secondary-300">3140 Pottenbrunn</p>
                 <a
-                  href={`mailto:${CONTACT_EMAIL}`}
-                  className="break-all text-sm text-primary-300 transition-colors hover:text-primary-200"
+                  href={WHATSAPP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={footerLinkClass}
                 >
-                  {CONTACT_EMAIL}
+                  WhatsApp kontaktieren
                 </a>
-                <div className="mt-3 flex flex-col gap-2 text-sm">
-                  <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer" className="text-secondary-200 transition-colors hover:text-white">
-                    WhatsApp kontaktieren
-                  </a>
-                  <a href={LEGAL_DOCS.statutes.href} target="_blank" rel="noopener noreferrer" className="text-secondary-200 transition-colors hover:text-white">
-                    {LEGAL_DOCS.statutes.label}
-                  </a>
-                  <a href={LEGAL_DOCS.registerExcerpt.href} target="_blank" rel="noopener noreferrer" className="text-secondary-200 transition-colors hover:text-white">
-                    {LEGAL_DOCS.registerExcerpt.label}
-                  </a>
-                </div>
-              </div>
+              </nav>
+            </div>
+
+            {/* Rechtliches */}
+            <div>
+              <h3 className={columnHeadingClass}>Rechtliches</h3>
+              <nav className="flex flex-col gap-2.5" aria-label="Rechtliche Links">
+                {LEGAL_LINKS.map((l) => (
+                  <Link key={l.to} to={l.to} className={footerLinkClass}>
+                    {l.label}
+                  </Link>
+                ))}
+                <button
+                  type="button"
+                  onClick={requestPrivacyCenter}
+                  className={`${footerLinkClass} text-left`}
+                >
+                  Cookie-Einstellungen
+                </button>
+                <a
+                  href={LEGAL_DOCS.statutes.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={footerLinkClass}
+                >
+                  {LEGAL_DOCS.statutes.label}
+                </a>
+                <a
+                  href={LEGAL_DOCS.registerExcerpt.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={footerLinkClass}
+                >
+                  {LEGAL_DOCS.registerExcerpt.label}
+                </a>
+              </nav>
             </div>
           </div>
 
-          {/* Bottom bar */}
-          <div className="border-t border-secondary-800 pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <p className="text-xs text-secondary-300">
-              © {year} Verein Menschlichkeit Österreich. Alle Rechte vorbehalten.
+          <div className="flex flex-col gap-3 border-t border-white/20 pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[13px] text-ink-on-dark-muted">
+              © {year} Verein Menschlichkeit Österreich · Alle Rechte vorbehalten
             </p>
-            <div className="flex items-center gap-2">
-              <span className="inline-block w-2 h-2 rounded-full bg-green-500" aria-hidden="true" />
-              <span className="text-xs text-secondary-200">DSGVO-konform</span>
-            </div>
+            <p className="text-[13px] text-ink-on-dark-muted">
+              <Link to="/transparenz" className="transition-colors hover:text-white">
+                ZVR {LEGAL_FACTS.zvr}
+              </Link>{' '}
+              · Gegründet {LEGAL_FACTS.foundingDateLabel} · {LEGAL_FACTS.seat}
+            </p>
           </div>
         </div>
       </footer>

@@ -11,7 +11,6 @@ function getRoadmapWorldStats() {
       worldTitle: string;
       total: number;
       live: number;
-      levels: typeof GAME_LEVEL_ROADMAP;
     }>
   >((acc, entry) => {
     const existing = acc.find(item => item.worldId === entry.worldId);
@@ -20,7 +19,6 @@ function getRoadmapWorldStats() {
       if (entry.status === 'live') {
         existing.live += 1;
       }
-      existing.levels.push(entry);
       return acc;
     }
 
@@ -29,134 +27,88 @@ function getRoadmapWorldStats() {
       worldTitle: entry.worldTitle,
       total: 1,
       live: entry.status === 'live' ? 1 : 0,
-      levels: [entry],
     });
     return acc;
   }, []);
 }
 
-const roadmapMilestones = [2, 25, 50, 100] as const;
+/**
+ * Levelleiste mit zehn Feldern — eines je spielbarem Level.
+ * Der Fortschritt zaehlt gegen {@link ROADMAP_LIVE_LEVELS}, nicht gegen den
+ * Fahrplan bis {@link ROADMAP_TOTAL_LEVELS}. Sonst liest sich das erste
+ * geschaffte Level als „1 / 100 (1 %)".
+ */
+export function LevelProgress({
+  completedLiveLevels,
+  tone = 'dark',
+}: {
+  completedLiveLevels: number;
+  tone?: 'dark' | 'light';
+}) {
+  const done = Math.min(completedLiveLevels, ROADMAP_LIVE_LEVELS);
+  const percent = Math.round((done / ROADMAP_LIVE_LEVELS) * 100);
+  const emptyClass = tone === 'dark' ? 'bg-moe-hud-rule-strong' : 'bg-moe-rule';
+  const labelClass = tone === 'dark' ? 'text-moe-ink-on-dark-muted' : 'text-moe-ink-muted';
 
+  return (
+    <div>
+      <ol
+        className="flex gap-1"
+        role="progressbar"
+        aria-label="Geschaffte Level"
+        aria-valuemin={0}
+        aria-valuemax={ROADMAP_LIVE_LEVELS}
+        aria-valuenow={done}
+        aria-valuetext={`${done} von ${ROADMAP_LIVE_LEVELS} Level geschafft`}
+      >
+        {Array.from({ length: ROADMAP_LIVE_LEVELS }, (_, index) => (
+          <li
+            key={index}
+            className={`h-2 flex-1 ${index < done ? 'bg-moe-signal' : emptyClass}`}
+            aria-hidden="true"
+          />
+        ))}
+      </ol>
+      <p className={`mt-2 font-mono text-[13px] tabular-nums ${labelClass}`}>
+        {done} von {ROADMAP_LIVE_LEVELS} Level geschafft · {percent} %
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Der Fahrplan bis Level {@link ROADMAP_TOTAL_LEVELS} ist ein eigener,
+ * zugeklappter Einstieg — er gehoert nicht in den Startbildschirm.
+ */
 export function RoadmapPanel({ completedLiveLevels }: { completedLiveLevels: number }) {
-  const overallProgressPercent = Math.round((completedLiveLevels / ROADMAP_TOTAL_LEVELS) * 100);
-  const liveProgressPercent = Math.round((completedLiveLevels / ROADMAP_LIVE_LEVELS) * 100);
   const roadmapWorldStats = getRoadmapWorldStats();
 
   return (
-    <>
-      <p className="mt-2 text-xs text-sky-100">
-        Ausbaupfad: {ROADMAP_LIVE_LEVELS}/{ROADMAP_TOTAL_LEVELS} Levels sind live, die restlichen
-        werden etappenweise freigeschaltet.
-      </p>
-      <div className="mt-3 space-y-2 text-xs">
-        <div className="flex items-center justify-between text-slate-300">
-          <span>Roadmap gesamt</span>
-          <span className="font-semibold text-slate-100">
-            {completedLiveLevels}/{ROADMAP_TOTAL_LEVELS} ({overallProgressPercent}%)
-          </span>
-        </div>
-        <div
-          className="relative h-2 overflow-hidden rounded-full bg-slate-800"
-          role="progressbar"
-          aria-label="Roadmap gesamt Fortschritt"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={overallProgressPercent}
-        >
-          <div
-            className="h-full rounded-full bg-orange-400 transition-all"
-            style={{ width: `${Math.max(overallProgressPercent, 2)}%` }}
-          />
-          {roadmapMilestones.map(milestone => (
-            <span
-              key={milestone}
-              className={`absolute top-1/2 h-2 w-[1px] -translate-y-1/2 ${overallProgressPercent >= milestone ? 'bg-emerald-300' : 'bg-slate-600'}`}
-              style={{ left: `${milestone}%` }}
-              aria-hidden="true"
-            />
-          ))}
-        </div>
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          {roadmapMilestones.map(milestone => {
-            const reached = overallProgressPercent >= milestone;
-            return (
-              <span
-                key={milestone}
-                className={`rounded-full px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] ${
-                  reached ? 'bg-emerald-500/25 text-emerald-100' : 'bg-slate-800 text-slate-400'
-                }`}
-              >
-                {milestone}%
-              </span>
-            );
-          })}
-        </div>
-        <div className="flex items-center justify-between text-slate-300">
-          <span>Live-Kapitel</span>
-          <span className="font-semibold text-slate-100">
-            {completedLiveLevels}/{ROADMAP_LIVE_LEVELS} ({liveProgressPercent}%)
-          </span>
-        </div>
-        <div
-          className="h-2 overflow-hidden rounded-full bg-slate-800"
-          role="progressbar"
-          aria-label="Live-Kapitel Fortschritt"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={liveProgressPercent}
-        >
-          <div
-            className="h-full rounded-full bg-sky-400 transition-all"
-            style={{ width: `${Math.max(liveProgressPercent, 2)}%` }}
-          />
-        </div>
-      </div>
+    <div>
+      <LevelProgress completedLiveLevels={completedLiveLevels} />
 
-      <div className="mt-4 rounded-xl border border-white/10 bg-slate-900/60 px-3 py-3 text-sm text-slate-200">
-        <p className="font-medium text-amber-100">Welten-Fahrplan (100 Levels)</p>
-        <div className="mt-2 space-y-2 text-xs text-slate-300">
+      <details className="mt-3 border-t border-moe-hud-rule pt-3">
+        <summary className="cursor-pointer list-none font-mono text-[13px] uppercase tracking-[0.14em] text-moe-signal-hell">
+          Fahrplan bis Level {ROADMAP_TOTAL_LEVELS} ansehen
+        </summary>
+        <p className="mt-2 font-body text-[14px] leading-snug text-moe-ink-on-dark">
+          {ROADMAP_LIVE_LEVELS} Level sind spielbar. Die übrigen{' '}
+          {ROADMAP_TOTAL_LEVELS - ROADMAP_LIVE_LEVELS} entstehen etappenweise.
+        </p>
+        <ul className="mt-2.5 divide-y divide-moe-hud-rule border-t border-moe-hud-rule">
           {roadmapWorldStats.map(world => (
-            <details key={world.worldId} className="rounded-lg bg-slate-950/60 px-2 py-2">
-              <summary className="cursor-pointer list-none">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="truncate">{world.worldTitle}</span>
-                  <span className="text-[11px] text-slate-400">
-                    {world.live}/{world.total} live
-                  </span>
-                </div>
-              </summary>
-              <div
-                className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-800"
-                role="progressbar"
-                aria-label={`Fortschritt ${world.worldTitle}`}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={Math.round((world.live / world.total) * 100)}
-              >
-                <div
-                  className="h-full rounded-full bg-sky-400"
-                  style={{ width: `${Math.round((world.live / world.total) * 100)}%` }}
-                />
-              </div>
-              <ul className="mt-2 space-y-1">
-                {world.levels.map(level => (
-                  <li
-                    key={`${world.worldId}-${level.levelNumber}`}
-                    className="flex items-center justify-between rounded-md bg-slate-900/70 px-2 py-1 text-[11px]"
-                  >
-                    <span>Level {level.levelNumber}</span>
-                    <span
-                      className={level.status === 'live' ? 'text-emerald-200' : 'text-slate-400'}
-                    >
-                      {level.status === 'live' ? 'live' : `geplant · ${level.learningFocus}`}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </details>
+            <li
+              key={world.worldId}
+              className="flex items-baseline justify-between gap-3 py-1.5 font-body text-[14px] text-moe-ink-on-dark"
+            >
+              <span className="truncate">{world.worldTitle}</span>
+              <span className="shrink-0 font-mono text-[13px] tabular-nums text-moe-ink-on-dark-muted">
+                {world.live} / {world.total}
+              </span>
+            </li>
           ))}
-        </div>
-      </div>
-    </>
+        </ul>
+      </details>
+    </div>
   );
 }

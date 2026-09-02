@@ -81,8 +81,8 @@ const LoginForm: React.FC<{
     >
       <div className="card-modern p-8">
         <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-brand-gradient rounded-full mx-auto mb-4 flex items-center justify-center">
-            <i className="bi bi-person-lock text-white text-xl" aria-hidden="true"></i>
+          <div className="w-12 h-12 bg-ink-surface rounded-sm mx-auto mb-4 flex items-center justify-center">
+            <i className="bi bi-person-lock text-paper text-xl" aria-hidden="true"></i>
           </div>
           <h1 className="text-2xl font-bold text-text">Anmelden</h1>
           <p className="text-muted mt-2">Willkommen zurück! Melden Sie sich in Ihr Konto an.</p>
@@ -288,8 +288,8 @@ const RegisterForm: React.FC<{
     >
       <div className="card-modern p-8">
         <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-brand-gradient rounded-full mx-auto mb-4 flex items-center justify-center">
-            <i className="bi bi-person-plus text-white text-xl" aria-hidden="true"></i>
+          <div className="w-12 h-12 bg-ink-surface rounded-sm mx-auto mb-4 flex items-center justify-center">
+            <i className="bi bi-person-plus text-paper text-xl" aria-hidden="true"></i>
           </div>
           <h1 className="text-2xl font-bold text-text">Registrieren</h1>
           <p className="text-muted mt-2">

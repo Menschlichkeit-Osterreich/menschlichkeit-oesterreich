@@ -214,7 +214,7 @@ export function MemberList({ onMemberSelect }: MemberListProps) {
         {filteredMembers.map((member) => (
           <Card
             key={member.id}
-            className="p-4 hover:shadow-lg transition-shadow cursor-pointer"
+            className="p-4 transition-shadow cursor-pointer"
             onClick={() => onMemberSelect?.(member)}
           >
             <div className="flex justify-between items-start mb-3">

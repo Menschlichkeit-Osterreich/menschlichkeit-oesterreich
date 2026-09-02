@@ -1,65 +1,50 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
-import { Card } from '../components/ui/Card';
 import SeoHead from '../components/seo/SeoHead';
-import { CONTACT_EMAIL, LEGAL_DOCS, LEGAL_FACTS, WHATSAPP_URL } from '../config/siteConfig';
+import { CONTACT_EMAIL, LEGAL_DOCS, LEGAL_FACTS } from '../config/siteConfig';
 
-const topics = [
+interface HomePageProps {
+  /** Transparenz-Streifen ausblenden, sobald die Startseite genug eigene Belege trägt. */
+  showProofStrip?: boolean;
+}
+
+const WORK_AREAS = [
   {
-    title: 'Solidarität',
-    icon: '🤝',
-    color: 'bg-secondary-50 border-secondary-100',
-    iconBg: 'bg-secondary-100',
+    number: '01',
+    title: 'Politische Bildung',
     description:
-      'Zusammenhalt statt Spaltung – wir stehen füreinander ein und lassen niemanden zurück.',
+      'Workshops und Materialien, die erklären, wie Entscheidungen in Österreich zustande kommen — verständlich, überprüfbar und ohne Parteibuch.',
+    linkLabel: 'Zu den Bildungsangeboten',
+    to: '/bildung',
   },
   {
-    title: 'Soziale Gerechtigkeit',
-    icon: '⚖️',
-    color: 'bg-primary-50 border-primary-100',
-    iconBg: 'bg-primary-100',
-    description: 'Chancengleichheit und faire Teilhabe für alle Menschen in Österreich.',
-  },
-  {
-    title: 'Klimaschutz',
-    icon: '🌱',
-    color: 'bg-green-50 border-green-100',
-    iconBg: 'bg-green-100',
-    description: 'Ökologische Verantwortung und Nachhaltigkeit für kommende Generationen.',
-  },
-  {
-    title: 'Demokratie',
-    icon: '🗳️',
-    color: 'bg-blue-50 border-blue-100',
-    iconBg: 'bg-blue-100',
-    description: 'Aktive Mitgestaltung und Stärkung demokratischer Teilhabe auf allen Ebenen.',
-  },
-  {
-    title: 'Bildung',
-    icon: '📚',
-    color: 'bg-purple-50 border-purple-100',
-    iconBg: 'bg-purple-100',
+    number: '02',
+    title: 'Veranstaltungen',
     description:
-      'Wissen schafft Wandel – Bildungsangebote für alle Altersgruppen und Hintergründe.',
+      'Offene Treffen, Diskussionsabende und Beteiligungsformate. Wer kommt, muss weder Mitglied sein noch etwas bezahlen.',
+    linkLabel: 'Termine ansehen',
+    to: '/veranstaltungen',
   },
   {
-    title: 'Gemeinschaft',
-    icon: '🏘️',
-    color: 'bg-yellow-50 border-yellow-100',
-    iconBg: 'bg-yellow-100',
+    number: '03',
+    title: 'Demokratie spielbar',
     description:
-      'Starke Netzwerke und lokale Gemeinschaften als Fundament einer gerechten Gesellschaft.',
+      'Ein Browserspiel, in dem demokratische Aushandlung geübt wird: zuhören, vermitteln, entscheiden — unter Zeitdruck.',
+    linkLabel: 'Spiel starten',
+    to: '/spiel',
   },
 ];
 
-const stats = [
-  { value: 'ZVR', label: LEGAL_FACTS.zvr },
-  { value: '2025', label: 'Gegründet' },
-  { value: '3140', label: 'Pottenbrunn' },
-  { value: 'de-AT', label: 'Sprache & Fokus' },
-];
+export default function HomePage({ showProofStrip = true }: HomePageProps) {
+  const proofDocs = [
+    { label: LEGAL_DOCS.statutes.label, meta: `Beschlossen ${LEGAL_FACTS.statutesResolutionLabel}`, href: LEGAL_DOCS.statutes.href },
+    {
+      label: LEGAL_DOCS.contributionRules.label,
+      meta: `Gültig ab ${LEGAL_FACTS.contributionOrderEffectiveLabel}`,
+      href: LEGAL_DOCS.contributionRules.href,
+    },
+    { label: LEGAL_DOCS.registerExcerpt.label, meta: 'LPD Niederösterreich', href: LEGAL_DOCS.registerExcerpt.href },
+  ];
 
-export default function HomePage() {
   return (
     <div data-component="Home">
       <SeoHead
@@ -68,354 +53,230 @@ export default function HomePage() {
         canonical="https://www.menschlichkeit-oesterreich.at/"
       />
 
-      {/* Hero Section */}
-      <section
-        className="relative overflow-hidden bg-accent-900"
-        style={{ backgroundColor: '#101f2a' }}
-        aria-label="Einstieg"
-        data-component="Hero"
-      >
-        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-          <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-white/5 blur-3xl -translate-y-1/2 translate-x-1/4" />
-        </div>
-
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 py-20 md:py-28" style={{ backgroundColor: 'transparent' }}>
-          <div className="flex flex-col md:flex-row items-center gap-10 md:gap-16">
-            {/* Text */}
-            <div className="flex-1 text-center md:text-left" style={{ color: '#ffffff' }}>
-              <span className="inline-block rounded-full border border-white/30 bg-accent-700 px-3 py-1 text-xs font-semibold tracking-widest text-white uppercase mb-6">
-                Verein Menschlichkeit Österreich
-              </span>
-              <h1
-                className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6"
-                data-testid="hero.title"
-              >
-                Gemeinsam gestalten –{' '}
-                <span className="mt-2 block text-white">
-                  Ein Österreich, das niemanden zurücklässt.
-                </span>
-              </h1>
-              <p
-                className="mb-8 max-w-2xl text-lg leading-relaxed text-white md:text-xl"
-                data-testid="hero.lead"
-              >
-                Initiative für soziale Gerechtigkeit, demokratische Teilhabe und ökologische
-                Verantwortung in Österreich.
-              </p>
-              <div
-                className="flex flex-wrap gap-3 justify-center md:justify-start"
-                role="group"
-                aria-label="Wichtige Aktionen"
-              >
-                <Link
-                  to="/mitglied-werden"
-                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white text-secondary-900 font-bold text-sm hover:bg-secondary-50 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
-                  data-testid="cta.join"
-                >
-                  <span aria-hidden="true">✨</span>
-                  Jetzt Mitglied werden
-                </Link>
-                <Link
-                  to="/spenden"
-                  className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl border-2 border-white text-white font-bold text-sm hover:bg-accent-800 transition-all"
-                  data-testid="cta.donate"
-                >
-                  <span aria-hidden="true">❤️</span>
-                  Jetzt spenden
-                </Link>
-              </div>
-            </div>
-
-            {/* Logo */}
-            <div className="shrink-0">
-              <div className="relative">
-                <div className="w-44 h-44 md:w-52 md:h-52 rounded-3xl overflow-hidden shadow-2xl ring-4 ring-white/30">
-                  <img
-                    src="/logo.jpg"
-                    alt="Verein Menschlichkeit Österreich Logo"
-                    width={960}
-                    height={960}
-                    fetchPriority="high"
-                    decoding="async"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="absolute -bottom-3 -right-3 bg-white rounded-xl px-3 py-2 shadow-lg border border-secondary-100">
-                  <span className="text-xs font-bold text-primary-700">ZVR: 1182213083</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Bar */}
-      <section className="bg-white border-b border-secondary-100 shadow-sm" aria-label="Kennzahlen">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-0 divide-x divide-secondary-100">
-            {stats.map(s => (
-              <div key={s.label} className="text-center py-5 px-4">
-                <div className="text-2xl font-bold text-primary-700">{s.value}</div>
-                <div className="text-xs text-secondary-500 mt-0.5 font-medium">{s.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 py-14">
-        {/* Schwerpunkte */}
-        <section
-          className="mb-16 rounded-3xl border border-secondary-100 bg-secondary-50 p-8 md:p-10"
-          aria-labelledby="trust-title"
-        >
-          <div className="grid gap-8 lg:grid-cols-[1.3fr_1fr] lg:items-start">
-            <div>
-              <h2 id="trust-title" className="text-3xl font-bold text-secondary-900 mb-4">
-                In Österreich verankert und transparent organisiert
-              </h2>
-              <p className="text-secondary-700 leading-relaxed mb-4">
-                Menschlichkeit Österreich arbeitet von Pottenbrunn aus an Bildungsangeboten,
-                Veranstaltungen und Beteiligungsformaten für Menschen in ganz Österreich.
-                Transparenz, Datenschutz und nachvollziehbare Vereinsstrukturen gehören für uns zur
-                öffentlichen Verantwortung.
-              </p>
-              <p className="text-secondary-700 leading-relaxed">
-                Wenn Sie sich ein genaueres Bild machen möchten, finden Sie auf unseren Seiten zu
-                Transparenz, Statuten, Beitragsordnung und Datenschutz die wichtigsten Grundlagen
-                unserer Arbeit.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-white bg-white p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-secondary-900">Schneller Überblick</h3>
-              <ul className="mt-4 space-y-3 text-sm text-secondary-700">
-                <li>Vereinssitz: {LEGAL_FACTS.seat}</li>
-                <li>Zustellanschrift: {LEGAL_FACTS.mailingAddressLabel}</li>
-                <li>Vereinsregister: ZVR {LEGAL_FACTS.zvr}</li>
-                <li>Kontakt: {CONTACT_EMAIL}</li>
-                <li>WhatsApp: 0680 1608053</li>
-              </ul>
-              <div className="mt-5 flex flex-wrap gap-3">
-                <Link
-                  to="/transparenz"
-                  className="text-sm font-semibold text-primary-700 hover:underline"
-                >
-                  Transparenz ansehen
-                </Link>
-                <Link
-                  to="/impressum"
-                  className="text-sm font-semibold text-primary-700 hover:underline"
-                >
-                  Impressum
-                </Link>
-                <Link
-                  to="/datenschutz"
-                  className="text-sm font-semibold text-primary-700 hover:underline"
-                >
-                  Datenschutz
-                </Link>
-                <a
-                  href={WHATSAPP_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm font-semibold text-primary-700 hover:underline"
-                >
-                  WhatsApp
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Schwerpunkte */}
-        <section className="mb-16" aria-labelledby="topics-title" data-component="CardGrid">
-          <div className="text-center mb-10">
-            <h2 id="topics-title" className="text-3xl font-bold text-secondary-900 mb-3">
-              Unsere Schwerpunkte
-            </h2>
-            <p className="text-secondary-500 max-w-lg mx-auto leading-relaxed">
-              Sechs Kernbereiche, in denen wir aktiv für eine bessere und gerechtere Gesellschaft in
-              Österreich eintreten.
+      {/* Hero */}
+      <section className="bg-ink-surface" aria-label="Einstieg" data-component="Hero">
+        <div className="mx-auto grid max-w-[1280px] gap-12 px-5 py-16 sm:px-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-[72px] lg:py-24">
+          <div>
+            <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-primary-300">
+              Gemeinnütziger Verein · ZVR {LEGAL_FACTS.zvr}
             </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {topics.map(t => (
-              <div
-                key={t.title}
-                className={`rounded-2xl border p-6 ${t.color} hover:shadow-md transition-all duration-200 hover:-translate-y-1 group`}
-                data-testid={`topic.${t.title}`}
-              >
-                <div
-                  className={`w-12 h-12 rounded-xl ${t.iconBg} flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform`}
-                  aria-hidden="true"
-                >
-                  {t.icon}
-                </div>
-                <h3 className="text-base font-bold text-secondary-900 mb-2">{t.title}</h3>
-                <p className="text-secondary-600 text-sm leading-relaxed">{t.description}</p>
-              </div>
-            ))}
-          </div>
-        </section>
+            <h1
+              className="mt-6 font-heading text-[38px] font-bold leading-[1.05] tracking-[-0.03em] text-white sm:text-[52px] lg:text-[66px] lg:leading-[1.02]"
+              data-testid="hero.title"
+            >
+              Ein Österreich, das niemanden zurücklässt.
+            </h1>
+            <p
+              className="mt-6 max-w-[620px] text-[19px] leading-relaxed text-ink-on-dark sm:text-[21px]"
+              data-testid="hero.lead"
+            >
+              Wir machen politische Bildung greifbar, bringen Menschen ins Gespräch und halten
+              offen, wie wir arbeiten und wofür wir Geld ausgeben.
+            </p>
 
-        {/* CTA Banner */}
-        <section
-          className="relative mb-16 overflow-hidden rounded-3xl border border-secondary-100 bg-secondary-50 p-8 md:p-12"
-          aria-labelledby="join-title"
-        >
-          <div
-            className="absolute -right-8 -top-8 opacity-10 text-[8rem] leading-none select-none"
-            aria-hidden="true"
-          >
-            🌳
-          </div>
-          <div className="relative flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div className="max-w-lg">
-              <span className="inline-block px-2.5 py-0.5 rounded-full bg-primary-100 text-primary-700 text-xs font-semibold mb-4">
-                Mitmachen
-              </span>
-              <h2
-                id="join-title"
-                className="text-2xl md:text-3xl font-bold text-secondary-900 mb-3"
-              >
-                Werde Teil der Bewegung
-              </h2>
-              <p className="text-secondary-800 leading-relaxed">
-                Als Mitglied gestaltest du aktiv mit und stärkst unsere Gemeinschaft. Gemeinsam
-                setzen wir uns für ein gerechtes und solidarisches Österreich ein.
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+            <div
+              className="mt-9 flex flex-col gap-3.5 sm:flex-row"
+              role="group"
+              aria-label="Wichtige Aktionen"
+            >
               <Link
                 to="/mitglied-werden"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 text-white px-6 py-3.5 text-sm font-bold hover:bg-primary-700 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                className="inline-flex min-h-[52px] items-center justify-center rounded-sm bg-primary-600 px-6 text-base font-semibold text-white transition-colors duration-150 hover:bg-primary-700"
+                data-testid="cta.join"
               >
-                <span aria-hidden="true">✨</span> Mitglied werden
+                Mitglied werden — ab 18 € im Jahr
               </Link>
               <Link
-                to="/statuten"
-                className="inline-flex items-center justify-center rounded-xl border-2 border-secondary-200 bg-white text-secondary-800 px-6 py-3.5 text-sm font-semibold hover:bg-secondary-50 transition-all"
+                to="/spenden"
+                className="on-dark inline-flex min-h-[52px] items-center justify-center rounded-sm border border-[rgba(247,244,241,0.55)] px-6 text-base font-semibold text-paper transition-colors duration-150 hover:border-paper hover:bg-white/10"
+                data-testid="cta.donate"
               >
-                Statuten lesen
+                Einmalig spenden
               </Link>
-              <a
-                href={LEGAL_DOCS.registerExcerpt.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center rounded-xl border-2 border-secondary-200 bg-white text-secondary-800 px-6 py-3.5 text-sm font-semibold hover:bg-secondary-50 transition-all"
-              >
-                Registerauszug herunterladen
-              </a>
+            </div>
+
+            <ul className="mt-10 flex flex-col gap-3 border-t border-[rgba(247,244,241,0.2)] pt-6 text-[15px] text-ink-on-dark-muted sm:flex-row sm:gap-10">
+              <li>Gegründet {LEGAL_FACTS.foundingDateLabel}</li>
+              <li>Sitz {LEGAL_FACTS.seat}</li>
+              <li>Statuten und Beitragsordnung öffentlich</li>
+            </ul>
+          </div>
+
+          <div className="flex items-start">
+            <div className="aspect-[4/5] w-full border border-[rgba(247,244,241,0.3)]">
+              <img
+                src="/logo.jpg"
+                alt="Verein Menschlichkeit Österreich"
+                width={960}
+                height={960}
+                fetchPriority="high"
+                decoding="async"
+                className="h-full w-full object-cover"
+              />
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Info Cards */}
-        <section className="mb-14 grid md:grid-cols-2 gap-5">
-          <Card className="p-6 rounded-2xl border border-secondary-100 hover:shadow-md transition-all hover:-translate-y-0.5">
-            <div className="flex items-start gap-4">
-              <div
-                className="w-12 h-12 rounded-xl bg-primary-50 flex items-center justify-center text-2xl shrink-0"
-                aria-hidden="true"
+      {/* Woran wir arbeiten */}
+      <section
+        className="border-b border-paper-rule bg-white"
+        aria-labelledby="topics-title"
+        data-component="CardGrid"
+      >
+        <div className="mx-auto max-w-[1280px] px-5 py-16 sm:px-10 lg:py-20">
+          <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">
+                Unsere Arbeit
+              </p>
+              <h2
+                id="topics-title"
+                className="mt-2 font-heading text-[32px] font-bold tracking-[-0.02em] text-ink-deep sm:text-[42px]"
               >
-                📋
-              </div>
-              <div>
-                <h3 className="font-bold text-secondary-900 mb-1.5">Über den Verein</h3>
-                <p className="text-sm text-secondary-600 mb-3 leading-relaxed">
-                  Gegründet am 28. Mai 2025. Wir vertreten die Interessen aller Menschen in
-                  Österreich, unabhängig von Herkunft, Status oder Überzeugung.
-                </p>
-                <Link
-                  to="/ueber-uns"
-                  className="inline-flex items-center gap-1 text-sm font-semibold text-primary-700 hover:text-primary-800 transition-colors group"
-                >
-                  Mehr erfahren
-                  <svg
-                    className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </Link>
-              </div>
+                Woran wir arbeiten
+              </h2>
             </div>
-          </Card>
+            <Link
+              to="/themen"
+              className="w-fit text-[15px] font-semibold text-primary-600 underline underline-offset-4 transition-colors hover:text-primary-700"
+            >
+              Alle Themen ansehen →
+            </Link>
+          </div>
 
-          <Card className="p-6 rounded-2xl border border-secondary-100 hover:shadow-md transition-all hover:-translate-y-0.5">
-            <div className="flex items-start gap-4">
-              <div
-                className="w-12 h-12 rounded-xl bg-secondary-50 flex items-center justify-center text-2xl shrink-0"
-                aria-hidden="true"
+          <div className="hairline-grid border border-paper-rule md:grid-cols-3">
+            {WORK_AREAS.map((area) => (
+              <article
+                key={area.number}
+                className="bg-white p-8 sm:p-10"
+                data-testid={`topic.${area.title}`}
               >
-                ❤️
-              </div>
-              <div>
-                <h3 className="font-bold text-secondary-900 mb-1.5">Spenden & Unterstützen</h3>
-                <p className="text-sm text-secondary-600 mb-3 leading-relaxed">
-                  Deine Unterstützung ermöglicht es uns, Projekte für soziale Gerechtigkeit und
-                  demokratische Teilhabe umzusetzen.
-                </p>
+                <p className="font-mono text-[13px] text-ink-muted">{area.number}</p>
+                <h3 className="mt-3 font-heading text-[22px] font-semibold text-ink-deep sm:text-[26px]">
+                  {area.title}
+                </h3>
+                <p className="mt-3 text-base leading-[1.65] text-ink-body">{area.description}</p>
                 <Link
-                  to="/spenden"
-                  className="inline-flex items-center gap-1 text-sm font-semibold text-primary-700 hover:text-primary-800 transition-colors group"
+                  to={area.to}
+                  className="mt-5 inline-block text-[15px] font-semibold text-primary-600 underline underline-offset-4 transition-colors hover:text-primary-700"
                 >
-                  Jetzt spenden
-                  <svg
-                    className="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                  {area.linkLabel}
                 </Link>
-              </div>
-            </div>
-          </Card>
-        </section>
-
-        {/* Legal Links */}
-        <section className="border-t border-secondary-100 pt-6" aria-labelledby="legal-title">
-          <h2
-            id="legal-title"
-            className="text-xs font-semibold text-secondary-600 uppercase tracking-wider mb-3"
-          >
-            Rechtliches &amp; Datenschutz
-          </h2>
-          <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
-            {[
-              {
-                to: '/datenschutz#betroffenenrechte',
-                label: 'Betroffenenrechte nach DSGVO',
-                testId: 'link.privacy',
-              },
-              { to: '/statuten', label: 'Statuten' },
-              { to: '/beitragsordnung', label: 'Beitragsordnung' },
-              { to: '/impressum', label: 'Impressum' },
-            ].map(l => (
-              <Link
-                key={l.to}
-                to={l.to}
-                data-testid={l.testId}
-                className="text-secondary-700 hover:text-primary-700 transition-colors hover:underline underline-offset-2"
-              >
-                {l.label}
-              </Link>
+              </article>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Transparenz-Streifen */}
+      {showProofStrip && (
+        <section className="border-b border-paper-rule bg-paper" aria-labelledby="trust-title">
+          <div className="mx-auto grid max-w-[1280px] gap-10 px-5 py-16 sm:px-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16 lg:py-20">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ink-muted">
+                Transparenz
+              </p>
+              <h2
+                id="trust-title"
+                className="mt-2 font-heading text-[28px] font-bold tracking-[-0.02em] text-ink-deep sm:text-[34px]"
+              >
+                Nachlesbar statt behauptet
+              </h2>
+              <p className="mt-4 max-w-[46ch] text-base leading-[1.65] text-ink-body">
+                Statuten, Beitragsordnung und Registerauszug liegen offen. Wer wissen will, wie der
+                Verein verfasst ist und was ein Beitrag kostet, muss niemanden fragen.
+              </p>
+              <p className="mt-4 text-base text-ink-body">
+                Fragen?{' '}
+                <a
+                  href={`mailto:${CONTACT_EMAIL}`}
+                  className="font-semibold text-primary-600 underline underline-offset-4 hover:text-primary-700"
+                >
+                  {CONTACT_EMAIL}
+                </a>
+              </p>
+            </div>
+
+            <div className="hairline-grid border border-paper-rule sm:grid-cols-2">
+              {proofDocs.map((doc) => (
+                <a
+                  key={doc.href}
+                  href={doc.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-white p-6 transition-colors duration-150 hover:bg-paper"
+                >
+                  <span className="block font-heading text-[17px] font-semibold text-ink-deep">
+                    {doc.label}
+                  </span>
+                  <span className="mt-1 block text-[15px] text-ink-muted">{doc.meta}</span>
+                </a>
+              ))}
+              <Link
+                to="/datenschutz"
+                className="bg-white p-6 transition-colors duration-150 hover:bg-paper"
+                data-testid="link.privacy"
+              >
+                <span className="block font-heading text-[17px] font-semibold text-ink-deep">
+                  Datenschutzerklärung
+                </span>
+                <span className="mt-1 block text-[15px] text-ink-muted">
+                  Betroffenenrechte nach DSGVO
+                </span>
+              </Link>
+            </div>
+          </div>
         </section>
-      </div>
+      )}
+
+      {/* CTA */}
+      <section className="bg-ink-deep" aria-labelledby="join-title">
+        <div className="mx-auto max-w-[1280px] px-5 sm:px-10">
+          <h2 id="join-title" className="sr-only">
+            Mitmachen und unterstützen
+          </h2>
+          <div className="grid border-x border-[rgba(247,244,241,0.2)] md:grid-cols-2">
+            <div className="border-b border-[rgba(247,244,241,0.2)] p-8 sm:p-12 md:border-b-0 md:border-r">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary-300">
+                Mitgliedschaft
+              </p>
+              <h3 className="mt-3 font-heading text-[26px] font-semibold text-white sm:text-[30px]">
+                Mitglied werden
+              </h3>
+              <p className="mt-3 max-w-[42ch] text-base leading-[1.65] text-ink-on-dark">
+                36 € im Jahr, 18 € ermäßigt, 0 € auf begründeten Antrag. Mitglieder entscheiden in
+                der Generalversammlung mit.
+              </p>
+              <Link
+                to="/mitglied-werden"
+                className="mt-6 inline-flex min-h-[52px] items-center justify-center rounded-sm bg-primary-600 px-6 text-base font-semibold text-white transition-colors duration-150 hover:bg-primary-700"
+              >
+                Beitritt starten
+              </Link>
+            </div>
+
+            <div className="p-8 sm:p-12">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-primary-300">
+                Spende
+              </p>
+              <h3 className="mt-3 font-heading text-[26px] font-semibold text-white sm:text-[30px]">
+                Einmalig oder monatlich spenden
+              </h3>
+              <p className="mt-3 max-w-[42ch] text-base leading-[1.65] text-ink-on-dark">
+                Drei Eingaben, keine Registrierung. Der Betrag lässt sich jederzeit ändern oder
+                beenden.
+              </p>
+              <Link
+                to="/spenden"
+                className="on-dark mt-6 inline-flex min-h-[52px] items-center justify-center rounded-sm border border-[rgba(247,244,241,0.55)] px-6 text-base font-semibold text-paper transition-colors duration-150 hover:border-paper hover:bg-white/10"
+              >
+                Zur Spende
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

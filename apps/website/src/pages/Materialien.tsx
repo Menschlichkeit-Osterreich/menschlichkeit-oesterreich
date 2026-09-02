@@ -146,7 +146,7 @@ const CATEGORY_COLORS: Record<Material['category'], string> = {
 
 function MaterialCard({ material }: { material: Material }) {
   return (
-    <div className={`bg-white rounded-2xl border overflow-hidden hover:shadow-md transition-all duration-200 ${material.isFeatured ? 'border-primary-300 ring-1 ring-primary-200' : 'border-secondary-200'}`}>
+    <div className={`bg-white rounded-2xl border overflow-hidden transition-all duration-200 ${material.isFeatured ? 'border-primary-300 ring-1 ring-primary-200' : 'border-secondary-200'}`}>
       <div className="p-5">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">

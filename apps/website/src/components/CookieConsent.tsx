@@ -9,9 +9,12 @@ interface CookieConsentProps {
   onCustomize?: () => void;
 }
 
+const actionBase =
+  'w-full rounded-sm px-4 py-4 text-base font-semibold transition-colors duration-150';
+
 export default function CookieConsent({ onCustomize }: CookieConsentProps) {
-  const [visible, setVisible] = useState(false);
-  const acceptButtonRef = useRef<HTMLButtonElement>(null);
+  const [visible, setVisible] = useState(() => loadConsentPreferences() === null);
+  const firstActionRef = useRef<HTMLButtonElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
   const syncVisibility = useCallback(() => {
@@ -19,13 +22,11 @@ export default function CookieConsent({ onCustomize }: CookieConsentProps) {
   }, []);
 
   useEffect(() => {
-    const timer = window.setTimeout(syncVisibility, 1000);
     const handlePreferencesUpdated = () => syncVisibility();
 
     window.addEventListener(COOKIE_PREFERENCES_UPDATED_EVENT, handlePreferencesUpdated);
 
     return () => {
-      window.clearTimeout(timer);
       window.removeEventListener(COOKIE_PREFERENCES_UPDATED_EVENT, handlePreferencesUpdated);
     };
   }, [syncVisibility]);
@@ -37,7 +38,7 @@ export default function CookieConsent({ onCustomize }: CookieConsentProps) {
 
     previousFocusRef.current =
       document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    const frame = window.requestAnimationFrame(() => acceptButtonRef.current?.focus());
+    const frame = window.requestAnimationFrame(() => firstActionRef.current?.focus());
 
     return () => {
       window.cancelAnimationFrame(frame);
@@ -81,53 +82,62 @@ export default function CookieConsent({ onCustomize }: CookieConsentProps) {
   return (
     <section
       data-testid="cookie-consent-banner"
-      className="fixed bottom-0 inset-x-0 z-50 p-4 sm:p-6"
-      style={{ backgroundColor: '#f3f4f6' }}
+      className="fixed bottom-0 inset-x-0 z-50 max-h-[85dvh] overflow-y-auto overscroll-contain border-t-[3px] border-ink-surface bg-white"
       role="region"
       aria-labelledby="cookie-consent-title"
       aria-describedby="cookie-consent-description"
       aria-live="polite"
     >
-      <div className="mx-auto max-w-3xl bg-white rounded-2xl shadow-2xl border border-gray-200 p-5 sm:p-6" style={{ backgroundColor: '#ffffff' }}>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-          <div className="flex-1">
-            <h2 id="cookie-consent-title" className="font-semibold text-gray-900 text-sm mb-1">
-              Datenschutz & Cookies
-            </h2>
-            <p id="cookie-consent-description" className="text-xs text-gray-900 leading-relaxed" style={{ color: '#111827', backgroundColor: '#ffffff' }}>
-              Aktuell verwenden wir nur technisch notwendige Cookies für Sicherheit, Login und
-              Sitzungsverwaltung. Analyse-, Marketing- und Social-Media-Cookies sind standardmäßig
-              deaktiviert. Details in unserer{' '}
-              <a href="/datenschutz" className="text-red-700 underline hover:no-underline">
-                Datenschutzerklärung
-              </a>
-              .
-            </p>
-          </div>
-          <div className="flex gap-2 shrink-0">
-            <button
-              type="button"
-              onClick={acceptEssentialOnly}
-              className="px-4 py-2 text-xs font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+      <div className="mx-auto grid max-w-[1280px] gap-6 px-5 py-6 sm:px-7 lg:grid-cols-[1fr_300px] lg:gap-10">
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted">
+            Datenschutz
+          </p>
+          <h2
+            id="cookie-consent-title"
+            className="mt-2 font-heading text-2xl font-semibold text-ink-deep"
+          >
+            Wir setzen nur notwendige Cookies
+          </h2>
+          <p
+            id="cookie-consent-description"
+            className="mt-3 max-w-[62ch] text-base leading-relaxed text-ink-body"
+          >
+            Für Sicherheit, Anmeldung und Sitzungsverwaltung brauchen wir technisch notwendige
+            Cookies. Analyse-, Marketing- und Social-Media-Cookies sind standardmäßig deaktiviert.
+            Was wir speichern, steht in der{' '}
+            <a
+              href="/datenschutz"
+              className="font-semibold text-primary-600 underline underline-offset-4 hover:text-primary-700"
             >
-              Nur notwendige
-            </button>
-            <button
-              type="button"
-              onClick={customizePreferences}
-              className="px-4 py-2 text-xs font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
-            >
-              Anpassen
-            </button>
-            <button
-              ref={acceptButtonRef}
-              type="button"
-              onClick={acceptAll}
-              className="px-4 py-2 text-xs font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
-            >
-              Alle akzeptieren
-            </button>
-          </div>
+              Datenschutzerklärung
+            </a>
+            .
+          </p>
+        </div>
+        <div className="flex flex-col gap-2.5">
+          <button
+            ref={firstActionRef}
+            type="button"
+            onClick={acceptEssentialOnly}
+            className={`${actionBase} bg-ink-deep text-paper hover:bg-ink-surface`}
+          >
+            Nur notwendige
+          </button>
+          <button
+            type="button"
+            onClick={acceptAll}
+            className={`${actionBase} bg-primary-600 text-white hover:bg-primary-700`}
+          >
+            Alle akzeptieren
+          </button>
+          <button
+            type="button"
+            onClick={customizePreferences}
+            className={`${actionBase} border border-ink-deep bg-white text-ink-deep hover:bg-paper`}
+          >
+            Einstellungen
+          </button>
         </div>
       </div>
     </section>

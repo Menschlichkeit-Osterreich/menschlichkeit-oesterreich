@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { API_V2_URL } from '@/constants/api';
 
+const RESET_LINK_VALIDITY_MINUTES = 60;
+
 export default function PasswordReset() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
@@ -29,85 +31,116 @@ export default function PasswordReset() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-6">
-        <div className="max-w-md w-full text-center" role="status" aria-live="polite">
-          <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl">✉️</span>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">E-Mail gesendet</h1>
-          <p className="text-gray-500 dark:text-gray-400 mb-6">
-            Falls ein Konto mit der Adresse <strong>{email}</strong> existiert, haben wir eine
-            E-Mail mit einem Link zur Passwortwiederherstellung gesendet.
-          </p>
-          <Link to="/login" className="text-red-600 hover:underline font-medium">
+      <div role="status" aria-live="polite">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-success-600">
+          Gesendet
+        </p>
+        <h1 className="mt-2 font-heading text-[32px] font-bold leading-tight text-ink-deep">
+          Prüfen Sie Ihr Postfach
+        </h1>
+        <p className="mt-3 text-base leading-relaxed text-ink-body">
+          Falls ein Konto mit der Adresse{' '}
+          <span className="tabular-id break-all font-medium text-ink-deep">{email}</span> existiert,
+          haben wir eine E-Mail mit einem Link zur Passwortwiederherstellung gesendet.
+        </p>
+
+        <ul className="mt-7 border-t border-paper-rule text-[15px] leading-relaxed text-ink-body">
+          <li className="border-b border-paper-rule-soft py-3.5">
+            Der Link ist {RESET_LINK_VALIDITY_MINUTES} Minuten gültig.
+          </li>
+          <li className="border-b border-paper-rule-soft py-3.5">
+            Keine E-Mail erhalten? Sehen Sie bitte auch im Spam-Ordner nach.
+          </li>
+          <li className="py-3.5">
+            Adresse falsch getippt?{' '}
+            <button
+              type="button"
+              onClick={() => setSubmitted(false)}
+              className="font-semibold text-primary-600 underline underline-offset-4 transition-colors hover:text-primary-700"
+            >
+              Erneut eingeben
+            </button>
+          </li>
+        </ul>
+
+        <p className="mt-7 text-[15px]">
+          <Link
+            to="/login"
+            className="font-semibold text-primary-600 underline underline-offset-4 transition-colors hover:text-primary-700"
+          >
             Zurück zur Anmeldung
           </Link>
-        </div>
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-6">
-      <div className="max-w-md w-full">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl">🔑</span>
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            Passwort zurücksetzen
-          </h1>
-          <p className="text-gray-500 dark:text-gray-400">
-            Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zur
-            Passwortwiederherstellung.
-          </p>
+    <div>
+      <h1 className="font-heading text-[32px] font-bold leading-tight text-ink-deep">
+        Passwort zurücksetzen
+      </h1>
+      <p className="mt-2 text-base leading-relaxed text-ink-body">
+        Geben Sie Ihre E-Mail-Adresse ein. Wir senden Ihnen einen Link, mit dem Sie ein neues
+        Passwort vergeben können.
+      </p>
+
+      {error && (
+        <div
+          className="mt-5 border-l-[3px] border-error-600 bg-error-50 px-4 py-3 text-[15px] text-error-700"
+          role="alert"
+          aria-live="assertive"
+        >
+          <span aria-hidden="true" className="mr-2 font-bold">
+            !
+          </span>
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="mt-6 space-y-5" aria-busy={loading}>
+        <div>
+          <label htmlFor="email" className="mb-1.5 block text-[15px] font-medium text-ink-body">
+            E-Mail-Adresse
+          </label>
+          <input
+            id="email"
+            type="email"
+            required
+            autoComplete="email"
+            spellCheck={false}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="block min-h-[52px] w-full rounded-sm border border-paper-rule bg-white px-4 py-3.5 text-base text-ink-deep placeholder:text-ink-subtle"
+            placeholder="name@example.at"
+          />
         </div>
 
-        {error && (
-          <div
-            className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg mb-4"
-            role="alert"
-            aria-live="assertive"
-          >
-            {error}
-          </div>
-        )}
+        <button
+          type="submit"
+          disabled={loading || !email}
+          aria-busy={loading}
+          className={[
+            'flex min-h-[54px] w-full items-center justify-center rounded-sm px-4 text-[17px] font-semibold transition-colors duration-150',
+            loading
+              ? 'bg-primary-800 text-primary-200'
+              : !email
+                ? 'cursor-not-allowed bg-secondary-100 text-secondary-400'
+                : 'bg-primary-600 text-white hover:bg-primary-700',
+          ].join(' ')}
+        >
+          {loading ? 'Wird gesendet …' : 'Link senden'}
+        </button>
+      </form>
 
-        <form onSubmit={handleSubmit} className="space-y-4" aria-busy={loading}>
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >
-              E-Mail-Adresse
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent"
-              placeholder="ihre@email.at"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            aria-busy={loading}
-            className="w-full bg-gradient-to-r from-red-600 to-orange-500 text-white font-semibold py-3 rounded-lg hover:from-red-700 hover:to-orange-600 transition-all disabled:opacity-50"
-          >
-            {loading ? 'Wird gesendet…' : 'Link senden'}
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
-          <Link to="/login" className="text-red-600 hover:underline font-medium">
-            Zurück zur Anmeldung
-          </Link>
-        </p>
-      </div>
+      <p className="mt-7 border-t border-paper-rule pt-6 text-center text-[15px]">
+        <Link
+          to="/login"
+          className="font-semibold text-primary-600 underline underline-offset-4 transition-colors hover:text-primary-700"
+        >
+          Zurück zur Anmeldung
+        </Link>
+      </p>
     </div>
   );
 }

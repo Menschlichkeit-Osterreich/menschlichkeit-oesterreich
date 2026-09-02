@@ -423,7 +423,7 @@ export default function ForumPage() {
                 {threads.map(thread => (
                   <Link
                     key={thread.id}
-                    className="block rounded-[1.75rem] border border-secondary-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary-300 hover:shadow-lg"
+                    className="block rounded-[1.75rem] border border-secondary-200 bg-white p-6 shadow-sm transition-all hover:border-primary-300 "
                     to={`/forum/${thread.id}`}
                   >
                     <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">

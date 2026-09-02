@@ -1,17 +1,7 @@
 export type ScenarioStatus = 'playable' | 'locked';
 export type ScenarioPoint = readonly [number, number, number];
-export type ScenarioVisualTheme = 'training' | 'resonance' | 'gehoor' | 'kompromiss' | 'beschluss';
-export type CollectiblePalette =
-  | 'gold'
-  | 'violet'
-  | 'teal'
-  | 'amber'
-  | 'rose'
-  | 'emerald'
-  | 'indigo'
-  | 'fuchsia'
-  | 'lime'
-  | 'sky';
+export type ScenarioVisualTheme = 'welt1-gemeindeplatz';
+export type CollectiblePalette = 'signal';
 
 export interface GameScenario {
   id: string;
@@ -117,6 +107,25 @@ export const LIVE_SCENARIO_LEVEL_MAP: Record<string, number> = {
   'gemeinde-dialog-10': 10,
 };
 
+/**
+ * Levelnummer eines spielbaren Szenarios, oder `null` fuer geplante Vorschauen.
+ */
+export function getScenarioLevelNumber(scenarioId: string): number | null {
+  return LIVE_SCENARIO_LEVEL_MAP[scenarioId] ?? null;
+}
+
+/**
+ * Beschriftung fuer die HUD-Kopfzeile, z. B. „3 von 10".
+ * Der Fahrplan bis {@link ROADMAP_TOTAL_LEVELS} wird bewusst nicht als Nenner
+ * verwendet — sonst liest sich ein gespieltes Level als „1 / 100 (1 %)".
+ */
+export function getScenarioLevelLabel(scenarioId: string): string {
+  const levelNumber = getScenarioLevelNumber(scenarioId);
+  return levelNumber === null
+    ? 'Vorschau'
+    : `${levelNumber} von ${ROADMAP_LIVE_LEVELS}`;
+}
+
 export const GAME_LEVEL_ROADMAP: GameLevelRoadmapEntry[] = Array.from(
   { length: ROADMAP_TOTAL_LEVELS },
   (_, index) => {
@@ -162,8 +171,8 @@ export const DEFAULT_GAME_SCENARIOS: GameScenario[] = [
     timeLimitSeconds: 45,
     status: 'playable',
     difficultyLabel: 'Einstieg',
-    visualTheme: 'training',
-    collectiblePalette: 'gold',
+    visualTheme: 'welt1-gemeindeplatz',
+    collectiblePalette: 'signal',
     collectibleLabel: 'Impuls',
     collectiblePositions: [
       [3, 1.1, 2],
@@ -186,8 +195,8 @@ export const DEFAULT_GAME_SCENARIOS: GameScenario[] = [
     status: 'locked',
     unlockAfterScenarioId: 'dialog-start',
     difficultyLabel: 'Fortgeschritten',
-    visualTheme: 'resonance',
-    collectiblePalette: 'violet',
+    visualTheme: 'welt1-gemeindeplatz',
+    collectiblePalette: 'signal',
     collectibleLabel: 'Stimme',
     collectiblePositions: [
       [4.8, 1.1, 4.2],
@@ -212,8 +221,8 @@ export const DEFAULT_GAME_SCENARIOS: GameScenario[] = [
     status: 'locked',
     unlockAfterScenarioId: 'nachbarschaft-dialog',
     difficultyLabel: 'Gemeinde I',
-    visualTheme: 'gehoor',
-    collectiblePalette: 'teal',
+    visualTheme: 'welt1-gemeindeplatz',
+    collectiblePalette: 'signal',
     collectibleLabel: 'Impuls',
     collectiblePositions: [
       [5.2, 1.1, 4.5],
@@ -236,8 +245,8 @@ export const DEFAULT_GAME_SCENARIOS: GameScenario[] = [
     status: 'locked',
     unlockAfterScenarioId: 'gemeinde-dialog-3',
     difficultyLabel: 'Gemeinde II',
-    visualTheme: 'kompromiss',
-    collectiblePalette: 'amber',
+    visualTheme: 'welt1-gemeindeplatz',
+    collectiblePalette: 'signal',
     collectibleLabel: 'Beitrag',
     collectiblePositions: [
       [6.1, 1.1, 2.4],
@@ -261,8 +270,8 @@ export const DEFAULT_GAME_SCENARIOS: GameScenario[] = [
     status: 'locked',
     unlockAfterScenarioId: 'gemeinde-dialog-4',
     difficultyLabel: 'Gemeinde III',
-    visualTheme: 'beschluss',
-    collectiblePalette: 'rose',
+    visualTheme: 'welt1-gemeindeplatz',
+    collectiblePalette: 'signal',
     collectibleLabel: 'Marker',
     collectiblePositions: [
       [6.4, 1.1, 5.4],
@@ -286,8 +295,8 @@ export const DEFAULT_GAME_SCENARIOS: GameScenario[] = [
     status: 'locked',
     unlockAfterScenarioId: 'gemeinde-dialog-5',
     difficultyLabel: 'Gemeinde IV',
-    visualTheme: 'training',
-    collectiblePalette: 'emerald',
+    visualTheme: 'welt1-gemeindeplatz',
+    collectiblePalette: 'signal',
     collectibleLabel: 'Signal',
     collectiblePositions: [
       [6.8, 1.1, 3.2],
@@ -312,8 +321,8 @@ export const DEFAULT_GAME_SCENARIOS: GameScenario[] = [
     status: 'locked',
     unlockAfterScenarioId: 'gemeinde-dialog-6',
     difficultyLabel: 'Gemeinde V',
-    visualTheme: 'resonance',
-    collectiblePalette: 'indigo',
+    visualTheme: 'welt1-gemeindeplatz',
+    collectiblePalette: 'signal',
     collectibleLabel: 'Stimme',
     collectiblePositions: [
       [7.4, 1.1, 4.8],
@@ -339,8 +348,8 @@ export const DEFAULT_GAME_SCENARIOS: GameScenario[] = [
     status: 'locked',
     unlockAfterScenarioId: 'gemeinde-dialog-7',
     difficultyLabel: 'Gemeinde VI',
-    visualTheme: 'gehoor',
-    collectiblePalette: 'fuchsia',
+    visualTheme: 'welt1-gemeindeplatz',
+    collectiblePalette: 'signal',
     collectibleLabel: 'Beitrag',
     collectiblePositions: [
       [7.9, 1.1, 2.7],
@@ -366,8 +375,8 @@ export const DEFAULT_GAME_SCENARIOS: GameScenario[] = [
     status: 'locked',
     unlockAfterScenarioId: 'gemeinde-dialog-8',
     difficultyLabel: 'Gemeinde VII',
-    visualTheme: 'kompromiss',
-    collectiblePalette: 'lime',
+    visualTheme: 'welt1-gemeindeplatz',
+    collectiblePalette: 'signal',
     collectibleLabel: 'Marker',
     collectiblePositions: [
       [8.3, 1.1, 5.2],
@@ -394,8 +403,8 @@ export const DEFAULT_GAME_SCENARIOS: GameScenario[] = [
     status: 'locked',
     unlockAfterScenarioId: 'gemeinde-dialog-9',
     difficultyLabel: 'Gemeinde VIII',
-    visualTheme: 'beschluss',
-    collectiblePalette: 'sky',
+    visualTheme: 'welt1-gemeindeplatz',
+    collectiblePalette: 'signal',
     collectibleLabel: 'Impuls',
     collectiblePositions: [
       [8.6, 1.1, 3.4],
@@ -426,8 +435,8 @@ export const DEFAULT_ACTIVE_SCENARIO: GameScenario = DEFAULT_GAME_SCENARIOS[0] ?
   timeLimitSeconds: 45,
   status: 'playable',
   difficultyLabel: 'Einstieg',
-  visualTheme: 'training',
-  collectiblePalette: 'gold',
+  visualTheme: 'welt1-gemeindeplatz',
+  collectiblePalette: 'signal',
   collectibleLabel: 'Impuls',
   collectiblePositions: [
     [3, 1.1, 2],
