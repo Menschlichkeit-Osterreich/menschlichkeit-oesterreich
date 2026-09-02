@@ -18,5 +18,7 @@ FROM nginx:alpine@sha256:7e89aa6cabfc80f566b1b77b981f4bb98413bd2d513ca9a30f63fe5
 COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1
+RUN adduser -D -u 1000 appuser && chown -R 1000:1000 /usr/share/nginx/html
+USER 1000
 CMD ["nginx", "-g", "daemon off;"]
 
