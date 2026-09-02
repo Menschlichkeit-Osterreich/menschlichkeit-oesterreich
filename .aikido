@@ -1,0 +1,55 @@
+# Aikido Repository-Konfiguration
+#
+# Zweck: Aikido-Scanscope an die pathZones aus .github/ai-registry.json angleichen.
+# Ohne diese Datei erzeugt Aikido AutoFix-PRs gegen Zonen, die laut Repo-Governance
+# keine Entwicklungsziele sind (legacy_read_only, special_experimental, Vendor-Trees).
+#
+# ============================================================================
+# WARNUNG - Pfad-Matching ist reine String-Inklusion. Keine Wildcards, keine Regex.
+# Ein Wert wird ausgeschlossen, sobald er IRGENDWO im vollen Pfad vorkommt.
+# ============================================================================
+#
+# Deshalb sind folgende Kurzformen VERBOTEN:
+#
+#   services/   -> traefe auch apps/api/app/services/, apps/api/src/services/
+#                  und apps/website/src/services/. Das ist aktiver Payment- und
+#                  Frontend-Code. Immer services/plesk-mail-api/ schreiben.
+#
+#   web/        -> traefe auch apps/crm/web/ und apps/crm/httpdocs/web/.
+#                  Das ist das aktive Drupal-10-CRM. Der Legacy-Ordner web/
+#                  bleibt daher bewusst im Scan; er laesst sich mit
+#                  String-Inklusion nicht kollisionsfrei ausschliessen.
+#
+# Ausgeschlossene Pfade bleiben durch die CI-Gates abgedeckt: Trivy Filesystem,
+# Gitleaks Current Tree und Gitleaks History laufen weiterhin repo-weit.
+
+exclude:
+  paths:
+    # legacy_read_only (.github/ai-registry.json) - historische Root-Snapshots,
+    # letzter fachlicher Commit Mai 2026, kein aktives Entwicklungsziel.
+    - api.menschlichkeit-oesterreich.at/
+    - crm.menschlichkeit-oesterreich.at/
+    - new/
+    - services/plesk-mail-api/
+
+    # special_experimental - vendorter Upstream-Tree. Aenderungen hier erzeugen
+    # Drift gegen die Originalquelle statt Sicherheitsgewinn.
+    - codacy-analysis-cli-master/
+
+    # Vendorte Agent-Skills (Anthropic). Keine Laufzeitkomponente des Produkts.
+    - .agents/
+
+autofix:
+  # Verhindert, dass zwei AutoFix-PRs dieselbe Datei am selben Ende aendern.
+  # Genau das ist bei PR #577 und #580 passiert: beide haengten an
+  # services/plesk-mail-api/requirements.txt an, beide ohne abschliessenden
+  # Newline - der zweite Merge haette zwangslaeufig konfliktet.
+  single_pr_for_repo: true
+
+  pr_config:
+    branch_prefix: 'fix/aikido-security-'
+    title_prefix: '[Aikido] '
+    labels: 'security,$AUTOFIX_TYPE'
+    # Kein auto_merge: Sicherheitsaenderungen laufen ueber den regulaeren
+    # Review-Pfad auf main, wie in AGENTS.md festgelegt.
+    auto_merge: false
