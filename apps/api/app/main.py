@@ -47,6 +47,7 @@ from .routers import (
     queue,
     alerts,
     game,
+    suppression,
 )
 from .democracy.router import router as democracy_router
 from .audit import ensure_audit_table, write_audit_event
@@ -381,6 +382,7 @@ app.include_router(privacy.router, prefix="/api", tags=["DSGVO"])
 app.include_router(payments.router, prefix="/api", tags=["Payments"])
 app.include_router(internal.router, prefix="/api", tags=["Interne Integrationen"])
 app.include_router(make_outbox.router, prefix="/api", tags=["Make Outbox"])
+app.include_router(suppression.router, prefix="/api", tags=["Sperren"])
 app.include_router(queue.router, prefix="/api", tags=["Queue"])
 app.include_router(alerts.router, prefix="/api", tags=["Alerts"])
 app.include_router(game.router, prefix="/api", tags=["Game"])
