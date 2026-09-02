@@ -19,6 +19,10 @@ RUN npm run build
 # nginx-Image lauscht auf 80 und liess den Healthcheck zwangslaeufig scheitern.
 FROM nginxinc/nginx-unprivileged:alpine@sha256:d9083fe47768377ef55dedafd67d4da7c2f2bc2bece7554954f29359deb0dce9 AS runner
 COPY --from=build /app/dist /usr/share/nginx/html
+# Entspricht dem Default des Base-Image (nginx, UID 101). Explizit gesetzt, damit
+# der Non-Root-Betrieb aus dem Dockerfile hervorgeht und nicht erst aus den
+# Image-Metadaten erschlossen werden muss.
+USER 101
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 CMD wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1
 CMD ["nginx", "-g", "daemon off;"]
