@@ -1380,3 +1380,112 @@ paths:
           description: SEPA-Batch angelegt
         '400': { description: Ungültige Mandats-IDs oder Datum }
         '403': { description: Nur für Administratoren }
+
+  /api/internal/suppression/commit:
+    post:
+      tags: [Sperren]
+      summary: Sperre verbindlich festschreiben
+      description: |
+        Muss erfolgreich sein, bevor ein Vorsystem eine eingehende
+        Abmeldung als verarbeitet markiert. Der Aufruf schreibt Eintrag,
+        unveraenderbaren Auditsatz und Outbox-Ereignis in einer Transaktion.
+        Eine erneut zugestellte Abmeldung wird einmal protokolliert und
+        erzeugt kein zweites Outbox-Ereignis.
+
+        Signatur wie bei allen /api/internal-Endpunkten: Bearer-Token,
+        X-API-Key oder HMAC-SHA256 in X-Webhook-Signature.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [realm, identity, source_system, source_event_id]
+              properties:
+                realm: { type: string, enum: [MOE, BOOK, POLITICS_LAIMER, POLITICS_BASIS] }
+                identity: { type: string, description: 'E-Mail-Adresse, unnormalisiert' }
+                source_system: { type: string, example: 'make:7187291' }
+                source_event_id: { type: string, example: 'gmail:18f0c9' }
+                evidence_reference: { type: string, nullable: true, description: 'Verweis auf den Beleg, kein Inhalt' }
+                detected_at: { type: string, format: date-time, nullable: true }
+      responses:
+        '200':
+          description: Sperre committed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  committed: { type: boolean }
+                  suppression_id: { type: string, format: uuid }
+                  realm: { type: string }
+                  normalized_identity: { type: string }
+                  created: { type: boolean, description: 'true beim ersten Commit dieser Identitaet' }
+                  duplicate_delivery: { type: boolean, description: 'true bei erneuter Zustellung desselben Ereignisses' }
+                  first_committed_at: { type: string, format: date-time }
+                  last_confirmed_at: { type: string, format: date-time }
+        '401': { description: Signatur fehlt oder ungueltig }
+        '422':
+          description: Nicht verwertbare Eingabe. Die Nachricht gilt als nicht verarbeitet.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+        '503': { description: Interne Signaturpruefung nicht konfiguriert }
+
+  /api/internal/suppression/check:
+    get:
+      tags: [Sperren]
+      summary: Sperrstatus vor dem Versand pruefen
+      security: []
+      parameters:
+        - in: query
+          name: realm
+          required: true
+          schema: { type: string, enum: [MOE, BOOK, POLITICS_LAIMER, POLITICS_BASIS] }
+        - in: query
+          name: identity
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Sperrstatus
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  realm: { type: string }
+                  normalized_identity: { type: string }
+                  suppressed: { type: boolean }
+        '401': { description: Signatur fehlt oder ungueltig }
+
+  /api/internal/version:
+    get:
+      tags: [Interne Integrationen]
+      summary: Laufende Version und Schema-Stand
+      description: |
+        Meldet, was hier tatsaechlich deployed ist, nicht was im Repository
+        steht. Die Werte stammen aus dem Release-Marker .deploy_release, den
+        scripts/deploy.sh schreibt; die Schema-Revision kommt aus der
+        Datenbank, damit ein nicht migriertes Deployment sichtbar wird.
+
+        Bewusst ohne Authentifizierung: enthaelt keine personenbezogenen oder
+        betrieblichen Daten, und ein Nachweisendpunkt, der nur mit Geheimnis
+        funktioniert, wird nicht geprueft.
+      security: []
+      responses:
+        '200':
+          description: Laufzeitinformationen
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  service: { type: string, example: moe-api }
+                  git_sha: { type: string, example: 0f8247a }
+                  build_id: { type: string }
+                  deployed_at: { type: string, nullable: true }
+                  deployed_by: { type: string, nullable: true }
+                  schema_revision: { type: string, nullable: true, example: '010' }
+                  environment: { type: string, example: production }

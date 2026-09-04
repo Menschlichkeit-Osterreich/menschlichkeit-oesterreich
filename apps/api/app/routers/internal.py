@@ -10,6 +10,7 @@ from fastapi import APIRouter, HTTPException, Request, status
 from ..secrets_provider import get_secret
 
 from ..db import execute, fetch, fetchrow
+from ..runtime_version import runtime_version
 from ..schemas.internal import (
     InternalMailSendRequest,
     InternalPaymentConfirmedRequest,
@@ -416,3 +417,22 @@ async def compat_receipt_trigger(payload: dict, request: Request):
 async def compat_contacts_sync(payload: dict, request: Request):
     await _require_internal_signature(request)
     return payload
+
+
+@router.get("/internal/version", summary="Laufende Version und Schema-Stand")
+async def internal_version():
+    """Report what is deployed here, not what the repository contains.
+
+    Left unauthenticated on purpose: it carries no personal or operational
+    data, and a traceability endpoint that only works with a secret is one
+    nobody checks. The schema revision comes from the database rather than the
+    migration folder, so an unmigrated deployment is visible instead of implied.
+    """
+    schema_revision = None
+    try:
+        row = await fetchrow("SELECT version_num FROM alembic_version LIMIT 1")
+        if row is not None:
+            schema_revision = row["version_num"]
+    except Exception:  # noqa: BLE001 - a missing table is an answer, not a crash
+        schema_revision = None
+    return runtime_version(schema_revision=schema_revision)

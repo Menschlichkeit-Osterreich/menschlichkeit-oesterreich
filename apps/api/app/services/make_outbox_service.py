@@ -11,7 +11,7 @@ from typing import Any
 
 from ..db import fetch, transaction
 
-MAKE_EVENT_TYPES = ("donation.recorded", "payment.failed")
+MAKE_EVENT_TYPES = ("donation.recorded", "payment.failed", "suppression.committed")
 
 # The API must not pass the raw outbox JSON to Make.  Payment payloads often
 # contain provider metadata; this allowlist is intentionally small and has no
@@ -33,6 +33,21 @@ PAYLOAD_FIELDS: dict[str, tuple[str, ...]] = {
         "gateway_payment_id",
         "civicrm_contact_id",
         "erpnext_payment_entry_id",
+    ),
+    # The one allowlist entry that deliberately carries an identifier.  A
+    # suppression that reaches the mailers without saying whom to suppress is
+    # not a suppression; data minimisation must not defeat the purpose of the
+    # event.  Nothing else from the originating message travels with it.
+    "suppression.committed": (
+        "schema_version",
+        "idempotency_key",
+        "suppression_id",
+        "realm",
+        "normalized_identity",
+        "identity_kind",
+        "status",
+        "source_system",
+        "source_event_id",
     ),
     "payment.failed": (
         "schema_version",
