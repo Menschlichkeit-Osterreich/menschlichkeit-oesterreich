@@ -1,11 +1,10 @@
 name: deploy-forum
 
 on:
+  # Manuell/gated only: Die Produktionsumgebung (forum-production) darf NICHT
+  # allein durch einen Push auf main live schreiben (Contract 5.1). Auslösung
+  # ausschließlich über workflow_dispatch bzw. eine explizite Promotion.
   workflow_dispatch: {}
-  push:
-    branches: [main]
-    paths:
-      - 'web/forum/**'
 
 permissions:
   contents: read
@@ -24,12 +23,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
-      - name: SSH known_hosts aus Secret einrichten
+      # PLESK-Verbindungssecrets kommen aus Bitwarden Secrets Manager (BSM),
+      # nicht mehr als direkt duplizierte GitHub-Environment-Secrets (5.3).
+      # Profil deploy-forum liefert PLESK_HOST/PLESK_PORT/REMOTE_USER/
+      # PLESK_SSH_PRIVATE_KEY/PLESK_KNOWN_HOSTS in die Job-Umgebung.
+      - name: BSM-Secrets in Job-Umgebung laden
+        uses: ./.github/actions/bsm-env-inject
+        with:
+          profile: deploy-forum
+          access_token: ${{ secrets.BW_ACCESS_TOKEN }}
+
+      - name: SSH known_hosts aus BSM einrichten
         run: |
           mkdir -p ~/.ssh
-          # PLESK_KNOWN_HOSTS muss im GitHub-Environment 'forum-production' abgelegt sein.
-          # Erzeugen via: ssh-keyscan -p <port> <host> auf vertrauenswürdigem System.
-          printf '%s\n' "${{ secrets.PLESK_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          # StrictHostKeyChecking bleibt aktiv; kein ssh-keyscan als Vertrauensersatz.
+          printf '%s\n' "${PLESK_KNOWN_HOSTS}" >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
       - name: Rsync zu Plesk
@@ -37,19 +45,22 @@ jobs:
         uses: burnett01/rsync-deployments@ea6bf48e0a41f53afbe82bfdc6a7cae52efff86b # 6.0.0
         with:
           switches: -avzr --delete
+          # Quelle bleibt web/forum/: der kanonische apps/forum/-Pfad (5.3)
+          # existiert im Repository noch nicht; die Relokation ist ein separater
+          # Follow-up und darf den Deploy nicht auf ein leeres Verzeichnis zeigen.
           path: web/forum/
           remote_path: /var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/forum/httpdocs/
-          remote_host: ${{ secrets.PLESK_HOST }}
-          remote_user: ${{ secrets.REMOTE_USER }}
-          remote_key: ${{ secrets.PLESK_SSH_PRIVATE_KEY }}
+          remote_host: ${{ env.PLESK_HOST }}
+          remote_user: ${{ env.REMOTE_USER }}
+          remote_key: ${{ env.PLESK_SSH_PRIVATE_KEY }}
 
       - name: Post-Deploy (Berechtigungen + Cache-Flush)
         # appleboy/ssh-action SHA-gepinnt
         uses: appleboy/ssh-action@2ead5e36573f08b82fbfce1504f1a3b3b6a9b970 # v1.2.2
         with:
-          host: ${{ secrets.PLESK_HOST }}
-          username: ${{ secrets.REMOTE_USER }}
-          key: ${{ secrets.PLESK_SSH_PRIVATE_KEY }}
+          host: ${{ env.PLESK_HOST }}
+          username: ${{ env.REMOTE_USER }}
+          key: ${{ env.PLESK_SSH_PRIVATE_KEY }}
           script: |
             set -e
             FORUM_ROOT=/var/www/vhosts/menschlichkeit-oesterreich.at/subdomains/forum/httpdocs

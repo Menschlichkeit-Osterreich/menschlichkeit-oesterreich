@@ -166,6 +166,7 @@ runs:
             required_keys=(
               PLESK_HOST
               PLESK_PORT
+              REMOTE_USER
               PLESK_SSH_PRIVATE_KEY
               PLESK_KNOWN_HOSTS
             )
