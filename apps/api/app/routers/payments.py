@@ -91,8 +91,12 @@ async def _send_payment_failed_ops_alert(
                     headers={"Content-Type": "application/json"},
                 )
         except Exception as e:
-            # Log but don't block: Slack delivery is informational, not critical
-            print(f"Slack alert delivery failed: {e}")
+            # DSGVO/Secret-Hygiene: httpx-Exceptions tragen die Request-URL —
+            # also die Slack-Webhook-URL (ein Secret) — in ihrem str(). Daher
+            # niemals den Exception-Text loggen, nur die Fehlerklasse.
+            logger.warning(
+                "slack_alert_delivery_failed | error=%s", type(e).__name__
+            )
 
 
 @router.post("/payments/stripe/intent")
@@ -252,7 +256,12 @@ async def _dispatch_post_commit_effects(
                         "currency": side_effects["currency"],
                         "purpose": side_effects.get("purpose") or "",
                         "date": side_effects.get("donation_date") or "",
-                        "receipt_eligible": True,
+                        # Muss dem DB-/Outbox-Vertrag folgen: Spenden werden mit
+                        # receipt_eligible=FALSE verbucht (siehe donation_service
+                        # und stripe_webhook_service). Kein abweichendes TRUE in
+                        # der Bestätigungsmail, solange die Belegfreigabe fachlich
+                        # nicht entschieden ist.
+                        "receipt_eligible": False,
                     },
                 },
                 entity_type="donation",
